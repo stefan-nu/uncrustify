@@ -9,6 +9,7 @@
  */
 #include "output.h"
 #include "uncrustify_types.h"
+#include "uncrustify_version.h"
 #include "prototypes.h"
 #include "chunk_list.h"
 #include "unc_ctype.h"
@@ -87,6 +88,8 @@ static void add_char(UINT32 ch)
       if ((ch == '\t') && (cpd.last_char == ' '))
       {
          size_t endcol = next_tab_column(cpd.column);
+
+ 
          while (cpd.column < endcol)
          {
             add_char(' ');
@@ -984,6 +987,11 @@ static chunk_t *output_comment_c(chunk_t *first)
  */
 static chunk_t *output_comment_cpp(chunk_t *first)
 {
+   if (first == NULL)
+   {
+      return(first);
+   }
+
    cmt_reflow cmt;
 
    output_cmt_start(cmt, first);
@@ -993,8 +1001,12 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (cpd.settings[UO_sp_cmt_cpp_doxygen].b)           // special treatment for doxygen style comments (treat as unity)
    {
       const char *sComment = first->text();
-      bool       grouping  = (sComment[2] == '@');
-      size_t     brace     = 3;
+      if (sComment == NULL)
+      {
+         return(first);
+      }
+      bool grouping = (sComment[2] == '@');
+      int  brace    = 3;
       if ((sComment[2] == '/') || (sComment[2] == '!')) // doxygen style found!
       {
          leadin += sComment[2];                         // at least one additional char (either "///" or "//!")
