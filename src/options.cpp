@@ -1527,6 +1527,8 @@ void register_options(void)
                   "Determines weight of setter type (setter=) (Obj-C)");
    unc_add_option("mod_sort_oc_property_nullability_weight", UO_mod_sort_oc_property_nullability_weight, AT_NUM,
                   "Determines weight of nullability type (nullable/nonnull) (Obj-C)");
+   unc_add_option("mod_enum_last_comma", UO_mod_enum_last_comma, AT_IARF,
+                  "Will add or remove the comma after the last item in an enum.");
 
    unc_begin_group(UG_preprocessor, "Preprocessor options");
    unc_add_option("pp_indent", UO_pp_indent, AT_IARF,
