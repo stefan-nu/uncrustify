@@ -26,8 +26,8 @@
  */
 enum chunk_nav_t
 {
-   CNAV_ALL,
-   CNAV_PREPROC,
+   CNAV_ALL,	 /** selects all kind of code including preprocessor parts */
+   CNAV_PREPROC, /** selects only preprocessor code parts */
 };
 
 
@@ -39,14 +39,52 @@ chunk_t *chunk_add_before(const chunk_t *pc_in, chunk_t *ref);
 void chunk_del(chunk_t *pc);
 void chunk_move_after(chunk_t *pc_in, chunk_t *ref);
 
+/**
+ * \brief returns the head of a chunk list
+ *
+ * @return pointer to the first chunk
+ */
 chunk_t *chunk_get_head(void);
+
+
+/**
+ * \brief returns the tail of a chunk list
+ *
+ * @return pointer to the last chunk
+ */
 chunk_t *chunk_get_tail(void);
-chunk_t *chunk_get_next(chunk_t *cur, chunk_nav_t nav = CNAV_ALL);
-chunk_t *chunk_get_prev(chunk_t *cur, chunk_nav_t nav = CNAV_ALL);
+
+
+/**
+ * \brief returns the next chunk in a list of chunks
+ *
+ * @return pointer to next chunk or NULL if no chunk was found
+ */
+chunk_t *chunk_get_next(chunk_t    *cur,	       /**< [in] chunk to use as start point */
+                        chunk_nav_t nav = CNAV_ALL /**< [in] CNAV_ALL=consider all code,
+                                                             CNAV_PREPROC=consider only preprocessor code */
+                        );
+
+
+/**
+ * \brief returns the previous chunk in a list of chunks
+ *
+ * @return pointer to previous chunk or NULL if no chunk was found
+ */
+chunk_t *chunk_get_prev(chunk_t    *cur,	       /**< [in] chunk to use as start point */
+                        chunk_nav_t nav = CNAV_ALL /**< [in] CNAV_ALL=consider all code,
+                                                             CNAV_PREPROC=consider only preprocessor code */
+                        );
+
 
 void chunk_swap(chunk_t *pc1, chunk_t *pc2);
+
+
 void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2);
+
+
 chunk_t *chunk_first_on_line(chunk_t *pc);
+
 
 chunk_t *chunk_get_next_nl(chunk_t *cur, chunk_nav_t nav = CNAV_ALL);
 chunk_t *chunk_get_next_nc(chunk_t *cur, chunk_nav_t nav = CNAV_ALL);

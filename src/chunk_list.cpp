@@ -126,7 +126,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, chunk_nav_t nav)
       }
       return(pc);
    }
-   /* Not in a preproc, skip any proproc */
+   /* Not in a preproc, skip any preproc */
    while ((pc != NULL) && (pc->flags & PCF_IN_PREPROC))
    {
       pc = g_cl.GetPrev(pc);

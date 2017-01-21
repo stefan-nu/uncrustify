@@ -117,10 +117,10 @@ void uncrustify_file(const file_mem &fm, FILE *pfout, const char *parsed_file, b
 static void do_source_file(const char *filename_in, const char *filename_out, const char *parsed_file, bool no_backup, bool keep_mtime);
 
 
-static void add_file_header();
+static void add_file_header(void);
 
 
-static void add_file_footer();
+static void add_file_footer(void);
 
 
 static void add_func_header(c_token_t type, file_mem &fm);
@@ -1346,7 +1346,7 @@ static void do_source_file(const char *filename_in,
 } // do_source_file
 
 
-static void add_file_header()
+static void add_file_header(void)
 {
    if (!chunk_is_comment(chunk_get_head()))
    {
@@ -1356,7 +1356,7 @@ static void add_file_header()
 }
 
 
-static void add_file_footer()
+static void add_file_footer(void)
 {
    chunk_t *pc = chunk_get_tail();
 
@@ -1585,9 +1585,7 @@ static void add_msg_header(c_token_t type, file_mem &fm)
 
 static void uncrustify_start(const deque<int> &data)
 {
-   /**
-    * Parse the text into chunks
-    */
+   /* Parse the text into chunks */
    tokenize(data, NULL);
 
    cpd.unc_stage = US_HEADER;
@@ -1678,6 +1676,7 @@ void uncrustify_file(const file_mem &fm, FILE *pfout,
       av = AV_IGNORE;
       break;
    }
+
    if (av == AV_REMOVE)
    {
       cpd.bom = false;
