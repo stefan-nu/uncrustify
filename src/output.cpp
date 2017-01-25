@@ -193,7 +193,7 @@ static void output_to_column(size_t column, bool allow_tabs)
       while (next_column <= column)
       {
          add_text("\t");
-         next_column = next_tab_column(cpd.column);
+         nc = next_tab_column(cpd.column);
       }
    }
    /* space out the final bit */
