@@ -3331,9 +3331,6 @@ static chunk_t *skip_expression(chunk_t *start)
 }
 
 
-/**
- * help function for mark_variable_definition...
- */
 bool go_on(chunk_t *pc, chunk_t *start)
 {
    if ((pc == NULL) ||

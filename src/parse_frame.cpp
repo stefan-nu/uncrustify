@@ -32,9 +32,6 @@ void pf_log_all(log_sev_t logsev);
 static void pf_copy_2nd_tos(struct parse_frame *pf);
 
 
-/**
- * Logs one parse frame
- */
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
 {
    LOG_FMT(logsev, "[%s] BrLevel=%d Level=%d PseTos=%zu\n",

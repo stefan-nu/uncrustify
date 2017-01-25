@@ -1478,7 +1478,7 @@ static CmtAlignType_t get_comment_align_type(chunk_t *cmt)
 }
 
 
-chunk_t *align_trailing_comments(chunk_t *start)
+static chunk_t *align_trailing_comments(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
    size_t         min_col  = 0;

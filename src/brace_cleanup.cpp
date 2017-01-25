@@ -1039,7 +1039,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 } // insert_vbrace
 
 
-bool close_statement(parse_frame_t *frm, chunk_t *pc)
+static bool close_statement(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
    chunk_t *vbc = pc;

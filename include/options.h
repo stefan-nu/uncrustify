@@ -936,6 +936,8 @@ string tokenpos_to_string(tokenpos_e tokenpos);
 
 
 string op_val_to_string(argtype_e argtype, op_val_t op_val);
+bool is_path_relative(const char *path);
+const option_map_value *unc_find_option(const char *name);
 
 
 typedef map<uncrustify_options, option_map_value>::iterator   option_name_map_it;
