@@ -10,7 +10,6 @@
 
 #include "brace_cleanup.h"
 #include "uncrustify_types.h"
-#include "prototypes.h"
 #include "chunk_list.h"
 #include <cstdio>
 #include <cstdlib>
@@ -21,6 +20,21 @@
 #include "parse_frame.h"
 #include "keywords.h"
 
+
+static size_t preproc_start(parse_frame_t *frm, chunk_t *pc);
+
+
+static void print_stack(log_sev_t logsev, const char *str, parse_frame_t *frm, chunk_t *pc);
+
+
+/**
+ * pc is a CT_WHILE.
+ * Scan backwards to see if we find a brace/vbrace with the parent set to CT_DO
+ */
+static bool maybe_while_of_do(chunk_t *pc);
+
+
+static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc, brstage_e stage, const char *logtext);
 
 /*
  * the value of after determines:
@@ -138,12 +152,6 @@ static void print_stack(log_sev_t logsev, const char *str,
 }
 
 
-/**
- * Scans through the whole list and does stuff.
- * It has to do some tricks to parse preprocessors.
- *
- * TODO: This can be cleaned up and simplified - we can look both forward and backward!
- */
 void brace_cleanup(void)
 {
    LOG_FUNC_ENTRY();
@@ -213,10 +221,6 @@ void brace_cleanup(void)
 } // brace_cleanup
 
 
-/**
- * pc is a CT_WHILE.
- * Scan backwards to see if we find a brace/vbrace with the parent set to CT_DO
- */
 static bool maybe_while_of_do(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();

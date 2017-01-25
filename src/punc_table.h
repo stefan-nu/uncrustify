@@ -1,10 +1,11 @@
 /**
- * @file punctuators.h
+ * @file punc_table.h
  * Automatically generated
  */
 
-#ifndef PUNCTUATORS_H_INCLUDED
-#define PUNCTUATORS_H_INCLUDED
+#ifndef PUNC_TABLE_H_INCLUDED
+#define PUNC_TABLE_H_INCLUDED
+
 
 static const lookup_entry_t punc_table[] =
 {
@@ -91,4 +92,4 @@ static const lookup_entry_t punc_table[] =
    { '~',  0,  0, &symbols2[31] },   //  80: '~~'
 };
 
-#endif /* PUNCTUATORS_H_INCLUDED */
+#endif /* PUNC_TABLE_H_INCLUDED */

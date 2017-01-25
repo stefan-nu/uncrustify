@@ -11,7 +11,6 @@
 
 #include "uncrustify_types.h"
 #include "ListManager.h"
-#include "prototypes.h"
 #include "uncrustify.h"
 #include "space.h"
 
