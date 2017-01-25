@@ -12,7 +12,7 @@
 
 /**
  * This is an enum of all the different chunks/tokens/elements that the
- * program can work with.  The parser and scanner assigns one of these to
+ * program can work with. The parser and scanner assigns one of these to
  * each chunk/token.
  *
  * The script 'make_token_names.sh' creates token_names.h, so be sure to run

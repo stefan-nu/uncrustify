@@ -1852,6 +1852,19 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 } // parse_next
 
 
+/**
+ * \brief Parse the text into chunks
+ *
+ * This function parses or tokenizes the whole buffer into a list.
+ * It has to do some tricks to parse preprocessors.
+ *
+ * If output_text() were called immediately after, two things would happen:
+ *  - trailing whitespace are removed.
+ *  - leading space & tabs are converted to the appropriate format.
+ *
+ * All the tokens are inserted before ref. If ref is NULL, they are inserted
+ * at the end of the list.  Line numbers are relative to the start of the data.
+ */
 void tokenize(const deque<int> &data, chunk_t *ref)
 {
    tok_ctx       ctx(data);

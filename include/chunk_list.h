@@ -70,33 +70,44 @@ void chunk_del(chunk_t *pc);
  */
 void chunk_move_after(chunk_t *pc_in, chunk_t *ref);
 
-
 /**
- * get the first chunk in a chunk list
+ * \brief returns the head of a chunk list
+ *
+ * @return pointer to the first chunk
  */
 chunk_t *chunk_get_head(void);
 
 
 /**
- * get the last chunk in a chunk list
+ * \brief returns the tail of a chunk list
+ *
+ * @return pointer to the last chunk
  */
 chunk_t *chunk_get_tail(void);
 
 
-/** provide the next chunk in a chunk list */
-chunk_t *chunk_get_next(chunk_t *cur, nav_t nav = CNAV_ALL);
-
-
-/** provide the previous chunk in a chunk list */
-chunk_t *chunk_get_prev(chunk_t *cur, nav_t nav = CNAV_ALL);
+/**
+ * \brief returns the next chunk in a list of chunks
+ *
+ * @return pointer to next chunk or NULL if no chunk was found
+ */
+chunk_t *chunk_get_next(chunk_t    *cur,	       /**< [in] chunk to use as start point */
+                        chunk_nav_t nav = CNAV_ALL /**< [in] CNAV_ALL=consider all code,
+                                                             CNAV_PREPROC=consider only preprocessor code */
+                        );
 
 
 /**
- * Swaps two chunks
+ * \brief returns the previous chunk in a list of chunks
  *
- * @param pc1  The first chunk
- * @param pc2  The second chunk
+ * @return pointer to previous chunk or NULL if no chunk was found
  */
+chunk_t *chunk_get_prev(chunk_t    *cur,	       /**< [in] chunk to use as start point */
+                        chunk_nav_t nav = CNAV_ALL /**< [in] CNAV_ALL=consider all code,
+                                                             CNAV_PREPROC=consider only preprocessor code */
+                        );
+
+
 void chunk_swap(chunk_t *pc1, chunk_t *pc2);
 
 

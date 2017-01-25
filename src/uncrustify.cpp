@@ -1603,9 +1603,7 @@ static void add_msg_header(c_token_t type, file_mem &fm)
 
 static void uncrustify_start(const deque<int> &data)
 {
-   /**
-    * Parse the text into chunks
-    */
+   /* Parse the text into chunks */
    tokenize(data, NULL);
 
    cpd.unc_stage = US_HEADER;
@@ -1696,6 +1694,7 @@ void uncrustify_file(const file_mem &fm, FILE *pfout,
       av = AV_IGNORE;
       break;
    }
+
    if (av == AV_REMOVE)
    {
       cpd.bom = false;
