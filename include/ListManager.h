@@ -40,24 +40,46 @@ public:
    }
 
 
+   /**
+    * \brief return the first element of the linked list
+    *
+    * @return pointer to first element or NULL if list is empty
+    */
    T *GetHead()
    {
       return(first);
    }
 
 
+   /**
+    * \brief return the last element of the linked list
+    *
+    * @return pointer to last element or NULL if list is empty
+    */
    T *GetTail()
    {
       return(last);
    }
 
 
+   /**
+    *  \brief return the next element of the linked list
+    *
+    * @param [in] ref pointer to current list element
+    * @return pointer to next element or NULL if no next element exists
+    */
    T *GetNext(T *ref)
    {
       return((ref != NULL) ? ref->next : NULL);
    }
 
 
+   /**
+    * \brief return the previous element of the linked list
+    *
+    * @param [in] ref pointer to current list element
+    * @return pointer to previous element or NULL if no previous element exists
+    */
    T *GetPrev(T *ref)
    {
       return((ref != NULL) ? ref->prev : NULL);
@@ -74,6 +96,11 @@ public:
    }
 
 
+   /**
+    * \brief remove an element from a linked list
+    *
+    * @param [in] obj list element to remove
+    */
    void Pop(T *obj)
    {
       if (obj != NULL)

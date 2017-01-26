@@ -14,7 +14,6 @@
 #include "align_stack.h"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include "unc_ctype.h"
 #include "uncrustify.h"
 #include "indent.h"
@@ -131,6 +130,9 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 static chunk_t *align_var_def_brace(chunk_t *pc, size_t span, size_t *nl_count);
 
 
+static CmtAlignType_t get_comment_align_type(chunk_t *cmt);
+
+
 /**
  * For a series of lines ending in a comment, align them.
  * The series ends when more than align_right_cmt_span newlines are found.
@@ -155,7 +157,7 @@ static chunk_t *align_trailing_comments(chunk_t *start);
  * @param idx  The index to start shifting
  * @param num  The number of columns to shift
  */
-void ib_shift_out(size_t idx, size_t num);
+static void ib_shift_out(size_t idx, size_t num);
 
 
 /**
@@ -221,7 +223,7 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks);
 static void align_same_func_call_params(void);
 
 
-chunk_t *step_back_over_member(chunk_t *pc);
+static chunk_t *step_back_over_member(chunk_t *pc);
 
 
 /**
@@ -1112,7 +1114,7 @@ static void align_same_func_call_params(void)
 } // align_same_func_call_params
 
 
-chunk_t *step_back_over_member(chunk_t *pc)
+static chunk_t *step_back_over_member(chunk_t *pc)
 {
    chunk_t *tmp;
 
@@ -1563,7 +1565,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
 } // align_trailing_comments
 
 
-void ib_shift_out(size_t idx, size_t num)
+static void ib_shift_out(size_t idx, size_t num)
 {
    while (idx < cpd.al_cnt)
    {

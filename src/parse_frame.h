@@ -10,11 +10,6 @@
 
 #include "uncrustify_types.h"
 
-/**
- * Logs the entire parse frame stack
- */
-void pf_log_all(log_sev_t logsev);
-
 
 /**
  * Copies src to dst.

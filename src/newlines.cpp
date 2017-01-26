@@ -3118,7 +3118,7 @@ void newlines_functions_remove_extra_blank_lines(void)
    LOG_FUNC_ENTRY();
 
    const size_t nl_max_blank_in_func = cpd.settings[UO_nl_max_blank_in_func].u;
-   if (nl_max_blank_in_func <= 0)
+   if (nl_max_blank_in_func == 0)
    {
       return;
    }

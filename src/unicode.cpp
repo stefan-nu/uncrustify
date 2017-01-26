@@ -9,7 +9,6 @@
 #include "uncrustify.h"
 #include "uncrustify_types.h"
 #include "unc_ctype.h"
-#include <cstring>
 #include <cstdlib>
 
 

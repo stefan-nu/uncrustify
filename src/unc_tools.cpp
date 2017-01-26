@@ -31,10 +31,6 @@ void prot_the_line(int theLine, unsigned int actual_line)
          {
             LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");
          }
-         else if (pc->type == CT_VBRACE_OPEN)    /* \todo this is the same as line 28 */
-         {                                       /* shall it be removed or should it */
-            LOG_FMT(LGUY, "<CT_VBRACE_OPEN>\n"); /* be changed to something else? */
-         }
          else if (pc->type == CT_SPACE)
          {
             LOG_FMT(LGUY, "<CT_SPACE>\n");

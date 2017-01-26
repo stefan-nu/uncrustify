@@ -137,6 +137,9 @@ chunk_t *chunk_first_on_line(chunk_t *pc);
 chunk_t *chunk_get_next_nl(chunk_t *cur, nav_t nav = CNAV_ALL);
 
 
+/**
+ * Gets the next non-comment chunk
+ */
 chunk_t *chunk_get_next_nc(chunk_t *cur, nav_t nav = CNAV_ALL);
 
 

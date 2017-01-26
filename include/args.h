@@ -19,17 +19,19 @@
 class Args
 {
 protected:
-   int   m_count;
-   char  **m_values;
-   UINT8 *m_used;      /* array of bits */
+   int   m_count;       /**< number of command line arguments */
+   char  **m_values;    /**< pointer array to each argument */
+   UINT8 *m_used;       /**< bit array with one flag per argument */
+
+   static size_t NumberOfBits(const int argc);
 
 public:
    /**
     * Initializes the argument library.
     * This keeps a reference to argv, so don't change it.
     *
-    * @param argc The argc that was passed to main()
-    * @param argv The argv that was passed to main()
+    * @param argc number of command line parameter passed to main()
+    * @param argv pointer array to command line parameters
     */
    Args(int argc, char **argv);
 
@@ -70,21 +72,21 @@ public:
     * @param idx     Pointer to the index that you initialized to 0
     * @return        NULL or the pointer to the string.
     */
-   const char *Params(const char *token, int &index);
+   const char *Params(const char *token, size_t &index);
 
    /**
     * Marks an argument as being used.
     *
     * @param idx  The index of the argument
     */
-   void SetUsed(int idx);
+   void SetUsed(size_t idx);
 
    /**
     * Gets whether an argument has been used, by index.
     *
     * @param idx  The index of the argument
     */
-   bool GetUsed(int idx);
+   bool GetUsed(size_t idx);
 
    /**
     * This function retrieves all unused parameters.
@@ -94,7 +96,7 @@ public:
     * @param idx  Pointer to the index
     * @return     NULL (done) or the pointer to the string
     */
-   const char *Unused(int &idx);
+   const char *Unused(size_t &idx);
 
    /**
     * Takes text and splits it into arguments.

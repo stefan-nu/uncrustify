@@ -10,7 +10,6 @@
 #include "chunk_list.h"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include "unc_ctype.h"
 #include "uncrustify.h"
 #include "combine.h"

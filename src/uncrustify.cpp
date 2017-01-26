@@ -15,6 +15,7 @@
 #include "chunk_list.h"
 #include "align.h"
 #include "args.h"
+#include "base_types.h"
 #include "brace_cleanup.h"
 #include "braces.h"
 #include "backup.h"
@@ -169,6 +170,53 @@ static void version_exit(void);
 
 
 static void redir_stdout(const char *output_file);
+
+#ifdef DEFINE_PCF_NAMES
+static const char *pcf_names[] =
+{
+   "IN_PREPROC",        // 0
+   "IN_STRUCT",         // 1
+   "IN_ENUM",           // 2
+   "IN_FCN_DEF",        // 3
+   "IN_FCN_CALL",       // 4
+   "IN_SPAREN",         // 5
+   "IN_TEMPLATE",       // 6
+   "IN_TYPEDEF",        // 7
+   "IN_CONST_ARGS",     // 8
+   "IN_ARRAY_ASSIGN",   // 9
+   "IN_CLASS",          // 10
+   "IN_CLASS_BASE",     // 11
+   "IN_NAMESPACE",      // 12
+   "IN_FOR",            // 13
+   "IN_OC_MSG",         // 14
+   "#15",               // 15
+   "FORCE_SPACE",       // 16
+   "STMT_START",        // 17
+   "EXPR_START",        // 18
+   "DONT_INDENT",       // 19
+   "ALIGN_START",       // 20
+   "WAS_ALIGNED",       // 21
+   "VAR_TYPE",          // 22
+   "VAR_DEF",           // 23
+   "VAR_1ST",           // 24
+   "VAR_INLINE",        // 25
+   "RIGHT_COMMENT",     // 26
+   "OLD_FCN_PARAMS",    // 27
+   "LVALUE",            // 28
+   "ONE_LINER",         // 29
+   "EMPTY_BODY",        // 30
+   "ANCHOR",            // 31
+   "PUNCTUATOR",        // 32
+   "INSERTED",          // 33
+   "LONG_BLOCK",        // 34
+   "OC_BOXED",          // 35
+   "KEEP_BRACE",        // 36
+   "OC_RTYPE",          // 37
+   "OC_ATYPE",          // 38
+   "WF_ENDIF",          // 39
+   "IN_QT_MACRO",       // 40
+};
+#endif
 
 
 /**
@@ -404,7 +452,7 @@ int main(int argc, char *argv[])
 
    if (arg.Present("--decode"))
    {
-      int idx = 1;
+      size_t idx = 1;
       while ((p_arg = arg.Unused(idx)) != NULL)
       {
          log_pcf_flags(LSYS, strtoul(p_arg, NULL, 16));
@@ -455,7 +503,7 @@ int main(int argc, char *argv[])
    set_option_defaults();
 
    /* Load type files */
-   int idx = 0;
+   size_t idx = 0;
    while ((p_arg = arg.Params("-t", idx)) != NULL)
    {
       load_keyword_file(p_arg);
@@ -1438,7 +1486,7 @@ static void add_func_header(c_token_t type, file_mem &fm)
       if (ref->type == CT_FUNC_DEF && ref->parent_type == CT_NONE && ref->next)
       {
          int found_brace = 0;                                   // Set if a close brace is found before a newline
-         while ((ref->type != CT_NEWLINE) && (ref = ref->next)) /* \todo is the assignment of ref wanted here?, better move it to the loop */
+         while ((ref->type != CT_NEWLINE) && (ref = ref->next)) /* \todo move assignment to the loop */
          {
             if (ref->type == CT_BRACE_CLOSE)
             {

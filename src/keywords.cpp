@@ -417,7 +417,8 @@ c_token_t find_keyword_type(const char *word, int len)
    return((p_ret != NULL) ? p_ret->type : CT_WORD);
 }
 
-
+#define BUF_SIZE 256
+#define ARG_ELEMENTS 3
 int load_keyword_file(const char *filename)
 {
    if (filename == NULL)
@@ -434,8 +435,7 @@ int load_keyword_file(const char *filename)
       return(EX_IOERR);
    }
 
-   char buf[256];       /* \todo what is the meaning of 256 ? */
-   char *args[3];       /* \todo what is the meaning of 3 ? */
+   char buf[BUF_SIZE];
    int  line_no = 0;
    while (fgets(buf, sizeof(buf), pf) != NULL)
    {
@@ -448,7 +448,7 @@ int load_keyword_file(const char *filename)
          *ptr = 0;
       }
 
-      char *args[3];
+      char *args[ARG_ELEMENTS];
       int  argc = Args::SplitLine(buf, args, ARRAY_SIZE(args) - 1);
       args[argc] = 0;  /* \todo what is this used for? can this write beyond args? */
 

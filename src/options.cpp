@@ -19,7 +19,6 @@
 #endif
 #include <cstdio>
 #include <cstdlib>
-#include <cerrno>
 #include "unc_ctype.h"
 
 static const char *DOC_TEXT_END =

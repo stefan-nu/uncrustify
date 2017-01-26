@@ -386,11 +386,11 @@ void reindent_line(chunk_t *pc, size_t column)
 static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   static size_t ref = 0;
 
    /* check the stack depth */
    if (frm.pse_tos < (ARRAY_SIZE(frm.pse) - 1))
    {
+      static size_t ref = 0;
       /* Bump up the index and initialize it */
       frm.pse_tos++;
       LOG_FMT(LINDLINE, "%s(%d): line=%zu, pse_tos=%zu, type=%s\n",

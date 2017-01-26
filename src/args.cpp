@@ -20,12 +20,23 @@ Args::Args(int argc, char **argv)
 {
    m_count  = argc;
    m_values = argv;
-   int len = (argc >> 3) + 1;
+   size_t len = NumberOfBits(argc);
    m_used = new UINT8[len];
    if (m_used != NULL)
    {
       memset(m_used, 0, len);
    }
+}
+
+/* \todo add a copy constructor which also copes for coping of m_used */
+
+/**
+ * \brief calculates how many bytes are required to store a given number of bits
+ */
+size_t Args::NumberOfBits(const int argc)
+{
+   const UINT32 bits_per_byte = 8;
+   return ((UINT32)argc / bits_per_byte) + 1;
 }
 
 
@@ -34,7 +45,7 @@ Args::~Args()
    if (m_used != NULL)
    {
       delete[] m_used;
-      m_used = NULL;
+      m_used = (UINT8*)NULL;  /* \todo was deleted before already */
    }
    m_count = 0;
 }
@@ -71,7 +82,7 @@ bool Args::Present(const char *token)
  */
 const char *Args::Param(const char *token)
 {
-   int idx = 0;
+   size_t idx = 0;
 
    return(Params(token, idx));
 }
@@ -83,16 +94,16 @@ const char *Args::Param(const char *token)
  * @param token   The token string to match
  * @return        NULL or the pointer to the string
  */
-const char *Args::Params(const char *token, int &index)
+const char *Args::Params(const char *token, size_t &index)
 {
    if (token == NULL)
    {
-      return(NULL);
+      return(token);
    }
 
    int token_len = (int)strlen(token);
 
-   for (int idx = index; idx < m_count; idx++)
+   for (size_t idx = index; idx < m_count; idx++)
    {
       int arg_len = (int)strlen(m_values[idx]);
 
@@ -121,7 +132,7 @@ const char *Args::Params(const char *token, int &index)
    }
 
    return(NULL);
-} // Args::Params
+}
 
 
 /**
@@ -129,7 +140,7 @@ const char *Args::Params(const char *token, int &index)
  *
  * @param idx  The index of the argument
  */
-bool Args::GetUsed(int idx)
+bool Args::GetUsed(size_t idx)
 {
    if ((m_used != NULL) && (idx >= 0) && (idx < m_count))
    {
@@ -144,7 +155,7 @@ bool Args::GetUsed(int idx)
  *
  * @param idx  The index of the argument
  */
-void Args::SetUsed(int idx)
+void Args::SetUsed(size_t idx)
 {
    if ((m_used != NULL) && (idx >= 0) && (idx < m_count))
    {
@@ -161,7 +172,7 @@ void Args::SetUsed(int idx)
  * @param idx  Pointer to the index
  * @return     NULL (done) or the pointer to the string
  */
-const char *Args::Unused(int &index)
+const char *Args::Unused(size_t &index)
 {
    if (m_used == NULL)
    {
@@ -258,4 +269,4 @@ int Args::SplitLine(char *text, char *args[], int num_args)
    *dest = 0;
 
    return(argc);
-} // Args::SplitLine
+}

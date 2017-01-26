@@ -11,7 +11,6 @@
 #include "ChunkStack.h"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include "unc_ctype.h"
 
 

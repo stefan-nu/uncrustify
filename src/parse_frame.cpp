@@ -20,7 +20,7 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, struct parse_frame *p
 /**
  * Logs the entire parse frame stack
  */
-void pf_log_all(log_sev_t logsev);
+static void pf_log_all(log_sev_t logsev);
 
 
 /**
@@ -62,7 +62,7 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
 }
 
 
-void pf_log_all(log_sev_t logsev)
+static void pf_log_all(log_sev_t logsev)
 {
    LOG_FMT(logsev, "##=- Parse Frame : %d entries\n", cpd.frame_count);
 
@@ -84,10 +84,9 @@ void pf_copy(parse_frame_t *dst, const parse_frame_t *src)
 
 void pf_push(parse_frame_t *pf)
 {
-   static int ref_no = 1;
-
    if (cpd.frame_count < (int)ARRAY_SIZE(cpd.frames))
    {
+      static int ref_no = 1;
       pf_copy(&cpd.frames[cpd.frame_count], pf);
       cpd.frame_count++;
 

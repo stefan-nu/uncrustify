@@ -307,7 +307,9 @@ void tokenize_cleanup(void)
          }
 
          /* handle "version(unittest) { }" vs "unittest { }" */
-         if (prev && (pc->type == CT_UNITTEST) && (prev->type == CT_PAREN_OPEN))
+         if ((prev != NULL) &&
+             (pc->type == CT_UNITTEST) &&
+             (prev->type == CT_PAREN_OPEN))
          {
             set_chunk_type(pc, CT_WORD);
          }
