@@ -10,12 +10,12 @@
 
 // all checks from 0 to 599 are enabled by +w2 
 -e10					// Expecting identifier or other declarator
-+e18					// symbol redefined
+-e18					// symbol redefined
 +e19					// useless declaration
 +e14					// symbol previously defined
 +e26					// expected an expression found const/return
 +e30					// expected an integer constant
-+e31					// redefinition of symbol
+-e31					// redefinition of symbol
 +e32					// field size should not be zero
 +e36					// redefining the storage class of symbol
 +e40					// undeclared identifier
@@ -48,10 +48,10 @@
 +e522					// highest operation lacks side effects
 +e526					// symbol not defined
 +e528					// symbol not referenced
-+e534					// ignoring return value of function
+-e534					// ignoring return value of function
 -e537					// do not warn about repeated inclusion
 +e574					// signed / unsigned mix with relational
-+e578					// Declaration of symbol hides symbol
+-e578					// Declaration of symbol hides symbol
 +e585					// not a valid Trigraph sequence
 
 +e601 					// Expected a type for symbol Symbol
@@ -166,7 +166,7 @@
 -e714 					// external variable not referenced
 +e715 					// Symbol not referenced
 +e716					// while(1) found, allow endless loops
-+e717					// do ... while(0) found
+-e717					// do ... while(0) found
 +e718 					// Symbol undeclared, assumed to return int
 +e719 					// Too many arguments for format
 +e720 					// Boolean test of assignment
@@ -195,7 +195,7 @@
 +e744 					// switch statement has no default
 +e745 					// function has no explicit type or class, int assumed
 +e746 					// call to function not made in the presence of a prototype
-+e747	 				// (noisy when using bool) Significant prototype coercion Type1 to Type2
+-e747	 				// (noisy when using bool) Significant prototype coercion Type1 to Type2
 +e748 					// Symbol is a register variable used with setjmp
 +e749					// check for unused enum values
 +e750					// ignore    unused local macros
@@ -307,7 +307,7 @@
 -e917 					// (noisy) Prototype coercion Type1 to Type2
 +e918 					// Prototype coercion (Context) of pointers
 -e919 					// (noisy) Implicit conversion (Context) Type to Type
-+e920 					// Cast from Type to void
+-e920 					// Cast from Type to void
 +e931 					// Both sides have side effects
 +e932 					// Passing near pointer to library function 'Symbol'
 +e933 					// Passing near pointer to far function (Context)
@@ -353,7 +353,7 @@
 +e1058					// initializing a non-const reference
 +e1062					// template must be either a class or a function
 -e1065					// symbol not declared as "C"
-+e1066					// symbol declared as "C" 
+-e1066					// symbol declared as "C" 
 +e1075					// Ambiguous reference to symbol
 +e1077					// could not evaluate default template parameter			
 +e1086					// do not warn about compount literals

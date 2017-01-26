@@ -34,9 +34,9 @@ dir /s/b %EXC_DIR%\*.lnt		> .\%OUT_DIR%\exceptions.lnt
 rem to check single files activate one of the lines below
 rem dir /s/b %SRC_DIR%\align_stack.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\align.cpp		> .\%OUT_DIR%\files.lnt
-dir /s/b %SRC_DIR%\args.cpp			> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\args.cpp			> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\backup.cpp		> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
+dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\braces.cpp		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\chunk_list.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\ChunkStack.cpp	> .\%OUT_DIR%\files.lnt

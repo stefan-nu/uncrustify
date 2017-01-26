@@ -42,7 +42,7 @@ static int get_word(const vector<UINT8> &in_data, int &idx, bool be);
  * Sets enc based on the BOM.
  * Must have the BOM as the first two bytes.
  */
-static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding &enc);
+static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding_t &enc);
 
 
 /**
@@ -50,7 +50,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, Cha
  * If found, set enc and return true.
  * Sets enc to ENC_ASCII and returns false if not found.
  */
-static bool decode_bom(const vector<UINT8> &in_data, CharEncoding &enc);
+static bool decode_bom(const vector<UINT8> &in_data, CharEncoding_t &enc);
 
 
 /**
@@ -252,7 +252,7 @@ static int get_word(const vector<UINT8> &in_data, int &idx, bool be)
 }
 
 
-static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding &enc)
+static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding_t &enc)
 {
    out_data.clear();
 
@@ -332,7 +332,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, Cha
 } // decode_utf16
 
 
-static bool decode_bom(const vector<UINT8> &in_data, CharEncoding &enc)
+static bool decode_bom(const vector<UINT8> &in_data, CharEncoding_t &enc)
 {
    enc = ENC_ASCII;
    if (in_data.size() >= 2)
@@ -360,7 +360,7 @@ static bool decode_bom(const vector<UINT8> &in_data, CharEncoding &enc)
 }
 
 
-bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding &enc, bool &has_bom)
+bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding_t &enc, bool &has_bom)
 {
    /* check for a BOM */
    if (decode_bom(in_data, enc))

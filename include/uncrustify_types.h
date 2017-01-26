@@ -15,7 +15,7 @@ using namespace std;
 
 #include "base_types.h"
 #include "options.h"
-#include "token_enum.h"    /* c_token_t */
+#include "token_enum.h"
 #include "log_levels.h"
 #include "logger.h"
 #include "unc_text.h"
@@ -41,7 +41,7 @@ using namespace std;
 /**
  * Brace stage enum used in brace_cleanup
  */
-enum brstage_e
+enum brstage_t
 {
    BS_NONE,
    BS_PAREN1,     /* if/for/switch/while/synchronized */
@@ -57,7 +57,8 @@ enum brstage_e
    BS_CATCH_WHEN, /* optional 'when' after 'catch' */
 };
 
-enum CharEncoding
+
+enum CharEncoding_t
 {
    ENC_ASCII,     /* 0-127 */
    ENC_BYTE,      /* 0-255, not UTF-8 */
@@ -66,7 +67,8 @@ enum CharEncoding
    ENC_UTF16_BE,
 };
 
-struct chunk_t;
+
+struct chunk_t;   /* forward declaration */
 
 
 /**
@@ -97,20 +99,21 @@ struct paren_stack_entry_t
    bool         indent_cont;  /**< indent_continue was applied */
    int          ref;
    c_token_t    parent;       /**< if, for, function, etc */
-   brstage_e    stage;
+   brstage_t    stage;
    bool         in_preproc;   /**< whether this was created in a preprocessor */
    int          ns_cnt;
    bool         non_vardef;   /**< Hit a non-vardef line */
    indent_ptr_t ip;
 };
 
+
 /* TODO: put this on a linked list */
 struct parse_frame_t
 {
    int                 ref_no;
-   int                 level;           // level of parens/square/angle/brace
-   int                 brace_level;     // level of brace/vbrace
-   int                 pp_level;        // level of preproc #if stuff
+   size_t              level;           // level of parens/square/angle/brace
+   size_t              brace_level;     // level of brace/vbrace
+   size_t              pp_level;        // level of preproc #if stuff
 
    int                 sparen_count;
 
@@ -125,6 +128,7 @@ struct parse_frame_t
    bool                maybe_decl;
    bool                maybe_cast;
 };
+
 
 #define PCF_BIT(b)    (1ULL << b)
 
@@ -175,13 +179,20 @@ struct parse_frame_t
 #define PCF_WF_ENDIF           PCF_BIT(39)  /* #endif for whole file ifdef */
 #define PCF_IN_QT_MACRO        PCF_BIT(40)  /* in a QT-macro, i.e. SIGNAL, SLOT */
 
-struct align_ptr_t
+typedef enum StarStyle_e
 {
-   chunk_t *next;       /* NULL or the chunk that should be under this one */
-   bool    right_align; /* AlignStack.m_right_align */
-   size_t  star_style;  /* AlignStack.m_star_style */
-   size_t  amp_style;   /* AlignStack.m_amp_style */
-   int     gap;         /* AlignStack.m_gap */
+   SS_IGNORE,  // don't look for prev stars
+   SS_INCLUDE, // include prev * before add
+   SS_DANGLE   // include prev * after add
+}StarStyle_t;
+
+typedef struct align_ptr_s
+{
+   chunk_t      *next;       /* NULL or the chunk that should be under this one */
+   bool         right_align; /* AlignStack.m_right_align */
+   StarStyle_t  star_style;  /* AlignStack.m_star_style */
+   StarStyle_t  amp_style;   /* AlignStack.m_amp_style */
+   size_t       gap;         /* AlignStack.m_gap */
 
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
@@ -190,7 +201,7 @@ struct align_ptr_t
    int     col_adj;
    chunk_t *ref;
    chunk_t *start;
-};
+}align_ptr_t;
 
 
 /** This is the main type of this program */
@@ -303,12 +314,14 @@ enum pattern_class
                     //    else
 };
 
+
 struct chunk_tag_t
 {
    const char *tag;
    c_token_t  type;
    int        lang_flags;
 };
+
 
 struct lookup_entry_t
 {
@@ -318,6 +331,7 @@ struct lookup_entry_t
    const chunk_tag_t *tag;
 };
 
+
 struct align_t
 {
    size_t    col;
@@ -325,16 +339,18 @@ struct align_t
    size_t    len;    // of the token + space
 };
 
-struct file_mem
+
+struct file_mem_t
 {
    vector<UINT8>  raw;
    deque<int>     data;
    bool           bom;
-   CharEncoding   enc;
+   CharEncoding_t enc;
 #ifdef HAVE_UTIME_H
    struct utimbuf utb;
 #endif
 };
+
 
 enum unc_stage
 {
@@ -366,11 +382,11 @@ struct cp_data_t
    UINT32         error_count;
    const char     *filename;
 
-   file_mem       file_hdr;       // for cmt_insert_file_header
-   file_mem       file_ftr;       // for cmt_insert_file_footer
-   file_mem       func_hdr;       // for cmt_insert_func_header
-   file_mem       oc_msg_hdr;     // for cmt_insert_oc_msg_header
-   file_mem       class_hdr;      // for cmt_insert_class_header
+   file_mem_t     file_hdr;       // for cmt_insert_file_header
+   file_mem_t     file_ftr;       // for cmt_insert_file_footer
+   file_mem_t     func_hdr;       // for cmt_insert_func_header
+   file_mem_t     oc_msg_hdr;     // for cmt_insert_oc_msg_header
+   file_mem_t     class_hdr;      // for cmt_insert_class_header
 
    int            lang_flags;     // LANG_xxx
    bool           lang_forced;
@@ -399,7 +415,7 @@ struct cp_data_t
    bool           output_tab_as_space;
 
    bool           bom;
-   CharEncoding   enc;
+   CharEncoding_t enc;
 
    // bumped up when a line is split or indented
    int            changes;
@@ -416,11 +432,12 @@ struct cp_data_t
 
    parse_frame_t  frames[16];
    int            frame_count;
-   int            pp_level;
+   size_t         pp_level;   /* \todo was int */
 
    // the default values for settings
    op_val_t       defaults[UO_option_count];
 };
+
 
 extern cp_data_t cpd;   /* \todo can we avoid this external variable? */
 

@@ -11,17 +11,11 @@
 #define ALIGN_STACK_H_INCLUDED
 
 #include "ChunkStack.h"
+#include "uncrustify_types.h"
 
 class AlignStack
 {
 public:
-   enum StarStyle
-   {
-      SS_IGNORE,  // don't look for prev stars
-      SS_INCLUDE, // include prev * before add
-      SS_DANGLE   // include prev * after add
-   };
-
    ChunkStack m_aligned;   /* contains the token that is aligned */
    ChunkStack m_skipped;   /* contains the tokens sent to Add() */
    size_t     m_max_col;
@@ -32,8 +26,8 @@ public:
    size_t     m_nl_seqnum;
    size_t     m_gap;
    bool       m_right_align;
-   StarStyle  m_star_style;
-   StarStyle  m_amp_style;
+   StarStyle_t  m_star_style;
+   StarStyle_t  m_amp_style;
    /* do not include the first item if it causes it to be indented */
    bool       m_skip_first;
 

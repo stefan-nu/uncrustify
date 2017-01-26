@@ -14,7 +14,7 @@
 #include <cstdlib>
 
 
-static void pf_log_frms(log_sev_t logsev, const char *txt, struct parse_frame *pf);
+static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf);
 
 
 /**
@@ -29,7 +29,7 @@ static void pf_log_all(log_sev_t logsev);
  * The stack contains [...] [base] [if] at this point.
  * We want to copy [base].
  */
-static void pf_copy_2nd_tos(struct parse_frame *pf);
+static void pf_copy_2nd_tos(parse_frame_t *pf);
 
 
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
@@ -155,11 +155,11 @@ void pf_pop(parse_frame_t *pf)
 }
 
 
-int pf_check(parse_frame_t *frm, chunk_t *pc)
+size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 {
    int in_ifdef = frm->in_ifdef;
    int b4_cnt   = cpd.frame_count;
-   int pp_level = cpd.pp_level;
+   size_t pp_level = cpd.pp_level;
 
    if (pc->type != CT_PREPROC)
    {

@@ -22,11 +22,21 @@ void pf_copy(parse_frame_t *dst, const parse_frame_t *src);
  * This is called on #if and #ifdef.
  */
 void pf_push(parse_frame_t *pf);
+
+
 void pf_push_under(parse_frame_t *pf);
+
+
 void pf_copy_tos(parse_frame_t *pf);
+
+
 void pf_trash_tos(void);
+
+
 void pf_pop(parse_frame_t *pf);
-int pf_check(parse_frame_t *frm, chunk_t *pc);
+
+
+size_t pf_check(parse_frame_t *frm, chunk_t *pc);
 
 
 /**
