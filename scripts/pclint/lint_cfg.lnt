@@ -29,7 +29,6 @@ scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 
 // Configuration for checking the operating unit source code
 
-//-d__ARM_PCS_VFP
 -d__cplusplus
 -d_GNU_SOURCE
 //-d__GNUC__
@@ -42,6 +41,7 @@ scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 -d__i386__
 -dDEFINE_CHAR_TABLE
 -dDEFINE_PCF_NAMES 
+-dDEBUG
 
 // define compiler specific keywords
 

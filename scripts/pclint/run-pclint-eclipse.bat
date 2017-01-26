@@ -34,7 +34,7 @@ dir /s/b %EXC_DIR%\*.lnt		> .\%OUT_DIR%\exceptions.lnt
 rem to check single files activate one of the lines below
 rem dir /s/b %SRC_DIR%\align_stack.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\align.cpp		> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\args.cpp			> .\%OUT_DIR%\files.lnt
+dir /s/b %SRC_DIR%\args.cpp			> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\backup.cpp		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\braces.cpp		> .\%OUT_DIR%\files.lnt
@@ -72,7 +72,7 @@ rem dir /s/b %SRC_DIR%\universalindentgui.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\width.cpp 	> .\%OUT_DIR%\files.lnt
 
 rem to check all source files use the line below
-dir /s/b %SRC_DIR%\*.cpp 	> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\*.cpp 	> .\%OUT_DIR%\files.lnt
 
 rem use this to save the pclint errors to a file for later review
 rem lint-nt .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt > .\%OUT_DIR%\pclint-results.xml

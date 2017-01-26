@@ -1,0 +1,3 @@
+-esym(759, chunk_first_on_line, chunk_dup, chunk_get_prev_str)
+-esym(1502, log_fe)
+-esym(1788, log_fe)

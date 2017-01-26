@@ -34,7 +34,14 @@
 
 -d__USE_GNU=1
 scripts\pclint\lint_cfg.lnt	// include project specific settings
-scripts\pclint\policy.lnt	// pclint rules from nuinno
+//scripts\pclint\policy.lnt	// pclint rules 
+
+// The strict policy does an in depth analysis of the source code
+// Use it only after the relayed policy check was run and there are
+// only few warnings left. The strict policy requires a long time
+// to run but detects almost all programming errors. Usually it is
+// run on a single source file to keep the test time acceptable.
+scripts\pclint\policy_strict.lnt	// pclint rules 
 
 -esym(123,min,max)  		// allows users to use min, max as variables
 
