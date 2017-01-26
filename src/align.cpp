@@ -316,6 +316,14 @@ static void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t
 }
 
 
+/**
+ * Adds an item to the align stack and adjust the nl_count and max_col.
+ * Adjust max_col as needed
+ *
+ * @param pc         the item to add
+ * @param max_col    pointer to the column variable
+ * @param extra_pad  extra padding
+ */
 static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_pad, bool squeeze)
 {
    LOG_FUNC_ENTRY();

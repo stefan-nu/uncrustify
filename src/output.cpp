@@ -106,7 +106,7 @@ static void add_text(const unc_text &text, bool is_ignored);
  * Count the number of characters to the end of the next chunk of text.
  * If it exceeds the limit, return true.
  */
-static bool next_word_exceeds_limit(const unc_text &text, int idx);
+static bool next_word_exceeds_limit(const unc_text &text, size_t idx);
 
 
 /**
@@ -115,7 +115,7 @@ static bool next_word_exceeds_limit(const unc_text &text, int idx);
  *
  * @param column  The column to advance to
  */
-static void output_to_column(int column, bool allow_tabs);
+static void output_to_column(size_t column, bool allow_tabs);
 
 
 /**
@@ -129,7 +129,7 @@ static void output_to_column(int column, bool allow_tabs);
  * @param base_col  the indent of the start of the comment (multiline)
  * @param column    the column that we should end up in
  */
-static void cmt_output_indent(int brace_col, int base_col, int column);
+static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column);
 
 
 /**
@@ -185,7 +185,7 @@ static chunk_t *get_next_class(chunk_t *pc);
 static chunk_t *get_prev_oc_class(chunk_t *pc);
 
 
-static int next_up(const unc_text &text, int idx, unc_text &tag);
+static int next_up(const unc_text &text, size_t idx, unc_text &tag);
 
 
 /**
@@ -283,7 +283,7 @@ static void add_char(UINT32 ch)
       {
          size_t endcol = next_tab_column(cpd.column);
 
- 
+
          while (cpd.column < endcol)
          {
             add_char(' ');
@@ -377,7 +377,7 @@ static void output_to_column(size_t column, bool allow_tabs)
       while (next_column <= column)
       {
          add_text("\t");
-         nc = next_tab_column(cpd.column);
+         next_column = next_tab_column(cpd.column);
       }
    }
    /* space out the final bit */
