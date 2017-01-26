@@ -58,13 +58,19 @@ static chunk_t *pawn_process_func_def(chunk_t *pc);
 chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+
+   if(pc == NULL)
+   {
+      return NULL;
+   }
+
    if ((pc->type == CT_VSEMICOLON) ||
        (pc->type == CT_SEMICOLON))
    {
       return(pc);
    }
 
-   chunk_t *next = chunk_get_next_nc(pc);
+   const chunk_t *next = chunk_get_next_nc(pc);
    if ((next != NULL) &&
        ((next->type == CT_VSEMICOLON) ||
         (next->type == CT_SEMICOLON)))
@@ -99,7 +105,7 @@ void pawn_scrub_vsemi(void)
       {
          continue;
       }
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if ((prev != NULL) && (prev->type == CT_BRACE_CLOSE))
       {
          if ((prev->parent_type == CT_IF) ||
@@ -432,7 +438,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
          if ((prev->type == CT_NEWLINE) &&
              (prev->level == 0))
          {
-            chunk_t *next = chunk_get_next_ncnl(prev);
+            const chunk_t *next = chunk_get_next_ncnl(prev);
             if ((next != NULL) &&
                 (next->type != CT_ELSE) &&
                 (next->type != CT_WHILE_OF_DO))
@@ -469,7 +475,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    LOG_FUNC_ENTRY();
 
    /* Grab the open VBrace */
-   chunk_t *vb_open = chunk_get_prev_type(pc, CT_VBRACE_OPEN, -1);
+   const chunk_t *vb_open = chunk_get_prev_type(pc, CT_VBRACE_OPEN, -1);
 
    /**
     * Grab the item before the newline

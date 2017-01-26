@@ -206,6 +206,11 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
+      if((ali == NULL) || (ref == NULL))
+      {
+         return;  /* \todo if pointer is NULL print some error log message */
+      }
+
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */
       if (!cpd.settings[UO_align_keep_extra_space].b)
@@ -215,7 +220,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          while (tmp != start)
          {
             chunk_t *next = chunk_get_next(tmp);
-            tmp_col += space_col_align(tmp, next);
+            tmp_col += space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
             {
                align_to_column(next, tmp_col);
@@ -259,7 +264,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       //         ref->text(), get_token_name(ref->type), ref->column,
       //         col_adj, endcol, m_star_style, m_amp_style, gap);
 
-      ali->align.col_adj = col_adj;
+      ali->align.col_adj = (int)col_adj;
       ali->align.ref     = ref;
       ali->align.start   = start;
       m_aligned.Push_Back(ali, seqnum);
@@ -347,7 +352,7 @@ void AlignStack::Flush()
    {
       // check if we have *one* typedef in the line
       pc = m_aligned.Get(0)->m_pc;
-      chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, pc->level);
+      const chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, pc->level);
       if (temp != NULL)
       {
          if (pc->orig_line == temp->orig_line)
@@ -367,7 +372,7 @@ void AlignStack::Flush()
       pc = m_aligned.Get(idx)->m_pc;
 
       /* Set the column adjust and gap */
-      size_t col_adj = 0;
+      int    col_adj = 0;
       size_t gap     = 0;
       if (pc != pc->align.ref)
       {

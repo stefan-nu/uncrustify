@@ -91,7 +91,7 @@ static int language_flags_from_filename(const char *filename);
 const char *language_name_from_flags(int lang);
 
 
-static bool read_stdin(file_mem &fm);
+static bool read_stdin(file_mem_t &fm);
 
 
 static void make_folders(const string &filename);
@@ -106,7 +106,7 @@ static void uncrustify_end(void);
 static bool ends_with(const char *filename, const char *tag, bool case_sensitive);
 
 
-void uncrustify_file(const file_mem &fm, FILE *pfout, const char *parsed_file, bool defer_uncrustify_end = false);
+void uncrustify_file(const file_mem_t &fm, FILE *pfout, const char *parsed_file, bool defer_uncrustify_end = false);
 
 
 /**
@@ -127,10 +127,10 @@ static void add_file_header(void);
 static void add_file_footer(void);
 
 
-static void add_func_header(c_token_t type, file_mem &fm);
+static void add_func_header(c_token_t type, file_mem_t &fm);
 
 
-static void add_msg_header(c_token_t type, file_mem &fm);
+static void add_msg_header(c_token_t type, file_mem_t &fm);
 
 
 static void process_source_list(const char *source_list, const char *prefix, const char *suffix, bool no_backup, bool keep_mtime);
@@ -151,19 +151,19 @@ static bool file_content_matches(const string &filename1, const string &filename
 static string fix_filename(const char *filename);
 
 
-static bool bout_content_matches(const file_mem &fm, bool report_status);
+static bool bout_content_matches(const file_mem_t &fm, bool report_status);
 
 
 /**
  * Loads a file into memory
  */
-static int load_mem_file(const char *filename, file_mem &fm);
+static int load_mem_file(const char *filename, file_mem_t &fm);
 
 
 /**
  * Try to load the file from the config folder first and then by name
  */
-static int load_mem_file_config(const char *filename, file_mem &fm);
+static int load_mem_file_config(const char *filename, file_mem_t &fm);
 
 
 static void version_exit(void);
@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
 
    if (detect)
    {
-      file_mem fm;
+      file_mem_t fm;
 
       if ((source_file == NULL) || (source_list != NULL))
       {
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
          redir_stdout(output_file);
       }
 
-      file_mem fm;
+      file_mem_t fm;
       if (!read_stdin(fm))
       {
          LOG_FMT(LERR, "Failed to read stdin\n");
@@ -919,7 +919,7 @@ static void process_source_list(const char *source_list,
 } // process_source_list
 
 
-static bool read_stdin(file_mem &fm)
+static bool read_stdin(file_mem_t &fm)
 {
    deque<UINT8> dq;
    char         buf[4096];
@@ -987,7 +987,7 @@ static void make_folders(const string &filename)
 } // make_folders
 
 
-static int load_mem_file(const char *filename, file_mem &fm)
+static int load_mem_file(const char *filename, file_mem_t &fm)
 {
    int         retval = -1;
    struct stat my_stat;
@@ -1055,7 +1055,7 @@ static int load_mem_file(const char *filename, file_mem &fm)
 } // load_mem_file
 
 
-static int load_mem_file_config(const char *filename, file_mem &fm)
+static int load_mem_file_config(const char *filename, file_mem_t &fm)
 {
    int  retval;
    char buf[1024];
@@ -1212,7 +1212,7 @@ static string fix_filename(const char *filename)
 }
 
 
-static bool bout_content_matches(const file_mem &fm, bool report_status)
+static bool bout_content_matches(const file_mem_t &fm, bool report_status)
 {
    bool is_same = true;
 
@@ -1258,11 +1258,11 @@ static void do_source_file(const char *filename_in,
                            bool       no_backup,
                            bool       keep_mtime)
 {
-   FILE     *pfout      = NULL;
-   bool     did_open    = false;
-   bool     need_backup = false;
-   file_mem fm;
-   string   filename_tmp;
+   FILE       *pfout      = NULL;
+   bool       did_open    = false;
+   bool       need_backup = false;
+   file_mem_t fm;
+   string     filename_tmp;
 
    /* Do some simple language detection based on the filename extension */
    if (!cpd.lang_forced || (cpd.lang_flags == 0))
@@ -1445,7 +1445,7 @@ static void add_file_footer(void)
 }
 
 
-static void add_func_header(c_token_t type, file_mem &fm)
+static void add_func_header(c_token_t type, file_mem_t &fm)
 {
    chunk_t *pc;
    chunk_t *ref;
@@ -1566,7 +1566,7 @@ static void add_func_header(c_token_t type, file_mem &fm)
 } // add_func_header
 
 
-static void add_msg_header(c_token_t type, file_mem &fm)
+static void add_msg_header(c_token_t type, file_mem_t &fm)
 {
    chunk_t *pc;
    chunk_t *ref;
@@ -1713,7 +1713,7 @@ static void uncrustify_start(const deque<int> &data)
 } // uncrustify_start
 
 
-void uncrustify_file(const file_mem &fm, FILE *pfout,
+void uncrustify_file(const file_mem_t &fm, FILE *pfout,
                      const char *parsed_file, bool defer_uncrustify_end)
 {
    const deque<int> &data = fm.data;

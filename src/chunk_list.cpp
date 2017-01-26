@@ -580,28 +580,28 @@ chunk_t *chunk_get_prev_nvb(chunk_t *cur, const nav_t nav)
 
 
 chunk_t
-*chunk_get_next_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
+*chunk_get_next_type(chunk_t *cur, c_token_t type, size_t level, nav_t nav)
 {
    return(chunk_search_typelevel(cur, type, nav, after, level));
 }
 
 
 chunk_t
-*chunk_get_prev_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
+*chunk_get_prev_type(chunk_t *cur, c_token_t type, size_t level, nav_t nav)
 {
    return(chunk_search_typelevel(cur, type, nav, before, level));
 }
 
 
 chunk_t
-*chunk_get_next_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
+*chunk_get_next_str(chunk_t *cur, const char *str, size_t len, size_t level, nav_t nav)
 {
    return(chunk_search_str(cur, str, nav, after, level, len));
 }
 
 
 chunk_t
-*chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
+*chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, size_t level, nav_t nav)
 {
    return(chunk_search_str(cur, str, nav, before, level, len));
 }

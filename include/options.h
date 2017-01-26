@@ -28,14 +28,14 @@ enum argtype_e
    AT_UNUM,    /**< unsigned Number */
 };
 
-/** Arg values - these are bit fields*/
+/** Arg values - these are bit fields */
 enum argval_t
 {
    AV_IGNORE      = 0,
-   AV_ADD         = 1,
-   AV_REMOVE      = 2,
-   AV_FORCE       = 3, /**< remove + add */
-   AV_NOT_DEFINED = 4  /* to be used with QT, SIGNAL SLOT macros */
+   AV_ADD         = (1u << 0),
+   AV_REMOVE      = (1u << 1),
+   AV_FORCE       = (AV_ADD | AV_REMOVE),
+   AV_NOT_DEFINED = (1u << 2)  /* to be used with QT, SIGNAL SLOT macros */
 };
 
 /** Line endings */
@@ -44,7 +44,6 @@ enum lineends_e
    LE_LF,      /* "\n"   */
    LE_CRLF,    /* "\r\n" */
    LE_CR,      /* "\r"   */
-
    LE_AUTO,    /* keep last */
 };
 
@@ -52,15 +51,15 @@ enum lineends_e
 enum tokenpos_e
 {
    TP_IGNORE      = 0,     /* don't change it */
-   TP_BREAK       = 1,     /* add a newline before or after the if not present */
-   TP_FORCE       = 2,     /* force a newline on one side and not the other */
-   TP_LEAD        = 4,     /* at the start of a line or leading if wrapped line */
+   TP_BREAK       = (1u << 0),     /* add a newline before or after the if not present */
+   TP_FORCE       = (1u << 1),     /* force a newline on one side and not the other */
+   TP_LEAD        = (1u << 2),     /* at the start of a line or leading if wrapped line */
    TP_LEAD_BREAK  = (TP_LEAD | TP_BREAK),
    TP_LEAD_FORCE  = (TP_LEAD | TP_FORCE),
-   TP_TRAIL       = 8,     /* at the end of a line or trailing if wrapped line */
+   TP_TRAIL       = (1u << 3),     /* at the end of a line or trailing if wrapped line */
    TP_TRAIL_BREAK = (TP_TRAIL | TP_BREAK),
    TP_TRAIL_FORCE = (TP_TRAIL | TP_FORCE),
-   TP_JOIN        = 16,    /* remove newlines on both sides */
+   TP_JOIN        = (1u << 4),    /* remove newlines on both sides */
 };
 
 union op_val_t
@@ -936,7 +935,11 @@ string tokenpos_to_string(tokenpos_e tokenpos);
 
 
 string op_val_to_string(argtype_e argtype, op_val_t op_val);
+
+
 bool is_path_relative(const char *path);
+
+
 const option_map_value *unc_find_option(const char *name);
 
 

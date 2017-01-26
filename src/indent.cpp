@@ -215,7 +215,7 @@ enum align_mode
 {
    ALMODE_SHIFT,     /* shift relative to the current column */
    ALMODE_KEEP_ABS,  /* try to keep the original absolute column */
-   ALMODE_KEEP_REL,  /* try to keep the original gap */
+   ALMODE_KEEP_REL   /* try to keep the original gap */
 };
 
 
@@ -238,7 +238,7 @@ void align_to_column(chunk_t *pc, size_t column)
    do
    {
       chunk_t    *next = chunk_get_next(pc);
-      chunk_t    *prev;
+      const chunk_t    *prev;
       align_mode almod = ALMODE_SHIFT;
 
       if (next == NULL)
@@ -1397,7 +1397,7 @@ void indent_text(void)
              (prev->parent_type == CT_CASE))
          {
             // issue #663
-            chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->level);
+            const chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->level);
             /* This only affects the 'break', so no need for a stack entry */
             indent_column_set(temp->column);
          }
@@ -2431,7 +2431,7 @@ static void indent_comment(chunk_t *pc, size_t col)
 bool ifdef_over_whole_file(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *next;
+   const chunk_t *next;
    chunk_t *end_pp = NULL;
 
    int     stage = 0;

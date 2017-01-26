@@ -2252,7 +2252,7 @@ static void fix_casts(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
    chunk_t    *pc;
-   chunk_t    *prev;
+   const chunk_t *prev;
    chunk_t    *first;
    chunk_t    *after;
    chunk_t    *last = NULL;
@@ -2309,7 +2309,7 @@ static void fix_casts(chunk_t *start)
    if ((pc == NULL) || (pc->type != CT_PAREN_CLOSE) || (prev->type == CT_OC_CLASS))
    {
       LOG_FMT(LCASTS, " -- not a cast, hit [%s]\n",
-              pc == NULL ? "NULL"  : get_token_name(pc->type));
+              (pc == NULL) ? "NULL"  : get_token_name(pc->type));
       return;
    }
 
@@ -2867,7 +2867,7 @@ void combine_labels(void)
          /* pop until we hit '[' */
          while (!cs.Empty())
          {
-            chunk_t *t2 = cs.Top()->m_pc;
+            const chunk_t *t2 = cs.Top()->m_pc;
             cs.Pop_Back();
             if (t2->type == CT_SQUARE_OPEN)
             {
@@ -2922,7 +2922,7 @@ void combine_labels(void)
          }
          else
          {
-            chunk_t *nextprev = chunk_get_prev_ncnl(next);
+            const chunk_t *nextprev = chunk_get_prev_ncnl(next);
 
             if (cpd.lang_flags & LANG_PAWN)
             {
@@ -3581,7 +3581,7 @@ static void mark_function(chunk_t *pc)
    /* Find out what is before the operator */
    if (pc->parent_type == CT_OPERATOR)
    {
-      chunk_t *pc_op = chunk_get_prev_type(pc, CT_OPERATOR, pc->level);
+      const chunk_t *pc_op = chunk_get_prev_type(pc, CT_OPERATOR, pc->level);
       if ((pc_op != NULL) && (pc_op->flags & PCF_EXPR_START))
       {
          set_chunk_type(pc, CT_FUNC_CALL);
@@ -3818,7 +3818,7 @@ static void mark_function(chunk_t *pc)
        ((prev != NULL) && ((prev->type == CT_DC_MEMBER) ||
                            (prev->type == CT_INV))))
    {
-      chunk_t *destr = NULL;
+      const chunk_t *destr = NULL;
       if (prev->type == CT_INV)
       {
          /* TODO: do we care that this is the destructor? */
@@ -4187,7 +4187,7 @@ static void mark_function(chunk_t *pc)
       }
       else if (pc->brace_level > 0)
       {
-         chunk_t *br_open = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->brace_level - 1);
+         const chunk_t *br_open = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->brace_level - 1);
 
          if ((br_open != NULL) &&
              (br_open->parent_type != CT_EXTERN) &&
@@ -4197,7 +4197,7 @@ static void mark_function(chunk_t *pc)
             prev = chunk_get_prev_ncnl(pc);
             if (!chunk_is_str(prev, "*", 1) && !chunk_is_str(prev, "&", 1))
             {
-               chunk_t *p_op = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->brace_level - 1);
+               const chunk_t *p_op = chunk_get_prev_type(pc, CT_BRACE_OPEN, pc->brace_level - 1);
                if ((p_op != NULL) &&
                    (p_op->parent_type != CT_CLASS) &&
                    (p_op->parent_type != CT_STRUCT) &&
@@ -4866,7 +4866,7 @@ static bool chunkstack_match(ChunkStack &cs, chunk_t *pc)
 {
    for (size_t idx = 0; idx < cs.Len(); idx++)
    {
-      chunk_t *tmp = cs.GetChunk(idx);
+      const chunk_t *tmp = cs.GetChunk(idx);
       if (pc->str.equals(tmp->str))
       {
          return(true);
@@ -5214,7 +5214,7 @@ static void handle_oc_class(chunk_t *pc)
 static void handle_oc_block_literal(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *prev = chunk_get_prev_ncnl(pc);
+   const chunk_t *prev = chunk_get_prev_ncnl(pc);
    chunk_t *next = chunk_get_next_ncnl(pc);
 
    if (!pc || !prev || !next)
@@ -5732,7 +5732,7 @@ static void handle_oc_message_send(chunk_t *os)
             if ((prev != NULL) && ((prev->type == CT_WORD) || (prev->type == CT_TYPE)))
             {
                /* Might be a named param, check previous block */
-               chunk_t *pp = chunk_get_prev(prev);
+               const chunk_t *pp = chunk_get_prev(prev);
                if ((pp != NULL) &&
                    (pp->type != CT_OC_COLON) &&
                    (pp->type != CT_ARITH) &&
@@ -6117,7 +6117,7 @@ static void handle_proto_wrap(chunk_t *pc)
    chunk_t *name = chunk_get_next_ncnl(opp);
    chunk_t *tmp  = chunk_get_next_ncnl(chunk_get_next_ncnl(name));
    chunk_t *clp  = chunk_skip_to_match(opp);
-   chunk_t *cma  = chunk_get_next_ncnl(clp);
+   const chunk_t *cma  = chunk_get_next_ncnl(clp);
 
    if (!opp || !name || !clp || !cma || !tmp ||
        ((name->type != CT_WORD) && (name->type != CT_TYPE)) ||

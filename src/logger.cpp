@@ -341,7 +341,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
 
    /* Loop through the data of the current iov */
    int count = 0;
-   int total = 0;
+   UINT32 total = 0;	// \todo was int
    for (size_t idx = 0; idx < len; idx++)
    {
       if (count == 0)
@@ -354,7 +354,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
          buf[2] = to_hex_char(total >> 4);
       }
 
-      int tmp = dat[idx];
+      UINT8 tmp = dat[idx]; // \todo was int
 
       buf[str_idx]     = to_hex_char(tmp >> 4);
       buf[str_idx + 1] = to_hex_char(tmp);
