@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-enum argtype_e
+enum argtype_t
 {
    AT_BOOL,    /**< true / false */
    AT_IARF,    /**< Ignore / Add / Remove / Force */
@@ -39,7 +39,7 @@ enum argval_t
 };
 
 /** Line endings */
-enum lineends_e
+enum lineends_t
 {
    LE_LF,      /* "\n"   */
    LE_CRLF,    /* "\r\n" */
@@ -48,11 +48,12 @@ enum lineends_e
 };
 
 /** Token position - these are bit fields */
-enum tokenpos_e
+enum tokenpos_t
 {
    TP_IGNORE      = 0,     /* don't change it */
    TP_BREAK       = (1u << 0),     /* add a newline before or after the if not present */
    TP_FORCE       = (1u << 1),     /* force a newline on one side and not the other */
+   TP_FORCE_BREAK = (TP_BREAK | TP_FORCE),
    TP_LEAD        = (1u << 2),     /* at the start of a line or leading if wrapped line */
    TP_LEAD_BREAK  = (TP_LEAD | TP_BREAK),
    TP_LEAD_FORCE  = (TP_LEAD | TP_FORCE),
@@ -67,14 +68,14 @@ union op_val_t
    argval_t   a;
    int        n;
    bool       b;
-   lineends_e le;
-   tokenpos_e tp;
+   lineends_t le;
+   tokenpos_t tp;
    const char *str;
    size_t     u;
 };
 
 /** Groups for options */
-enum uncrustify_groups
+enum uncrustify_groups_t
 {
    UG_general,
    UG_indent,
@@ -95,7 +96,7 @@ enum uncrustify_groups
 /**
  * Keep this grouped by functionality
  */
-enum uncrustify_options
+enum uncrustify_options_t
 {
    UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
 
@@ -838,33 +839,58 @@ enum uncrustify_options
 
 
 #ifdef EMSCRIPTEN
-#define group_map_value_options_t    vector<uncrustify_options>
+#define group_map_value_options_t    vector<uncrustify_options_t>
 #else
-#define group_map_value_options_t    list<uncrustify_options>
+#define group_map_value_options_t    list<uncrustify_options_t>
 #endif
 
-struct group_map_value
+struct group_map_value_t
 {
-   uncrustify_groups         id;
-   const char                *short_desc;
-   const char                *long_desc;
-   group_map_value_options_t options;
+   uncrustify_groups_t         id;
+   const char                  *short_desc;
+   const char                  *long_desc;
+   group_map_value_options_t   options;
 };
 
-struct option_map_value
+struct option_map_value_t
 {
-   uncrustify_options id;
-   uncrustify_groups  group_id;
-   argtype_e          type;
-   int                min_val;
-   int                max_val;
-   const char         *name;
-   const char         *short_desc;
-   const char         *long_desc;
+   uncrustify_options_t id;
+   uncrustify_groups_t  group_id;
+   argtype_t            type;
+   int                  min_val;
+   int                  max_val;
+   const char           *name;
+   const char           *short_desc;
+   const char           *long_desc;
 };
 
 
-const option_map_value *unc_find_option(const char *name);
+const option_map_value_t *unc_find_option(const char *name);
+
+
+/**
+ * \brief check if a given option is set in a variable
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if variable has all required option flags set
+ * @retval false if at least one option was not set
+ */
+bool is_option_set(argval_t var,  /**< [in] variable to check */
+                   argval_t opt); /**< [in] Option combination to check for */
+
+
+/**
+ * \brief check if a given option is set in a variable
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if variable has all required option flags set
+ * @retval false if at least one option was not set
+ */
+bool is_token_set(tokenpos_t var,  /**< [in] variable to check */
+                  tokenpos_t opt); /**< [in] Token combination to check for */
+
 
 
 /**
@@ -878,7 +904,7 @@ void set_option_defaults(void);
 void register_options(void);
 
 
-void unc_begin_group(uncrustify_groups id, const char *short_desc, const char *long_desc = NULL);
+void unc_begin_group(uncrustify_groups_t id, const char *short_desc, const char *long_desc = NULL);
 
 
 /**
@@ -907,16 +933,16 @@ int set_option_value(const char *name, const char *value);
 bool is_path_relative(const char *path);
 
 
-const group_map_value *get_group_name(int ug);
+const group_map_value_t *get_group_name(int ug);
 
 
-const option_map_value *get_option_name(uncrustify_options uo);
+const option_map_value_t *get_option_name(uncrustify_options_t uo);
 
 
 void print_options(FILE *pfile);
 
 
-string argtype_to_string(argtype_e argtype);
+string argtype_to_string(argtype_t argtype);
 
 
 string bool_to_string(bool val);
@@ -928,23 +954,23 @@ string argval_to_string(argval_t argval);
 string number_to_string(int number);
 
 
-string lineends_to_string(lineends_e linends);
+string lineends_to_string(lineends_t linends);
 
 
-string tokenpos_to_string(tokenpos_e tokenpos);
+string tokenpos_to_string(tokenpos_t tokenpos);
 
 
-string op_val_to_string(argtype_e argtype, op_val_t op_val);
+string op_val_to_string(argtype_t argtype, op_val_t op_val);
 
 
 bool is_path_relative(const char *path);
 
 
-const option_map_value *unc_find_option(const char *name);
+const option_map_value_t *unc_find_option(const char *name);
 
 
-typedef map<uncrustify_options, option_map_value>::iterator   option_name_map_it;
-typedef map<uncrustify_groups, group_map_value>::iterator     group_map_it;
+typedef map<uncrustify_options_t, option_map_value_t>::iterator   option_name_map_it;
+typedef map<uncrustify_groups_t, group_map_value_t>::iterator     group_map_it;
 typedef group_map_value_options_t::iterator                   option_list_it;
 typedef group_map_value_options_t::const_iterator             option_list_cit;
 

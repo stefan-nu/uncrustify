@@ -170,7 +170,7 @@ void MD5::Final(UINT8 digest[16])
    *p++ = 0x80;
 
    /* Bytes of padding needed to make 64 bytes */
-   count = 64 - 1 - count;
+   count = (64 - 1) - count;
 
    /* Pad out to 56 mod 64 */
    if (count < 8)
@@ -212,10 +212,10 @@ void MD5::Final(UINT8 digest[16])
 /* The four core functions - F1 is optimized somewhat */
 
 /* #define F1(x, y, z) (x & y | ~x & z) */
-#define F1(x, y, z)    (z ^ (x & (y ^ z)))
-#define F2(x, y, z)    F1(z, x, y)
-#define F3(x, y, z)    (x ^ y ^ z)
-#define F4(x, y, z)    (y ^ (x | ~z))
+#define F1(x, y, z)      ((z) ^ ((x) & ((y) ^ (z))))
+#define F2(x, y, z)    F1((z),   (x),   (y))
+#define F3(x, y, z)      ((x) ^  (y) ^  (z))
+#define F4(x, y, z)      ((y) ^ ((x) | ~(z)))
 
 /* This is the central step in the MD5 algorithm. */
 #define MD5STEP(f, w, x, y, z, data, s) \
@@ -234,19 +234,19 @@ void MD5::Transform(UINT32 buf[4], UINT32 in_data[16])
    UINT32 c = buf[2];
    UINT32 d = buf[3];
 
-   MD5STEP(F1, a, b, c, d, in_data[0] + 0xd76aa478, 7);
-   MD5STEP(F1, d, a, b, c, in_data[1] + 0xe8c7b756, 12);
-   MD5STEP(F1, c, d, a, b, in_data[2] + 0x242070db, 17);
-   MD5STEP(F1, b, c, d, a, in_data[3] + 0xc1bdceee, 22);
-   MD5STEP(F1, a, b, c, d, in_data[4] + 0xf57c0faf, 7);
-   MD5STEP(F1, d, a, b, c, in_data[5] + 0x4787c62a, 12);
-   MD5STEP(F1, c, d, a, b, in_data[6] + 0xa8304613, 17);
-   MD5STEP(F1, b, c, d, a, in_data[7] + 0xfd469501, 22);
-   MD5STEP(F1, a, b, c, d, in_data[8] + 0x698098d8, 7);
-   MD5STEP(F1, d, a, b, c, in_data[9] + 0x8b44f7af, 12);
+   MD5STEP(F1, a, b, c, d, in_data[0 ] + 0xd76aa478,  7);
+   MD5STEP(F1, d, a, b, c, in_data[1 ] + 0xe8c7b756, 12);
+   MD5STEP(F1, c, d, a, b, in_data[2 ] + 0x242070db, 17);
+   MD5STEP(F1, b, c, d, a, in_data[3 ] + 0xc1bdceee, 22);
+   MD5STEP(F1, a, b, c, d, in_data[4 ] + 0xf57c0faf,  7);
+   MD5STEP(F1, d, a, b, c, in_data[5 ] + 0x4787c62a, 12);
+   MD5STEP(F1, c, d, a, b, in_data[6 ] + 0xa8304613, 17);
+   MD5STEP(F1, b, c, d, a, in_data[7 ] + 0xfd469501, 22);
+   MD5STEP(F1, a, b, c, d, in_data[8 ] + 0x698098d8,  7);
+   MD5STEP(F1, d, a, b, c, in_data[9 ] + 0x8b44f7af, 12);
    MD5STEP(F1, c, d, a, b, in_data[10] + 0xffff5bb1, 17);
    MD5STEP(F1, b, c, d, a, in_data[11] + 0x895cd7be, 22);
-   MD5STEP(F1, a, b, c, d, in_data[12] + 0x6b901122, 7);
+   MD5STEP(F1, a, b, c, d, in_data[12] + 0x6b901122,  7);
    MD5STEP(F1, d, a, b, c, in_data[13] + 0xfd987193, 12);
    MD5STEP(F1, c, d, a, b, in_data[14] + 0xa679438e, 17);
    MD5STEP(F1, b, c, d, a, in_data[15] + 0x49b40821, 22);

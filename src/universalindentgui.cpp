@@ -16,7 +16,7 @@
 
 void print_universal_indent_cfg(FILE *pfile)
 {
-   const group_map_value *p_grp;
+   const group_map_value_t *p_grp;
    const char            *p_name;
 
    /* Dump the header and the categories */
@@ -82,7 +82,7 @@ void print_universal_indent_cfg(FILE *pfile)
 
       for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); it++)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(*it);
 
          // Create a better readable name from the options name
          // by replacing '_' by a space and use some upper case characters.

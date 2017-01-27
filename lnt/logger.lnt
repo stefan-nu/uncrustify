@@ -1,2 +1,2 @@
--esym(526, __buildin_va_start)
+-esym(526, __builtin_va_start)
 -esym(530, args)

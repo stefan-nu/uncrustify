@@ -20,16 +20,16 @@
  * @param size the size of the buffer
  * @return     buf (pass through)
  */
-char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
+char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 {
-   if ((buf == NULL) || (size <= 0))
+   if ((buf == NULL) || (size == 0))
    {
       return(buf);
    }
 
    int  last_sev = -1;
    bool is_range = false;
-   int  len      = 0;
+   size_t len    = 0;
 
    for (int sev = 0; sev < 256; sev++)
    {
@@ -37,7 +37,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
       {
          if (last_sev == -1)
          {
-            len += snprintf(&buf[len], size - len, "%d,", sev);
+            len += (size_t)snprintf(&buf[len], size - len, "%d,", sev);
          }
          else
          {
@@ -50,7 +50,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
          if (is_range)
          {
             buf[len - 1] = '-';  /* change last comma to a dash */
-            len         += snprintf(&buf[len], size - len, "%d,", last_sev);
+            len         += (size_t)snprintf(&buf[len], size - len, "%d,", last_sev);
             is_range     = false;
          }
          last_sev = -1;
@@ -61,7 +61,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
    if (is_range && (last_sev != -1))
    {
       buf[len - 1] = '-';  /* change last comma to a dash */
-      len         += snprintf(&buf[len], size - len, "%d", last_sev);
+      len         += (size_t)snprintf(&buf[len], size - len, "%d", last_sev);
    }
    else
    {

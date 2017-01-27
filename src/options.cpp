@@ -74,12 +74,12 @@ static const char *DOC_TEXT_END =
    "#   file_ext CPP .ch .cxx .cpp.in\n"
    "#\n";
 
-map<uncrustify_options, option_map_value> option_name_map;
-map<uncrustify_groups, group_map_value>   group_map;
-static uncrustify_groups                  current_group;
+map<uncrustify_options_t, option_map_value_t> option_name_map;
+map<uncrustify_groups_t, group_map_value_t>   group_map;
+static uncrustify_groups_t                  current_group;
 
 
-const char *get_argtype_name(argtype_e argtype);
+const char *get_argtype_name(argtype_t argtype);
 
 
 /**
@@ -91,18 +91,18 @@ static bool match_text(const char *str1, const char *str2);
 /**
  * Convert the value string to the correct type in dest.
  */
-static void convert_value(const option_map_value *entry, const char *val, op_val_t *dest);
+static void convert_value(const option_map_value_t *entry, const char *val, op_val_t *dest);
 
 
-static void unc_add_option(const char *name, uncrustify_options id, argtype_e type, const char *short_desc = NULL, const char *long_desc = NULL, int min_val = 0, int max_val = 16);
+static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type, const char *short_desc = NULL, const char *long_desc = NULL, int min_val = 0, int max_val = 16);
 
 
-void unc_begin_group(uncrustify_groups id, const char *short_desc,
+void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
                      const char *long_desc)
 {
    current_group = id;
 
-   group_map_value value;
+   group_map_value_t value;
 
    value.id         = id;
    value.short_desc = short_desc;
@@ -112,7 +112,20 @@ void unc_begin_group(uncrustify_groups id, const char *short_desc,
 }
 
 
-static void unc_add_option(const char *name, uncrustify_options id, argtype_e type,
+/* \todo when using C++ the following functions can be overloaded */
+bool is_option_set(argval_t var, argval_t opt)
+{
+   return (( (int)var & opt) == opt);
+}
+
+
+bool is_token_set(tokenpos_t var, tokenpos_t opt)
+{
+   return (( (int)var & opt) == opt);
+}
+
+
+static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
                            const char *short_desc, const char *long_desc,
                            int min_val, int max_val)
 {
@@ -126,7 +139,7 @@ static void unc_add_option(const char *name, uncrustify_options id, argtype_e ty
    }
    group_map[current_group].options.push_back(id);
 
-   option_map_value value;
+   option_map_value_t value;
 
    value.id         = id;
    value.group_id   = current_group;
@@ -206,7 +219,7 @@ static bool match_text(const char *str1, const char *str2)
 }
 
 
-const option_map_value *unc_find_option(const char *name)
+const option_map_value_t *unc_find_option(const char *name)
 {
    const option_name_map_it itE = option_name_map.end();
 
@@ -1580,7 +1593,7 @@ void register_options(void)
 } // register_options
 
 
-const group_map_value *get_group_name(int ug)
+const group_map_value_t *get_group_name(int ug)
 {
    for (group_map_it it = group_map.begin();
         it != group_map.end();
@@ -1595,7 +1608,7 @@ const group_map_value *get_group_name(int ug)
 }
 
 
-const option_map_value *get_option_name(uncrustify_options option)
+const option_map_value_t *get_option_name(uncrustify_options_t option)
 {
    const option_name_map_it it = option_name_map.find(option);
 
@@ -1603,7 +1616,7 @@ const option_map_value *get_option_name(uncrustify_options option)
 }
 
 
-static void convert_value(const option_map_value *entry, const char *val, op_val_t *dest)
+static void convert_value(const option_map_value_t *entry, const char *val, op_val_t *dest)
 {
    if (entry->type == AT_LINE)
    {
@@ -1680,7 +1693,7 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
       return;
    }
 
-   const option_map_value *tmp;
+   const option_map_value_t *tmp;
    if ((entry->type == AT_NUM) ||
        (entry->type == AT_UNUM))
    {
@@ -1816,7 +1829,7 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
 
 int set_option_value(const char *name, const char *value)
 {
-   const option_map_value *entry;
+   const option_map_value_t *entry;
 
    if ((entry = unc_find_option(name)) != NULL)
    {
@@ -2050,7 +2063,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(*it);
 
          if (withDoc && (option->short_desc != NULL) && (*option->short_desc != 0))
          {
@@ -2164,7 +2177,7 @@ void print_options(FILE *pfile)
 
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(*it);
          int                    cur     = strlen(option->name);
          int                    pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n",
@@ -2256,7 +2269,7 @@ void set_option_defaults(void)
 } // set_option_defaults
 
 
-string argtype_to_string(argtype_e argtype)
+string argtype_to_string(argtype_t argtype)
 {
    switch (argtype)
    {
@@ -2288,7 +2301,7 @@ string argtype_to_string(argtype_e argtype)
 }
 
 
-const char *get_argtype_name(argtype_e argtype)
+const char *get_argtype_name(argtype_t argtype)
 {
    switch (argtype)
    {
@@ -2369,7 +2382,7 @@ string number_to_string(int number)
 }
 
 
-string lineends_to_string(lineends_e linends)
+string lineends_to_string(lineends_t linends)
 {
    switch (linends)
    {
@@ -2392,7 +2405,7 @@ string lineends_to_string(lineends_e linends)
 }
 
 
-string tokenpos_to_string(tokenpos_e tokenpos)
+string tokenpos_to_string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
@@ -2427,7 +2440,7 @@ string tokenpos_to_string(tokenpos_e tokenpos)
 }
 
 
-string op_val_to_string(argtype_e argtype, op_val_t op_val)
+string op_val_to_string(argtype_t argtype, op_val_t op_val)
 {
    switch (argtype)
    {

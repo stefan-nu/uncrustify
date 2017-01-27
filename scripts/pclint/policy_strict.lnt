@@ -33,7 +33,7 @@
 +e96					// unmatched left brace for linkage specification
 +e114					// inconsistent
 +e119					// too many arguments 
-+e123					// macro defined with arguments
+-e123					// macro defined with arguments
 +e129					// declaration expected
 +e200					// internal error
 +e438					// last value assignd to variable not used
