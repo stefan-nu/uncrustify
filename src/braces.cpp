@@ -109,7 +109,8 @@ void do_braces(void)
         cpd.settings[UO_mod_full_brace_do].a |
         cpd.settings[UO_mod_full_brace_for].a |
         cpd.settings[UO_mod_full_brace_using].a |
-        cpd.settings[UO_mod_full_brace_while].a) & AV_REMOVE)
+        cpd.settings[UO_mod_full_brace_while].a) &
+        AV_REMOVE)
    {
       examine_braces();
    }
@@ -120,7 +121,8 @@ void do_braces(void)
         cpd.settings[UO_mod_full_brace_for].a |
         cpd.settings[UO_mod_full_brace_function].a |
         cpd.settings[UO_mod_full_brace_using].a |
-        cpd.settings[UO_mod_full_brace_while].a) & AV_ADD)
+        cpd.settings[UO_mod_full_brace_while].a) &
+        AV_ADD)
    {
       convert_vbrace_to_brace();
    }
@@ -239,7 +241,7 @@ static bool can_remove_braces(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *prev      = NULL;
+   const chunk_t *prev = NULL;
    size_t  semi_count = 0;
    size_t  level      = bopen->level + 1;
    bool    hit_semi   = false;
@@ -350,7 +352,7 @@ static bool can_remove_braces(chunk_t *bopen)
 
    if ((pc->type == CT_BRACE_CLOSE) && (pc->parent_type == CT_IF))
    {
-      chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
+      const chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
 
       prev = chunk_get_prev_ncnl(pc, CNAV_PREPROC);
 
@@ -631,6 +633,11 @@ static void convert_vbrace(chunk_t *vbr)
 }
 
 
+bool bit_is_set(UINT64 var, UINT64 flag)
+{
+   return ((var & flag) == flag);
+}
+
 static void convert_vbrace_to_brace(void)
 {
    LOG_FUNC_ENTRY();
@@ -643,7 +650,8 @@ static void convert_vbrace_to_brace(void)
          continue;
       }
 
-      bool in_preproc = (pc->flags & PCF_IN_PREPROC);
+//    bool in_preproc = ((pc->flags & PCF_IN_PREPROC) == PCF_IN_PREPROC);
+      bool in_preproc = bit_is_set(pc->flags, PCF_IN_PREPROC);
 
       if ((((pc->parent_type == CT_IF) ||
             (pc->parent_type == CT_ELSE) ||
@@ -820,8 +828,8 @@ void add_long_closebrace_comment(void)
          continue;
       }
 
-      chunk_t *br_open = pc;
-      size_t  nl_count = 0;
+      const chunk_t *br_open = pc;
+      size_t   nl_count = 0;
 
       chunk_t *tmp = pc;
       while ((tmp = chunk_get_next(tmp)) != NULL)
@@ -880,7 +888,7 @@ void add_long_closebrace_comment(void)
 
                   /* obtain the next chunck, normally this is the name of the namespace
                    * and append it to generate "namespace xyz" */
-                  xstr = ns_pc->str;
+                  xstr = ns_pc->str; // \todo can we be sure that ns_pc is not NULL here
                   xstr.append(" ");
                   append_tag_name(xstr, chunk_get_next(ns_pc));
                }
@@ -1043,7 +1051,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    chunk.orig_line = last->orig_line;
    chunk.str       = "}";
 
-   chunk_t *br_close = chunk_add_before(&chunk, last);
+   const chunk_t *br_close = chunk_add_before(&chunk, last);
    newline_add_before(last);
 
    for (pc = chunk_get_next(br_open, CNAV_PREPROC);
@@ -1065,7 +1073,7 @@ static void mod_case_brace(void)
    chunk_t *pc = chunk_get_head();
    while (pc != NULL)
    {
-      chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
+      const chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
       if (next == NULL)
       {
          return;

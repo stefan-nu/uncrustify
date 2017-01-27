@@ -355,7 +355,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       chunk_flags_set(pc, PCF_IN_SPAREN);
 
       /* Mark everything in the for statement */
-      for (size_t tmp = frm->pse_tos - 1; tmp == 0; tmp--)
+      for (int tmp = frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative dont use size_t */
       {
          if (frm->pse[tmp].type == CT_FOR)
          {

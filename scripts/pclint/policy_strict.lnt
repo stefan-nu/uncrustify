@@ -165,7 +165,7 @@
 +e713 					// Loss of precision
 -e714 					// external variable not referenced
 +e715 					// Symbol not referenced
-+e716					// while(1) found, allow endless loops
+-e716					// while(1) found, allow endless loops
 -e717					// do ... while(0) found
 +e718 					// Symbol undeclared, assumed to return int
 +e719 					// Too many arguments for format
@@ -248,7 +248,7 @@
 +e798 					// Redundant character
 +e799 					// numerical constant 'Integer' larger than unsigned long
 
-+e801 					// Use of goto is deprecated
+-e801 					// Use of goto is deprecated
 +e802 					// Conceivably passing a null pointer to function
 +e803 					// Conceivable data overrun for function
 +e804 					// Conceivable access beyond array for function
@@ -388,7 +388,7 @@
 +e1788					// variable is referenced only by its constructor or destructor
 +e1795					// Template was defined but not instantiated
 -e1904					// old style comments
-+e1923					// defines that could be const variables
+-e1923					// define could be const variable
 -e1924					// C-style cast
 
 //scripts/pclint/au-sm123.lnt 	// also check Scott Meyers rules of all three books

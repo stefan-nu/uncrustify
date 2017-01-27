@@ -33,25 +33,26 @@ dir /s/b %EXC_DIR%\*.lnt		> .\%OUT_DIR%\exceptions.lnt
 
 rem to check single files activate one of the lines below
 rem dir /s/b %SRC_DIR%\align_stack.cpp	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\align.cpp		> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\align.cpp		> .\%OUT_DIR%\files.lnt --> needs rework
 rem dir /s/b %SRC_DIR%\args.cpp			> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\backup.cpp		> .\%OUT_DIR%\files.lnt
-dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\brace_cleanup.cpp> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\braces.cpp		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\chunk_list.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\ChunkStack.cpp	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\combine.cpp		> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\combine.cpp		> .\%OUT_DIR%\files.lnt --> needs rework
 rem dir /s/b %SRC_DIR%\compat_posix.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\compat_win32.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\defines.cpp		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\detect.cpp		> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\indent.cpp 		> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\indent.cpp 		> .\%OUT_DIR%\files.lnt --> needs rework
 rem dir /s/b %SRC_DIR%\keywords.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\lang_pawn.cpp 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\logger.cpp	 	> .\%OUT_DIR%\files.lnt
+dir /s/b %SRC_DIR%\logger.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\logmask.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\md5.cpp		 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt --> needs rework
 rem dir /s/b %SRC_DIR%\options_for_QT.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\options.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\output.cpp	 	> .\%OUT_DIR%\files.lnt
@@ -60,7 +61,7 @@ rem dir /s/b %SRC_DIR%\parse_frame.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\punctuators.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\semicolons.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\sorting.cpp	 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\space.cpp	 	> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\space.cpp	 	> .\%OUT_DIR%\files.lnt --> needs rework
 rem dir /s/b %SRC_DIR%\tokenize_cleanup.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\tokenize.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\unc_text.cpp	 	> .\%OUT_DIR%\files.lnt
