@@ -226,7 +226,7 @@ void tokenize_cleanup(void)
          else
          {
             /* Something else followed by a open brace */
-            chunk_t *tmp = chunk_get_next_ncnl(next);
+            const chunk_t *tmp = chunk_get_next_ncnl(next);
             if ((tmp == NULL) || (tmp->type != CT_BRACE_OPEN))
             {
                set_chunk_type(pc, CT_QUALIFIER);
@@ -285,6 +285,12 @@ void tokenize_cleanup(void)
          }
       }
 
+      assert(next != NULL);	/* \todo SN: next must not be NULL */
+      if(next == NULL)
+      {
+         return;
+      }
+
       if (cpd.lang_flags & LANG_D)
       {
          /* Check for the D string concat symbol '~' */
@@ -340,6 +346,12 @@ void tokenize_cleanup(void)
       /* Change get/set to CT_WORD if not followed by a brace open */
       if ((pc->type == CT_GETSET) && (next->type != CT_BRACE_OPEN))
       {
+         assert(prev != NULL);	/* \todo SN: prev must not be NULL */
+         if(prev == NULL)
+         {
+            return;
+         }
+
          if ((next->type == CT_SEMICOLON) &&
              ((prev->type == CT_BRACE_CLOSE) ||
               (prev->type == CT_BRACE_OPEN) ||
@@ -761,7 +773,7 @@ void tokenize_cleanup(void)
 
             if (tmp->type == CT_WORD)
             {
-               chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
+               const chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
                if ((tmp2 != NULL) &&
                    ((tmp2->type == CT_SEMICOLON) ||
                     (tmp2->type == CT_ASSIGN) ||
@@ -849,7 +861,7 @@ static void check_template(chunk_t *start)
 {
    LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:", __func__, start->orig_line, start->orig_col);
 
-   chunk_t *prev = chunk_get_prev_ncnl(start, CNAV_PREPROC);
+   const chunk_t *prev = chunk_get_prev_ncnl(start, CNAV_PREPROC);
    if (prev == NULL)
    {
       return;

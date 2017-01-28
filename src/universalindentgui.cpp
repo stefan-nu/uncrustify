@@ -23,11 +23,11 @@ void print_universal_indent_cfg(FILE *pfile)
    fprintf(pfile, "[header]\n");
 
    /* Add all the categories */
-   char ch = '=';
-   int  idx;
+   char   ch = '=';
+   size_t idx;
 
    fprintf(pfile, "categories");
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (p_grp != NULL)
@@ -72,7 +72,7 @@ void print_universal_indent_cfg(FILE *pfile)
            UNCRUSTIFY_VERSION);
 
    /* Now add each option */
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (p_grp == NULL)
@@ -105,7 +105,7 @@ void print_universal_indent_cfg(FILE *pfile)
          }
 
          fprintf(pfile, "\n[%s]\n", optionNameReadable);
-         fprintf(pfile, "Category=%d\n", idx);
+         fprintf(pfile, "Category=%zu\n", idx);
 #ifdef DEBUG
          fprintf(pfile, "Description=\"<html>(123)");
          // (123) is a placeholder to be changed with the vim command:

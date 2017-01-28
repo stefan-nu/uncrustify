@@ -46,7 +46,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
       if (pc1->len() != pc2->len())
       {
-         return(pc1->len() - pc2->len());
+         return((long)pc1->len() - (long)pc2->len());
       }
 
       /* Same word, same length. Step to the next chunk. */
@@ -69,7 +69,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* If we hit a newline or NULL, we are done */
       if ((pc1 == NULL) || chunk_is_newline(pc1) ||
-          (pc2 == NULL) || chunk_is_newline(pc2))
+          (pc2 == NULL) || chunk_is_newline(pc2) )
       {
          break;
       }
@@ -128,7 +128,7 @@ void sort_imports(void)
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
    size_t  num_chunks = 0;
-   chunk_t *p_last    = NULL;
+   const chunk_t *p_last    = NULL;
    chunk_t *p_imp     = NULL;
 
    chunk_t *pc = chunk_get_head();

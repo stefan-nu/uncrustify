@@ -46,6 +46,7 @@ typedef uint64_t   UINT64;
 
 
 /* and a nice macro to keep SlickEdit happy */
+// \todo remove this
 #define static_inline    static inline
 
 /* and the ever-so-important array size macro */

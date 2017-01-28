@@ -907,7 +907,7 @@ int set_option_value(const char *name, const char *value);
 bool is_path_relative(const char *path);
 
 
-const group_map_value *get_group_name(int ug);
+const group_map_value *get_group_name(size_t ug);
 
 
 const option_map_value *get_option_name(uncrustify_options uo);

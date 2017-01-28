@@ -45,13 +45,13 @@ rem dir /s/b %SRC_DIR%\compat_posix.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\compat_win32.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\defines.cpp		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\detect.cpp		> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\indent.cpp 		> .\%OUT_DIR%\files.lnt --> needs rework
+rem dir /s/b %SRC_DIR%\indent.cpp 		> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\keywords.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\lang_pawn.cpp 	> .\%OUT_DIR%\files.lnt
-dir /s/b %SRC_DIR%\logger.cpp	 	> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\logger.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\logmask.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\md5.cpp		 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt --> needs rework
+rem dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\options_for_QT.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\options.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\output.cpp	 	> .\%OUT_DIR%\files.lnt
@@ -60,7 +60,7 @@ rem dir /s/b %SRC_DIR%\parse_frame.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\punctuators.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\semicolons.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\sorting.cpp	 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\space.cpp	 	> .\%OUT_DIR%\files.lnt --> needs rework
+rem dir /s/b %SRC_DIR%\space.cpp	 	> .\%OUT_DIR%\files.lnts
 rem dir /s/b %SRC_DIR%\tokenize_cleanup.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\tokenize.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\unc_text.cpp	 	> .\%OUT_DIR%\files.lnt
@@ -69,7 +69,7 @@ rem dir /s/b %SRC_DIR%\uncrustify_emscripten.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\uncrustify.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\unicode.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\universalindentgui.cpp 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\width.cpp 	> .\%OUT_DIR%\files.lnt
+dir /s/b %SRC_DIR%\width.cpp 	> .\%OUT_DIR%\files.lnt
 
 rem to check all source files use the line below
 rem dir /s/b %SRC_DIR%\*.cpp 	> .\%OUT_DIR%\files.lnt

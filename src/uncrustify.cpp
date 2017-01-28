@@ -139,7 +139,7 @@ static void process_source_list(const char *source_list, const char *prefix, con
 int load_header_files(void);
 
 
-static const char *make_output_filename(char *buf, int buf_size, const char *filename, const char *prefix, const char *suffix);
+static const char *make_output_filename(char *buf, size_t buf_size, const char *filename, const char *prefix, const char *suffix);
 
 
 /**
@@ -172,7 +172,7 @@ static void version_exit(void);
 static void redir_stdout(const char *output_file);
 
 #ifdef DEFINE_PCF_NAMES
-static const char *pcf_names[] =
+static const char * const pcf_names[] =
 {
    "IN_PREPROC",        // 0
    "IN_STRUCT",         // 1
@@ -371,7 +371,7 @@ static void version_exit(void)
 static void redir_stdout(const char *output_file)
 {
    /* Reopen stdout */
-   FILE *my_stdout = stdout;
+   const FILE *my_stdout = stdout;
 
    if (output_file != NULL)
    {
@@ -881,8 +881,8 @@ static void process_source_list(const char *source_list,
    while (fgets(linebuf, sizeof(linebuf), p_file) != NULL)
    {
       line++;
-      char *fname = linebuf;
-      int  len    = strlen(fname);
+      char   *fname = linebuf;
+      size_t len    = strlen(fname);
       while ((len > 0) && unc_isspace(*fname))
       {
          fname++;
@@ -930,8 +930,8 @@ static bool read_stdin(file_mem_t &fm)
 
    while (!feof(stdin))
    {
-      int len = fread(buf, 1, sizeof(buf), stdin);
-      for (int idx = 0; idx < len; idx++)
+      size_t len = fread(buf, 1, sizeof(buf), stdin);
+      for (size_t idx = 0; idx < len; idx++)
       {
          dq.push_back(buf[idx]);
       }
@@ -945,12 +945,12 @@ static bool read_stdin(file_mem_t &fm)
 
 static void make_folders(const string &filename)
 {
-   UINT32 last_idx = 0;
+   size_t last_idx = 0;
    char   outname[4096];
 
    snprintf(outname, sizeof(outname), "%s", filename.c_str());
 
-   for (int idx = 0; outname[idx] != 0; idx++)
+   for (size_t idx = 0; outname[idx] != 0; idx++)
    {
       if ((outname[idx] == '/') || (outname[idx] == '\\'))
       {
@@ -1115,16 +1115,16 @@ int load_header_files()
 }
 
 
-static const char *make_output_filename(char *buf, int buf_size,
+static const char *make_output_filename(char *buf, size_t buf_size,
                                         const char *filename,
                                         const char *prefix,
                                         const char *suffix)
 {
-   int len = 0;
+   size_t len = 0;
 
    if (prefix != NULL)
    {
-      len = snprintf(buf, buf_size, "%s/", prefix);
+      len = (size_t)snprintf(buf, buf_size, "%s/", prefix);
    }
 
    snprintf(&buf[len], buf_size - len, "%s%s", filename,
@@ -1137,7 +1137,6 @@ static const char *make_output_filename(char *buf, int buf_size,
 static bool file_content_matches(const string &filename1, const string &filename2)
 {
    struct stat st1, st2;
-   int         fd1, fd2;
 
    /* Check the sizes first */
    if ((stat(filename1.c_str(), &st1) != 0) ||
@@ -1147,10 +1146,12 @@ static bool file_content_matches(const string &filename1, const string &filename
       return(false);
    }
 
+   int fd1;
    if ((fd1 = open(filename1.c_str(), O_RDONLY)) < 0)
    {
       return(false);
    }
+   int fd2;
    if ((fd2 = open(filename2.c_str(), O_RDONLY)) < 0)
    {
       close(fd1);
@@ -1167,11 +1168,11 @@ static bool file_content_matches(const string &filename1, const string &filename
    {
       if (len1 == 0)
       {
-         len1 = read(fd1, buf1, sizeof(buf1));
+         len1 = (size_t)read(fd1, buf1, sizeof(buf1));
       }
       if (len2 == 0)
       {
-         len2 = read(fd2, buf2, sizeof(buf2));
+         len2 = (size_t)read(fd2, buf2, sizeof(buf2));
       }
       if ((len1 == 0) || (len2 == 0))
       {
@@ -1179,7 +1180,7 @@ static bool file_content_matches(const string &filename1, const string &filename
          /* \todo what is if one file is longer
          * than the other, do we miss that ? */
       }
-      int minlen = min(len1, len2);
+      size_t minlen = min(len1, len2);
       if (memcmp(buf1, buf2, minlen) != 0)
       {
          break; /* found a difference */
@@ -1229,13 +1230,13 @@ static bool bout_content_matches(const file_mem_t &fm, bool report_status)
    }
    else
    {
-      for (UINT32 idx = 0; idx < (int)fm.raw.size(); idx++)
+      for (size_t idx = 0; idx < fm.raw.size(); idx++)
       {
          if (fm.raw[idx] != (*cpd.bout)[idx])
          {
             if (report_status)
             {
-               fprintf(stderr, "FAIL: %s (Difference at byte %u)\n",
+               fprintf(stderr, "FAIL: %s (Difference at byte %zu)\n",
                        cpd.filename, idx);
             }
             is_same = false;
@@ -1348,7 +1349,9 @@ static void do_source_file(const char *filename_in,
    {
       if (cpd.if_changed)
       {
-         for (deque<UINT8>::const_iterator i = cpd.bout->begin(), end = cpd.bout->end(); i != end; ++i)
+         deque<UINT8>::const_iterator i   = cpd.bout->begin();
+         deque<UINT8>::const_iterator end = cpd.bout->end();
+         for (; i != end; ++i)
          {
             fputc(*i, pfout);
          }
@@ -2048,12 +2051,13 @@ static void uncrustify_end()
 
 const char *get_token_name(c_token_t token)
 {
-   if ((token >= 0) && (token < (int)ARRAY_SIZE(token_names)) &&
+   if ((token >= 0) &&
+       (token < ARRAY_SIZE(token_names)) &&
        (token_names[token] != NULL))
    {
       return(token_names[token]);
    }
-   return("???");
+   return("unknown");
 }
 
 
@@ -2075,8 +2079,8 @@ c_token_t find_token_name(const char *text)
 
 static bool ends_with(const char *filename, const char *tag, bool case_sensitive = true)
 {
-   int len1 = strlen(filename);
-   int len2 = strlen(tag);
+   size_t len1 = strlen(filename);
+   size_t len2 = strlen(tag);
 
    return((len2 <= len1) &&
           ((case_sensitive && (strcmp(&filename[len1 - len2], tag) == 0)) ||
@@ -2090,7 +2094,7 @@ struct lang_name_t
    int        lang;
 };
 
-static lang_name_t language_names[] =
+static const lang_name_t language_names[] =
 {
    { "C",    LANG_C             },
    { "CPP",  LANG_CPP           },
@@ -2137,7 +2141,7 @@ const char *language_name_from_flags(int lang)
          return(language_names[i].name);
       }
    }
-   return("???");
+   return("unknown");
 }
 
 
@@ -2148,7 +2152,7 @@ struct lang_ext_t
 };
 
 /* maps file extensions to language names */
-struct lang_ext_t language_exts[] =
+const struct lang_ext_t language_exts[] =
 {
    { ".c",    "C"    },
    { ".cpp",  "CPP"  },
@@ -2177,11 +2181,11 @@ struct lang_ext_t language_exts[] =
 };
 
 
-const char *get_file_extension(int &idx)
+const char *get_file_extension(size_t &idx)
 {
    const char *val = NULL;
 
-   if (idx < (int)ARRAY_SIZE(language_exts))
+   if (idx < ARRAY_SIZE(language_exts))
    {
       val = language_exts[idx].ext;
    }
@@ -2239,7 +2243,8 @@ void print_extensions(FILE *pfile)
 static int language_flags_from_filename(const char *filename)
 {
    /* check custom extensions first */
-   for (extension_map_t::iterator it = g_ext_map.begin(); it != g_ext_map.end(); ++it)
+   extension_map_t::iterator it = g_ext_map.begin();
+   for (; it != g_ext_map.end(); ++it)
    {
       if (ends_with(filename, it->first.c_str()))
       {
@@ -2256,7 +2261,8 @@ static int language_flags_from_filename(const char *filename)
    }
 
    /* check again without case sensitivity */
-   for (extension_map_t::iterator it = g_ext_map.begin(); it != g_ext_map.end(); ++it)
+   it = g_ext_map.begin();
+   for (; it != g_ext_map.end(); ++it)
    {
       if (ends_with(filename, it->first.c_str(), false))
       {
