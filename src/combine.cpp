@@ -1178,7 +1178,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
           *
           * FIXME: this check can be done better...
           */
-         tmp = chunk_get_next_type(next, CT_PAREN_CLOSE, next->level);
+         tmp = chunk_get_next_type(next, CT_PAREN_CLOSE, (int)next->level);
          tmp = chunk_get_next(tmp);
          if ((tmp != NULL) && (tmp->type == CT_PAREN_OPEN))
          {
@@ -2139,7 +2139,7 @@ static chunk_t *process_return(chunk_t *pc)
    if (next->type == CT_PAREN_OPEN)
    {
       /* See if the return is fully paren'd */
-      cpar = chunk_get_next_type(next, CT_PAREN_CLOSE, next->level);
+      cpar = chunk_get_next_type(next, CT_PAREN_CLOSE, (int)next->level);
       semi = chunk_get_next_ncnl(cpar);
       if (chunk_is_semicolon(semi))
       {
@@ -2570,7 +2570,7 @@ static void fix_enum_struct_union(chunk_t *pc)
 
       /* Skip to the closing brace */
       set_chunk_parent(next, pc->type);
-      next   = chunk_get_next_type(next, CT_BRACE_CLOSE, pc->level);
+      next   = chunk_get_next_type(next, CT_BRACE_CLOSE, (int)pc->level);
       flags |= PCF_VAR_INLINE;
       if (next != NULL)
       {
@@ -2781,7 +2781,7 @@ static void fix_typedef(chunk_t *start)
    {
       set_chunk_parent(next, tag);
       /* Skip to the closing brace */
-      next = chunk_get_next_type(next, CT_BRACE_CLOSE, next->level, CNAV_PREPROC);
+      next = chunk_get_next_type(next, CT_BRACE_CLOSE, (int)next->level, CNAV_PREPROC);
       if (next != NULL)
       {
          set_chunk_parent(next, tag);
@@ -2913,7 +2913,7 @@ void combine_labels(void)
             if ((tmp != NULL) && (tmp->type == CT_BRACE_OPEN))
             {
                set_chunk_parent(tmp, CT_CASE);
-               tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, tmp->level);
+               tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, (int)tmp->level);
                if (tmp != NULL)
                {
                   set_chunk_parent(tmp, CT_CASE);
@@ -3800,7 +3800,7 @@ static void mark_function(chunk_t *pc)
       LOG_FMT(LFCN, "%s: examine [%zu.%zu] [%s], type %s\n",
               __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
       // look for an assigment. Issue 575
-      chunk_t *temp = chunk_get_next_type(pc, CT_ASSIGN, pc->level);
+      chunk_t *temp = chunk_get_next_type(pc, CT_ASSIGN, (int)pc->level);
       if (temp != NULL)
       {
          LOG_FMT(LFCN, "%s: assigment found [%zu.%zu] [%s]\n",
@@ -4538,7 +4538,7 @@ static chunk_t *skip_align(chunk_t *start)
       pc = chunk_get_next_ncnl(pc);
       if (pc->type == CT_PAREN_OPEN)
       {
-         pc = chunk_get_next_type(pc, CT_PAREN_CLOSE, pc->level);
+         pc = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
          pc = chunk_get_next_ncnl(pc);
          if (pc->type == CT_COLON)
          {
@@ -4725,7 +4725,7 @@ static void handle_cpp_template(chunk_t *pc)
          set_chunk_parent(tmp, CT_TEMPLATE);
 
          /* REVISIT: This may be a bit risky - might need to track the { }; */
-         tmp = chunk_get_next_type(tmp, CT_SEMICOLON, tmp->level);
+         tmp = chunk_get_next_type(tmp, CT_SEMICOLON, (int)tmp->level);
          if (tmp != NULL)
          {
             set_chunk_parent(tmp, CT_TEMPLATE);
@@ -4777,7 +4777,7 @@ static void handle_cpp_lambda(chunk_t *sq_o)
    {
       ret = br_o;
       /* REVISIT: really should check the stuff we are skipping */
-      br_o = chunk_get_next_type(br_o, CT_BRACE_OPEN, br_o->level);
+      br_o = chunk_get_next_type(br_o, CT_BRACE_OPEN, (int)br_o->level);
    }
    if (!br_o || (br_o->type != CT_BRACE_OPEN))
    {
@@ -4939,7 +4939,7 @@ static void mark_template_func(chunk_t *pc, chunk_t *pc_next)
    LOG_FUNC_ENTRY();
 
    /* We know angle_close must be there... */
-   chunk_t *angle_close = chunk_get_next_type(pc_next, CT_ANGLE_CLOSE, pc->level);
+   chunk_t *angle_close = chunk_get_next_type(pc_next, CT_ANGLE_CLOSE, (int)pc->level);
    chunk_t *after       = chunk_get_next_ncnl(angle_close);
    if (after != NULL)
    {
@@ -5017,7 +5017,7 @@ chunk_t *skip_template_next(chunk_t *ang_open)
 {
    if ((ang_open != NULL) && (ang_open->type == CT_ANGLE_OPEN))
    {
-      chunk_t *pc = chunk_get_next_type(ang_open, CT_ANGLE_CLOSE, ang_open->level);
+      chunk_t *pc = chunk_get_next_type(ang_open, CT_ANGLE_CLOSE, (int)ang_open->level);
       return(chunk_get_next_ncnl(pc));
    }
    return(ang_open);
@@ -5028,7 +5028,7 @@ chunk_t *skip_template_prev(chunk_t *ang_close)
 {
    if ((ang_close != NULL) && (ang_close->type == CT_ANGLE_CLOSE))
    {
-      chunk_t *pc = chunk_get_prev_type(ang_close, CT_ANGLE_OPEN, ang_close->level);
+      chunk_t *pc = chunk_get_prev_type(ang_close, CT_ANGLE_OPEN, (int)ang_close->level);
       return(chunk_get_prev_ncnl(pc));
    }
    return(ang_close);
@@ -5053,7 +5053,7 @@ chunk_t *skip_attribute_next(chunk_t *attr)
       chunk_t *pc = chunk_get_next(attr);
       if ((pc != NULL) && (pc->type == CT_FPAREN_OPEN))
       {
-         pc = chunk_get_next_type(attr, CT_FPAREN_CLOSE, attr->level);
+         pc = chunk_get_next_type(attr, CT_FPAREN_CLOSE, (int)attr->level);
          return(chunk_get_next_ncnl(pc));
       }
       return(pc);
@@ -5159,7 +5159,7 @@ static void handle_oc_class(chunk_t *pc)
       {
          do_pl = FOUND_ANGLE_CLOSE;
          set_chunk_parent(tmp, CT_OC_CLASS);
-         tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, tmp->level);
+         tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, (int)tmp->level);
          if (tmp != NULL)
          {
             set_chunk_parent(tmp, CT_OC_CLASS);
@@ -5202,7 +5202,7 @@ static void handle_oc_class(chunk_t *pc)
 
    if ((tmp != NULL) && (tmp->type == CT_BRACE_OPEN))
    {
-      tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, tmp->level);
+      tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, (int)tmp->level);
       if (tmp != NULL)
       {
          set_chunk_parent(tmp, CT_OC_CLASS);

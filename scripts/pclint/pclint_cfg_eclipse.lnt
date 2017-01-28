@@ -31,6 +31,8 @@
 +fll					// enable long long types
 +fqb					// expect const and volatile before type
 +e900					// print total number of errors/warnings
++fzl					// size_t is long
++fzu					// size_t is unsigned
 
 -d__USE_GNU=1
 scripts\pclint\lint_cfg.lnt	// include project specific settings
@@ -44,6 +46,7 @@ scripts\pclint\lint_cfg.lnt	// include project specific settings
 scripts\pclint\policy_strict.lnt	// pclint rules 
 
 -esym(123,min,max)  		// allows users to use min, max as variables
+-function(exit, _assert)	// tell pclint that assert may exit the program
 
 // Disable unwanted warnings
 //-strong(AB,bool)

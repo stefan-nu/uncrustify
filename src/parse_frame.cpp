@@ -39,7 +39,7 @@ void pf_log(log_sev_t logsev, parse_frame_t *pf)
            pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
-   for (int idx = 1; idx <= pf->pse_tos; idx++)
+   for (size_t idx = 1; idx <= pf->pse_tos; idx++)
    {
       LOG_FMT(logsev, " [%s-%d]",
               get_token_name(pf->pse[idx].type),
@@ -157,7 +157,7 @@ void pf_pop(parse_frame_t *pf)
 
 size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 {
-   int in_ifdef = frm->in_ifdef;
+   int in_ifdef = (int)frm->in_ifdef;
    int b4_cnt   = cpd.frame_count;
    size_t pp_level = cpd.pp_level;
 
@@ -165,7 +165,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    {
       return(pp_level);
    }
-   chunk_t *next = chunk_get_next(pc);
+   const chunk_t *next = chunk_get_next(pc);
    if (next == NULL)
    {
       return(pp_level);
@@ -252,7 +252,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          }
          else
          {
-            txt = "???";
+            txt = "unknown";
          }
       }
    }

@@ -241,7 +241,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
 
    if (start->type == CT_ENUM)
    {
-      pc = chunk_get_next_type(start, CT_BRACE_CLOSE, start->level);
+      pc = chunk_get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
       return(pc);
    }
 
@@ -323,7 +323,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    /* handle prototypes */
    if (start == fcn)
    {
-      chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, fcn->level);
+      chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
       last = chunk_get_next(last);
       if ((last != NULL) && (last->type == CT_SEMICOLON))
       {
@@ -404,7 +404,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    if (last->type == CT_BRACE_OPEN)
    {
       set_chunk_parent(last, CT_FUNC_DEF);
-      last = chunk_get_next_type(last, CT_BRACE_CLOSE, last->level);
+      last = chunk_get_next_type(last, CT_BRACE_CLOSE, (int)last->level);
       if (last != NULL)
       {
          set_chunk_parent(last, CT_FUNC_DEF);

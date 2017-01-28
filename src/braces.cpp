@@ -952,7 +952,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
    LOG_FMT(LMCB, "%s: line %zu", __func__, br_open->orig_line);
 
    /* Find the matching brace close */
-   chunk_t *br_close = chunk_get_next_type(br_open, CT_BRACE_CLOSE, br_open->level, CNAV_PREPROC);
+   chunk_t *br_close = chunk_get_next_type(br_open, CT_BRACE_CLOSE, (int)br_open->level, CNAV_PREPROC);
    if (br_close == NULL)
    {
       LOG_FMT(LMCB, " - no close\n");

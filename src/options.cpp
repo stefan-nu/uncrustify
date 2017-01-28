@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include "unc_ctype.h"
 
-static const char *DOC_TEXT_END =
+static const char * const DOC_TEXT_END =
    "\n"
    "# Meaning of the settings:\n"
    "#   Ignore - do not do any changes\n"
@@ -115,13 +115,13 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
 /* \todo when using C++ the following functions can be overloaded */
 bool is_option_set(argval_t var, argval_t opt)
 {
-   return (( (int)var & opt) == opt);
+   return ((var & opt) == opt);
 }
 
 
 bool is_token_set(tokenpos_t var, tokenpos_t opt)
 {
-   return (( (int)var & opt) == opt);
+   return ((var & opt) == opt);
 }
 
 
@@ -129,12 +129,12 @@ static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t 
                            const char *short_desc, const char *long_desc,
                            int min_val, int max_val)
 {
-#define OptionMaxLength    60
-   int lengthOfTheOption = strlen(name);
+#define OptionMaxLength    60u
+   size_t lengthOfTheOption = strlen(name);
    if (lengthOfTheOption > OptionMaxLength)
    {
-      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%d)\n", name, lengthOfTheOption);
-      fprintf(stderr, "FATAL: the maximal length of an option name is %d characters\n", OptionMaxLength);
+      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%zu)\n", name, lengthOfTheOption);
+      fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", OptionMaxLength);
       exit(EXIT_FAILURE);
    }
    group_map[current_group].options.push_back(id);
@@ -1595,9 +1595,8 @@ void register_options(void)
 
 const group_map_value_t *get_group_name(size_t ug)
 {
-   for (group_map_it it = group_map.begin();
-        it != group_map.end();
-        it++)
+   group_map_it it = group_map.begin();
+   for (;it != group_map.end(); it++)
    {
       if (it->second.id == ug)
       {
@@ -1834,7 +1833,7 @@ int set_option_value(const char *name, const char *value)
    if ((entry = unc_find_option(name)) != NULL)
    {
       convert_value(entry, value, &cpd.settings[entry->id]);
-      return(entry->id);
+      return((int)entry->id);
    }
    return(-1);
 }
@@ -1952,7 +1951,7 @@ void process_option_line(char *configLine, const char *filename)
 #ifndef EMSCRIPTEN
    else if (strcasecmp(args[0], "include") == 0)
    {
-      int save_line_no = cpd.line_number;
+      size_t save_line_no = cpd.line_number;
 
       if (is_path_relative(args[1]))
       {
@@ -2064,6 +2063,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
       {
          const option_map_value_t *option = get_option_name(*it);
+         assert(option != NULL);
 
          if (withDoc && (option->short_desc != NULL) && (*option->short_desc != 0))
          {
@@ -2086,8 +2086,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          first = false;
          string     val_string = op_val_to_string(option->type, cpd.settings[option->id]);
          const char *val_str   = val_string.c_str();
-         int        val_len    = strlen(val_str);
-         int        name_len   = strlen(option->name);
+         size_t     val_len    = strlen(val_str);
+         size_t     name_len   = strlen(option->name);
 
          // guy
          bool print_option = true;
@@ -2109,9 +2109,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          }
          if (print_option)
          {
-            int pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1;
-            fprintf(pfile, "%s%*.s= ",
-                    option->name, pad, " ");
+            size_t pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1u;
+            fprintf(pfile, "%s%*.s= ", option->name, (int)pad, " ");
             if (option->type == AT_STRING)
             {
                fprintf(pfile, "\"%s\"", val_str);
@@ -2123,7 +2122,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             if (withDoc)
             {
                fprintf(pfile, "%*.s # %s",
-                       8 - val_len, " ",
+                       (int)(8 - val_len), " ",
                        argtype_to_string(option->type).c_str());
             }
             fputs("\n", pfile);
@@ -2178,11 +2177,11 @@ void print_options(FILE *pfile)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
       {
          const option_map_value_t *option = get_option_name(*it);
-         int                    cur     = strlen(option->name);
-         int                    pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
+         size_t                 cur     = strlen(option->name);
+         size_t                 pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n",
                  option->name,
-                 pad, ' ',
+                 (int)pad, ' ',
                  names[option->type]);
 
          const char *text = option->short_desc;
@@ -2210,7 +2209,7 @@ void print_options(FILE *pfile)
 void set_option_defaults(void)
 {
    /* set all the default values to zero */
-   for (int count = 0; count < UO_option_count; count++)
+   for (size_t count = 0; count < (size_t)UO_option_count; count++)
    {
       cpd.defaults[count].n = 0;
    }
@@ -2262,7 +2261,7 @@ void set_option_defaults(void)
    cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = LWARN;
 
    /* copy all the default values to settings array */
-   for (int count = 0; count < UO_option_count; count++)
+   for (size_t count = 0; count < (size_t)UO_option_count; count++)
    {
       cpd.settings[count].a = cpd.defaults[count].a;
    }
@@ -2440,7 +2439,7 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 }
 
 
-string op_val_to_string(argtype_t argtype, op_val_t op_val)
+string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
 {
    switch (argtype)
    {
@@ -2454,7 +2453,7 @@ string op_val_to_string(argtype_t argtype, op_val_t op_val)
       return(number_to_string(op_val.n));
 
    case AT_UNUM:
-      return(number_to_string(op_val.u));
+      return(number_to_string((int)op_val.u));
 
    case AT_LINE:
       return(lineends_to_string(op_val.le));

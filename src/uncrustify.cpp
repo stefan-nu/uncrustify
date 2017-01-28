@@ -256,13 +256,13 @@ const char *path_basename(const char *path)
 }
 
 
-int path_dirname_len(const char *filename)
+size_t path_dirname_len(const char *filename)
 {
    if (filename == NULL)
    {
       return(0);
    }
-   return((int)(path_basename(filename) - filename));
+   return(path_basename(filename) - filename);
 }
 
 
@@ -751,6 +751,7 @@ int main(int argc, char *argv[])
    p_arg = arg.Unused(idx);
 
    /* Check args - for multifile options */
+#if 0 // SN allow debugging with eclipse
    if ((source_list != NULL) || (p_arg != NULL))
    {
       if (source_file != NULL)
@@ -765,6 +766,7 @@ int main(int argc, char *argv[])
                     argv[0], EX_NOHOST);
       }
    }
+#endif
 
    /* This relies on cpd.filename being the config file name */
    load_header_files();

@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 
+
 enum argtype_t
 {
    AT_BOOL,    /**< true / false */
@@ -28,6 +29,7 @@ enum argtype_t
    AT_UNUM,    /**< unsigned Number */
 };
 
+
 /** Arg values - these are bit fields */
 enum argval_t
 {
@@ -38,6 +40,7 @@ enum argval_t
    AV_NOT_DEFINED = (1u << 2)  /* to be used with QT, SIGNAL SLOT macros */
 };
 
+
 /** Line endings */
 enum lineends_t
 {
@@ -47,22 +50,27 @@ enum lineends_t
    LE_AUTO,    /* keep last */
 };
 
+
 /** Token position - these are bit fields */
 enum tokenpos_t
 {
-   TP_IGNORE      = 0,     /* don't change it */
-   TP_BREAK       = (1u << 0),     /* add a newline before or after the if not present */
-   TP_FORCE       = (1u << 1),     /* force a newline on one side and not the other */
+   TP_IGNORE      = 0,                    /* don't change it */
+   TP_BREAK       = (1u << 0),            /* add a newline before or after the if not present */
+   TP_FORCE       = (1u << 1),            /* force a newline on one side and not the other */
    TP_FORCE_BREAK = (TP_BREAK | TP_FORCE),
-   TP_LEAD        = (1u << 2),     /* at the start of a line or leading if wrapped line */
+   TP_LEAD        = (1u << 2),            /* at the start of a line or leading if wrapped line */
    TP_LEAD_BREAK  = (TP_LEAD | TP_BREAK),
    TP_LEAD_FORCE  = (TP_LEAD | TP_FORCE),
-   TP_TRAIL       = (1u << 3),     /* at the end of a line or trailing if wrapped line */
+   TP_TRAIL       = (1u << 3),            /* at the end of a line or trailing if wrapped line */
    TP_TRAIL_BREAK = (TP_TRAIL | TP_BREAK),
    TP_TRAIL_FORCE = (TP_TRAIL | TP_FORCE),
-   TP_JOIN        = (1u << 4),    /* remove newlines on both sides */
+   TP_JOIN        = (1u << 4),            /* remove newlines on both sides */
 };
 
+
+/** uncrustify options are configured with a parameter of this type
+ * depending on the option the type of the parameter varies. Therefore
+ * we use a union. */
 union op_val_t
 {
    argval_t   a;
@@ -73,6 +81,7 @@ union op_val_t
    const char *str;
    size_t     u;
 };
+
 
 /** Groups for options */
 enum uncrustify_groups_t
@@ -960,7 +969,7 @@ string lineends_to_string(lineends_t linends);
 string tokenpos_to_string(tokenpos_t tokenpos);
 
 
-string op_val_to_string(argtype_t argtype, op_val_t op_val);
+string op_val_to_string(const argtype_t argtype, const op_val_t op_val);
 
 
 bool is_path_relative(const char *path);

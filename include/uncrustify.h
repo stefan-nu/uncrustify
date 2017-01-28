@@ -50,7 +50,7 @@ const char *path_basename(const char *path);
 /**
  * Returns the length of the directory part of the filename.
  */
-int path_dirname_len(const char *filename);
+size_t path_dirname_len(const char *filename);
 
 
 /**

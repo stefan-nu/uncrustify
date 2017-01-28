@@ -39,6 +39,12 @@ using namespace std;
 
 
 /**
+ * universal swap define that works with all variable types
+ */
+#define SWAP(a,b) { __typeof__(a) x = a; a = b; b = x; }
+
+
+/**
  * Brace stage enum used in brace_cleanup
  */
 enum brstage_t

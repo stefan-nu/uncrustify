@@ -7,9 +7,12 @@
 -i".\src"
 
 -iC:\mingw\include
+-iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include
+-iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include\c++\mingw32\bits
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\
--iC:\mingw\lib\gcc\mingw32\4.8.1\include\-fixed
+-iC:\mingw\lib\gcc\mingw32\4.8.1\include-fixed\
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\
+-iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\bits
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\mingw32
 //+libdir(D:\Programme\linaro\gcc-linaro-arm-linux-gnueabihf-4.9-2014.08\*)	// define a directory as holding only headers, may be used with * or ?
 //+libdir(D:\Programme\linaro\gcc-linaro-arm-linux-gnueabihf-4.9-2014.08\libc\usr\include\*)

@@ -19,7 +19,7 @@
  * and more intuitive like chunk.is_comment() */
 
 
-#define ANY_LEVEL    -1
+#define ANY_LEVEL    -1 /* \todo explain level */
 
 
 /**
@@ -224,7 +224,7 @@ chunk_t *chunk_get_prev_ncnlnp(chunk_t *cur, nav_t nav = CNAV_ALL);
  * @return        NULL or the match
  */
 chunk_t
-*chunk_get_next_type(chunk_t *cur, c_token_t type, size_t level, nav_t nav = CNAV_ALL);
+*chunk_get_next_type(chunk_t *cur, c_token_t type, int level, nav_t nav = CNAV_ALL);
 
 
 /**
@@ -236,15 +236,15 @@ chunk_t
  * @return        NULL or the match
  */
 chunk_t
-*chunk_get_prev_type(chunk_t *cur, c_token_t type, size_t level, nav_t nav = CNAV_ALL);
+*chunk_get_prev_type(chunk_t *cur, c_token_t type, int level, nav_t nav = CNAV_ALL);
 
 
 chunk_t
-*chunk_get_next_str(chunk_t *cur, const char *str, size_t len, size_t level, nav_t nav = CNAV_ALL);
+*chunk_get_next_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav = CNAV_ALL);
 
 
 chunk_t
-*chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, size_t level, nav_t nav = CNAV_ALL);
+*chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav = CNAV_ALL);
 
 
 /**

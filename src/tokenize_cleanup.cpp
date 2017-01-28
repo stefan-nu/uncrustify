@@ -623,7 +623,7 @@ void tokenize_cleanup(void)
             chunk_flags_set(tmp, PCF_STMT_START | PCF_EXPR_START);
          }
 
-         tmp = chunk_get_next_type(pc, CT_OC_END, pc->level);
+         tmp = chunk_get_next_type(pc, CT_OC_END, (int)pc->level);
          if (tmp != NULL)
          {
             set_chunk_parent(tmp, pc->type);
@@ -673,7 +673,7 @@ void tokenize_cleanup(void)
             }
          }
 
-         tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, pc->level);
+         tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
          if (tmp != NULL)
          {
             set_chunk_parent(tmp, pc->parent_type);
@@ -694,7 +694,7 @@ void tokenize_cleanup(void)
          {
             set_chunk_parent(next, pc->type);
 
-            chunk_t *tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, pc->level);
+            chunk_t *tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
             if (tmp != NULL)
             {
                set_chunk_parent(tmp, pc->type);
@@ -703,7 +703,7 @@ void tokenize_cleanup(void)
                {
                   chunk_flags_set(tmp, PCF_STMT_START | PCF_EXPR_START);
 
-                  tmp = chunk_get_next_type(tmp, CT_SEMICOLON, pc->level);
+                  tmp = chunk_get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
                   if (tmp != NULL)
                   {
                      set_chunk_parent(tmp, pc->type);

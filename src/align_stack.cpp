@@ -54,6 +54,8 @@ void AlignStack::ReAddSkipped()
       for (size_t idx = 0; idx < m_scratch.Len(); idx++)
       {
          const ChunkStack::Entry *ce = m_scratch.Get(idx);
+         assert(ce != NULL);
+         if(ce == NULL) return;
          LOG_FMT(LAS, "ReAddSkipped [%zu] - ", ce->m_seqnum);
          Add(ce->m_pc, ce->m_seqnum);
       }
