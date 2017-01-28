@@ -631,38 +631,15 @@ bool chunk_is_forin(chunk_t *pc)
 }
 
 
-void set_chunk_type_real(chunk_t *pc, c_token_t tt);
+void set_chunk_type(chunk_t *pc, c_token_t tt);
 
-void set_chunk_parent_real(chunk_t *pc, c_token_t tt);
+void set_chunk_parent(chunk_t *pc, c_token_t tt);
 
+void chunk_flags_set(chunk_t *pc, UINT64 set_bits);
 
-#define set_chunk_type(pc, tt)      do { \
-      LOG_FUNC_CALL();                   \
-      set_chunk_type_real((pc), (tt));   \
-} while (false)
+void chunk_flags_clr(chunk_t *pc, UINT64 clr_bits);
 
-#define set_chunk_parent(pc, tt)    do { \
-      LOG_FUNC_CALL();                   \
-      set_chunk_parent_real((pc), (tt)); \
-} while (false)
+void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits);
 
-
-void chunk_flags_set_real(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits);
-
-
-#define chunk_flags_upd(pc, cc, ss)    do {   \
-      LOG_FUNC_CALL();                        \
-      chunk_flags_set_real((pc), (cc), (ss)); \
-} while (false)
-
-#define chunk_flags_set(pc, ss)        do { \
-      LOG_FUNC_CALL();                      \
-      chunk_flags_set_real((pc), 0, (ss));  \
-} while (false)
-
-#define chunk_flags_clr(pc, cc)        do { \
-      LOG_FUNC_CALL();                      \
-      chunk_flags_set_real((pc), (cc), 0);  \
-} while (false)
 
 #endif /* CHUNK_LIST_H_INCLUDED */

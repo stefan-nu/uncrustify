@@ -390,7 +390,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 
 c_token_t find_keyword_type(const char *word, size_t len)
 {
-   if (len <= 0)
+   if (len == 0)
    {
       return(CT_NONE);
    }

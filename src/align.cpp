@@ -557,6 +557,7 @@ void align_right_comments(void)
          {
             bool    skip  = false;
             const chunk_t *prev = chunk_get_prev(pc);
+            assert(prev != NULL);
             if (pc->orig_col < (size_t)((int)prev->orig_col_end + cpd.settings[UO_align_right_cmt_gap].n))
             {
                // note the use of -5 here (-1 would probably have worked as well) to force
@@ -676,8 +677,9 @@ void align_preprocessor(void)
 
          /* Skip to the close paren */
          pc = chunk_get_next_nc(pc); // point to open (
+         assert(pc != NULL);
          pc = chunk_get_next_type(pc, CT_FPAREN_CLOSE, (int)pc->level);
-
+         assert(pc != NULL);
          LOG_FMT(LALPP, "%s: jumped to (%s) on line %zu col %zu\n",
                  __func__, pc->text(), pc->orig_line, pc->orig_col);
       }

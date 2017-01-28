@@ -16,20 +16,20 @@
 class AlignStack
 {
 public:
-   ChunkStack m_aligned;   /* contains the token that is aligned */
-   ChunkStack m_skipped;   /* contains the tokens sent to Add() */
-   size_t     m_max_col;
-   size_t     m_min_col;
-   size_t     m_span;
-   size_t     m_thresh;
-   size_t     m_seqnum;
-   size_t     m_nl_seqnum;
-   size_t     m_gap;
-   bool       m_right_align;
+   ChunkStack   m_aligned;   /* contains the token that is aligned */
+   ChunkStack   m_skipped;   /* contains the tokens sent to Add() */
+   size_t       m_max_col;
+   size_t       m_min_col;
+   size_t       m_span;
+   size_t       m_thresh;
+   size_t       m_seqnum;
+   size_t       m_nl_seqnum;
+   size_t       m_gap;
+   bool         m_right_align;
    StarStyle_t  m_star_style;
    StarStyle_t  m_amp_style;
    /* do not include the first item if it causes it to be indented */
-   bool       m_skip_first;
+   bool         m_skip_first;
 
 
    AlignStack()
@@ -73,10 +73,15 @@ public:
    }
 
    void Start(size_t span, size_t threshold = 0);
+
    void Add(chunk_t *pc, size_t seqnum = 0);
+
    void NewLines(size_t cnt);
+
    void Flush();
+
    void Reset();
+
    void End();
 
 protected:

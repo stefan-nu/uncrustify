@@ -125,6 +125,12 @@ bool is_token_set(tokenpos_t var, tokenpos_t opt)
 }
 
 
+bool bit_is_set(UINT64 var, UINT64 flag)
+{
+   return ((var & flag) == flag);
+}
+
+
 static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
                            const char *short_desc, const char *long_desc,
                            int min_val, int max_val)

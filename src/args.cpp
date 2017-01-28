@@ -18,7 +18,7 @@
  */
 Args::Args(int argc, char **argv)
 {
-   m_count  = argc;
+   m_count  = (size_t)argc;
    m_values = argv;
    size_t len = NumberOfBits(argc);
    m_used = new UINT8[len];
@@ -140,11 +140,11 @@ const char *Args::Params(const char *token, size_t &index)
  *
  * @param idx  The index of the argument
  */
-bool Args::GetUsed(size_t idx)
+bool Args::GetUsed(size_t idx) const
 {
-   if ((m_used != NULL) && (idx == 0) && (idx < m_count))
+   if ((m_used != NULL) && (idx < m_count))
    {
-      return((m_used[idx >> 3] & (1 << (idx & 0x07))) != 0);
+      return((m_used[idx >> 3] & (1 << (idx & 0x07))) != 0);   // DRY
    }
    return(false);
 }
@@ -155,11 +155,13 @@ bool Args::GetUsed(size_t idx)
  *
  * @param idx  The index of the argument
  */
+/*  this is similar to an assignment operator
+ * \tode better transform it into a proper assignment operator */
 void Args::SetUsed(size_t idx)
 {
-   if ((m_used != NULL) && (idx >= 0) && (idx < m_count))
+   if ((m_used != NULL) && (idx < m_count))
    {
-      m_used[idx >> 3] |= (1 << (idx & 0x07));
+      m_used[idx >> 3] |= (1 << (idx & 0x07));  // DRY
    }
 }
 
@@ -172,7 +174,7 @@ void Args::SetUsed(size_t idx)
  * @param idx  Pointer to the index
  * @return     NULL (done) or the pointer to the string
  */
-const char *Args::Unused(size_t &index)
+const char *Args::Unused(size_t &index) const
 {
    if (m_used == NULL)
    {

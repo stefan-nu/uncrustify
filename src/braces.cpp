@@ -330,7 +330,7 @@ static bool can_remove_braces(chunk_t *bopen)
                 (pc->type == CT_USING_STMT) ||
                 ((pc->type == CT_BRACE_OPEN) && was_fcn))
             {
-               hit_semi |= chunk_is_semicolon(pc);
+               hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
                if (++semi_count > 1)
                {
                   LOG_FMT(LBRDEL, " bailed on %zu because of %s on line %zu\n",
@@ -465,7 +465,7 @@ static void examine_brace(chunk_t *bopen)
                 (pc->type == CT_USING_STMT) ||
                 ((pc->type == CT_BRACE_OPEN) && was_fcn))
             {
-               hit_semi |= chunk_is_semicolon(pc);
+               hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
                if (++semi_count > 1)
                {
                   LOG_FMT(LBRDEL, " bailed on %zu because of %s on line %zu\n",
@@ -495,6 +495,8 @@ static void examine_brace(chunk_t *bopen)
       {
          next = chunk_get_next_ncnl(next);
       }
+
+      assert(next != NULL);
       LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
       if ((if_count > 0) &&
           ((next->type == CT_ELSE) || (next->type == CT_ELSEIF)))
@@ -572,6 +574,7 @@ static void convert_brace(chunk_t *br)
 
    if (chunk_is_newline(tmp))
    {
+      assert(tmp != NULL);
       if (tmp->nl_count > 1)
       {
          tmp->nl_count--;
@@ -632,11 +635,6 @@ static void convert_vbrace(chunk_t *vbr)
    }
 }
 
-
-bool bit_is_set(UINT64 var, UINT64 flag)
-{
-   return ((var & flag) == flag);
-}
 
 static void convert_vbrace_to_brace(void)
 {
@@ -770,6 +768,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
       }
    }
 
+   assert(pc != NULL);
    txt += pc->str;
    while ((pc = chunk_get_next_ncnl(pc)) != NULL)
    {
@@ -888,6 +887,7 @@ void add_long_closebrace_comment(void)
 
                   /* obtain the next chunck, normally this is the name of the namespace
                    * and append it to generate "namespace xyz" */
+                  assert(ns_pc != NULL);
                   xstr = ns_pc->str; // \todo can we be sure that ns_pc is not NULL here
                   xstr.append(" ");
                   append_tag_name(xstr, chunk_get_next(ns_pc));
@@ -1042,8 +1042,10 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    chunk.parent_type = CT_CASE;
    chunk.level       = cl_colon->level;
    chunk.brace_level = cl_colon->brace_level;
-   chunk.flags       = pc->flags & PCF_COPY_FLAGS;
    chunk.str         = "{";
+
+   assert(pc != NULL);
+   chunk.flags       = pc->flags & PCF_COPY_FLAGS;
 
    chunk_t *br_open = chunk_add_after(&chunk, cl_colon);
 
@@ -1058,6 +1060,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
         pc != br_close;
         pc = chunk_get_next(pc, CNAV_PREPROC))
    {
+      assert(pc != NULL);
       pc->level++;
       pc->brace_level++;
    }

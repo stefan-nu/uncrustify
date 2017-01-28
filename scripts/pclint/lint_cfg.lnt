@@ -7,6 +7,7 @@
 -i".\src"
 
 -iC:\mingw\include
+-iC:\mingw\include\ddk
 -iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include
 -iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include\c++\mingw32\bits
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\

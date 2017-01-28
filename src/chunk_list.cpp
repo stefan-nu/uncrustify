@@ -187,6 +187,9 @@ chunk_t *chunk_search_next_cat(chunk_t *pc, const c_token_t cat)
 }
 
 
+static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
+
+
 static chunk_t
 *chunk_search_type(chunk_t *cur, const c_token_t type, const nav_t nav, const loc_t dir)
 {
@@ -222,7 +225,7 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, nav_t nav, loc_t d
    do                                /* loop over the chunk list */
    {
       pc = search_function(pc, nav); /* in either direction while */
-#if DEBUG
+#ifdef DEBUG
       if (pc != NULL)
       {
          LOG_FMT(LCHUNK, "%s(%d): pc: %s, type is %s, orig_line=%zu, orig_col=%zu\n",
@@ -465,7 +468,7 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 {
    LOG_FUNC_ENTRY();
 
-   if (pc_in != NULL)
+   if ((pc_in != NULL) && (ref != NULL))
    {
       g_cl.Pop(pc_in);
       g_cl.AddAfter(pc_in, ref);
@@ -693,12 +696,11 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 } // chunk_swap_lines
 
 
-void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
-
-
-void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
+static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
 {
    LOG_FUNC_ENTRY();
+
+   assert(pc != NULL);
 
    c_token_t       *where;
    const c_token_t *type;
@@ -732,19 +734,35 @@ void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *st
 }
 
 
-void set_chunk_type_real(chunk_t *pc, c_token_t tt)
+void set_chunk_type(chunk_t *pc, c_token_t tt)
 {
-   set_chunk_real(pc, tt, LSETTYP, "set_chunk_type");
+   LOG_FUNC_CALL();
+   set_chunk(pc, tt, LSETTYP, "set_chunk_type");
 }
 
 
-void set_chunk_parent_real(chunk_t *pc, c_token_t pt)
+void set_chunk_parent(chunk_t *pc, c_token_t pt)
 {
-   set_chunk_real(pc, pt, LSETPAR, "set_chunk_parent");
+   LOG_FUNC_CALL();
+   set_chunk(pc, pt, LSETPAR, "set_chunk_parent");
 }
 
 
-void chunk_flags_set_real(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
+void chunk_flags_set(chunk_t *pc, UINT64 set_bits)
+{
+   LOG_FUNC_CALL();
+   chunk_flags_update(pc, 0, set_bits);
+}
+
+
+void chunk_flags_clr(chunk_t *pc, UINT64 clr_bits)
+{
+   LOG_FUNC_CALL();
+   chunk_flags_update(pc, clr_bits, 0);
+}
+
+
+void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
 {
    LOG_FUNC_ENTRY();
 

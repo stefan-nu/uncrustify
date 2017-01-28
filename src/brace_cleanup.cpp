@@ -355,7 +355,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       chunk_flags_set(pc, PCF_IN_SPAREN);
 
       /* Mark everything in the for statement */
-      for (int tmp = frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative dont use size_t */
+      for (int tmp = (int)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative dont use size_t */
       {
          if (frm->pse[tmp].type == CT_FOR)
          {
@@ -1030,7 +1030,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
          }
       }
 
-      /* \todo check if ref != NULL */
+      assert(ref != NULL);
       chunk.orig_line = ref->orig_line;
       chunk.column    = ref->column + ref->len() + 1;
       chunk.type      = CT_VBRACE_OPEN;

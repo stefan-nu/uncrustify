@@ -533,13 +533,13 @@ void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags, UINT64 clr_flag
    LOG_FUNC_ENTRY();
    while (start && (start != end))
    {
-      chunk_flags_upd(start, clr_flags, set_flags);
+      chunk_flags_update(start, clr_flags, set_flags);
 
       start = chunk_get_next(start, nav);
    }
    if (end)
    {
-      chunk_flags_upd(end, clr_flags, set_flags);
+      chunk_flags_update(end, clr_flags, set_flags);
    }
 }
 

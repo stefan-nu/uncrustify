@@ -901,6 +901,8 @@ bool is_token_set(tokenpos_t var,  /**< [in] variable to check */
                   tokenpos_t opt); /**< [in] Token combination to check for */
 
 
+bool bit_is_set(UINT64 var, UINT64 flag);
+
 
 /**
  * Sets non-zero settings defaults

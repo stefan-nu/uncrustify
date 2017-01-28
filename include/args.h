@@ -86,7 +86,7 @@ public:
     *
     * @param idx  The index of the argument
     */
-   bool GetUsed(size_t idx);
+   bool GetUsed(size_t idx) const;
 
    /**
     * This function retrieves all unused parameters.
@@ -96,7 +96,7 @@ public:
     * @param idx  Pointer to the index
     * @return     NULL (done) or the pointer to the string
     */
-   const char *Unused(size_t &idx);
+   const char *Unused(size_t &idx) const;
 
    /**
     * Takes text and splits it into arguments.
