@@ -34,7 +34,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data);
 /**
  * Extract 2 bytes from the stream and increment idx by 2
  */
-static int get_word(const vector<UINT8> &in_data, int &idx, bool be);
+static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be);
 
 
 /**
@@ -72,7 +72,7 @@ static bool is_ascii(const vector<UINT8> &data, int &non_ascii_cnt, int &zero_cn
 {
    non_ascii_cnt = 0;
    zero_cnt      = 0;
-   for (int idx = 0; idx < (int)data.size(); idx++)
+   for (size_t idx = 0; idx < data.size(); idx++)
    {
       if (data[idx] & 0x80)
       {
@@ -89,8 +89,9 @@ static bool is_ascii(const vector<UINT8> &data, int &non_ascii_cnt, int &zero_cn
 
 static bool decode_bytes(const vector<UINT8> &in_data, deque<int> &out_data)
 {
-   out_data.resize(in_data.size());
-   for (int idx = 0; idx < (int)in_data.size(); idx++)
+   size_t out_size = in_data.size();
+   out_data.resize(out_size);
+   for (size_t idx = 0; idx < out_size; idx++)
    {
       out_data[idx] = in_data[idx];
    }
@@ -112,49 +113,49 @@ void encode_utf8(int ch, vector<UINT8> &res)
    else if (ch < 0x0800)
    {
       /* 110xxxxx 10xxxxxx */
-      res.push_back(0xC0 | (ch >> 6));
-      res.push_back(0x80 | (ch & 0x3f));
+      res.push_back(0xC0 | ((ch >> 6)       ));
+      res.push_back(0x80 | ((ch >> 0) & 0x3f));
    }
    else if (ch < 0x10000)
    {
       /* 1110xxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xE0 | (ch >> 12));
+      res.push_back(0xE0 | ((ch >> 12)      ));
       res.push_back(0x80 | ((ch >> 6) & 0x3f));
-      res.push_back(0x80 | (ch & 0x3f));
+      res.push_back(0x80 | ((ch >> 0) & 0x3f));
    }
    else if (ch < 0x200000)
    {
       /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xF0 | (ch >> 18));
+      res.push_back(0xF0 | ((ch >> 18)       ));
       res.push_back(0x80 | ((ch >> 12) & 0x3f));
-      res.push_back(0x80 | ((ch >> 6) & 0x3f));
-      res.push_back(0x80 | (ch & 0x3f));
+      res.push_back(0x80 | ((ch >>  6) & 0x3f));
+      res.push_back(0x80 | ((ch >>  0) & 0x3f));
    }
    else if (ch < 0x4000000)
    {
       /* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xF8 | (ch >> 24));
+      res.push_back(0xF8 | ((ch >> 24)       ));
       res.push_back(0x80 | ((ch >> 18) & 0x3f));
       res.push_back(0x80 | ((ch >> 12) & 0x3f));
-      res.push_back(0x80 | ((ch >> 6) & 0x3f));
-      res.push_back(0x80 | (ch & 0x3f));
+      res.push_back(0x80 | ((ch >>  6) & 0x3f));
+      res.push_back(0x80 | ((ch >>  0) & 0x3f));
    }
    else /* (ch <= 0x7fffffff) */
    {
       /* 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xFC | (ch >> 30));
+      res.push_back(0xFC | ((ch >> 30)       ));
       res.push_back(0x80 | ((ch >> 24) & 0x3f));
       res.push_back(0x80 | ((ch >> 18) & 0x3f));
       res.push_back(0x80 | ((ch >> 12) & 0x3f));
-      res.push_back(0x80 | ((ch >> 6) & 0x3f));
-      res.push_back(0x80 | (ch & 0x3f));
+      res.push_back(0x80 | ((ch >>  6) & 0x3f));
+      res.push_back(0x80 | ((ch >>  0) & 0x3f));
    }
 } // encode_utf8
 
 
 static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
 {
-   int idx = 0;
+   size_t idx = 0;
    int cnt;
 
    out_data.clear();
@@ -171,7 +172,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
       }
    }
 
-   while (idx < (int)in_data.size())
+   while (idx < in_data.size())
    {
       int ch = in_data[idx++];
       if (ch < 0x80)                   /* 1-byte sequence */
@@ -210,7 +211,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
          return(false);
       }
 
-      while ((cnt-- > 0) && (idx < (int)in_data.size()))
+      while ((cnt-- > 0) && (idx < in_data.size()))
       {
          int tmp = in_data[idx++];
          if ((tmp & 0xC0) != 0x80)
@@ -231,11 +232,11 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
 } // decode_utf8
 
 
-static int get_word(const vector<UINT8> &in_data, int &idx, bool be)
+static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be)
 {
    int ch;
 
-   if ((idx + 2) > (int)in_data.size())
+   if ((idx + 2) > in_data.size())
    {
       ch = -1;
    }
@@ -268,7 +269,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, Cha
       return(false);
    }
 
-   int idx = 2;
+   size_t idx = 2;
    if ((in_data[0] == 0xfe) && (in_data[1] == 0xff))
    {
       enc = ENC_UTF16_BE;
@@ -302,7 +303,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, Cha
 
    bool be = (enc == ENC_UTF16_BE);
 
-   while (idx < (int)in_data.size())
+   while (idx < in_data.size())
    {
       int ch = get_word(in_data, idx, be);
       if ((ch & 0xfc00) == 0xd800)
@@ -387,8 +388,8 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEnco
    }
 
    /* There are alot of 0's in UTF-16 (~50%) */
-   if ((zero_cnt > ((int)in_data.size() / 4)) &&
-       (zero_cnt <= ((int)in_data.size() / 2)))
+   if ((zero_cnt >  ((int)in_data.size() / 4)) &&
+       (zero_cnt <= ((int)in_data.size() / 2)) )
    {
       /* likely is UTF-16 */
       if (decode_utf16(in_data, out_data, enc))
@@ -435,7 +436,7 @@ static void write_utf8(int ch)
    vv.reserve(6);
 
    encode_utf8(ch, vv);
-   for (int idx = 0; idx < (int)vv.size(); idx++)
+   for (size_t idx = 0; idx < vv.size(); idx++)
    {
       write_byte(vv[idx]);
    }
@@ -445,7 +446,8 @@ static void write_utf8(int ch)
 static void write_utf16(int ch, bool be)
 {
    /* U+0000 to U+D7FF and U+E000 to U+FFFF */
-   if (((ch >= 0) && (ch < 0xD800)) || ((ch >= 0xE000) && (ch < 0x10000)))
+   if (((ch >=      0) && (ch < 0x0D800)) ||
+       ((ch >= 0xE000) && (ch < 0x10000)) )
    {
       if (be)
       {
@@ -542,7 +544,7 @@ void write_char(int ch)
 
 void write_string(const unc_text &text)
 {
-   for (int idx = 0; idx < (int)text.size(); idx++)
+   for (size_t idx = 0; idx < text.size(); idx++)
    {
       write_char(text[idx]);
    }

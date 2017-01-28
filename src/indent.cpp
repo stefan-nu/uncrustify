@@ -176,7 +176,7 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc);
 static size_t token_indent(c_token_t type);
 
 
-static int calc_indent_continue(parse_frame_t &frm, int pse_tos);
+static size_t calc_indent_continue(parse_frame_t &frm, size_t pse_tos);
 
 
 /**

@@ -33,8 +33,8 @@ struct tok_info
 
    int last_ch;
    int idx;
-   int row;
-   int col;
+   size_t row;	// \todo check this
+   size_t col;
 };
 
 struct tok_ctx
@@ -294,7 +294,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc);
 
 /**
  * Figure of the length of the code placeholder at text, if present.
- * This is only for Xcode which sometimes inserts temporary code placeholder chunks, which in plaintext <#look like this#>.
+ * This is only for Xcode which sometimes inserts temporary code placeholder
+ * chunks, which in plaintext <#look like this#>.
  *
  * @param pc   The structure to update, str is an input.
  * @return     Whether a placeholder was parsed.
@@ -594,7 +595,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 
             tok_info ss;
             ctx.save(ss);
-            int      oldsize = pc.str.size();
+            size_t oldsize = pc.str.size();
 
             /* If there is another C comment right after this one, combine them */
             while ((ctx.peek() == ' ') || (ctx.peek() == '\t'))
@@ -708,7 +709,7 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
    if (CharTable::IsKw1(ctx.peek()))
    {
       int slen    = 0;
-      int oldsize = pc.str.size();
+      size_t oldsize = pc.str.size();
 
       /* don't add the suffix if we see L" or L' or S" */
       int p1 = ctx.peek();
@@ -1336,7 +1337,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
 
 static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
 {
-   int nl_count = 0;
+   size_t nl_count = 0;
    int ch       = -2;
 
    /* REVISIT: use a better whitespace detector? */
@@ -1464,7 +1465,7 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
 
 static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 {
-   int nl_count = 0;
+   size_t nl_count = 0;
 
    /* Parse off newlines/blank lines */
    while (parse_newline(ctx))
@@ -1831,7 +1832,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    const chunk_tag_t *punc;
    if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != NULL)
    {
-      int cnt = strlen(punc->tag);
+      int cnt = (int)strlen(punc->tag);	// \todo can cnt be size_t?
       while (cnt--)
       {
          pc.str.append(ctx.get());
@@ -1870,10 +1871,10 @@ void tokenize(const deque<int> &data, chunk_t *ref)
    tok_ctx       ctx(data);
    chunk_t       chunk;
    chunk_t       *pc    = NULL;
-   chunk_t       *rprev = NULL;
+   const chunk_t *rprev = NULL;
    parse_frame_t frm;
    bool          last_was_tab = false;
-   int           prev_sp      = 0;
+   size_t        prev_sp      = 0;
 
    cpd.unc_stage = US_TOKENIZE;
 
@@ -1942,6 +1943,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
+         assert(pc != NULL);
          if (pc->type == CT_NEWLINE)
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);

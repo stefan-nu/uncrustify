@@ -72,7 +72,7 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
    {
       return(0);
    }
-   return(len1 - len2);
+   return((int)(len1 - len2));
 }
 
 
@@ -314,7 +314,7 @@ int unc_text::find(const char *text, size_t sidx) const
       }
       if (match) // found at position 'idx'
       {
-         return(idx);
+         return((int)idx);
       }
    }
    // 'text' not found
@@ -345,7 +345,7 @@ int unc_text::rfind(const char *text, size_t sidx) const
       }
       if (match)
       {
-         return(idx);
+         return((int)idx);
       }
    }
    return(-1);
@@ -375,5 +375,5 @@ int unc_text::replace(const char *oldtext, const unc_text &newtext)
       insert((size_t)fidx, newtext);
       fidx = find(oldtext, (size_t)fidx + newtext_size - olen + 1);
    }
-   return(rcnt);
+   return((int)rcnt);
 }

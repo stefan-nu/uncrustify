@@ -57,7 +57,7 @@ int path_dirname_len(const char *filename);
  * Set idx = 0 before the first call.
  * Done when returns NULL
  */
-const char *get_file_extension(int &idx);
+const char *get_file_extension(size_t &idx);
 
 
 /**

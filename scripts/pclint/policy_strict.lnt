@@ -1,6 +1,6 @@
 // uncrustify policy
--passes(2)              // number of analysis passes (higher values give better detection but slower)                                           
--static_depth(2)        // number of analyzed redirection for static variables 
+-passes(6)              // number of analysis passes (higher values give better detection but slower)                                           
+-static_depth(6)        // number of analyzed redirection for static variables 
 //-w2                   // suppress informational messages  
 // -strong(AJX)    		// All typedefs must match exactly
 -w3						// display informational messages  
@@ -164,7 +164,7 @@
 +e712 					// Loss of precision
 +e713 					// Loss of precision
 -e714 					// external variable not referenced
-+e715 					// Symbol not referenced
+-e715 					// Symbol not referenced
 -e716					// while(1) found, allow endless loops
 -e717					// do ... while(0) found
 +e718 					// Symbol undeclared, assumed to return int
@@ -178,7 +178,7 @@
 +e727 					// local static variable not explicitly initialized
 +e728 					// global static variable not explicitly initialized
 +e729 					// exteral variable not explicitly initialized
-+e730 					// Boolean argument to function
+-e730 					// Boolean argument to function
 -e731					// Boolean argument to equal/not equal
 +e732 					// Loss of sign
 +e733 					// Assigning address of auto variable to outer scope symbol
@@ -277,7 +277,7 @@
 -e831					// print error location indicator
 +e832 					// Parameter 'Symbol' not explicitly declared
 +e833 					// Symbol is typed differently in another module
-+e834 					// missing parentheses between operators
+-e834 					// missing parentheses between operators
 -e835 					// A zero has been given as [left/right] argument to operator
 +e836 					// Conceivable access of pointer pointing Integer bytes past nul
 +e838 					// Previously assigned value to variable has not been used
@@ -290,7 +290,7 @@
 +e847 					// Thread has unprotected call to thread unsafe function
 +e849 					// Two enumerators have the same value
 +e850 					// loop index variable is modified in body of the for loop
-+e864 					// Expression possibly depends on order of evaluation
+-e864 					// Expression possibly depends on order of evaluation
 +e866 					// Unusual use of 'String' in argument to sizeof
 
 +e900					// print total number of errors/warnings
@@ -308,7 +308,7 @@
 +e918 					// Prototype coercion (Context) of pointers
 -e919 					// (noisy) Implicit conversion (Context) Type to Type
 -e920 					// Cast from Type to void
-+e931 					// Both sides have side effects
+-e931 					// Both sides have side effects
 +e932 					// Passing near pointer to library function 'Symbol'
 +e933 					// Passing near pointer to far function (Context)
 +e934 					// taking address of near auto variable 'Symbol'

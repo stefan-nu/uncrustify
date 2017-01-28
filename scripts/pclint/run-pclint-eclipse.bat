@@ -52,7 +52,7 @@ rem dir /s/b %SRC_DIR%\lang_pawn.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\logger.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\logmask.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\md5.cpp		 	> .\%OUT_DIR%\files.lnt
-dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\newlines.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\options_for_QT.cpp	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\options.cpp	 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\output.cpp	 	> .\%OUT_DIR%\files.lnt
@@ -70,7 +70,7 @@ rem dir /s/b %SRC_DIR%\uncrustify_emscripten.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\uncrustify.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\unicode.cpp 	> .\%OUT_DIR%\files.lnt
 rem dir /s/b %SRC_DIR%\universalindentgui.cpp 	> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\width.cpp 	> .\%OUT_DIR%\files.lnt
+dir /s/b %SRC_DIR%\width.cpp 	> .\%OUT_DIR%\files.lnt
 
 rem to check all source files use the line below
 rem dir /s/b %SRC_DIR%\*.cpp 	> .\%OUT_DIR%\files.lnt
