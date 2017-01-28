@@ -628,7 +628,7 @@ void output_text(FILE *pfile)
                           ((prev->column + prev->len() + 1) != pc->column));
             if (cpd.settings[UO_align_keep_tabs].b)
             {
-               allow_tabs |= pc->after_tab;
+               allow_tabs = (pc->after_tab == true) ? true : allow_tabs;
             }
             LOG_FMT(LOUTIND, " %zu(%d) -", pc->column, allow_tabs);
          }
@@ -1296,7 +1296,7 @@ static void output_comment_multi(chunk_t *pc)
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
    size_t cmt_col  = cmt.base_col;
-   int    col_diff = pc->orig_col - cmt.base_col;
+   int    col_diff = (int)pc->orig_col - (int)cmt.base_col;
 
    calculate_comment_body_indent(cmt, pc->str);
 
@@ -1373,7 +1373,7 @@ static void output_comment_multi(chunk_t *pc)
                   (line[nwidx + 1] != '\n'))
                  : true))
             {
-               prev_nonempty_line = nwidx;      // last nonwhitespace char in the previous line
+               prev_nonempty_line = (int)nwidx;      // last nonwhitespace char in the previous line
             }
          }
 
@@ -1394,7 +1394,7 @@ static void output_comment_multi(chunk_t *pc)
                    (pc->str[nxt_len + 1] != '\n'))
                   : true)))
             {
-               next_nonempty_line = nxt_len;      // first nonwhitespace char in the next line
+               next_nonempty_line = (int)nxt_len;      // first nonwhitespace char in the next line
             }
          }
 
@@ -1458,7 +1458,7 @@ static void output_comment_multi(chunk_t *pc)
          {
             nl_end = true;
             line.pop_back();
-            cmt_trim_whitespace(line, pc->flags & PCF_IN_PREPROC);
+            cmt_trim_whitespace(line, is_bit_set(pc->flags, PCF_IN_PREPROC));
          }
 
          // LOG_FMT(LSYS, "[%3d]%s\n", ccol, line);
@@ -1934,13 +1934,13 @@ static void do_kw_subst(chunk_t *pc)
             /* if the replacement contains '\n' we need to fix the lead */
             if (tmp_txt.find("\n") >= 0)
             {
-               int nl_idx = pc->str.rfind("\n", idx);
+               int nl_idx = pc->str.rfind("\n", (size_t)idx);
                if (nl_idx > 0)
                {
                   unc_text nl_txt;
                   nl_txt.append("\n");
                   nl_idx++;
-                  while ((nl_idx < (size_t)idx) && !unc_isalnum(pc->str[nl_idx]))
+                  while ((nl_idx < idx) && !unc_isalnum(pc->str[nl_idx]))
                   {
                      nl_txt.append(pc->str[nl_idx++]);
                   }
@@ -1964,7 +1964,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
    if (chunk_is_newline(chunk_get_prev(pc)))
    {
       /* The comment should be indented correctly */
-      col_diff = pc->orig_col - pc->column;
+      col_diff = (int)pc->orig_col - (int)pc->column;
    }
    else
    {
@@ -2032,7 +2032,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
 
          if (line_count > 1)
          {
-            ccol -= col_diff;
+            ccol = (size_t)((int)ccol - col_diff);
          }
 
          if (line.size() > 0)
@@ -2061,7 +2061,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
    {
       if (column == -1)
       {
-         column = pc->column;
+         column = (int)pc->column;
       }
       if ((pc->type == CT_NEWLINE) ||
           (pc->type == CT_COMMENT_MULTI) ||
@@ -2080,13 +2080,13 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       }
       else // if (pc->type == CT_JUNK) || else
       {
-         for (int spacing = pc->column - column; spacing > 0; spacing--)
+         for (int spacing = (int)pc->column - column; spacing > 0; spacing--)
          {
             dst += ' ';
             column++;
          }
          dst.append(pc->str);
-         column += pc->len();
+         column += (int)pc->len();
       }
    }
 } // generate_if_conditional_as_text

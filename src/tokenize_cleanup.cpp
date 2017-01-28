@@ -294,10 +294,11 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_D)
       {
          /* Check for the D string concat symbol '~' */
-         if ((pc->type == CT_INV) &&
+         if ( (pc->type == CT_INV)
+               &&
              ((prev->type == CT_STRING) ||
               (prev->type == CT_WORD) ||
-              (next->type == CT_STRING)))
+              (next->type == CT_STRING))) /*lint !e613 */
          {
             set_chunk_type(pc, CT_CONCAT);
          }
@@ -307,7 +308,7 @@ void tokenize_cleanup(void)
              (prev->type == CT_WORD) &&
              ((next->type == CT_PAREN_OPEN) ||
               (next->type == CT_WORD) ||
-              (next->type == CT_TYPE)))
+              (next->type == CT_TYPE))) /*lint !e613 */
          {
             set_chunk_type(pc, CT_D_TEMPLATE);
          }
@@ -611,6 +612,7 @@ void tokenize_cleanup(void)
           (pc->type == CT_OC_INTF) ||
           (pc->type == CT_OC_PROTOCOL))
       {
+         assert(next != NULL);
          if (next->type != CT_PAREN_OPEN)
          {
             set_chunk_type(next, CT_OC_CLASS);
@@ -654,7 +656,7 @@ void tokenize_cleanup(void)
       if (((pc->parent_type == CT_OC_IMPL) ||
            (pc->parent_type == CT_OC_INTF) ||
            (pc->type == CT_OC_CLASS)) &&
-          (next->type == CT_PAREN_OPEN))
+          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
       {
          set_chunk_parent(next, pc->parent_type);
 
@@ -686,6 +688,7 @@ void tokenize_cleanup(void)
        */
       if (pc->type == CT_OC_PROPERTY)
       {
+         assert(next != NULL);
          if (next->type != CT_PAREN_OPEN)
          {
             chunk_flags_set(next, PCF_STMT_START | PCF_EXPR_START);
@@ -718,7 +721,7 @@ void tokenize_cleanup(void)
        *  @selector(msgNameWith1Arg:)
        *  @selector(msgNameWith2Args:arg2Name:)
        */
-      if ((pc->type == CT_OC_SEL) && (next->type == CT_PAREN_OPEN))
+      if ((pc->type == CT_OC_SEL) && (next->type == CT_PAREN_OPEN)) /*lint !e613 */
       {
          set_chunk_parent(next, pc->type);
 
@@ -744,13 +747,15 @@ void tokenize_cleanup(void)
       /* Handle special preprocessor junk */
       if (pc->type == CT_PREPROC)
       {
+         assert(next != NULL);
          set_chunk_parent(pc, next->type);
       }
 
       /* Detect "pragma region" and "pragma endregion" */
-      if ((pc->type == CT_PP_PRAGMA) && (next->type == CT_PREPROC_BODY))
+      if ((pc->type == CT_PP_PRAGMA) && (next->type == CT_PREPROC_BODY)) /*lint !e613 */
       {
-         if ((memcmp(next->str.c_str(), "region", 6) == 0) ||
+         assert(next != NULL);
+         if ((memcmp(next->str.c_str(), "region",    6) == 0) ||
              (memcmp(next->str.c_str(), "endregion", 9) == 0))
          /* \todo probably better use strncmp */
          {
@@ -763,7 +768,7 @@ void tokenize_cleanup(void)
       /* Check for C# nullable types '?' is in next */
       if ((cpd.lang_flags & LANG_CS) &&
           (next->type == CT_QUESTION) &&
-          (next->orig_col == (pc->orig_col + pc->len())))
+          (next->orig_col == (pc->orig_col + pc->len()))) /*lint !e613 */
       {
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (tmp != NULL)
@@ -786,6 +791,7 @@ void tokenize_cleanup(void)
 
             if (doit)
             {
+               assert(next != NULL);
                pc->str         += next->str;
                pc->orig_col_end = next->orig_col_end;
                chunk_del(next);
@@ -797,19 +803,19 @@ void tokenize_cleanup(void)
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS) &&
           (pc->type == CT_DEFAULT) &&
-          (next->type == CT_PAREN_OPEN))
+          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
       {
          set_chunk_type(pc, CT_SIZEOF);
       }
 
-      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN))
+      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN)) /*lint !e613 */
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }
 
       if (((pc->type == CT_USING) ||
            ((pc->type == CT_TRY) && (cpd.lang_flags & LANG_JAVA))) &&
-          (next->type == CT_PAREN_OPEN))
+          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
       {
          set_chunk_type(pc, CT_USING_STMT);
       }
@@ -817,6 +823,7 @@ void tokenize_cleanup(void)
       /* Add minimal support for C++0x rvalue references */
       if ((pc->type == CT_BOOL) && chunk_is_str(pc, "&&", 2))
       {
+         assert(prev != NULL);
          if (prev->type == CT_TYPE)
          {
             set_chunk_type(pc, CT_BYREF);
@@ -836,7 +843,7 @@ void tokenize_cleanup(void)
        * a qualifier. */
       if ((cpd.lang_flags & LANG_JAVA) &&
           (pc->type == CT_SYNCHRONIZED) &&
-          (next->type != CT_PAREN_OPEN))
+          (next->type != CT_PAREN_OPEN)) /*lint !e613 */
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }

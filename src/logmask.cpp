@@ -108,20 +108,20 @@ void logmask_from_string(const char *str, log_mask_t &mask)
 
       if (unc_isdigit(*str))
       {
-         int level = strtoul(str, &ptmp, 10);
+         size_t level = strtoul(str, &ptmp, 10);
          str = ptmp;
 
          logmask_set_sev(mask, (log_sev_t)level, true);
          if (was_dash)
          {
-            for (int idx = last_level + 1; idx < level; idx++)
+            for (size_t idx = (size_t)(last_level + 1); idx < level; idx++)
             {
                logmask_set_sev(mask, (log_sev_t)idx, true);
             }
             was_dash = false;
          }
 
-         last_level = level;
+         last_level = (int)level;
       }
       else if (*str == '-')
       {

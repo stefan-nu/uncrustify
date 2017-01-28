@@ -553,6 +553,7 @@ static void split_fcn_params_full(chunk_t *start)
    chunk_t *pc = fpo;
    while ((pc = chunk_get_next_ncnl(pc)) != NULL)
    {
+      assert(fpo != NULL);
       if (pc->level <= fpo->level)
       {
          break;
@@ -581,8 +582,8 @@ static void split_fcn_params(chunk_t *start)
    chunk_t *pc     = chunk_get_next_ncnl(fpo);
    size_t  min_col = pc->column;
 
-   LOG_FMT(LSPLIT, " mincol=%d, max_width=%d ",
-           min_col, cpd.settings[UO_code_width].n - min_col);
+   LOG_FMT(LSPLIT, " mincol=%zu, max_width=%d ",
+           min_col, cpd.settings[UO_code_width].u - min_col);
 
    int cur_width = 0;
    int last_col  = -1;
@@ -625,24 +626,25 @@ static void split_fcn_params(chunk_t *start)
       {
          break;
       }
-      last_col -= pc->len();
+      assert(pc != NULL);
+      last_col -= (int)pc->len();
       if (prev->type == CT_FPAREN_OPEN)
       {
          pc = chunk_get_next(prev);
          if (!cpd.settings[UO_indent_paren_nl].b)
          {
-            min_col = pc->brace_level * cpd.settings[UO_indent_columns].n + 1u;
+            min_col = pc->brace_level * cpd.settings[UO_indent_columns].u + 1u;
             if (cpd.settings[UO_indent_continue].n == 0)
             {
-               min_col += cpd.settings[UO_indent_columns].n;
+               min_col += cpd.settings[UO_indent_columns].u;
             }
             else
             {
-               min_col += abs(cpd.settings[UO_indent_continue].n);
+               min_col += (size_t)abs(cpd.settings[UO_indent_continue].n);
             }
          }
          /* Don't split "()" */
-         if (pc->type != c_token_t(prev->type + 1u))
+         if ((int)pc->type != ((int)prev->type + 1u))
          {
             break;
          }

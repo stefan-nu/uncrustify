@@ -125,7 +125,7 @@ bool is_token_set(tokenpos_t var, tokenpos_t opt)
 }
 
 
-bool bit_is_set(UINT64 var, UINT64 flag)
+bool is_bit_set(UINT64 var, UINT64 flag)
 {
    return ((var & flag) == flag);
 }
@@ -2183,12 +2183,10 @@ void print_options(FILE *pfile)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
       {
          const option_map_value_t *option = get_option_name(*it);
+         assert(option != NULL);
          size_t                 cur     = strlen(option->name);
          size_t                 pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
-         fprintf(pfile, "%s%*c%s\n",
-                 option->name,
-                 (int)pad, ' ',
-                 names[option->type]);
+         fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;
 

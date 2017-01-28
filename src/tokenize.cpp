@@ -993,7 +993,7 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_es
    bool escaped = false;
    while (ctx.more())
    {
-      int lastcol = ctx.c.col;
+      size_t lastcol = ctx.c.col;
       int ch      = ctx.get();
 
       if ((ch == '\t') && should_escape_tabs)

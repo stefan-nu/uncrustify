@@ -573,6 +573,7 @@ static void newline_min_after(chunk_t *ref, size_t count, UINT64 flag)
       chunk_flags_set(pc, flag);
       if (chunk_is_newline(pc) && can_increase_nl(pc))
       {
+         assert(pc != NULL);
          if (pc->nl_count < count)
          {
             pc->nl_count = count;
@@ -743,7 +744,7 @@ static bool newlines_if_for_while_switch(chunk_t *start, argval_t nl_opt)
             if (is_option_set(nl_opt, AV_ADD))
             {
                newline_iarf_pair(close_paren, chunk_get_next_ncnl(brace_open), nl_opt);
-               pc = chunk_get_next_type(brace_open, CT_VBRACE_CLOSE, brace_open->level);
+               pc = chunk_get_next_type(brace_open, CT_VBRACE_CLOSE, (int)brace_open->level);
                if (!chunk_is_newline(chunk_get_prev_nc(pc)) &&
                    !chunk_is_newline(chunk_get_next_nc(pc)))
                {
@@ -877,6 +878,7 @@ static void _blank_line_set(chunk_t *pc, const char *text, uncrustify_options_t 
       return;
    }
    const option_map_value_t *option = get_option_name(uo);
+   assert(option != NULL);
    if (option->type != AT_UNUM)
    {
       fprintf(stderr, "Program error for UO_=%d\n", (int)uo);
@@ -1026,6 +1028,7 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
             break;
 
          default:
+            assert(pc != NULL);
             LOG_FMT(LERR, "   setting to blank line(s) at line %zu not possible\n",
                     pc->orig_line);
             break;
@@ -1127,7 +1130,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
    if (start->type == CT_DO)
    {
       /* point to the next semicolon */
-      if ((pc = chunk_get_next_type(pc, CT_SEMICOLON, start->level)) == NULL)
+      if ((pc = chunk_get_next_type(pc, CT_SEMICOLON, (int)start->level)) == NULL)
       {
          return;
       }
@@ -2008,11 +2011,12 @@ static void newline_func_def(chunk_t *start)
 
          if (a != AV_IGNORE)
          {
+            assert(prev != NULL);
             LOG_FMT(LNFD, "%s: prev %zu:%zu '%s' [%s/%s]\n",
                     __func__, prev->orig_line, prev->orig_col,
                     prev->text(), get_token_name(prev->type), get_token_name(prev->parent_type));
 
-            if ((prev != NULL) && (prev->type == CT_DESTRUCTOR))
+            if (prev->type == CT_DESTRUCTOR)
             {
                prev = chunk_get_prev_ncnl(prev);
             }
@@ -2174,7 +2178,7 @@ static bool one_liner_nl_ok(chunk_t *pc)
    {
       br_open = chunk_get_prev_type(br_open,
                                     br_open->type == CT_BRACE_CLOSE ? CT_BRACE_OPEN : CT_VBRACE_OPEN,
-                                    br_open->level, CNAV_ALL);
+                                    (int)br_open->level, CNAV_ALL);
    }
    else
    {
@@ -2916,7 +2920,7 @@ void newlines_cleanup_braces(bool first)
             if ((next != NULL) &&
                 (next->level == next->brace_level))
             {
-               tmp = chunk_get_prev_ncnl(chunk_get_prev_type(pc, CT_ANGLE_OPEN, pc->level));
+               tmp = chunk_get_prev_ncnl(chunk_get_prev_type(pc, CT_ANGLE_OPEN, (int)pc->level));
                if ((tmp != NULL) && (tmp->type == CT_TEMPLATE))
                {
                   newline_iarf(pc, cpd.settings[UO_nl_template_class].a);
@@ -3317,7 +3321,9 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
 {
    LOG_FUNC_ENTRY();
 
-   if ((mode & (TP_JOIN | TP_LEAD | TP_TRAIL)) == 0 && chunk_type != CT_COMMA)
+   //is_token_set(mode, (TP_JOIN | TP_LEAD | TP_TRAIL)) \todo
+   if ( (mode & (TP_JOIN | TP_LEAD | TP_TRAIL)) == 0 &&
+        (chunk_type != CT_COMMA) )
    {
       return;
    }
@@ -3358,7 +3364,7 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          size_t  nl_flag = ((chunk_is_newline(prev) ? 1 : 0) |
                             (chunk_is_newline(next) ? 2 : 0));
 
-         if (mode_local & TP_JOIN)
+         if (is_token_set(mode_local,TP_JOIN))
          {
             if (nl_flag & 1)
             {
@@ -3551,7 +3557,7 @@ void newlines_class_colon_pos(c_token_t tok)
             continue;
          }
 
-         if ((pc->type == CT_COMMA) && (pc->level == ccolon->level))
+         if ((pc->type == CT_COMMA) && (pc->level == ccolon->level)) /*lint !e613 */
          {
             if (is_option_set(ncia, AV_ADD))
             {
@@ -3613,7 +3619,7 @@ static void _blank_line_max(chunk_t *pc, const char *text, uncrustify_options_t 
       return;
    }
    const option_map_value_t *option = get_option_name(uo);
-   if (option->type != AT_UNUM)
+   if (option->type != AT_UNUM)  // \todo use is_option_set
    {
       fprintf(stderr, "Program error for UO_=%d\n", (int)uo);
       fprintf(stderr, "Please make a report\n");
@@ -3748,7 +3754,7 @@ void do_blank_lines(void)
            (prev->type == CT_BRACE_CLOSE)) &&
           (prev->parent_type == CT_CLASS))
       {
-         chunk_t *tmp = chunk_get_prev_type(prev, CT_CLASS, prev->level);
+         chunk_t *tmp = chunk_get_prev_type(prev, CT_CLASS, (int)prev->level);
          tmp = chunk_get_prev_nc(tmp);
          if (cpd.settings[UO_nl_before_class].u > pc->nl_count)
          {

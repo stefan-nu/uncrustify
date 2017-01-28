@@ -28,7 +28,7 @@
  * @param buf     The byte array to reverse
  * @param n_u32   The number of UINT32's in the data
  */
-void MD5::reverse_u32(UINT8 *buf, int n_u32)
+void MD5::reverse_u32(UINT8 *buf, int n_u32) const
 {
    UINT8 tmp;
 
@@ -81,11 +81,14 @@ MD5::MD5()
 
    m_need_byteswap = *(UINT8 *)m_buf != 4;
    m_big_endian    = *(UINT8 *)m_buf == 1;
+
+   memset(m_in,   0, M_IN_SIZE);
+   memset(m_bits, 0, sizeof(UINT32)*M_BITS_SIZE);
 }
 
 
 /**
- * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
+ * Start MD5 accumulation.  Set bit c,ount to 0 and buffer to mysterious
  * initialization constants.
  */
 void MD5::Init()

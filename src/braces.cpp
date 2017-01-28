@@ -649,7 +649,7 @@ static void convert_vbrace_to_brace(void)
       }
 
 //    bool in_preproc = ((pc->flags & PCF_IN_PREPROC) == PCF_IN_PREPROC);
-      bool in_preproc = bit_is_set(pc->flags, PCF_IN_PREPROC);
+      bool in_preproc = is_bit_set(pc->flags, PCF_IN_PREPROC);
 
       if ((((pc->parent_type == CT_IF) ||
             (pc->parent_type == CT_ELSE) ||

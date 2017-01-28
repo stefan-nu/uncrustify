@@ -50,7 +50,7 @@ void sp_votes::vote(chunk_t *first, chunk_t *second)
       return;
    }
 
-   int col_dif = second->column - (first->column + first->len());
+   int col_dif = (int)second->column - (int)(first->column + first->len());
    if (col_dif == 0)
    {
       m_remove++;

@@ -128,7 +128,7 @@ static bool pawn_continued(chunk_t *pc, int br_level)
    {
       return(false);
    }
-   if ((pc->level > br_level) ||
+   if (((int)pc->level > br_level) ||
        (pc->type == CT_ARITH) ||
        (pc->type == CT_CARET) ||
        (pc->type == CT_QUESTION) ||
@@ -260,8 +260,9 @@ static chunk_t *pawn_process_variable(chunk_t *start)
    while ((pc = chunk_get_next_nc(pc)) != NULL)
    {
       if ((pc->type == CT_NEWLINE) &&
-          !pawn_continued(prev, start->level))
+          !pawn_continued(prev, (int)start->level))
       {
+         assert(prev != NULL);
          if ((prev->type != CT_VSEMICOLON) &&
              (prev->type != CT_SEMICOLON))
          {
@@ -306,7 +307,7 @@ void pawn_add_virtual_semicolons(void)
              ((prev->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) == 0) &&
              (prev->type != CT_VSEMICOLON) &&
              (prev->type != CT_SEMICOLON) &&
-             !pawn_continued(prev, prev->brace_level))
+             !pawn_continued(prev, (int)prev->brace_level))
          {
             pawn_add_vsemi_after(prev);
             prev = NULL;
@@ -457,6 +458,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
                  __func__, last->orig_line, get_token_name(last->type), last->level);
       }
 
+      assert(last != NULL);
       chunk = *last;
       chunk.str.clear();
       chunk.column     += last->len();
@@ -490,7 +492,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    if ((prev == NULL) ||
        (prev == vb_open) ||
        (prev->flags & PCF_IN_PREPROC) ||
-       pawn_continued(prev, vb_open->level + 1))
+       pawn_continued(prev, (int)vb_open->level + 1))
    {
       if (prev != NULL)
       {

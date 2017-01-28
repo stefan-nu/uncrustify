@@ -127,10 +127,10 @@ static void add_file_header(void);
 static void add_file_footer(void);
 
 
-static void add_func_header(c_token_t type, file_mem_t &fm);
+static void add_func_header(c_token_t type, const file_mem_t &fm);
 
 
-static void add_msg_header(c_token_t type, file_mem_t &fm);
+static void add_msg_header(c_token_t type, const file_mem_t &fm);
 
 
 static void process_source_list(const char *source_list, const char *prefix, const char *suffix, bool no_backup, bool keep_mtime);
@@ -262,7 +262,7 @@ size_t path_dirname_len(const char *filename)
    {
       return(0);
    }
-   return(path_basename(filename) - filename);
+   return(path_basename(filename) - filename);  /* \todo improve this */
 }
 
 
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
    }
 
    /* make sure we have token_names.h in sync with token_enum.h */
-   assert(ARRAY_SIZE(token_names) == CT_TOKEN_COUNT_);
+   assert(ARRAY_SIZE(token_names) == (int)CT_TOKEN_COUNT_);
 
    /* Build options map */
    register_options();
@@ -1017,7 +1017,7 @@ static int load_mem_file(const char *filename, file_mem_t &fm)
       return(-1);
    }
 
-   fm.raw.resize(my_stat.st_size);
+   fm.raw.resize((size_t)my_stat.st_size);
    if (my_stat.st_size == 0)
    {
       /* Empty file */
@@ -1225,8 +1225,7 @@ static bool bout_content_matches(const file_mem_t &fm, bool report_status)
       if (report_status)
       {
          fprintf(stderr, "FAIL: %s (File size changed from %zu to %zu)\n",
-                 cpd.filename,
-                 fm.raw.size(), cpd.bout->size());
+                 cpd.filename, fm.raw.size(), cpd.bout->size());
       }
       is_same = false;
    }
@@ -1450,7 +1449,7 @@ static void add_file_footer(void)
 }
 
 
-static void add_func_header(c_token_t type, file_mem_t &fm)
+static void add_func_header(c_token_t type, const file_mem_t &fm)
 {
    chunk_t *pc;
    chunk_t *ref;
@@ -1523,14 +1522,14 @@ static void add_func_header(c_token_t type, file_mem_t &fm)
          /* If we hit an angle close, back up to the angle open */
          if (ref->type == CT_ANGLE_CLOSE)
          {
-            ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, ref->level, CNAV_PREPROC);
+            ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, CNAV_PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (ref->flags & PCF_IN_PREPROC)
          {
-            tmp = chunk_get_prev_type(ref, CT_PREPROC, ref->level);
+            tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if ((tmp != NULL) && (tmp->parent_type == CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
@@ -1571,7 +1570,7 @@ static void add_func_header(c_token_t type, file_mem_t &fm)
 } // add_func_header
 
 
-static void add_msg_header(c_token_t type, file_mem_t &fm)
+static void add_msg_header(c_token_t type, const file_mem_t &fm)
 {
    chunk_t *pc;
    chunk_t *ref;
@@ -1604,14 +1603,14 @@ static void add_msg_header(c_token_t type, file_mem_t &fm)
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (ref->type == CT_PAREN_CLOSE)
          {
-            ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, ref->level, CNAV_PREPROC);
+            ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, CNAV_PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (ref->flags & PCF_IN_PREPROC)
          {
-            tmp = chunk_get_prev_type(ref, CT_PREPROC, ref->level);
+            tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if ((tmp != NULL) && (tmp->parent_type == CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
@@ -1664,7 +1663,7 @@ static void uncrustify_start(const deque<int> &data)
    /* Get the column for the fragment indent */
    if (cpd.frag)
    {
-      chunk_t *pc = chunk_get_head();
+      const chunk_t *pc = chunk_get_head();
 
       cpd.frag_cols = (UINT16)((pc != NULL) ? pc->orig_col : 0);
    }
@@ -2053,8 +2052,7 @@ static void uncrustify_end()
 
 const char *get_token_name(c_token_t token)
 {
-   if ((token >= 0) &&
-       (token < ARRAY_SIZE(token_names)) &&
+   if (((int)token < ARRAY_SIZE(token_names)) &&
        (token_names[token] != NULL))
    {
       return(token_names[token]);

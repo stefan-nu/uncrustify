@@ -35,7 +35,7 @@ static std::deque<log_fcn_info> g_fq;
 struct log_buf
 {
    log_buf()
-      : log_file(0)
+      : log_file(0)  /* \todo what does this mean? */
       , sev(LSYS)
       , in_log(0)
       , buf_len(0)

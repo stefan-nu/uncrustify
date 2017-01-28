@@ -77,7 +77,7 @@ static const chunk_tag_t symbols2[] =
    { "~=", CT_COMPARE,      LANG_D                                                     },
    { "~~", CT_COMPARE,      LANG_D                                                     },
    { "=>", CT_LAMBDA,       LANG_VALA | LANG_CS | LANG_D                               },
-   { "??", CT_COMPARE,      LANG_CS | LANG_VALA                                        },
+   { "??", CT_COMPARE,      LANG_CS | LANG_VALA                                        }, /*lint !e585 */
    { "<%", CT_BRACE_OPEN,   LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph {
    { "%>", CT_BRACE_CLOSE,  LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph }
    { "<:", CT_SQUARE_OPEN,  LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph [
