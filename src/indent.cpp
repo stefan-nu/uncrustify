@@ -290,7 +290,7 @@ void align_to_column(chunk_t *pc, size_t column)
               (almod == ALMODE_KEEP_REL) ? "rel" : "sft",
               get_token_name(pc->type), pc->orig_line, pc->column, pc->orig_col);
    } while ((pc != NULL) && (pc->nl_count == 0));
-} // align_to_column
+}
 
 
 void reindent_line(chunk_t *pc, size_t column)
@@ -380,7 +380,7 @@ void reindent_line(chunk_t *pc, size_t column)
          LOG_FMT(LINDLINED, " to %zu (orig %zu)\n", pc->column, pc->orig_col);
       }
    } while ((pc != NULL) && (pc->nl_count == 0));
-} // reindent_line
+}
 
 
 static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
@@ -788,7 +788,7 @@ void indent_text(void)
                }
                else
                {
-                  frm.pse[frm.pse_tos].indent += val;
+                  frm.pse[frm.pse_tos].indent = (size_t)((int)frm.pse[frm.pse_tos].indent + val);
                }
             }
             else if ((pc->parent_type == CT_PP_IF) ||
@@ -802,7 +802,7 @@ void indent_text(void)
                }
                else
                {
-                  frm.pse[frm.pse_tos].indent += val;
+                  frm.pse[frm.pse_tos].indent = (size_t)((int)frm.pse[frm.pse_tos].indent + val);
                }
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
@@ -2158,7 +2158,7 @@ void indent_text(void)
                     (pc->type == CT_NUMBER) ||
                     (pc->type == CT_STRING) ||
                     (pc->type == CT_PAREN_OPEN)) &&
-                   (prev->type == CT_COND_COLON)))
+                   (prev->type == CT_COND_COLON))) /*lint !e613 */
          {
             chunk_t *tmp = chunk_get_prev_type(prev, CT_QUESTION, -1);
             tmp = chunk_get_next_ncnl(tmp);
@@ -2401,7 +2401,7 @@ static void indent_comment(chunk_t *pc, size_t col)
    }
 
    chunk_t *prev = chunk_get_prev(nl);
-   if (chunk_is_comment(prev) && (nl->nl_count == 1))
+   if (chunk_is_comment(prev) && (nl->nl_count == 1)) /*lint !e613 */
    {
       int     coldiff = (int)prev->orig_col - (int)pc->orig_col;
       chunk_t *pp     = chunk_get_prev(prev);
@@ -2534,11 +2534,11 @@ void indent_preproc(void)
       }
 
       /* Adjust the indent of the '#' */
-      if (cpd.settings[UO_pp_indent].a & AV_ADD)
+      if (is_option_set(cpd.settings[UO_pp_indent].a, AV_ADD))
       {
          reindent_line(pc, 1 + (size_t)pp_level * cpd.settings[UO_pp_indent_count].u);
       }
-      else if (cpd.settings[UO_pp_indent].a & AV_REMOVE)
+      else if (is_option_set(cpd.settings[UO_pp_indent].a, AV_REMOVE))
       {
          reindent_line(pc, 1);
       }
@@ -2546,17 +2546,14 @@ void indent_preproc(void)
       /* Add spacing by adjusting the length */
       if ((cpd.settings[UO_pp_space].a != AV_IGNORE) && (next != NULL))
       {
-         if (cpd.settings[UO_pp_space].a & AV_ADD)
+         if (is_option_set(cpd.settings[UO_pp_space].a, AV_ADD))
          {
             int mult = (int)cpd.settings[UO_pp_space_count].u;
 
-            if (mult < 1)
-            {
-               mult = 1;
-            }
+            if (mult < 1) { mult = 1; }
             reindent_line(next, pc->column + pc->len() + (size_t)(pp_level * mult));
          }
-         else if (cpd.settings[UO_pp_space].a & AV_REMOVE)
+         else if (is_option_set(cpd.settings[UO_pp_space].a, AV_REMOVE))
          {
             reindent_line(next, pc->column + pc->len());
          }
@@ -2579,4 +2576,4 @@ void indent_preproc(void)
               __func__, __LINE__, pc->orig_line, 1 + pp_level, pc->len(),
               next ? (int)next->column : -1);
    }
-} // indent_preproc
+}

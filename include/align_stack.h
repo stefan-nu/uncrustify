@@ -72,20 +72,56 @@ public:
    {
    }
 
+
+   /**
+    * Resets the two ChunkLists and zeroes local vars.
+    *
+    * @param span    The row span limit
+    * @param thresh  The column threshold
+    */
    void Start(size_t span, size_t threshold = 0);
 
+
+   /**
+    * Adds an entry to the appropriate stack.
+    *
+    * @param pc      The chunk
+    * @param seqnum  Optional seqnum (0=assign one)
+    */
    void Add(chunk_t *pc, size_t seqnum = 0);
 
+
+   /**
+    * Adds some newline and calls Flush() if needed
+    */
    void NewLines(size_t cnt);
 
+
+   /**
+    * Aligns all the stuff in m_aligned.
+    * Re-adds 'newer' items in m_skipped.
+    */
    void Flush();
 
+
+   /**
+    * Resets the stack, discarding anything that was previously added
+    */
    void Reset();
 
+
+   /**
+    * Aligns everything else and resets the lists.
+    */
    void End();
 
 protected:
    size_t m_last_added; /* 0=none, 1=aligned, 2=skipped */
+
+
+   /**
+    * Calls Add on all the skipped items
+    */
    void   ReAddSkipped();
 
    ChunkStack m_scratch; /* used in ReAddSkipped() */

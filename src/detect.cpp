@@ -389,7 +389,7 @@ static void detect_space_options(void)
       prev = pc;
       pc   = next;
    }
-} // detect_space_options
+}
 
 
 void detect_options(void)

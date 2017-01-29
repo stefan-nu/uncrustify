@@ -1234,7 +1234,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
          }
       }
    }
-} // newlines_if_for_while_switch_post_blank_lines
+} /*lint !e438 */
 
 
 static void newlines_struct_enum_union(chunk_t *start, argval_t nl_opt, bool leave_trailing)
@@ -2942,7 +2942,7 @@ void newlines_cleanup_braces(bool first)
 
             argval_t arg = cpd.settings[UO_nl_after_square_assign].a;
 
-            if (cpd.settings[UO_nl_assign_square].a & AV_ADD)
+            if (is_option_set(cpd.settings[UO_nl_assign_square].a, AV_ADD))
             {
                arg = AV_ADD;
             }
@@ -3233,9 +3233,9 @@ void newlines_eat_start_end(void)
    chunk_t *pc;
 
    /* Process newlines at the start of the file */
-   if ((cpd.frag_cols == 0) &&
-       ((cpd.settings[UO_nl_start_of_file].a & AV_REMOVE) ||
-        ((cpd.settings[UO_nl_start_of_file].a & AV_ADD) &&
+   if ( (cpd.frag_cols == 0) &&
+       ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_REMOVE)) ||
+       ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD   )) &&
          (cpd.settings[UO_nl_start_of_file_min].u > 0))))
    {
       pc = chunk_get_head();
@@ -3257,7 +3257,7 @@ void newlines_eat_start_end(void)
                MARK_CHANGE();
             }
          }
-         else if ((cpd.settings[UO_nl_start_of_file].a & AV_ADD) &&
+         else if ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD)) &&
                   (cpd.settings[UO_nl_start_of_file_min].u > 0))
          {
             chunk_t chunk;
@@ -3274,8 +3274,8 @@ void newlines_eat_start_end(void)
 
    /* Process newlines at the end of the file */
    if ((cpd.frag_cols == 0) &&
-       ((cpd.settings[UO_nl_end_of_file].a & AV_REMOVE) ||
-        ((cpd.settings[UO_nl_end_of_file].a & AV_ADD) &&
+        ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_REMOVE)) ||
+        ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_ADD   )) &&
          (cpd.settings[UO_nl_end_of_file_min].u > 0))))
    {
       pc = chunk_get_tail();
@@ -3300,7 +3300,7 @@ void newlines_eat_start_end(void)
                }
             }
          }
-         else if ((cpd.settings[UO_nl_end_of_file].a & AV_ADD) &&
+         else if ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_ADD)) &&
                   (cpd.settings[UO_nl_end_of_file_min].u > 0))
          {
             chunk_t chunk;
@@ -3314,16 +3314,15 @@ void newlines_eat_start_end(void)
          }
       }
    }
-} // newlines_eat_start_end
+}
 
 
 void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
 {
    LOG_FUNC_ENTRY();
 
-   //is_token_set(mode, (TP_JOIN | TP_LEAD | TP_TRAIL)) \todo
-   if ( (mode & (TP_JOIN | TP_LEAD | TP_TRAIL)) == 0 &&
-        (chunk_type != CT_COMMA) )
+   if ( (is_token_unset(mode, TP_LEAD_TRAIL_JOIN)) &&
+        (chunk_type != CT_COMMA                  ) )
    {
       return;
    }
@@ -3368,7 +3367,7 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          {
             if (nl_flag & 1)
             {
-               /* remove nl if not precededed by a comment */
+               /* remove newline if not preceded by a comment */
                chunk_t *prev2 = chunk_get_prev(prev);
 
                if ((prev2 != NULL) && !(chunk_is_comment(prev2)))
@@ -3389,16 +3388,15 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
             continue;
          }
 
-//       if ( ( (nl_flag == 0) && ( !is_token_set(mode_local, TP_FORCE_BREAK) ) ) || \todo broken
-         if ( ( (nl_flag == 0) && ( (mode_local & (TP_FORCE | TP_BREAK)) == 0) ) ||
-              ( (nl_flag == 3) && ( !is_token_set(mode_local, TP_FORCE )     ) ) )
+         if ( ( (nl_flag == 0) && is_token_unset(mode_local, TP_FORCE_BREAK) ) ||
+              ( (nl_flag == 3) && is_token_unset(mode_local, TP_FORCE      ) ) )
          {
             /* No newlines and not adding any or both and not forcing */
             continue;
          }
 
-         if ( (is_token_set(mode_local, TP_LEAD ) && (nl_flag == 1)) ||
-              (is_token_set(mode_local, TP_TRAIL) && (nl_flag == 2)) )
+         if ( ( (nl_flag == 1) && is_token_set(mode_local, TP_LEAD ) ) ||
+              ( (nl_flag == 2) && is_token_set(mode_local, TP_TRAIL) ) )
          {
             /* Already a newline before (lead) or after (trail) */
             continue;
@@ -3436,8 +3434,8 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          if (is_token_set(mode_local, TP_LEAD))
          {
             const chunk_t *next2 = chunk_get_next(next);
-            if ((next2 != NULL) &&
-                ((next2->type == CT_PREPROC) ||
+            if ( (next2 != NULL) &&
+                 ((next2->type == CT_PREPROC) ||
                  ((chunk_type == CT_ASSIGN) &&
                   (next2->type == CT_BRACE_OPEN))))
             {
@@ -3464,7 +3462,7 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          }
       }
    }
-} // newlines_chunk_pos
+}
 
 
 void newlines_class_colon_pos(c_token_t tok)
@@ -3476,17 +3474,17 @@ void newlines_class_colon_pos(c_token_t tok)
 
    if (tok == CT_CLASS_COLON)
    {
-      tpc  = cpd.settings[UO_pos_class_colon].tp;
-      anc  = cpd.settings[UO_nl_class_colon].a;
+      tpc  = cpd.settings[UO_pos_class_colon   ].tp;
+      anc  = cpd.settings[UO_nl_class_colon    ].a;
       ncia = cpd.settings[UO_nl_class_init_args].a;
-      pcc  = cpd.settings[UO_pos_class_comma].tp;
+      pcc  = cpd.settings[UO_pos_class_comma   ].tp;
    }
    else /* tok == CT_CONSTR_COLON */
    {
-      tpc  = cpd.settings[UO_pos_constr_colon].tp;
-      anc  = cpd.settings[UO_nl_constr_colon].a;
+      tpc  = cpd.settings[UO_pos_constr_colon   ].tp;
+      anc  = cpd.settings[UO_nl_constr_colon    ].a;
       ncia = cpd.settings[UO_nl_constr_init_args].a;
-      pcc  = cpd.settings[UO_pos_constr_comma].tp;
+      pcc  = cpd.settings[UO_pos_constr_comma   ].tp;
    }
 
    const chunk_t *ccolon = NULL;
@@ -3608,7 +3606,7 @@ void newlines_class_colon_pos(c_token_t tok)
          }
       }
    }
-} // newlines_class_colon_pos
+}
 
 
 static void _blank_line_max(chunk_t *pc, const char *text, uncrustify_options_t uo)
@@ -3939,7 +3937,7 @@ void do_blank_lines(void)
          LOG_FMT(LBLANK, "   -=> changed to %zu\n", pc->nl_count);
       }
    }
-} // do_blank_lines
+}
 
 
 void newlines_cleanup_dup(void)
@@ -4059,4 +4057,4 @@ void annotations_newlines(void)
          newline_iarf(ae, cpd.settings[UO_nl_after_annotation].a);
       }
    }
-} // annotations_newlines
+}

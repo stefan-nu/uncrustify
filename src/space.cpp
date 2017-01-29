@@ -1389,16 +1389,17 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       return(cpd.settings[UO_sp_member].a);
    }
 
-   if ((first->type == CT_ARITH) || (first->type == CT_CARET) ||
+   if ((first->type  == CT_ARITH) || (first->type  == CT_CARET) ||
        (second->type == CT_ARITH) || (second->type == CT_CARET))
    {
       log_rule("sp_arith");
       return(cpd.settings[UO_sp_arith].a);
    }
+
    if ((first->type == CT_BOOL) || (second->type == CT_BOOL))
    {
       argval_t arg = cpd.settings[UO_sp_bool].a;
-      if ((cpd.settings[UO_pos_bool].tp != TP_IGNORE) &&
+      if (is_not_token(cpd.settings[UO_pos_bool].tp, TP_IGNORE) &&
           (first->orig_line != second->orig_line) &&
           (arg != AV_REMOVE))
       {
@@ -1407,6 +1408,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("sp_bool");
       return(arg);
    }
+
    if ((first->type == CT_COMPARE) || (second->type == CT_COMPARE))
    {
       log_rule("sp_compare");

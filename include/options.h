@@ -54,17 +54,18 @@ enum lineends_t
 /** Token position - these are bit fields */
 enum tokenpos_t
 {
-   TP_IGNORE      = 0,                    /* don't change it */
-   TP_BREAK       = (1u << 0),            /* add a newline before or after the if not present */
-   TP_FORCE       = (1u << 1),            /* force a newline on one side and not the other */
-   TP_FORCE_BREAK = (TP_BREAK | TP_FORCE),
-   TP_LEAD        = (1u << 2),            /* at the start of a line or leading if wrapped line */
-   TP_LEAD_BREAK  = (TP_LEAD | TP_BREAK),
-   TP_LEAD_FORCE  = (TP_LEAD | TP_FORCE),
-   TP_TRAIL       = (1u << 3),            /* at the end of a line or trailing if wrapped line */
-   TP_TRAIL_BREAK = (TP_TRAIL | TP_BREAK),
-   TP_TRAIL_FORCE = (TP_TRAIL | TP_FORCE),
-   TP_JOIN        = (1u << 4),            /* remove newlines on both sides */
+   TP_IGNORE          = 0,                    /* don't change it */
+   TP_BREAK           = (1u << 0),            /* add a newline before or after the if not present */
+   TP_FORCE           = (1u << 1),            /* force a newline on one side and not the other */
+   TP_FORCE_BREAK     = (TP_BREAK | TP_FORCE),
+   TP_LEAD            = (1u << 2),            /* at the start of a line or leading if wrapped line */
+   TP_LEAD_BREAK      = (TP_LEAD  | TP_BREAK),
+   TP_LEAD_FORCE      = (TP_LEAD  | TP_FORCE),
+   TP_TRAIL           = (1u << 3),            /* at the end of a line or trailing if wrapped line */
+   TP_TRAIL_BREAK     = (TP_TRAIL | TP_BREAK),
+   TP_TRAIL_FORCE     = (TP_TRAIL | TP_FORCE),
+   TP_JOIN            = (1u << 4),            /* remove newlines on both sides */
+   TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL |TP_JOIN)
 };
 
 
@@ -889,6 +890,21 @@ bool is_option_set(argval_t var,  /**< [in] variable to check */
                    argval_t opt); /**< [in] Option combination to check for */
 
 
+bool is_option_unset(argval_t var, argval_t opt);
+
+
+/**
+ * \brief check if a option variable is equal to a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if option is     equal to the given value
+ * @retval false if option is not equal to the given value
+ */
+bool is_option(argval_t var,  /**< [in] variable to check */
+               argval_t opt); /**< [in] Option combination to check for */
+
+
 /**
  * \brief check if a given option is set in a variable
  *
@@ -938,6 +954,9 @@ bool is_not_token(tokenpos_t var,  /**< [in] variable to check */
 
 
 bool is_bit_set(UINT64 var, UINT64 flag);
+
+
+bool is_bit_unset(UINT64 var, UINT64 flag);
 
 
 /**

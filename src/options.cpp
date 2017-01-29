@@ -115,19 +115,31 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
 /* \todo when using C++ the following functions can be overloaded */
 bool is_option_set(argval_t var, argval_t opt)
 {
-   return ((var & opt) == opt);
+   return ((var & opt) == opt); /*lint !e655 */
+}
+
+
+bool is_option_unset(argval_t var, argval_t opt)
+{
+   return ((var & opt) == 0); /*lint !e655 */
+}
+
+
+bool is_option(argval_t var, argval_t opt)
+{
+   return (var == opt);
 }
 
 
 bool is_token_set(tokenpos_t var, tokenpos_t opt)
 {
-   return ((var & opt) == opt);
+   return ((var & opt) == opt); /*lint !e655 */
 }
 
 
 bool is_token_unset(tokenpos_t var, tokenpos_t opt)
 {
-   return ((var & opt) == 0);
+   return ((var & opt) == 0); /*lint !e655 !e641*/
 }
 
 bool is_token(tokenpos_t var, tokenpos_t opt)
@@ -147,6 +159,11 @@ bool is_bit_set(UINT64 var, UINT64 flag)
    return ((var & flag) == flag);
 }
 
+
+bool is_bit_unset(UINT64 var, UINT64 flag)
+{
+   return ((var & flag) == 0);
+}
 
 static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
                            const char *short_desc, const char *long_desc,
@@ -175,35 +192,13 @@ static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t 
    /* Calculate the max/min values */
    switch (type)
    {
-   case AT_BOOL:
-      value.max_val = 1;
-      break;
-
-   case AT_IARF:
-      value.max_val = 3;
-      break;
-
-   case AT_NUM:
-      value.min_val = min_val;
-      value.max_val = max_val;
-      break;
-
-   case AT_LINE:
-      value.max_val = 3;
-      break;
-
-   case AT_POS:
-      value.max_val = 2;
-      break;
-
-   case AT_STRING:
-      value.max_val = 0;
-      break;
-
-   case AT_UNUM:
-      value.min_val = min_val;
-      value.max_val = max_val;
-      break;
+   case AT_BOOL:   value.max_val = 1; break;
+   case AT_IARF:   value.max_val = 3; break;
+   case AT_LINE:   value.max_val = 3; break;
+   case AT_POS:    value.max_val = 2; break;
+   case AT_STRING: value.max_val = 0; break;
+   case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
+   case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
    default:
       fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
@@ -1621,7 +1616,7 @@ const group_map_value_t *get_group_name(size_t ug)
    group_map_it it = group_map.begin();
    for (;it != group_map.end(); it++)
    {
-      if (it->second.id == ug)
+      if ((size_t)it->second.id == ug)
       {
          return(&it->second);
       }
@@ -2279,7 +2274,7 @@ void set_option_defaults(void)
    cpd.defaults[UO_string_escape_char].n                                = '\\';
    cpd.defaults[UO_use_indent_func_call_param].b                        = true;
    cpd.defaults[UO_use_options_overriding_for_qt_macros].b              = true;
-   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = LWARN;
+   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int)LWARN;
 
    /* copy all the default values to settings array */
    for (size_t count = 0; count < (size_t)UO_option_count; count++)
@@ -2293,26 +2288,13 @@ string argtype_to_string(argtype_t argtype)
 {
    switch (argtype)
    {
-   case AT_BOOL:
-      return("false/true");
-
-   case AT_IARF:
-      return("ignore/add/remove/force");
-
-   case AT_NUM:
-      return("number");
-
-   case AT_UNUM:
-      return("unsigned number");
-
-   case AT_LINE:
-      return("auto/lf/crlf/cr");
-
-   case AT_POS:
-      return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
-
-   case AT_STRING:
-      return("string");
+   case AT_BOOL:   return("false/true");
+   case AT_IARF:   return("ignore/add/remove/force");
+   case AT_NUM:    return("number");
+   case AT_UNUM:   return("unsigned number");
+   case AT_LINE:   return("auto/lf/crlf/cr");
+   case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
+   case AT_STRING: return("string");
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);
@@ -2325,26 +2307,13 @@ const char *get_argtype_name(argtype_t argtype)
 {
    switch (argtype)
    {
-   case AT_BOOL:
-      return("AT_BOOL");
-
-   case AT_IARF:
-      return("AT_IARF");
-
-   case AT_NUM:
-      return("AT_NUM");
-
-   case AT_UNUM:
-      return("AT_UNUM");
-
-   case AT_LINE:
-      return("AT_LINE");
-
-   case AT_POS:
-      return("AT_POS");
-
-   case AT_STRING:
-      return("AT_STRING");
+   case AT_BOOL:   return("AT_BOOL");
+   case AT_IARF:   return("AT_IARF");
+   case AT_NUM:    return("AT_NUM");
+   case AT_UNUM:   return("AT_UNUM");
+   case AT_LINE:   return("AT_LINE");
+   case AT_POS:    return("AT_POS");
+   case AT_STRING: return("AT_STRING");
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);
@@ -2370,17 +2339,10 @@ string argval_to_string(argval_t argval)
 {
    switch (argval)
    {
-   case AV_IGNORE:
-      return("ignore");
-
-   case AV_ADD:
-      return("add");
-
-   case AV_REMOVE:
-      return("remove");
-
-   case AV_FORCE:
-      return("force");
+   case AV_IGNORE: return("ignore");
+   case AV_ADD:    return("add");
+   case AV_REMOVE: return("remove");
+   case AV_FORCE:  return("force");
 
    default:
       fprintf(stderr, "Unknown argval '%d'\n", argval);
@@ -2406,17 +2368,10 @@ string lineends_to_string(lineends_t linends)
 {
    switch (linends)
    {
-   case LE_LF:
-      return("lf");
-
-   case LE_CRLF:
-      return("crlf");
-
-   case LE_CR:
-      return("cr");
-
-   case LE_AUTO:
-      return("auto");
+   case LE_LF:   return("lf");
+   case LE_CRLF: return("crlf");
+   case LE_CR:   return("cr");
+   case LE_AUTO: return("auto");
 
    default:
       fprintf(stderr, "Unknown lineends '%d'\n", linends);
@@ -2429,29 +2384,14 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
-   case TP_IGNORE:
-      return("ignore");
-
-   case TP_JOIN:
-      return("join");
-
-   case TP_LEAD:
-      return("lead");
-
-   case TP_LEAD_BREAK:
-      return("lead_break");
-
-   case TP_LEAD_FORCE:
-      return("lead_force");
-
-   case TP_TRAIL:
-      return("trail");
-
-   case TP_TRAIL_BREAK:
-      return("trail_break");
-
-   case TP_TRAIL_FORCE:
-      return("trail_force");
+   case TP_IGNORE:      return("ignore");
+   case TP_JOIN:        return("join");
+   case TP_LEAD:        return("lead");
+   case TP_LEAD_BREAK:  return("lead_break");
+   case TP_LEAD_FORCE:  return("lead_force");
+   case TP_TRAIL:       return("trail");
+   case TP_TRAIL_BREAK: return("trail_break");
+   case TP_TRAIL_FORCE: return("trail_force");
 
    default:
       fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
@@ -2464,26 +2404,13 @@ string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
 {
    switch (argtype)
    {
-   case AT_BOOL:
-      return(bool_to_string(op_val.b));
-
-   case AT_IARF:
-      return(argval_to_string(op_val.a));
-
-   case AT_NUM:
-      return(number_to_string(op_val.n));
-
-   case AT_UNUM:
-      return(number_to_string((int)op_val.u));
-
-   case AT_LINE:
-      return(lineends_to_string(op_val.le));
-
-   case AT_POS:
-      return(tokenpos_to_string(op_val.tp));
-
-   case AT_STRING:
-      return(op_val.str != NULL ? op_val.str : "");
+   case AT_BOOL:   return(bool_to_string(op_val.b));
+   case AT_IARF:   return(argval_to_string(op_val.a));
+   case AT_NUM:    return(number_to_string(op_val.n));
+   case AT_UNUM:   return(number_to_string((int)op_val.u));
+   case AT_LINE:   return(lineends_to_string(op_val.le));
+   case AT_POS:    return(tokenpos_to_string(op_val.tp));
+   case AT_STRING: return(op_val.str != NULL ? op_val.str : "");
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);

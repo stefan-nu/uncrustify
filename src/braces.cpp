@@ -14,6 +14,7 @@
 #include "uncrustify.h"
 #include "combine.h"
 #include "newlines.h"
+#include "options.h"
 
 
 /**
@@ -99,30 +100,28 @@ static void process_if_chain(chunk_t *br_start);
 void do_braces(void)
 {
    LOG_FUNC_ENTRY();
-   if (cpd.settings[UO_mod_full_brace_if_chain].b
-       || cpd.settings[UO_mod_full_brace_if_chain_only].b)
+   if (cpd.settings[UO_mod_full_brace_if_chain     ].b ||
+       cpd.settings[UO_mod_full_brace_if_chain_only].b)
    {
       mod_full_brace_if_chain();
    }
 
-   if ((cpd.settings[UO_mod_full_brace_if].a |
-        cpd.settings[UO_mod_full_brace_do].a |
-        cpd.settings[UO_mod_full_brace_for].a |
-        cpd.settings[UO_mod_full_brace_using].a |
-        cpd.settings[UO_mod_full_brace_while].a) &
-        AV_REMOVE)
+   if ( (is_option_set(cpd.settings[UO_mod_full_brace_if   ].a, AV_REMOVE)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_do   ].a, AV_REMOVE)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_for  ].a, AV_REMOVE)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_using].a, AV_REMOVE)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_while].a, AV_REMOVE)) )
    {
       examine_braces();
    }
 
    /* convert vbraces if needed */
-   if ((cpd.settings[UO_mod_full_brace_if].a |
-        cpd.settings[UO_mod_full_brace_do].a |
-        cpd.settings[UO_mod_full_brace_for].a |
-        cpd.settings[UO_mod_full_brace_function].a |
-        cpd.settings[UO_mod_full_brace_using].a |
-        cpd.settings[UO_mod_full_brace_while].a) &
-        AV_ADD)
+   if ( (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_function].a, AV_ADD)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_using   ].a, AV_ADD)) ||
+        (is_option_set(cpd.settings[UO_mod_full_brace_while   ].a, AV_ADD)) )
    {
       convert_vbrace_to_brace();
    }
@@ -171,7 +170,7 @@ void do_braces(void)
    {
       move_case_break();
    }
-} // do_braces
+}
 
 
 static void examine_braces(void)
@@ -182,21 +181,16 @@ static void examine_braces(void)
    while (pc != NULL)
    {
       chunk_t *prev = chunk_get_prev_type(pc, CT_BRACE_OPEN, -1);
-      if ((pc->type == CT_BRACE_OPEN) &&
-          ((pc->flags & PCF_IN_PREPROC) == 0))
+      if ( (pc->type == CT_BRACE_OPEN                 ) &&
+           (is_bit_unset(pc->flags, PCF_IN_PREPROC)) )
       {
-         if ((((pc->parent_type == CT_IF) ||
-               (pc->parent_type == CT_ELSE) ||
-               (pc->parent_type == CT_ELSEIF)) &&
-              ((cpd.settings[UO_mod_full_brace_if].a) == AV_REMOVE)) ||
-             ((pc->parent_type == CT_DO) &&
-              ((cpd.settings[UO_mod_full_brace_do].a) == AV_REMOVE)) ||
-             ((pc->parent_type == CT_FOR) &&
-              ((cpd.settings[UO_mod_full_brace_for].a) == AV_REMOVE)) ||
-             ((pc->parent_type == CT_USING_STMT) &&
-              ((cpd.settings[UO_mod_full_brace_using].a) == AV_REMOVE)) ||
-             ((pc->parent_type == CT_WHILE) &&
-              ((cpd.settings[UO_mod_full_brace_while].a) == AV_REMOVE)))
+      if((((pc->parent_type == CT_IF    ) ||
+           (pc->parent_type == CT_ELSE  ) ||
+           (pc->parent_type == CT_ELSEIF)   ) && (is_option(cpd.settings[UO_mod_full_brace_if   ].a, AV_REMOVE)) ) ||
+          ((pc->parent_type == CT_DO        ) && (is_option(cpd.settings[UO_mod_full_brace_do   ].a, AV_REMOVE)) ) ||
+          ((pc->parent_type == CT_FOR       ) && (is_option(cpd.settings[UO_mod_full_brace_for  ].a, AV_REMOVE)) ) ||
+          ((pc->parent_type == CT_USING_STMT) && (is_option(cpd.settings[UO_mod_full_brace_using].a, AV_REMOVE)) ) ||
+          ((pc->parent_type == CT_WHILE     ) && (is_option(cpd.settings[UO_mod_full_brace_while].a, AV_REMOVE)) ) )
          {
             examine_brace(pc);
          }
@@ -216,19 +210,20 @@ static bool should_add_braces(chunk_t *vbopen)
    }
 
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, vbopen->orig_line);
-   chunk_t *pc;
-   size_t  nl_count = 0;
 
-   for (pc = chunk_get_next_nc(vbopen, CNAV_PREPROC);
-        (pc != NULL) && (pc->level > vbopen->level);
-        pc = chunk_get_next_nc(pc, CNAV_PREPROC))
+   size_t  nl_count = 0;
+   chunk_t *pc = chunk_get_next_nc(vbopen, CNAV_PREPROC);
+   for (;(pc != NULL) && (pc->level > vbopen->level); pc = chunk_get_next_nc(pc, CNAV_PREPROC))
    {
       if (chunk_is_newline(pc))
       {
          nl_count += pc->nl_count;
       }
    }
-   if ((pc != NULL) && (nl_count > nl_max) && (vbopen->pp_level == pc->pp_level))
+
+   if ((pc               != NULL        ) &&
+       (nl_count         >  nl_max      ) &&
+       (vbopen->pp_level == pc->pp_level) )
    {
       LOG_FMT(LBRDEL, " exceeded %zu newlines\n", nl_max);
       return(true);
@@ -355,7 +350,7 @@ static bool can_remove_braces(chunk_t *bopen)
       const chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
 
       prev = chunk_get_prev_ncnl(pc, CNAV_PREPROC);
-
+      assert(prev != NULL);
       if ((next != NULL) && (next->type == CT_ELSE) &&
           ((prev->type == CT_BRACE_CLOSE) || (prev->type == CT_VBRACE_CLOSE)) &&
           (prev->parent_type == CT_IF))
@@ -371,7 +366,7 @@ static bool can_remove_braces(chunk_t *bopen)
            get_token_name(pc->type), pc->orig_line, if_count, semi_count);
 
    return((pc->type == CT_BRACE_CLOSE) && (pc->pp_level == bopen->pp_level));
-} // can_remove_braces
+}
 
 
 static void examine_brace(chunk_t *bopen)
@@ -510,6 +505,7 @@ static void examine_brace(chunk_t *bopen)
          if (bopen->parent_type == CT_ELSE)
          {
             next = chunk_get_next_ncnl(bopen);
+            assert(next != NULL);
             if (next->type == CT_IF)
             {
                prev = chunk_get_prev_ncnl(bopen);
@@ -519,7 +515,7 @@ static void examine_brace(chunk_t *bopen)
                chunk_del(bopen);
                chunk_del(pc);
                newline_del_between(prev, next);
-               if (cpd.settings[UO_nl_else_if].a & AV_ADD)
+               if (is_option_set(cpd.settings[UO_nl_else_if].a, AV_ADD))
                {
                   newline_add_between(prev, next);
                }
@@ -543,7 +539,7 @@ static void examine_brace(chunk_t *bopen)
    {
       LOG_FMT(LBRDEL, " not a close brace? - '%s'\n", pc->text());
    }
-} // examine_brace
+}
 
 
 static void convert_brace(chunk_t *br)
@@ -603,8 +599,7 @@ static void convert_vbrace(chunk_t *vbr)
       vbr->str = "{";
 
       /* If the next chunk is a preprocessor, then move the open brace after the
-       * preprocessor.
-       */
+       * preprocessor. */
       chunk_t *tmp = chunk_get_next(vbr);
       if ((tmp != NULL) && (tmp->type == CT_PREPROC))
       {
@@ -620,8 +615,7 @@ static void convert_vbrace(chunk_t *vbr)
 
       /* If the next chunk is a comment, followed by a newline, then
        * move the brace after the newline and add another newline after
-       * the close brace.
-       */
+       * the close brace. */
       chunk_t *tmp = chunk_get_next(vbr);
       if (chunk_is_comment(tmp))
       {
@@ -648,29 +642,16 @@ static void convert_vbrace_to_brace(void)
          continue;
       }
 
-//    bool in_preproc = ((pc->flags & PCF_IN_PREPROC) == PCF_IN_PREPROC);
       bool in_preproc = is_bit_set(pc->flags, PCF_IN_PREPROC);
 
       if ((((pc->parent_type == CT_IF) ||
             (pc->parent_type == CT_ELSE) ||
-            (pc->parent_type == CT_ELSEIF)) &&
-           (cpd.settings[UO_mod_full_brace_if].a & AV_ADD) &&
-           !cpd.settings[UO_mod_full_brace_if_chain].b)
-          ||
-          ((pc->parent_type == CT_FOR) &&
-           (cpd.settings[UO_mod_full_brace_for].a & AV_ADD))
-          ||
-          ((pc->parent_type == CT_DO) &&
-           (cpd.settings[UO_mod_full_brace_do].a & AV_ADD))
-          ||
-          ((pc->parent_type == CT_WHILE) &&
-           (cpd.settings[UO_mod_full_brace_while].a & AV_ADD))
-          ||
-          ((pc->parent_type == CT_USING_STMT) &&
-           (cpd.settings[UO_mod_full_brace_using].a & AV_ADD))
-          ||
-          ((pc->parent_type == CT_FUNC_DEF) &&
-           (cpd.settings[UO_mod_full_brace_function].a & AV_ADD)))
+            (pc->parent_type == CT_ELSEIF)   ) && (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) &&  !cpd.settings[UO_mod_full_brace_if_chain].b) ||
+           ((pc->parent_type == CT_FOR       ) && (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD))) ||
+           ((pc->parent_type == CT_DO        ) && (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD))) ||
+           ((pc->parent_type == CT_WHILE     ) && (is_option_set(cpd.settings[UO_mod_full_brace_while   ].a, AV_ADD))) ||
+           ((pc->parent_type == CT_USING_STMT) && (is_option_set(cpd.settings[UO_mod_full_brace_using   ].a, AV_ADD))) ||
+           ((pc->parent_type == CT_FUNC_DEF  ) && (is_option_set(cpd.settings[UO_mod_full_brace_function].a, AV_ADD))) )
       {
          /* Find the matching vbrace close */
          chunk_t *vbc = NULL;
@@ -683,7 +664,7 @@ static void convert_vbrace_to_brace(void)
                break;
             }
             if ((pc->brace_level == tmp->brace_level) &&
-                (tmp->type == CT_VBRACE_CLOSE) &&
+                (tmp->type       == CT_VBRACE_CLOSE ) &&
                 (pc->parent_type == tmp->parent_type) &&
                 ((tmp->flags & PCF_IN_PREPROC) == (pc->flags & PCF_IN_PREPROC)))
             {
@@ -700,13 +681,9 @@ static void convert_vbrace_to_brace(void)
          convert_vbrace(vbc);
       }
    }
-} // convert_vbrace_to_brace
+}
 
 
-/**
- * Adds a comment after the ref chunk
- * Returns the added chunk or NULL
- */
 chunk_t *insert_comment_after(chunk_t *ref, c_token_t cmt_type,
                               const unc_text &cmt_text)
 {
@@ -786,11 +763,6 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
 }
 
 
-/*
- * See also it's preprocessor counterpart
- *   add_long_preprocessor_conditional_block_comment
- * in defines.cpp
- */
 void add_long_closebrace_comment(void)
 {
    LOG_FUNC_ENTRY();
@@ -918,7 +890,7 @@ void add_long_closebrace_comment(void)
          }
       }
    }
-} // add_long_closebrace_comment
+}
 
 
 static void move_case_break(void)
@@ -994,7 +966,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
    chunk_del(br_open);
    chunk_del(br_close);
    return(chunk_get_next(next, CNAV_PREPROC));
-} // mod_case_brace_remove
+}
 
 
 static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
@@ -1066,7 +1038,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    }
 
    return(br_open);
-} // mod_case_brace_add
+}
 
 
 static void mod_case_brace(void)
@@ -1088,7 +1060,7 @@ static void mod_case_brace(void)
       {
          pc = mod_case_brace_remove(pc);
       }
-      else if ((cpd.settings[UO_mod_case_brace].a & AV_ADD) &&
+      else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD)) &&
                (pc->type == CT_CASE_COLON) &&
                (next->type != CT_BRACE_OPEN) &&
                (next->type != CT_BRACE_CLOSE) &&
@@ -1226,7 +1198,7 @@ static void process_if_chain(chunk_t *br_start)
       }
       LOG_FMT(LBRCH, "\n");
    }
-} // process_if_chain
+}
 
 
 static void mod_full_brace_if_chain(void)

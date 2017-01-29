@@ -253,6 +253,9 @@ static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc,
                          brstage_t stage, const char *logtext)
 {
    LOG_FUNC_ENTRY();
+
+   assert(pc != NULL);
+
    if (frm->pse_tos < ((int)ARRAY_SIZE(frm->pse) - 1))
    {
       frm->pse_tos++;
@@ -469,7 +472,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    /* In this state, we expect a semicolon, but we'll also hit the closing
     * sparen, so we need to check cpd.consumed to see if the close sparen was
-    * aleady handled.
+    * already handled.
     */
    if (frm->pse[frm->pse_tos].stage == BS_WOD_SEMI)
    {
@@ -484,7 +487,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          if (cpd.lang_flags & LANG_PAWN)
          {
             tmp = chunk_get_next_ncnl(pc);
-
+            assert(tmp != NULL);
             if ((tmp->type != CT_SEMICOLON) && (tmp->type != CT_VSEMICOLON))
             {
                pawn_add_vsemi_after(pc);
@@ -977,22 +980,23 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
       cpd.error_count++;
    }
    return(false);
-} // handle_complex_close
+}
 
 
 static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 {
    LOG_FUNC_ENTRY();
-   chunk_t chunk;
-   chunk_t *rv;
-   chunk_t *ref;
 
+   assert(pc != NULL);
+
+   chunk_t chunk;
    chunk.orig_line   = pc->orig_line;
    chunk.parent_type = frm->pse[frm->pse_tos].type;
    chunk.level       = frm->level;
    chunk.brace_level = frm->brace_level;
    chunk.flags       = pc->flags & PCF_COPY_FLAGS;
    chunk.str         = "";
+   chunk_t *rv;
    if (after)
    {
       chunk.type = CT_VBRACE_CLOSE;
@@ -1000,7 +1004,8 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
    }
    else
    {
-      ref = chunk_get_prev(pc);
+      chunk_t *ref = chunk_get_prev(pc);
+      assert(ref != NULL);
       if ((ref->flags & PCF_IN_PREPROC) == 0)
       {
          chunk.flags &= ~PCF_IN_PREPROC;
@@ -1014,6 +1019,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       }
 
       /* Don't back into a preprocessor */
+      assert(ref != NULL);
       if (((pc->flags & PCF_IN_PREPROC) == 0) &&
           (ref->flags & PCF_IN_PREPROC))
       {
@@ -1037,7 +1043,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       rv              = chunk_add_after(&chunk, ref);
    }
    return(rv);
-} // insert_vbrace
+}
 
 
 static bool close_statement(parse_frame_t *frm, chunk_t *pc)
@@ -1102,4 +1108,4 @@ static bool close_statement(parse_frame_t *frm, chunk_t *pc)
       }
    }
    return(false);
-} // close_statement
+}

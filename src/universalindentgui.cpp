@@ -80,7 +80,7 @@ void print_universal_indent_cfg(FILE *pfile)
          continue;
       }
 
-      for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); it++)
+      for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
 

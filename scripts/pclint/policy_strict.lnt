@@ -28,7 +28,7 @@
 +e56					// bad type
 +e63					// expected an lvalue
 +e64					// type mismatch
-+e78					// typedef'd symbol used in expression
+-e78					// typedef'd symbol used in expression
 +e85 					// array has dimension 0
 +e96					// unmatched left brace for linkage specification
 +e114					// inconsistent
@@ -66,7 +66,7 @@
 +e610 					// Suspicious pointer combination
 +e611 					// Suspicious cast
 +e612 					// Expected a declarator
-+e613 					// Possible use of null pointer
+-e613 					// Possible use of null pointer
 +e614 					// auto aggregate initializer not constant
 +e615 					// auto aggregate initializer has side effects
 +e616 					// control flows into case/default
@@ -203,9 +203,9 @@
 +e752 					// check for unused local declarations
 +e753					// check for unused local struct, union or enum tag
 +e754					// check for unused local structure member
-+e755					// ignore    unused global macros
+-e755					// ignore    unused global macros
 +e756					// check for unused global typedefs
-+e757 					// check for unused global declarations
+-e757 					// check for unused global declarations
 +e758					// check for unused global struct, union or enum tag
 +e759					// check if symbol can be moved from header to module
 +e760 					// check for redundant macros
@@ -214,7 +214,7 @@
 +e763 					// check for redundant declaration for symbol
 +e764 					// check for switch statement without a case
 -e765 					// check for external symbols that could be made static
-+e766					// check for unused headers
+-e766					// check for unused headers
 +e767 					// check for differing macros
 +e768 					// check for global struct member that is never referenced
 +e769 					// check for global enumeration constant that is never referenced
@@ -344,7 +344,7 @@
 +e1039					// symbol is not a member of class
 +e1040					// symbol is not a legal declaration within class
 +e1042					// a least one class like operand is required with operator
-+e1048					// expected a constant expression
+-e1048					// expected a constant expression
 +e1051					// symbol is both a function and a variable
 +e1052					// a type was expected, class assumed
 +e1054					// template variable declaration expects a type

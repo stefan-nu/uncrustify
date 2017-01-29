@@ -498,9 +498,9 @@ void output_text(FILE *pfile)
          /* FIXME: this really shouldn't be done here! */
          if ((pc->flags & PCF_WAS_ALIGNED) == 0)
          {
-            if (cpd.settings[UO_sp_before_nl_cont].a & AV_REMOVE)
+            if (is_option_set(cpd.settings[UO_sp_before_nl_cont].a, AV_REMOVE))
             {
-               pc->column = cpd.column + (cpd.settings[UO_sp_before_nl_cont].a == AV_FORCE);
+               pc->column = cpd.column + (is_option(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
             }
             else
             {
@@ -513,8 +513,8 @@ void output_text(FILE *pfile)
 
                if ((prev != NULL) && (prev->nl_count == 0))
                {
-                  int orig_sp = (pc->orig_col - prev->orig_col_end);
-                  pc->column = cpd.column + orig_sp;
+                  int orig_sp = (int)pc->orig_col - (int)prev->orig_col_end;
+                  pc->column = (size_t)((int)cpd.column + orig_sp);
                   // the value might be negative --> use an int
                   int columnDiff = cpd.column + orig_sp;
                   if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
@@ -886,7 +886,7 @@ static void add_comment_text(const unc_text &text,
       }
    }
 
-   for ( ; idx < len; idx++)
+   for ( ; idx < len; idx++)  /* \todo avoid modifying idx in loop */
    {
       /* Split the comment */
       if (text[idx] == '\n')
@@ -907,7 +907,7 @@ static void add_comment_text(const unc_text &text,
          }
          else
          {
-            idx += tmp;
+            idx = (size_t)((int)idx + tmp);
          }
          ch_cnt = 0;
       }
@@ -926,7 +926,7 @@ static void add_comment_text(const unc_text &text,
          }
 
          add_text(cmt.cont_text);
-         output_to_column(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].n,
+         output_to_column(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u,
                           false);
          ch_cnt = 0;
       }
@@ -934,7 +934,7 @@ static void add_comment_text(const unc_text &text,
       {
          /* Escape a C closure in a CPP comment */
          if (esc_close &&
-             ((was_star && (text[idx] == '/')) ||
+             ((was_star  && (text[idx] == '/')) ||
               (was_slash && (text[idx] == '*'))))
          {
             add_char(' ');
@@ -951,7 +951,7 @@ static void add_comment_text(const unc_text &text,
          ch_cnt++;
       }
    }
-} // add_comment_text
+} /*lint !e850 */
 
 
 static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
@@ -994,7 +994,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
    /* tab aligning code */
    if (cpd.settings[UO_indent_cmt_with_tabs].b &&
-       ((pc->parent_type == CT_COMMENT_END) ||
+       ((pc->parent_type == CT_COMMENT_END  ) ||
         (pc->parent_type == CT_COMMENT_WHOLE)))
    {
       cmt.column = align_tab_column(cmt.column - 1);
@@ -1170,7 +1170,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 
          tmp.set(first->str, iLISz, first->len() - iLISz);
 
-         if (cpd.settings[UO_sp_cmt_cpp_start].a & AV_REMOVE)
+         if (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_REMOVE))
          {
             while ((tmp.size() > 0) && unc_isspace(tmp[0]))
             {
@@ -1179,7 +1179,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
          }
          if (tmp.size() > 0)
          {
-            if (cpd.settings[UO_sp_cmt_cpp_start].a & AV_ADD)
+            if (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_ADD))
             {
                if (!unc_isspace(tmp[0]) && (tmp[0] != '/'))
                {
@@ -1205,7 +1205,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       /* nothing to group: just output a single line */
       add_text("/*");
       // patch # 32, 2012-03-23
-      if (!unc_isspace(first->str[2]) && (cpd.settings[UO_sp_cmt_cpp_start].a & AV_ADD))
+      if (!unc_isspace(first->str[2]) && (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_ADD)))
       {
          add_char(' ');
       }
@@ -1230,7 +1230,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    while (can_combine_comment(pc, cmt))
    {
       offs = unc_isspace(pc->str[2]) ? 1 : 0;
-      tmp.set(pc->str, 2 + offs, pc->len() - (2 + offs));
+      tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
       if ((cpd.last_char == '*') && (tmp[0] == '/'))
       {
          add_text(" ");
@@ -1240,7 +1240,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       pc = chunk_get_next(chunk_get_next(pc));
    }
    offs = unc_isspace(pc->str[2]) ? 1 : 0;
-   tmp.set(pc->str, 2 + offs, pc->len() - (2 + offs));
+   tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
    add_comment_text(tmp, cmt, true);
    if (cpd.settings[UO_cmt_cpp_nl_end].b)
    {
@@ -1428,19 +1428,18 @@ static void output_comment_multi(chunk_t *pc)
           * line didn't start with a '*' all of a sudden while the previous one didn't
           * (the ambiguous '*'-for-bullet case!)
           */
-         if ((prev_nonempty_line >= 0) && (next_nonempty_line >= 0) &&
-             (((unc_isalnum(line[prev_nonempty_line]) ||
-                strchr(",)]", line[prev_nonempty_line])) &&
-               (unc_isalnum(pc->str[next_nonempty_line]) ||
-                strchr("([", pc->str[next_nonempty_line]))) ||
-              (('.' == line[prev_nonempty_line]) &&    // dot followed by non-capital is NOT a new sentence start
-               unc_isupper(pc->str[next_nonempty_line]))) &&
-             !star_is_bullet)
+         if ( (prev_nonempty_line >= 0) &&
+              (next_nonempty_line >= 0) &&
+              (((unc_isalnum(line   [prev_nonempty_line]) || strchr(",)]", line   [prev_nonempty_line])) &&
+                (unc_isalnum(pc->str[next_nonempty_line]) || strchr("([" , pc->str[next_nonempty_line])) ) ||
+                // dot followed by non-capital is NOT a new sentence start
+              (('.' == line[prev_nonempty_line]) && unc_isupper(pc->str[next_nonempty_line]))) &&
+              !star_is_bullet)
          {
             // rewind the line to the last non-alpha:
-            line.resize(prev_nonempty_line + 1);
+            line.resize((size_t)(prev_nonempty_line + 1));
             // roll the current line forward to the first non-alpha:
-            cmt_idx += next_nonempty_line;
+            cmt_idx =  (size_t)((int)cmt_idx + next_nonempty_line);
             // override the NL and make it a single whitespace:
             ch = ' ';
          }
@@ -1477,7 +1476,7 @@ static void output_comment_multi(chunk_t *pc)
             /* This is not the first line, so we need to indent to the
              * correct column. Each line is indented 0 or more spaces.
              */
-            ccol -= col_diff;
+            ccol =  (size_t)((int)ccol - col_diff);
             if (ccol < (cmt_col + 3))
             {
                ccol = cmt_col + 3;
@@ -1518,8 +1517,7 @@ static void output_comment_multi(chunk_t *pc)
                         add_char(' ');
                      }
                      add_text(cmt.cont_text);
-                     output_to_column(ccol + cpd.settings[UO_cmt_sp_after_star_cont].n,
-                                      false);
+                     output_to_column(ccol + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
                   }
                   else
                   {
@@ -2136,7 +2134,7 @@ void add_long_preprocessor_conditional_block_comment(void)
          }
          else if ((pp_end->pp_level == pp_start->pp_level) &&
                   ((tmp->type == CT_PP_ENDIF) ||
-                   ((br_open->type == CT_PP_IF) ? (tmp->type == CT_PP_ELSE) : 0)))
+                   ((br_open->type == CT_PP_IF) ? (tmp->type == CT_PP_ELSE) : 0)))  /*lint !e613 */
          {
             br_close = tmp;
 
@@ -2148,8 +2146,10 @@ void add_long_preprocessor_conditional_block_comment(void)
             tmp = chunk_get_next(tmp);
 
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",
-                    (tmp ? tmp->type : -1), (tmp ? chunk_is_newline(tmp) ? "newline"
-                                             : chunk_is_comment(tmp) ? "comment" : "other" : "---"));
+                    ((tmp != NULL) ? tmp->type : -1),
+                    ((tmp != NULL) ? 
+                      chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
+                     "comment" : "other" : "---"));
             if ((tmp == NULL) || (tmp->type == CT_NEWLINE) /* chunk_is_newline(tmp) */)
             {
                size_t nl_min;
@@ -2191,4 +2191,4 @@ void add_long_preprocessor_conditional_block_comment(void)
          }
       }
    }
-} // add_long_preprocessor_conditional_block_comment
+}

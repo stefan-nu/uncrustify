@@ -74,7 +74,7 @@ int load_define_file(const char *filename)
       }
 
       int argc = Args::SplitLine(buf, args, ARRAY_SIZE(args) - 1);
-      args[argc] = 0;
+      args[argc] = 0;   /* \todo check this */
 
       if (argc > 0)
       {
