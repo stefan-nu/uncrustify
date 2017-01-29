@@ -125,6 +125,23 @@ bool is_token_set(tokenpos_t var, tokenpos_t opt)
 }
 
 
+bool is_token_unset(tokenpos_t var, tokenpos_t opt)
+{
+   return ((var & opt) == 0);
+}
+
+bool is_token(tokenpos_t var, tokenpos_t opt)
+{
+   return (var == opt);
+}
+
+
+bool is_not_token(tokenpos_t var, tokenpos_t opt)
+{
+   return (var != opt);
+}
+
+
 bool is_bit_set(UINT64 var, UINT64 flag)
 {
    return ((var & flag) == flag);

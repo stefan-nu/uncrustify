@@ -894,10 +894,46 @@ bool is_option_set(argval_t var,  /**< [in] variable to check */
  *
  * The check can be done with one or several options
  *
- * @retval true  if variable has all required option flags set
- * @retval false if at least one option was not set
+ * @retval true  if variable has all of the given options        set
+ * @retval false if at least one     of the given options is not set
  */
 bool is_token_set(tokenpos_t var,  /**< [in] variable to check */
+                  tokenpos_t opt); /**< [in] Token combination to check for */
+
+
+/**
+ * \brief check if a given option is not set in a variable
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if variable has none of the given options    set
+ * @retval false if at least one      of the given options is set
+ */
+bool is_token_unset(tokenpos_t var,  /**< [in] variable to check */
+                    tokenpos_t opt); /**< [in] Token combination to check for */
+
+
+/**
+ * \brief check if a token is equal to a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if token is     equal to the given value
+ * @retval false if token is not equal to the given value
+ */
+bool is_token(tokenpos_t var,  /**< [in] variable to check */
+              tokenpos_t opt); /**< [in] Token combination to check for */
+
+
+/**
+ * \brief check if a token is different from a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if token is not equal to the given value
+ * @retval false if token is     equal to the given value
+ */
+bool is_not_token(tokenpos_t var,  /**< [in] variable to check */
                   tokenpos_t opt); /**< [in] Token combination to check for */
 
 

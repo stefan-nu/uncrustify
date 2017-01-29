@@ -621,8 +621,7 @@ int main(int argc, char *argv[])
 
    /* Try to load the config file, if available.
     * It is optional for "--universalindent" and "--detect", but required for
-    * everything else.
-    */
+    * everything else. */
    if (!cfg_file.empty())
    {
       cpd.filename = cfg_file.c_str();
@@ -1266,6 +1265,8 @@ static void do_source_file(const char *filename_in,
    file_mem_t fm;
    string     filename_tmp;
 
+   UNUSED(keep_mtime);
+
    /* Do some simple language detection based on the filename extension */
    if (!cpd.lang_forced || (cpd.lang_flags == 0))
    {
@@ -1289,13 +1290,11 @@ static void do_source_file(const char *filename_in,
     * and if there were changes, run it through the normal file write path.
     *
     * Future: many code paths could be simplified if 'bout' were always used and not
-    * optionally selected in just for do_check and if_changed.
-    */
+    * optionally selected in just for do_check and if_changed. */
    if (cpd.if_changed)
    {
       /* Cleanup is deferred because we need 'bout' preserved long enough to write it to
-       * a file (if it changed).
-       */
+       * a file (if it changed). */
       uncrustify_file(fm, NULL, parsed_file, true);
       if (bout_content_matches(fm, false))
       {
@@ -1390,8 +1389,7 @@ static void do_source_file(const char *filename_in,
 
 #ifdef WIN32
             /* Atomic rename in windows can't go through stdio rename() func because underneath
-             * it calls MoveFileExW without MOVEFILE_REPLACE_EXISTING.
-             */
+             * it calls MoveFileExW without MOVEFILE_REPLACE_EXISTING. */
             if (!MoveFileEx(filename_tmp.c_str(), filename_out, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
 #else
             if (rename(filename_tmp.c_str(), filename_out) != 0)
@@ -1489,9 +1487,10 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
       if (ref->type == CT_FUNC_DEF && ref->parent_type == CT_NONE && ref->next)
       {
-         int found_brace = 0;                                   // Set if a close brace is found before a newline
-         while ((ref->type != CT_NEWLINE) && (ref = ref->next)) /* \todo move assignment to the loop */
+         int found_brace = 0; // Set if a close brace is found before a newline
+         while (ref->type != CT_NEWLINE)
          {
+            ref = ref->next;
             if (ref->type == CT_BRACE_CLOSE)
             {
                found_brace = 1;
@@ -1507,8 +1506,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       do_insert = false;
 
       /* On a function proto or def. Back up to a close brace or semicolon on
-       * the same level
-       */
+       * the same level */
       ref = pc;
       while ((ref = chunk_get_prev(ref)) != NULL)
       {
@@ -1587,8 +1585,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       do_insert = false;
 
       /* On a message decl. Back up to a Objective-C scope
-       * the same level
-       */
+       * the same level */
       ref = pc;
       while ((ref = chunk_get_prev(ref)) != NULL)
       {
@@ -1680,39 +1677,29 @@ static void uncrustify_start(const deque<int> &data)
       add_file_footer();
    }
 
-   /**
-    * Change certain token types based on simple sequence.
+   /* Change certain token types based on simple sequence.
     * Example: change '[' + ']' to '[]'
     * Note that level info is not yet available, so it is OK to do all
-    * processing that doesn't need to know level info. (that's very little!)
-    */
+    * processing that doesn't need to know level info. (that's very little!) */
    tokenize_cleanup();
 
-   /**
-    * Detect the brace and paren levels and insert virtual braces.
-    * This handles all that nasty preprocessor stuff
-    */
+   /* Detect the brace and paren levels and insert virtual braces.
+    * This handles all that nasty preprocessor stuff */
    brace_cleanup();
 
-   /**
-    * At this point, the level information is available and accurate.
-    */
+   /* At this point, the level information is available and accurate. */
 
    if (cpd.lang_flags & LANG_PAWN)
    {
       pawn_prescan();
    }
 
-   /**
-    * Re-type chunks, combine chunks
-    */
+   /* Re-type chunks, combine chunks */
    fix_symbols();
 
    mark_comments();
 
-   /**
-    * Look at all colons ':' and mark labels, :? sequences, etc.
-    */
+   /* Look at all colons ':' and mark labels, :? sequences, etc. */
    combine_labels();
 } // uncrustify_start
 
@@ -1773,14 +1760,10 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
    cpd.unc_stage = US_OTHER;
 
-   /**
-    * Done with detection. Do the rest only if the file will go somewhere.
-    * The detection code needs as few changes as possible.
-    */
+   /* Done with detection. Do the rest only if the file will go somewhere.
+    * The detection code needs as few changes as possible. */
    {
-      /**
-       * Add comments before function defs and classes
-       */
+      /* Add comments before function defs and classes */
       if (cpd.func_hdr.data.size() > 0)
       {
          add_func_header(CT_FUNC_DEF, cpd.func_hdr);
@@ -1798,9 +1781,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          add_msg_header(CT_OC_MSG_DECL, cpd.oc_msg_hdr);
       }
 
-      /**
-       * Change virtual braces into real braces...
-       */
+      /* Change virtual braces into real braces... */
       do_braces();
 
       /* Scrub extra semicolons */
@@ -1815,14 +1796,10 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          remove_extra_returns();
       }
 
-      /**
-       * Add parens
-       */
+      /* Add parens */
       do_parens();
 
-      /**
-       * Modify line breaks as needed
-       */
+      /* Modify line breaks as needed */
       bool first = true;
       int  old_changes;
 
@@ -1836,52 +1813,65 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          old_changes = cpd.changes;
 
          LOG_FMT(LNEWLINE, "Newline loop start: %d\n", cpd.changes);
-         LOG_FMT(LGUY, "Newline loop start: %d\n", cpd.changes);
+         LOG_FMT(LGUY,     "Newline loop start: %d\n", cpd.changes);
 
          annotations_newlines();
          newlines_cleanup_dup();
          newlines_cleanup_braces(first);
+
          if (cpd.settings[UO_nl_after_multiline_comment].b)
          {
             newline_after_multiline_comment();
          }
+
          if (cpd.settings[UO_nl_after_label_colon].b)
          {
             newline_after_label_colon();
          }
+
          newlines_insert_blank_lines();
-         if (cpd.settings[UO_pos_bool].tp != TP_IGNORE)
+
+         if (is_not_token(cpd.settings[UO_pos_bool].tp, TP_IGNORE))
          {
             newlines_chunk_pos(CT_BOOL, cpd.settings[UO_pos_bool].tp);
          }
-         if (cpd.settings[UO_pos_compare].tp != TP_IGNORE)
+
+         if (is_not_token(cpd.settings[UO_pos_compare].tp, TP_IGNORE))
          {
             newlines_chunk_pos(CT_COMPARE, cpd.settings[UO_pos_compare].tp);
          }
-         if (cpd.settings[UO_pos_conditional].tp != TP_IGNORE)
+
+         if (is_not_token(cpd.settings[UO_pos_conditional].tp,TP_IGNORE))
          {
             newlines_chunk_pos(CT_COND_COLON, cpd.settings[UO_pos_conditional].tp);
-            newlines_chunk_pos(CT_QUESTION, cpd.settings[UO_pos_conditional].tp);
+            newlines_chunk_pos(CT_QUESTION,   cpd.settings[UO_pos_conditional].tp);
          }
-         if (cpd.settings[UO_pos_comma].tp != TP_IGNORE || cpd.settings[UO_pos_enum_comma].tp != TP_IGNORE)
+
+         if(is_not_token(cpd.settings[UO_pos_comma].tp,      TP_IGNORE) ||
+            is_not_token(cpd.settings[UO_pos_enum_comma].tp, TP_IGNORE) )
          {
             newlines_chunk_pos(CT_COMMA, cpd.settings[UO_pos_comma].tp);
          }
-         if (cpd.settings[UO_pos_assign].tp != TP_IGNORE)
+
+         if (is_not_token(cpd.settings[UO_pos_assign].tp, TP_IGNORE))
          {
             newlines_chunk_pos(CT_ASSIGN, cpd.settings[UO_pos_assign].tp);
          }
-         if (cpd.settings[UO_pos_arith].tp != TP_IGNORE)
+
+         if (is_not_token(cpd.settings[UO_pos_arith].tp, TP_IGNORE))
          {
             newlines_chunk_pos(CT_ARITH, cpd.settings[UO_pos_arith].tp);
             newlines_chunk_pos(CT_CARET, cpd.settings[UO_pos_arith].tp);
          }
+
          newlines_class_colon_pos(CT_CLASS_COLON);
          newlines_class_colon_pos(CT_CONSTR_COLON);
+
          if (cpd.settings[UO_nl_squeeze_ifdef].b)
          {
             newlines_squeeze_ifdef();
          }
+
          do_blank_lines();
          newlines_eat_start_end();
          newlines_functions_remove_extra_blank_lines();

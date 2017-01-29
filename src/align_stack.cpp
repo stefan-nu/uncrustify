@@ -222,7 +222,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          while (tmp != start)
          {
             chunk_t *next = chunk_get_next(tmp);
-            tmp_col += space_col_align(tmp, next); // \todo ensure the result cannot become negative
+            tmp_col += (size_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
             {
                align_to_column(next, tmp_col);
@@ -387,7 +387,7 @@ void AlignStack::Flush()
       }
       if (chunk_is_ptr_operator(tmp) && (m_star_style == SS_DANGLE))
       {
-         col_adj = pc->align.start->column - pc->column;
+         col_adj = (int)pc->align.start->column - (int)pc->column;
          gap     = pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
       }
       if (m_right_align)
@@ -402,13 +402,13 @@ void AlignStack::Flush()
                start_len += tmp->len();
             }
          }
-         col_adj += start_len;
+         col_adj += (int)start_len;
       }
 
       pc->align.col_adj = col_adj;
 
       /* See if this pushes out the max_col */
-      size_t endcol = pc->column + col_adj;
+      size_t endcol = pc->column + (size_t)col_adj;
       if (gap < m_gap)
       {
          endcol += m_gap - gap;
@@ -431,7 +431,7 @@ void AlignStack::Flush()
       ce = m_aligned.Get(idx);
       pc = ce->m_pc;
 
-      size_t tmp_col = m_max_col - pc->align.col_adj;
+      size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
       if (idx == 0)
       {
          if (m_skip_first && (pc->column != tmp_col))

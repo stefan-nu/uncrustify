@@ -2,9 +2,7 @@
 // the operating unit source code
 
 // show pclint where to find Header files
--i".\include"
--i".\lib"
--i".\src"
+
 
 -iC:\mingw\include
 -iC:\mingw\include\ddk
@@ -26,7 +24,12 @@
 //+libdir(uncrustify/scripts/*)
 //-wlib(1)
 
-// Compiler specific configuration for Visual DSP
+
+-i".\include"
+-i".\lib"
+-i".\src"
+
+// Compiler specific configuration for MinGW
 
 // co-tiger.lnt use this file for tiger sharc as reference
 scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
