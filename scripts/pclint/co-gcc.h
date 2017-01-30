@@ -21,9 +21,9 @@
    co-gcc.lnt for details and a tutorial.
  */
 #if defined(__cplusplus)
-//#       include "lint_cppmac.h"
+    #include "scripts\pclint\lint_cppmac.h"
 #else
-#       include "lint_cmac.h"
+	#include "scripts/pclint/lint_cmac.h"
 #endif
 
 
