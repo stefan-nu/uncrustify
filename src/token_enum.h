@@ -345,4 +345,14 @@ typedef enum
    CT_TOKEN_COUNT_  // NOTE: Keep this the last entry because it's used as a counter.
 } c_token_t;
 
+
+/**
+ * return the inverse token of the given token
+ *
+ * This makes only sense for tokens that occur in groups like ( and )
+ * If there is no inverse the same token is returned
+ */
+c_token_t get_inverse_type(c_token_t type);
+
+
 #endif /* TOKEN_ENUM_H_INCLUDED */

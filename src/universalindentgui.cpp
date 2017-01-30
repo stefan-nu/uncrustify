@@ -124,24 +124,11 @@ void print_universal_indent_cfg(FILE *pfile)
          {
             switch (*tmp)
             {
-            case '<':
-               fprintf(pfile, "&lt;");
-               break;
-
-            case '>':
-               fprintf(pfile, "&gt;");
-               break;
-
-            case '&':
-               fprintf(pfile, "&amp;");
-               break;
-
-            case '\n':
-               fprintf(pfile, "<BR>");
-               break;
-
-            default:
-               fputc(*tmp, pfile);
+               case '<':  fprintf(pfile, "&lt;" ); break;
+               case '>':  fprintf(pfile, "&gt;" ); break;
+               case '&':  fprintf(pfile, "&amp;"); break;
+               case '\n': fprintf(pfile, "<BR>" ); break;
+               default:   fputc(*tmp, pfile);      break;
             }
             tmp++;
          }
@@ -264,9 +251,9 @@ void print_universal_indent_cfg(FILE *pfile)
 
             default:
                break;
-            } // switch
-         }    // switch
+            }
+         }
          delete[] optionNameReadable;
       }
    }
-} // print_universal_indent_cfg
+}

@@ -20,6 +20,7 @@
 #include "space.h"
 #include "parse_frame.h"
 #include "tabulator.h"
+#include "token_enum.h"
 
 
 /**
@@ -412,7 +413,7 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
       frm.pse[frm.pse_tos].indent_cont = frm.pse[frm.pse_tos - 1].indent_cont;
       frm.pse[frm.pse_tos].non_vardef  = false;
       frm.pse[frm.pse_tos].ns_cnt      = frm.pse[frm.pse_tos - 1].ns_cnt;
-      memcpy(&frm.pse[frm.pse_tos].ip, &frm.pse[frm.pse_tos - 1].ip, sizeof(frm.pse[frm.pse_tos].ip));
+      memcpy(&frm.pse[frm.pse_tos].ip,  &frm.pse[frm.pse_tos - 1].ip, sizeof(frm.pse[frm.pse_tos].ip));
    }
    else
    {
@@ -479,29 +480,16 @@ static size_t token_indent(c_token_t type)
 {
    switch (type)
    {
-   case CT_IF:
-   case CT_DO:
-      return(3);
-
-   case CT_FOR:
-   case CT_ELSE:  // wacky, but that's what is wanted
-      return(4);
-
-   case CT_WHILE:
-   case CT_USING_STMT:
-      return(6);
-
-   case CT_SWITCH:
-      return(7);
-
-   case CT_ELSEIF:
-      return(8);
-
-   case CT_SYNCHRONIZED:
-      return(13);
-
-   default:
-      return(0);
+      case CT_IF:             /* falltrough */
+      case CT_DO:             return(3);
+      case CT_FOR:            /* falltrough */
+      case CT_ELSE:           return(4);  /* wacky, but that's what is wanted */
+      case CT_WHILE:          /* falltrough */
+      case CT_USING_STMT:     return(6);
+      case CT_SWITCH:         return(7);
+      case CT_ELSEIF:         return(8);
+      case CT_SYNCHRONIZED:   return(13);
+      default:                return(0);
    }
 }
 
@@ -527,8 +515,7 @@ static size_t calc_indent_continue(const parse_frame_t &frm, size_t pse_tos)
 
 
 static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
-                                    bool from_caret, bool from_colon,
-                                    bool from_keyword)
+      bool from_caret, bool from_colon,  bool from_keyword)
 {
    LOG_FUNC_ENTRY();
    chunk_t *tmp = chunk_get_prev_nc(pc);
@@ -713,7 +700,7 @@ void indent_text(void)
             set_chunk_type(next, CT_PP_REGION);
 
             /* Indent one level */
-            frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos - 1].indent + indent_size;
+            frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos - 1].indent     + indent_size;
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos - 1].indent_tab + indent_size;
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos].in_preproc = false;
@@ -737,7 +724,7 @@ void indent_text(void)
 
             /* Indent one level except if the #if is a #include guard */
             size_t extra = ((pc->pp_level == 0) && ifdef_over_whole_file()) ? 0 : indent_size;
-            frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos - 1].indent + extra;
+            frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos - 1].indent     + extra;
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos - 1].indent_tab + extra;
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos].in_preproc = false;
@@ -791,9 +778,9 @@ void indent_text(void)
                   frm.pse[frm.pse_tos].indent = (size_t)((int)frm.pse[frm.pse_tos].indent + val);
                }
             }
-            else if ((pc->parent_type == CT_PP_IF) ||
-                     (pc->parent_type == CT_PP_ELSE) ||
-                     (pc->parent_type == CT_PP_ENDIF))
+            else if ((pc->parent_type == CT_PP_IF   ) ||
+                     (pc->parent_type == CT_PP_ELSE ) ||
+                     (pc->parent_type == CT_PP_ENDIF) )
             {
                int val = cpd.settings[UO_pp_indent_if].n;
                if (val > 0)
@@ -979,7 +966,7 @@ void indent_text(void)
             }
 
             /* Close out parens and squares */
-            if ((frm.pse[frm.pse_tos].type == (pc->type - 1)) &&
+            if ((frm.pse[frm.pse_tos].type == get_inverse_type(pc->type) ) &&
                 ((pc->type == CT_PAREN_CLOSE) ||
                  (pc->type == CT_SPAREN_CLOSE) ||
                  (pc->type == CT_FPAREN_CLOSE) ||
@@ -1040,15 +1027,11 @@ void indent_text(void)
       bool brace_indent = false;
       if ((pc->type == CT_BRACE_CLOSE) || (pc->type == CT_BRACE_OPEN))
       {
-         brace_indent = (cpd.settings[UO_indent_braces].b &&
-                         (!cpd.settings[UO_indent_braces_no_func].b ||
-                          (pc->parent_type != CT_FUNC_DEF)) &&
-                         (!cpd.settings[UO_indent_braces_no_func].b ||
-                          (pc->parent_type != CT_FUNC_CLASS_DEF)) &&
-                         (!cpd.settings[UO_indent_braces_no_class].b ||
-                          (pc->parent_type != CT_CLASS)) &&
-                         (!cpd.settings[UO_indent_braces_no_struct].b ||
-                          (pc->parent_type != CT_STRUCT)));
+         brace_indent = (( cpd.settings[UO_indent_braces].b                                                    ) &&
+                         (!cpd.settings[UO_indent_braces_no_func].b   || (pc->parent_type != CT_FUNC_DEF      )) &&
+                         (!cpd.settings[UO_indent_braces_no_func].b   || (pc->parent_type != CT_FUNC_CLASS_DEF)) &&
+                         (!cpd.settings[UO_indent_braces_no_class].b  || (pc->parent_type != CT_CLASS         )) &&
+                         (!cpd.settings[UO_indent_braces_no_struct].b || (pc->parent_type != CT_STRUCT        )) );
       }
 
       if (pc->type == CT_BRACE_CLOSE)
@@ -2046,7 +2029,8 @@ void indent_text(void)
              * that we just removed a paren open */
             LOG_FMT(LINDLINE, "%s(%d): indent_column is %zu\n",
                     __func__, __LINE__, indent_column);
-            if (frm.pse[frm.pse_tos + 1].type == c_token_t(pc->type - 1))
+//          if (frm.pse[frm.pse_tos + 1].type == (pc->type - 1))
+            if (frm.pse[frm.pse_tos + 1].type == get_inverse_type(pc->type) )
             {
                // Issue # 405
                LOG_FMT(LINDLINE, "%s(%d): [%zu:%zu] [%s:%s]\n",

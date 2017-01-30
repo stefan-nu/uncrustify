@@ -19,6 +19,7 @@
 #include "lang_pawn.h"
 #include "parse_frame.h"
 #include "keywords.h"
+#include "token_enum.h"
 
 
 static size_t preproc_start(parse_frame_t *frm, chunk_t *pc);
@@ -420,7 +421,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
           ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
            (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN)))
       {
-         set_chunk_type(pc, (c_token_t)(frm->pse[frm->pse_tos].type + 1));   // \todo why +1
+         set_chunk_type(pc, get_inverse_type(frm->pse[frm->pse_tos].type) );
          if (pc->type == CT_SPAREN_CLOSE)
          {
             frm->sparen_count--;

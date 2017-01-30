@@ -1637,21 +1637,10 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
 {
    if (entry->type == AT_LINE)
    {
-      if (strcasecmp(val, "CRLF") == 0)
-      {
-         dest->le = LE_CRLF;
-         return;
-      }
-      if (strcasecmp(val, "LF") == 0)
-      {
-         dest->le = LE_LF;
-         return;
-      }
-      if (strcasecmp(val, "CR") == 0)
-      {
-         dest->le = LE_CR;
-         return;
-      }
+      if (strcasecmp(val, "CRLF") == 0) { dest->le = LE_CRLF; return; }
+      if (strcasecmp(val, "LF"  ) == 0) { dest->le = LE_LF;   return; }
+      if (strcasecmp(val, "CR"  ) == 0) { dest->le = LE_CR;   return; }
+
       if (strcasecmp(val, "AUTO") != 0)
       {
          fprintf(stderr, "%s:%u Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
@@ -1664,42 +1653,14 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
 
    if (entry->type == AT_POS)
    {
-      if (strcasecmp(val, "JOIN") == 0)
-      {
-         dest->tp = TP_JOIN;
-         return;
-      }
-      if (strcasecmp(val, "LEAD") == 0)
-      {
-         dest->tp = TP_LEAD;
-         return;
-      }
-      if (strcasecmp(val, "LEAD_BREAK") == 0)
-      {
-         dest->tp = TP_LEAD_BREAK;
-         return;
-      }
-      if (strcasecmp(val, "LEAD_FORCE") == 0)
-      {
-         dest->tp = TP_LEAD_FORCE;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL") == 0)
-      {
-         dest->tp = TP_TRAIL;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL_BREAK") == 0)
-      {
-         dest->tp = TP_TRAIL_BREAK;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL_FORCE") == 0)
-      {
-         dest->tp = TP_TRAIL_FORCE;
-         return;
-      }
-      if (strcasecmp(val, "IGNORE") != 0)
+      if (strcasecmp(val, "JOIN"       ) == 0) { dest->tp = TP_JOIN;        return; }
+      if (strcasecmp(val, "LEAD"       ) == 0) { dest->tp = TP_LEAD;        return; }
+      if (strcasecmp(val, "LEAD_BREAK" ) == 0) { dest->tp = TP_LEAD_BREAK;  return; }
+      if (strcasecmp(val, "LEAD_FORCE" ) == 0) { dest->tp = TP_LEAD_FORCE;  return; }
+      if (strcasecmp(val, "TRAIL"      ) == 0) { dest->tp = TP_TRAIL;       return; }
+      if (strcasecmp(val, "TRAIL_BREAK") == 0) { dest->tp = TP_TRAIL_BREAK; return; }
+      if (strcasecmp(val, "TRAIL_FORCE") == 0) { dest->tp = TP_TRAIL_FORCE; return; }
+      if (strcasecmp(val, "IGNORE"     ) != 0)
       {
          fprintf(stderr, "%s:%u Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
                  "TRAIL, TRAIL_BREAK, TRAIL_FORCE for %s, got %s\n",
@@ -1924,23 +1885,11 @@ void process_option_line(char *configLine, const char *filename)
          add_keyword(args[idx], CT_TYPE);
       }
    }
-   else if (strcasecmp(args[0], "define") == 0)
-   {
-      add_define(args[1], args[2]);
-   }
-   else if (strcasecmp(args[0], "macro-open") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_OPEN);
-   }
-   else if (strcasecmp(args[0], "macro-close") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_CLOSE);
-   }
-   else if (strcasecmp(args[0], "macro-else") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_ELSE);
-   }
-   else if (strcasecmp(args[0], "set") == 0)
+   else if (strcasecmp(args[0], "define"     ) == 0) { add_define (args[1], args[2]       ); }
+   else if (strcasecmp(args[0], "macro-open" ) == 0) { add_keyword(args[1], CT_MACRO_OPEN ); }
+   else if (strcasecmp(args[0], "macro-close") == 0) { add_keyword(args[1], CT_MACRO_CLOSE); }
+   else if (strcasecmp(args[0], "macro-else" ) == 0) { add_keyword(args[1], CT_MACRO_ELSE ); }
+   else if (strcasecmp(args[0], "set"        ) == 0)
    {
       if (argc < 3)
       {
@@ -2029,8 +1978,6 @@ void process_option_line(char *configLine, const char *filename)
 
 int load_option_file(const char *filename)
 {
-   cpd.line_number = 0;
-
 #ifdef WIN32
    /* "/dev/null" not understood by "fopen" in Windows */
    if (strcasecmp(filename, "/dev/null") == 0)
@@ -2057,7 +2004,7 @@ int load_option_file(const char *filename)
 
    fclose(pfile);
    return(0);
-} // load_option_file
+}
 
 
 int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
@@ -2153,18 +2100,14 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       fprintf(pfile, "%s", DOC_TEXT_END);
    }
 
-   /* Print custom keywords */
-   print_keywords(pfile);
+   print_keywords  (pfile); /* Print custom keywords */
+   print_defines   (pfile); /* Print custom defines */
+   print_extensions(pfile); /* Print custom file extensions */
 
-   /* Print custom defines */
-   print_defines(pfile);
-
-   /* Print custom file extensions */
-   print_extensions(pfile);
    fprintf(pfile, "# option(s) with 'not default' value: %d\n#\n", count_the_not_default_options);
 
    return(0);
-} // save_option_file_kernel
+}
 
 
 int save_option_file(FILE *pfile, bool withDoc)
@@ -2219,7 +2162,7 @@ void print_options(FILE *pfile)
       }
    }
    fprintf(pfile, "%s", DOC_TEXT_END);
-} // print_options
+}
 
 
 void set_option_defaults(void)
@@ -2281,24 +2224,22 @@ void set_option_defaults(void)
    {
       cpd.settings[count].a = cpd.defaults[count].a;
    }
-} // set_option_defaults
+}
 
 
 string argtype_to_string(argtype_t argtype)
 {
    switch (argtype)
    {
-   case AT_BOOL:   return("false/true");
-   case AT_IARF:   return("ignore/add/remove/force");
-   case AT_NUM:    return("number");
-   case AT_UNUM:   return("unsigned number");
-   case AT_LINE:   return("auto/lf/crlf/cr");
-   case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
-   case AT_STRING: return("string");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      case AT_BOOL:   return("false/true");
+      case AT_IARF:   return("ignore/add/remove/force");
+      case AT_NUM:    return("number");
+      case AT_UNUM:   return("unsigned number");
+      case AT_LINE:   return("auto/lf/crlf/cr");
+      case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
+      case AT_STRING: return("string");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
    }
 }
 
@@ -2307,31 +2248,22 @@ const char *get_argtype_name(argtype_t argtype)
 {
    switch (argtype)
    {
-   case AT_BOOL:   return("AT_BOOL");
-   case AT_IARF:   return("AT_IARF");
-   case AT_NUM:    return("AT_NUM");
-   case AT_UNUM:   return("AT_UNUM");
-   case AT_LINE:   return("AT_LINE");
-   case AT_POS:    return("AT_POS");
-   case AT_STRING: return("AT_STRING");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      case AT_BOOL:   return("AT_BOOL");
+      case AT_IARF:   return("AT_IARF");
+      case AT_NUM:    return("AT_NUM");
+      case AT_UNUM:   return("AT_UNUM");
+      case AT_LINE:   return("AT_LINE");
+      case AT_POS:    return("AT_POS");
+      case AT_STRING: return("AT_STRING");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
    }
 }
 
 
 string bool_to_string(bool val)
 {
-   if (val)
-   {
-      return("true");
-   }
-   else
-   {
-      return("false");
-   }
+   return ((val) ? "true" :"false");
 }
 
 
@@ -2339,14 +2271,12 @@ string argval_to_string(argval_t argval)
 {
    switch (argval)
    {
-   case AV_IGNORE: return("ignore");
-   case AV_ADD:    return("add");
-   case AV_REMOVE: return("remove");
-   case AV_FORCE:  return("force");
-
-   default:
-      fprintf(stderr, "Unknown argval '%d'\n", argval);
-      return("");
+      case AV_IGNORE: return("ignore");
+      case AV_ADD:    return("add");
+      case AV_REMOVE: return("remove");
+      case AV_FORCE:  return("force");
+      default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
+                      return("");
    }
 }
 
@@ -2354,12 +2284,10 @@ string argval_to_string(argval_t argval)
 string number_to_string(int number)
 {
    char buffer[12]; // 11 + 1
-
    sprintf(buffer, "%d", number);
 
-   /*NOTE: this creates a std:string class from the char array.
-    *      It isn't returning a pointer to stack memory.
-    */
+   /* NOTE: this creates a std:string class from the char array.
+    *       It isn't returning a pointer to stack memory. */
    return(buffer);
 }
 
@@ -2368,14 +2296,12 @@ string lineends_to_string(lineends_t linends)
 {
    switch (linends)
    {
-   case LE_LF:   return("lf");
-   case LE_CRLF: return("crlf");
-   case LE_CR:   return("cr");
-   case LE_AUTO: return("auto");
-
-   default:
-      fprintf(stderr, "Unknown lineends '%d'\n", linends);
-      return("");
+      case LE_LF:   return("lf");
+      case LE_CRLF: return("crlf");
+      case LE_CR:   return("cr");
+      case LE_AUTO: return("auto");
+      default:      fprintf(stderr, "Unknown lineends '%d'\n", linends);
+                    return("");
    }
 }
 
@@ -2384,18 +2310,16 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
-   case TP_IGNORE:      return("ignore");
-   case TP_JOIN:        return("join");
-   case TP_LEAD:        return("lead");
-   case TP_LEAD_BREAK:  return("lead_break");
-   case TP_LEAD_FORCE:  return("lead_force");
-   case TP_TRAIL:       return("trail");
-   case TP_TRAIL_BREAK: return("trail_break");
-   case TP_TRAIL_FORCE: return("trail_force");
-
-   default:
-      fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
-      return("");
+      case TP_IGNORE:      return("ignore");
+      case TP_JOIN:        return("join");
+      case TP_LEAD:        return("lead");
+      case TP_LEAD_BREAK:  return("lead_break");
+      case TP_LEAD_FORCE:  return("lead_force");
+      case TP_TRAIL:       return("trail");
+      case TP_TRAIL_BREAK: return("trail_break");
+      case TP_TRAIL_FORCE: return("trail_force");
+      default:             fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
+                           return("");
    }
 }
 
@@ -2404,16 +2328,14 @@ string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
 {
    switch (argtype)
    {
-   case AT_BOOL:   return(bool_to_string(op_val.b));
-   case AT_IARF:   return(argval_to_string(op_val.a));
-   case AT_NUM:    return(number_to_string(op_val.n));
-   case AT_UNUM:   return(number_to_string((int)op_val.u));
-   case AT_LINE:   return(lineends_to_string(op_val.le));
-   case AT_POS:    return(tokenpos_to_string(op_val.tp));
-   case AT_STRING: return(op_val.str != NULL ? op_val.str : "");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      case AT_BOOL:   return(bool_to_string(op_val.b));
+      case AT_IARF:   return(argval_to_string(op_val.a));
+      case AT_NUM:    return(number_to_string(op_val.n));
+      case AT_UNUM:   return(number_to_string((int)op_val.u));
+      case AT_LINE:   return(lineends_to_string(op_val.le));
+      case AT_POS:    return(tokenpos_to_string(op_val.tp));
+      case AT_STRING: return(op_val.str != NULL ? op_val.str : "");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
    }
 }

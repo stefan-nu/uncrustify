@@ -168,8 +168,8 @@ static const token_pri pri_table[] =
    { CT_ASSIGN,       7 },
    { CT_STRING,       8 },
    { CT_FOR_COLON,    9 },
-   //{ CT_DC_MEMBER, 10 },
-   //{ CT_MEMBER,    10 },
+ //{ CT_DC_MEMBER,   10 },
+ //{ CT_MEMBER,      10 },
    { CT_QUESTION,    20 }, // allow break in ? : for ls_code_width
    { CT_COND_COLON,  20 },
    { CT_FPAREN_OPEN, 21 }, // break after function open paren not followed by close paren
@@ -216,20 +216,14 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc->type == CT_FPAREN_OPEN)
    {
       const chunk_t *next = chunk_get_next(pc);
-      if (next->type == CT_FPAREN_CLOSE)
-      {
-         return;
-      }
+      if (next->type == CT_FPAREN_CLOSE) { return; }
    }
 
    /* Only split concatenated strings */
    if (pc->type == CT_STRING)
    {
       const chunk_t *next = chunk_get_next(pc);
-      if (next->type != CT_STRING)
-      {
-         return;
-      }
+      if (next->type != CT_STRING) { return; }
    }
 
    /* keep common groupings unless ls_code_width */
@@ -268,7 +262,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
       ent.pc  = pc;
       ent.pri = pc_pri;
    }
-} // try_split_here
+}
 
 
 static bool split_line(chunk_t *start)
@@ -279,9 +273,7 @@ static bool split_line(chunk_t *start)
            get_token_name(start->type),
            (start->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)) != 0);
 
-   /**
-    * break at maximum line length if ls_code_width is true
-    */
+   /* break at maximum line length if ls_code_width is true */
    if (start->flags & PCF_ONE_LINER)
    {
       LOG_FMT(LSPLIT, " ** ONCE LINER SPLIT **\n");
@@ -293,21 +285,19 @@ static bool split_line(chunk_t *start)
    if (cpd.settings[UO_ls_code_width].b)
    {
    }
+
    /* Check to see if we are in a for statement */
    else if (start->flags & PCF_IN_FOR)
    {
       LOG_FMT(LSPLIT, " ** FOR SPLIT **\n");
       split_for_stmt(start);
-      if (!is_past_width(start))
-      {
-         return(true);
-      }
+      if (!is_past_width(start)) { return(true); }
+
       LOG_FMT(LSPLIT, "%s: for split didn't work\n", __func__);
    }
 
    /* If this is in a function call or prototype, split on commas or right
-    * after the open paren
-    */
+    * after the open paren */
    else if ((start->flags & PCF_IN_FCN_DEF) ||
             ((start->level == (start->brace_level + 1)) &&
              (start->flags & PCF_IN_FCN_CALL)))
@@ -317,18 +307,13 @@ static bool split_line(chunk_t *start)
       if (cpd.settings[UO_ls_func_split_full].b)
       {
          split_fcn_params_full(start);
-         if (!is_past_width(start))
-         {
-            return(true);
-         }
+         if (!is_past_width(start)) { return(true); }
       }
       split_fcn_params(start);
       return(true);
    }
 
-   /**
-    * Try to find the best spot to split the line
-    */
+   /* Try to find the best spot to split the line */
    cw_entry ent;
 
    memset(&ent, 0, sizeof(ent));
@@ -425,7 +410,7 @@ static bool split_line(chunk_t *start)
       split_before_chunk(pc);
    }
    return(true);
-} // split_line
+}
 
 
 static void split_for_stmt(chunk_t *start)
@@ -527,8 +512,7 @@ static void split_for_stmt(chunk_t *start)
          }
       }
    }
-   /* Oh, well. We tried. */
-} // split_for_stmt
+}
 
 
 static void split_fcn_params_full(chunk_t *start)
@@ -653,4 +637,4 @@ static void split_fcn_params(chunk_t *start)
       reindent_line(pc, min_col);
       cpd.changes++;
    }
-} // split_fcn_params
+}

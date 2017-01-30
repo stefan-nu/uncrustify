@@ -35,15 +35,12 @@ static void pf_copy_2nd_tos(parse_frame_t *pf);
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
 {
    LOG_FMT(logsev, "[%s] BrLevel=%d Level=%d PseTos=%zu\n",
-           get_token_name(pf->in_ifdef),
-           pf->brace_level, pf->level, pf->pse_tos);
+           get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
    for (size_t idx = 1; idx <= pf->pse_tos; idx++)
    {
-      LOG_FMT(logsev, " [%s-%d]",
-              get_token_name(pf->pse[idx].type),
-              pf->pse[idx].stage);
+      LOG_FMT(logsev, " [%s-%d]", get_token_name(pf->pse[idx].type), pf->pse[idx].stage);
    }
    LOG_FMT(logsev, "\n");
 }
@@ -54,8 +51,7 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
    LOG_FMT(logsev, "%s Parse Frames(%d):", txt, cpd.frame_count);
    for (int idx = 0; idx < cpd.frame_count; idx++)
    {
-      LOG_FMT(logsev, " [%s-%d]",
-              get_token_name(cpd.frames[idx].in_ifdef),
+      LOG_FMT(logsev, " [%s-%d]", get_token_name(cpd.frames[idx].in_ifdef),
               cpd.frames[idx].ref_no);
    }
    LOG_FMT(logsev, "-[%s-%d]\n", get_token_name(pf->in_ifdef), pf->ref_no);
@@ -69,7 +65,6 @@ static void pf_log_all(log_sev_t logsev)
    for (int idx = 0; idx < cpd.frame_count; idx++)
    {
       LOG_FMT(logsev, "##  <%d> ", idx);
-
       pf_log(logsev, &cpd.frames[idx]);
    }
    LOG_FMT(logsev, "##=-\n");
@@ -151,7 +146,6 @@ void pf_pop(parse_frame_t *pf)
       pf_copy_tos(pf);
       pf_trash_tos();
    }
-   //fprintf(stderr, "%s: count = %d\n", __func__, cpd.frame_count);
 }
 
 
@@ -161,15 +155,9 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    int b4_cnt   = cpd.frame_count;
    size_t pp_level = cpd.pp_level;
 
-   if (pc->type != CT_PREPROC)
-   {
-      return(pp_level);
-   }
+   if (pc->type != CT_PREPROC) { return(pp_level); }
    const chunk_t *next = chunk_get_next(pc);
-   if (next == NULL)
-   {
-      return(pp_level);
-   }
+   if (next == NULL) { return(pp_level); }
 
    if (pc->parent_type != next->type)
    {

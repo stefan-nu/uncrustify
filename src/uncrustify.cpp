@@ -65,11 +65,13 @@
 #include <time.h>
 #endif
 
-/* Global data */
+
 cp_data_t cpd;
 
 
-static int language_flags_from_name(const char *tag);
+static int language_flags_from_name(
+   const char *tag
+);
 
 
 /**
@@ -79,7 +81,9 @@ static int language_flags_from_name(const char *tag);
  * @param filename   The name of the file
  * @return           LANG_xxx
  */
-static int language_flags_from_filename(const char *filename);
+static int language_flags_from_filename(
+   const char *filename
+);
 
 
 /**
@@ -88,25 +92,42 @@ static int language_flags_from_filename(const char *filename);
  * @param lang    The LANG_xxx enum
  * @return        A string
  */
-const char *language_name_from_flags(int lang);
+const char *language_name_from_flags(
+   int lang
+);
 
 
-static bool read_stdin(file_mem_t &fm);
+static bool read_stdin(
+   file_mem_t &fm
+);
 
 
-static void make_folders(const string &filename);
+static void make_folders(
+   const string &filename
+);
 
 
-static void uncrustify_start(const deque<int> &data);
+static void uncrustify_start(
+   const deque<int> &data
+);
 
 
 static void uncrustify_end(void);
 
 
-static bool ends_with(const char *filename, const char *tag, bool case_sensitive);
+static bool ends_with(
+   const char *filename,
+   const char *tag,
+   bool case_sensitive
+);
 
 
-void uncrustify_file(const file_mem_t &fm, FILE *pfout, const char *parsed_file, bool defer_uncrustify_end = false);
+void uncrustify_file(
+   const file_mem_t &fm,
+   FILE *pfout,
+   const char *parsed_file,
+   bool defer_uncrustify_end = false
+);
 
 
 /**
@@ -118,7 +139,13 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout, const char *parsed_file,
  * @param no_backup    don't create a backup, if filename_out == filename_in
  * @param keep_mtime   don't change the mtime (dangerous)
  */
-static void do_source_file(const char *filename_in, const char *filename_out, const char *parsed_file, bool no_backup, bool keep_mtime);
+static void do_source_file(
+   const char *filename_in,
+   const char *filename_out,
+   const char *parsed_file,
+   bool no_backup,
+   bool keep_mtime
+);
 
 
 static void add_file_header(void);
@@ -127,43 +154,75 @@ static void add_file_header(void);
 static void add_file_footer(void);
 
 
-static void add_func_header(c_token_t type, const file_mem_t &fm);
+static void add_func_header(
+   c_token_t type,
+   const file_mem_t &fm
+);
 
 
-static void add_msg_header(c_token_t type, const file_mem_t &fm);
+static void add_msg_header(
+   c_token_t type,
+   const file_mem_t &fm
+);
 
 
-static void process_source_list(const char *source_list, const char *prefix, const char *suffix, bool no_backup, bool keep_mtime);
+static void process_source_list(
+   const char *source_list,
+   const char *prefix,
+   const char *suffix,
+   bool no_backup,
+   bool keep_mtime
+);
 
 
 int load_header_files(void);
 
 
-static const char *make_output_filename(char *buf, size_t buf_size, const char *filename, const char *prefix, const char *suffix);
+static const char *make_output_filename(
+   char *buf,
+   size_t buf_size,
+   const char *filename,
+   const char *prefix,
+   const char *suffix
+);
 
 
 /**
  * Reinvent the wheel with a file comparison function...
  */
-static bool file_content_matches(const string &filename1, const string &filename2);
+static bool file_content_matches(
+   const string &filename1,
+   const string &filename2
+);
 
 
-static string fix_filename(const char *filename);
+static string fix_filename(
+   const char *filename
+);
 
 
-static bool bout_content_matches(const file_mem_t &fm, bool report_status);
+static bool bout_content_matches(
+   const file_mem_t &fm,
+   bool report_status
+);
 
 
 /**
  * Loads a file into memory
  */
-static int load_mem_file(const char *filename, file_mem_t &fm);
+static int load_mem_file(
+   const char *filename,
+   file_mem_t &fm
+);
 
 
 /**
  * Try to load the file from the config folder first and then by name
  */
-static int load_mem_file_config(const char *filename, file_mem_t &fm);
+static int load_mem_file_config(
+   const char *filename,
+   file_mem_t &fm
+);
 
 
 static void version_exit(void);
@@ -358,7 +417,7 @@ void usage_exit(const char *msg, const char *argv0, int code)
            ,
            path_basename(argv0), UO_option_count);
    exit(code);
-} // usage_exit
+}
 
 
 static void version_exit(void)
@@ -567,12 +626,12 @@ int main(int argc, char *argv[])
    const char *suffix = arg.Param("--suffix");
    const char *assume = arg.Param("--assume");
 
-   bool       no_backup        = arg.Present("--no-backup");
-   bool       replace          = arg.Present("--replace");
-   bool       keep_mtime       = arg.Present("--mtime");
-   bool       update_config    = arg.Present("--update-config");
-   bool       update_config_wd = arg.Present("--update-config-with-doc");
-   bool       detect           = arg.Present("--detect");
+   bool no_backup        = arg.Present("--no-backup");
+   bool replace          = arg.Present("--replace");
+   bool keep_mtime       = arg.Present("--mtime");
+   bool update_config    = arg.Present("--update-config");
+   bool update_config_wd = arg.Present("--update-config-with-doc");
+   bool detect           = arg.Present("--detect");
 
    /* Grab the output override */
    const char *output_file = arg.Param("-o");
@@ -733,17 +792,14 @@ int main(int argc, char *argv[])
    }
 
    /* Everything beyond this point requires a config file, so complain and
-    * bail if we don't have one.
-    */
+    * bail if we don't have one. */
    if (cfg_file.empty())
    {
       usage_exit("Specify the config file with '-c file' or set UNCRUSTIFY_CONFIG",
                  argv[0], EX_IOERR);
    }
 
-   /*
-    *  Done parsing args
-    */
+   /* Done parsing args */
 
    /* Check for unused args (ignore them) */
    idx   = 1;
@@ -858,12 +914,11 @@ int main(int argc, char *argv[])
    }
 
    return(EXIT_SUCCESS);
-} // main
+}
 
 
-static void process_source_list(const char *source_list,
-                                const char *prefix, const char *suffix,
-                                bool no_backup, bool keep_mtime)
+static void process_source_list(const char *source_list, const char *prefix,
+      const char *suffix, bool no_backup, bool keep_mtime)
 {
    int  from_stdin = strcmp(source_list, "-") == 0;
    FILE *p_file    = from_stdin ? stdin : fopen(source_list, "r");
@@ -913,21 +968,14 @@ static void process_source_list(const char *source_list,
       }
    }
 
-   if (!from_stdin)
-   {
-      fclose(p_file);
-   }
-} // process_source_list
+   if (!from_stdin) { fclose(p_file); }
+}
 
 
 static bool read_stdin(file_mem_t &fm)
 {
    deque<UINT8> dq;
    char         buf[4096];
-
-   fm.raw.clear();
-   fm.data.clear();
-   fm.enc = ENC_ASCII;
 
    while (!feof(stdin))
    {
@@ -938,6 +986,10 @@ static bool read_stdin(file_mem_t &fm)
       }
    }
 
+   fm.raw.clear();
+   fm.data.clear();
+   fm.enc = ENC_ASCII;
+
    /* Copy the raw data from the deque to the vector */
    fm.raw.insert(fm.raw.end(), dq.begin(), dq.end());
    return(decode_unicode(fm.raw, fm.data, fm.enc, fm.bom));
@@ -946,11 +998,10 @@ static bool read_stdin(file_mem_t &fm)
 
 static void make_folders(const string &filename)
 {
-   size_t last_idx = 0;
    char   outname[4096];
-
    snprintf(outname, sizeof(outname), "%s", filename.c_str());
 
+   size_t last_idx = 0;
    for (size_t idx = 0; outname[idx] != 0; idx++)
    {
       if ((outname[idx] == '/') || (outname[idx] == '\\'))
@@ -985,7 +1036,7 @@ static void make_folders(const string &filename)
          last_idx = idx + 1;
       }
    }
-} // make_folders
+}
 
 
 static int load_mem_file(const char *filename, file_mem_t &fm)
@@ -1053,18 +1104,15 @@ static int load_mem_file(const char *filename, file_mem_t &fm)
    }
    fclose(p_file);
    return(retval);
-} // load_mem_file
+}
 
 
 static int load_mem_file_config(const char *filename, file_mem_t &fm)
 {
-   int  retval;
    char buf[1024];
+   snprintf(buf, sizeof(buf), "%.*s%s", path_dirname_len(cpd.filename), cpd.filename, filename);
 
-   snprintf(buf, sizeof(buf), "%.*s%s",
-            path_dirname_len(cpd.filename), cpd.filename, filename);
-
-   retval = load_mem_file(buf, fm);
+   int retval = load_mem_file(buf, fm);
    if (retval < 0)
    {
       retval = load_mem_file(filename, fm);
@@ -1117,9 +1165,7 @@ int load_header_files()
 
 
 static const char *make_output_filename(char *buf, size_t buf_size,
-                                        const char *filename,
-                                        const char *prefix,
-                                        const char *suffix)
+      const char *filename, const char *prefix, const char *suffix)
 {
    size_t len = 0;
 
@@ -1167,14 +1213,8 @@ static bool file_content_matches(const string &filename1, const string &filename
    memset(buf2, 0, sizeof(buf2));
    while (true)
    {
-      if (len1 == 0)
-      {
-         len1 = (size_t)read(fd1, buf1, sizeof(buf1));
-      }
-      if (len2 == 0)
-      {
-         len2 = (size_t)read(fd2, buf2, sizeof(buf2));
-      }
+      if (len1 == 0) { len1 = (size_t)read(fd1, buf1, sizeof(buf1)); }
+      if (len2 == 0) { len2 = (size_t)read(fd2, buf2, sizeof(buf2)); }
       if ((len1 == 0) || (len2 == 0))
       {
          break; /* reached end of either files */
@@ -1194,21 +1234,18 @@ static bool file_content_matches(const string &filename1, const string &filename
    close(fd2);
 
    return((len1 == 0) && (len2 == 0));
-} // file_content_matches
+}
 
 
 static string fix_filename(const char *filename)
 {
-   char   *tmp_file;
-   string rv;
-
    /* Create 'outfile.uncrustify' */
-   tmp_file = new char[strlen(filename) + 16 + 1]; /* + 1 for '\0' */
+   char *tmp_file = new char[strlen(filename) + 16 + 1]; /* + 1 for '\0' */
    if (tmp_file != NULL)
    {
       sprintf(tmp_file, "%s.uncrustify", filename);
    }
-   rv = tmp_file;
+   string rv = tmp_file;
    delete[] tmp_file;
    return(rv);
 }
@@ -1253,19 +1290,12 @@ static bool bout_content_matches(const file_mem_t &fm, bool report_status)
 }
 
 
-static void do_source_file(const char *filename_in,
-                           const char *filename_out,
-                           const char *parsed_file,
-                           bool       no_backup,
-                           bool       keep_mtime)
+static void do_source_file(const char *filename_in, const char *filename_out,
+      const char *parsed_file, bool no_backup, bool keep_mtime)
 {
-   FILE       *pfout      = NULL;
-   bool       did_open    = false;
-   bool       need_backup = false;
-   file_mem_t fm;
-   string     filename_tmp;
-
    UNUSED(keep_mtime);
+
+   file_mem_t fm;
 
    /* Do some simple language detection based on the filename extension */
    if (!cpd.lang_forced || (cpd.lang_flags == 0))
@@ -1303,12 +1333,13 @@ static void do_source_file(const char *filename_in,
       }
    }
 
+   string filename_tmp;
+   bool   need_backup = false;
+   bool   did_open    = false;
+   FILE   *pfout      = NULL;
    if (!cpd.do_check)
    {
-      if (filename_out == NULL)
-      {
-         pfout = stdout;
-      }
+      if (filename_out == NULL) { pfout = stdout; }
       else
       {
          /* If the out file is the same as the in file, then use a temp file */
@@ -1365,15 +1396,8 @@ static void do_source_file(const char *filename_in,
 
    if (did_open)
    {
-      if (pfout != NULL)
-      {
-         fclose(pfout);
-      }
-
-      if (need_backup)
-      {
-         backup_create_md5_file(filename_in);
-      }
+      if (pfout != NULL) { fclose(pfout); }
+      if (need_backup) { backup_create_md5_file(filename_in); }
 
       if (filename_tmp != filename_out)
       {
@@ -1411,7 +1435,7 @@ static void do_source_file(const char *filename_in,
       }
 #endif
    }
-} // do_source_file
+}
 
 
 static void add_file_header(void)
@@ -1456,10 +1480,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); pc != NULL; pc = chunk_get_next_ncnlnp(pc))
    {
-      if (pc->type != type)
-      {
-         continue;
-      }
+      if (pc->type != type) { continue; }
       if ((pc->flags & PCF_IN_CLASS) &&
           !cpd.settings[UO_cmt_insert_before_inlines].b)
       {
@@ -1497,10 +1518,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
                break;
             }
          }
-         if (found_brace)
-         {
-            continue;
-         }
+         if (found_brace) { continue; }
       }
 
       do_insert = false;
@@ -1577,10 +1595,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); pc != NULL; pc = chunk_get_next_ncnlnp(pc))
    {
-      if (pc->type != type)
-      {
-         continue;
-      }
+      if (pc->type != type) { continue; }
 
       do_insert = false;
 
@@ -1665,17 +1680,8 @@ static void uncrustify_start(const deque<int> &data)
       cpd.frag_cols = (UINT16)((pc != NULL) ? pc->orig_col : 0);
    }
 
-   /* Add the file header */
-   if (cpd.file_hdr.data.size() > 0)
-   {
-      add_file_header();
-   }
-
-   /* Add the file footer */
-   if (cpd.file_ftr.data.size() > 0)
-   {
-      add_file_footer();
-   }
+   if (cpd.file_hdr.data.size() > 0) { add_file_header(); } /* Add the file header */
+   if (cpd.file_ftr.data.size() > 0) { add_file_footer(); } /* Add the file footer */
 
    /* Change certain token types based on simple sequence.
     * Example: change '[' + ']' to '[]'
@@ -1904,22 +1910,16 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          sort_imports();
       }
 
-      /**
-       * Fix same-line inter-chunk spacing
-       */
+      /* Fix same-line inter-chunk spacing */
       space_text();
 
-      /**
-       * Do any aligning of preprocessors
-       */
+      /* Do any aligning of preprocessors */
       if (cpd.settings[UO_align_pp_define_span].n > 0)
       {
          align_preprocessor();
       }
 
-      /**
-       * Indent the text
-       */
+      /* Indent the text */
       indent_preproc();
       indent_text();
 
@@ -1939,9 +1939,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          add_long_preprocessor_conditional_block_comment();
       }
 
-      /**
-       * Align everything else, reindent and break at code_width
-       */
+      /* Align everything else, reindent and break at code_width */
       first          = true;
       cpd.pass_count = 3;
       do
@@ -1963,18 +1961,14 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          }
       } while ((old_changes != cpd.changes) && (cpd.pass_count-- > 0));
 
-      /**
-       * And finally, align the backslash newline stuff
-       */
+      /* And finally, align the backslash newline stuff */
       align_right_comments();
       if (cpd.settings[UO_align_nl_cont].b)
       {
          align_backslash_newline();
       }
 
-      /**
-       * Now render it all to the output file
-       */
+      /* Now render it all to the output file */
       output_text(pfout);
    }
 
@@ -2004,7 +1998,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    {
       uncrustify_end();
    }
-} // uncrustify_file
+}
 
 
 static void uncrustify_end()
@@ -2083,6 +2077,7 @@ struct lang_name_t
    const char *name;
    int        lang;
 };
+
 
 static const lang_name_t language_names[] =
 {
@@ -2272,10 +2267,7 @@ static int language_flags_from_filename(const char *filename)
 
 void log_pcf_flags(log_sev_t sev, UINT64 flags)
 {
-   if (!log_sev_on(sev))
-   {
-      return;
-   }
+   if (log_sev_on(sev) == false) { return; }
 
    log_fmt(sev, "[0x%" PRIx64 ":", flags);
 

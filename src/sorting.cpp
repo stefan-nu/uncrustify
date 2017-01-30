@@ -26,50 +26,50 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSORT, "\n@begin pc1->len=%zu, line=%zu, column=%zu\n", pc1->len(), pc1->orig_line, pc1->orig_col);
-   LOG_FMT(LSORT, "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
-   if (pc1 == pc2)
-   {
-      return(0);
-   }
+   LOG_FMT(LSORT,   "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
+   if (pc1 == pc2) { return(0); }   /* \todo same chunk is always identical thus return 0 differences */
 
-   while ((pc1 != NULL) && (pc2 != NULL))
+   while ((pc1 != NULL) && (pc2 != NULL) ) /* ensure there are two valid pointers */
    {
       LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
       LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-      size_t min_len = (pc1->len() < pc2->len()) ? pc1->len() : pc2->len();
+      size_t min_len = min(pc1->len(), pc2->len());
       int    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
       LOG_FMT(LSORT, "ret_val=%d\n", ret_val);
 
-      if (ret_val != 0)
-      {
-         return(ret_val);
-      }
-      if (pc1->len() != pc2->len())
-      {
-         return((long)pc1->len() - (long)pc2->len());
-      }
+      if (ret_val    != 0         ) { return(ret_val); }
+      if (pc1->len() != pc2->len()) { return((long)pc1->len() - (long)pc2->len()); }
 
       /* Same word, same length. Step to the next chunk. */
       pc1 = chunk_get_next(pc1);
-      LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
-      if (pc1->type == CT_MEMBER)
+      if (pc1 != NULL)
       {
-         pc1 = chunk_get_next(pc1);
          LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
+         if (pc1->type == CT_MEMBER)
+         {
+            pc1 = chunk_get_next(pc1);
+            if(pc1 != NULL)
+            {
+               LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
+            }
+         }
       }
       pc2 = chunk_get_next(pc2);
-      LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-      if (pc2->type == CT_MEMBER)
+      if(pc2 != NULL)
       {
-         pc2 = chunk_get_next(pc2);
          LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
+         if (pc2->type == CT_MEMBER)
+         {
+            pc2 = chunk_get_next(pc2);
+            LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
+         }
       }
-      LOG_FMT(LSORT, ">>>text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
-      LOG_FMT(LSORT, ">>>text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
 
       /* If we hit a newline or NULL, we are done */
-      if ((pc1 == NULL) || chunk_is_newline(pc1) ||
-          (pc2 == NULL) || chunk_is_newline(pc2) )
+      if ((pc1 == NULL)         ||
+          (pc2 == NULL)         ||
+          chunk_is_newline(pc1) ||
+          chunk_is_newline(pc2) )
       {
          break;
       }
@@ -84,7 +84,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       return(1);
    }
    return(0);
-} // compare_chunks
+}
 
 
 static void do_the_sort(chunk_t **chunks, size_t num_chunks)

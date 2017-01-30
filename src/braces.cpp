@@ -15,7 +15,14 @@
 #include "combine.h"
 #include "newlines.h"
 #include "options.h"
+#include "token_enum.h"
 
+
+/**
+ * Abbreviations used:
+ * - vbrace = virtual brace
+ * - vbopen = virtual opening brace
+ */
 
 /**
  * Converts a single brace into a virtual brace
@@ -39,7 +46,7 @@ static void examine_braces(void);
 
 
 /**
- * Step forward and count the number of semi colons at the current level.
+ * Step forward and count the number of semicolons at the current level.
  * Abort if more than 1 or if we enter a preprocessor
  */
 static void examine_brace(chunk_t *bopen);
@@ -100,6 +107,7 @@ static void process_if_chain(chunk_t *br_start);
 void do_braces(void)
 {
    LOG_FUNC_ENTRY();
+
    if (cpd.settings[UO_mod_full_brace_if_chain     ].b ||
        cpd.settings[UO_mod_full_brace_if_chain_only].b)
    {
@@ -136,7 +144,7 @@ void do_braces(void)
          continue;
       }
       chunk_t   *br_open = pc;
-      c_token_t brc_type = c_token_t(pc->type + 1);
+      c_token_t brc_type = get_inverse_type(pc->type); /* corresponds to closing type */
 
       /* Detect empty bodies */
       chunk_t *tmp = chunk_get_next_ncnl(pc);
@@ -213,12 +221,15 @@ static bool should_add_braces(chunk_t *vbopen)
 
    size_t  nl_count = 0;
    chunk_t *pc = chunk_get_next_nc(vbopen, CNAV_PREPROC);
-   for (;(pc != NULL) && (pc->level > vbopen->level); pc = chunk_get_next_nc(pc, CNAV_PREPROC))
+
+   while( (pc        != NULL         ) && /* chunk is valid */
+          (pc->level >  vbopen->level) )  /* tbd */
    {
       if (chunk_is_newline(pc))
       {
          nl_count += pc->nl_count;
       }
+      pc = chunk_get_next_nc(pc, CNAV_PREPROC);
    }
 
    if ((pc               != NULL        ) &&
@@ -236,6 +247,24 @@ static bool can_remove_braces(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
 
+   if( (bopen == NULL) ||                 /* invalid chunk */
+       (bopen->flags & PCF_IN_PREPROC))   /* Cannot remove braces inside a preprocessor */
+   {
+      return(false);
+   }
+
+   chunk_t *pc = chunk_get_next_ncnl(bopen, CNAV_PREPROC);
+   if(pc == NULL)
+   {
+      return (false);                     /* no valid chunk found */
+   }
+   else if (pc->type == CT_BRACE_CLOSE) /* Can't remove empty statement */
+   {
+      return(false);
+   }
+
+   LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
+
    const chunk_t *prev = NULL;
    size_t  semi_count = 0;
    size_t  level      = bopen->level + 1;
@@ -245,20 +274,6 @@ static bool can_remove_braces(chunk_t *bopen)
    size_t  nl_count   = 0;
    size_t  if_count   = 0;
    int     br_count   = 0;
-
-   /* Cannot remove braces inside a preprocessor */
-   if (bopen->flags & PCF_IN_PREPROC)
-   {
-      return(false);
-   }
-   chunk_t *pc = chunk_get_next_ncnl(bopen, CNAV_PREPROC);
-   if ((pc != NULL) && (pc->type == CT_BRACE_CLOSE))
-   {
-      /* Can't remove empty statement */
-      return(false);
-   }
-
-   LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
    pc = chunk_get_next_nc(bopen, CNAV_ALL);
    while ((pc != NULL) && (pc->level >= level))
@@ -316,13 +331,13 @@ static bool can_remove_braces(chunk_t *bopen)
 
             was_fcn = (prev != NULL) && (prev->type == CT_FPAREN_CLOSE);
 
-            if (chunk_is_semicolon(pc) ||
-                (pc->type == CT_IF) ||
-                (pc->type == CT_ELSEIF) ||
-                (pc->type == CT_FOR) ||
-                (pc->type == CT_DO) ||
-                (pc->type == CT_WHILE) ||
-                (pc->type == CT_USING_STMT) ||
+            if (( chunk_is_semicolon(pc)   ) ||
+                ( pc->type == CT_IF        ) ||
+                ( pc->type == CT_ELSEIF    ) ||
+                ( pc->type == CT_FOR       ) ||
+                ( pc->type == CT_DO        ) ||
+                ( pc->type == CT_WHILE     ) ||
+                ( pc->type == CT_USING_STMT) ||
                 ((pc->type == CT_BRACE_OPEN) && was_fcn))
             {
                hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
@@ -372,6 +387,14 @@ static bool can_remove_braces(chunk_t *bopen)
 static void examine_brace(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
+
+   if(bopen == NULL) /* invalid pointer parameter */
+   {
+      return;
+   }
+
+   LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
+
    chunk_t *next;
    chunk_t *prev      = NULL;
    size_t  semi_count = 0;
@@ -382,8 +405,6 @@ static void examine_brace(chunk_t *bopen)
    size_t  nl_count   = 0;
    size_t  if_count   = 0;
    int     br_count   = 0;
-
-   LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
    chunk_t *pc = chunk_get_next_nc(bopen);
    while ((pc != NULL) && (pc->level >= level))
@@ -547,7 +568,8 @@ static void convert_brace(chunk_t *br)
    LOG_FUNC_ENTRY();
    chunk_t *tmp;
 
-   if (!br || (br->flags & PCF_KEEP_BRACE))
+   if ((br == NULL                ) ||
+       (br->flags & PCF_KEEP_BRACE) )
    {
       return;
    }
@@ -783,7 +805,7 @@ void add_long_closebrace_comment(void)
       }
       else if (pc->type == CT_SWITCH)
       {
-         /* kinda pointless, since it always has the text "switch" */
+         /* kind of pointless, since it always has the text "switch" */
          sw_pc = pc;
       }
       else if (pc->type == CT_NAMESPACE)
@@ -972,11 +994,17 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
 static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
 {
    LOG_FUNC_ENTRY();
+
+   if(cl_colon == NULL)
+   {
+      return cl_colon;
+   }
+
    chunk_t *pc   = cl_colon;
+   LOG_FMT(LMCB, "%s: line %zu", __func__, pc->orig_line);
+
    chunk_t *last = NULL;
    chunk_t *next = chunk_get_next_ncnl(cl_colon, CNAV_PREPROC);
-
-   LOG_FMT(LMCB, "%s: line %zu", __func__, pc->orig_line);
 
    while ((pc = chunk_get_next_ncnl(pc, CNAV_PREPROC)) != NULL)
    {

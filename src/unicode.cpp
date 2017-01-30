@@ -175,41 +175,14 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
    while (idx < in_data.size())
    {
       int ch = in_data[idx++];
-      if (ch < 0x80)                   /* 1-byte sequence */
-      {
-         out_data.push_back(ch);
-         continue;
-      }
-      else if ((ch & 0xE0) == 0xC0)    /* 2-byte sequence */
-      {
-         ch &= 0x1F;
-         cnt = 1;
-      }
-      else if ((ch & 0xF0) == 0xE0)    /* 3-byte sequence */
-      {
-         ch &= 0x0F;
-         cnt = 2;
-      }
-      else if ((ch & 0xF8) == 0xF0)    /* 4-byte sequence */
-      {
-         ch &= 0x07;
-         cnt = 3;
-      }
-      else if ((ch & 0xFC) == 0xF8)    /* 5-byte sequence */
-      {
-         ch &= 0x03;
-         cnt = 4;
-      }
-      else if ((ch & 0xFE) == 0xFC)    /* 6-byte sequence */
-      {
-         ch &= 0x01;
-         cnt = 5;
-      }
-      else
-      {
-         /* invalid UTF-8 sequence */
-         return(false);
-      }
+
+           if ( ch < 0x80         ) { out_data.push_back(ch); continue; }/* 1-byte sequence */
+      else if ((ch & 0xE0) == 0xC0) { ch &= 0x1F; cnt = 1; } /* 2-byte sequence */
+      else if ((ch & 0xF0) == 0xE0) { ch &= 0x0F; cnt = 2; } /* 3-byte sequence */
+      else if ((ch & 0xF8) == 0xF0) { ch &= 0x07; cnt = 3; } /* 4-byte sequence */
+      else if ((ch & 0xFC) == 0xF8) { ch &= 0x03; cnt = 4; } /* 5-byte sequence */
+      else if ((ch & 0xFE) == 0xFC) { ch &= 0x01; cnt = 5; } /* 6-byte sequence */
+      else { return(false); } /* invalid UTF-8 sequence */
 
       while ((cnt-- > 0) && (idx < in_data.size()))
       {
@@ -407,7 +380,7 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEnco
    /* it is an unrecognized byte sequence */
    enc = ENC_BYTE;
    return(decode_bytes(in_data, out_data));
-} // decode_unicode
+}
 
 
 static void write_byte(int ch)
@@ -517,26 +490,12 @@ void write_char(int ch)
    {
       switch (cpd.enc)
       {
-      case ENC_BYTE:
-         write_byte(ch & 0xff);
-         break;
-
-      case ENC_ASCII:
-      default:
-         write_byte(ch);
-         break;
-
-      case ENC_UTF8:
-         write_utf8(ch);
-         break;
-
-      case ENC_UTF16_LE:
-         write_utf16(ch, false);
-         break;
-
-      case ENC_UTF16_BE:
-         write_utf16(ch, true);
-         break;
+         case ENC_BYTE:     write_byte (ch & 0xff); break;
+         case ENC_UTF8:     write_utf8 (ch       ); break;
+         case ENC_UTF16_LE: write_utf16(ch, false); break;
+         case ENC_UTF16_BE: write_utf16(ch, true ); break;
+         case ENC_ASCII:
+         default:           write_byte(ch        ); break;
       }
    }
 }

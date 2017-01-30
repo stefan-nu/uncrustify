@@ -57,10 +57,10 @@ void unc_text::update_logtext()
 
 int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
 {
-   size_t idx;
    size_t len1 = ref1.size();
    size_t len2 = ref2.size();
 
+   size_t idx;
    for (idx = 0; (idx < len1) && (idx < len2) && (idx < len); idx++)
    {
       if (ref1.m_chars[idx] != ref2.m_chars[idx])
@@ -68,22 +68,16 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
          return(ref1.m_chars[idx] - ref2.m_chars[idx]);
       }
    }
-   if (idx == len)
-   {
-      return(0);
-   }
-   return((int)(len1 - len2));
+   if (idx == len) { return(0);                 }
+   else            { return((int)(len1 - len2)); }
 }
 
 
 bool unc_text::equals(const unc_text &ref) const
 {
    size_t len = size();
+   if (ref.size() != len) { return(false); }
 
-   if (ref.size() != len)
-   {
-      return(false);
-   }
    for (size_t idx = 0; idx < len; idx++)
    {
       if (m_chars[idx] != ref.m_chars[idx])

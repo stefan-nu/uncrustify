@@ -42,11 +42,7 @@ size_t Args::NumberOfBits(const int argc)
 
 Args::~Args()
 {
-   if (m_used != NULL)
-   {
-      delete[] m_used;
-      m_used = (UINT8*)NULL;  /* \todo was deleted before already */
-   }
+   delete[] m_used;
    m_count = 0;
 }
 

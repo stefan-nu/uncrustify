@@ -39,7 +39,7 @@ struct tok_info
 
 struct tok_ctx
 {
-   tok_ctx(const deque<int> &d)
+   explicit tok_ctx(const deque<int> &d)
       : data(d)
    {
    }

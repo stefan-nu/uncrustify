@@ -340,14 +340,9 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
    }
    else
    {
-      if (prev->type == CT_COMMENT_MULTI)
-      {
-         min_col = prev->orig_col_end + min_pad;
-      }
-      else
-      {
-         min_col = prev->column + prev->len() + min_pad;
-      }
+      if (prev->type == CT_COMMENT_MULTI) { min_col = prev->orig_col_end +               min_pad; }
+      else                                { min_col = prev->column       + prev->len() + min_pad; }
+
       if (!squeeze)
       {
          if (min_col < pc->column)
@@ -431,25 +426,14 @@ void quick_indent_again(void)
 void align_all(void)
 {
    LOG_FUNC_ENTRY();
-   if (cpd.settings[UO_align_typedef_span].u > 0)
-   {
-      align_typedefs(cpd.settings[UO_align_typedef_span].u);
-   }
-
-   if (cpd.settings[UO_align_left_shift].b)
-   {
-      align_left_shift();
-   }
-
-   if (cpd.settings[UO_align_oc_msg_colon_span].u > 0)
-   {
-      align_oc_msg_colons();
-   }
+   if (cpd.settings[UO_align_typedef_span].u      > 0) { align_typedefs(cpd.settings[UO_align_typedef_span].u); }
+   if (cpd.settings[UO_align_left_shift].b           ) { align_left_shift();                                    }
+   if (cpd.settings[UO_align_oc_msg_colon_span].u > 0) { align_oc_msg_colons();                                 }
 
    /* Align variable definitions */
-   if ((cpd.settings[UO_align_var_def_span].u > 0) ||
+   if ((cpd.settings[UO_align_var_def_span].u    > 0) ||
        (cpd.settings[UO_align_var_struct_span].u > 0) ||
-       (cpd.settings[UO_align_var_class_span].u > 0))
+       (cpd.settings[UO_align_var_class_span].u  > 0))
    {
       align_var_def_brace(chunk_get_head(), cpd.settings[UO_align_var_def_span].u, NULL);
    }
@@ -460,48 +444,28 @@ void align_all(void)
                 cpd.settings[UO_align_assign_thresh].u);
 
    /* Align structure initializers */
-   if (cpd.settings[UO_align_struct_init_span].u > 0)
-   {
-      align_struct_initializers();
-   }
+   if (cpd.settings[UO_align_struct_init_span].u > 0)  { align_struct_initializers(); }
 
    /* Align function prototypes */
    if ((cpd.settings[UO_align_func_proto_span].u > 0) &&
-       !cpd.settings[UO_align_mix_var_proto].b)
-   {
-      align_func_proto(cpd.settings[UO_align_func_proto_span].u);
-   }
+       !cpd.settings[UO_align_mix_var_proto].b)        { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
 
    /* Align function prototypes */
-   if (cpd.settings[UO_align_oc_msg_spec_span].u > 0)
-   {
-      align_oc_msg_spec(cpd.settings[UO_align_oc_msg_spec_span].u);
-   }
+   if (cpd.settings[UO_align_oc_msg_spec_span].u > 0)  { align_oc_msg_spec(cpd.settings[UO_align_oc_msg_spec_span].u); }
 
    /* Align OC colons */
-   if (cpd.settings[UO_align_oc_decl_colon].b)
-   {
-      align_oc_decl_colon();
-   }
+   if (cpd.settings[UO_align_oc_decl_colon].b)         { align_oc_decl_colon(); }
 
-   if (cpd.settings[UO_align_asm_colon].b)
-   {
-      align_asm_colon();
-   }
+   if (cpd.settings[UO_align_asm_colon].b)             { align_asm_colon(); }
 
    /* Align variable defs in function prototypes */
-   if (cpd.settings[UO_align_func_params].b)
-   {
-      align_func_params();
-   }
+   if (cpd.settings[UO_align_func_params].b)           { align_func_params(); }
 
-   if (cpd.settings[UO_align_same_func_call_params].b)
-   {
-      align_same_func_call_params();
-   }
+   if (cpd.settings[UO_align_same_func_call_params].b) { align_same_func_call_params(); }
+
    /* Just in case something was aligned out of order... do it again */
    quick_align_again();
-} // align_all
+}
 
 
 static void align_oc_msg_spec(size_t span)
@@ -549,13 +513,13 @@ void align_right_comments(void)
 
    for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next(pc))
    {
-      if ((pc->type == CT_COMMENT) ||
-          (pc->type == CT_COMMENT_CPP) ||
-          (pc->type == CT_COMMENT_MULTI))
+      if ((pc->type == CT_COMMENT      ) ||
+          (pc->type == CT_COMMENT_CPP  ) ||
+          (pc->type == CT_COMMENT_MULTI) )
       {
          if (pc->parent_type == CT_COMMENT_END)
          {
-            bool    skip  = false;
+            bool          skip  = false;
             const chunk_t *prev = chunk_get_prev(pc);
             assert(prev != NULL);
             if (pc->orig_col < (size_t)((int)prev->orig_col_end + cpd.settings[UO_align_right_cmt_gap].n))
@@ -597,16 +561,10 @@ void align_right_comments(void)
    chunk_t *pc = chunk_get_head();
    while (pc != NULL)
    {
-      if (pc->flags & PCF_RIGHT_COMMENT)
-      {
-         pc = align_trailing_comments(pc);
-      }
-      else
-      {
-         pc = chunk_get_next(pc);
-      }
+      if (pc->flags & PCF_RIGHT_COMMENT) { pc = align_trailing_comments(pc); }
+      else                               { pc = chunk_get_next         (pc); }
    }
-} // align_right_comments
+}
 
 
 void align_struct_initializers(void)
@@ -704,17 +662,14 @@ void align_preprocessor(void)
 
    as.End();
    asf.End();
-} // align_preprocessor
+}
 
 
 chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
 {
    LOG_FUNC_ENTRY();
 
-   if (first == NULL)
-   {
-      return(NULL);
-   }
+   if (first == NULL) { return(NULL); }
    size_t my_level = first->level;
 
    if (span == 0)
@@ -810,14 +765,8 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          //        equ_count);
 
          equ_count++;
-         if (var_def_cnt != 0)
-         {
-            vdas.Add(pc);
-         }
-         else
-         {
-            as.Add(pc);
-         }
+         if (var_def_cnt != 0) { vdas.Add(pc); }
+         else                  { as.Add  (pc); }
       }
 
       pc = chunk_get_next(pc);
@@ -837,7 +786,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
    }
 
    return(pc);
-} // align_assign
+}
 
 
 static chunk_t *align_func_param(chunk_t *start)
@@ -895,7 +844,7 @@ static chunk_t *align_func_param(chunk_t *start)
    }
 
    return(pc);
-} // align_func_param
+}
 
 
 static void align_func_params(void)
@@ -1192,7 +1141,7 @@ static void align_func_proto(size_t span)
    }
    as.End();
    as_br.End();
-} // align_func_proto
+}
 
 
 static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
@@ -1437,7 +1386,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    as_br.End();
 
    return(pc);
-} // align_var_def_brace
+}
 
 
 chunk_t *align_nl_cont(chunk_t *start)
@@ -1572,7 +1521,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
    align_stack(cs, col, (intended_col != 0), LALTC);
 
    return(chunk_get_next(pc));
-} // align_trailing_comments
+}
 
 
 static void ib_shift_out(size_t idx, size_t num)
@@ -1698,7 +1647,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
       pc = chunk_get_next_nc(pc);
    }
    return(pc);
-} // scan_ib_line
+}
 
 
 static void align_log_al(log_sev_t sev, size_t line)
@@ -1869,7 +1818,7 @@ static void align_init_brace(chunk_t *start)
       }
       pc = chunk_get_next(pc);
    } while ((pc != NULL) && (pc->level > start->level));
-} // align_init_brace
+}
 
 
 static void align_typedefs(size_t span)
@@ -1914,7 +1863,7 @@ static void align_typedefs(size_t span)
    }
 
    as.End();
-} // align_typedefs
+}
 
 
 static void align_left_shift(void)
@@ -2007,7 +1956,7 @@ static void align_left_shift(void)
       pc = chunk_get_next(pc);
    }
    as.End();
-} // align_left_shift
+}
 
 
 static void align_oc_msg_colon(chunk_t *so)
@@ -2123,7 +2072,7 @@ static void align_oc_msg_colon(chunk_t *so)
    }
    nas.End();
    cas.End();
-} // align_oc_msg_colon
+}
 
 
 static void align_oc_msg_colons(void)
@@ -2211,7 +2160,7 @@ static void align_oc_decl_colon(void)
       nas.End();
       cas.End();
    }
-} // align_oc_decl_colon
+}
 
 
 static void align_asm_colon(void)
@@ -2257,4 +2206,4 @@ static void align_asm_colon(void)
       }
       cas.End();
    }
-} // align_asm_colon
+}

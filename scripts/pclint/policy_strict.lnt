@@ -12,7 +12,7 @@
 -e10					// Expecting identifier or other declarator
 -e18					// symbol redefined
 +e19					// useless declaration
-+e14					// symbol previously defined
+-e14					// symbol previously defined
 +e26					// expected an expression found const/return
 +e30					// expected an integer constant
 -e31					// redefinition of symbol
@@ -363,22 +363,22 @@
 +e1526					// Member function not defined
 +e1529					// symbol not first checking for assignment to this
 +e1536					// exposing low access member
-+e1540					// pointer member neither freed nor zeroed by destructor
+-e1540					// pointer member neither freed nor zeroed by destructor
 +e1551					// function may throw exception in destructor 			
 +e1554					// direct pointer copy of member within copy constructor
 +e1561					// reference initialization causes loss of const/volatile
 +e1566					// member might have been initialized by a separate function
-+e1702					// operator is both an ordinary function and a member function
+-e1702					// operator is both an ordinary function and a member function
 +e1704					// constructor has private access specification
 +e1711					// function needs not to be virtual
-+e1712					// default constructor not defined for class			
+-e1712					// default constructor not defined for class			
 -e1713					// enum constan not used within defaulted switch
 +e1714					// Member function not referenced
 +e1725					// class member is a reference
 +e1732					// constructor for class has no assignment operator
 +e1733					// constructor for class has no copy constructor
 +e1736					// redundant access specifier
-+e1740					// pointer member not directly freed or zeroed by destructor
+-e1740					// pointer member not directly freed or zeroed by destructor
 +e1746					// parameter could be made const reference
 +e1757					// discarded instance of post decrement/increment
 +e1762					// member could be made const
