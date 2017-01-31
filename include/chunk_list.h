@@ -652,10 +652,10 @@ static_inline bool chunk_is_forin(chunk_t *pc)
                  (next->type != CT_IN          ) )
          {
             next = chunk_get_next_ncnl(next);
-         }
-         if (next->type == CT_IN)
-         {
-            return(true);
+            if (next->type == CT_IN)
+            {
+               return(true);
+            }
          }
       }
    }

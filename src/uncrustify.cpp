@@ -196,7 +196,13 @@ static bool file_content_matches(
 );
 
 
-static string fix_filename(
+/**
+ * create the output file name by appending a fixed ending to the input file name
+ *
+ * typically the ending is ".uncrustify" used
+ * thus "source.c" -> "source.c.uncrustify"
+ */
+static string create_out_filename(
    const char *filename
 );
 
@@ -1227,21 +1233,25 @@ static bool file_content_matches(const string &filename1, const string &filename
 }
 
 
-static string fix_filename(const char *filename)
+static string create_out_filename(const char *filename)
 {
-   /* Create 'outfile.uncrustify' */
-   char *tmp_file = new char[strlen(filename) + 16 + 1]; /* + 1 for '\0' */
-   if(tmp_file == NULL)
+   const char file_ending[] = ".uncrustify";
+   const size_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
+   char *new_filename = new char[new_name_len];
+   if(new_filename == NULL)
    {
-      /* \todo print error message */
+      LOG_FMT(LERR, "Failed to allocate memory in %s \n", __func__);
    }
    else
    {
-      sprintf(tmp_file, "%s.uncrustify", filename);
-      string rv = tmp_file;
-      delete[] tmp_file;
+      sprintf(new_filename, "%s%s", filename, file_ending);
+      string rv = new_filename;
+      delete[] new_filename;
       return(rv);
    }
+   /* \better change last letter or original termination to ensure input file
+    * gets not overwritten */
+   return(filename); /* return unchanged filename as error recovery */
 }
 
 
@@ -1340,8 +1350,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
          filename_tmp = filename_out;
          if (strcmp(filename_in, filename_out) == 0)
          {
-            /* Create 'outfile.uncrustify' */
-            filename_tmp = fix_filename(filename_out);
+            filename_tmp = create_out_filename(filename_out);
 
             if (!no_backup)
             {

@@ -2223,7 +2223,7 @@ static chunk_t *process_return(chunk_t *pc)
          break;
       }
    }
-   if (chunk_is_semicolon(semi) && (pc->level == semi->level)) /*lint !e613 */
+   if (chunk_is_semicolon(semi) && (pc->level == semi->level))
    {
       /* add the parens */
       chunk.type        = CT_PAREN_OPEN;
@@ -2810,7 +2810,7 @@ static void fix_typedef(chunk_t *start)
 
 static bool cs_top_is_question(const ChunkStack &cs, size_t level)
 {
-   const chunk_t *pc = cs.Empty() ? NULL : cs.Top()->m_pc; /*lint !e613 */
+   const chunk_t *pc = cs.Empty() ? NULL : cs.Top()->m_pc;
 
    return(pc && (pc->type == CT_QUESTION) && (pc->level == level));
 }
@@ -3089,7 +3089,10 @@ static void fix_fcn_def_params(chunk_t *start)
 
    if (start == NULL) { return; }
 
-   assert((start->len() == 1) && (start->str[0] == '('));
+   /* ensure start chunk holds a single '(' character */
+   size_t len        = start->len();
+   char   first_char = start->str[0];
+   assert( (len == 1) && (first_char == '(' ));
 
    ChunkStack cs;
    size_t     level = start->level + 1;

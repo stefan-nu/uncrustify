@@ -686,7 +686,7 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 
       chunk_swap(pc1, pc2);
    }
-} // chunk_swap_lines
+}
 
 
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
