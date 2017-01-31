@@ -1,0 +1,7 @@
+// Suppressions for cppcheck
+//
+// A suppression has on of those three forms
+// [error id]:[filename]:[line]
+// [error id]:[filename]
+// [error id]
+missingIncludeSystem
