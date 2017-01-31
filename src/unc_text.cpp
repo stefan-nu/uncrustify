@@ -36,7 +36,7 @@ void unc_text::update_logtext()
       /* make a pessimistic guess at the size */
       m_logtext.clear();
       m_logtext.reserve(m_chars.size() * 3);
-      for (value_type::iterator it = m_chars.begin(); it != m_chars.end(); ++it)
+      for (int_list_t::iterator it = m_chars.begin(); it != m_chars.end(); ++it)
       {
          int val = *it;
          if (*it == '\n')
@@ -68,7 +68,7 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
          return(ref1.m_chars[idx] - ref2.m_chars[idx]);
       }
    }
-   if (idx == len) { return(0);                 }
+   if (idx == len) { return(0);                  }
    else            { return((int)(len1 - len2)); }
 }
 
@@ -161,7 +161,7 @@ void unc_text::set(const char *ascii_text)
 }
 
 
-void unc_text::set(const value_type &data, size_t idx, size_t len)
+void unc_text::set(const int_list_t &data, size_t idx, size_t len)
 {
    size_t data_size = data.size();
 
@@ -239,7 +239,7 @@ void unc_text::append(const char *ascii_text)
 }
 
 
-void unc_text::append(const value_type &data, size_t idx, size_t len)
+void unc_text::append(const int_list_t &data, size_t idx, size_t len)
 {
    unc_text tmp(data, idx, len);
 
@@ -286,10 +286,10 @@ bool unc_text::startswith(const unc_text &text, size_t idx) const
 
 int unc_text::find(const char *text, size_t sidx) const
 {
-   size_t len = strlen(text); // the length of 'text' we are looking for
-   size_t si  = size();       // the length of the string we are looking in
+   size_t len = strlen(text); /**< the length of 'text' we are looking for */
+   size_t si  = size();       /**< the length of the string we are looking in */
 
-   if (si < len)              // not enough place for 'text'
+   if (si < len)              /* not enough place for 'text' */
    {
       return(-1);
    }

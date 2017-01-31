@@ -1650,6 +1650,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
             {
                if (pc->prev->type == CT_STRING)
                {
+                  /* compare text with "C" to find extern "C" instructions */
                   if (unc_text::compare(pc->prev->text(), "\"C\"") == 0)
                   {
                      if (pc->prev->prev->type == CT_EXTERN)
