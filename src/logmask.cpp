@@ -12,24 +12,13 @@
 #include "unc_ctype.h"
 
 
-/**
- * Convert a logmask into a string
- *
- * @param mask the mask to convert
- * @param buf  the buffer to hold the string
- * @param size the size of the buffer
- * @return     buf (pass through)
- */
-char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
+char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 {
-   if ((buf == NULL) || (size <= 0))
-   {
-      return(buf);
-   }
+   if ((buf == NULL) || (size == 0)) { return(buf); }
 
    int  last_sev = -1;
    bool is_range = false;
-   int  len      = 0;
+   size_t len    = 0;
 
    for (int sev = 0; sev < 256; sev++)
    {
@@ -37,7 +26,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
       {
          if (last_sev == -1)
          {
-            len += snprintf(&buf[len], size - len, "%d,", sev);
+            len += (size_t)snprintf(&buf[len], size - len, "%d,", sev);
          }
          else
          {
@@ -50,7 +39,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
          if (is_range)
          {
             buf[len - 1] = '-';  /* change last comma to a dash */
-            len         += snprintf(&buf[len], size - len, "%d,", last_sev);
+            len         += (size_t)snprintf(&buf[len], size - len, "%d,", last_sev);
             is_range     = false;
          }
          last_sev = -1;
@@ -61,7 +50,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
    if (is_range && (last_sev != -1))
    {
       buf[len - 1] = '-';  /* change last comma to a dash */
-      len         += snprintf(&buf[len], size - len, "%d", last_sev);
+      len         += (size_t)snprintf(&buf[len], size - len, "%d", last_sev);
    }
    else
    {
@@ -75,15 +64,12 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, int size)
    buf[len] = 0;
 
    return(buf);
-} // logmask_to_str
+}
 
 
 void logmask_from_string(const char *str, log_mask_t &mask)
 {
-   if (str == NULL)
-   {
-      return;
-   }
+   if (str == NULL) { return; }
 
    /* Start with a clean mask */
    logmask_set_all(mask, false);
@@ -108,20 +94,20 @@ void logmask_from_string(const char *str, log_mask_t &mask)
 
       if (unc_isdigit(*str))
       {
-         int level = strtoul(str, &ptmp, 10);
+         size_t level = strtoul(str, &ptmp, 10);
          str = ptmp;
 
          logmask_set_sev(mask, (log_sev_t)level, true);
          if (was_dash)
          {
-            for (int idx = last_level + 1; idx < level; idx++)
+            for (size_t idx = (size_t)(last_level + 1); idx < level; idx++)
             {
                logmask_set_sev(mask, (log_sev_t)idx, true);
             }
             was_dash = false;
          }
 
-         last_level = level;
+         last_level = (int)level;
       }
       else if (*str == '-')
       {
@@ -135,4 +121,4 @@ void logmask_from_string(const char *str, log_mask_t &mask)
          str++;
       }
    }
-} // logmask_from_string
+}

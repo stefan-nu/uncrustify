@@ -2,15 +2,17 @@
 // the operating unit source code
 
 // show pclint where to find Header files
--i".\include"
--i".\lib"
--i".\src"
+
 
 -iC:\mingw\include
+-iC:\mingw\include\ddk
+-iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include
+-iC:\mingw\mingw32\lib\gcc\mingw32\4.8.1\include\c++\mingw32\bits
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\
--iC:\mingw\lib\gcc\mingw32\4.8.1\include\-fixed
+-iC:\mingw\lib\gcc\mingw32\4.8.1\include-fixed\
 -iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\
--iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\mingw32
+-iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\bits\
+-iC:\mingw\lib\gcc\mingw32\4.8.1\include\c++\mingw32\
 //+libdir(D:\Programme\linaro\gcc-linaro-arm-linux-gnueabihf-4.9-2014.08\*)	// define a directory as holding only headers, may be used with * or ?
 //+libdir(D:\Programme\linaro\gcc-linaro-arm-linux-gnueabihf-4.9-2014.08\libc\usr\include\*)
 
@@ -22,26 +24,35 @@
 //+libdir(uncrustify/scripts/*)
 //-wlib(1)
 
-// Compiler specific configuration for Visual DSP
+
+-i".\include"
+-i".\lib"
+-i".\src"
+
+// Compiler specific configuration for MinGW
 
 // co-tiger.lnt use this file for tiger sharc as reference
 scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 
 // Configuration for checking the operating unit source code
 
-//-d__ARM_PCS_VFP
+
 -d__cplusplus
--d_GNU_SOURCE
-//-d__GNUC__
--d__STDC__
-//-d__GLIBCXX__=20130531
+//-d__cplusplus=20130531
+//-d_GNU_SOURCE
+-d__GNUC__
+//-d__STDC__
+-d__GLIBCXX__=20130531
 //-d__SIZE_TYPE__=int
 //-d__PTRDIFF_TYPE__=int
 //-d__CHAR_BIT__=8
 -dWIN32
--d__i386__
+//-d__i386__
+//-d__i586__
+-d__i686__
 -dDEFINE_CHAR_TABLE
 -dDEFINE_PCF_NAMES 
+-dDEBUG
 
 // define compiler specific keywords
 

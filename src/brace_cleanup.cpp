@@ -19,6 +19,7 @@
 #include "lang_pawn.h"
 #include "parse_frame.h"
 #include "keywords.h"
+#include "token_enum.h"
 
 
 static size_t preproc_start(parse_frame_t *frm, chunk_t *pc);
@@ -34,7 +35,7 @@ static void print_stack(log_sev_t logsev, const char *str, parse_frame_t *frm, c
 static bool maybe_while_of_do(chunk_t *pc);
 
 
-static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc, brstage_e stage, const char *logtext);
+static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc, brstage_t stage, const char *logtext);
 
 /*
  * the value of after determines:
@@ -90,7 +91,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc);
 static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *next;
+   const chunk_t *next;
    size_t  pp_level = cpd.pp_level;
 
    /* Get the type of preprocessor and handle it */
@@ -250,9 +251,12 @@ static bool maybe_while_of_do(chunk_t *pc)
 
 
 static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc,
-                         brstage_e stage, const char *logtext)
+                         brstage_t stage, const char *logtext)
 {
    LOG_FUNC_ENTRY();
+
+   assert(pc != NULL);
+
    if (frm->pse_tos < ((int)ARRAY_SIZE(frm->pse) - 1))
    {
       frm->pse_tos++;
@@ -354,8 +358,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    {
       chunk_flags_set(pc, PCF_IN_SPAREN);
 
-      /* Mark everything in the a for statement */
-      for (int tmp = frm->pse_tos - 1; tmp >= 0; tmp--)
+      /* Mark everything in the for statement */
+      for (int tmp = (int)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative dont use size_t */
       {
          if (frm->pse[tmp].type == CT_FOR)
          {
@@ -417,7 +421,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
           ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
            (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN)))
       {
-         set_chunk_type(pc, (c_token_t)(frm->pse[frm->pse_tos].type + 1));
+         set_chunk_type(pc, get_inverse_type(frm->pse[frm->pse_tos].type) );
          if (pc->type == CT_SPAREN_CLOSE)
          {
             frm->sparen_count--;
@@ -426,7 +430,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       }
 
       /* Make sure the open / close match */
-      if (pc->type != (frm->pse[frm->pse_tos].type + 1))
+      if (pc->type != (frm->pse[frm->pse_tos].type + 1))   // \todo why +1
       {
          if ((frm->pse[frm->pse_tos].type != CT_NONE) &&
              (frm->pse[frm->pse_tos].type != CT_PP_DEFINE))
@@ -469,11 +473,11 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    /* In this state, we expect a semicolon, but we'll also hit the closing
     * sparen, so we need to check cpd.consumed to see if the close sparen was
-    * aleady handled.
+    * already handled.
     */
    if (frm->pse[frm->pse_tos].stage == BS_WOD_SEMI)
    {
-      chunk_t *tmp = pc;
+      const chunk_t *tmp = pc;
 
       if (cpd.consumed)
       {
@@ -484,7 +488,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          if (cpd.lang_flags & LANG_PAWN)
          {
             tmp = chunk_get_next_ncnl(pc);
-
+            assert(tmp != NULL);
             if ((tmp->type != CT_SEMICOLON) && (tmp->type != CT_VSEMICOLON))
             {
                pawn_add_vsemi_after(pc);
@@ -516,7 +520,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
        (pc->type == CT_SPAREN_OPEN) ||
        (pc->type == CT_BRACE_OPEN))
    {
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if (prev != NULL)
       {
          if ((pc->type == CT_PAREN_OPEN) ||
@@ -613,7 +617,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    }
    else if (patcls == PATCLS_PBRACED)
    {
-      brstage_e bs = BS_PAREN1;
+      brstage_t bs = BS_PAREN1;
 
       if ((pc->type == CT_WHILE) && maybe_while_of_do(pc))
       {
@@ -655,7 +659,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Mark expression starts */
-   chunk_t *tmp = chunk_get_next_ncnl(pc);
+   const chunk_t *tmp = chunk_get_next_ncnl(pc);
    if ((pc->type == CT_ARITH) ||
        (pc->type == CT_ASSIGN) ||
        (pc->type == CT_CASE) ||
@@ -877,7 +881,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
 static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *next;
+   const chunk_t *next;
 
    if (frm->pse[frm->pse_tos].stage == BS_PAREN1)
    {
@@ -977,22 +981,23 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
       cpd.error_count++;
    }
    return(false);
-} // handle_complex_close
+}
 
 
 static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 {
    LOG_FUNC_ENTRY();
-   chunk_t chunk;
-   chunk_t *rv;
-   chunk_t *ref;
 
+   assert(pc != NULL);
+
+   chunk_t chunk;
    chunk.orig_line   = pc->orig_line;
    chunk.parent_type = frm->pse[frm->pse_tos].type;
    chunk.level       = frm->level;
    chunk.brace_level = frm->brace_level;
    chunk.flags       = pc->flags & PCF_COPY_FLAGS;
    chunk.str         = "";
+   chunk_t *rv;
    if (after)
    {
       chunk.type = CT_VBRACE_CLOSE;
@@ -1000,7 +1005,8 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
    }
    else
    {
-      ref = chunk_get_prev(pc);
+      chunk_t *ref = chunk_get_prev(pc);
+      assert(ref != NULL);
       if ((ref->flags & PCF_IN_PREPROC) == 0)
       {
          chunk.flags &= ~PCF_IN_PREPROC;
@@ -1014,6 +1020,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       }
 
       /* Don't back into a preprocessor */
+      assert(ref != NULL);
       if (((pc->flags & PCF_IN_PREPROC) == 0) &&
           (ref->flags & PCF_IN_PREPROC))
       {
@@ -1030,13 +1037,14 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
          }
       }
 
+      assert(ref != NULL);
       chunk.orig_line = ref->orig_line;
       chunk.column    = ref->column + ref->len() + 1;
       chunk.type      = CT_VBRACE_OPEN;
       rv              = chunk_add_after(&chunk, ref);
    }
    return(rv);
-} // insert_vbrace
+}
 
 
 static bool close_statement(parse_frame_t *frm, chunk_t *pc)
@@ -1101,4 +1109,4 @@ static bool close_statement(parse_frame_t *frm, chunk_t *pc)
       }
    }
    return(false);
-} // close_statement
+}

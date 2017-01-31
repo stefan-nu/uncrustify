@@ -16,18 +16,18 @@
 
 void print_universal_indent_cfg(FILE *pfile)
 {
-   const group_map_value *p_grp;
+   const group_map_value_t *p_grp;
    const char            *p_name;
 
    /* Dump the header and the categories */
    fprintf(pfile, "[header]\n");
 
    /* Add all the categories */
-   char ch = '=';
-   int  idx;
+   char   ch = '=';
+   size_t idx;
 
    fprintf(pfile, "categories");
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (p_grp != NULL)
@@ -72,7 +72,7 @@ void print_universal_indent_cfg(FILE *pfile)
            UNCRUSTIFY_VERSION);
 
    /* Now add each option */
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (p_grp == NULL)
@@ -80,9 +80,9 @@ void print_universal_indent_cfg(FILE *pfile)
          continue;
       }
 
-      for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); it++)
+      for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); ++it)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(*it);
 
          // Create a better readable name from the options name
          // by replacing '_' by a space and use some upper case characters.
@@ -105,7 +105,7 @@ void print_universal_indent_cfg(FILE *pfile)
          }
 
          fprintf(pfile, "\n[%s]\n", optionNameReadable);
-         fprintf(pfile, "Category=%d\n", idx);
+         fprintf(pfile, "Category=%zu\n", idx);
 #ifdef DEBUG
          fprintf(pfile, "Description=\"<html>(123)");
          // (123) is a placeholder to be changed with the vim command:
@@ -124,24 +124,11 @@ void print_universal_indent_cfg(FILE *pfile)
          {
             switch (*tmp)
             {
-            case '<':
-               fprintf(pfile, "&lt;");
-               break;
-
-            case '>':
-               fprintf(pfile, "&gt;");
-               break;
-
-            case '&':
-               fprintf(pfile, "&amp;");
-               break;
-
-            case '\n':
-               fprintf(pfile, "<BR>");
-               break;
-
-            default:
-               fputc(*tmp, pfile);
+               case '<':  fprintf(pfile, "&lt;" ); break;
+               case '>':  fprintf(pfile, "&gt;" ); break;
+               case '&':  fprintf(pfile, "&amp;"); break;
+               case '\n': fprintf(pfile, "<BR>" ); break;
+               default:   fputc(*tmp, pfile);      break;
             }
             tmp++;
          }
@@ -264,9 +251,9 @@ void print_universal_indent_cfg(FILE *pfile)
 
             default:
                break;
-            } // switch
-         }    // switch
+            }
+         }
          delete[] optionNameReadable;
       }
    }
-} // print_universal_indent_cfg
+}

@@ -12,6 +12,8 @@
 
 
 /**
+ * \brief Parse the text into chunks
+ *
  * This function parses or tokenizes the whole buffer into a list.
  * It has to do some tricks to parse preprocessors.
  *
@@ -22,7 +24,10 @@
  * All the tokens are inserted before ref. If ref is NULL, they are inserted
  * at the end of the list.  Line numbers are relative to the start of the data.
  */
-void tokenize(const deque<int> &data, chunk_t *ref);
+void tokenize(
+   const deque<int> &data,
+   chunk_t          *ref
+);
 
 
 #endif /* TOKENIZE_H_INCLUDED */

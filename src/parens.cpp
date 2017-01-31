@@ -10,7 +10,6 @@
 #include "chunk_list.h"
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include "unc_ctype.h"
 #include "uncrustify.h"
 
@@ -60,7 +59,7 @@ void do_parens(void)
          }
 
          /* Grab the close sparen */
-         chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, pc->level, CNAV_PREPROC);
+         chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, CNAV_PREPROC);
          if (pclose != NULL)
          {
             check_bool_parens(pc, pclose, 0);

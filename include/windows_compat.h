@@ -38,12 +38,12 @@ typedef unsigned long long   UINT64;
  */
 #ifdef _MSC_VER
 #if _MSC_VER < 1300
-#define __func__    "???"
+#define __func__    "unknown function"
 #else
 #define __func__    __FUNCTION__
 #endif
 #else /* _MSC_VER */
-#define __func__    "???"
+#define __func__    "unknown function"
 #endif
 
 #include "stdio.h"

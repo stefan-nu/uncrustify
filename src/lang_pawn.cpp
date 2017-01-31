@@ -58,13 +58,19 @@ static chunk_t *pawn_process_func_def(chunk_t *pc);
 chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+
+   if(pc == NULL)
+   {
+      return NULL;
+   }
+
    if ((pc->type == CT_VSEMICOLON) ||
        (pc->type == CT_SEMICOLON))
    {
       return(pc);
    }
 
-   chunk_t *next = chunk_get_next_nc(pc);
+   const chunk_t *next = chunk_get_next_nc(pc);
    if ((next != NULL) &&
        ((next->type == CT_VSEMICOLON) ||
         (next->type == CT_SEMICOLON)))
@@ -99,7 +105,7 @@ void pawn_scrub_vsemi(void)
       {
          continue;
       }
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if ((prev != NULL) && (prev->type == CT_BRACE_CLOSE))
       {
          if ((prev->parent_type == CT_IF) ||
@@ -122,7 +128,7 @@ static bool pawn_continued(chunk_t *pc, int br_level)
    {
       return(false);
    }
-   if ((pc->level > br_level) ||
+   if (((int)pc->level > br_level) ||
        (pc->type == CT_ARITH) ||
        (pc->type == CT_CARET) ||
        (pc->type == CT_QUESTION) ||
@@ -235,7 +241,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
 
    if (start->type == CT_ENUM)
    {
-      pc = chunk_get_next_type(start, CT_BRACE_CLOSE, start->level);
+      pc = chunk_get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
       return(pc);
    }
 
@@ -254,8 +260,9 @@ static chunk_t *pawn_process_variable(chunk_t *start)
    while ((pc = chunk_get_next_nc(pc)) != NULL)
    {
       if ((pc->type == CT_NEWLINE) &&
-          !pawn_continued(prev, start->level))
+          !pawn_continued(prev, (int)start->level))
       {
+         assert(prev != NULL);
          if ((prev->type != CT_VSEMICOLON) &&
              (prev->type != CT_SEMICOLON))
          {
@@ -300,7 +307,7 @@ void pawn_add_virtual_semicolons(void)
              ((prev->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) == 0) &&
              (prev->type != CT_VSEMICOLON) &&
              (prev->type != CT_SEMICOLON) &&
-             !pawn_continued(prev, prev->brace_level))
+             !pawn_continued(prev, (int)prev->brace_level))
          {
             pawn_add_vsemi_after(prev);
             prev = NULL;
@@ -317,7 +324,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    /* handle prototypes */
    if (start == fcn)
    {
-      chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, fcn->level);
+      chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
       last = chunk_get_next(last);
       if ((last != NULL) && (last->type == CT_SEMICOLON))
       {
@@ -398,7 +405,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    if (last->type == CT_BRACE_OPEN)
    {
       set_chunk_parent(last, CT_FUNC_DEF);
-      last = chunk_get_next_type(last, CT_BRACE_CLOSE, last->level);
+      last = chunk_get_next_type(last, CT_BRACE_CLOSE, (int)last->level);
       if (last != NULL)
       {
          set_chunk_parent(last, CT_FUNC_DEF);
@@ -432,7 +439,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
          if ((prev->type == CT_NEWLINE) &&
              (prev->level == 0))
          {
-            chunk_t *next = chunk_get_next_ncnl(prev);
+            const chunk_t *next = chunk_get_next_ncnl(prev);
             if ((next != NULL) &&
                 (next->type != CT_ELSE) &&
                 (next->type != CT_WHILE_OF_DO))
@@ -451,6 +458,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
                  __func__, last->orig_line, get_token_name(last->type), last->level);
       }
 
+      assert(last != NULL);
       chunk = *last;
       chunk.str.clear();
       chunk.column     += last->len();
@@ -469,7 +477,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    LOG_FUNC_ENTRY();
 
    /* Grab the open VBrace */
-   chunk_t *vb_open = chunk_get_prev_type(pc, CT_VBRACE_OPEN, -1);
+   const chunk_t *vb_open = chunk_get_prev_type(pc, CT_VBRACE_OPEN, -1);
 
    /**
     * Grab the item before the newline
@@ -484,7 +492,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    if ((prev == NULL) ||
        (prev == vb_open) ||
        (prev->flags & PCF_IN_PREPROC) ||
-       pawn_continued(prev, vb_open->level + 1))
+       pawn_continued(prev, (int)vb_open->level + 1))
    {
       if (prev != NULL)
       {

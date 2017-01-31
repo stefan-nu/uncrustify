@@ -190,13 +190,16 @@ chunk_t *chunk_search_next_cat(chunk_t *pc, const c_token_t cat)
 }
 
 
+static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
+
+
 static chunk_t
 *chunk_search_type(chunk_t *cur, const c_token_t type, const nav_t nav, const loc_t dir)
 {
    /* Depending on the parameter dir the search function searches
     * in forward or backward direction */
-   search_t search_function = select_search_fct(dir);
-   chunk_t  *pc             = cur;
+   const search_t search_function = select_search_fct(dir);
+   chunk_t        *pc             = cur;
 
    do                                /* loop over the chunk list */
    {
@@ -219,8 +222,8 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, nav_t nav, loc_t d
 {
    /* Depending on the parameter dir the search function searches
     * in forward or backward direction */
-   search_t search_function = select_search_fct(dir);
-   chunk_t  *pc             = cur;
+   const search_t search_function = select_search_fct(dir);
+   chunk_t        *pc             = cur;
 
    do                                /* loop over the chunk list */
    {
@@ -251,8 +254,8 @@ chunk_t *chunk_search_str(chunk_t *cur, const char *str, nav_t nav, loc_t dir, i
 {
    /* Depending on the parameter dir the search function searches
     * in forward or backward direction */
-   search_t search_function = select_search_fct(dir);
-   chunk_t  *pc             = cur;
+   const search_t search_function = select_search_fct(dir);
+   chunk_t        *pc             = cur;
 
    do                                /* loop over the chunk list */
    {
@@ -283,8 +286,8 @@ static chunk_t
 {
    /* Depending on the parameter dir the search function searches
     * in forward or backward direction */
-   search_t search_function = select_search_fct(dir);
-   chunk_t  *pc             = cur;
+   const search_t search_function = select_search_fct(dir);
+   chunk_t        *pc             = cur;
 
    do                                 /* loop over the chunk list */
    {
@@ -303,7 +306,7 @@ chunk_t *chunk_get_next(chunk_t *cur, nav_t nav)
 {
    if (cur == NULL)
    {
-      return(NULL);
+      return(cur);
    }
    chunk_t *pc = g_cl.GetNext(cur);
    if ((pc == NULL) || (nav == CNAV_ALL))
@@ -315,7 +318,7 @@ chunk_t *chunk_get_next(chunk_t *cur, nav_t nav)
       /* If in a preproc, return NULL if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
-         return(NULL);
+         return((chunk_t *)NULL);
       }
       return(pc);
    }
@@ -332,7 +335,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, nav_t nav)
 {
    if (cur == NULL)
    {
-      return(NULL);
+      return(cur);
    }
    chunk_t *pc = g_cl.GetPrev(cur);
    if ((pc == NULL) || (nav == CNAV_ALL))
@@ -344,7 +347,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, nav_t nav)
       /* If in a preproc, return NULL if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
-         return(NULL);
+         return((chunk_t *)NULL);
       }
       return(pc);
    }
@@ -371,7 +374,7 @@ chunk_t *chunk_get_tail(void)
 
 chunk_t *chunk_dup(const chunk_t *pc_in)
 {
-   chunk_t *pc = new chunk_t; /* Allocate a new chunk */
+   chunk_t *const pc = new chunk_t; /* Allocate a new chunk */
 
    if (pc == NULL)
    {
@@ -406,16 +409,16 @@ static void chunk_log(chunk_t *pc, const char *text)
 
       chunk_log_msg(pc, log, text);
 
-      if (prev && next)
+      if ((prev != NULL) && (next != NULL))
       {
          chunk_log_msg(prev, log, " @ between");
          chunk_log_msg(next, log, " and");
       }
-      else if (next)
+      else if (next != NULL)
       {
          chunk_log_msg(next, log, " @ before");
       }
-      else if (prev)
+      else if (prev != NULL)
       {
          chunk_log_msg(prev, log, " @ after");
       }
@@ -468,13 +471,17 @@ void chunk_del(chunk_t *pc)
 void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 {
    LOG_FUNC_ENTRY();
-   g_cl.Pop(pc_in);
-   g_cl.AddAfter(pc_in, ref);
 
-   /* HACK: Adjust the original column */
-   pc_in->column       = ref->column + space_col_align(ref, pc_in);
-   pc_in->orig_col     = (UINT32)pc_in->column;
-   pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
+   if ((pc_in != NULL) && (ref != NULL))
+   {
+      g_cl.Pop(pc_in);
+      g_cl.AddAfter(pc_in, ref);
+
+      /* HACK: Adjust the original column */
+      pc_in->column       = ref->column + (size_t)space_col_align(ref, pc_in);
+      pc_in->orig_col     = (UINT32)pc_in->column;
+      pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
+   }
 }
 
 
@@ -568,29 +575,25 @@ chunk_t *chunk_get_prev_nvb(chunk_t *cur, const nav_t nav)
 }
 
 
-chunk_t
-*chunk_get_next_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
+chunk_t *chunk_get_next_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
 {
    return(chunk_search_typelevel(cur, type, nav, AFTER, level));
 }
 
 
-chunk_t
-*chunk_get_prev_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
+chunk_t *chunk_get_prev_type(chunk_t *cur, c_token_t type, int level, nav_t nav)
 {
    return(chunk_search_typelevel(cur, type, nav, BEFORE, level));
 }
 
 
-chunk_t
-*chunk_get_next_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
+chunk_t *chunk_get_next_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
 {
    return(chunk_search_str(cur, str, nav, AFTER, level, len));
 }
 
 
-chunk_t
-*chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
+chunk_t *chunk_get_prev_str(chunk_t *cur, const char *str, size_t len, int level, nav_t nav)
 {
    return(chunk_search_str(cur, str, nav, BEFORE, level, len));
 }
@@ -686,16 +689,15 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 } // chunk_swap_lines
 
 
-void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
-
-
-void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
+static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
 {
    LOG_FUNC_ENTRY();
 
-   c_token_t *where;
-   c_token_t *type;
-   c_token_t *parent_type;
+   assert(pc != NULL);
+
+   c_token_t       *where;
+   const c_token_t *type;
+   const c_token_t *parent_type;
 
    switch (what)
    {
@@ -725,24 +727,41 @@ void set_chunk_real(chunk_t *pc, c_token_t token, log_sev_t what, const char *st
 }
 
 
-void set_chunk_type_real(chunk_t *pc, c_token_t tt)
+void set_chunk_type(chunk_t *pc, c_token_t tt)
 {
-   set_chunk_real(pc, tt, LSETTYP, "set_chunk_type");
+   LOG_FUNC_CALL();
+   set_chunk(pc, tt, LSETTYP, "set_chunk_type");
 }
 
 
-void set_chunk_parent_real(chunk_t *pc, c_token_t pt)
+void set_chunk_parent(chunk_t *pc, c_token_t pt)
 {
-   set_chunk_real(pc, pt, LSETPAR, "set_chunk_parent");
+   LOG_FUNC_CALL();
+   set_chunk(pc, pt, LSETPAR, "set_chunk_parent");
 }
 
 
-void chunk_flags_set_real(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
+void chunk_flags_set(chunk_t *pc, UINT64 set_bits)
 {
+   LOG_FUNC_CALL();
+   chunk_flags_update(pc, 0, set_bits);
+}
+
+
+void chunk_flags_clr(chunk_t *pc, UINT64 clr_bits)
+{
+   LOG_FUNC_CALL();
+   chunk_flags_update(pc, clr_bits, 0);
+}
+
+
+void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
+{
+   LOG_FUNC_ENTRY();
+
    if (pc != NULL)
    {
-      LOG_FUNC_ENTRY();
-      UINT64 nflags = (pc->flags & ~clr_bits) | set_bits;
+      const UINT64 nflags = (pc->flags & ~clr_bits) | set_bits;
       if (pc->flags != nflags)
       {
          LOG_FMT(LSETFLG, "set_chunk_flags: %016" PRIx64 "^%016" PRIx64 "=%016" PRIx64 " %zu:%zu '%s' %s:%s",

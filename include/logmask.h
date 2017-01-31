@@ -71,7 +71,7 @@ static_inline void logmask_set_all(log_mask_t &mask, bool value)
  * @param size the size of the buffer
  * @return     buf (pass through)
  */
-char *logmask_to_str(const log_mask_t &mask, char *buf, int size);
+char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size);
 
 
 /**

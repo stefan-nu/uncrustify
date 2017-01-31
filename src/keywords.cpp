@@ -12,7 +12,6 @@
 #include "char_table.h"
 #include "args.h"
 #include <cstring>
-#include <cerrno>
 #include <cstdlib>
 #include <map>
 #include "unc_ctype.h"
@@ -27,20 +26,24 @@ static dkwmap dkwm;
 
 /**
  * Compares two chunk_tag_t entries using strcmp on the strings
- *
- * @param p1   The 'left' entry
- * @param p2   The 'right' entry
  */
-static int kw_compare(const void *p1, const void *p2);
+static int kw_compare(
+   const void *p1,  /**< [in] The 'left'  entry */
+   const void *p2   /**< [in] The 'right' entry */
+);
 
 
 /**
  * Backs up to the first string match in keywords.
  */
-static const chunk_tag_t *kw_static_first(const chunk_tag_t *tag);
+static const chunk_tag_t *kw_static_first(
+   const chunk_tag_t *tag
+);
 
 
-static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag);
+static const chunk_tag_t *kw_static_match(
+   const chunk_tag_t *tag
+);
 
 
 /**
@@ -389,12 +392,9 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 }
 
 
-c_token_t find_keyword_type(const char *word, int len)
+c_token_t find_keyword_type(const char *word, size_t len)
 {
-   if (len <= 0)
-   {
-      return(CT_NONE);
-   }
+   if (len == 0) { return(CT_NONE); }
 
    /* check the dynamic word list first */
    string           ss(word, len);
@@ -417,25 +417,21 @@ c_token_t find_keyword_type(const char *word, int len)
    return((p_ret != NULL) ? p_ret->type : CT_WORD);
 }
 
-
+#define BUF_SIZE 256
+#define ARG_ELEMENTS 3
 int load_keyword_file(const char *filename)
 {
-   if (filename == NULL)
-   {
-      return(EX_CONFIG);
-   }
+   if (filename == NULL) { return(EX_CONFIG); }
    FILE *pf = fopen(filename, "r");
 
    if (pf == NULL)
    {
-      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
-              __func__, filename, strerror(errno), errno);
+      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
       return(EX_IOERR);
    }
 
-   char buf[256];       /* \todo what is the meaning of 256 ? */
-   char *args[3];       /* \todo what is the meaning of 3 ? */
+   char buf[BUF_SIZE];
    int  line_no = 0;
    while (fgets(buf, sizeof(buf), pf) != NULL)
    {
@@ -448,13 +444,13 @@ int load_keyword_file(const char *filename)
          *ptr = 0;
       }
 
-      char *args[3];
+      char *args[ARG_ELEMENTS];
       int  argc = Args::SplitLine(buf, args, ARRAY_SIZE(args) - 1);
       args[argc] = 0;  /* \todo what is this used for? can this write beyond args? */
 
       if (argc > 0)
       {
-         if ((argc == 1) && CharTable::IsKw1(*args[0]))
+         if ((argc == 1) && CharTable::IsKeyword1(*args[0]))
          {
             add_keyword(args[0], CT_TYPE);
          }
@@ -469,7 +465,7 @@ int load_keyword_file(const char *filename)
 
    fclose(pf);
    return(EX_OK);
-} // load_keyword_file
+}
 
 
 void print_keywords(FILE *pfile)
@@ -477,32 +473,14 @@ void print_keywords(FILE *pfile)
    for (dkwmap::iterator it = dkwm.begin(); it != dkwm.end(); ++it)
    {
       c_token_t tt = (*it).second;
-      if (tt == CT_TYPE)
-      {
-         fprintf(pfile, "type %*.s%s\n",
-                 MAX_OPTION_NAME_LEN - 4, " ", (*it).first.c_str());
-      }
-      else if (tt == CT_MACRO_OPEN)
-      {
-         fprintf(pfile, "macro-open %*.s%s\n",
-                 MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str());
-      }
-      else if (tt == CT_MACRO_CLOSE)
-      {
-         fprintf(pfile, "macro-close %*.s%s\n",
-                 MAX_OPTION_NAME_LEN - 12, " ", (*it).first.c_str());
-      }
-      else if (tt == CT_MACRO_ELSE)
-      {
-         fprintf(pfile, "macro-else %*.s%s\n",
-                 MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str());
-      }
+      if      (tt == CT_TYPE       ) { fprintf(pfile, "type %*.s%s\n",        MAX_OPTION_NAME_LEN -  4, " ", (*it).first.c_str()); }
+      else if (tt == CT_MACRO_OPEN ) { fprintf(pfile, "macro-open %*.s%s\n",  MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str()); }
+      else if (tt == CT_MACRO_CLOSE) { fprintf(pfile, "macro-close %*.s%s\n", MAX_OPTION_NAME_LEN - 12, " ", (*it).first.c_str()); }
+      else if (tt == CT_MACRO_ELSE ) { fprintf(pfile, "macro-else %*.s%s\n",  MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str()); }
       else
       {
          const char *tn = get_token_name(tt);
-
-         fprintf(pfile, "set %s %*.s%s\n", tn,
-                 int(MAX_OPTION_NAME_LEN - (4 + strlen(tn))), " ", (*it).first.c_str());
+         fprintf(pfile, "set %s %*.s%s\n", tn, int(MAX_OPTION_NAME_LEN - (4 + strlen(tn))), " ", (*it).first.c_str());
       }
    }
 }
@@ -560,5 +538,5 @@ pattern_class get_token_pattern_class(c_token_t tok)
 
    default:
       return(PATCLS_NONE);
-   } // switch
-}    // get_token_pattern_class
+   }
+}

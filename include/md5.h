@@ -10,6 +10,10 @@
 
 #include "base_types.h"
 
+#define M_IN_SIZE   64
+#define M_BITS_SIZE  2
+#define M_BUF_SIZE   4
+
 class MD5
 {
 public:
@@ -36,13 +40,13 @@ public:
    static void Calc(const void *data, UINT32 length, UINT8 digest[16]);
 
 private:
-   UINT32 m_buf[4];
-   UINT32 m_bits[2];
-   UINT8  m_in[64];
+   UINT32 m_buf[M_BUF_SIZE];
+   UINT32 m_bits[M_BITS_SIZE];
+   UINT8  m_in[M_IN_SIZE];
    bool   m_need_byteswap;
    bool   m_big_endian;
 
-   void reverse_u32(UINT8 *buf, int n_u32);
+   void reverse_u32(UINT8 *buf, int n_u32) const;
 };
 
 #endif /* MD5_H_INCLUDED */

@@ -46,11 +46,12 @@ typedef uint64_t   UINT64;
 
 
 /* and a nice macro to keep SlickEdit happy */
+// \todo remove this
 #define static_inline    static inline
 
 /* and the ever-so-important array size macro */
 #ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x)    (sizeof(x) / sizeof((x)[0]))
+#define ARRAY_SIZE(x)    (size_t)(sizeof(x) / sizeof((x)[0]))
 #endif
 
 #endif /* BASE_TYPES_H_INCLUDED */

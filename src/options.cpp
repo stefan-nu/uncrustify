@@ -19,10 +19,9 @@
 #endif
 #include <cstdio>
 #include <cstdlib>
-#include <cerrno>
 #include "unc_ctype.h"
 
-static const char *DOC_TEXT_END =
+static const char * const DOC_TEXT_END =
    "\n"
    "# Meaning of the settings:\n"
    "#   Ignore - do not do any changes\n"
@@ -75,35 +74,52 @@ static const char *DOC_TEXT_END =
    "#   file_ext CPP .ch .cxx .cpp.in\n"
    "#\n";
 
-map<uncrustify_options, option_map_value> option_name_map;
-map<uncrustify_groups, group_map_value>   group_map;
-static uncrustify_groups                  current_group;
+map<uncrustify_options_t, option_map_value_t> option_name_map;
+map<uncrustify_groups_t,  group_map_value_t>  group_map;
+static uncrustify_groups_t                    current_group;
 
 
-const char *get_argtype_name(argtype_e argtype);
+const char *get_argtype_name(
+   argtype_t argtype
+);
 
 
 /**
  *  only compare alpha-numeric characters
  */
-static bool match_text(const char *str1, const char *str2);
+static bool match_text(
+   const char *str1,
+   const char *str2
+);
 
 
 /**
  * Convert the value string to the correct type in dest.
  */
-static void convert_value(const option_map_value *entry, const char *val, op_val_t *dest);
+static void convert_value(
+   const option_map_value_t *entry,
+   const char *val,
+   op_val_t *dest
+);
 
 
-static void unc_add_option(const char *name, uncrustify_options id, argtype_e type, const char *short_desc = NULL, const char *long_desc = NULL, int min_val = 0, int max_val = 16);
+static void unc_add_option(
+   const char *name,
+   uncrustify_options_t id,
+   argtype_t type,
+   const char *short_desc = NULL,
+   const char *long_desc = NULL,
+   int min_val = 0,
+   int max_val = 16
+);
 
 
-void unc_begin_group(uncrustify_groups id, const char *short_desc,
+void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
                      const char *long_desc)
 {
    current_group = id;
 
-   group_map_value value;
+   group_map_value_t value;
 
    value.id         = id;
    value.short_desc = short_desc;
@@ -113,21 +129,81 @@ void unc_begin_group(uncrustify_groups id, const char *short_desc,
 }
 
 
-static void unc_add_option(const char *name, uncrustify_options id, argtype_e type,
+/* \todo when using C++ the following functions can be overloaded */
+bool is_option_set(argval_t var, argval_t opt)
+{
+   return ((var & opt) == opt); /*lint !e655 */
+}
+
+
+bool is_option_unset(argval_t var, argval_t opt)
+{
+   return ((var & opt) == 0); /*lint !e655 !e641*/
+}
+
+
+bool is_option(argval_t var, argval_t opt)
+{
+   return (var == opt);
+}
+
+
+bool is_not_option(argval_t var, argval_t opt)
+{
+   return (var != opt);
+}
+
+
+
+bool is_token_set(tokenpos_t var, tokenpos_t opt)
+{
+   return ((var & opt) == opt); /*lint !e655 */
+}
+
+
+bool is_token_unset(tokenpos_t var, tokenpos_t opt)
+{
+   return ((var & opt) == 0); /*lint !e655 !e641*/
+}
+
+bool is_token(tokenpos_t var, tokenpos_t opt)
+{
+   return (var == opt);
+}
+
+
+bool is_not_token(tokenpos_t var, tokenpos_t opt)
+{
+   return (var != opt);
+}
+
+
+bool is_bit_set(UINT64 var, UINT64 flag)
+{
+   return ((var & flag) == flag);
+}
+
+
+bool is_bit_unset(UINT64 var, UINT64 flag)
+{
+   return ((var & flag) == 0);
+}
+
+static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
                            const char *short_desc, const char *long_desc,
                            int min_val, int max_val)
 {
-#define OptionMaxLength    60
-   int lengthOfTheOption = strlen(name);
+#define OptionMaxLength    60u
+   size_t lengthOfTheOption = strlen(name);
    if (lengthOfTheOption > OptionMaxLength)
    {
-      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%d)\n", name, lengthOfTheOption);
-      fprintf(stderr, "FATAL: the maximal length of an option name is %d characters\n", OptionMaxLength);
+      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%zu)\n", name, lengthOfTheOption);
+      fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", OptionMaxLength);
       exit(EXIT_FAILURE);
    }
    group_map[current_group].options.push_back(id);
 
-   option_map_value value;
+   option_map_value_t value;
 
    value.id         = id;
    value.group_id   = current_group;
@@ -140,35 +216,13 @@ static void unc_add_option(const char *name, uncrustify_options id, argtype_e ty
    /* Calculate the max/min values */
    switch (type)
    {
-   case AT_BOOL:
-      value.max_val = 1;
-      break;
-
-   case AT_IARF:
-      value.max_val = 3;
-      break;
-
-   case AT_NUM:
-      value.min_val = min_val;
-      value.max_val = max_val;
-      break;
-
-   case AT_LINE:
-      value.max_val = 3;
-      break;
-
-   case AT_POS:
-      value.max_val = 2;
-      break;
-
-   case AT_STRING:
-      value.max_val = 0;
-      break;
-
-   case AT_UNUM:
-      value.min_val = min_val;
-      value.max_val = max_val;
-      break;
+   case AT_BOOL:   value.max_val = 1; break;
+   case AT_IARF:   value.max_val = 3; break;
+   case AT_LINE:   value.max_val = 3; break;
+   case AT_POS:    value.max_val = 2; break;
+   case AT_STRING: value.max_val = 0; break;
+   case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
+   case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
    default:
       fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
@@ -207,11 +261,11 @@ static bool match_text(const char *str1, const char *str2)
 }
 
 
-const option_map_value *unc_find_option(const char *name)
+const option_map_value_t *unc_find_option(const char *name)
 {
    const option_name_map_it itE = option_name_map.end();
 
-   for (option_name_map_it it = option_name_map.begin(); it != itE; it++)
+   for (option_name_map_it it = option_name_map.begin(); it != itE; ++it)
    {
       if (match_text(it->second.name, name))
       {
@@ -1590,13 +1644,12 @@ void register_options(void)
 } // register_options
 
 
-const group_map_value *get_group_name(int ug)
+const group_map_value_t *get_group_name(size_t ug)
 {
-   for (group_map_it it = group_map.begin();
-        it != group_map.end();
-        it++)
+   group_map_it it = group_map.begin();
+   for (;it != group_map.end(); ++it)
    {
-      if (it->second.id == ug)
+      if ((size_t)it->second.id == ug)
       {
          return(&it->second);
       }
@@ -1605,7 +1658,7 @@ const group_map_value *get_group_name(int ug)
 }
 
 
-const option_map_value *get_option_name(uncrustify_options option)
+const option_map_value_t *get_option_name(uncrustify_options_t option)
 {
    const option_name_map_it it = option_name_map.find(option);
 
@@ -1613,25 +1666,14 @@ const option_map_value *get_option_name(uncrustify_options option)
 }
 
 
-static void convert_value(const option_map_value *entry, const char *val, op_val_t *dest)
+static void convert_value(const option_map_value_t *entry, const char *val, op_val_t *dest)
 {
    if (entry->type == AT_LINE)
    {
-      if (strcasecmp(val, "CRLF") == 0)
-      {
-         dest->le = LE_CRLF;
-         return;
-      }
-      if (strcasecmp(val, "LF") == 0)
-      {
-         dest->le = LE_LF;
-         return;
-      }
-      if (strcasecmp(val, "CR") == 0)
-      {
-         dest->le = LE_CR;
-         return;
-      }
+      if (strcasecmp(val, "CRLF") == 0) { dest->le = LE_CRLF; return; }
+      if (strcasecmp(val, "LF"  ) == 0) { dest->le = LE_LF;   return; }
+      if (strcasecmp(val, "CR"  ) == 0) { dest->le = LE_CR;   return; }
+
       if (strcasecmp(val, "AUTO") != 0)
       {
          fprintf(stderr, "%s:%u Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
@@ -1644,42 +1686,14 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
 
    if (entry->type == AT_POS)
    {
-      if (strcasecmp(val, "JOIN") == 0)
-      {
-         dest->tp = TP_JOIN;
-         return;
-      }
-      if (strcasecmp(val, "LEAD") == 0)
-      {
-         dest->tp = TP_LEAD;
-         return;
-      }
-      if (strcasecmp(val, "LEAD_BREAK") == 0)
-      {
-         dest->tp = TP_LEAD_BREAK;
-         return;
-      }
-      if (strcasecmp(val, "LEAD_FORCE") == 0)
-      {
-         dest->tp = TP_LEAD_FORCE;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL") == 0)
-      {
-         dest->tp = TP_TRAIL;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL_BREAK") == 0)
-      {
-         dest->tp = TP_TRAIL_BREAK;
-         return;
-      }
-      if (strcasecmp(val, "TRAIL_FORCE") == 0)
-      {
-         dest->tp = TP_TRAIL_FORCE;
-         return;
-      }
-      if (strcasecmp(val, "IGNORE") != 0)
+      if (strcasecmp(val, "JOIN"       ) == 0) { dest->tp = TP_JOIN;        return; }
+      if (strcasecmp(val, "LEAD"       ) == 0) { dest->tp = TP_LEAD;        return; }
+      if (strcasecmp(val, "LEAD_BREAK" ) == 0) { dest->tp = TP_LEAD_BREAK;  return; }
+      if (strcasecmp(val, "LEAD_FORCE" ) == 0) { dest->tp = TP_LEAD_FORCE;  return; }
+      if (strcasecmp(val, "TRAIL"      ) == 0) { dest->tp = TP_TRAIL;       return; }
+      if (strcasecmp(val, "TRAIL_BREAK") == 0) { dest->tp = TP_TRAIL_BREAK; return; }
+      if (strcasecmp(val, "TRAIL_FORCE") == 0) { dest->tp = TP_TRAIL_FORCE; return; }
+      if (strcasecmp(val, "IGNORE"     ) != 0)
       {
          fprintf(stderr, "%s:%u Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
                  "TRAIL, TRAIL_BREAK, TRAIL_FORCE for %s, got %s\n",
@@ -1690,7 +1704,7 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
       return;
    }
 
-   const option_map_value *tmp;
+   const option_map_value_t *tmp;
    if ((entry->type == AT_NUM) ||
        (entry->type == AT_UNUM))
    {
@@ -1833,12 +1847,12 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
 
 int set_option_value(const char *name, const char *value)
 {
-   const option_map_value *entry;
+   const option_map_value_t *entry;
 
    if ((entry = unc_find_option(name)) != NULL)
    {
       convert_value(entry, value, &cpd.settings[entry->id]);
-      return(entry->id);
+      return((int)entry->id);
    }
    return(-1);
 }
@@ -1911,23 +1925,11 @@ void process_option_line(char *configLine, const char *filename)
          add_keyword(args[idx], CT_TYPE);
       }
    }
-   else if (strcasecmp(args[0], "define") == 0)
-   {
-      add_define(args[1], args[2]);
-   }
-   else if (strcasecmp(args[0], "macro-open") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_OPEN);
-   }
-   else if (strcasecmp(args[0], "macro-close") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_CLOSE);
-   }
-   else if (strcasecmp(args[0], "macro-else") == 0)
-   {
-      add_keyword(args[1], CT_MACRO_ELSE);
-   }
-   else if (strcasecmp(args[0], "set") == 0)
+   else if (strcasecmp(args[0], "define"     ) == 0) { add_define (args[1], args[2]       ); }
+   else if (strcasecmp(args[0], "macro-open" ) == 0) { add_keyword(args[1], CT_MACRO_OPEN ); }
+   else if (strcasecmp(args[0], "macro-close") == 0) { add_keyword(args[1], CT_MACRO_CLOSE); }
+   else if (strcasecmp(args[0], "macro-else" ) == 0) { add_keyword(args[1], CT_MACRO_ELSE ); }
+   else if (strcasecmp(args[0], "set"        ) == 0)
    {
       if (argc < 3)
       {
@@ -1956,7 +1958,7 @@ void process_option_line(char *configLine, const char *filename)
 #ifndef EMSCRIPTEN
    else if (strcasecmp(args[0], "include") == 0)
    {
-      int save_line_no = cpd.line_number;
+      size_t save_line_no = cpd.line_number;
 
       if (is_path_relative(args[1]))
       {
@@ -2011,13 +2013,11 @@ void process_option_line(char *configLine, const char *filename)
          cpd.error_count++;
       }
    }
-} // process_option_line
+}
 
 
 int load_option_file(const char *filename)
 {
-   cpd.line_number = 0;
-
 #ifdef WIN32
    /* "/dev/null" not understood by "fopen" in Windows */
    if (strcasecmp(filename, "/dev/null") == 0)
@@ -2044,7 +2044,7 @@ int load_option_file(const char *filename)
 
    fclose(pfile);
    return(0);
-} // load_option_file
+}
 
 
 int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
@@ -2054,7 +2054,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the options by group */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
    {
       if (withDoc)
       {
@@ -2065,9 +2065,10 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 
       bool first = true;
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(*it);
+         assert(option != NULL);
 
          if (withDoc && (option->short_desc != NULL) && (*option->short_desc != 0))
          {
@@ -2090,8 +2091,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          first = false;
          string     val_string = op_val_to_string(option->type, cpd.settings[option->id]);
          const char *val_str   = val_string.c_str();
-         int        val_len    = strlen(val_str);
-         int        name_len   = strlen(option->name);
+         size_t     val_len    = strlen(val_str);
+         size_t     name_len   = strlen(option->name);
 
          // guy
          bool print_option = true;
@@ -2113,9 +2114,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          }
          if (print_option)
          {
-            int pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1;
-            fprintf(pfile, "%s%*.s= ",
-                    option->name, pad, " ");
+            size_t pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1u;
+            fprintf(pfile, "%s%*.s= ", option->name, (int)pad, " ");
             if (option->type == AT_STRING)
             {
                fprintf(pfile, "\"%s\"", val_str);
@@ -2127,7 +2127,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             if (withDoc)
             {
                fprintf(pfile, "%*.s # %s",
-                       8 - val_len, " ",
+                       (int)(8 - val_len), " ",
                        argtype_to_string(option->type).c_str());
             }
             fputs("\n", pfile);
@@ -2140,18 +2140,14 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       fprintf(pfile, "%s", DOC_TEXT_END);
    }
 
-   /* Print custom keywords */
-   print_keywords(pfile);
+   print_keywords  (pfile); /* Print custom keywords */
+   print_defines   (pfile); /* Print custom defines */
+   print_extensions(pfile); /* Print custom file extensions */
 
-   /* Print custom defines */
-   print_defines(pfile);
-
-   /* Print custom file extensions */
-   print_extensions(pfile);
    fprintf(pfile, "# option(s) with 'not default' value: %d\n#\n", count_the_not_default_options);
 
    return(0);
-} // save_option_file_kernel
+}
 
 
 int save_option_file(FILE *pfile, bool withDoc)
@@ -2175,19 +2171,17 @@ void print_options(FILE *pfile)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the all out */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
    {
       fprintf(pfile, "#\n# %s\n#\n\n", jt->second.short_desc);
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
-         const option_map_value *option = get_option_name(*it);
-         int                    cur     = strlen(option->name);
-         int                    pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
-         fprintf(pfile, "%s%*c%s\n",
-                 option->name,
-                 pad, ' ',
-                 names[option->type]);
+         const option_map_value_t *option = get_option_name(*it);
+         assert(option != NULL);
+         size_t cur = strlen(option->name);
+         size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
+         fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;
 
@@ -2208,13 +2202,13 @@ void print_options(FILE *pfile)
       }
    }
    fprintf(pfile, "%s", DOC_TEXT_END);
-} // print_options
+}
 
 
 void set_option_defaults(void)
 {
    /* set all the default values to zero */
-   for (int count = 0; count < UO_option_count; count++)
+   for (size_t count = 0; count < (size_t)UO_option_count; count++)
    {
       cpd.defaults[count].n = 0;
    }
@@ -2263,90 +2257,53 @@ void set_option_defaults(void)
    cpd.defaults[UO_string_escape_char].n                                = '\\';
    cpd.defaults[UO_use_indent_func_call_param].b                        = true;
    cpd.defaults[UO_use_options_overriding_for_qt_macros].b              = true;
-   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = LWARN;
+   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int)LWARN;
 
    /* copy all the default values to settings array */
-   for (int count = 0; count < UO_option_count; count++)
+   for (size_t count = 0; count < (size_t)UO_option_count; count++)
    {
       cpd.settings[count].a = cpd.defaults[count].a;
-   }
-} // set_option_defaults
-
-
-string argtype_to_string(argtype_e argtype)
-{
-   switch (argtype)
-   {
-   case AT_BOOL:
-      return("false/true");
-
-   case AT_IARF:
-      return("ignore/add/remove/force");
-
-   case AT_NUM:
-      return("number");
-
-   case AT_UNUM:
-      return("unsigned number");
-
-   case AT_LINE:
-      return("auto/lf/crlf/cr");
-
-   case AT_POS:
-      return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
-
-   case AT_STRING:
-      return("string");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
    }
 }
 
 
-const char *get_argtype_name(argtype_e argtype)
+string argtype_to_string(argtype_t argtype)
 {
    switch (argtype)
    {
-   case AT_BOOL:
-      return("AT_BOOL");
+      case AT_BOOL:   return("false/true");
+      case AT_IARF:   return("ignore/add/remove/force");
+      case AT_NUM:    return("number");
+      case AT_UNUM:   return("unsigned number");
+      case AT_LINE:   return("auto/lf/crlf/cr");
+      case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
+      case AT_STRING: return("string");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
+   }
+}
 
-   case AT_IARF:
-      return("AT_IARF");
 
-   case AT_NUM:
-      return("AT_NUM");
-
-   case AT_UNUM:
-      return("AT_UNUM");
-
-   case AT_LINE:
-      return("AT_LINE");
-
-   case AT_POS:
-      return("AT_POS");
-
-   case AT_STRING:
-      return("AT_STRING");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+const char *get_argtype_name(argtype_t argtype)
+{
+   switch (argtype)
+   {
+      case AT_BOOL:   return("AT_BOOL");
+      case AT_IARF:   return("AT_IARF");
+      case AT_NUM:    return("AT_NUM");
+      case AT_UNUM:   return("AT_UNUM");
+      case AT_LINE:   return("AT_LINE");
+      case AT_POS:    return("AT_POS");
+      case AT_STRING: return("AT_STRING");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
    }
 }
 
 
 string bool_to_string(bool val)
 {
-   if (val)
-   {
-      return("true");
-   }
-   else
-   {
-      return("false");
-   }
+   return ((val) ? "true" :"false");
 }
 
 
@@ -2354,21 +2311,12 @@ string argval_to_string(argval_t argval)
 {
    switch (argval)
    {
-   case AV_IGNORE:
-      return("ignore");
-
-   case AV_ADD:
-      return("add");
-
-   case AV_REMOVE:
-      return("remove");
-
-   case AV_FORCE:
-      return("force");
-
-   default:
-      fprintf(stderr, "Unknown argval '%d'\n", argval);
-      return("");
+      case AV_IGNORE: return("ignore");
+      case AV_ADD:    return("add");
+      case AV_REMOVE: return("remove");
+      case AV_FORCE:  return("force");
+      default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
+                      return("");
    }
 }
 
@@ -2376,101 +2324,58 @@ string argval_to_string(argval_t argval)
 string number_to_string(int number)
 {
    char buffer[12]; // 11 + 1
-
    sprintf(buffer, "%d", number);
 
-   /*NOTE: this creates a std:string class from the char array.
-    *      It isn't returning a pointer to stack memory.
-    */
+   /* NOTE: this creates a std:string class from the char array.
+    *       It isn't returning a pointer to stack memory. */
    return(buffer);
 }
 
 
-string lineends_to_string(lineends_e linends)
+string lineends_to_string(lineends_t linends)
 {
    switch (linends)
    {
-   case LE_LF:
-      return("lf");
-
-   case LE_CRLF:
-      return("crlf");
-
-   case LE_CR:
-      return("cr");
-
-   case LE_AUTO:
-      return("auto");
-
-   default:
-      fprintf(stderr, "Unknown lineends '%d'\n", linends);
-      return("");
+      case LE_LF:   return("lf");
+      case LE_CRLF: return("crlf");
+      case LE_CR:   return("cr");
+      case LE_AUTO: return("auto");
+      default:      fprintf(stderr, "Unknown lineends '%d'\n", linends);
+                    return("");
    }
 }
 
 
-string tokenpos_to_string(tokenpos_e tokenpos)
+string tokenpos_to_string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
-   case TP_IGNORE:
-      return("ignore");
-
-   case TP_JOIN:
-      return("join");
-
-   case TP_LEAD:
-      return("lead");
-
-   case TP_LEAD_BREAK:
-      return("lead_break");
-
-   case TP_LEAD_FORCE:
-      return("lead_force");
-
-   case TP_TRAIL:
-      return("trail");
-
-   case TP_TRAIL_BREAK:
-      return("trail_break");
-
-   case TP_TRAIL_FORCE:
-      return("trail_force");
-
-   default:
-      fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
-      return("");
+      case TP_IGNORE:      return("ignore");
+      case TP_JOIN:        return("join");
+      case TP_LEAD:        return("lead");
+      case TP_LEAD_BREAK:  return("lead_break");
+      case TP_LEAD_FORCE:  return("lead_force");
+      case TP_TRAIL:       return("trail");
+      case TP_TRAIL_BREAK: return("trail_break");
+      case TP_TRAIL_FORCE: return("trail_force");
+      default:             fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
+                           return("");
    }
 }
 
 
-string op_val_to_string(argtype_e argtype, op_val_t op_val)
+string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
 {
    switch (argtype)
    {
-   case AT_BOOL:
-      return(bool_to_string(op_val.b));
-
-   case AT_IARF:
-      return(argval_to_string(op_val.a));
-
-   case AT_NUM:
-      return(number_to_string(op_val.n));
-
-   case AT_UNUM:
-      return(number_to_string(op_val.u));
-
-   case AT_LINE:
-      return(lineends_to_string(op_val.le));
-
-   case AT_POS:
-      return(tokenpos_to_string(op_val.tp));
-
-   case AT_STRING:
-      return(op_val.str != NULL ? op_val.str : "");
-
-   default:
-      fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      case AT_BOOL:   return(bool_to_string       (op_val.b));
+      case AT_IARF:   return(argval_to_string     (op_val.a));
+      case AT_NUM:    return(number_to_string     (op_val.n));
+      case AT_UNUM:   return(number_to_string((int)op_val.u));
+      case AT_LINE:   return(lineends_to_string   (op_val.le));
+      case AT_POS:    return(tokenpos_to_string   (op_val.tp));
+      case AT_STRING: return(op_val.str != NULL ? op_val.str : "");
+      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      return("");
    }
 }

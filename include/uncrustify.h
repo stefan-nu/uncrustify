@@ -17,17 +17,24 @@
 int main(int argc, char *argv[]);
 
 
-const char *get_token_name(c_token_t token);
+const char *get_token_name(
+   c_token_t token
+);
 
 
 /**
  * Grab the token id for the text.
  * returns CT_NONE on failure to match
  */
-c_token_t find_token_name(const char *text);
+c_token_t find_token_name(
+   const char *text
+);
 
 
-void log_pcf_flags(log_sev_t sev, UINT64 flags);
+void log_pcf_flags(
+   log_sev_t sev,
+   UINT64 flags
+);
 
 
 /**
@@ -44,35 +51,54 @@ void log_pcf_flags(log_sev_t sev, UINT64 flags);
  * @param path The path to look at
  * @return     Pointer to the character after the last path separator
  */
-const char *path_basename(const char *path);
+const char *path_basename(
+   const char *path
+);
 
 
 /**
  * Returns the length of the directory part of the filename.
  */
-int path_dirname_len(const char *filename);
+size_t path_dirname_len(
+   const char *filename
+);
 
 
 /**
  * Set idx = 0 before the first call.
  * Done when returns NULL
  */
-const char *get_file_extension(int &idx);
+const char *get_file_extension(
+   size_t &idx
+);
 
 
 /**
  * Prints custom file extensions to the file
  */
-void print_extensions(FILE *pfile);
+void print_extensions(
+   FILE *pfile
+);
 
 
-void usage_exit(const char *msg, const char *argv0, int code);
+void usage_exit(
+   const char *msg,
+   const char *argv0,
+   int code
+);
 
 
-const char *extension_add(const char *ext_text, const char *lang_text);
+const char *extension_add(
+   const char *ext_text,
+   const char *lang_text
+);
 
 
-void usage_exit(const char *msg, const char *argv0, int code);
+void usage_exit(
+   const char *msg,
+   const char *argv0,
+   int code
+);
 
 
 #endif /* UNCRUSTIFY_H_INCLUDED */
