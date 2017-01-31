@@ -656,10 +656,10 @@ void register_options(void)
                   "Requires indent_with_tabs=2. If false, will use spaces.");
    unc_add_option("indent_align_string", UO_indent_align_string, AT_BOOL,
                   "Whether to indent strings broken by '\\' so that they line up");
-   unc_add_option("indent_xml_string", UO_indent_xml_string, AT_NUM,
+   unc_add_option("indent_xml_string", UO_indent_xml_string, AT_UNUM,
                   "The number of spaces to indent multi-line XML strings.\n"
                   "Requires indent_align_string=True");
-   unc_add_option("indent_brace", UO_indent_brace, AT_NUM,
+   unc_add_option("indent_brace", UO_indent_brace, AT_UNUM,
                   "Spaces to indent '{' from level");
    unc_add_option("indent_braces", UO_indent_braces, AT_BOOL,
                   "Whether braces are indented to the body level");
@@ -680,7 +680,7 @@ void register_options(void)
    unc_add_option("indent_namespace_single_indent", UO_indent_namespace_single_indent, AT_BOOL,
                   "Only indent one namespace and no sub-namespaces.\n"
                   "Requires indent_namespace=True.");
-   unc_add_option("indent_namespace_level", UO_indent_namespace_level, AT_NUM,
+   unc_add_option("indent_namespace_level", UO_indent_namespace_level, AT_UNUM,
                   "The number of spaces to indent a namespace block");
    unc_add_option("indent_namespace_limit", UO_indent_namespace_limit, AT_UNUM,
                   "If the body of the namespace is longer than this number, it won't be indented.\n"
@@ -696,14 +696,14 @@ void register_options(void)
                   "Requires indent_class_colon=True. Default=False");
    unc_add_option("indent_constr_colon", UO_indent_constr_colon, AT_BOOL,
                   "Whether to indent the stuff after a leading class initializer colon");
-   unc_add_option("indent_ctor_init_leading", UO_indent_ctor_init_leading, AT_NUM,
+   unc_add_option("indent_ctor_init_leading", UO_indent_ctor_init_leading, AT_UNUM,
                   "Virtual indent from the ':' for member initializers. Default=2");
-   unc_add_option("indent_ctor_init", UO_indent_ctor_init, AT_NUM,
+   unc_add_option("indent_ctor_init", UO_indent_ctor_init, AT_UNUM,
                   "Additional indenting for constructor initializer list");
    unc_add_option("indent_else_if", UO_indent_else_if, AT_BOOL,
                   "False=treat 'else\\nif' as 'else if' for indenting purposes\n"
                   "True=indent the 'if' one level");
-   unc_add_option("indent_var_def_blk", UO_indent_var_def_blk, AT_UNUM,
+   unc_add_option("indent_var_def_blk", UO_indent_var_def_blk, AT_NUM,
                   "Amount to indent variable declarations after a open brace. neg=relative, pos=absolute");
    unc_add_option("indent_var_def_cont", UO_indent_var_def_cont, AT_BOOL,
                   "Indent continued variable declarations instead of aligning.");
@@ -728,9 +728,9 @@ void register_options(void)
                   "Same as indent_func_call_param, but for templates");
    unc_add_option("indent_func_param_double", UO_indent_func_param_double, AT_BOOL,
                   "Double the indent for indent_func_xxx_param options");
-   unc_add_option("indent_func_const", UO_indent_func_const, AT_NUM,
+   unc_add_option("indent_func_const", UO_indent_func_const, AT_UNUM,
                   "Indentation column for standalone 'const' function decl/proto qualifier");
-   unc_add_option("indent_func_throw", UO_indent_func_throw, AT_NUM,
+   unc_add_option("indent_func_throw", UO_indent_func_throw, AT_UNUM,
                   "Indentation column for standalone 'throw' function decl/proto qualifier");
    unc_add_option("indent_member", UO_indent_member, AT_UNUM,
                   "The number of spaces to indent a continued '->' or '.'\n"
@@ -743,13 +743,14 @@ void register_options(void)
    unc_add_option("indent_switch_case", UO_indent_switch_case, AT_UNUM,
                   "Spaces to indent 'case' from 'switch'\n"
                   "Usually 0 or indent_columns.");
-   unc_add_option("indent_case_shift", UO_indent_case_shift, AT_NUM,
+   unc_add_option("indent_case_shift", UO_indent_case_shift, AT_UNUM,
                   "Spaces to shift the 'case' line, without affecting any other lines\n"
                   "Usually 0.");
-   unc_add_option("indent_case_brace", UO_indent_case_brace, AT_UNUM,
+   unc_add_option("indent_case_brace", UO_indent_case_brace, AT_NUM,
                   "Spaces to indent '{' from 'case'.\n"
                   "By default, the brace will appear under the 'c' in case.\n"
-                  "Usually set to 0 or indent_columns.");
+                  "Usually set to 0 or indent_columns.\n"
+                  "negative value are OK.");
    unc_add_option("indent_col1_comment", UO_indent_col1_comment, AT_BOOL,
                   "Whether to indent comments found in first column");
    unc_add_option("indent_label", UO_indent_label, AT_NUM,
@@ -764,7 +765,7 @@ void register_options(void)
                   "If set, this option forces 'indent_access_spec=0'");
    unc_add_option("indent_paren_nl", UO_indent_paren_nl, AT_BOOL,
                   "If an open paren is followed by a newline, indent the next line so that it lines up after the open paren (not recommended)");
-   unc_add_option("indent_paren_close", UO_indent_paren_close, AT_NUM,
+   unc_add_option("indent_paren_close", UO_indent_paren_close, AT_UNUM,
                   "Controls the indent of a close paren after a newline.\n"
                   "0: Indent to body level\n"
                   "1: Align under the open paren\n"
@@ -787,7 +788,7 @@ void register_options(void)
                   "If False or the '=' is followed by a newline, the next line is indent one tab.");
    unc_add_option("indent_oc_block", UO_indent_oc_block, AT_BOOL,
                   "Indent OC blocks at brace level instead of usual rules.");
-   unc_add_option("indent_oc_block_msg", UO_indent_oc_block_msg, AT_NUM,
+   unc_add_option("indent_oc_block_msg", UO_indent_oc_block_msg, AT_UNUM,
                   "Indent OC blocks in a message relative to the parameter name.\n"
                   "0=use indent_oc_block rules, 1+=spaces to indent", "", 0, 16);
    unc_add_option("indent_oc_msg_colon", UO_indent_oc_msg_colon, AT_UNUM,
@@ -819,7 +820,7 @@ void register_options(void)
    unc_add_option("indent_using_block", UO_indent_using_block, AT_BOOL,
                   "indent (or not) an using block if no braces are used. Only for C#."
                   "Default=True");
-   unc_add_option("indent_ternary_operator", UO_indent_ternary_operator, AT_NUM,
+   unc_add_option("indent_ternary_operator", UO_indent_ternary_operator, AT_UNUM,
                   "indent the continuation of ternary operator.\n"
                   "0: (Default) off\n"
                   "1: When the `if_false` is a continuation, indent it under `if_false`\n"
@@ -1557,6 +1558,14 @@ void register_options(void)
    unc_add_option("pp_define_at_level", UO_pp_define_at_level, AT_BOOL,
                   "Whether to indent '#define' at the brace level (True) or from column 1 (false)");
 
+   unc_begin_group(UG_sort_includes, "Sort includes options");
+   unc_add_option("include_category_0", UO_include_category_0, AT_STRING,
+                  "The regex for include category with priority 0.");
+   unc_add_option("include_category_1", UO_include_category_1, AT_STRING,
+                  "The regex for include category with priority 1.");
+   unc_add_option("include_category_2", UO_include_category_2, AT_STRING,
+                  "The regex for include category with priority 2.");
+
    unc_begin_group(UG_Use_Ext, "Use or Do not Use options", "G");
    unc_add_option("use_indent_func_call_param", UO_use_indent_func_call_param, AT_BOOL,
                   "True:  indent_func_call_param will be used (default)\n"
@@ -1716,7 +1725,14 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
                     cpd.filename, cpd.line_number, val);
             exit(EX_CONFIG);
          }
-         if (tmp->type == entry->type)
+         // indent_case_brace = -indent_columns
+         LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
+                 cpd.line_number,
+                 get_argtype_name(entry->type), entry->name,
+                 get_argtype_name(tmp->type), tmp->name);
+         if ((tmp->type == entry->type) ||
+             ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
+             ((tmp->type == AT_NUM) && (entry->type == AT_UNUM) && (cpd.settings[tmp->id].n * mult) > 0))
          {
             dest->n = cpd.settings[tmp->id].n * mult;
             // is the same as dest->u

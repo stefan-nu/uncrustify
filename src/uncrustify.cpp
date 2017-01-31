@@ -598,7 +598,14 @@ int main(int argc, char *argv[])
    idx = 0;
    while ((p_arg = arg.Params("--set", idx)) != NULL)
    {
-      char buffer[256];
+      size_t argLength = strlen(p_arg);
+#define MAXLENGTHFORARG    256
+      if (argLength > MAXLENGTHFORARG)
+      {
+         fprintf(stderr, "The buffer is to short for the set argument '%s'\n", p_arg);
+         exit(EX_SOFTWARE);
+      }
+      char buffer[MAXLENGTHFORARG];
       strcpy(buffer, p_arg);
 
       // Tokenize and extract key and value
