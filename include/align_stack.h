@@ -28,42 +28,41 @@ public:
    bool         m_right_align;
    StarStyle_t  m_star_style;
    StarStyle_t  m_amp_style;
-   /* do not include the first item if it causes it to be indented */
-   bool         m_skip_first;
+   bool         m_skip_first; /* do not include the first item if it causes it to be indented */
 
 
    AlignStack()
-      : m_max_col(0)
-      , m_min_col(0)
-      , m_span(0)
-      , m_thresh(0)
-      , m_seqnum(0)
-      , m_nl_seqnum(0)
-      , m_gap(0)
+      : m_max_col    (0)
+      , m_min_col    (0)
+      , m_span       (0)
+      , m_thresh     (0)
+      , m_seqnum     (0)
+      , m_nl_seqnum  (0)
+      , m_gap        (0)
       , m_right_align(false)
-      , m_star_style(SS_IGNORE)
-      , m_amp_style(SS_IGNORE)
-      , m_skip_first(false)
-      , m_last_added(0)
+      , m_star_style (SS_IGNORE)
+      , m_amp_style  (SS_IGNORE)
+      , m_skip_first (false)
+      , m_last_added (0)
    {
    }
 
 
    AlignStack(const AlignStack &ref)
-      : m_aligned(ref.m_aligned)
-      , m_skipped(ref.m_skipped)
-      , m_max_col(ref.m_max_col)
-      , m_min_col(ref.m_min_col)
-      , m_span(ref.m_span)
-      , m_thresh(ref.m_thresh)
-      , m_seqnum(ref.m_seqnum)
-      , m_nl_seqnum(ref.m_nl_seqnum)
-      , m_gap(ref.m_gap)
+      : m_aligned    (ref.m_aligned)
+      , m_skipped    (ref.m_skipped)
+      , m_max_col    (ref.m_max_col)
+      , m_min_col    (ref.m_min_col)
+      , m_span       (ref.m_span)
+      , m_thresh     (ref.m_thresh)
+      , m_seqnum     (ref.m_seqnum)
+      , m_nl_seqnum  (ref.m_nl_seqnum)
+      , m_gap        (ref.m_gap)
       , m_right_align(ref.m_right_align)
-      , m_star_style(ref.m_star_style)
-      , m_amp_style(ref.m_amp_style)
-      , m_skip_first(ref.m_skip_first)
-      , m_last_added(ref.m_last_added)
+      , m_star_style (ref.m_star_style)
+      , m_amp_style  (ref.m_amp_style)
+      , m_skip_first (ref.m_skip_first)
+      , m_last_added (ref.m_last_added)
    {
    }
 
@@ -114,6 +113,7 @@ public:
     * Aligns everything else and resets the lists.
     */
    void End();
+
 
 protected:
    size_t m_last_added; /* 0=none, 1=aligned, 2=skipped */

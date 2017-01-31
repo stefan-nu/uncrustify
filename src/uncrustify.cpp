@@ -278,26 +278,9 @@ static const char * const pcf_names[] =
 #endif
 
 
-/**
- * Replace the brain-dead and non-portable basename().
- * Returns a pointer to the character after the last '/'.
- * The returned value always points into path, unless path is NULL.
- *
- * Input            Returns
- * NULL          => ""
- * "/some/path/" => ""
- * "/some/path"  => "path"
- * "afile"       => "afile"
- *
- * @param path The path to look at
- * @return     Pointer to the character after the last path seperator
- */
 const char *path_basename(const char *path)
 {
-   if (path == NULL)
-   {
-      return("");
-   }
+   if (path == NULL) { return(""); }
 
    const char *last_path = path;
    char       ch;
@@ -305,7 +288,7 @@ const char *path_basename(const char *path)
    while ((ch = *path) != 0)
    {
       path++;
-      /* Check both slash types to support windows */
+      /* Check both slash types to support Linux and Windows */
       if ((ch == '/') || (ch == '\\'))
       {
          last_path = path;
@@ -975,7 +958,7 @@ static void process_source_list(const char *source_list, const char *prefix,
 static bool read_stdin(file_mem_t &fm)
 {
    deque<UINT8> dq;
-   char         buf[4096];
+   UINT8        buf[4096];
 
    while (!feof(stdin))
    {
@@ -1241,13 +1224,17 @@ static string fix_filename(const char *filename)
 {
    /* Create 'outfile.uncrustify' */
    char *tmp_file = new char[strlen(filename) + 16 + 1]; /* + 1 for '\0' */
-   if (tmp_file != NULL)
+   if(tmp_file == NULL)
+   {
+      /* \todo print error message */
+   }
+   else
    {
       sprintf(tmp_file, "%s.uncrustify", filename);
+      string rv = tmp_file;
+      delete[] tmp_file;
+      return(rv);
    }
-   string rv = tmp_file;
-   delete[] tmp_file;
-   return(rv);
 }
 
 
@@ -1750,7 +1737,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    }
 
    /* Check for embedded 0's (represents a decoding failure or corrupt file) */
-   for (int idx = 0; idx < (int)data.size() - 1; idx++)
+   for (size_t idx = 0; idx < data.size() - 1; idx++)
    {
       if (data[idx] == 0)
       {

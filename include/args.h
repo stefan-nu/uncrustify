@@ -23,20 +23,27 @@ protected:
    char   **m_values;    /**< pointer array to each argument */
    UINT8  *m_used;       /**< bit array with one flag per argument */
 
+
+   /**
+    * \brief calculates how many bytes are required to store a given number of bits
+    */
    static size_t NumberOfBits(const int argc);
 
 public:
+
    /**
     * Initializes the argument library.
+    * Store the values and allocate enough memory for the 'used' flags.
     * This keeps a reference to argv, so don't change it.
-    *
-    * @param argc number of command line parameter passed to main()
-    * @param argv pointer array to command line parameters
     */
-   Args(int argc, char **argv);
+   Args(
+      int  argc,  /**< [in] number of command line parameter passed to main() */
+      char **argv /**< [in] pointer array to command line parameters */
+   );
 
    /** Standard destructor */
    ~Args();
+
 
    /**
     * Checks to see if an arg w/o a value is present.
@@ -44,13 +51,17 @@ public:
     *
     * "-c" matches "-c", but not "-call" or "-ec"
     *
-    * @param token   The token string to match
-    * @return        true/false -- Whether the argument was present
+    * @return  true/false - Whether the argument was present
     */
-   bool Present(const char *token);
+   bool Present(
+      const char *token /**< [in] The token string to match */
+   );
+
 
    /**
-    * Check for an arg with a value.
+    * Just call arg_params() with an index of 0.
+    *
+    * Check for an argument with a given value.
     * Returns only the first match.
     *
     * Assuming the token "-c"...
@@ -59,58 +70,67 @@ public:
     *   "-c", "all" returns "all"
     *   "-c=", "all" returns ""
     *
-    * @param token   The token string to match
     * @return        NULL or the pointer to the string
     */
-   const char *Param(const char *token);
+   const char *Param(
+      const char *token /**< [in] The token string to match */
+   );
+
 
    /**
     * Similar to arg_param, but can iterate over all matches.
     * Set index to 0 before the first call.
     *
-    * @param token   The token string to match
-    * @param idx     Pointer to the index that you initialized to 0
     * @return        NULL or the pointer to the string.
     */
-   const char *Params(const char *token, size_t &index);
+   const char *Params(
+      const char *token, /**< [in] The token string to match */
+      size_t     &index  /**< [in] Pointer to the index that you initialized to 0 */
+   );
+
 
    /**
     * Marks an argument as being used.
-    *
-    * @param idx  The index of the argument
     */
-   void SetUsed(size_t idx);
+   void SetUsed(
+      size_t idx /**< [in] The index of the argument */
+   );
+
 
    /**
     * Gets whether an argument has been used, by index.
-    *
-    * @param idx  The index of the argument
     */
-   bool GetUsed(size_t idx) const;
+   bool GetUsed(
+      size_t idx /**< [in] The index of the argument */
+   ) const;
+
 
    /**
     * This function retrieves all unused parameters.
     * You must set the index before the first call.
     * Set the index to 1 to skip argv[0].
     *
-    * @param idx  Pointer to the index
-    * @return     NULL (done) or the pointer to the string
+    * @return NULL (done) or the pointer to the string
     */
-   const char *Unused(size_t &idx) const;
+   const char *Unused(
+      size_t &idx /**< [in] Pointer to the index */
+   ) const;
+
 
    /**
     * Takes text and splits it into arguments.
-    * args is an array of char * pointers that will get populated.
+    * args is an array of char pointers that will get populated.
     * num_args is the maximum number of args split off.
     * If there are more than num_args, the remaining text is ignored.
     * Note that text is modified (zeroes are inserted)
     *
-    * @param text       The text to split (modified)
-    * @param args       The char * array to populate
-    * @param num_args   The number of items in args
-    * @return           The number of arguments parsed (always <= num_args)
+    * @return The number of arguments parsed (always <= num_args)
     */
-   static int SplitLine(char *text, char *args[], int num_args);
+   static size_t SplitLine(
+      char   *text,    /**< [in]  text to split, gets modified */
+      char   *args[],  /**< [out] array of pointers to be populated */
+      size_t num_args  /**< [in]  number of items in input string */
+   );
 };
 
 #endif /* ARGS_H_INCLUDED */

@@ -519,7 +519,7 @@ static_inline bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 
 static_inline bool chunk_is_word(chunk_t *pc)
 {
-   return((pc != NULL) && (pc->len() >= 1) && CharTable::IsKw1(pc->str[0]));
+   return((pc != NULL) && (pc->len() >= 1) && CharTable::IsKeyword1(pc->str[0]));
 }
 
 
@@ -639,7 +639,8 @@ static_inline bool chunk_safe_to_del_nl(chunk_t *nl)
 
 /**
  * Handle for (... in ...) in Objective-C.
- * Returns true if pc->prev points to a CT_FOR and we find a CT_IN before the closing parenthesis.
+ * Returns true if pc->prev points to a CT_FOR and we find a CT_IN
+ * before the closing parenthesis.
  */
 static_inline bool chunk_is_forin(chunk_t *pc)
 {
@@ -649,7 +650,9 @@ static_inline bool chunk_is_forin(chunk_t *pc)
       if (prev->type == CT_FOR)
       {
          chunk_t *next = pc;
-         while (next && (next->type != CT_SPAREN_CLOSE) && (next->type != CT_IN))
+         while ( (next       != NULL           ) &&
+                 (next->type != CT_SPAREN_CLOSE) &&
+                 (next->type != CT_IN          ) )
          {
             next = chunk_get_next_ncnl(next);
          }

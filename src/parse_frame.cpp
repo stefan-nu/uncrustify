@@ -20,7 +20,9 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf);
 /**
  * Logs the entire parse frame stack
  */
-static void pf_log_all(log_sev_t logsev);
+static void pf_log_all(
+   log_sev_t logsev
+);
 
 
 /**
@@ -29,7 +31,9 @@ static void pf_log_all(log_sev_t logsev);
  * The stack contains [...] [base] [if] at this point.
  * We want to copy [base].
  */
-static void pf_copy_2nd_tos(parse_frame_t *pf);
+static void pf_copy_2nd_tos(
+   parse_frame_t *pf
+);
 
 
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
@@ -98,8 +102,8 @@ void pf_push_under(parse_frame_t *pf)
    if ((cpd.frame_count < (int)ARRAY_SIZE(cpd.frames)) &&
        (cpd.frame_count >= 1))
    {
-      parse_frame_t *npf1 = &cpd.frames[cpd.frame_count - 1];
-      parse_frame_t *npf2 = &cpd.frames[cpd.frame_count];
+      parse_frame_t *npf1 = &cpd.frames[cpd.frame_count-1];
+      parse_frame_t *npf2 = &cpd.frames[cpd.frame_count  ];
       pf_copy(npf2, npf1);
       pf_copy(npf1, pf);
       cpd.frame_count++;
@@ -113,7 +117,7 @@ void pf_copy_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 0)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count - 1]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count-1]);
    }
    LOG_FMT(LPF, "%s(%d): count = %d\n", __func__, __LINE__, cpd.frame_count);
 }
@@ -123,7 +127,7 @@ static void pf_copy_2nd_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 1)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count - 2]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count-2]);
    }
    LOG_FMT(LPF, "%s(%d): count = %d\n", __func__, __LINE__, cpd.frame_count);
 }
@@ -258,4 +262,4 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    pf_log_frms(LPFCHK, "END", frm);
 
    return(pp_level);
-} // pf_check
+}

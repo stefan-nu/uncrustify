@@ -47,10 +47,11 @@ void add_define(const char *tag, const char *value)
 }
 
 
+#define MAX_LINE_SIZE 160 /**< maximal allowed line size in the define file */
+#define ARG_PARTS      3  /**< each define argument consists of three parts */
 int load_define_file(const char *filename)
 {
    FILE *pf = fopen(filename, "r");
-
    if (pf == NULL)
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
@@ -59,26 +60,29 @@ int load_define_file(const char *filename)
       return(EX_IOERR);
    }
 
-   char   buf[160];
-   char   *args[3];
+   char   buf[MAX_LINE_SIZE];
+   char   *args[ARG_PARTS];
    size_t line_no = 0;
+
+   /* read file line by line */
    while (fgets(buf, sizeof(buf), pf) != NULL)
    {
       line_no++;
 
-      /* remove comments */
+      /* remove comments after '#' sign */
       char *ptr;
       if ((ptr = strchr(buf, '#')) != NULL)
       {
-         *ptr = 0;
+         *ptr = 0; /* set string end where comment begins */
       }
 
-      int argc = Args::SplitLine(buf, args, ARRAY_SIZE(args) - 1);
-      args[argc] = 0;   /* \todo check this */
+      size_t argc = Args::SplitLine(buf, args, ARG_PARTS-1 );
+      args[ARG_PARTS-1] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
-         if ((argc <= 2) && CharTable::IsKw1(*args[0]))
+         if ((argc < ARG_PARTS             ) &&
+             CharTable::IsKeyword1(*args[0]) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_define(args[0], args[1]);
@@ -94,7 +98,7 @@ int load_define_file(const char *filename)
 
    fclose(pf);
    return(EX_OK);
-} // load_define_file
+}
 
 
 void print_defines(FILE *pfile)

@@ -23,8 +23,8 @@ struct CharTable
 
    enum
    {
-      KW1 = 0x0100,
-      KW2 = 0x0200,
+      KEYWORD1 = 0x0100,
+      KEYWORD2 = 0x0200,
    };
 
 
@@ -45,19 +45,19 @@ struct CharTable
        * handle UTF-8 because the byte length and screen size are assumed to be
        * the same.
        */
-      return(KW1 | KW2);
+      return(KEYWORD1 | KEYWORD2);
    }
 
 
-   static inline bool IsKw1(int ch)
+   static inline bool IsKeyword1(int ch)
    {
-      return((Get(ch) & KW1) != 0);
+      return((Get(ch) & KEYWORD1) != 0);
    }
 
 
-   static inline bool IsKw2(int ch)
+   static inline bool IsKeyword2(int ch)
    {
-      return((Get(ch) & KW2) != 0);
+      return((Get(ch) & KEYWORD2) != 0);
    }
 };
 

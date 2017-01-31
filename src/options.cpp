@@ -75,26 +75,43 @@ static const char * const DOC_TEXT_END =
    "#\n";
 
 map<uncrustify_options_t, option_map_value_t> option_name_map;
-map<uncrustify_groups_t, group_map_value_t>   group_map;
-static uncrustify_groups_t                  current_group;
+map<uncrustify_groups_t,  group_map_value_t>  group_map;
+static uncrustify_groups_t                    current_group;
 
 
-const char *get_argtype_name(argtype_t argtype);
+const char *get_argtype_name(
+   argtype_t argtype
+);
 
 
 /**
  *  only compare alpha-numeric characters
  */
-static bool match_text(const char *str1, const char *str2);
+static bool match_text(
+   const char *str1,
+   const char *str2
+);
 
 
 /**
  * Convert the value string to the correct type in dest.
  */
-static void convert_value(const option_map_value_t *entry, const char *val, op_val_t *dest);
+static void convert_value(
+   const option_map_value_t *entry,
+   const char *val,
+   op_val_t *dest
+);
 
 
-static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type, const char *short_desc = NULL, const char *long_desc = NULL, int min_val = 0, int max_val = 16);
+static void unc_add_option(
+   const char *name,
+   uncrustify_options_t id,
+   argtype_t type,
+   const char *short_desc = NULL,
+   const char *long_desc = NULL,
+   int min_val = 0,
+   int max_val = 16
+);
 
 
 void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
@@ -121,7 +138,7 @@ bool is_option_set(argval_t var, argval_t opt)
 
 bool is_option_unset(argval_t var, argval_t opt)
 {
-   return ((var & opt) == 0); /*lint !e655 */
+   return ((var & opt) == 0); /*lint !e655 !e641*/
 }
 
 
@@ -129,6 +146,13 @@ bool is_option(argval_t var, argval_t opt)
 {
    return (var == opt);
 }
+
+
+bool is_not_option(argval_t var, argval_t opt)
+{
+   return (var != opt);
+}
+
 
 
 bool is_token_set(tokenpos_t var, tokenpos_t opt)
@@ -241,7 +265,7 @@ const option_map_value_t *unc_find_option(const char *name)
 {
    const option_name_map_it itE = option_name_map.end();
 
-   for (option_name_map_it it = option_name_map.begin(); it != itE; it++)
+   for (option_name_map_it it = option_name_map.begin(); it != itE; ++it)
    {
       if (match_text(it->second.name, name))
       {
@@ -1614,7 +1638,7 @@ void register_options(void)
 const group_map_value_t *get_group_name(size_t ug)
 {
    group_map_it it = group_map.begin();
-   for (;it != group_map.end(); it++)
+   for (;it != group_map.end(); ++it)
    {
       if ((size_t)it->second.id == ug)
       {
@@ -1973,7 +1997,7 @@ void process_option_line(char *configLine, const char *filename)
          cpd.error_count++;
       }
    }
-} // process_option_line
+}
 
 
 int load_option_file(const char *filename)
@@ -2014,7 +2038,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the options by group */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
    {
       if (withDoc)
       {
@@ -2025,7 +2049,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 
       bool first = true;
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
          assert(option != NULL);
@@ -2131,16 +2155,16 @@ void print_options(FILE *pfile)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the all out */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
    {
       fprintf(pfile, "#\n# %s\n#\n\n", jt->second.short_desc);
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
          assert(option != NULL);
-         size_t                 cur     = strlen(option->name);
-         size_t                 pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
+         size_t cur = strlen(option->name);
+         size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;

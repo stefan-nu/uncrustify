@@ -45,13 +45,13 @@ public:
    }
 
 
-   unc_text(const char *ascii_text)
+   explicit unc_text(const char *ascii_text)
    {
       set(ascii_text);
    }
 
 
-   unc_text(const string &ascii_text)
+   explicit unc_text(const string &ascii_text)
    {
       set(ascii_text);
    }

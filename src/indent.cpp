@@ -398,7 +398,7 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
               __func__, __LINE__, pc->orig_line, frm.pse_tos, get_token_name(pc->type));
 
       size_t index = frm.pse_tos;
-      memset(&frm.pse[index], 0, sizeof(frm.pse[index]));
+      memset(&frm.pse[index], 0, sizeof(paren_stack_entry_t));
 
       //LOG_FMT(LINDPSE, "%s(%d):%d] (pp=%d) OPEN  [%d,%s] level=%d\n",
       //        __func__, __LINE__, pc->orig_line, cpd.pp_level, frm.pse_tos, get_token_name(pc->type), pc->level);

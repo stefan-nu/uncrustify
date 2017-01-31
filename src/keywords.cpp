@@ -450,7 +450,7 @@ int load_keyword_file(const char *filename)
 
       if (argc > 0)
       {
-         if ((argc == 1) && CharTable::IsKw1(*args[0]))
+         if ((argc == 1) && CharTable::IsKeyword1(*args[0]))
          {
             add_keyword(args[0], CT_TYPE);
          }
@@ -473,7 +473,7 @@ void print_keywords(FILE *pfile)
    for (dkwmap::iterator it = dkwm.begin(); it != dkwm.end(); ++it)
    {
       c_token_t tt = (*it).second;
-           if (tt == CT_TYPE       ) { fprintf(pfile, "type %*.s%s\n",        MAX_OPTION_NAME_LEN -  4, " ", (*it).first.c_str()); }
+      if      (tt == CT_TYPE       ) { fprintf(pfile, "type %*.s%s\n",        MAX_OPTION_NAME_LEN -  4, " ", (*it).first.c_str()); }
       else if (tt == CT_MACRO_OPEN ) { fprintf(pfile, "macro-open %*.s%s\n",  MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str()); }
       else if (tt == CT_MACRO_CLOSE) { fprintf(pfile, "macro-close %*.s%s\n", MAX_OPTION_NAME_LEN - 12, " ", (*it).first.c_str()); }
       else if (tt == CT_MACRO_ELSE ) { fprintf(pfile, "macro-else %*.s%s\n",  MAX_OPTION_NAME_LEN - 11, " ", (*it).first.c_str()); }

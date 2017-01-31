@@ -856,11 +856,12 @@ enum uncrustify_options_t
 
 struct group_map_value_t
 {
-   uncrustify_groups_t         id;
-   const char                  *short_desc;
-   const char                  *long_desc;
-   group_map_value_options_t   options;
+   uncrustify_groups_t       id;
+   const char                *short_desc;
+   const char                *long_desc;
+   group_map_value_options_t options;
 };
+
 
 struct option_map_value_t
 {
@@ -886,11 +887,16 @@ const option_map_value_t *unc_find_option(const char *name);
  * @retval true  if variable has all required option flags set
  * @retval false if at least one option was not set
  */
-bool is_option_set(argval_t var,  /**< [in] variable to check */
-                   argval_t opt); /**< [in] Option combination to check for */
+bool is_option_set(
+   argval_t var, /**< [in] variable to check */
+   argval_t opt  /**< [in] Option combination to check for */
+);
 
 
-bool is_option_unset(argval_t var, argval_t opt);
+bool is_option_unset(
+   argval_t var,
+   argval_t opt
+);
 
 
 /**
@@ -901,8 +907,16 @@ bool is_option_unset(argval_t var, argval_t opt);
  * @retval true  if option is     equal to the given value
  * @retval false if option is not equal to the given value
  */
-bool is_option(argval_t var,  /**< [in] variable to check */
-               argval_t opt); /**< [in] Option combination to check for */
+bool is_option(
+   argval_t var, /**< [in] variable to check */
+   argval_t opt  /**< [in] Option combination to check for */
+);
+
+
+bool is_not_option(
+   argval_t var,
+   argval_t opt
+);
 
 
 /**
@@ -913,8 +927,10 @@ bool is_option(argval_t var,  /**< [in] variable to check */
  * @retval true  if variable has all of the given options        set
  * @retval false if at least one     of the given options is not set
  */
-bool is_token_set(tokenpos_t var,  /**< [in] variable to check */
-                  tokenpos_t opt); /**< [in] Token combination to check for */
+bool is_token_set(
+   tokenpos_t var, /**< [in] variable to check */
+   tokenpos_t opt  /**< [in] Token combination to check for */
+);
 
 
 /**
@@ -925,8 +941,10 @@ bool is_token_set(tokenpos_t var,  /**< [in] variable to check */
  * @retval true  if variable has none of the given options    set
  * @retval false if at least one      of the given options is set
  */
-bool is_token_unset(tokenpos_t var,  /**< [in] variable to check */
-                    tokenpos_t opt); /**< [in] Token combination to check for */
+bool is_token_unset(
+   tokenpos_t var, /**< [in] variable to check */
+   tokenpos_t opt  /**< [in] Token combination to check for */
+);
 
 
 /**
@@ -937,9 +955,10 @@ bool is_token_unset(tokenpos_t var,  /**< [in] variable to check */
  * @retval true  if token is     equal to the given value
  * @retval false if token is not equal to the given value
  */
-bool is_token(tokenpos_t var,  /**< [in] variable to check */
-              tokenpos_t opt); /**< [in] Token combination to check for */
-
+bool is_token(
+   tokenpos_t var, /**< [in] variable to check */
+   tokenpos_t opt  /**< [in] Token combination to check for */
+);
 
 /**
  * \brief check if a token is different from a given value
@@ -949,14 +968,22 @@ bool is_token(tokenpos_t var,  /**< [in] variable to check */
  * @retval true  if token is not equal to the given value
  * @retval false if token is     equal to the given value
  */
-bool is_not_token(tokenpos_t var,  /**< [in] variable to check */
-                  tokenpos_t opt); /**< [in] Token combination to check for */
+bool is_not_token(
+   tokenpos_t var, /**< [in] variable to check */
+   tokenpos_t opt  /**< [in] Token combination to check for */
+);
 
 
-bool is_bit_set(UINT64 var, UINT64 flag);
+bool is_bit_set(
+   UINT64 var,
+   UINT64 flag
+);
 
 
-bool is_bit_unset(UINT64 var, UINT64 flag);
+bool is_bit_unset(
+   UINT64 var,
+   UINT64 flag
+);
 
 
 /**
@@ -970,7 +997,11 @@ void set_option_defaults(void);
 void register_options(void);
 
 
-void unc_begin_group(uncrustify_groups_t id, const char *short_desc, const char *long_desc = NULL);
+void unc_begin_group(
+   uncrustify_groups_t id,
+   const char *short_desc,
+   const char *long_desc = NULL
+);
 
 
 /**
@@ -981,64 +1012,106 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc, const char 
  * @param filename: for log messages, file from which the configLine param was
  *                  extracted
  */
-void process_option_line(char *configLine, const char *filename);
+void process_option_line(
+   char *configLine,
+   const char *filename
+);
 
 
-int load_option_file(const char *filename);
+int load_option_file(
+   const char *filename
+);
 
 
-int save_option_file(FILE *pfile, bool withDoc);
+int save_option_file(
+   FILE *pfile,
+   bool withDoc
+);
 
 
-int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default);
+int save_option_file_kernel(
+   FILE *pfile,
+   bool withDoc,
+   bool only_not_default
+);
 
 
-int set_option_value(const char *name, const char *value);
+int set_option_value(
+   const char *name,
+   const char *value
+);
 
 
-bool is_path_relative(const char *path);
+bool is_path_relative(
+   const char *path
+);
 
 
-const group_map_value_t *get_group_name(size_t ug);
+const group_map_value_t *get_group_name(
+   size_t ug
+);
 
 
-const option_map_value_t *get_option_name(uncrustify_options_t uo);
+const option_map_value_t *get_option_name(
+   uncrustify_options_t uo
+);
 
 
-void print_options(FILE *pfile);
+void print_options(
+   FILE *pfile
+);
 
 
-string argtype_to_string(argtype_t argtype);
+string argtype_to_string(
+   argtype_t argtype
+);
 
 
-string bool_to_string(bool val);
+string bool_to_string(
+   bool val
+);
 
 
-string argval_to_string(argval_t argval);
+string argval_to_string(
+   argval_t argval
+);
 
 
-string number_to_string(int number);
+string number_to_string(
+   int number
+);
 
 
-string lineends_to_string(lineends_t linends);
+string lineends_to_string(
+   lineends_t linends
+);
 
 
-string tokenpos_to_string(tokenpos_t tokenpos);
+string tokenpos_to_string(
+   tokenpos_t tokenpos
+);
 
 
-string op_val_to_string(const argtype_t argtype, const op_val_t op_val);
+string op_val_to_string(
+   const argtype_t argtype,
+   const op_val_t op_val
+);
 
 
-bool is_path_relative(const char *path);
+bool is_path_relative(
+   const char *path
+);
 
 
-const option_map_value_t *unc_find_option(const char *name);
+const option_map_value_t *unc_find_option(
+   const char *name
+);
 
 
-typedef map<uncrustify_options_t, option_map_value_t>::iterator   option_name_map_it;
-typedef map<uncrustify_groups_t, group_map_value_t>::iterator     group_map_it;
-typedef group_map_value_options_t::iterator                   option_list_it;
-typedef group_map_value_options_t::const_iterator             option_list_cit;
+typedef map<uncrustify_options_t, option_map_value_t>::iterator option_name_map_it;
+typedef map<uncrustify_groups_t, group_map_value_t>::iterator   group_map_it;
+typedef group_map_value_options_t::iterator                     option_list_it;
+typedef group_map_value_options_t::const_iterator               option_list_cit;
 
 
 #endif /* OPTIONS_H_INCLUDED */

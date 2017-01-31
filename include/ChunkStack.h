@@ -39,9 +39,11 @@ public:
       chunk_t *m_pc;
    };
 
+
 protected:
    deque<Entry> m_cse;
-   size_t       m_seqnum; // current seq num
+   size_t       m_seqnum; // current sequence number
+
 
 public:
    ChunkStack()
@@ -81,11 +83,25 @@ public:
    }
 
    const Entry *Top() const;
-   const Entry *Get(size_t idx) const;
-   chunk_t *GetChunk(size_t idx) const;
+
+
+   const Entry *Get(
+      size_t idx
+   ) const;
+
+
+   chunk_t *GetChunk(
+      size_t idx
+   ) const;
+
 
    chunk_t *Pop_Back();
-   void Push_Back(chunk_t *pc, size_t seqnum);
+
+
+   void Push_Back(
+      chunk_t *pc,
+      size_t seqnum
+   );
 
    chunk_t *Pop_Front();
 
@@ -95,7 +111,20 @@ public:
       m_cse.clear();
    }
 
-   void Zap(size_t idx);
+
+   /**
+    * Mark an entry to be removed by Collapse()
+    *
+    * @param idx  The item to remove
+    */
+   void Zap(
+      size_t idx
+   );
+
+
+   /**
+    * Compresses down the stack by removing dead entries
+    */
    void Collapse();
 };
 

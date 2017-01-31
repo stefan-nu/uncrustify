@@ -31,9 +31,9 @@ struct tok_info
    {
    }
 
-   int last_ch;
-   int idx;
-   size_t row;	// \todo check this
+   int    last_ch;
+   size_t idx;
+   size_t row;
    size_t col;
 };
 
@@ -52,7 +52,7 @@ struct tok_ctx
    }
 
 
-   void save(tok_info &info)
+   void save(tok_info &info) const
    {
       info = c;
    }
@@ -71,22 +71,22 @@ struct tok_ctx
    }
 
 
-   bool more()
+   bool more() const
    {
-      return(c.idx < (int)data.size());
+      return(c.idx < data.size());
    }
 
 
-   int peek()
+   int peek() const
    {
-      return(more() ? data[c.idx] : -1);
+      return( (more()== true) ? data[c.idx] : -1);
    }
 
 
-   int peek(int idx)
+   int peek(size_t idx) const
    {
       idx += c.idx;
-      return((idx < (int)data.size()) ? data[idx] : -1);
+      return((idx < data.size()) ? data[idx] : -1);
    }
 
 
@@ -136,8 +136,8 @@ struct tok_ctx
    }
 
    const deque<int> &data;
-   tok_info          c; /* current */
-   tok_info          s; /* saved */
+   tok_info         c; /* current */
+   tok_info         s; /* saved */
 };
 
 
@@ -148,7 +148,11 @@ struct tok_ctx
  * @param pc   The structure to update, str is an input.
  * @return     Whether a word was parsed (always true)
  */
-static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck);
+static bool parse_word(
+   tok_ctx &ctx,
+   chunk_t &pc,
+   bool    skipcheck
+);
 
 
 /**
@@ -159,7 +163,12 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
-static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_escape);
+static bool parse_string(
+   tok_ctx &ctx,
+   chunk_t &pc,
+   size_t  quote_idx,
+   bool    allow_escape
+);
 
 
 /**
@@ -169,7 +178,10 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_es
  * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
-static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc);
+static bool parse_cs_string(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -180,7 +192,10 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
-static bool parse_cs_interpolated_string(tok_ctx &ctx, chunk_t &pc);
+static bool parse_cs_interpolated_string(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -188,17 +203,29 @@ static bool parse_cs_interpolated_string(tok_ctx &ctx, chunk_t &pc);
  *
  * @param pc   The structure to update, str is an input.
  */
-static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc);
+static void parse_verbatim_string(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
-static bool tag_compare(const deque<int> &d, int a_idx, int b_idx, int len);
+static bool tag_compare(
+   const deque<int> &d,
+   size_t           a_idx,
+   size_t           b_idx,
+   size_t           len
+);
 
 
 /**
  * Parses a C++0x 'R' string. R"( xxx )" R"tag(  )tag" u8R"(x)" uR"(x)"
  * Newlines may be in the string.
  */
-static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, int q_idx);
+static bool parse_cr_string(
+   tok_ctx &ctx,
+   chunk_t &pc,
+   size_t  q_idx
+);
 
 
 /**
@@ -207,7 +234,10 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, int q_idx);
  * @param pc   The structure to update, str is an input.
  * @return     Whether whitespace was parsed
  */
-static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc);
+static bool parse_whitespace(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -215,7 +245,10 @@ static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc);
  * If there is nothing but whitespace until the newline, then this is a
  * backslash newline
  */
-static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc);
+static bool parse_bs_newline(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -224,7 +257,9 @@ static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc);
  * This is not the same as parse_whitespace() because it only consumes until
  * a single newline is encountered.
  */
-static bool parse_newline(tok_ctx &ctx);
+static bool parse_newline(
+   tok_ctx &ctx
+);
 
 
 /**
@@ -234,10 +269,17 @@ static bool parse_newline(tok_ctx &ctx);
  * A generic whitespace check should be good enough.
  * Do not change the pattern.
  */
-static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt);
+static void parse_pawn_pattern(
+   tok_ctx   &ctx,
+   chunk_t   &pc,
+   c_token_t tt
+);
 
 
-static bool parse_ignored(tok_ctx &ctx, chunk_t &pc);
+static bool parse_ignored(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -251,7 +293,10 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc);
  * @param pc      The structure to update, str is an input.
  * @return        true/false - whether anything was parsed
  */
-static bool parse_next(tok_ctx &ctx, chunk_t &pc);
+static bool parse_next(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -275,7 +320,10 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
-static bool d_parse_string(tok_ctx &ctx, chunk_t &pc);
+static bool d_parse_string(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -289,7 +337,10 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a comment was parsed
  */
-static bool parse_comment(tok_ctx &ctx, chunk_t &pc);
+static bool parse_comment(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -300,7 +351,10 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a placeholder was parsed.
  */
-static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc);
+static bool parse_code_placeholder(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
 
 
 /**
@@ -308,16 +362,23 @@ static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc);
  * If for a string, explicitly exclude common format and scan specifiers, ie,
  * PRIx32 and SCNx64.
  */
-static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring);
+static void parse_suffix(
+   tok_ctx &ctx,
+   chunk_t &pc,
+   bool    forstring
+);
 
 
-static bool is_bin(int ch);
+static bool is_bin (int ch);
 static bool is_bin_(int ch);
-static bool is_oct(int ch);
+
+static bool is_oct (int ch);
 static bool is_oct_(int ch);
-static bool is_dec(int ch);
+
+static bool is_dec (int ch);
 static bool is_dec_(int ch);
-static bool is_hex(int ch);
+
+static bool is_hex (int ch);
 static bool is_hex_(int ch);
 
 
@@ -424,7 +485,7 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
             /* Everything else is a single character */
             pc.str.append(ctx.get());
             break;
-         } // switch
+         }
       }
 
       if (pc.str.size() > 1)
@@ -439,7 +500,7 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
       return(parse_string(ctx, pc, 1, false));
    }
    return(false);
-} // d_parse_string
+}
 
 
 #if 0
@@ -669,7 +730,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
       }
    }
    return(true);
-} // parse_comment
+}
 
 
 static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc)
@@ -706,9 +767,9 @@ static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc)
 
 static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
 {
-   if (CharTable::IsKw1(ctx.peek()))
+   if (CharTable::IsKeyword1(ctx.peek()))
    {
-      int slen    = 0;
+      size_t slen    = 0;
       size_t oldsize = pc.str.size();
 
       /* don't add the suffix if we see L" or L' or S" */
@@ -723,7 +784,7 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
 
       tok_info ss;
       ctx.save(ss);
-      while (ctx.more() && CharTable::IsKw2(ctx.peek()))
+      while (ctx.more() && CharTable::IsKeyword2(ctx.peek()))
       {
          slen++;
          pc.str.append(ctx.get());
@@ -780,7 +841,7 @@ static bool is_hex(int ch)
 {
    return(((ch >= '0') && (ch <= '9')) ||
           ((ch >= 'a') && (ch <= 'f')) ||
-          ((ch >= 'A') && (ch <= 'F')));
+          ((ch >= 'A') && (ch <= 'F')) );
 }
 
 
@@ -806,8 +867,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for Hex, Octal, or Binary
-    * Note that only D and Pawn support binary, but who cares?
-    */
+    * Note that only D and Pawn support binary, but who cares? */
    bool did_hex = false;
    if (ctx.peek() == '0')
    {
@@ -819,7 +879,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       pc_temp.str.append('0');
       // MS constant might have an "h" at the end. Look for it
       ctx.save();
-      while (ctx.more() && CharTable::IsKw2(ctx.peek()))
+      while (ctx.more() && CharTable::IsKeyword2(ctx.peek()))
       {
          ch = ctx.get();
          pc_temp.str.append(ch);
@@ -914,8 +974,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    /* Check exponent
     * Valid exponents per language (not that it matters):
     * C/C++/D/Java: eEpP
-    * C#/Pawn:      eE
-    */
+    * C#/Pawn:      eE */
    int tmp = unc_toupper(ctx.peek());
    if ((tmp == 'E') || (tmp == 'P'))
    {
@@ -940,8 +999,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
     * Java:  lL            fFdD
     * Pawn:  (none)        (none)
     *
-    * Note that i, f, d, and m only appear in floats.
-    */
+    * Note that i, f, d, and m only appear in floats. */
    while (1)
    {
       int tmp = unc_toupper(ctx.peek());
@@ -971,10 +1029,11 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    parse_suffix(ctx, pc);
 
    return(true);
-} // parse_number
+}
 
 
-static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_escape)
+static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx,
+      bool allow_escape)
 {
    char escape_char        = (char)cpd.settings[UO_string_escape_char].n;
    char escape_char2       = (char)cpd.settings[UO_string_escape_char2].n;
@@ -994,7 +1053,7 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_es
    while (ctx.more())
    {
       size_t lastcol = ctx.c.col;
-      int ch      = ctx.get();
+      int    ch      = ctx.get();
 
       if ((ch == '\t') && should_escape_tabs)
       {
@@ -1043,7 +1102,7 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, int quote_idx, bool allow_es
 
    parse_suffix(ctx, pc, true);
    return(true);
-} // parse_string
+}
 
 
 static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
@@ -1094,7 +1153,7 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
    }
 
    return(true);
-} // parse_cs_string
+}
 
 
 static bool parse_cs_interpolated_string(tok_ctx &ctx, chunk_t &pc)
@@ -1156,7 +1215,7 @@ static bool parse_cs_interpolated_string(tok_ctx &ctx, chunk_t &pc)
    }
 
    return(true);
-} // parse_cs_interpolated_string
+}
 
 
 static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
@@ -1190,7 +1249,7 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
 }
 
 
-static bool tag_compare(const deque<int> &d, int a_idx, int b_idx, int len)
+static bool tag_compare(const deque<int> &d, size_t a_idx, size_t b_idx, size_t len)
 {
    if (a_idx != b_idx)
    {
@@ -1206,16 +1265,16 @@ static bool tag_compare(const deque<int> &d, int a_idx, int b_idx, int len)
 }
 
 
-static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, int q_idx)
+static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, size_t q_idx)
 {
-   int tag_idx = ctx.c.idx + q_idx + 1;
-   int tag_len = 0;
+   size_t tag_idx = ctx.c.idx + q_idx + 1;
+   size_t tag_len = 0;
 
    ctx.save();
 
    /* Copy the prefix + " to the string */
    pc.str.clear();
-   int cnt = q_idx + 1;
+   size_t cnt = q_idx + 1;
    while (cnt--)
    {
       pc.str.append(ctx.get());
@@ -1261,7 +1320,7 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, int q_idx)
    }
    ctx.restore();
    return(false);
-} // parse_cr_string
+}
 
 
 static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
@@ -1275,7 +1334,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    while (ctx.more())
    {
       int ch = ctx.peek();
-      if (CharTable::IsKw2(ch))
+      if (CharTable::IsKeyword2(ch))
       {
          pc.str.append(ctx.get());
       }
@@ -1307,14 +1366,8 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    if ((cpd.in_preproc == CT_PP_DEFINE) &&
        (cpd.preproc_ncnl_count == 1))
    {
-      if (ctx.peek() == '(')
-      {
-         pc.type = CT_MACRO_FUNC;
-      }
-      else
-      {
-         pc.type = CT_MACRO;
-      }
+      if (ctx.peek() == '(') { pc.type = CT_MACRO_FUNC; }
+      else                   { pc.type = CT_MACRO;      }
    }
    else
    {
@@ -1332,13 +1385,13 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    }
 
    return(true);
-} // parse_word
+}
 
 
 static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
 {
    size_t nl_count = 0;
-   int ch       = -2;
+   int    ch       = -2;
 
    /* REVISIT: use a better whitespace detector? */
    while (ctx.more() && unc_isspace(ctx.peek()))
@@ -1390,7 +1443,7 @@ static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
       return(true);
    }
    return(false);
-} // parse_whitespace
+}
 
 
 static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc)
@@ -1533,7 +1586,7 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
       return(true);
    }
    return(false);
-} // parse_ignored
+}
 
 
 static bool parse_next(tok_ctx &ctx, chunk_t &pc)
@@ -1561,17 +1614,13 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       }
    }
 
-   /**
-    * Parse whitespace
-    */
+   /* Parse whitespace */
    if (parse_whitespace(ctx, pc))
    {
       return(true);
    }
 
-   /**
-    * Handle unknown/unhandled preprocessors
-    */
+   /* Handle unknown/unhandled preprocessors */
    if ((cpd.in_preproc > CT_PP_BODYCHUNK) &&
        (cpd.in_preproc <= CT_PP_OTHER))
    {
@@ -1612,17 +1661,13 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       }
    }
 
-   /**
-    * Detect backslash-newline
-    */
+   /* Detect backslash-newline */
    if ((ctx.peek() == '\\') && parse_bs_newline(ctx, pc))
    {
       return(true);
    }
 
-   /**
-    * Parse comments
-    */
+   /* Parse comments */
    if (parse_comment(ctx, pc))
    {
       return(true);
@@ -1643,7 +1688,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
          return(true);
       }
       /* check for non-keyword identifiers such as @if @switch, etc */
-      if (CharTable::IsKw1(ctx.peek(1)))
+      if (CharTable::IsKeyword1(ctx.peek(1)))
       {
          parse_word(ctx, pc, true);
          return(true);
@@ -1672,8 +1717,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    if ((cpd.lang_flags & LANG_CPP) &&
        ((ch == 'u') || (ch == 'U') || (ch == 'R')))
    {
-      int  idx     = 0;
-      bool is_real = false;
+      size_t idx     = 0;
+      bool   is_real = false;
 
       if ((ch == 'u') && (ctx.peek(1) == '8'))
       {
@@ -1748,9 +1793,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       }
    }
 
-   /**
-    * Parse strings and character constants
-    */
+   /* Parse strings and character constants */
 
 //parse_word(ctx, pc_temp, true);
 //ctx.restore(ctx.c);
@@ -1774,11 +1817,11 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       /* Check for L'a', L"abc", 'a', "abc", <abc> strings */
       ch = ctx.peek();
       int ch1 = ctx.peek(1);
-      if ((((ch == 'L') || (ch == 'S')) &&
-           ((ch1 == '"') || (ch1 == '\''))) ||
-          (ch == '"') ||
-          (ch == '\'') ||
-          ((ch == '<') && (cpd.in_preproc == CT_PP_INCLUDE)))
+      if((((ch  == 'L' ) || (ch  == 'S' )) &&
+          ((ch1 == '"' ) || (ch1 == '\''))) ||
+          ( ch  == '"' ) ||
+          ( ch  == '\'') ||
+          ((ch  == '<' ) && (cpd.in_preproc == CT_PP_INCLUDE)))
       {
          parse_string(ctx, pc, unc_isalpha(ch) ? 1 : 0, true);
          return(true);
@@ -1815,9 +1858,9 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for pawn/ObjectiveC/Java and normal identifiers */
-   if (CharTable::IsKw1(ctx.peek()) ||
+   if (CharTable::IsKeyword1(ctx.peek()) ||
        ((ctx.peek() == '\\') && (unc_tolower(ctx.peek(1)) == 'u')) ||
-       ((ctx.peek() == '@') && CharTable::IsKw1(ctx.peek(1))))
+       ((ctx.peek() == '@') && CharTable::IsKeyword1(ctx.peek(1))))
    {
       parse_word(ctx, pc, false);
       return(true);
@@ -1850,22 +1893,9 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
            cpd.filename, pc.orig_line, (int)ctx.c.col, pc.str[0]);
    cpd.error_count++;
    return(true);
-} // parse_next
+}
 
 
-/**
- * \brief Parse the text into chunks
- *
- * This function parses or tokenizes the whole buffer into a list.
- * It has to do some tricks to parse preprocessors.
- *
- * If output_text() were called immediately after, two things would happen:
- *  - trailing whitespace are removed.
- *  - leading space & tabs are converted to the appropriate format.
- *
- * All the tokens are inserted before ref. If ref is NULL, they are inserted
- * at the end of the list.  Line numbers are relative to the start of the data.
- */
 void tokenize(const deque<int> &data, chunk_t *ref)
 {
    tok_ctx       ctx(data);
@@ -2035,7 +2065,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       cpd.newline = "\r";
       LOG_FMT(LLINEENDS, "Using CR line endings\n");
    }
-} // tokenize
+}
 
 
 // /**
