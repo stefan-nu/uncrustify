@@ -188,7 +188,7 @@ static const char *make_output_filename(
 
 
 /**
- * Reinvent the wheel with a file comparison function...
+ * file comparison function
  */
 static bool file_content_matches(
    const string &filename1,
@@ -234,7 +234,10 @@ static int load_mem_file_config(
 static void version_exit(void);
 
 
-static void redir_stdout(const char *output_file);
+static void redir_stdout(
+   const char *output_file
+);
+
 
 #ifdef DEFINE_PCF_NAMES
 static const char * const pcf_names[] =
@@ -2028,7 +2031,7 @@ static void uncrustify_end()
    cpd.frame_count = 0;
    cpd.pp_level    = 0;
    cpd.changes     = 0;
-   cpd.in_preproc  = CT_NONE;
+   cpd.is_preproc  = CT_NONE;
    cpd.consumed    = false;
    memset(cpd.le_counts, 0, sizeof(cpd.le_counts));
    cpd.preproc_ncnl_count                     = 0;
@@ -2099,7 +2102,7 @@ static const lang_name_t language_names[] =
 
 static int language_flags_from_name(const char *name)
 {
-   for (int i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
    {
       if (strcasecmp(name, language_names[i].name) == 0)
       {
@@ -2113,7 +2116,7 @@ static int language_flags_from_name(const char *name)
 const char *language_name_from_flags(int lang)
 {
    /* Check for an exact match first */
-   for (int i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
    {
       if (language_names[i].lang == lang)
       {
@@ -2122,7 +2125,7 @@ const char *language_name_from_flags(int lang)
    }
 
    /* Check for the first set language bit */
-   for (int i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
    {
       if ((language_names[i].lang & lang) != 0)
       {
@@ -2138,6 +2141,7 @@ struct lang_ext_t
    const char *ext;
    const char *name;
 };
+
 
 /* maps file extensions to language names */
 const struct lang_ext_t language_exts[] =
@@ -2191,7 +2195,6 @@ static extension_map_t g_ext_map;
 const char *extension_add(const char *ext_text, const char *lang_text)
 {
    int lang_flags = language_flags_from_name(lang_text);
-
    if (lang_flags)
    {
       const char *lang_name = language_name_from_flags(lang_flags);
@@ -2240,7 +2243,7 @@ static int language_flags_from_filename(const char *filename)
       }
    }
 
-   for (int i = 0; i < (int)ARRAY_SIZE(language_exts); i++)
+   for (size_t i = 0; i < ARRAY_SIZE(language_exts); i++)
    {
       if (ends_with(filename, language_exts[i].ext))
       {
@@ -2257,7 +2260,8 @@ static int language_flags_from_filename(const char *filename)
          return(language_flags_from_name(it->second.c_str()));
       }
    }
-   for (int i = 0; i < (int)ARRAY_SIZE(language_exts); i++)
+
+   for (size_t i = 0; i < ARRAY_SIZE(language_exts); i++)
    {
       if (ends_with(filename, language_exts[i].ext, false))
       {
@@ -2275,7 +2279,7 @@ void log_pcf_flags(log_sev_t sev, UINT64 flags)
    log_fmt(sev, "[0x%" PRIx64 ":", flags);
 
    const char *tolog = NULL;
-   for (int i = 0; i < (int)ARRAY_SIZE(pcf_names); i++)
+   for (size_t i = 0; i < ARRAY_SIZE(pcf_names); i++)
    {
       if (flags & (1ULL << i))
       {

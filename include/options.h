@@ -900,6 +900,12 @@ bool is_option_set(
 );
 
 
+argval_t add_option(
+   argval_t var,
+   argval_t opt
+);
+
+
 bool is_option_unset(
    argval_t var,
    argval_t opt

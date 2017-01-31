@@ -98,12 +98,10 @@ static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
    next = chunk_get_next_ncnl(pc);
    if (next != NULL)
    {
-      cpd.in_preproc = next->type;
+      cpd.is_preproc = next->type;
 
-      /**
-       * If we are in a define, push the frame stack.
-       */
-      if (cpd.in_preproc == CT_PP_DEFINE)
+      /* If we are in a define, push the frame stack. */
+      if (cpd.is_preproc == CT_PP_DEFINE)
       {
          pf_push(frm);
 
@@ -164,22 +162,23 @@ void brace_cleanup(void)
    memset(&frm, 0, sizeof(frm));
 
    cpd.frame_count = 0;
-   cpd.in_preproc  = CT_NONE;
+   cpd.is_preproc  = CT_NONE;
    cpd.pp_level    = 0;
 
    pc = chunk_get_head();
    while (pc != NULL)
    {
       /* Check for leaving a #define body */
-      if ((cpd.in_preproc != CT_NONE) && ((pc->flags & PCF_IN_PREPROC) == 0))
+      if ((cpd.is_preproc               != CT_NONE) &&
+          ((pc->flags & PCF_IN_PREPROC) ==       0) )
       {
-         if (cpd.in_preproc == CT_PP_DEFINE)
+         if (cpd.is_preproc == CT_PP_DEFINE)
          {
             /* out of the #define body, restore the frame */
             pf_pop(&frm);
          }
 
-         cpd.in_preproc = CT_NONE;
+         cpd.is_preproc = CT_NONE;
       }
 
       /* Check for a preprocessor start */
@@ -209,9 +208,10 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if (!chunk_is_comment(pc) && !chunk_is_newline(pc) &&
-          ((cpd.in_preproc == CT_PP_DEFINE) ||
-           (cpd.in_preproc == CT_NONE)))
+      if (!chunk_is_comment(pc) &&
+          !chunk_is_newline(pc) &&
+          ((cpd.is_preproc == CT_PP_DEFINE) ||
+           (cpd.is_preproc == CT_NONE     ) ) )
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);

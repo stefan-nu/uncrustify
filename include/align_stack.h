@@ -16,19 +16,19 @@
 class AlignStack
 {
 public:
-   ChunkStack   m_aligned;   /* contains the token that is aligned */
-   ChunkStack   m_skipped;   /* contains the tokens sent to Add() */
-   size_t       m_max_col;
-   size_t       m_min_col;
-   size_t       m_span;
-   size_t       m_thresh;
-   size_t       m_seqnum;
-   size_t       m_nl_seqnum;
-   size_t       m_gap;
-   bool         m_right_align;
-   StarStyle_t  m_star_style;
-   StarStyle_t  m_amp_style;
-   bool         m_skip_first; /* do not include the first item if it causes it to be indented */
+   ChunkStack   m_aligned;     /**< contains the token that is aligned */
+   ChunkStack   m_skipped;     /**< contains the tokens sent to Add() */
+   size_t       m_max_col;     /**<  */
+   size_t       m_min_col;     /**<  */
+   size_t       m_span;        /**<  */
+   size_t       m_thresh;      /**<  */
+   size_t       m_seqnum;      /**<  */
+   size_t       m_nl_seqnum;   /**<  */
+   size_t       m_gap;         /**<  */
+   bool         m_right_align; /**<  */
+   StarStyle_t  m_star_style;  /**<  */
+   StarStyle_t  m_amp_style;   /**<  */
+   bool         m_skip_first;  /**< do not include the first item if it causes it to be indented */
 
 
    AlignStack()
@@ -44,8 +44,7 @@ public:
       , m_amp_style  (SS_IGNORE)
       , m_skip_first (false)
       , m_last_added (0)
-   {
-   }
+   { }
 
 
    AlignStack(const AlignStack &ref)
@@ -63,37 +62,36 @@ public:
       , m_amp_style  (ref.m_amp_style)
       , m_skip_first (ref.m_skip_first)
       , m_last_added (ref.m_last_added)
-   {
-   }
+   { }
 
 
-   ~AlignStack()
-   {
-   }
+   ~AlignStack() { }
 
 
    /**
-    * Resets the two ChunkLists and zeroes local vars.
-    *
-    * @param span    The row span limit
-    * @param thresh  The column threshold
+    * Resets the two ChunkLists and zeroes local variables
     */
-   void Start(size_t span, size_t threshold = 0);
+   void Start(
+      size_t span,         /**< [in] the row span limit */
+      size_t threshold = 0 /**< [in] column threshold */
+   );
 
 
    /**
-    * Adds an entry to the appropriate stack.
-    *
-    * @param pc      The chunk
-    * @param seqnum  Optional seqnum (0=assign one)
+    * Adds an entry to the appropriate stack
     */
-   void Add(chunk_t *pc, size_t seqnum = 0);
+   void Add(
+      chunk_t *pc,       /**< [in] chunk to add */
+      size_t  seqnum = 0 /**< [in] Optional sequence number (0=assign one) */
+   );
 
 
    /**
     * Adds some newline and calls Flush() if needed
     */
-   void NewLines(size_t cnt);
+   void NewLines(
+      size_t cnt  /**< [in]  */
+   );
 
 
    /**
@@ -116,15 +114,13 @@ public:
 
 
 protected:
-   size_t m_last_added; /* 0=none, 1=aligned, 2=skipped */
-
+   size_t     m_last_added; /**< 0=none, 1=aligned, 2=skipped */
+   ChunkStack m_scratch;    /**< used in ReAddSkipped() */
 
    /**
     * Calls Add on all the skipped items
     */
    void   ReAddSkipped();
-
-   ChunkStack m_scratch; /* used in ReAddSkipped() */
 };
 
 #endif /* ALIGN_STACK_H_INCLUDED */
