@@ -112,6 +112,7 @@ static void split_for_stmt(chunk_t *start);
 
 static_inline bool is_past_width(chunk_t *pc)
 {
+   assert(pc != NULL);
    // allow char to sit at last column by subtracting 1
    return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);	// todo was n before
 }
@@ -120,6 +121,7 @@ static_inline bool is_past_width(chunk_t *pc)
 static void split_before_chunk(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+   assert(pc != NULL);
    LOG_FMT(LSPLIT, "%s: %s\n", __func__, pc->text());
 
    if (!chunk_is_newline(pc) &&
@@ -216,6 +218,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc->type == CT_FPAREN_OPEN)
    {
       const chunk_t *next = chunk_get_next(pc);
+      assert(next != NULL);
       if (next->type == CT_FPAREN_CLOSE) { return; }
    }
 
@@ -223,6 +226,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc->type == CT_STRING)
    {
       const chunk_t *next = chunk_get_next(pc);
+      assert(next != NULL);
       if (next->type != CT_STRING) { return; }
    }
 
@@ -367,6 +371,7 @@ static bool split_line(chunk_t *start)
       {
          pc = chunk_get_next(ent.pc);
       }
+      assert(pc != NULL);
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
    }
 
@@ -489,6 +494,7 @@ static void split_for_stmt(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
+      assert(pc != NULL);
       if ((pc->type == CT_COMMA) && (pc->level == (open_paren->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
@@ -503,6 +509,7 @@ static void split_for_stmt(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
+      assert(pc != NULL);
       if ((pc->type == CT_ASSIGN) && (pc->level == (open_paren->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
@@ -559,6 +566,7 @@ static void split_fcn_params(chunk_t *start)
    }
 
    chunk_t *pc     = chunk_get_next_ncnl(fpo);
+   assert(pc != NULL);
    size_t  min_col = pc->column;
 
    LOG_FMT(LSPLIT, " mincol=%zu, max_width=%d ",
@@ -610,6 +618,7 @@ static void split_fcn_params(chunk_t *start)
       if (prev->type == CT_FPAREN_OPEN)
       {
          pc = chunk_get_next(prev);
+         assert(pc != NULL);
          if (!cpd.settings[UO_indent_paren_nl].b)
          {
             min_col = pc->brace_level * cpd.settings[UO_indent_columns].u + 1u;

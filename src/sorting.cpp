@@ -21,7 +21,7 @@ struct include_category
 
 enum
 {
-   kIncludeCategoriesCount = UO_include_category_last - UO_include_category_first + 1,
+   kIncludeCategoriesCount = UO_include_category_last - UO_include_category_first + 1
 };
 
 include_category *include_categories[kIncludeCategoriesCount];
@@ -133,6 +133,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
          if (pc2->type == CT_MEMBER)
          {
             pc2 = chunk_get_next(pc2);
+            assert(pc2 != NULL);
             LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          }
       }

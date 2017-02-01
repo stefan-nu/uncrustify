@@ -23,7 +23,7 @@
 +libh(co-ggc.lnt)	// ignore this file
 +libh(lint_cppmac.h)// ignore this file
 //+libdir(uncrustify/scripts/pclint/*)
--wlib(1)
+//-wlib(1)
 
 
 -i".\include"

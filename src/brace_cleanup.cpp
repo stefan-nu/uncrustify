@@ -203,6 +203,7 @@ void brace_cleanup(void)
       }
 
       /* Assume the level won't change */
+      assert(pc != NULL);
       pc->level       = frm.level;
       pc->brace_level = frm.brace_level;
       pc->pp_level    = pp_level;
@@ -337,6 +338,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
+   assert(pc != NULL);
    LOG_FMT(LTOK, "%s:%zu] %16s - tos:%zu/%16s stg:%d\n",
            __func__, pc->orig_line, get_token_name(pc->type),
            frm->pse_tos, get_token_name(frm->pse[frm->pse_tos].type),
@@ -435,6 +437,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
       /* Make sure the open / close match */
       if (pc->type != (frm->pse[frm->pse_tos].type + 1))   // \todo why +1
+//    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type )) fails
       {
          if ((frm->pse[frm->pse_tos].type != CT_NONE) &&
              (frm->pse[frm->pse_tos].type != CT_PP_DEFINE))
@@ -517,17 +520,17 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    /* Get the parent type for brace and paren open */
    c_token_t parent = pc->parent_type;
-   if ((pc->type == CT_PAREN_OPEN) ||
+   if ((pc->type == CT_PAREN_OPEN ) ||
        (pc->type == CT_FPAREN_OPEN) ||
        (pc->type == CT_SPAREN_OPEN) ||
-       (pc->type == CT_BRACE_OPEN))
+       (pc->type == CT_BRACE_OPEN ) )
    {
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if (prev != NULL)
       {
-         if ((pc->type == CT_PAREN_OPEN) ||
+         if ((pc->type == CT_PAREN_OPEN ) ||
              (pc->type == CT_FPAREN_OPEN) ||
-             (pc->type == CT_SPAREN_OPEN))
+             (pc->type == CT_SPAREN_OPEN) )
          {
             /* Set the parent for parens and change paren type */
             if (frm->pse[frm->pse_tos].stage != BS_NONE)
@@ -594,11 +597,11 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
        (pc->type == CT_SPAREN_OPEN) ||
        (pc->type == CT_ANGLE_OPEN ) ||
        (pc->type == CT_MACRO_OPEN ) ||
-       (pc->type == CT_SQUARE_OPEN))
+       (pc->type == CT_SQUARE_OPEN) )
    {
       frm->level++;
       if ((pc->type == CT_BRACE_OPEN) ||
-          (pc->type == CT_MACRO_OPEN))
+          (pc->type == CT_MACRO_OPEN) )
       {
          frm->brace_level++;
       }
@@ -642,13 +645,13 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
     *  - after ';', but not if the paren stack top is a paren
     *  - after '(' that has a parent type of CT_FOR
     */
-   if ( (pc->type == CT_SQUARE_OPEN) ||
-       ((pc->type == CT_BRACE_OPEN) && (pc->parent_type != CT_ASSIGN)) ||
-        (pc->type == CT_BRACE_CLOSE) ||
+   if ( (pc->type == CT_SQUARE_OPEN ) ||
+       ((pc->type == CT_BRACE_OPEN  ) && (pc->parent_type != CT_ASSIGN)) ||
+        (pc->type == CT_BRACE_CLOSE ) ||
         (pc->type == CT_VBRACE_CLOSE) ||
-       ((pc->type == CT_SPAREN_OPEN) && (pc->parent_type == CT_FOR)) ||
-        (pc->type == CT_COLON) ||
-        (pc->type == CT_OC_END) ||
+       ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR)) ||
+        (pc->type == CT_COLON       ) ||
+        (pc->type == CT_OC_END      ) ||
        (chunk_is_semicolon(pc) &&
         (frm->pse[frm->pse_tos].type != CT_PAREN_OPEN) &&
         (frm->pse[frm->pse_tos].type != CT_FPAREN_OPEN) &&
@@ -666,7 +669,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
        (pc->type == CT_ASSIGN     ) ||
        (pc->type == CT_CASE       ) ||
        (pc->type == CT_COMPARE    ) ||
-       ((pc->type == CT_STAR) && tmp && (tmp->type != CT_STAR)) ||
+       ((pc->type == CT_STAR      ) && tmp && (tmp->type != CT_STAR)) ||
        (pc->type == CT_BOOL       ) ||
        (pc->type == CT_MINUS      ) ||
        (pc->type == CT_PLUS       ) ||
@@ -712,6 +715,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    LOG_FUNC_ENTRY();
    c_token_t parent;
 
+   assert(pc != NULL);
    /* Turn an optional paren into either a real paren or a brace */
    if (frm->pse[frm->pse_tos].stage == BS_OP_PAREN1)
    {
@@ -876,12 +880,13 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    return(false);
-} // check_complex_statements
+}
 
 
 static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+   assert(pc != NULL);
    const chunk_t *next;
 
    if (frm->pse[frm->pse_tos].stage == BS_PAREN1)
@@ -900,7 +905,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
    }
    else if (frm->pse[frm->pse_tos].stage == BS_BRACE2)
    {
-      /* BRACE2: IF => ELSE, anyting else => close */
+      /* BRACE2: IF => ELSE, anything else => close */
       if ((frm->pse[frm->pse_tos].type == CT_IF) ||
           (frm->pse[frm->pse_tos].type == CT_ELSEIF))
       {
@@ -1051,6 +1056,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 static bool close_statement(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+   assert(pc != NULL);
    chunk_t *vbc = pc;
 
    LOG_FMT(LTOK, "%s:%zu] %s '%s' type %s stage %d\n", __func__,

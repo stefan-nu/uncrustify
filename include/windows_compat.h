@@ -10,7 +10,6 @@
 #define WINDOWS_COMPAT_H_INCLUDED
 
 #include "windows.h"
-#include "compat.h"
 
 #define HAVE_SYS_STAT_H
 

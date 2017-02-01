@@ -103,6 +103,8 @@ const no_space_table_t no_space_table[] =
 static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
 {
    LOG_FUNC_ENTRY();
+   assert(first  != NULL);
+   assert(second != NULL);
    if (second->type != CT_NEWLINE)
    {
       LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
@@ -120,6 +122,8 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
+   assert(first  != NULL);
+   assert(second != NULL);
 
 #ifdef DEBUG
    LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -1899,6 +1903,7 @@ void space_text(void)
                 (next->type == CT_VBRACE_OPEN ||
                  next->type == CT_VBRACE_CLOSE))
          {
+            assert(next != NULL);
             LOG_FMT(LSPACE, "%s: %zu:%zu Skip %s (%zu+%zu)\n",
                     __func__, next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
@@ -2184,7 +2189,7 @@ size_t space_needed(chunk_t *first, chunk_t *second)
    {
    case AV_ADD:
    case AV_FORCE:
-      return(max(1, min_sp));
+      return((size_t)(max(1, min_sp)));
 
    case AV_REMOVE:
       return(0);
@@ -2199,6 +2204,8 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 int space_col_align(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
+   assert(first  != NULL);
+   assert(second != NULL);
 
    LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,

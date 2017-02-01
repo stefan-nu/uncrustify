@@ -36,6 +36,7 @@
 -e123					// macro defined with arguments
 +e129					// declaration expected
 +e200					// internal error
+-e309					// #error
 +e438					// last value assignd to variable not used
 -e451					// header without include guard
 +e457					// enable for checking multithreading
@@ -388,7 +389,7 @@
 +e1788					// variable is referenced only by its constructor or destructor
 +e1795					// Template was defined but not instantiated
 -e1904					// old style comments
-+e1923					// define could be const variable
+-e1923					// define could be const variable
 -e1924					// C-style cast in C++ code
 
 //scripts/pclint/au-sm123.lnt 	// also check Scott Meyers rules of all three books

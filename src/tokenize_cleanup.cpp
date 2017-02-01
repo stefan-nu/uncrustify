@@ -106,6 +106,7 @@ void tokenize_cleanup(void)
       if (pc->type == CT_SQUARE_OPEN)
       {
          next = chunk_get_next_ncnl(pc);
+         assert(next != NULL);
          if (chunk_is_token(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
@@ -263,6 +264,7 @@ void tokenize_cleanup(void)
 
       if (cpd.lang_flags & LANG_D)
       {
+         assert(prev != NULL);
          /* Check for the D string concat symbol '~' */
          if ( (pc->type == CT_INV) &&
               ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING)))
@@ -480,7 +482,7 @@ void tokenize_cleanup(void)
                }
             }
             tmp = chunk_get_next(next);
-                 if (chunk_is_str_case(tmp, "BEGIN", 5)) { set_chunk_type(pc, CT_SQL_BEGIN); }
+            if      (chunk_is_str_case(tmp, "BEGIN", 5)) { set_chunk_type(pc, CT_SQL_BEGIN); }
             else if (chunk_is_str_case(tmp, "END",   3)) { set_chunk_type(pc, CT_SQL_END);   }
             else                                         { set_chunk_type(pc, CT_SQL_EXEC);  }
 
@@ -502,6 +504,7 @@ void tokenize_cleanup(void)
       if ((pc->type == CT_FOR) && chunk_is_str(next, "each", 4) &&
           (next == chunk_get_next(pc)))
       {
+         assert(next != NULL);
          /* merge the two with a space between */
          pc->str.append(' ');
          pc->str         += next->str;

@@ -423,11 +423,10 @@ c_token_t find_keyword_type(const char *word, size_t len)
 
 
 /* \todo DRY with load_define_file */
-#define MAX_LINE_SIZE 256  /**< maximal allowed line size in the define file */
-#define ARG_PARTS 3        /**< each define argument consists of three parts */
 int load_keyword_file(const char *filename)
 {
    if (filename == NULL) { return(EX_CONFIG); }
+
    FILE *pf = fopen(filename, "r");
 
    if (pf == NULL)
@@ -437,7 +436,8 @@ int load_keyword_file(const char *filename)
       return(EX_IOERR);
    }
 
-   char   buf[MAX_LINE_SIZE];
+   const size_t max_line_size = 256;/**< maximal allowed line size in the define file */
+   char   buf[max_line_size];
    size_t line_no = 0;
 
    /* read file line by line */
@@ -452,13 +452,14 @@ int load_keyword_file(const char *filename)
          *ptr = 0; /* set string end where comment begins */
       }
 
-      char *args[ARG_PARTS];
-      size_t argc = Args::SplitLine(buf, args, ARG_PARTS-1 );
-      args[ARG_PARTS-1] = 0; /* third element of defines is not used currently */
+      const size_t arg_parts = 3;  /**< each define argument consists of three parts */
+      char *args[arg_parts];
+      size_t argc = Args::SplitLine(buf, args, arg_parts-1 );
+      args[arg_parts-1] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
-         if ((argc < ARG_PARTS             ) &&
+         if ((argc < arg_parts             ) &&
              CharTable::IsKeyword1(*args[0]) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);

@@ -83,7 +83,7 @@ void print_universal_indent_cfg(FILE *pfile)
       for (option_list_cit it = p_grp->options.begin(); it != p_grp->options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
-
+         assert(option != NULL);
          // Create a better readable name from the options name
          // by replacing '_' by a space and use some upper case characters.
          char *optionNameReadable = new char[strlen(option->name) + 1];

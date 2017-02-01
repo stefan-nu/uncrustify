@@ -392,7 +392,7 @@ static void add_char(UINT32 ch)
             write_char(' ');
             cpd.spaces--;
          }
-         write_char(ch);
+         write_char(ch); /*lint !e713 */
          if (ch == '\t')
          {
             cpd.column = (UINT16)next_tab_column(cpd.column);
@@ -403,7 +403,7 @@ static void add_char(UINT32 ch)
          }
       }
    }
-   cpd.last_char = ch;
+   cpd.last_char = ch; /*lint !e713 */
 }
 
 
@@ -414,7 +414,7 @@ static void add_text(const char *ascii_text)
    while ((ch = *ascii_text) != 0)
    {
       ascii_text++;
-      add_char(ch);
+      add_char(ch); /*lint !e732 */
    }
 }
 
@@ -430,7 +430,7 @@ static void add_text(const unc_text &text, bool is_ignored = false)
       }
       else
       {
-         add_char(ch);
+         add_char(ch); /*lint !e732 */
       }
    }
 }
@@ -712,6 +712,7 @@ void output_text(FILE *pfile)
 
             /* not the first item on a line */
             chunk_t *prev = chunk_get_prev(pc);
+            assert(prev != NULL);
             allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
                           (pc->flags & PCF_WAS_ALIGNED) &&
                           ((prev->column + prev->len() + 1) != pc->column));
@@ -973,7 +974,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
       idx += 2;
       while (unc_isspace(text[idx]))
       {
-         add_char(text[idx++]);
+         add_char(text[idx++]);  /*lint !e732 */
       }
    }
 
@@ -1036,7 +1037,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          }
          in_word = !unc_isspace(text[idx]);
 
-         add_char(text[idx]);
+         add_char(text[idx]); /*lint !e732 */
          was_star  = (text[idx] == '*');
          was_slash = (text[idx] == '/');
          ch_cnt++;
@@ -1105,6 +1106,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
+   assert(pc != NULL);
    /* We can't combine if there is something other than a newline next */
    if (pc->parent_type == CT_COMMENT_START)
    {
@@ -1169,6 +1171,7 @@ static chunk_t *output_comment_c(chunk_t *first)
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
+   assert(pc != NULL);
    tmp.set(pc->str, 2, pc->len() - 4);
    if ((cpd.last_char == '*') && (tmp[0] == '/'))
    {
@@ -1328,6 +1331,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
+   assert(pc != NULL);
    offs = unc_isspace(pc->str[2]) ? 1 : 0;
    tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
    add_comment_text(tmp, cmt, true);
@@ -1519,10 +1523,10 @@ static void output_comment_multi(chunk_t *pc)
           */
          if ( (prev_nonempty_line >= 0) &&
               (next_nonempty_line >= 0) &&
-              (((unc_isalnum(line   [prev_nonempty_line]) || strchr(",)]", line   [prev_nonempty_line])) &&
-                (unc_isalnum(pc->str[next_nonempty_line]) || strchr("([" , pc->str[next_nonempty_line])) ) ||
+              (((unc_isalnum(line   [(size_t)prev_nonempty_line]) || strchr(",)]", line   [(size_t)prev_nonempty_line])) &&
+                (unc_isalnum(pc->str[(size_t)next_nonempty_line]) || strchr("([" , pc->str[(size_t)next_nonempty_line])) ) ||
                 // dot followed by non-capital is NOT a new sentence start
-              (('.' == line[prev_nonempty_line]) && unc_isupper(pc->str[next_nonempty_line]))) &&
+              (('.' == line[(size_t)prev_nonempty_line]) && unc_isupper(pc->str[(size_t)next_nonempty_line]))) &&
               !star_is_bullet)
          {
             // rewind the line to the last non-alpha:
@@ -1910,6 +1914,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    /* Do the return stuff */
    tmp = chunk_get_prev_ncnl(fcn);
+   assert(tmp != NULL);
    /* For Objective-C we need to go to the previous chunk */
    if ((tmp->parent_type == CT_OC_MSG_DECL) &&
        (tmp->type        == CT_PAREN_CLOSE) )
@@ -1938,6 +1943,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    {
       /* if inside a class, we need to find to the class name */
       chunk_t *tmp = chunk_get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));
+      assert(tmp != NULL);
       tmp = chunk_get_prev_type(tmp, CT_CLASS, (int)tmp->level);
       tmp = chunk_get_next_ncnl(tmp);
       while (chunk_is_token(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
@@ -1964,6 +1970,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
                             (tmp->type == CT_MEMBER)))
       {
          tmp = chunk_get_prev_ncnl(tmp);
+         assert(tmp != NULL);
          out_txt.append(tmp->str);
          return(true);
       }
@@ -2014,9 +2021,9 @@ static void do_kw_subst(chunk_t *pc)
                   unc_text nl_txt;
                   nl_txt.append("\n");
                   nl_idx++;
-                  while ((nl_idx < idx) && !unc_isalnum(pc->str[nl_idx]))
+                  while ((nl_idx < idx) && !unc_isalnum(pc->str[(size_t)nl_idx]))
                   {
-                     nl_txt.append(pc->str[nl_idx++]);
+                     nl_txt.append(pc->str[(size_t)nl_idx++]);
                   }
                   tmp_txt.replace("\n", nl_txt);
                }
@@ -2199,12 +2206,14 @@ void add_long_preprocessor_conditional_block_comment(void)
       chunk_t *tmp = pc;
       while ((tmp = chunk_get_next(tmp)) != NULL)
       {
+         assert(tmp != NULL);
          /* just track the preproc level: */
          if (tmp->type == CT_PREPROC)
          {
             pp_end = tmp;
          }
 
+         assert(pp_end != NULL);
          if (chunk_is_newline(tmp))
          {
             nl_count += tmp->nl_count;

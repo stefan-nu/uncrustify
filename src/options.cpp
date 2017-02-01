@@ -198,12 +198,12 @@ bool is_bit_unset(UINT64 var, UINT64 flag)
 static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
       const char *short_desc, const char *long_desc, int min_val, int max_val)
 {
-#define OptionMaxLength    60u
+   const size_t option_max_length = 60;
    size_t lengthOfTheOption = strlen(name);
-   if (lengthOfTheOption > OptionMaxLength)
+   if (lengthOfTheOption > option_max_length)
    {
       fprintf(stderr, "FATAL: length of the option name (%s) is too big (%zu)\n", name, lengthOfTheOption);
-      fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", OptionMaxLength);
+      fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", option_max_length);
       exit(EXIT_FAILURE);
    }
    group_map[current_group].options.push_back(id);

@@ -795,9 +795,12 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const nav_t nav, const loc_t dir)
 #if 1
 bool chunk_is_forin(chunk_t *pc)
 {
-   if ((cpd.lang_flags & LANG_OC) && pc && (pc->type == CT_SPAREN_OPEN))
+   if ((cpd.lang_flags & LANG_OC   ) &&
+       (pc != NULL                 ) &&
+       (pc->type == CT_SPAREN_OPEN))
    {
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      const chunk_t *prev = chunk_get_prev_ncnl(pc);
+      assert(prev != NULL);
       if (prev->type == CT_FOR)
       {
          chunk_t *next = pc;
@@ -806,6 +809,7 @@ bool chunk_is_forin(chunk_t *pc)
                  (next->type != CT_IN          ) )
          {
             next = chunk_get_next_ncnl(next);
+            assert(next != NULL);
             if (next->type == CT_IN)
             {
                return(true);

@@ -8,6 +8,7 @@
 #if defined (_WIN32) && !defined (__CYGWIN__)
 
 #include "windows_compat.h"
+#include "compat.h"
 #include <string>
 #include <cstdio>
 

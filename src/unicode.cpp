@@ -204,7 +204,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
    {
       int ch = in_data[idx++];
 
-           if ( ch < 0x80         ) { out_data.push_back(ch); continue; }/* 1-byte sequence */
+      if      ( ch < 0x80         ) { out_data.push_back(ch); continue; }/* 1-byte sequence */
       else if ((ch & 0xE0) == 0xC0) { ch &= 0x1F; cnt = 1; } /* 2-byte sequence */
       else if ((ch & 0xF0) == 0xE0) { ch &= 0x0F; cnt = 2; } /* 3-byte sequence */
       else if ((ch & 0xF8) == 0xF0) { ch &= 0x07; cnt = 3; } /* 4-byte sequence */
@@ -230,7 +230,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
       out_data.push_back(ch);
    }
    return(true);
-} // decode_utf8
+}
 
 
 static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be)

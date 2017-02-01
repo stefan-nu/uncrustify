@@ -432,6 +432,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
 
       /* find the next newline at level 0 */
       prev = chunk_get_next_ncnl(prev);
+      assert(prev != NULL);
       do
       {
          LOG_FMT(LPFUNC, "%s:%zu] check %s, level %zu\n",

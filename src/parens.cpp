@@ -87,6 +87,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
    chunk_t *first_n = chunk_get_next_ncnl(first);
+   assert(first_n != NULL);
    if (first_n == last)
    {
       return;
@@ -103,6 +104,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    chunk_add_before(&pc, first_n);
 
    chunk_t *last_p = chunk_get_prev_ncnl(last, CNAV_PREPROC);
+   assert(last_p != NULL);
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";
    pc.flags       = last_p->flags & PCF_COPY_FLAGS;
@@ -119,7 +121,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
       tmp->level++;
    }
    last_p->level++;
-} // add_parens_between
+}
 
 
 static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)

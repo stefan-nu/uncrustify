@@ -1988,6 +1988,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk.flags &= ~PCF_INSERTED;
       }
       pc = chunk_add_before(&chunk, ref);
+      assert(pc != NULL);
 
       /* A newline marks the end of a preprocessor */
       if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))

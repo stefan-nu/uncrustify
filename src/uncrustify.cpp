@@ -1587,6 +1587,8 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          tokenize(fm.data, after);
          for (tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
          {
+            assert(tmp   != NULL);
+            assert(after != NULL);
             tmp->level = after->level;
          }
       }
@@ -1666,6 +1668,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          tokenize(fm.data, after);
          for (tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
          {
+            assert(tmp   != NULL);
+            assert(after != NULL);
             tmp->level = after->level;
          }
       }
