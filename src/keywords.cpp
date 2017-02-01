@@ -38,10 +38,10 @@ static int kw_compare(
 
 
 /**
- * Backs up to the first string match in keywords.
+ * search in static keywords for first occurrence of a given tag
  */
 static const chunk_tag_t *kw_static_first(
-   const chunk_tag_t *tag
+   const chunk_tag_t *tag  /**< [in] tag/keyword to search for */
 );
 
 
@@ -363,8 +363,9 @@ static const chunk_tag_t *kw_static_first(const chunk_tag_t *tag)
 {
    const chunk_tag_t *prev = tag - 1;
 
-   while ((prev >= &keywords[0]) &&
-          (strcmp(prev->tag, tag->tag) == 0))
+   /* loop over static keyword array while */
+   while (((size_t)prev >= (size_t)&keywords[0]) && /* not at beginning of keyword array */
+          (strcmp(prev->tag, tag->tag) == 0    ) )  /* tags match */
    {
       tag = prev;
       prev--;
@@ -381,7 +382,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 
    const chunk_tag_t *end_adr = &keywords[ARRAY_SIZE(keywords)];
    const chunk_tag_t *iter    = kw_static_first(tag);
-   for (; iter < end_adr; iter++)
+   for (; (size_t)iter < (size_t)end_adr; iter++)
    {
       //fprintf(stderr, " check:%s", iter->tag);
       bool pp_iter = (iter->lang_flags & FLAG_PP) != 0; // forcing value to bool

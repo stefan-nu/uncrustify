@@ -307,13 +307,15 @@ const char *path_basename(const char *path)
 }
 
 
-size_t path_dirname_len(const char *filename)
+size_t path_dirname_len(const char *full_name)
 {
-   if (filename == NULL)
-   {
-      return(0);
-   }
-   return(path_basename(filename) - filename);  /* \todo improve this */
+   if (full_name == NULL) { return(0); }
+
+   const char*  file_name = path_basename(full_name);
+   /* subtracting addresses works only on big endian systems */
+   const size_t len       = (size_t)file_name - (size_t)full_name;
+
+   return (len);
 }
 
 
@@ -458,25 +460,25 @@ int main(int argc, char *argv[])
    /* Build options map */
    register_options();
 
-   Args arg(argc, argv);
-   if (arg.Present("--version") || arg.Present("-v"))
+   Args arg_list(argc, argv);
+   if (arg_list.Present("--version") || arg_list.Present("-v"))
    {
       version_exit();
    }
-   if (arg.Present("--help") || arg.Present("-h") ||
-       arg.Present("--usage") || arg.Present("-?"))
+   if (arg_list.Present("--help" ) || arg_list.Present("-h") ||
+       arg_list.Present("--usage") || arg_list.Present("-?"))
    {
       usage_exit(NULL, argv[0], EXIT_SUCCESS);
    }
 
-   if (arg.Present("--show-config"))
+   if (arg_list.Present("--show-config"))
    {
       print_options(stdout);
       return(EXIT_SUCCESS);
    }
 
-   cpd.do_check   = arg.Present("--check");
-   cpd.if_changed = arg.Present("--if-changed");
+   cpd.do_check   = arg_list.Present("--check");
+   cpd.if_changed = arg_list.Present("--if-changed");
 
 #ifdef WIN32
    /* tell Windows not to change what I write to stdout */
@@ -486,25 +488,25 @@ int main(int argc, char *argv[])
    /* Init logging */
    log_init(cpd.do_check ? stdout : stderr);
    log_mask_t mask;
-   if (arg.Present("-q"))
+   if (arg_list.Present("-q"))
    {
       logmask_from_string("", mask);
       log_set_mask(mask);
    }
 
    const char *p_arg;
-   if (((p_arg = arg.Param("-L")) != NULL) ||
-       ((p_arg = arg.Param("--log")) != NULL))
+   if (((p_arg = arg_list.Param("-L")) != NULL) ||
+       ((p_arg = arg_list.Param("--log")) != NULL))
    {
       logmask_from_string(p_arg, mask);
       log_set_mask(mask);
    }
-   cpd.frag = arg.Present("--frag");
+   cpd.frag = arg_list.Present("--frag");
 
-   if (arg.Present("--decode"))
+   if (arg_list.Present("--decode"))
    {
       size_t idx = 1;
-      while ((p_arg = arg.Unused(idx)) != NULL)
+      while ((p_arg = arg_list.Unused(idx)) != NULL)
       {
          log_pcf_flags(LSYS, strtoul(p_arg, NULL, 16));
       }
@@ -513,8 +515,8 @@ int main(int argc, char *argv[])
 
    /* Get the config file name */
    string cfg_file;
-   if (((p_arg = arg.Param("--config")) != NULL) ||
-       ((p_arg = arg.Param("-c")) != NULL))
+   if (((p_arg = arg_list.Param("--config")) != NULL) ||
+       ((p_arg = arg_list.Param("-c")) != NULL))
    {
       cfg_file = p_arg;
    }
@@ -538,14 +540,14 @@ int main(int argc, char *argv[])
 
    /* Get the parsed file name */
    const char *parsed_file;
-   if (((parsed_file = arg.Param("--parsed")) != NULL) ||
-       ((parsed_file = arg.Param("-p")) != NULL))
+   if (((parsed_file = arg_list.Param("--parsed")) != NULL) ||
+       ((parsed_file = arg_list.Param("-p")) != NULL))
    {
       LOG_FMT(LNOTE, "Will export parsed data to: %s\n", parsed_file);
    }
 
    /* Enable log sevs? */
-   if (arg.Present("-s") || arg.Present("--show"))
+   if (arg_list.Present("-s") || arg_list.Present("--show"))
    {
       log_show_sev(true);
    }
@@ -555,21 +557,21 @@ int main(int argc, char *argv[])
 
    /* Load type files */
    size_t idx = 0;
-   while ((p_arg = arg.Params("-t", idx)) != NULL)
+   while ((p_arg = arg_list.Params("-t", idx)) != NULL)
    {
       load_keyword_file(p_arg);
    }
 
    /* add types */
    idx = 0;
-   while ((p_arg = arg.Params("--type", idx)) != NULL)
+   while ((p_arg = arg_list.Params("--type", idx)) != NULL)
    {
       add_keyword(p_arg, CT_TYPE);
    }
 
    /* Load define files */
    idx = 0;
-   while ((p_arg = arg.Params("-d", idx)) != NULL)
+   while ((p_arg = arg_list.Params("-d", idx)) != NULL)
    {
       int return_code = load_define_file(p_arg);
       if (return_code != EX_OK)
@@ -580,13 +582,13 @@ int main(int argc, char *argv[])
 
    /* add defines */
    idx = 0;
-   while ((p_arg = arg.Params("--define", idx)) != NULL)
+   while ((p_arg = arg_list.Params("--define", idx)) != NULL)
    {
       add_define(p_arg, NULL);
    }
 
    /* Check for a language override */
-   if ((p_arg = arg.Param("-l")) != NULL)
+   if ((p_arg = arg_list.Param("-l")) != NULL)
    {
       cpd.lang_flags = language_flags_from_name(p_arg);
       if (cpd.lang_flags == 0)
@@ -601,32 +603,32 @@ int main(int argc, char *argv[])
 
    /* Get the source file name */
    const char *source_file;
-   if (((source_file = arg.Param("--file")) == NULL) &&
-       ((source_file = arg.Param("-f")) == NULL))
+   if (((source_file = arg_list.Param("--file")) == NULL) &&
+       ((source_file = arg_list.Param("-f")) == NULL))
    {
       // not using a single file, source_file is NULL
    }
 
    const char *source_list;
-   if (((source_list = arg.Param("--files")) == NULL) &&
-       ((source_list = arg.Param("-F")) == NULL))
+   if (((source_list = arg_list.Param("--files")) == NULL) &&
+       ((source_list = arg_list.Param("-F")) == NULL))
    {
       // not using a file list, source_list is NULL
    }
 
-   const char *prefix = arg.Param("--prefix");
-   const char *suffix = arg.Param("--suffix");
-   const char *assume = arg.Param("--assume");
+   const char *prefix = arg_list.Param("--prefix");
+   const char *suffix = arg_list.Param("--suffix");
+   const char *assume = arg_list.Param("--assume");
 
-   bool no_backup        = arg.Present("--no-backup");
-   bool replace          = arg.Present("--replace");
-   bool keep_mtime       = arg.Present("--mtime");
-   bool update_config    = arg.Present("--update-config");
-   bool update_config_wd = arg.Present("--update-config-with-doc");
-   bool detect           = arg.Present("--detect");
+   bool no_backup        = arg_list.Present("--no-backup");
+   bool replace          = arg_list.Present("--replace");
+   bool keep_mtime       = arg_list.Present("--mtime");
+   bool update_config    = arg_list.Present("--update-config");
+   bool update_config_wd = arg_list.Present("--update-config-with-doc");
+   bool detect           = arg_list.Present("--detect");
 
    /* Grab the output override */
-   const char *output_file = arg.Param("-o");
+   const char *output_file = arg_list.Param("-o");
 
    LOG_FMT(LDATA, "config_file = %s\n", cfg_file.c_str());
    LOG_FMT(LDATA, "output_file = %s\n", (output_file != NULL) ? output_file : "null");
@@ -694,7 +696,7 @@ int main(int argc, char *argv[])
 
    /* Set config options using command line arguments.*/
    idx = 0;
-   while ((p_arg = arg.Params("--set", idx)) != NULL)
+   while ((p_arg = arg_list.Params("--set", idx)) != NULL)
    {
       size_t argLength = strlen(p_arg);
 #define MAXLENGTHFORARG    256
@@ -728,7 +730,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   if (arg.Present("--universalindent"))
+   if (arg_list.Present("--universalindent"))
    {
       FILE *pfile = stdout;
 
@@ -802,7 +804,7 @@ int main(int argc, char *argv[])
 
    /* Check for unused args (ignore them) */
    idx   = 1;
-   p_arg = arg.Unused(idx);
+   p_arg = arg_list.Unused(idx);
 
    /* Check args - for multifile options */
 #if 0 // SN allow debugging with eclipse
@@ -886,7 +888,7 @@ int main(int argc, char *argv[])
 
       /* Do the files on the command line first */
       idx = 1;
-      while ((p_arg = arg.Unused(idx)) != NULL)
+      while ((p_arg = arg_list.Unused(idx)) != NULL)
       {
          char outbuf[1024];
          do_source_file(p_arg,

@@ -10,6 +10,7 @@
 #define WINDOWS_COMPAT_H_INCLUDED
 
 #include "windows.h"
+#include "compat.h"
 
 #define HAVE_SYS_STAT_H
 
@@ -50,6 +51,7 @@ typedef unsigned long long   UINT64;
 #include <string.h>
 #include <strings.h>
 #include <cstring>
+#include <windowsx.h>
 
 #undef snprintf
 #define snprintf       _snprintf

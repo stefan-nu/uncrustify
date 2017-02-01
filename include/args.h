@@ -18,16 +18,19 @@
 
 class Args
 {
+private:
+   /**
+    * \brief calculates how many bytes are required to store a given number of bits
+    */
+   static size_t NumberOfBits(
+      const int argc /**< [in] number of arguments */
+   );
+
+
 protected:
    size_t  m_count;      /**< number of command line arguments */
    char   **m_values;    /**< pointer array to each argument */
    UINT8  *m_used;       /**< bit array with one flag per argument */
-
-
-   /**
-    * \brief calculates how many bytes are required to store a given number of bits
-    */
-   static size_t NumberOfBits(const int argc);
 
 public:
 
@@ -43,6 +46,10 @@ public:
 
    /** Standard destructor */
    ~Args();
+
+
+   /* Copy constructor */
+   //Args(const Args &ref);
 
 
    /**

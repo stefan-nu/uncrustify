@@ -265,7 +265,7 @@ void tokenize_cleanup(void)
       {
          /* Check for the D string concat symbol '~' */
          if ( (pc->type == CT_INV) &&
-              ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING))) /*lint !e613 */
+              ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING)))
          {
             set_chunk_type(pc, CT_CONCAT);
          }
@@ -273,7 +273,7 @@ void tokenize_cleanup(void)
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
          if ( (pc->type   == CT_NOT       ) &&
               (prev->type == CT_WORD      ) &&
-              ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE))) /*lint !e613 */
+              ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE)))
          {
             set_chunk_type(pc, CT_D_TEMPLATE);
          }
@@ -714,7 +714,7 @@ void tokenize_cleanup(void)
       /* Check for C# nullable types '?' is in next */
       if ((cpd.lang_flags & LANG_CS) &&
           (next->type == CT_QUESTION) &&
-          (next->orig_col == (pc->orig_col + pc->len()))) /*lint !e613 */
+          (next->orig_col == (pc->orig_col + pc->len())))
       {
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (tmp != NULL)
@@ -753,7 +753,7 @@ void tokenize_cleanup(void)
          set_chunk_type(pc, CT_SIZEOF);
       }
 
-      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN)) /*lint !e613 */
+      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN))
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }

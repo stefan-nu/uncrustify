@@ -1847,7 +1847,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
            cpd.filename, cpd.line_number, entry->name, val);
    cpd.error_count++;
    dest->a = AV_IGNORE;
-} // convert_value
+}
 
 
 int set_option_value(const char *name, const char *value)
@@ -1910,8 +1910,8 @@ void process_option_line(char *configLine, const char *filename)
    }
 
    /* Split the line */
-   char *args[32];
-   int  argc = Args::SplitLine(configLine, args, ARRAY_SIZE(args) - 1);
+   char   *args[32];
+   size_t argc = Args::SplitLine(configLine, args, size_t(ARRAY_SIZE(args) - 1u));
    if (argc < 2)
    {
       if (argc > 0)
@@ -1926,7 +1926,7 @@ void process_option_line(char *configLine, const char *filename)
 
    if (strcasecmp(args[0], "type") == 0)
    {
-      for (int idx = 1; idx < argc; idx++)
+      for (size_t idx = 1; idx < argc; idx++)
       {
          add_keyword(args[idx], CT_TYPE);
       }
@@ -1948,7 +1948,7 @@ void process_option_line(char *configLine, const char *filename)
          if (token != CT_NONE)
          {
             LOG_FMT(LNOTE, "%s:%d set '%s':", filename, cpd.line_number, args[1]);
-            for (int idx = 2; idx < argc; idx++)
+            for (size_t idx = 2; idx < argc; idx++)
             {
                LOG_FMT(LNOTE, " '%s'", args[idx]);
                add_keyword(args[idx], token);
@@ -1992,7 +1992,7 @@ void process_option_line(char *configLine, const char *filename)
       }
       else
       {
-         for (int idx = 2; idx < argc; idx++)
+         for (size_t idx = 2; idx < argc; idx++)
          {
             const char *lang_name = extension_add(args[idx], args[1]);
             if (lang_name)

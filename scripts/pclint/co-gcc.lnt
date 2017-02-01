@@ -125,10 +125,12 @@
 
 ++d__builtin_va_list=void*            // used by stdarg.h
 ++d__builtin_stdarg_start()=_to_semi  // ditto
+++d__builtin_va_start()=_to_semi      // ditto
 ++d__builtin_va_end()=_to_semi        // ditto
 ++d"__builtin_va_arg(a,b)=(*( (b *) ( ((a) += sizeof(b)) - sizeof(b) )))"
 ++d__null=0
 +rw(_to_semi)           // needed for the two macros above.
+-"esym(950,_to_semi)"
 +rw(__typeof__)         // activate __typeof__ keyword
 -d__typeof=__typeof__   // an alternative to using __typeof__
 

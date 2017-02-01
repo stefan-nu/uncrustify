@@ -62,7 +62,7 @@ const char *path_basename(
  * @return character size of path
  */
 size_t path_dirname_len(
-   const char *filename /**< [in] filename including full path */
+   const char *full_name /**< [in] filename including full path */
 );
 
 

@@ -23,7 +23,12 @@ Args::Args(int argc, char **argv)
 }
 
 
-/* \todo add a copy constructor which also copes for coping of m_used */
+#if 0
+Args::Args(const Args &ref)
+{
+   Args new_arg_list = Args(ref.m_count, ref.m_values);
+}
+#endif
 
 
 size_t Args::NumberOfBits(const int argc)

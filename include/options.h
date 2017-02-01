@@ -1065,6 +1065,12 @@ int save_option_file_kernel(
 );
 
 
+/**
+ * \rief
+ *
+ * @retval >= 0 entry was found
+ * @retval -1   entry was not found
+ */
 int set_option_value(
    const char *name,
    const char *value

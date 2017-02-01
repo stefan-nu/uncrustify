@@ -8,7 +8,6 @@
 #ifndef CHUNK_LIST_H_INCLUDED
 #define CHUNK_LIST_H_INCLUDED
 
-#include <cstring>
 #include "uncrustify_types.h"
 #include "char_table.h"
 

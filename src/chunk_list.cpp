@@ -15,8 +15,6 @@
 #include "space.h"
 
 
-typedef ListManager<chunk_t> ChunkList_t;
-
 /** use this enum to define in what direction or location an
  *  operation shall be performed. */
 enum loc_t
