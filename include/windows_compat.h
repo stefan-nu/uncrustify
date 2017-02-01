@@ -46,8 +46,10 @@ typedef unsigned long long   UINT64;
 #define __func__    "unknown function"
 #endif
 
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
+#include <strings.h>
+#include <cstring>
 
 #undef snprintf
 #define snprintf       _snprintf

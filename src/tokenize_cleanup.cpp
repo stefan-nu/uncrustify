@@ -86,6 +86,7 @@ void split_off_angle_close(chunk_t *pc)
 }
 
 
+/* \todo reduce cyclic complexity of this function */
 void tokenize_cleanup(void)
 {
    LOG_FUNC_ENTRY();

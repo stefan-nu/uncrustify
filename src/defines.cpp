@@ -47,21 +47,22 @@ void add_define(const char *tag, const char *value)
 }
 
 
+/* \todo DRY with load_keyword_file */
 #define MAX_LINE_SIZE 160 /**< maximal allowed line size in the define file */
 #define ARG_PARTS      3  /**< each define argument consists of three parts */
 int load_define_file(const char *filename)
 {
+   if (filename == NULL) { return(EX_CONFIG); }
    FILE *pf = fopen(filename, "r");
+
    if (pf == NULL)
    {
-      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
-              __func__, filename, strerror(errno), errno);
+      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
       return(EX_IOERR);
    }
 
    char   buf[MAX_LINE_SIZE];
-   char   *args[ARG_PARTS];
    size_t line_no = 0;
 
    /* read file line by line */
@@ -76,6 +77,7 @@ int load_define_file(const char *filename)
          *ptr = 0; /* set string end where comment begins */
       }
 
+      char *args[ARG_PARTS];
       size_t argc = Args::SplitLine(buf, args, ARG_PARTS-1 );
       args[ARG_PARTS-1] = 0; /* third element of defines is not used currently */
 

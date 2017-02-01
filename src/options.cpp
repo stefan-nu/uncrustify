@@ -196,8 +196,7 @@ bool is_bit_unset(UINT64 var, UINT64 flag)
 }
 
 static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
-                           const char *short_desc, const char *long_desc,
-                           int min_val, int max_val)
+      const char *short_desc, const char *long_desc, int min_val, int max_val)
 {
 #define OptionMaxLength    60u
    size_t lengthOfTheOption = strlen(name);
@@ -1647,7 +1646,7 @@ void register_options(void)
    unc_begin_group(UG_warnlevels, "Warn levels - 1: error, 2: warning (default), 3: note");
    unc_add_option("warn_level_tabs_found_in_verbatim_string_literals", UO_warn_level_tabs_found_in_verbatim_string_literals, AT_NUM,
                   "Warning is given if doing tab-to-\\t replacement and we have found one in a C# verbatim string literal.", "", 1, 3);
-} // register_options
+}
 
 
 const group_map_value_t *get_group_name(size_t ug)
@@ -1882,6 +1881,7 @@ bool is_path_relative(const char *path)
 
    // /path/to/file style absolute path
    return(path[0] != '/');
+
 }
 
 
@@ -2370,7 +2370,7 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 }
 
 
-string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
+string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
 {
    switch (argtype)
    {

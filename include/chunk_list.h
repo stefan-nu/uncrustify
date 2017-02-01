@@ -8,6 +8,7 @@
 #ifndef CHUNK_LIST_H_INCLUDED
 #define CHUNK_LIST_H_INCLUDED
 
+#include <cstring>
 #include "uncrustify_types.h"
 #include "char_table.h"
 
@@ -45,25 +46,30 @@ chunk_t *chunk_dup(
 
 
 /**
- * Add a copy after the given chunk.
- * If ref is NULL, add at the head.
- * \todo is ref=NULL really useful ?
+ * \brief Add a chunk to a chunk list after the given position
+ *
+ * \note If ref is NULL, add at the tail of the chunk list
+ *
+ * @retval pointer to the added chunk
  */
 chunk_t *chunk_add_after(
-   const chunk_t *pc_in,
-   chunk_t       *ref
+   const chunk_t *pc_in,   /**< [in] pointer to chunk to add to list */
+   chunk_t       *ref      /**< [in] position where insertion takes place */
 );
 
 
 /**
- * Add a copy before the given chunk.
- * If ref is NULL, add at the head.
- * \todo is ref=NULL really useful ?
- * \bug code adds it before the tail, either code or comment is wrong
+ * \brief Add a chunk to a chunk list before the given position
+ *
+ * \note If ref is NULL, add at the head of the chunk list
+ * \bug currently chunks are added to the tail fix this
+ *
+ * @retval pointer to the added chunk
  */
+
 chunk_t *chunk_add_before(
-   const chunk_t *pc_in,
-   chunk_t       *ref
+   const chunk_t *pc_in,   /**< [in] pointer to chunk to add to list */
+   chunk_t       *ref      /**< [in] position where insertion takes place */
 );
 
 
@@ -291,21 +297,39 @@ chunk_t *chunk_get_prev_type(
 );
 
 
+/**
+ * \brief search forward through chunk list to find a chunk that holds a given string
+ *
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
+ */
 chunk_t *chunk_get_next_str(
-   chunk_t *cur,
-   const char *str,
-   size_t len,
-   int level,
-   nav_t nav = CNAV_ALL
+   chunk_t    *cur,          /**< [in] Starting chunk */
+   const char *str,          /**< [in] string to search for */
+   size_t     len,           /**< [in] length of string */
+   int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   nav_t      nav = CNAV_ALL /**< [in] code region to search in */
 );
 
 
+/**
+ * \brief search backward through chunk list to find a chunk that holds a given string
+ *
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
+ */
 chunk_t *chunk_get_prev_str(
-   chunk_t *cur,
-   const char *str,
-   size_t len,
-   int level,
-   nav_t nav = CNAV_ALL
+   chunk_t    *cur,          /**< [in] Starting chunk */
+   const char *str,          /**< [in] string to search for */
+   size_t     len,           /**< [in] length of string */
+   int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   nav_t      nav = CNAV_ALL /**< [in] code region to search in */
 );
 
 
@@ -499,9 +523,9 @@ static_inline bool chunk_is_token(chunk_t *pc, c_token_t c_token)
 
 static_inline bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 {
-   return((pc != NULL) &&                       /* valid pc pointer */
-          (pc->len() == len) &&                 /* token size equals size parameter */
-          (memcmp(pc->text(), str, len) == 0)); /* token name is the same as str parameter */
+   return((pc                           != NULL) && /* valid pc pointer */
+          (pc->len()                    == len ) && /* token size equals size parameter */
+          (memcmp(pc->text(), str, len) == 0   ) ); /* token name is the same as str parameter */
 
    /* \todo possible access beyond array for memcmp, check this
     * why not use strncmp here?  */

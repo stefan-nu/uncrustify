@@ -117,7 +117,7 @@ static void log_rule2(int line, const char *rule, chunk_t *first, chunk_t *secon
    }
 }
 
-
+/* \todo reduce cyclic complexity of this function */
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();

@@ -565,6 +565,7 @@ static chunk_t *oc_msg_prev_colon(chunk_t *pc)
 }
 
 
+/* \todo reduce cyclic complexity of this function */
 void indent_text(void)
 {
    LOG_FUNC_ENTRY();

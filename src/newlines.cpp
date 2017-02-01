@@ -27,6 +27,7 @@
 #include "unc_tools.h"
 #include "uncrustify.h"
 #include "indent.h"
+#include "logger.h"
 #include "space.h"
 #include "combine.h"
 #include "keywords.h"
@@ -2358,6 +2359,7 @@ void newlines_remove_newlines(void)
 }
 
 
+/* \todo reduce cyclic complexity of this function */
 void newlines_cleanup_braces(bool first)
 {
    LOG_FUNC_ENTRY();
@@ -3246,7 +3248,7 @@ void newlines_eat_start_end(void)
             chunk.orig_line = pc->orig_line;
             chunk.type      = CT_NEWLINE;
             chunk.nl_count  = cpd.settings[UO_nl_end_of_file_min].u;
-            chunk_add_before(&chunk, NULL);
+            chunk_add_after(&chunk, NULL);
             LOG_FMT(LNEWLINE, "%s: %zu:%zu add newline before '%s'\n",
                     __func__, pc->orig_line, pc->orig_col, pc->text());
             MARK_CHANGE();
@@ -3574,6 +3576,7 @@ static void _blank_line_max(chunk_t *pc, const char *text, uncrustify_options_t 
 #define blank_line_max(pc, op)    _blank_line_max(pc, # op, op)
 
 
+/* \todo reduce cyclic complexity of this function */
 void do_blank_lines(void)
 {
    LOG_FUNC_ENTRY();

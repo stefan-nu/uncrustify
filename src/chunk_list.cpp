@@ -21,7 +21,7 @@ typedef ListManager<chunk_t> ChunkList_t;
  *  operation shall be performed. */
 enum loc_t
 {
-   BEFORE, /**< indicates a position or direction upwards (=pref) */
+   BEFORE, /**< indicates a position or direction upwards   (=prev) */
    AFTER   /**< indicates a position or direction downwards (=next) */
 };
 
@@ -99,6 +99,17 @@ static chunk_t *chunk_search_type(
 );
 
 
+/**
+ * \brief search a chunk of a given type and level
+ *
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * This function is a specialization of chunk_search.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
+ */
 chunk_t *chunk_search_typelevel(
    chunk_t   *cur,           /**< [in] chunk to start search at */
    c_token_t type,           /**< [in] category to search for */
@@ -125,26 +136,32 @@ static chunk_t *chunk_get_ncnlnp(
 
 
 /**
- * \brief tbd
+ * \brief searches a chunk that holds a given string
  *
- * @return
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
  */
 chunk_t *chunk_search_str(
    chunk_t    *cur,  /**< [in] chunk to start search at */
-   const char *str,  /**< {in]  */
+   const char *str,  /**< [in] string to search for */
    nav_t      nav,   /**< [in] code parts to consider for search */
    loc_t      dir,   /**< [in] search direction */
-   int        level, /**< {in]  */
-   size_t     len    /**< {in]  */
+   int        level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   size_t     len    /**< [in] length of string */
 );
 
 
 /**
- * \brief  Add a copy after the given chunk.
+ * \brief Add a new chunk after the given position in a chunk list
  *
- * If ref is NULL, add at the head.
+ * \note If ref is NULL:
+ *       add at the head of the chunk list if position is BEFOR
+ *       add at the tail of the chunk list if position is AFTER
  *
- * @return tbd
+ * @return pointer to the added chunk
  */
 static chunk_t *chunk_add(
    const chunk_t *pc_in,     /**< {in] chunk to add to list */
@@ -383,7 +400,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
    }
 
    /* Copy all fields and then init the entry */
-   *pc = *pc_in;
+   *pc = *pc_in;  /* \todo what happens if pc_in == NULL? */
    g_cl.InitEntry(pc);
 
    return(pc);
@@ -434,13 +451,11 @@ static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const loc_t pos)
    chunk_t *pc = chunk_dup(pc_in);
    if (pc != NULL)
    {
-      if (ref != NULL) /* ref is a valid chunk */
+      switch(pos)
       {
-         (pos == AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);
-      }
-      else /* ref == NULL */
-      {
-         (pos == AFTER) ? g_cl.AddHead(pc) : g_cl.AddTail(pc);
+         case(AFTER):  (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
+         case(BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // should be AddHead but tests fail
+         default:      /* invalid position indication */                           break;
       }
       chunk_log(pc, "chunk_add");
    }

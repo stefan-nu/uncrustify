@@ -410,7 +410,7 @@ c_token_t find_keyword_type(const char *word, size_t len)
    key.tag = ss.c_str();
 
    /* check the static word list */
-   void* pos = bsearch(&key, keywords, ARRAY_SIZE(keywords), sizeof(keywords[0]), kw_compare);
+   const void* pos = bsearch(&key, keywords, ARRAY_SIZE(keywords), sizeof(keywords[0]), kw_compare);
    const chunk_tag_t *p_ret = reinterpret_cast<const chunk_tag_t*>(pos);
 
    if (p_ret != NULL)
@@ -421,8 +421,9 @@ c_token_t find_keyword_type(const char *word, size_t len)
 }
 
 
-#define BUF_SIZE 256
-#define ARG_ELEMENTS 3
+/* \todo DRY with load_define_file */
+#define MAX_LINE_SIZE 256  /**< maximal allowed line size in the define file */
+#define ARG_PARTS 3        /**< each define argument consists of three parts */
 int load_keyword_file(const char *filename)
 {
    if (filename == NULL) { return(EX_CONFIG); }
@@ -435,32 +436,36 @@ int load_keyword_file(const char *filename)
       return(EX_IOERR);
    }
 
-   char buf[BUF_SIZE];
-   int  line_no = 0;
+   char   buf[MAX_LINE_SIZE];
+   size_t line_no = 0;
+
+   /* read file line by line */
    while (fgets(buf, sizeof(buf), pf) != NULL)
    {
       line_no++;
 
-      /* remove comments */
+      /* remove comments after '#' sign */
       char *ptr;
       if ((ptr = strchr(buf, '#')) != NULL)
       {
-         *ptr = 0;
+         *ptr = 0; /* set string end where comment begins */
       }
 
-      char *args[ARG_ELEMENTS];
-      int  argc = Args::SplitLine(buf, args, ARRAY_SIZE(args)-1u);
-      args[argc] = 0;  /* \todo what is this used for? can this write beyond args? */
+      char *args[ARG_PARTS];
+      size_t argc = Args::SplitLine(buf, args, ARG_PARTS-1 );
+      args[ARG_PARTS-1] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
-         if ((argc == 1) && CharTable::IsKeyword1(*args[0]))
+         if ((argc < ARG_PARTS             ) &&
+             CharTable::IsKeyword1(*args[0]) )
          {
+            LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_keyword(args[0], CT_TYPE);
          }
          else
          {
-            LOG_FMT(LWARN, "%s:%d Invalid line (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s: line %zu invalid (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }
