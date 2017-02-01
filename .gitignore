@@ -91,6 +91,6 @@ GProf/
 build/
 
 # Eclipse Configuration
-.cproject
-.project
-.settings
+#.cproject
+#.project
+#.settings
