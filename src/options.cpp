@@ -129,6 +129,12 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
 }
 
 
+argval_t add_option(argval_t var, argval_t opt)
+{
+   return (argval_t)((int)var | (int)opt);
+}
+
+
 /* \todo when using C++ the following functions can be overloaded */
 bool is_option_set(argval_t var, argval_t opt)
 {
@@ -190,8 +196,7 @@ bool is_bit_unset(UINT64 var, UINT64 flag)
 }
 
 static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
-                           const char *short_desc, const char *long_desc,
-                           int min_val, int max_val)
+      const char *short_desc, const char *long_desc, int min_val, int max_val)
 {
 #define OptionMaxLength    60u
    size_t lengthOfTheOption = strlen(name);
@@ -1641,7 +1646,7 @@ void register_options(void)
    unc_begin_group(UG_warnlevels, "Warn levels - 1: error, 2: warning (default), 3: note");
    unc_add_option("warn_level_tabs_found_in_verbatim_string_literals", UO_warn_level_tabs_found_in_verbatim_string_literals, AT_NUM,
                   "Warning is given if doing tab-to-\\t replacement and we have found one in a C# verbatim string literal.", "", 1, 3);
-} // register_options
+}
 
 
 const group_map_value_t *get_group_name(size_t ug)
@@ -1842,7 +1847,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
            cpd.filename, cpd.line_number, entry->name, val);
    cpd.error_count++;
    dest->a = AV_IGNORE;
-} // convert_value
+}
 
 
 int set_option_value(const char *name, const char *value)
@@ -1876,6 +1881,7 @@ bool is_path_relative(const char *path)
 
    // /path/to/file style absolute path
    return(path[0] != '/');
+
 }
 
 
@@ -1904,8 +1910,8 @@ void process_option_line(char *configLine, const char *filename)
    }
 
    /* Split the line */
-   char *args[32];
-   int  argc = Args::SplitLine(configLine, args, ARRAY_SIZE(args) - 1);
+   char   *args[32];
+   size_t argc = Args::SplitLine(configLine, args, size_t(ARRAY_SIZE(args) - 1u));
    if (argc < 2)
    {
       if (argc > 0)
@@ -1920,7 +1926,7 @@ void process_option_line(char *configLine, const char *filename)
 
    if (strcasecmp(args[0], "type") == 0)
    {
-      for (int idx = 1; idx < argc; idx++)
+      for (size_t idx = 1; idx < argc; idx++)
       {
          add_keyword(args[idx], CT_TYPE);
       }
@@ -1942,7 +1948,7 @@ void process_option_line(char *configLine, const char *filename)
          if (token != CT_NONE)
          {
             LOG_FMT(LNOTE, "%s:%d set '%s':", filename, cpd.line_number, args[1]);
-            for (int idx = 2; idx < argc; idx++)
+            for (size_t idx = 2; idx < argc; idx++)
             {
                LOG_FMT(LNOTE, " '%s'", args[idx]);
                add_keyword(args[idx], token);
@@ -1986,7 +1992,7 @@ void process_option_line(char *configLine, const char *filename)
       }
       else
       {
-         for (int idx = 2; idx < argc; idx++)
+         for (size_t idx = 2; idx < argc; idx++)
          {
             const char *lang_name = extension_add(args[idx], args[1]);
             if (lang_name)
@@ -2364,7 +2370,7 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 }
 
 
-string op_val_to_string(const argtype_t argtype, const op_val_t op_val)
+string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
 {
    switch (argtype)
    {

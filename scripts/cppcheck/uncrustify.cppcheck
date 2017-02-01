@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <root name="../.."/>
+    <builddir>C:/Users/stefan/workspace/stefan-nu/uncrustify_nuinno</builddir>
+    <includedir>
+        <dir name="C:/Users/stefan/workspace/stefan-nu/uncrustify_nuinno/include/"/>
+        <dir name="C:/Users/stefan/workspace/stefan-nu/uncrustify_nuinno/src/"/>
+    </includedir>
+</project>

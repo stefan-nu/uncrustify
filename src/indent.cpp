@@ -565,6 +565,7 @@ static chunk_t *oc_msg_prev_colon(chunk_t *pc)
 }
 
 
+/* \todo reduce cyclic complexity of this function */
 void indent_text(void)
 {
    LOG_FUNC_ENTRY();
@@ -2093,14 +2094,14 @@ void indent_text(void)
             reindent_line(pc, indent_column);
          }
          else if (cpd.settings[UO_indent_func_const].u &&
-                  (pc->type == CT_QUALIFIER) &&
+                  (pc->type    == CT_QUALIFIER  ) &&
                   (strncasecmp(pc->text(), "const", pc->len()) == 0) &&
-                  ((next == NULL) ||
-                   (next->type == CT_BRACED) ||
-                   (next->type == CT_BRACE_OPEN) ||
-                   (next->type == CT_NEWLINE) ||
-                   (next->type == CT_SEMICOLON) ||
-                   (next->type == CT_THROW) ||
+                  ((next       == NULL          ) ||
+                   (next->type == CT_BRACED     ) ||
+                   (next->type == CT_BRACE_OPEN ) ||
+                   (next->type == CT_NEWLINE    ) ||
+                   (next->type == CT_SEMICOLON  ) ||
+                   (next->type == CT_THROW      ) ||
                    (next->type == CT_VBRACE_OPEN)))
          {
             // indent const - void GetFoo(void)\n const\n { return (m_Foo); }
@@ -2136,13 +2137,14 @@ void indent_text(void)
             reindent_line(pc, indent_column);
          }
          else if ((cpd.settings[UO_indent_ternary_operator].u == 1) &&
-                  (((pc->type == CT_ADDR) ||
-                    (pc->type == CT_WORD) ||
-                    (pc->type == CT_DEREF) ||
-                    (pc->type == CT_NUMBER) ||
-                    (pc->type == CT_STRING) ||
-                    (pc->type == CT_PAREN_OPEN)) &&
-                   (prev->type == CT_COND_COLON))) /*lint !e613 */
+                  (((pc->type   == CT_ADDR       ) ||
+                    (pc->type   == CT_WORD       ) ||
+                    (pc->type   == CT_DEREF      ) ||
+                    (pc->type   == CT_NUMBER     ) ||
+                    (pc->type   == CT_STRING     ) ||
+                    (pc->type   == CT_PAREN_OPEN )) &&
+                    (prev       != NULL           ) &&
+                    (prev->type == CT_COND_COLON  ) ) )
          {
             chunk_t *tmp = chunk_get_prev_type(prev, CT_QUESTION, -1);
             tmp = chunk_get_next_ncnl(tmp);
@@ -2385,7 +2387,7 @@ static void indent_comment(chunk_t *pc, size_t col)
    }
 
    chunk_t *prev = chunk_get_prev(nl);
-   if (chunk_is_comment(prev) && (nl->nl_count == 1)) /*lint !e613 */
+   if (chunk_is_comment(prev) && (nl->nl_count == 1))
    {
       int     coldiff = (int)prev->orig_col - (int)pc->orig_col;
       chunk_t *pp     = chunk_get_prev(prev);

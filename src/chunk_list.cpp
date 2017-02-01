@@ -15,13 +15,11 @@
 #include "space.h"
 
 
-typedef ListManager<chunk_t> ChunkList_t;
-
 /** use this enum to define in what direction or location an
- * operation shall be performed. */
+ *  operation shall be performed. */
 enum loc_t
 {
-   BEFORE, /**< indicates a position or direction upwards (=pref) */
+   BEFORE, /**< indicates a position or direction upwards   (=prev) */
    AFTER   /**< indicates a position or direction downwards (=next) */
 };
 
@@ -71,13 +69,13 @@ typedef ListManager<chunk_t> ChunkList_t;
  * @retval NULL    - no requested chunk was found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
-static chunk_t
-*chunk_search(chunk_t       *cur,           /**< [in] chunk to start search at */
-              const check_t check_fct,      /**< [in] compare function */
-              const nav_t   nav = CNAV_ALL, /**< [in] code parts to consider for search */
-              const loc_t   dir = AFTER,    /**< [in] search direction */
-              const bool    cond = true     /**< [in] success condition */
-              );
+static chunk_t *chunk_search(
+   chunk_t       *cur,           /**< [in] chunk to start search at */
+   const check_t check_fct,      /**< [in] compare function */
+   const nav_t   nav = CNAV_ALL, /**< [in] code parts to consider for search */
+   const loc_t   dir = AFTER,    /**< [in] search direction */
+   const bool    cond = true     /**< [in] success condition */
+);
 
 
 /**
@@ -91,21 +89,32 @@ static chunk_t
  * @retval NULL    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
-static chunk_t
-*chunk_search_type(chunk_t         *cur,           /**< [in] chunk to start search at */
-                   const c_token_t type,           /**< [in] category to search for */
-                   const nav_t     nav = CNAV_ALL, /**< [in] code parts to consider for search */
-                   const loc_t     dir = AFTER     /**< [in] search direction */
-                   );
+static chunk_t *chunk_search_type(
+   chunk_t         *cur,           /**< [in] chunk to start search at */
+   const c_token_t type,           /**< [in] category to search for */
+   const nav_t     nav = CNAV_ALL, /**< [in] code parts to consider for search */
+   const loc_t     dir = AFTER     /**< [in] search direction */
+);
 
 
-chunk_t
-*chunk_search_typelevel(chunk_t   *cur,           /**< [in] chunk to start search at */
-                        c_token_t type,           /**< [in] category to search for */
-                        nav_t     nav = CNAV_ALL, /**< [in] code parts to consider for search */
-                        loc_t     dir = AFTER,    /**< [in] search direction */
-                        int       level = -1      /**< {in]  */
-                        );
+/**
+ * \brief search a chunk of a given type and level
+ *
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * This function is a specialization of chunk_search.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
+ */
+chunk_t *chunk_search_typelevel(
+   chunk_t   *cur,           /**< [in] chunk to start search at */
+   c_token_t type,           /**< [in] category to search for */
+   nav_t     nav = CNAV_ALL, /**< [in] code parts to consider for search */
+   loc_t     dir = AFTER,    /**< [in] search direction */
+   int       level = -1      /**< {in]  */
+);
 
 
 /**
@@ -117,40 +126,46 @@ chunk_t
  * @retval NULL    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
-static chunk_t
-*chunk_get_ncnlnp(chunk_t     *cur,           /**< [in] chunk to start search at */
-                  const nav_t nav = CNAV_ALL, /**< [in] code parts to consider for search */
-                  const loc_t dir = AFTER     /**< [in] search direction */
-                  );
+static chunk_t *chunk_get_ncnlnp(
+   chunk_t     *cur,           /**< [in] chunk to start search at */
+   const nav_t nav = CNAV_ALL, /**< [in] code parts to consider for search */
+   const loc_t dir = AFTER     /**< [in] search direction */
+);
 
 
 /**
- * \brief tbd
+ * \brief searches a chunk that holds a given string
  *
- * @return
+ * traverses a chunk list either in forward or backward direction.
+ * The traversal continues until a chunk of a given category is found.
+ *
+ * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
  */
-chunk_t
-*chunk_search_str(chunk_t    *cur,  /**< [in] chunk to start search at */
-                  const char *str,  /**< {in]  */
-                  nav_t      nav,   /**< [in] code parts to consider for search */
-                  loc_t      dir,   /**< [in] search direction */
-                  int        level, /**< {in]  */
-                  size_t     len    /**< {in]  */
-                  );
+chunk_t *chunk_search_str(
+   chunk_t    *cur,  /**< [in] chunk to start search at */
+   const char *str,  /**< [in] string to search for */
+   nav_t      nav,   /**< [in] code parts to consider for search */
+   loc_t      dir,   /**< [in] search direction */
+   int        level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   size_t     len    /**< [in] length of string */
+);
 
 
 /**
- * \brief  Add a copy after the given chunk.
+ * \brief Add a new chunk after the given position in a chunk list
  *
- * If ref is NULL, add at the head.
+ * \note If ref is NULL:
+ *       add at the head of the chunk list if position is BEFOR
+ *       add at the tail of the chunk list if position is AFTER
  *
- * @return tbd
+ * @return pointer to the added chunk
  */
-static chunk_t
-*chunk_add(const chunk_t *pc_in,     /**< {in] chunk to add to list */
-           chunk_t       *ref,       /**< [in] insert position in list */
-           const loc_t   pos = AFTER /**< [in] insert before or after */
-           );
+static chunk_t *chunk_add(
+   const chunk_t *pc_in,     /**< {in] chunk to add to list */
+   chunk_t       *ref,       /**< [in] insert position in list */
+   const loc_t   pos = AFTER /**< [in] insert before or after */
+);
 
 
 /**
@@ -161,15 +176,30 @@ static chunk_t
  *
  * @return pointer to chunk search function
  */
-static search_t
-select_search_fct(const loc_t dir = AFTER /**< [in] search direction */
-                  );
+static search_t select_search_fct(
+   const loc_t dir = AFTER /**< [in] search direction */
+);
 
 
-static void chunk_log(chunk_t *pc, const char *text);
+static void chunk_log(
+   chunk_t    *pc,
+   const char *text
+);
 
 
-ChunkList_t g_cl; /** global chunk list */
+static bool is_expected_type_and_level(
+   chunk_t   *pc,
+   c_token_t type,
+   int       level
+);
+
+
+static bool is_expected_string_and_level(
+   chunk_t    *pc,
+   const char *str,
+   int        level,
+   size_t     len
+);
 
 
 static search_t select_search_fct(const loc_t dir)
@@ -193,11 +223,12 @@ chunk_t *chunk_search_next_cat(chunk_t *pc, const c_token_t cat)
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
 
 
+ChunkList_t g_cl; /** global chunk list */
+
+
 static chunk_t
 *chunk_search_type(chunk_t *cur, const c_token_t type, const nav_t nav, const loc_t dir)
 {
-   /* Depending on the parameter dir the search function searches
-    * in forward or backward direction */
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
 
@@ -210,50 +241,22 @@ static chunk_t
 }
 
 
-inline bool is_expected_type_and_level(chunk_t *pc, c_token_t type, int level)
-{
-   return(((pc->type == type) &&            /* the type is as expected and */
-           ((pc->level == (size_t)level) || /* the level is as expected or */
-            (level < 0))));                 /* we don't care about the level */
-}
-
-
 chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, nav_t nav, loc_t dir, int level)
 {
-   /* Depending on the parameter dir the search function searches
-    * in forward or backward direction */
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
 
    do                                /* loop over the chunk list */
    {
       pc = search_function(pc, nav); /* in either direction while */
-#ifdef DEBUG
-      if (pc != NULL)
-      {
-         LOG_FMT(LCHUNK, "%s(%d): pc: %s, type is %s, orig_line=%zu, orig_col=%zu\n",
-                 __func__, __LINE__, pc->text(), get_token_name(pc->type), pc->orig_line, pc->orig_col);
-      }
-#endif
    } while ((pc != NULL) &&          /* the end of the list was not reached yet */
             (is_expected_type_and_level(pc, type, level) == false));
    return(pc);                       /* the latest chunk is the searched one */
 }
 
 
-inline bool is_expected_string_and_level(chunk_t *pc, const char *str, int level, size_t len)
-{
-   return(((pc->len() == len) &&                  /* the length is as expected and */
-           (memcmp(str, pc->text(), len) == 0) && /* the strings equals */
-           ((pc->level == (size_t)level) ||       /* the level is as expected or */
-            (level < 0))));                       /* we don't care about the level */
-}
-
-
 chunk_t *chunk_search_str(chunk_t *cur, const char *str, nav_t nav, loc_t dir, int level, size_t len)
 {
-   /* Depending on the parameter dir the search function searches
-    * in forward or backward direction */
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
 
@@ -263,6 +266,39 @@ chunk_t *chunk_search_str(chunk_t *cur, const char *str, nav_t nav, loc_t dir, i
    } while ((pc != NULL) &&          /* the end of the list was not reached yet */
             (is_expected_string_and_level(pc, str, level, len) == false));
    return(pc);                       /* the latest chunk is the searched one */
+}
+
+
+static chunk_t
+*chunk_search(chunk_t *cur, const check_t check_fct, const nav_t nav,
+              const loc_t dir, const bool cond)
+{
+   const search_t search_function = select_search_fct(dir);
+   chunk_t        *pc             = cur;
+
+   do                                 /* loop over the chunk list */
+   {
+      pc = search_function(pc, nav);  /* in either direction while */
+   } while ((pc != NULL) &&           /* the end of the list was not reached yet */
+            (check_fct(pc) != cond)); /* and the demanded chunk was not found either */
+   return(pc);                        /* the latest chunk is the searched one */
+}
+
+
+static bool is_expected_type_and_level(chunk_t *pc, c_token_t type, int level)
+{
+   return ((pc->type  ==          type ) && /* the type is as expected and */
+           ((pc->level == (size_t)level) || /* the level is as expected or */
+            (level     <              0)) );                 /* we don't care about the level */
+}
+
+
+static bool is_expected_string_and_level(chunk_t *pc, const char *str, int level, size_t len)
+{
+   return ((pc->len()  == len                ) &&  /* the length is as expected and */
+           (memcmp(str, pc->text(), len) == 0) &&  /* the strings equals */
+           ((pc->level     == (size_t)level  )||   /* the level is as expected or */
+            (level          <             0) ) );  /* we don't care about the level */
 }
 
 
@@ -280,34 +316,14 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
 }
 
 
-static chunk_t
-*chunk_search(chunk_t *cur, const check_t check_fct, const nav_t nav,
-              const loc_t dir, const bool cond)
-{
-   /* Depending on the parameter dir the search function searches
-    * in forward or backward direction */
-   const search_t search_function = select_search_fct(dir);
-   chunk_t        *pc             = cur;
-
-   do                                 /* loop over the chunk list */
-   {
-      pc = search_function(pc, nav);  /* in either direction while */
-   } while ((pc != NULL) &&           /* the end of the list was not reached yet */
-            (check_fct(pc) != cond)); /* and the demanded chunk was not found either */
-   return(pc);                        /* the latest chunk is the searched one */
-}
-
-
 /* \todo maybe it is better to combine chunk_get_next and chunk_get_prev
  * into a common function However this should be done with the preprocessor
  * to avoid addition check conditions that would be evaluated in the
  * while loop of the calling function */
 chunk_t *chunk_get_next(chunk_t *cur, nav_t nav)
 {
-   if (cur == NULL)
-   {
-      return(cur);
-   }
+   if (cur == NULL) { return(cur); }
+
    chunk_t *pc = g_cl.GetNext(cur);
    if ((pc == NULL) || (nav == CNAV_ALL))
    {
@@ -333,10 +349,8 @@ chunk_t *chunk_get_next(chunk_t *cur, nav_t nav)
 
 chunk_t *chunk_get_prev(chunk_t *cur, nav_t nav)
 {
-   if (cur == NULL)
-   {
-      return(cur);
-   }
+   if (cur == NULL) { return(cur); }
+
    chunk_t *pc = g_cl.GetPrev(cur);
    if ((pc == NULL) || (nav == CNAV_ALL))
    {
@@ -384,7 +398,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
    }
 
    /* Copy all fields and then init the entry */
-   *pc = *pc_in;
+   *pc = *pc_in;  /* \todo what happens if pc_in == NULL? */
    g_cl.InitEntry(pc);
 
    return(pc);
@@ -401,7 +415,9 @@ static void chunk_log_msg(chunk_t *chunk, const log_sev_t log, const char *str)
 
 static void chunk_log(chunk_t *pc, const char *text)
 {
-   if ((pc != NULL) && (cpd.unc_stage != US_TOKENIZE) && (cpd.unc_stage != US_CLEANUP))
+   if ((pc            != NULL       ) &&
+       (cpd.unc_stage != US_TOKENIZE) &&
+       (cpd.unc_stage != US_CLEANUP ) )
    {
       const log_sev_t log   = LCHUNK;
       chunk_t         *prev = chunk_get_prev(pc);
@@ -431,16 +447,13 @@ static void chunk_log(chunk_t *pc, const char *text)
 static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const loc_t pos)
 {
    chunk_t *pc = chunk_dup(pc_in);
-
    if (pc != NULL)
    {
-      if (ref != NULL) /* ref is a valid chunk */
+      switch(pos)
       {
-         (pos == AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);
-      }
-      else /* ref == NULL */
-      {
-         (pos == AFTER) ? g_cl.AddHead(pc) : g_cl.AddTail(pc);
+         case(AFTER):  (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
+         case(BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // should be AddHead but tests fail
+         default:      /* invalid position indication */                           break;
       }
       chunk_log(pc, "chunk_add");
    }
@@ -624,16 +637,16 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    pc1 = chunk_first_on_line(pc1);
    pc2 = chunk_first_on_line(pc2);
 
-   if ((pc1 == NULL) || (pc2 == NULL) || (pc1 == pc2))
+   if ((pc1 == NULL) ||
+       (pc2 == NULL) ||
+       (pc1 == pc2 ) )
    {
       return;
    }
 
-   /**
-    * Example start:
+   /* Example start:
     * ? - start1 - a1 - b1 - nl1 - ? - ref2 - start2 - a2 - b2 - nl2 - ?
-    *      ^- pc1                              ^- pc2
-    */
+    *      ^- pc1                              ^- pc2 */
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    /* Move the line started at pc2 before pc1 */
@@ -645,48 +658,41 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
       pc2 = tmp;
    }
 
-   /**
-    * Should now be:
+   /* Should now be:
     * ? - start2 - a2 - b2 - start1 - a1 - b1 - nl1 - ? - ref2 - nl2 - ?
-    *                         ^- pc1                              ^- pc2
-    */
+    *                         ^- pc1                              ^- pc2 */
 
    /* Now move the line started at pc1 after ref2 */
    while ((pc1 != NULL) && !chunk_is_newline(pc1))
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
-      if (ref2 != NULL)
-      {
-         g_cl.AddAfter(pc1, ref2);
-      }
-      else
-      {
-         g_cl.AddHead(pc1);
-      }
+      if (ref2 != NULL) { g_cl.AddAfter(pc1, ref2); }
+      else              { g_cl.AddHead (pc1);       }
       ref2 = pc1;
       pc1  = tmp;
    }
 
-   /**
-    * Should now be:
+   /* Should now be:
     * ? - start2 - a2 - b2 - nl1 - ? - ref2 - start1 - a1 - b1 - nl2 - ?
-    *                         ^- pc1                              ^- pc2
-    */
+    *                         ^- pc1                              ^- pc2 */
 
    /* pc1 and pc2 should be the newlines for their lines.
     * swap the chunks and the nl_count so that the spacing remains the same.
     */
    if ((pc1 != NULL) && (pc2 != NULL))
    {
+#if 0
+      SWAP(pc1->nl_count, pc2->nl_count); /* \todo check this */
+#else
       size_t nl_count = pc1->nl_count;
 
       pc1->nl_count = pc2->nl_count;
       pc2->nl_count = nl_count;
-
+#endif
       chunk_swap(pc1, pc2);
    }
-} // chunk_swap_lines
+}
 
 
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
@@ -784,3 +790,60 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const nav_t nav, const loc_t dir)
         chunk_search(pc, chunk_is_comment_newline_or_preproc, nav, dir, false);
    return(pc);
 }
+
+
+#if 1
+bool chunk_is_forin(chunk_t *pc)
+{
+   if ((cpd.lang_flags & LANG_OC) && pc && (pc->type == CT_SPAREN_OPEN))
+   {
+      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      if (prev->type == CT_FOR)
+      {
+         chunk_t *next = pc;
+         while ( (next       != NULL           ) &&
+                 (next->type != CT_SPAREN_CLOSE) &&
+                 (next->type != CT_IN          ) )
+         {
+            next = chunk_get_next_ncnl(next);
+            if (next->type == CT_IN)
+            {
+               return(true);
+            }
+         }
+      }
+   }
+   return(false);
+}
+#else
+bool chunk_is_forin(chunk_t *pc)
+{
+   /* only start search if ... */
+   if ( (pc      !=            NULL) &&   /* start chunk is valid and */
+        (pc->type == CT_SPAREN_OPEN) &&   /* is a open parenthesis "(" and */
+        (cpd.lang_flags & LANG_OC  ) )    /* language is objective C */
+   {
+      /* check if the preceding chunk is a "for" instruction */
+      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      if (prev->type == CT_FOR)
+      {
+         chunk_t *next = pc;
+         do
+         {
+            next = chunk_get_next_ncnl(next);
+            if(next == NULL)
+            {
+               return false; /* reach end of chunk list */
+            }
+
+            if (next->type == CT_IN)
+            {
+               return(true); /* found "in" chunk */
+            }
+         } /* go on until closing parentheses occurs */
+         while(next->type != CT_SPAREN_CLOSE);
+      }
+   }
+   return(false); /* no "in" in for loop found */
+}
+#endif

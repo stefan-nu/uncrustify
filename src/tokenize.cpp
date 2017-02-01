@@ -1363,7 +1363,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    }
 
    /* Detect pre-processor functions now */
-   if ((cpd.in_preproc == CT_PP_DEFINE) &&
+   if ((cpd.is_preproc == CT_PP_DEFINE) &&
        (cpd.preproc_ncnl_count == 1))
    {
       if (ctx.peek() == '(') { pc.type = CT_MACRO_FUNC; }
@@ -1621,8 +1621,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Handle unknown/unhandled preprocessors */
-   if ((cpd.in_preproc > CT_PP_BODYCHUNK) &&
-       (cpd.in_preproc <= CT_PP_OTHER))
+   if ((cpd.is_preproc > CT_PP_BODYCHUNK) &&
+       (cpd.is_preproc <= CT_PP_OTHER))
    {
       pc.str.clear();
       tok_info ss;
@@ -1758,8 +1758,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    if (cpd.lang_flags & LANG_PAWN)
    {
       if ((cpd.preproc_ncnl_count == 1) &&
-          ((cpd.in_preproc == CT_PP_DEFINE) ||
-           (cpd.in_preproc == CT_PP_EMIT)))
+          ((cpd.is_preproc == CT_PP_DEFINE) ||
+           (cpd.is_preproc == CT_PP_EMIT)))
       {
          parse_pawn_pattern(ctx, pc, CT_MACRO);
          return(true);
@@ -1781,7 +1781,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       }
 
       /* handle PAWN preprocessor args %0 .. %9 */
-      if ((cpd.in_preproc == CT_PP_DEFINE) &&
+      if ((cpd.is_preproc == CT_PP_DEFINE) &&
           (ctx.peek() == '%') &&
           unc_isdigit(ctx.peek(1)))
       {
@@ -1821,13 +1821,13 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
           ((ch1 == '"' ) || (ch1 == '\''))) ||
           ( ch  == '"' ) ||
           ( ch  == '\'') ||
-          ((ch  == '<' ) && (cpd.in_preproc == CT_PP_INCLUDE)))
+          ((ch  == '<' ) && (cpd.is_preproc == CT_PP_INCLUDE)))
       {
          parse_string(ctx, pc, unc_isalpha(ch) ? 1 : 0, true);
          return(true);
       }
 
-      if ((ch == '<') && (cpd.in_preproc == CT_PP_DEFINE))
+      if ((ch == '<') && (cpd.is_preproc == CT_PP_DEFINE))
       {
          if (chunk_get_tail()->type == CT_MACRO)
          {
@@ -1992,12 +1992,12 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       /* A newline marks the end of a preprocessor */
       if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))
       {
-         cpd.in_preproc         = CT_NONE;
+         cpd.is_preproc         = CT_NONE;
          cpd.preproc_ncnl_count = 0;
       }
 
       /* Special handling for preprocessor stuff */
-      if (cpd.in_preproc != CT_NONE)
+      if (cpd.is_preproc != CT_NONE)
       {
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
@@ -2008,13 +2008,13 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          }
 
          /* Figure out the type of preprocessor for #include parsing */
-         if (cpd.in_preproc == CT_PREPROC)
+         if (cpd.is_preproc == CT_PREPROC)
          {
             if ((pc->type < CT_PP_DEFINE) || (pc->type > CT_PP_OTHER))
             {
                set_chunk_type(pc, CT_PP_OTHER);
             }
-            cpd.in_preproc = pc->type;
+            cpd.is_preproc = pc->type;
          }
       }
       else
@@ -2025,7 +2025,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          {
             set_chunk_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;
-            cpd.in_preproc = CT_PREPROC;
+            cpd.is_preproc = CT_PREPROC;
          }
       }
       if (pc->type == CT_NEWLINE)

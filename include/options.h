@@ -104,16 +104,16 @@ enum uncrustify_groups_t
    UG_group_count
 };
 
+
 /**
- * Keep this grouped by functionality
+ * lists all options that uncrustify knows about
  */
 enum uncrustify_options_t
 {
+   /* Keep this enum grouped by functionality */
    UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
 
-   /*
-    * Basic Indenting stuff
-    */
+   /* Basic Indenting stuff */
    // UO_indent,                   //TODO: 0=don't change indentation, 1=change indentation
    UO_tok_split_gte,             // allow split of '>>=' in template detection
 
@@ -227,10 +227,7 @@ enum uncrustify_options_t
                                      // default: true. Only for C#
    UO_indent_ternary_operator,       // indent continuation of ternary operator
 
-   /*
-    * Misc inter-element spacing
-    */
-
+   /* Misc inter-element spacing */
    UO_sp_paren_brace,           // space between ')' and '{'
    UO_sp_fparen_brace,          // space between ')' and '{' of function
    UO_sp_fparen_dbrace,         // space between ')' and '{{' of double-brace init
@@ -437,10 +434,7 @@ enum uncrustify_options_t
    UO_sp_skip_vbrace_tokens,
    UO_force_tab_after_define,   // force <TAB> after #define, Issue # 876
 
-   /*
-    * Line splitting options (for long lines)
-    */
-
+   /* Line splitting options (for long lines) */
    UO_code_width,           // ie 80 columns
    UO_ls_for_split_full,    // try to split long 'for' statements at semi-colons
    UO_ls_func_split_full,   // try to split long func proto/def at comma
@@ -450,10 +444,7 @@ enum uncrustify_options_t
    // UO_ls_after_arith,       //TODO: break after arith op '+', etc
    // UO_ls_honor_newlines,    //TODO: don't remove newlines on split lines
 
-   /*
-    * code alignment (not left column spaces/tabs)
-    */
-
+   /* code alignment (not left column spaces/tabs) */
    UO_align_with_tabs,            // use tabs for aligning (0/1)
    UO_align_keep_tabs,            // keep non-indenting tabs
    UO_align_on_tabstop,           // always align on tabstops
@@ -516,10 +507,7 @@ enum uncrustify_options_t
    UO_align_oc_decl_colon,         //
    UO_align_keep_extra_space,      // don't squash extra whitespace
 
-   /*
-    * Newline adding and removing options
-    */
-
+   /* Newline adding and removing options */
    UO_nl_fdef_brace,                  // 'int foo() {' vs 'int foo()\n{'
    UO_nl_cpp_ldef_brace,              // '[&x](int a) {' vs '[&x](int a)\n{'
    UO_nl_func_paren,                  // newline between function and open paren
@@ -697,9 +685,7 @@ enum uncrustify_options_t
    UO_pos_constr_colon,               // position of trailing/leading class constr colon
                                       //   (tied to UO_nl_constr_colon, UO_nl_constr_init_args, UO_pos_constr_colon,
 
-   /*
-    * Blank line options
-    */
+   /* Blank line options */
 
    UO_nl_before_block_comment,         // before a block comment (stand-alone comment-multi), except after brace open
    UO_nl_before_cpp_comment,           // The minimum number of newlines before a CPP comment
@@ -745,10 +731,7 @@ enum uncrustify_options_t
                                        // (2 = Remove all newlines and reformat completely by config)
 
 
-   /*
-    * code modifying options (non-whitespace)
-    */
-
+   /* code modifying options (non-whitespace) */
    UO_mod_paren_on_return,          // add or remove paren on return
    UO_mod_full_brace_nl,            // max number of newlines to span w/o braces
    UO_mod_full_brace_if,            // add or remove braces on single-line if
@@ -775,9 +758,7 @@ enum uncrustify_options_t
    UO_mod_remove_empty_return,    //
    UO_mod_enum_last_comma,        // add or remove comma after last item in enum
 
-   /*
-    * Sorting options for objc properties
-    */
+   /* Sorting options for objc properties */
    UO_mod_sort_oc_property_thread_safe_weight,  // Determines weight of atomic/nonatomic
    UO_mod_sort_oc_property_readwrite_weight,    // Determines weight of readwrite
    UO_mod_sort_oc_property_reference_weight,    // Determines weight of reference type (retain, copy, assign, weak, strong)
@@ -785,10 +766,7 @@ enum uncrustify_options_t
    UO_mod_sort_oc_property_setter_weight,       // Determines weight of setter type (setter=)
    UO_mod_sort_oc_property_nullability_weight,  // Determines weight of nullability type (nullable/nonnull)
 
-   /*
-    * Comment modifications
-    */
-
+   /* Comment modifications */
    UO_cmt_width,                   // column to wrap comments
    UO_cmt_reflow_mode,             // comment reflow style
    UO_cmt_indent_multi,            // change left indent of multiline comments
@@ -856,9 +834,9 @@ enum uncrustify_options_t
 
 
 #ifdef EMSCRIPTEN
-#define group_map_value_options_t    vector<uncrustify_options_t>
+   #define group_map_value_options_t    vector<uncrustify_options_t>
 #else
-#define group_map_value_options_t    list<uncrustify_options_t>
+   #define group_map_value_options_t    list<uncrustify_options_t>
 #endif
 
 struct group_map_value_t
@@ -900,9 +878,28 @@ bool is_option_set(
 );
 
 
+/**
+ * add an option to an argument value type
+ *
+ * @return argument value with addition option added
+ */
+argval_t add_option(
+   argval_t var,  /**< [in] argument value */
+   argval_t opt   /**< [in] option to add */
+);
+
+
+/**
+ * \brief check if a given option is not set in a variable
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if variable has none of the given options    set
+ * @retval false if at least one      of the given options is set
+ */
 bool is_option_unset(
-   argval_t var,
-   argval_t opt
+   argval_t var,  /**< [in] variable to operate with */
+   argval_t opt   /**< [in] option to check for */
 );
 
 
@@ -920,9 +917,17 @@ bool is_option(
 );
 
 
+/**
+ * \brief check if a option value is different from a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if option value is not equal to the given value
+ * @retval false if option value is     equal to the given value
+ */
 bool is_not_option(
-   argval_t var,
-   argval_t opt
+   argval_t var,  /**< [in] variable to operate with */
+   argval_t opt   /**< [in] option value to check for */
 );
 
 
@@ -967,6 +972,7 @@ bool is_token(
    tokenpos_t opt  /**< [in] Token combination to check for */
 );
 
+
 /**
  * \brief check if a token is different from a given value
  *
@@ -981,15 +987,31 @@ bool is_not_token(
 );
 
 
+/**
+ * \brief check if a given bit mask is set in a bit field
+ *
+ * The check can be done with one or several bits
+ *
+ * @retval true  all expected bits are set
+ * @retval false at least one of the expected bits is missing
+ */
 bool is_bit_set(
-   UINT64 var,
-   UINT64 flag
+   UINT64 var, /**< [in] variable to operate with */
+   UINT64 flag /**< [in] bit mask to check for */
 );
 
 
+/**
+ * \brief check if a given bit mask is not set in a bit field
+ *
+ * The check can be done with one or several bits
+ *
+ * @retval true  all bits of the bit mask are not set
+ * @retval false at least one of the bits in the bit mask is set
+ */
 bool is_bit_unset(
-   UINT64 var,
-   UINT64 flag
+   UINT64 var, /**> [in] variable to operate with */
+   UINT64 flag /**< [in] bit mask to check for */
 );
 
 
@@ -1043,6 +1065,12 @@ int save_option_file_kernel(
 );
 
 
+/**
+ * \rief
+ *
+ * @retval >= 0 entry was found
+ * @retval -1   entry was not found
+ */
 int set_option_value(
    const char *name,
    const char *value
@@ -1069,44 +1097,71 @@ void print_options(
 );
 
 
+/**
+ * convert a argument type to a string
+ */
 string argtype_to_string(
-   argtype_t argtype
+   argtype_t argtype /**> [in] argument type to convert */
 );
 
 
+/**
+ * convert a boolean to a string
+ */
 string bool_to_string(
-   bool val
+   bool val /**< [in] boolean to convert*/
 );
 
 
+/**
+ * convert an argument value to a string
+ */
 string argval_to_string(
-   argval_t argval
+   argval_t argval   /**< [in] argument value to convert */
 );
 
 
+/**
+ * convert an integer number to a string
+ */
 string number_to_string(
-   int number
+   int number  /**< [integer number to convert */
 );
 
 
+/**
+ * convert a line ending type to a string
+ */
 string lineends_to_string(
-   lineends_t linends
+   lineends_t linends   /**< [in] line ending type to convert */
 );
 
 
+/**
+ * convert a token to a string
+ */
 string tokenpos_to_string(
-   tokenpos_t tokenpos
+   tokenpos_t tokenpos  /**< [in] token to convert */
 );
 
 
+/**
+ * convert an argument of a given type to a string
+ */
 string op_val_to_string(
-   const argtype_t argtype,
-   const op_val_t op_val
+   const argtype_t argtype,   /**< [in] type of argument */
+   const op_val_t  &op_val    /**< [in] value of argument */
 );
 
 
+/**
+ * checks if a path is a relative or absolute one
+ *
+ * @retval true  - path is relative
+ * @retval false - path is absolute
+ */
 bool is_path_relative(
-   const char *path
+   const char *path  /**> [in] path to check */
 );
 
 
@@ -1116,7 +1171,7 @@ const option_map_value_t *unc_find_option(
 
 
 typedef map<uncrustify_options_t, option_map_value_t>::iterator option_name_map_it;
-typedef map<uncrustify_groups_t, group_map_value_t>::iterator   group_map_it;
+typedef map<uncrustify_groups_t,  group_map_value_t>::iterator  group_map_it;
 typedef group_map_value_options_t::iterator                     option_list_it;
 typedef group_map_value_options_t::const_iterator               option_list_cit;
 

@@ -86,6 +86,7 @@ void split_off_angle_close(chunk_t *pc)
 }
 
 
+/* \todo reduce cyclic complexity of this function */
 void tokenize_cleanup(void)
 {
    LOG_FUNC_ENTRY();
@@ -264,7 +265,7 @@ void tokenize_cleanup(void)
       {
          /* Check for the D string concat symbol '~' */
          if ( (pc->type == CT_INV) &&
-              ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING))) /*lint !e613 */
+              ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING)))
          {
             set_chunk_type(pc, CT_CONCAT);
          }
@@ -272,7 +273,7 @@ void tokenize_cleanup(void)
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
          if ( (pc->type   == CT_NOT       ) &&
               (prev->type == CT_WORD      ) &&
-              ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE))) /*lint !e613 */
+              ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE)))
          {
             set_chunk_type(pc, CT_D_TEMPLATE);
          }
@@ -599,7 +600,7 @@ void tokenize_cleanup(void)
       if (((pc->parent_type == CT_OC_IMPL) ||
            (pc->parent_type == CT_OC_INTF) ||
            (pc->type == CT_OC_CLASS)) &&
-          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
+          (next->type == CT_PAREN_OPEN))
       {
          set_chunk_parent(next, pc->parent_type);
 
@@ -662,7 +663,7 @@ void tokenize_cleanup(void)
        *  @selector(msgNameWithNoArg)
        *  @selector(msgNameWith1Arg:)
        *  @selector(msgNameWith2Args:arg2Name:) */
-      if ((pc->type == CT_OC_SEL) && (next->type == CT_PAREN_OPEN)) /*lint !e613 */
+      if ((pc->type == CT_OC_SEL) && (next->type == CT_PAREN_OPEN))
       {
          set_chunk_parent(next, pc->type);
 
@@ -713,7 +714,7 @@ void tokenize_cleanup(void)
       /* Check for C# nullable types '?' is in next */
       if ((cpd.lang_flags & LANG_CS) &&
           (next->type == CT_QUESTION) &&
-          (next->orig_col == (pc->orig_col + pc->len()))) /*lint !e613 */
+          (next->orig_col == (pc->orig_col + pc->len())))
       {
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (tmp != NULL)
@@ -736,7 +737,6 @@ void tokenize_cleanup(void)
 
             if (doit == true)
             {
-               assert(next != NULL);
                pc->str         += next->str;
                pc->orig_col_end = next->orig_col_end;
                chunk_del(next);
@@ -748,19 +748,19 @@ void tokenize_cleanup(void)
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS) &&
           (pc->type == CT_DEFAULT) &&
-          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
+          (next->type == CT_PAREN_OPEN))
       {
          set_chunk_type(pc, CT_SIZEOF);
       }
 
-      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN)) /*lint !e613 */
+      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN))
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }
 
       if (((pc->type == CT_USING) ||
            ((pc->type == CT_TRY) && (cpd.lang_flags & LANG_JAVA))) &&
-          (next->type == CT_PAREN_OPEN)) /*lint !e613 */
+          (next->type == CT_PAREN_OPEN))
       {
          set_chunk_type(pc, CT_USING_STMT);
       }
@@ -787,17 +787,17 @@ void tokenize_cleanup(void)
 
       /* If Java's 'synchronized' is in a method declaration, it should be
        * a qualifier. */
-      if ((cpd.lang_flags & LANG_JAVA) &&
-          (pc->type == CT_SYNCHRONIZED) &&
-          (next->type != CT_PAREN_OPEN)) /*lint !e613 */
+      if ((cpd.lang_flags & LANG_JAVA      ) &&
+          (pc->type      == CT_SYNCHRONIZED) &&
+          (next->type    != CT_PAREN_OPEN  ) )
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }
 
       // guy 2015-11-05
       // change CT_DC_MEMBER + CT_FOR into CT_DC_MEMBER + CT_FUNC_CALL
-      if ((pc->type == CT_FOR) &&
-          ((pc->prev != NULL) && (pc->prev->type == CT_DC_MEMBER)))
+      if ((pc->type  == CT_FOR) &&
+          ((pc->prev != NULL  ) && (pc->prev->type == CT_DC_MEMBER)))
       {
          set_chunk_type(pc, CT_FUNC_CALL);
       }
