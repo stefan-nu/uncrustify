@@ -56,7 +56,7 @@ dir /s/b %SRC_DIR%\braces.cpp			>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\newlines.cpp	 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\options_for_QT.cpp	>> .\%OUT_DIR%\files.lnt
  dir /s/b %SRC_DIR%\options.cpp	 		>> .\%OUT_DIR%\files.lnt
- dir /s/b %SRC_DIR%\output.cpp		 	>> .\%OUT_DIR%\files.lnt
+rem dir /s/b %SRC_DIR%\output.cpp		 	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\parens.cpp	 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\parse_frame.cpp		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\punctuators.cpp		>> .\%OUT_DIR%\files.lnt

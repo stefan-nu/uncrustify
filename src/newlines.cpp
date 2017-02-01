@@ -3494,7 +3494,7 @@ void newlines_class_colon_pos(c_token_t tok)
             continue;
          }
 
-         if ((pc->type == CT_COMMA) && (pc->level == ccolon->level)) /*lint !e613 */
+         if ((pc->type == CT_COMMA) && (pc->level == ccolon->level))
          {
             if (is_option_set(ncia, AV_ADD))
             {

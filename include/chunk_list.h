@@ -635,32 +635,15 @@ static_inline bool chunk_safe_to_del_nl(chunk_t *nl)
 
 
 /**
- * Handle for (... in ...) in Objective-C.
- * Returns true if pc->prev points to a CT_FOR and we find a CT_IN
- * before the closing parenthesis.
+ * check if a chunk points to the opening parenthese of a
+ * for(...in...) loop in Objective-C.
+ *
+ *@retval true  - the chunk is the opening parentheses of a for in loop
+ *@retval false - no for(...in...) loop found
  */
-static_inline bool chunk_is_forin(chunk_t *pc)
-{
-   if ((cpd.lang_flags & LANG_OC) && pc && (pc->type == CT_SPAREN_OPEN))
-   {
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
-      if (prev->type == CT_FOR)
-      {
-         chunk_t *next = pc;
-         while ( (next       != NULL           ) &&
-                 (next->type != CT_SPAREN_CLOSE) &&
-                 (next->type != CT_IN          ) )
-         {
-            next = chunk_get_next_ncnl(next);
-         }
-         if (next->type == CT_IN)
-         {
-            return(true);
-         }
-      }
-   }
-   return(false);
-}
+bool chunk_is_forin(
+   chunk_t *pc /**< [in] chunk to start search with */
+);
 
 
 void set_chunk_type(

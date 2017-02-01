@@ -58,9 +58,11 @@ const char *path_basename(
 
 /**
  * Returns the length of the directory part of the filename.
+ *
+ * @return character size of path
  */
 size_t path_dirname_len(
-   const char *filename
+   const char *filename /**< [in] filename including full path */
 );
 
 

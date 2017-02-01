@@ -2211,7 +2211,7 @@ void add_long_preprocessor_conditional_block_comment(void)
          }
          else if ((pp_end->pp_level == pp_start->pp_level) &&
                   ((tmp->type == CT_PP_ENDIF) ||
-                   ((br_open->type == CT_PP_IF) ? (tmp->type == CT_PP_ELSE) : 0)))  /*lint !e613 */
+                   ((br_open->type == CT_PP_IF) ? (tmp->type == CT_PP_ELSE) : 0)))
          {
             br_close = tmp;
 

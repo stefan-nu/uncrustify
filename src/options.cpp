@@ -129,6 +129,12 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
 }
 
 
+argval_t add_option(argval_t var, argval_t opt)
+{
+   return (argval_t)((int)var | (int)opt);
+}
+
+
 /* \todo when using C++ the following functions can be overloaded */
 bool is_option_set(argval_t var, argval_t opt)
 {
