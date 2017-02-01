@@ -31,6 +31,9 @@
 #include "uncrustify.h"
 
 
+static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete);
+
+
 /**
  * Decides how to change inter-chunk spacing.
  * Note that the order of the if statements is VERY important.
@@ -40,10 +43,6 @@
  * @return        AV_IGNORE, AV_ADD, AV_REMOVE or AV_FORCE
  */
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete);
-
-
-static void log_rule2(int line, const char *rule, chunk_t *first, chunk_t *second, bool complete);
-
 
 struct no_space_table_t
 {
@@ -101,12 +100,12 @@ const no_space_table_t no_space_table[] =
    } while (0)
 
 
-static void log_rule2(int line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
+static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
 {
    LOG_FUNC_ENTRY();
    if (second->type != CT_NEWLINE)
    {
-      LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%d]%s",
+      LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
               first->orig_line,
               get_token_name(first->type), get_token_name(first->parent_type),
               first->text(),
@@ -358,7 +357,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
         (second->parent_type == CT_COMMENT_EMBED)))
    {
       log_rule("sp_before_tr_emb_cmt");
-      min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].n;
+      min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].u;
       return(cpd.settings[UO_sp_before_tr_emb_cmt].a);
    }
 
@@ -1380,7 +1379,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    if ((is_not_option(cpd.settings[UO_sp_after_constr_colon].a, AV_IGNORE)) &&
        (first->type == CT_CONSTR_COLON))
    {
-      min_sp = cpd.settings[UO_indent_ctor_init_leading].n - 1; // default indent is 1 space
+      min_sp = cpd.settings[UO_indent_ctor_init_leading].u - 1; // default indent is 1 space
 
       log_rule("sp_after_constr_colon");
       return(cpd.settings[UO_sp_after_constr_colon].a);
@@ -1818,7 +1817,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
    // this table lists out all combos where a space should NOT be present
    // CT_UNKNOWN is a wildcard.
-   for (int idx = 0; idx < (int)ARRAY_SIZE(no_space_table); idx++)
+   for (size_t idx = 0; idx < ARRAY_SIZE(no_space_table); idx++)
    {
       if (((no_space_table[idx].first == CT_UNKNOWN ) ||
            (no_space_table[idx].first == first->type) )
@@ -2094,7 +2093,7 @@ void space_text(void)
          }
          next->column = column;
 
-         LOG_FMT(LSPACE, " = %s @ %d => %zu\n",
+         LOG_FMT(LSPACE, " = %s @ %zu => %zu\n",
                  (av == AV_IGNORE) ? "IGNORE" :
                  (av == AV_ADD) ? "ADD" :
                  (av == AV_REMOVE) ? "REMOVE" : "FORCE",
@@ -2173,7 +2172,7 @@ void space_text_balance_nested_parens(void)
 }
 
 
-int space_needed(chunk_t *first, chunk_t *second)
+size_t space_needed(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPACE, "%s\n", __func__);
@@ -2212,7 +2211,7 @@ int space_col_align(chunk_t *first, chunk_t *second)
    argval_t av = do_space(first, second, min_sp);
 
    LOG_FMT(LSPACE, "%s: av=%d, ", __func__, av);
-   int coldiff;
+   size_t coldiff;
    if (first->nl_count)
    {
       LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%d", first->nl_count, first->orig_col_end);
@@ -2243,7 +2242,7 @@ int space_col_align(chunk_t *first, chunk_t *second)
    case AV_NOT_DEFINED:
       break;
    }
-   LOG_FMT(LSPACE, " => %d\n", coldiff);
+   LOG_FMT(LSPACE, " => %zu\n", coldiff);
    return(coldiff);
 }
 
