@@ -264,9 +264,9 @@ void tokenize_cleanup(void)
 
       if (cpd.lang_flags & LANG_D)
       {
-         assert(prev != NULL);
          /* Check for the D string concat symbol '~' */
          if ( (pc->type == CT_INV) &&
+              (prev != NULL) &&
               ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING)))
          {
             set_chunk_type(pc, CT_CONCAT);
@@ -274,6 +274,7 @@ void tokenize_cleanup(void)
 
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
          if ( (pc->type   == CT_NOT       ) &&
+              (prev       != NULL         ) &&
               (prev->type == CT_WORD      ) &&
               ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE)))
          {
@@ -282,6 +283,7 @@ void tokenize_cleanup(void)
 
          /* handle "version(unittest) { }" vs "unittest { }" */
          if ((pc->type   == CT_UNITTEST  ) &&
+             (prev       != NULL         ) &&
              (prev->type == CT_PAREN_OPEN) )
          {
             set_chunk_type(pc, CT_WORD);
@@ -289,6 +291,7 @@ void tokenize_cleanup(void)
 
          /* handle 'static if' and merge the tokens */
          if ( (pc->type == CT_IF              ) &&
+              (prev     != NULL               ) &&
               (chunk_is_str(prev, "static", 6)) )
          {
             /* delete PREV and merge with IF */
