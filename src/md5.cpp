@@ -22,14 +22,7 @@
 #include "uncrustify_types.h"
 
 
-/**
- * Reverse the bytes in 32-bit chunks.
- * 'buf' might not be word-aligned.
- *
- * @param buf     The byte array to reverse
- * @param n_u32   The number of UINT32's in the data
- */
-void MD5::reverse_u32(UINT8 *buf, int n_u32) const
+void MD5::reverse_u32(UINT8 *buf, size_t n_u32) const
 {
    if (m_big_endian)
    {

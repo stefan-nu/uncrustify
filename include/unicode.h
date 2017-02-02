@@ -18,7 +18,7 @@ void write_bom(void);
 /**
  * @param ch the 31-bit char value
  */
-void write_char(int ch);
+void write_char(UINT32 ch);
 
 
 void write_string(const unc_text &text);
@@ -30,7 +30,7 @@ void write_string(const unc_text &text);
 bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEncoding_t &enc, bool &has_bom);
 
 
-void encode_utf8(int ch, vector<UINT8> &res);
+void encode_utf8(UINT32 ch, vector<UINT8> &res);
 
 
 #endif /* UNICODE_H_INCLUDED */

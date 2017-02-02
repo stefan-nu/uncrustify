@@ -36,7 +36,7 @@ public:
     */
    void Update(
       const void *data,
-      UINT32 len
+      UINT32     len
    );
 
 
@@ -78,11 +78,12 @@ private:
    bool   m_big_endian;
 
    /**
-    * tbd
+    * Reverse the bytes in 32-bit chunks.
+    * 'buf' might not be word-aligned.
     */
    void reverse_u32(
-      UINT8 *buf,
-      int n_u32
+      UINT8  *buf,   /**< [in] The byte array to reverse */
+      size_t n_u32   /**< [in] The number of UINT32's in the data */
    ) const;
 };
 

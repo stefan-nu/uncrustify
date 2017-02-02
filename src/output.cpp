@@ -392,7 +392,7 @@ static void add_char(UINT32 ch)
             write_char(' ');
             cpd.spaces--;
          }
-         write_char(ch); /*lint !e713 */
+         write_char(ch);
          if (ch == '\t')
          {
             cpd.column = (UINT16)next_tab_column(cpd.column);
