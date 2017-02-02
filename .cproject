@@ -189,7 +189,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.2133173411.465335094." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.debug.456338912" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.exe.debug.116597921" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.debug"/>
-							<builder arguments="" command="${workspace_loc:/uncrustify}/scripts/pclint/run-pclint-eclipse.bat" enableCleanBuild="false" id="cdt.managedbuild.builder.gnu.cross.1284555675" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="unlimited" stopOnErr="false" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<builder arguments="" command="${workspace_loc:/uncrustify}/scripts/pclint/run-pclint-eclipse.bat" enableCleanBuild="true" id="cdt.managedbuild.builder.gnu.cross.1284555675" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="unlimited" stopOnErr="false" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.1729553723" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1495895305" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

@@ -180,11 +180,8 @@ void encode_utf8(UINT32 ch, vector<UINT8> &res)
 
 static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
 {
-   size_t idx = 0;
-
-   out_data.clear();
-
    /* check for UTF-8 BOM silliness and skip */
+   size_t idx = 0;
    if (in_data.size() >= 3)
    {
       if ((in_data[0] == 0xef) &&
@@ -196,6 +193,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
       }
    }
 
+   out_data.clear();
    int cnt;
    while (idx < in_data.size())
    {
@@ -521,6 +519,6 @@ void write_string(const unc_text &text)
 {
    for (size_t idx = 0; idx < text.size(); idx++)
    {
-      write_char(text[idx]);
+      write_char((UINT32)text[idx]);
    }
 }

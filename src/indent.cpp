@@ -247,7 +247,7 @@ void align_to_column(chunk_t *pc, size_t column)
       {
          break;
       }
-      int min_delta = space_col_align(pc, next);
+      int min_delta = (int)space_col_align(pc, next);
       min_col  = (size_t)((int)min_col + min_delta);
       prev     = pc;
       pc       = next;

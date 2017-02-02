@@ -1,4 +1,5 @@
 
--efunc(e701, decode_utf8, decode_utf16 )
--efunc(e702, encode_utf8, write_utf16 ) 
--efunc(e734, encode_utf8 ) 
+-efunc(701, decode_utf8, decode_utf16 ) 
+-efunc(702, encode_utf8, write_utf16 ) 
+-efunc(713, decode_utf8, write_byte )
+-efunc(734, encode_utf8 ) 

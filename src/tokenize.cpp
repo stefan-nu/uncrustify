@@ -422,7 +422,7 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
          case 'x':
             /* \x HexDigit HexDigit */
             cnt = 3;
-            while (cnt--)
+            while (cnt--)  // \todo DRY
             {
                pc.str.append(ctx.get());
             }
@@ -528,8 +528,8 @@ static const char *str_search(const char *needle, const char *haystack, int hays
 
 static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 {
-   bool is_d    = (cpd.lang_flags & LANG_D) != 0;          // forcing value to bool
-   bool is_cs   = (cpd.lang_flags & LANG_CS) != 0;         // forcing value to bool
+   bool is_d    = (cpd.lang_flags & LANG_D ) != 0;
+   bool is_cs   = (cpd.lang_flags & LANG_CS) != 0;
    int  d_level = 0;
 
    /* does this start with '/ /' or '/ *' or '/ +' (d) */
@@ -578,14 +578,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          {
             break;
          }
-         if (ctx.peek() == '\r')
-         {
-            pc.str.append(ctx.get());
-         }
-         if (ctx.peek() == '\n')
-         {
-            pc.str.append(ctx.get());
-         }
+         if (ctx.peek() == '\r') { pc.str.append(ctx.get()); }
+         if (ctx.peek() == '\n') { pc.str.append(ctx.get()); }
          pc.nl_count++;
          cpd.did_newline = true;
       }
@@ -777,7 +771,7 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
       int p2 = ctx.peek(1);
       if (forstring &&
           (((p1 == 'L') && ((p2 == '"') || (p2 == '\''))) ||
-           ((p1 == 'S') && (p2 == '"'))))
+           ((p1 == 'S') &&  (p2 == '"'))))
       {
          return;
       }
@@ -1400,16 +1394,8 @@ static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
       switch (ch)
       {
       case '\r':
-         if (ctx.expect('\n'))
-         {
-            /* CRLF ending */
-            cpd.le_counts[LE_CRLF]++;
-         }
-         else
-         {
-            /* CR ending */
-            cpd.le_counts[LE_CR]++;
-         }
+         if (ctx.expect('\n')) { cpd.le_counts[LE_CRLF]++; } /* CRLF ending */
+         else                  { cpd.le_counts[LE_CR  ]++; } /* CR ending */
          nl_count++;
          pc.orig_prev_sp = 0;
          break;
@@ -1482,7 +1468,7 @@ static bool parse_newline(tok_ctx &ctx)
    {
       ctx.get();
    }
-   if ((ctx.peek() == '\r') || (ctx.peek() == '\n'))
+   if ((ctx.peek() == '\r'  ) || (ctx.peek() == '\n'))
    {
       if (!ctx.expect('\n'))
       {
@@ -1535,9 +1521,9 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    /* See if the UO_enable_processing_cmt text is on this line */
    ctx.save();
    pc.str.clear();
-   while (ctx.more() &&
+   while ((ctx.more() == true) &&
           (ctx.peek() != '\r') &&
-          (ctx.peek() != '\n'))
+          (ctx.peek() != '\n') )
    {
       pc.str.append(ctx.get());
    }
@@ -1655,10 +1641,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
          pc.str.append(ctx.get());
       }
-      if (pc.str.size() > 0)
-      {
-         return(true);
-      }
+      if (pc.str.size() > 0) { return(true); }
    }
 
    /* Detect backslash-newline */
@@ -1668,16 +1651,10 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Parse comments */
-   if (parse_comment(ctx, pc))
-   {
-      return(true);
-   }
+   if (parse_comment(ctx, pc)) { return(true); }
 
    /* Parse code placeholders */
-   if (parse_code_placeholder(ctx, pc))
-   {
-      return(true);
-   }
+   if (parse_code_placeholder(ctx, pc)) { return(true); }
 
    /* Check for C# literal strings, ie @"hello" and identifiers @for*/
    if ((cpd.lang_flags & LANG_CS) && (ctx.peek() == '@'))
@@ -1868,7 +1845,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
    /* see if we have a punctuator */
    char punc_txt[4];
-   punc_txt[0] = (char)ctx.peek();
+   punc_txt[0] = (char)ctx.peek( );
    punc_txt[1] = (char)ctx.peek(1);
    punc_txt[2] = (char)ctx.peek(2);
    punc_txt[3] = (char)ctx.peek(3);

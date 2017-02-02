@@ -365,7 +365,7 @@
 +e1529					// symbol not first checking for assignment to this
 +e1536					// exposing low access member
 -e1540					// pointer member neither freed nor zeroed by destructor
-+e1551					// function may throw exception in destructor 			
+-e1551					// function may throw exception in destructor 			
 +e1554					// direct pointer copy of member within copy constructor
 +e1561					// reference initialization causes loss of const/volatile
 +e1566					// member might have been initialized by a separate function

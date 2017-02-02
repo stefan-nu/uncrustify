@@ -424,9 +424,10 @@ static void add_text(const unc_text &text, bool is_ignored = false)
    for (size_t idx = 0; idx < text.size(); idx++)
    {
       int ch = text[idx];
-      if (is_ignored)
+      if( (is_ignored == true) &&
+          (ch         >= 0   ) )
       {
-         write_char(ch);
+         write_char((UINT32)ch);
       }
       else
       {

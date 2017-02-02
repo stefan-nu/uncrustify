@@ -107,7 +107,7 @@ static void split_fcn_params_full(chunk_t *start);
  * If that doesn't work, then look for an assignment at paren level.
  * If that doesn't work, then give up.
  */
-static void split_for_stmt(chunk_t *start);
+static void split_for_statement(chunk_t *start);
 
 
 static_inline bool is_past_width(chunk_t *pc)
@@ -296,7 +296,7 @@ static bool split_line(chunk_t *start)
    else if (start->flags & PCF_IN_FOR)
    {
       LOG_FMT(LSPLIT, " ** FOR SPLIT **\n");
-      split_for_stmt(start);
+      split_for_statement(start);
       if (!is_past_width(start)) { return(true); }
 
       LOG_FMT(LSPLIT, "%s: for split didn't work\n", __func__);
@@ -420,7 +420,7 @@ static bool split_line(chunk_t *start)
 }
 
 
-static void split_for_stmt(chunk_t *start)
+static void split_for_statement(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
    int     max_cnt     = cpd.settings[UO_ls_for_split_full].b ? 2 : 1;
@@ -453,36 +453,44 @@ static void split_for_stmt(chunk_t *start)
    /* see if we started on the semicolon */
    int     count = 0;
    chunk_t *st[2];
+   st[0] = NULL;
+   st[1] = NULL;
    pc = start;
-   if ((pc->type == CT_SEMICOLON) && (pc->parent_type == CT_FOR))
+   if ((pc->type        == CT_SEMICOLON) &&
+       (pc->parent_type == CT_FOR      ) )
    {
-      st[count++] = pc;
+      st[count] = pc;
+      count++;
    }
 
    /* first scan backwards for the semicolons */
-   while ((count < max_cnt) && ((pc = chunk_get_prev(pc)) != NULL) &&
-          (pc->flags & PCF_IN_SPAREN))
+   while ( (count < max_cnt                  ) &&
+           ((pc = chunk_get_prev(pc)) != NULL) &&
+           (pc->flags & PCF_IN_SPAREN        ) )
    {
       if ((pc->type == CT_SEMICOLON) && (pc->parent_type == CT_FOR))
       {
-         st[count++] = pc;
+         st[count] = pc;
+         count++;
       }
    }
 
    /* And now scan forward */
    pc = start;
-   while ((count < max_cnt) && ((pc = chunk_get_next(pc)) != NULL) &&
-          (pc->flags & PCF_IN_SPAREN))
+   while ((count < max_cnt                  ) &&
+          ((pc = chunk_get_next(pc)) != NULL) &&
+          (pc->flags & PCF_IN_SPAREN        ) )
    {
       if ((pc->type == CT_SEMICOLON) && (pc->parent_type == CT_FOR))
       {
-         st[count++] = pc;
+         st[count] = pc;
+         count++;
       }
    }
 
    while (--count >= 0)
    {
-      /* \todo st[0] may be uninitialized here */
+      assert(st[count] != NULL);
       LOG_FMT(LSPLIT, "%s: split before %s\n", __func__, st[count]->text());
       split_before_chunk(chunk_get_next(st[count]));
    }

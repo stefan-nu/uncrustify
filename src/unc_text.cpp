@@ -48,7 +48,7 @@ void unc_text::update_logtext()
          {
             val = 0x240d;
          }
-         encode_utf8(val, m_logtext);
+         encode_utf8((UINT32)val, m_logtext);
       }
       m_logtext.push_back(0);
       m_logok = true;

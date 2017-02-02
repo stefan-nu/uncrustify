@@ -292,12 +292,13 @@ const char *path_basename(const char *path)
    if (path == NULL) { return(""); }
 
    const char *last_path = path;
-   char       ch;
 
-   while ((ch = *path) != 0)
+   while (*path != 0) /* check for end of string */
    {
-      path++;
       /* Check both slash types to support Linux and Windows */
+      /* \todo better use strcmp */
+      char ch = *path;
+      path++;
       if ((ch == '/') || (ch == '\\'))
       {
          last_path = path;
@@ -616,9 +617,9 @@ int main(int argc, char *argv[])
       // not using a file list, source_list is NULL
    }
 
-   const char *prefix = arg_list.Param("--prefix");
-   const char *suffix = arg_list.Param("--suffix");
-   const char *assume = arg_list.Param("--assume");
+   const char *prefix    = arg_list.Param  ("--prefix");
+   const char *suffix    = arg_list.Param  ("--suffix");
+   const char *assume    = arg_list.Param  ("--assume");
 
    bool no_backup        = arg_list.Present("--no-backup");
    bool replace          = arg_list.Present("--replace");
@@ -1014,14 +1015,14 @@ static void make_folders(const string &filename)
       {
          outname[idx] = 0;
 
-         if ((strcmp(&outname[last_idx], ".") != 0) &&
-             (strcmp(&outname[last_idx], "..") != 0))
+         if ((strcmp(&outname[last_idx], "." ) != 0) &&
+             (strcmp(&outname[last_idx], "..") != 0) )
          {
             //fprintf(stderr, "%s: %s\n", __func__, outname);
             int status;    // Coverity CID 75999
             status = mkdir(outname, 0750);
-            if ((status != 0) &&
-                (errno != EEXIST))
+            if ((status != 0     ) &&
+                (errno  != EEXIST) )
             {
                LOG_FMT(LERR, "%s: Unable to create %s: %s (%d)\n",
                        __func__, outname, strerror(errno), errno);
@@ -1094,9 +1095,9 @@ static int load_mem_file(const char *filename, file_mem_t &fm)
       else
       {
          LOG_FMT(LNOTE, "%s: '%s' encoding looks like %s (%d)\n", __func__, filename,
-                 fm.enc == ENC_ASCII ? "ASCII" :
-                 fm.enc == ENC_BYTE ? "BYTES" :
-                 fm.enc == ENC_UTF8 ? "UTF-8" :
+                 fm.enc == ENC_ASCII    ? "ASCII"     :  /* \todo better use a switch here */
+                 fm.enc == ENC_BYTE     ? "BYTES"     :
+                 fm.enc == ENC_UTF8     ? "UTF-8"     :
                  fm.enc == ENC_UTF16_LE ? "UTF-16-LE" :
                  fm.enc == ENC_UTF16_BE ? "UTF-16-BE" : "Error",
                  fm.enc);
