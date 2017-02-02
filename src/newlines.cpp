@@ -456,6 +456,7 @@ static void setup_newline_add(chunk_t *prev, chunk_t *nl, chunk_t *next)
 chunk_t *newline_add_before(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
+   assert(pc != NULL);
    chunk_t nl;
    chunk_t *prev;
 
@@ -694,7 +695,7 @@ void newline_del_between(chunk_t *start, chunk_t *end)
                MARK_CHANGE();
                if (prev != NULL)
                {
-                  align_to_column(next, (size_t)((int)prev->column + space_col_align(prev, next)));
+                  align_to_column(next, (prev->column + space_col_align(prev, next)) );
                }
             }
          }
@@ -1173,7 +1174,8 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
          remove_next_newlines(pc);
       }
       else if ((chunk_is_newline(next = chunk_get_next_nvb(pc))) &&
-               !(next->flags & PCF_VAR_DEF))
+               (next != NULL) &&
+               !(next->flags & PCF_VAR_DEF) )
       {
          assert(next != NULL);
          /* otherwise just deal with nls after brace */
@@ -1326,6 +1328,7 @@ static void newlines_cuddle_uncuddle(chunk_t *start, argval_t nl_opt)
 static void newlines_do_else(chunk_t *start, argval_t nl_opt)
 {
    LOG_FUNC_ENTRY();
+   assert(start != NULL);
 
    if ((nl_opt == AV_IGNORE) ||
        ((start->flags & PCF_IN_PREPROC) &&
@@ -1939,7 +1942,7 @@ static void newline_func_multi_line(chunk_t *start)
          }
       }
    }
-} // newline_func_multi_line
+}
 
 
 static void newline_func_def(chunk_t *start)
@@ -1993,7 +1996,9 @@ static void newline_func_def(chunk_t *start)
          }
       }
 
-      if (chunk_get_next_ncnl(prev)->type != CT_FUNC_CLASS_DEF)
+      const chunk_t *next1 = chunk_get_next_ncnl(prev);
+      if ( (next1       != NULL             ) &&
+           (next1->type != CT_FUNC_CLASS_DEF) )
       {
          argval_t a = (tmp->parent_type == CT_FUNC_PROTO) ?
                       cpd.settings[UO_nl_func_proto_type_name].a :

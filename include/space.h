@@ -33,7 +33,7 @@ void space_text_balance_nested_parens(void);
  * @param second  The second chunk
  * @return        the column difference between the two chunks
  */
-int space_col_align(chunk_t *first, chunk_t *second);
+size_t space_col_align(chunk_t *first, chunk_t *second);
 
 
 /**

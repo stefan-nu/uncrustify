@@ -333,7 +333,7 @@ void reindent_line(chunk_t *pc, size_t column)
          if (pc->flags & PCF_IN_QT_MACRO)
          {
             LOG_FMT(LINDLINE, "FLAGS is set: PCF_IN_QT_MACRO\n");
-            save_set_options_for_QT((int)pc->level);
+            save_set_options_for_QT(pc->level);
          }
       }
       chunk_t *next = chunk_get_next(pc);
@@ -347,7 +347,7 @@ void reindent_line(chunk_t *pc, size_t column)
          min_col   = 0;
          col_delta = 0;
       }
-      min_col  = (size_t)((int)min_col + space_col_align(pc, next));
+      min_col  = min_col + space_col_align(pc, next);
       pc       = next;
 
       bool is_comment = chunk_is_comment(pc);
@@ -2390,7 +2390,9 @@ static void indent_comment(chunk_t *pc, size_t col)
    }
 
    chunk_t *prev = chunk_get_prev(nl);
-   if (chunk_is_comment(prev) && (nl->nl_count == 1)) /*lint !e613 */
+   if((chunk_is_comment(prev)) &&
+      (nl           != NULL  ) &&
+      (nl->nl_count == 1     ) )
    {
       assert(prev != NULL);
       int     coldiff = (int)prev->orig_col - (int)pc->orig_col;

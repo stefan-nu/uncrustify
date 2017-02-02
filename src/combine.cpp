@@ -2820,7 +2820,19 @@ static void fix_typedef(chunk_t *start)
 
 static bool cs_top_is_question(const ChunkStack &cs, size_t level)
 {
+#if 0
    const chunk_t *pc = cs.Empty() ? NULL : cs.Top()->m_pc;
+#else
+   const chunk_t *pc;
+   if(cs.Empty() == true)
+   {
+      pc = NULL;
+   }
+   else
+   {
+      pc = cs.Top()->m_pc; /*lint !e613 */
+   }
+#endif
 
    return(pc && (pc->type == CT_QUESTION) && (pc->level == level));
 }
@@ -2877,8 +2889,7 @@ void combine_labels(void)
          /* pop until we hit '[' */
          while (!cs.Empty())
          {
-            assert(cs.Top() != NULL);
-            const chunk_t *t2 = cs.Top()->m_pc;
+            const chunk_t *t2 = cs.Top()->m_pc; /*lint !e613 */
             cs.Pop_Back();
             if (t2->type == CT_SQUARE_OPEN)
             {
@@ -2999,7 +3010,7 @@ void combine_labels(void)
                   }
                }
             }
-            else if (nextprev->type == CT_FPAREN_CLOSE)          { set_chunk_type(next, CT_CLASS_COLON); /* it's a class colon */ }
+            else if ((nextprev != NULL) && (nextprev->type == CT_FPAREN_CLOSE)) { set_chunk_type(next, CT_CLASS_COLON); /* it's a class colon */ }
             else if (cur->type == CT_TYPE)                       { set_chunk_type(next, CT_BIT_COLON); }
             else if ((cur->type == CT_ENUM) ||
                      (cur->type == CT_PRIVATE) ||
@@ -3230,20 +3241,20 @@ static chunk_t *fix_var_def(chunk_t *start)
    assert(cs.Get(0) != NULL);
    /* Check for the '::' stuff: "char *Engine::name" */
    if ((cs.Len() >= 3) &&
-       ((cs.Get(cs.Len() - 2)->m_pc->type == CT_MEMBER  )  ||
-        (cs.Get(cs.Len() - 2)->m_pc->type == CT_DC_MEMBER)))
+       ((cs.Get(cs.Len() - 2)->m_pc->type == CT_MEMBER  )  || /*lint !e613 */
+        (cs.Get(cs.Len() - 2)->m_pc->type == CT_DC_MEMBER))) /*lint !e613 */
    {
       int idx = (int)cs.Len() - 2;
       while (idx > 0)
       {
-         tmp_pc = cs.Get((size_t)idx)->m_pc;
+         tmp_pc = cs.Get((size_t)idx)->m_pc; /*lint !e613 */
          if ((tmp_pc->type != CT_DC_MEMBER) &&
              (tmp_pc->type != CT_MEMBER))
          {
             break;
          }
          idx--;
-         tmp_pc = cs.Get((size_t)idx)->m_pc;
+         tmp_pc = cs.Get((size_t)idx)->m_pc; /*lint !e613 */
          if ((tmp_pc->type != CT_WORD) &&
              (tmp_pc->type != CT_TYPE))
          {
@@ -3254,7 +3265,7 @@ static chunk_t *fix_var_def(chunk_t *start)
       }
       ref_idx = idx + 1;
    }
-   tmp_pc = cs.Get((size_t)ref_idx)->m_pc;
+   tmp_pc = cs.Get((size_t)ref_idx)->m_pc;  /*lint !e613 */
    LOG_FMT(LFVD, " ref_idx(%d) => %s\n", ref_idx, tmp_pc->text());
 
    /* No type part found! */
@@ -3266,7 +3277,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    LOG_FMT(LFVD2, "%s:%zu TYPE : ", __func__, start->orig_line);
    for (size_t idxForCs = 0; idxForCs < cs.Len() - 1; idxForCs++)
    {
-      tmp_pc = cs.Get(idxForCs)->m_pc;
+      tmp_pc = cs.Get(idxForCs)->m_pc; /*lint !e613 */
       make_type(tmp_pc);
       chunk_flags_set(tmp_pc, PCF_VAR_TYPE);
       LOG_FMT(LFVD2, " %s[%s]", tmp_pc->text(), get_token_name(tmp_pc->type));
@@ -3274,7 +3285,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    LOG_FMT(LFVD2, "\n");
 
    /* OK we have two or more items, mark types up to the end. */
-   mark_variable_definition(cs.Get(cs.Len() - 1)->m_pc);
+   mark_variable_definition(cs.Get(cs.Len() - 1)->m_pc); /*lint !e613 */
    if (end->type == CT_COMMA)
    {
       return(chunk_get_next_ncnl(end));
@@ -3464,14 +3475,14 @@ static bool can_be_full_param(chunk_t *start, chunk_t *end)
 
          if (!chunk_is_str(tmp3, ")", 1) ||
              !chunk_is_str(tmp1, "*", 1) ||
-             (tmp2->type != CT_WORD))
+             ((tmp2 != NULL) && (tmp2->type != CT_WORD)) )
          {
             LOG_FMT(LFPARAM, " <== [%s] not fcn type!\n", get_token_name(pc->type));
             return(false);
          }
          LOG_FMT(LFPARAM, " <skip fcn type>");
          tmp1 = chunk_get_next_ncnl(tmp3, CNAV_PREPROC);
-//         tmp2 = chunk_get_next_ncnl(tmp1, CNAV_PREPROC); /* \todo where is tmp2 used? */
+//       tmp2 = chunk_get_next_ncnl(tmp1, CNAV_PREPROC); /* \todo where is tmp2 used? */
          if (chunk_is_str(tmp1, "(", 1))
          {
             tmp3 = chunk_skip_to_match(tmp1, CNAV_PREPROC);
@@ -4109,7 +4120,9 @@ static void mark_function(chunk_t *pc)
       while (tmp != paren_close)
       {
          tmp2 = chunk_get_next_ncnl(tmp);
-         if ((tmp->type == CT_COMMA) && (tmp->level == (paren_open->level + 1)))
+         if ((tmp != NULL                          ) &&
+             (tmp->type  == CT_COMMA               ) &&
+             (tmp->level == (paren_open->level + 1)) )
          {
             if (!can_be_full_param(ref, tmp))
             {
@@ -4491,10 +4504,12 @@ static chunk_t *skip_align(chunk_t *start)
    if (pc->type == CT_ALIGN)
    {
       pc = chunk_get_next_ncnl(pc);
+      assert(pc != NULL);
       if (pc->type == CT_PAREN_OPEN)
       {
          pc = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
          pc = chunk_get_next_ncnl(pc);
+         assert(pc != NULL);
          if (pc->type == CT_COLON)
          {
             pc = chunk_get_next_ncnl(pc);
@@ -5456,6 +5471,7 @@ static void handle_oc_message_decl(chunk_t *pc)
       }
    }
 
+   assert(pc != NULL);
    LOG_FMT(LOCMSGD, " end[%s]", pc->text());
 
    if (chunk_is_token(pc, CT_BRACE_OPEN))

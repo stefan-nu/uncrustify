@@ -178,7 +178,7 @@ void encode_utf8(int ch, vector<UINT8> &res)
       res.push_back(0x80 | ((ch >>  6) & 0x3f));
       res.push_back(0x80 | ((ch >>  0) & 0x3f));
    }
-} // encode_utf8
+}
 
 
 static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
@@ -331,7 +331,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, Cha
       }
    }
    return(true);
-} // decode_utf16
+}
 
 
 static bool decode_bom(const vector<UINT8> &in_data, CharEncoding_t &enc)

@@ -35,8 +35,8 @@ static std::deque<log_fcn_info> g_fq;
 #define LOG_BUF_SIZE 256
 struct log_buf_t
 {
-   log_buf_t()
-      : log_file(0)  /* \todo what does this mean? */
+   log_buf_t() /* set member variables with a initialization list */
+      : log_file(0)
       , sev(LSYS)
       , in_log(0)
       , buf_len(0)
@@ -85,8 +85,8 @@ void log_init(FILE *log_file)
 {
    /* set the top 3 severities */
    logmask_set_all(g_log.mask, false);
-   log_set_sev(LSYS, true);
-   log_set_sev(LERR, true);
+   log_set_sev(LSYS,  true);
+   log_set_sev(LERR,  true);
    log_set_sev(LWARN, true);
 
    g_log.log_file = (log_file != NULL) ? log_file : stderr;

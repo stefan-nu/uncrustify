@@ -324,6 +324,7 @@ void AlignStack::Flush()
    if (m_aligned.Len() == 1)
    {
       // check if we have *one* typedef in the line
+      assert(m_aligned.Get(0) != NULL);
       pc = m_aligned.Get(0)->m_pc;
       const chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
       if (temp != NULL)
@@ -342,6 +343,7 @@ void AlignStack::Flush()
    /* Recalculate the max_col - it may have shifted since the last Add() */
    for (size_t idx = 0; idx < m_aligned.Len(); idx++)
    {
+      assert(m_aligned.Get(idx) != NULL);
       pc = m_aligned.Get(idx)->m_pc;
 
       /* Set the column adjust and gap */
@@ -442,7 +444,7 @@ void AlignStack::Flush()
       /* Remove all items with seqnum < last_seqnum */
       for (size_t idx = 0; idx < m_skipped.Len(); idx++)
       {
-         if (m_skipped.Get(idx)->m_seqnum < last_seqnum)
+         if (m_skipped.Get(idx)->m_seqnum < last_seqnum) /*lint !e613 */
          {
             m_skipped.Zap(idx);
          }

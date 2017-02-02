@@ -67,7 +67,7 @@
 +e610 					// Suspicious pointer combination
 +e611 					// Suspicious cast
 +e612 					// Expected a declarator
-+e613 					// Possible use of null pointer
+-e613 					// Possible use of null pointer
 +e614 					// auto aggregate initializer not constant
 +e615 					// auto aggregate initializer has side effects
 +e616 					// control flows into case/default

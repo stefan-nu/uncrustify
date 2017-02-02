@@ -240,7 +240,9 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc_pri == 25)
    {
       const chunk_t *next = chunk_get_next(pc);
-      if ((next->type != CT_WORD) && (get_split_pri(next->type) != 25))
+      if ((next       != NULL             ) &&
+          (next->type != CT_WORD          ) &&
+          (get_split_pri(next->type) != 25) )
       {
          return;
       }

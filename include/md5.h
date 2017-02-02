@@ -24,20 +24,51 @@ public:
    {
    }
 
+   /**
+    * tbd
+    */
    void Init();
-   void Update(const void *data, UINT32 len);
 
 
    /**
-    * Final wrapup - pad to 64-byte boundary with the bit pattern
+    * blocks the data and converts bytes into longwords for
+    * the transform routine.
+    */
+   void Update(
+      const void *data,
+      UINT32 len
+   );
+
+
+   /**
+    * Final wrap-up - pad to 64-byte boundary with the bit pattern
     * 1 0* (64-bit count of bits processed, MSB-first)
     */
-   void Final(UINT8 digest[16]);
+   void Final(
+      UINT8 digest[16] /**< [out] calculated MD5 checksum */
+   );
 
-   /* internal function */
-   static void Transform(UINT32 buf[4], UINT32 in_data[16]);
 
-   static void Calc(const void *data, UINT32 length, UINT8 digest[16]);
+   /*
+    * The core of the MD5 algorithm, this alters an existing MD5 hash to
+    * reflect the addition of 16 longwords of new data. MD5::Update blocks
+    * the data and converts bytes into longwords for this routine.
+    */
+   static void Transform(
+      UINT32 buf[4],
+      UINT32 in_data[16]
+   );
+
+
+   /**
+    * Calculates MD5 for a block of data
+    */
+   static void Calc(
+      const void *data,     /**< [in] data to calculate MD5 for */
+      UINT32     length,    /**< [in] number of bytes in data */
+      UINT8      digest[16] /**< [out] calculated MD5 checksum */
+   );
+
 
 private:
    UINT32 m_buf[M_BUF_SIZE];
@@ -46,7 +77,13 @@ private:
    bool   m_need_byteswap;
    bool   m_big_endian;
 
-   void reverse_u32(UINT8 *buf, int n_u32) const;
+   /**
+    * tbd
+    */
+   void reverse_u32(
+      UINT8 *buf,
+      int n_u32
+   ) const;
 };
 
 #endif /* MD5_H_INCLUDED */

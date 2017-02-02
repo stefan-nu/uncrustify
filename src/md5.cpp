@@ -21,6 +21,7 @@
 #include <string.h>
 #include "uncrustify_types.h"
 
+
 /**
  * Reverse the bytes in 32-bit chunks.
  * 'buf' might not be word-aligned.
@@ -37,7 +38,7 @@ void MD5::reverse_u32(UINT8 *buf, int n_u32) const
       {
          SWAP(buf[0], buf[3]);
          SWAP(buf[1], buf[2]);
-         buf += 4;
+         buf += M_BUF_SIZE;
       }
    }
    else
@@ -47,7 +48,7 @@ void MD5::reverse_u32(UINT8 *buf, int n_u32) const
       {
          SWAP(buf[0], buf[1]);
          SWAP(buf[2], buf[3]);
-         buf += 4;
+         buf += M_BUF_SIZE;
       }
    }
 }
@@ -93,10 +94,7 @@ void MD5::Init()
  */
 void MD5::Update(const void *data, UINT32 len)
 {
-   const UINT8 *buf = (const UINT8 *)data;
-
-   /* Update bitcount */
-   UINT32 t = m_bits[0];
+   UINT32 t = m_bits[0]; /* Update bit count */
 
    if ((m_bits[0] = t + ((UINT32)len << 3)) < t)
    {
@@ -106,12 +104,13 @@ void MD5::Update(const void *data, UINT32 len)
 
    t = (t >> 3) & 0x3f;   /* Bytes already in shsInfo->data */
 
+   const UINT8 *buf = (const UINT8 *)data;
    /* Handle any leading odd-sized chunks */
    if (t)
    {
       UINT8 *p = (UINT8 *)m_in + t;
 
-      t = 64 - t;
+      t = M_IN_SIZE - t;
       if (len < t)
       {
          memcpy(p, buf, len);
@@ -126,18 +125,18 @@ void MD5::Update(const void *data, UINT32 len)
       buf += t;
       len -= t;
    }
-   /* Process data in 64-byte chunks */
 
-   while (len >= 64)
+   /* Process data in 64-byte chunks */
+   while (len >= M_IN_SIZE)
    {
-      memcpy(m_in, buf, 64);
+      memcpy(m_in, buf, M_IN_SIZE);
       if (m_need_byteswap)
       {
          reverse_u32(m_in, 16);
       }
       Transform(m_buf, (UINT32 *)m_in);
-      buf += 64;        /* \todo possible creation of out-of-bounds pointer 64 beyond end of data */
-      len -= 64;
+      buf += M_IN_SIZE;        /* \todo possible creation of out-of-bounds pointer 64 beyond end of data */
+      len -= M_IN_SIZE;
    }
 
    /* Save off any remaining bytes of data */
@@ -157,7 +156,7 @@ void MD5::Final(UINT8 digest[16])
    *p++ = 0x80;
 
    /* Bytes of padding needed to make 64 bytes */
-   count = (64 - 1) - count;
+   count = (M_IN_SIZE - 1) - count;
 
    /* Pad out to 56 mod 64 */
    if (count < 8)
@@ -184,13 +183,13 @@ void MD5::Final(UINT8 digest[16])
    }
 
    /* Append length in bits and transform */
-   memcpy(m_in + 56, &m_bits[0], 4);
-   memcpy(m_in + 60, &m_bits[1], 4);
+   memcpy(m_in + 56, &m_bits[0], M_BUF_SIZE);
+   memcpy(m_in + 60, &m_bits[1], M_BUF_SIZE);
 
    Transform(m_buf, (UINT32 *)m_in);
    if (m_need_byteswap)
    {
-      reverse_u32((UINT8 *)m_buf, 4);
+      reverse_u32((UINT8 *)m_buf, M_BUF_SIZE);
    }
    memcpy(digest, m_buf, 16);
 }
@@ -209,11 +208,6 @@ void MD5::Final(UINT8 digest[16])
    ((w) += f((x), (y), (z)) + (data), (w) = (w) << (s) | (w) >> (32 - (s)), (w) += (x))
 
 
-/*
- * The core of the MD5 algorithm, this alters an existing MD5 hash to
- * reflect the addition of 16 longwords of new data.  MD5::Update blocks
- * the data and converts bytes into longwords for this routine.
- */
 void MD5::Transform(UINT32 buf[4], UINT32 in_data[16])
 {
    UINT32 a = buf[0];

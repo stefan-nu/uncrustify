@@ -363,7 +363,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
         (second->parent_type == CT_COMMENT_EMBED)))
    {
       log_rule("sp_before_tr_emb_cmt");
-      min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].u;
+      min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].n;
       return(cpd.settings[UO_sp_before_tr_emb_cmt].a);
    }
 
@@ -1893,13 +1893,15 @@ void space_text(void)
          chunk_flags_set(pc, PCF_IN_QT_MACRO);
 
          // save the values
-         save_set_options_for_QT((int)pc->level);
+         save_set_options_for_QT(pc->level);
       } // guy
         // Bug # 637
       if (cpd.settings[UO_sp_skip_vbrace_tokens].b)
       {
          next = chunk_get_next(pc);
-         while (chunk_is_blank(next) && !chunk_is_newline(next) &&
+         while ( (chunk_is_blank   (next)) &&
+                 (!chunk_is_newline(next)) &&
+                 (next != NULL           ) &&
                 (next->type == CT_VBRACE_OPEN ||
                  next->type == CT_VBRACE_CLOSE))
          {
@@ -2201,7 +2203,7 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 }
 
 
-int space_col_align(chunk_t *first, chunk_t *second)
+size_t space_col_align(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
    assert(first  != NULL);
@@ -2221,15 +2223,15 @@ int space_col_align(chunk_t *first, chunk_t *second)
 
    LOG_FMT(LSPACE, "%s: av=%d, ", __func__, av);
    size_t coldiff;
-   if (first->nl_count)
+   if (first->nl_count > 0)
    {
       LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%d", first->nl_count, first->orig_col_end);
-      coldiff = (int)first->orig_col_end - 1;
+      coldiff = first->orig_col_end - 1u;
    }
    else
    {
       LOG_FMT(LSPACE, "len=%zu", first->len());
-      coldiff = (int)first->len();
+      coldiff = first->len();
    }
    switch (av)
    {

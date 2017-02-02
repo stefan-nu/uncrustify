@@ -603,10 +603,11 @@ void tokenize_cleanup(void)
       /* @implementation ClassName (CategoryName) */
       /* @interface ClassName () */
       /* @implementation ClassName () */
-      if (((pc->parent_type == CT_OC_IMPL) ||
-           (pc->parent_type == CT_OC_INTF) ||
-           (pc->type == CT_OC_CLASS)) &&
-          (next->type == CT_PAREN_OPEN))
+      if (((pc->parent_type == CT_OC_IMPL   ) ||
+           (pc->parent_type == CT_OC_INTF   ) ||
+           (pc->type        == CT_OC_CLASS) ) &&
+           (next            != NULL         ) &&
+           (next->type      == CT_PAREN_OPEN) )
       {
          set_chunk_parent(next, pc->parent_type);
 
@@ -669,7 +670,9 @@ void tokenize_cleanup(void)
        *  @selector(msgNameWithNoArg)
        *  @selector(msgNameWith1Arg:)
        *  @selector(msgNameWith2Args:arg2Name:) */
-      if ((pc->type == CT_OC_SEL) && (next->type == CT_PAREN_OPEN))
+      if ( (pc->type   == CT_OC_SEL    ) &&
+           (next       != NULL         ) &&
+           (next->type == CT_PAREN_OPEN) )
       {
          set_chunk_parent(next, pc->type);
 
@@ -705,10 +708,9 @@ void tokenize_cleanup(void)
          assert(next != NULL);
          if(next->type == CT_PREPROC_BODY)
          {
-
-            if ((memcmp(next->str.c_str(), "region",    6) == 0) ||
-                (memcmp(next->str.c_str(), "endregion", 9) == 0))
-            /* \todo probably better use strncmp */
+            const char*  str = next->str.c_str();
+            if ((strncmp(str, "region",    6) == 0) ||
+                (strncmp(str, "endregion", 9) == 0) )
             {
                set_chunk_type(pc, (*next->str.c_str() == 'r') ? CT_PP_REGION : CT_PP_ENDREGION);
 
@@ -718,8 +720,9 @@ void tokenize_cleanup(void)
       }
 
       /* Check for C# nullable types '?' is in next */
-      if ((cpd.lang_flags & LANG_CS) &&
-          (next->type == CT_QUESTION) &&
+      if ((cpd.lang_flags & LANG_CS     ) &&
+          (next           != NULL       ) &&
+          (next->type     == CT_QUESTION) &&
           (next->orig_col == (pc->orig_col + pc->len())))
       {
          chunk_t *tmp = chunk_get_next_ncnl(next);
@@ -743,6 +746,7 @@ void tokenize_cleanup(void)
 
             if (doit == true)
             {
+               assert(next != NULL);
                pc->str         += next->str;
                pc->orig_col_end = next->orig_col_end;
                chunk_del(next);
@@ -753,20 +757,24 @@ void tokenize_cleanup(void)
 
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS) &&
-          (pc->type == CT_DEFAULT) &&
+          (pc->type   == CT_DEFAULT) &&
+          (next       != NULL      ) &&
           (next->type == CT_PAREN_OPEN))
       {
          set_chunk_type(pc, CT_SIZEOF);
       }
 
-      if ((pc->type == CT_UNSAFE) && (next->type != CT_BRACE_OPEN))
+      if ((pc->type   == CT_UNSAFE    ) &&
+          (next       != NULL         ) &&
+          (next->type != CT_BRACE_OPEN) )
       {
          set_chunk_type(pc, CT_QUALIFIER);
       }
 
-      if (((pc->type == CT_USING) ||
-           ((pc->type == CT_TRY) && (cpd.lang_flags & LANG_JAVA))) &&
-          (next->type == CT_PAREN_OPEN))
+      if (((pc->type  == CT_USING) ||
+           ((pc->type == CT_TRY  ) && (cpd.lang_flags & LANG_JAVA))) &&
+            (next     != NULL    ) &&
+          (next->type == CT_PAREN_OPEN) )
       {
          set_chunk_type(pc, CT_USING_STMT);
       }
@@ -785,7 +793,8 @@ void tokenize_cleanup(void)
        *   A::A(int) try : B() { } catch (...) { } */
       if ( (pc->type == CT_TRY) && chunk_is_str(pc, "try", 3) )
       {
-         if(next->type == CT_COLON)
+         if( (next       != NULL    ) &&
+             (next->type == CT_COLON) )
          {
             set_chunk_type(pc, CT_QUALIFIER);
          }
@@ -795,6 +804,7 @@ void tokenize_cleanup(void)
        * a qualifier. */
       if ((cpd.lang_flags & LANG_JAVA      ) &&
           (pc->type      == CT_SYNCHRONIZED) &&
+          (next          != NULL           ) &&
           (next->type    != CT_PAREN_OPEN  ) )
       {
          set_chunk_type(pc, CT_QUALIFIER);
@@ -994,7 +1004,8 @@ static void check_template(chunk_t *start)
          {
             chunk_t *next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
             chunk_flags_set(pc, PCF_IN_TEMPLATE);
-            if (next->type != CT_PAREN_OPEN)
+            if ( (next       != NULL         ) &&
+                 (next->type != CT_PAREN_OPEN) )
             {
                make_type(pc);
             }
