@@ -398,7 +398,7 @@ void AlignStack::Flush()
       assert(ce != NULL);
       pc = ce->m_pc;
 
-      size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
+      const size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
       if (idx == 0)
       {
          if (m_skip_first && (pc->column != tmp_col))

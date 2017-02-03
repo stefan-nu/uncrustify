@@ -144,7 +144,7 @@ void do_braces(void)
          continue;
       }
       chunk_t   *br_open = pc;
-      c_token_t brc_type = get_inverse_type(pc->type); /* corresponds to closing type */
+      const c_token_t brc_type = get_inverse_type(pc->type); /* corresponds to closing type */
 
       /* Detect empty bodies */
       chunk_t *tmp = chunk_get_next_ncnl(pc);
@@ -211,7 +211,7 @@ static void examine_braces(void)
 static bool should_add_braces(chunk_t *vbopen)
 {
    LOG_FUNC_ENTRY();
-   size_t nl_max = cpd.settings[UO_mod_full_brace_nl].u;
+   const size_t nl_max = cpd.settings[UO_mod_full_brace_nl].u;
    if (nl_max == 0)
    {
       return(false);
@@ -267,10 +267,10 @@ static bool can_remove_braces(chunk_t *bopen)
 
    const chunk_t *prev = NULL;
    size_t  semi_count = 0;
-   size_t  level      = bopen->level + 1;
+   const size_t  level      = bopen->level + 1;
    bool    hit_semi   = false;
    bool    was_fcn    = false;
-   size_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
+   const size_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
    size_t  nl_count   = 0;
    size_t  if_count   = 0;
    int     br_count   = 0;
@@ -398,10 +398,10 @@ static void examine_brace(chunk_t *bopen)
    chunk_t *next;
    chunk_t *prev      = NULL;
    size_t  semi_count = 0;
-   size_t  level      = bopen->level + 1;
+   const size_t  level      = bopen->level + 1;
    bool    hit_semi   = false;
    bool    was_fcn    = false;
-   size_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
+   const size_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
    size_t  nl_count   = 0;
    size_t  if_count   = 0;
    int     br_count   = 0;
@@ -901,7 +901,7 @@ void add_long_closebrace_comment(void)
                if ((nl_min > 0) && (nl_count >= nl_min) && (tag_pc != NULL))
                {
                   /* determine the added comment style */
-                  c_token_t style = (cpd.lang_flags & (LANG_CPP | LANG_CS)) ?
+                  const c_token_t style = (cpd.lang_flags & (LANG_CPP | LANG_CS)) ?
                                     CT_COMMENT_CPP : CT_COMMENT;
 
                   /* Add a comment after the close brace */
@@ -1136,7 +1136,7 @@ static void process_if_chain(chunk_t *br_start)
       }
       else
       {
-         bool tmp = should_add_braces(pc);
+         const bool tmp = should_add_braces(pc);
          if (tmp)
          {
             must_have_braces = true;

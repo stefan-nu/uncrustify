@@ -2536,7 +2536,7 @@ void indent_preproc(void)
             size_t mult = cpd.settings[UO_pp_space_count].u;
 
             if (mult < 1) { mult = 1; }
-            reindent_line(next, (size_t)(pc->column + pc->len() + (pp_level * mult)));
+            reindent_line(next, (size_t)((int)pc->column + (int)pc->len() + (pp_level * (int)mult)));
          }
          else if (is_option_set(cpd.settings[UO_pp_space].a, AV_REMOVE))
          {

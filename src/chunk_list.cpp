@@ -420,8 +420,8 @@ static void chunk_log(chunk_t *pc, const char *text)
        (cpd.unc_stage != US_CLEANUP ) )
    {
       const log_sev_t log   = LCHUNK;
-      chunk_t         *prev = chunk_get_prev(pc);
-      chunk_t         *next = chunk_get_next(pc);
+      chunk_t   *prev = chunk_get_prev(pc);
+      chunk_t   *next = chunk_get_next(pc);
 
       chunk_log_msg(pc, log, text);
 
@@ -685,7 +685,7 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 #if 0
       SWAP(pc1->nl_count, pc2->nl_count); /* \todo check this */
 #else
-      size_t nl_count = pc1->nl_count;
+      const size_t nl_count = pc1->nl_count;
 
       pc1->nl_count = pc2->nl_count;
       pc2->nl_count = nl_count;

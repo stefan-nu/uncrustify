@@ -43,7 +43,7 @@ typedef unsigned long long   UINT64;
    #define __func__    __FUNCTION__
 #endif
 #else /* _MSC_VER */
-   #define __func__    __func__
+   #define __func__    "xxx" // __func__
 #endif
 
 #include <stdio.h>

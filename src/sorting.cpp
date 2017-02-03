@@ -29,7 +29,7 @@ include_category *include_categories[kIncludeCategoriesCount];
 
 static void prepare_categories()
 {
-   for (int i = 0; i < kIncludeCategoriesCount; i++)
+   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
       if (cpd.settings[UO_include_category_first + i].str != NULL)
       {
@@ -58,13 +58,13 @@ static void cleanup_categories()
 
 static int get_chunk_priority(chunk_t *pc)
 {
-   for (int i = 0; i < kIncludeCategoriesCount; i++)
+   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
       if (include_categories[i] != NULL)
       {
          if (std::regex_match(pc->text(), include_categories[i]->regex))
          {
-            return(i);
+            return((int)i);
          }
       }
    }
@@ -84,7 +84,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2);
  * We need to minimize the number of swaps, as those are expensive.
  * So, we do a min sort.
  */
-static void do_the_sort(chunk_t **chunks, size_t num_chunks);
+static void do_the_sort(chunk_t **chunks, const size_t num_chunks);
 
 
 static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
@@ -95,8 +95,8 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
    if (pc1 == pc2) { return(0); }   /* \todo same chunk is always identical thus return 0 differences */
    while ((pc1 != NULL) && (pc2 != NULL) ) /* ensure there are two valid pointers */
    {
-      int ppc1 = get_chunk_priority(pc1);
-      int ppc2 = get_chunk_priority(pc2);
+      const int ppc1 = get_chunk_priority(pc1);
+      const int ppc2 = get_chunk_priority(pc2);
 
       if (ppc1 != ppc2)
       {
@@ -105,8 +105,8 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
       LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-      size_t min_len = min(pc1->len(), pc2->len());
-      int    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
+      const size_t min_len = min(pc1->len(), pc2->len());
+      const int    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
       LOG_FMT(LSORT, "ret_val=%d\n", ret_val);
 
       if (ret_val    != 0         ) { return(ret_val); }
@@ -160,7 +160,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 }
 
 
-static void do_the_sort(chunk_t **chunks, size_t num_chunks)
+static void do_the_sort(chunk_t **chunks, const size_t num_chunks)
 {
    LOG_FUNC_ENTRY();
 
@@ -274,4 +274,4 @@ void sort_imports(void)
    }
 
    cleanup_categories();
-} // sort_imports
+}

@@ -14,7 +14,7 @@ Args::Args(int argc, char **argv)
 {
    m_count  = (size_t)argc;
    m_values = argv;
-   size_t len = NumberOfBits(argc);
+   const size_t len = NumberOfBits(argc);
    m_used = new UINT8[len];
    if (m_used != NULL)
    {
@@ -81,7 +81,7 @@ const char *Args::Params(const char *token, size_t &index)
 
    for (size_t idx = index; idx < m_count; idx++)
    {
-      size_t arg_len = strlen(m_values[idx]);
+      const size_t arg_len = strlen(m_values[idx]);
 
       if ((arg_len >= token_len) &&
           (memcmp(token, m_values[idx], token_len) == 0))

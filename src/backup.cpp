@@ -88,8 +88,8 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    thefile = fopen(newpath, "wb");
    if (thefile != NULL)
    {
-      size_t retval   = fwrite(&data[0], data.size(), 1, thefile);
-      int    my_errno = errno;
+      const size_t retval   = fwrite(&data[0], data.size(), 1, thefile);
+      const int    my_errno = errno;
 
       fclose(thefile);
 

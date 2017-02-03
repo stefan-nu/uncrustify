@@ -167,7 +167,7 @@ static void add_msg_header(
 
 
 static void process_source_list(
-   const char *source_list,
+   const char * const source_list,
    const char *prefix,
    const char *suffix,
    bool no_backup,
@@ -180,10 +180,10 @@ int load_header_files(void);
 
 static const char *make_output_filename(
    char *buf,
-   size_t buf_size,
-   const char *filename,
-   const char *prefix,
-   const char *suffix
+   const size_t       buf_size,
+   const char * const filename,
+   const char * const prefix,
+   const char * const suffix
 );
 
 
@@ -203,13 +203,13 @@ static bool file_content_matches(
  * thus "source.c" -> "source.c.uncrustify"
  */
 static string create_out_filename(
-   const char *filename
+   const char * const filename
 );
 
 
 static bool bout_content_matches(
    const file_mem_t &fm,
-   bool report_status
+   const bool       report_status
 );
 
 
@@ -217,7 +217,7 @@ static bool bout_content_matches(
  * Loads a file into memory
  */
 static int load_mem_file(
-   const char *filename,
+   const char * const filename,
    file_mem_t &fm
 );
 
@@ -226,7 +226,7 @@ static int load_mem_file(
  * Try to load the file from the config folder first and then by name
  */
 static int load_mem_file_config(
-   const char *filename,
+   const char * const filename,
    file_mem_t &fm
 );
 
@@ -293,11 +293,11 @@ const char *path_basename(const char *path)
 
    const char *last_path = path;
 
-   while (*path != 0) /* check for end of string */
+   while (*path != 0) /* check for end of string */ /*lint !e661 */
    {
       /* Check both slash types to support Linux and Windows */
       /* \todo better use strcmp */
-      char ch = *path;
+      const char ch = *path;
       path++;
       if ((ch == '/') || (ch == '\\'))
       {
@@ -312,7 +312,7 @@ size_t path_dirname_len(const char *full_name)
 {
    if (full_name == NULL) { return(0); }
 
-   const char*  file_name = path_basename(full_name);
+   const char* const file_name = path_basename(full_name);
    /* subtracting addresses works only on big endian systems */
    const size_t len       = (size_t)file_name - (size_t)full_name;
 
@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
    idx = 0;
    while ((p_arg = arg_list.Params("-d", idx)) != NULL)
    {
-      int return_code = load_define_file(p_arg);
+      const int return_code = load_define_file(p_arg);
       if (return_code != EX_OK)
       {
          return(return_code);
@@ -617,16 +617,16 @@ int main(int argc, char *argv[])
       // not using a file list, source_list is NULL
    }
 
-   const char *prefix    = arg_list.Param  ("--prefix");
-   const char *suffix    = arg_list.Param  ("--suffix");
-   const char *assume    = arg_list.Param  ("--assume");
+   const char * const prefix    = arg_list.Param  ("--prefix");
+   const char *       suffix    = arg_list.Param  ("--suffix");
+   const char * const assume    = arg_list.Param  ("--assume");
 
-   bool no_backup        = arg_list.Present("--no-backup");
-   bool replace          = arg_list.Present("--replace");
-   bool keep_mtime       = arg_list.Present("--mtime");
-   bool update_config    = arg_list.Present("--update-config");
-   bool update_config_wd = arg_list.Present("--update-config-with-doc");
-   bool detect           = arg_list.Present("--detect");
+   const bool no_backup        = arg_list.Present("--no-backup");
+   const bool replace          = arg_list.Present("--replace");
+   const bool keep_mtime       = arg_list.Present("--mtime");
+   const bool update_config    = arg_list.Present("--update-config");
+   const bool update_config_wd = arg_list.Present("--update-config-with-doc");
+   const bool detect           = arg_list.Present("--detect");
 
    /* Grab the output override */
    const char *output_file = arg_list.Param("-o");
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
    idx = 0;
    while ((p_arg = arg_list.Params("--set", idx)) != NULL)
    {
-      size_t argLength = strlen(p_arg);
+      const size_t argLength = strlen(p_arg);
 #define MAXLENGTHFORARG    256
       if (argLength > MAXLENGTHFORARG)
       {
@@ -711,10 +711,10 @@ int main(int argc, char *argv[])
 
       // Tokenize and extract key and value
       const char *token  = strtok(buffer, "=");
-      const char *option = token;
+      const char * const option = token;
 
       token = strtok(NULL, "=");
-      const char *value = token;
+      const char * const value = token;
 
       if (option != NULL && value != NULL && strtok(NULL, "=") == NULL)
       {
@@ -919,8 +919,8 @@ int main(int argc, char *argv[])
 }
 
 
-static void process_source_list(const char *source_list, const char *prefix,
-      const char *suffix, bool no_backup, bool keep_mtime)
+static void process_source_list(const char * const source_list, const char *prefix,
+      const char *suffix, const bool no_backup, const bool keep_mtime)
 {
    int  from_stdin = strcmp(source_list, "-") == 0;
    FILE *p_file    = from_stdin ? stdin : fopen(source_list, "r");
@@ -981,7 +981,7 @@ static bool read_stdin(file_mem_t &fm)
 
    while (!feof(stdin))
    {
-      size_t len = fread(buf, 1, sizeof(buf), stdin);
+      const size_t len = fread(buf, 1, sizeof(buf), stdin);
       for (size_t idx = 0; idx < len; idx++)
       {
          dq.push_back(buf[idx]);
@@ -1041,7 +1041,7 @@ static void make_folders(const string &filename)
 }
 
 
-static int load_mem_file(const char *filename, file_mem_t &fm)
+static int load_mem_file(const char * const filename, file_mem_t &fm)
 {
    int         retval = -1;
    struct stat my_stat;
@@ -1109,7 +1109,7 @@ static int load_mem_file(const char *filename, file_mem_t &fm)
 }
 
 
-static int load_mem_file_config(const char *filename, file_mem_t &fm)
+static int load_mem_file_config(const char * const filename, file_mem_t &fm)
 {
    char buf[1024];
    snprintf(buf, sizeof(buf), "%.*s%s", path_dirname_len(cpd.filename), cpd.filename, filename);
@@ -1166,14 +1166,14 @@ int load_header_files()
 }
 
 
-static const char *make_output_filename(char *buf, size_t buf_size,
-      const char *filename, const char *prefix, const char *suffix)
+static const char *make_output_filename(char *buf, const size_t buf_size,
+      const char * const filename, const char * const prefix, const char * const suffix)
 {
-   size_t len = 0;
+   int len = 0;
 
    if (prefix != NULL)
    {
-      len = (size_t)snprintf(buf, buf_size, "%s/", prefix);
+      len = snprintf(buf, buf_size, "%s/", prefix);
    }
 
    snprintf(&buf[len], buf_size - len, "%s%s", filename,
@@ -1223,7 +1223,7 @@ static bool file_content_matches(const string &filename1, const string &filename
          /* \todo what is if one file is longer
          * than the other, do we miss that ? */
       }
-      size_t minlen = min(len1, len2);
+      const size_t minlen = min(len1, len2);
       if (memcmp(buf1, buf2, minlen) != 0)
       {
          break; /* found a difference */
@@ -1239,7 +1239,7 @@ static bool file_content_matches(const string &filename1, const string &filename
 }
 
 
-static string create_out_filename(const char *filename)
+static string create_out_filename(const char * const filename)
 {
    const char file_ending[] = ".uncrustify";
    const size_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
@@ -1261,7 +1261,7 @@ static string create_out_filename(const char *filename)
 }
 
 
-static bool bout_content_matches(const file_mem_t &fm, bool report_status)
+static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
 {
    bool is_same = true;
 
@@ -1675,7 +1675,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          }
       }
    }
-} // add_msg_header
+}
 
 
 static void uncrustify_start(const deque<int> &data)
@@ -1720,7 +1720,7 @@ static void uncrustify_start(const deque<int> &data)
 
    /* Look at all colons ':' and mark labels, :? sequences, etc. */
    combine_labels();
-} // uncrustify_start
+}
 
 
 void uncrustify_file(const file_mem_t &fm, FILE *pfout,
@@ -1900,9 +1900,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
       mark_comments();
 
-      /**
-       * Add balanced spaces around nested params
-       */
+      /* Add balanced spaces around nested params */
       if (cpd.settings[UO_sp_balance_nested_parens].b)
       {
          space_text_balance_nested_parens();

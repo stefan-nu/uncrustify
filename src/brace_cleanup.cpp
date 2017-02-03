@@ -436,7 +436,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       }
 
       /* Make sure the open / close match */
-      if (pc->type != (frm->pse[frm->pse_tos].type + 1))   // \todo why +1
+      if (pc->type != (c_token_t)((int)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
 //    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type )) fails
       {
          if ((frm->pse[frm->pse_tos].type != CT_NONE) &&
@@ -610,7 +610,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       set_chunk_parent(pc, parent);
    }
 
-   pattern_class patcls = get_token_pattern_class(pc->type);
+   const pattern_class patcls = get_token_pattern_class(pc->type);
 
    /** Create a stack entry for complex statements: */
    /** if, elseif, switch, for, while, synchronized, using, lock, with, version, CT_D_SCOPE_IF */

@@ -201,7 +201,7 @@ void MD5::Final(UINT8 digest[16])
    ((w) += f((x), (y), (z)) + (data), (w) = (w) << (s) | (w) >> (32 - (s)), (w) += (x))
 
 
-void MD5::Transform(UINT32 buf[4], UINT32 in_data[16])
+void MD5::Transform(UINT32 buf[4], const UINT32 in_data[16])
 {
    UINT32 a = buf[0];
    UINT32 b = buf[1];
@@ -283,7 +283,7 @@ void MD5::Transform(UINT32 buf[4], UINT32 in_data[16])
 }
 
 
-void MD5::Calc(const void *data, UINT32 length, UINT8 digest[16])
+void MD5::Calc(const void *data, const UINT32 length, UINT8 digest[16])
 {
    MD5 md5;
    md5.Init();

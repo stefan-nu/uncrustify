@@ -119,6 +119,8 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
 }
 
 /* \todo reduce cyclic complexity of this function */
+
+/* \todo make min_sp a size_t */
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
@@ -1385,7 +1387,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    if ((is_not_option(cpd.settings[UO_sp_after_constr_colon].a, AV_IGNORE)) &&
        (first->type == CT_CONSTR_COLON))
    {
-      min_sp = cpd.settings[UO_indent_ctor_init_leading].u - 1; // default indent is 1 space
+      min_sp = cpd.settings[UO_indent_ctor_init_leading].n - 1; // default indent is 1 space
 
       log_rule("sp_after_constr_colon");
       return(cpd.settings[UO_sp_after_constr_colon].a);

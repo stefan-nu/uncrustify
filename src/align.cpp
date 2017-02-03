@@ -365,7 +365,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
    {
       max_col = min_col;
    }
-} // align_add
+}
 
 
 void quick_align_again(void)
@@ -410,7 +410,7 @@ void quick_indent_again(void)
          chunk_t *tmp = chunk_get_prev(pc);
          if (chunk_is_newline(tmp))
          {
-            size_t col = (size_t)((int)pc->indent.ref->column + pc->indent.delta);
+            const size_t col = (size_t)((int)pc->indent.ref->column + pc->indent.delta);
 
             indent_to_column(pc, col);
             LOG_FMT(LINDENTAG, "%s: [%zu] indent [%s] to %zu based on [%s] @ %zu:%zu\n",
@@ -544,7 +544,7 @@ void align_right_comments(void)
          /* Change certain WHOLE comments into RIGHT-alignable comments */
          if (pc->parent_type == CT_COMMENT_WHOLE)
          {
-            size_t max_col = pc->column_indent + cpd.settings[UO_input_tab_size].u;
+            const size_t max_col = pc->column_indent + cpd.settings[UO_input_tab_size].u;
 
             /* If the comment is further right than the brace level... */
             if (pc->column >= max_col)
@@ -670,7 +670,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
    LOG_FUNC_ENTRY();
 
    if (first == NULL) { return(NULL); }
-   size_t my_level = first->level;
+   const size_t my_level = first->level;
 
    if (span == 0)
    {
@@ -925,7 +925,7 @@ static void align_same_func_call_params(void)
       {
          if (chunk_is_newline(pc))
          {
-            size_t element_count = as.size();
+            const size_t element_count = as.size();
             for (size_t idx = 0; idx < element_count; idx++)
             {
                as[idx].NewLines(pc->nl_count);
@@ -941,7 +941,7 @@ static void align_same_func_call_params(void)
 
                /* Flush it all! */
                fcn_as.Flush();
-               size_t element_count = (size_t)as.size();
+               const size_t element_count = (size_t)as.size();
                for (size_t idx = 0; idx < element_count; idx++)
                {
                   as[idx].Flush();
@@ -1009,7 +1009,7 @@ static void align_same_func_call_params(void)
 
             /* Flush it all! */
             fcn_as.Flush();
-            size_t element_count = (size_t)as.size();
+            const size_t element_count = (size_t)as.size();
             for (size_t idx = 0; idx < element_count; idx++)
             {
                as[idx].Flush();
@@ -1063,7 +1063,7 @@ static void align_same_func_call_params(void)
    {
       LOG_FMT(LASFCP, "  ++ Ended with %zu fcns\n", align_len);
       fcn_as.End();
-      size_t element_count = (size_t)as.size();
+      const size_t element_count = (size_t)as.size();
       for (size_t idx = 0; idx < element_count; idx++)
       {
          as[idx].End();
@@ -1220,7 +1220,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
    bool    fp_look_bro   = false;
    bool    did_this_line = false;
-   bool    fp_active     = cpd.settings[UO_align_mix_var_proto].b;
+   const bool    fp_active     = cpd.settings[UO_align_mix_var_proto].b;
    chunk_t *pc           = chunk_get_next(start);
    while ((pc != NULL) && ((pc->level >= start->level) || (pc->level == 0)))
    {
@@ -1456,9 +1456,9 @@ static chunk_t *align_trailing_comments(chunk_t *start)
    size_t         nl_count = 0;
    ChunkStack     cs;
    size_t         col;
-   size_t         intended_col = cpd.settings[UO_align_right_cmt_at_col].u;
+   const size_t         intended_col = cpd.settings[UO_align_right_cmt_at_col].u;
    CmtAlignType_t cmt_type_cur;
-   CmtAlignType_t cmt_type_start = get_comment_align_type(pc);
+   const CmtAlignType_t cmt_type_start = get_comment_align_type(pc);
 
    LOG_FMT(LALADD, "%s: start on line=%zu\n",
            __func__, pc->orig_line);
@@ -1591,7 +1591,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
                (pc->type == CT_BRACE_CLOSE) ||
                (pc->type == CT_COMMA))
       {
-         size_t token_width = (size_t)space_col_align(pc, next); /* \todo can we be sure the result is positive? */
+         const size_t token_width = (size_t)space_col_align(pc, next); /* \todo can we be sure the result is positive? */
 
          /*TODO: need to handle missing structure defs? ie NULL vs { ... } ?? */
 
@@ -1628,8 +1628,8 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
                }
                else if (idx > 0)
                {
-                  int min_col_diff = (int)pc->column - (int)prev_match->column;
-                  int cur_col_diff = (int)cpd.al[idx].col - (int)cpd.al[idx - 1].col;
+                  const int min_col_diff = (int)pc->column - (int)prev_match->column;
+                  const int cur_col_diff = (int)cpd.al[idx].col - (int)cpd.al[idx - 1].col;
                   if (cur_col_diff < min_col_diff)
                   {
                      LOG_FMT(LSIB, " [ min_col_diff(%d) > cur_col_diff(%d) ] ",
@@ -1745,7 +1745,7 @@ static void align_init_brace(chunk_t *start)
 
             if (num_token != NULL)
             {
-               int col_diff = (int)pc->column - (int)num_token->column;
+               const int col_diff = (int)pc->column - (int)num_token->column;
                assert((int)cpd.al[idx].col - col_diff >= 0);
                reindent_line(num_token, (size_t)((int)cpd.al[idx].col - col_diff));
                //LOG_FMT(LSYS, "-= %zu =- NUM indent [%s] col=%d diff=%d\n",
@@ -1968,10 +1968,10 @@ static void align_oc_msg_colon(chunk_t *so)
    nas.m_right_align = !cpd.settings[UO_align_on_tabstop].b;
 
    AlignStack cas;   /* for the colons */
-   size_t     span = cpd.settings[UO_align_oc_msg_colon_span].u;
+   const size_t     span = cpd.settings[UO_align_oc_msg_colon_span].u;
    cas.Start(span);
 
-   size_t  level = so->level;
+   const size_t  level = so->level;
    chunk_t *pc   = chunk_get_next_ncnl(so, CNAV_PREPROC);
 
    bool    did_line  = false;
@@ -2024,7 +2024,7 @@ static void align_oc_msg_colon(chunk_t *so)
       chunk_t *tmp = nas.m_aligned.GetChunk(idx);
       assert(tmp != NULL);
 
-      size_t  tlen = tmp->str.size();
+      const size_t  tlen = tmp->str.size();
       if (tlen > mlen)
       {
          mlen = tlen;
@@ -2041,8 +2041,8 @@ static void align_oc_msg_colon(chunk_t *so)
 
    /* add spaces before the longest arg */
    len = cpd.settings[UO_indent_oc_msg_colon].u;
-   size_t len_diff    = mlen - first_len;
-   size_t indent_size = cpd.settings[UO_indent_columns].u;
+   const size_t len_diff    = mlen - first_len;
+   const size_t indent_size = cpd.settings[UO_indent_columns].u;
    /* Align with first colon if possible by removing spaces */
    if (longest &&
        cpd.settings[UO_indent_oc_msg_prioritize_first_colon].b &&
@@ -2112,7 +2112,7 @@ static void align_oc_decl_colon(void)
       nas.Reset();
       cas.Reset();
 
-      size_t level = pc->level;
+      const size_t level = pc->level;
       pc = chunk_get_next_ncnl(pc, CNAV_PREPROC);
 
       did_line = false;
@@ -2136,7 +2136,7 @@ static void align_oc_decl_colon(void)
             cas.Add(pc);
 
             chunk_t *tmp  = chunk_get_prev(pc, CNAV_PREPROC);
-            const chunk_t *tmp2 = chunk_get_prev_ncnl(tmp, CNAV_PREPROC);
+            chunk_t *tmp2 = chunk_get_prev_ncnl(tmp, CNAV_PREPROC);
 
             /* Check for an un-labeled parameter */
             if ((tmp != NULL) &&
@@ -2183,7 +2183,7 @@ static void align_asm_colon(void)
       cas.Reset();
 
       pc = chunk_get_next_ncnl(pc, CNAV_PREPROC);
-      size_t level = pc ? pc->level : 0;
+      const size_t level = pc ? pc->level : 0;
       did_nl = true;
       while (pc && (pc->level >= level))
       {

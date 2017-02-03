@@ -325,7 +325,7 @@
 +e950 					// Non-ISO/ANSI reserved word or construct:
 +e951 					// Pointer to incomplete type employed in operation
 -e952 					// Parameter could be declared const
--e953 					// Variable could be declared as const
++e953 					// Variable could be declared as const
 +e954 					// Pointer variable could be declared as pointing to a const
 +e955 					// Parameter name missing from prototype for function
 -e956 					// (use for multithreaded SW) Non const, non volatile static or external variable
@@ -345,7 +345,7 @@
 +e1039					// symbol is not a member of class
 +e1040					// symbol is not a legal declaration within class
 +e1042					// a least one class like operand is required with operator
--e1048					// expected a constant expression
++e1048					// expected a constant expression
 +e1051					// symbol is both a function and a variable
 +e1052					// a type was expected, class assumed
 +e1054					// template variable declaration expects a type

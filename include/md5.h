@@ -55,8 +55,8 @@ public:
     * the data and converts bytes into longwords for this routine.
     */
    static void Transform(
-      UINT32 buf[4],
-      UINT32 in_data[16]
+      UINT32       buf[4],
+      const UINT32 in_data[16]
    );
 
 
@@ -64,9 +64,9 @@ public:
     * Calculates MD5 for a block of data
     */
    static void Calc(
-      const void *data,     /**< [in] data to calculate MD5 for */
-      UINT32     length,    /**< [in] number of bytes in data */
-      UINT8      digest[16] /**< [out] calculated MD5 checksum */
+      const void   *data,     /**< [in] data to calculate MD5 for */
+      const UINT32 length,    /**< [in] number of bytes in data */
+      UINT8        digest[16] /**< [out] calculated MD5 checksum */
    );
 
 
