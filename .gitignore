@@ -5,9 +5,7 @@ src/uncrustify_version.h
 
 # Testing framework
 results/
-tests/results/
-tests/usage.txt
-tests/pclint/
+tests/**
 *.sh.trs
 *.sh.log
 test-suite.log
