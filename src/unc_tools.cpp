@@ -11,6 +11,11 @@
 #include "uncrustify.h"
 
 
+static void log_newline(
+   chunk_t *pc /**< [in] chunk to operate with */
+);
+
+
 void prot_the_line(int theLine, unsigned int actual_line)
 {
    LOG_FMT(LGUY, "Prot_the_line:(%d) \n", theLine);
@@ -34,7 +39,7 @@ void prot_the_line(int theLine, unsigned int actual_line)
 }
 
 
-void log_newline(chunk_t *pc)
+static void log_newline(chunk_t *pc)
 {
    if (pc->type == CT_NEWLINE)
    {

@@ -453,7 +453,8 @@ void tokenize_cleanup(void)
          }
          else
          {
-            set_chunk_type(pc, (chunk_is_str(pc, "signals", 7) || chunk_is_str(pc, "Q_SIGNALS", 9)) ? CT_WORD : CT_QUALIFIER);
+            set_chunk_type(pc, (chunk_is_str(pc, "signals",   7) ||
+                                chunk_is_str(pc, "Q_SIGNALS", 9)) ? CT_WORD : CT_QUALIFIER);
          }
       }
 
@@ -485,15 +486,16 @@ void tokenize_cleanup(void)
             }
             tmp = chunk_get_next(next);
             if      (chunk_is_str_case(tmp, "BEGIN", 5)) { set_chunk_type(pc, CT_SQL_BEGIN); }
-            else if (chunk_is_str_case(tmp, "END",   3)) { set_chunk_type(pc, CT_SQL_END);   }
-            else                                         { set_chunk_type(pc, CT_SQL_EXEC);  }
+            else if (chunk_is_str_case(tmp, "END",   3)) { set_chunk_type(pc, CT_SQL_END  ); }
+            else                                         { set_chunk_type(pc, CT_SQL_EXEC ); }
 
             /* Change words into CT_SQL_WORD until CT_SEMICOLON */
             while (tmp != NULL)
             {
                if (tmp->type == CT_SEMICOLON) { break; }
 
-               if ((tmp->len() > 0) && (unc_isalpha(*tmp->str.c_str()) || (*tmp->str.c_str() == '$')))
+               if ((tmp->len() > 0) &&
+                   (unc_isalpha(*tmp->str.c_str()) || (*tmp->str.c_str() == '$')))
                {
                   set_chunk_type(tmp, CT_SQL_WORD);
                }
@@ -533,9 +535,9 @@ void tokenize_cleanup(void)
        * This is a dirty hack to allow some of the more common situations. */
       if (cpd.lang_flags & LANG_OC)
       {
-         if (((pc->type == CT_IF) ||
-              (pc->type == CT_FOR) ||
-              (pc->type == CT_WHILE)) &&
+         if (((pc->type == CT_IF   ) ||
+              (pc->type == CT_FOR  ) ||
+              (pc->type == CT_WHILE) ) &&
              !chunk_is_token(next, CT_PAREN_OPEN))
          {
             set_chunk_type(pc, CT_WORD);
@@ -557,9 +559,9 @@ void tokenize_cleanup(void)
       }
 
       /* Detect Objective C class name */
-      if ((pc->type == CT_OC_IMPL) ||
-          (pc->type == CT_OC_INTF) ||
-          (pc->type == CT_OC_PROTOCOL))
+      if ((pc->type == CT_OC_IMPL    ) ||
+          (pc->type == CT_OC_INTF    ) ||
+          (pc->type == CT_OC_PROTOCOL) )
       {
          assert(next != NULL);
          if (next->type != CT_PAREN_OPEN)
@@ -728,16 +730,16 @@ void tokenize_cleanup(void)
          if (tmp != NULL)
          {
             bool doit = ((tmp->type == CT_PAREN_CLOSE) ||
-                         (tmp->type == CT_ANGLE_CLOSE));
+                         (tmp->type == CT_ANGLE_CLOSE) );
 
             if (tmp->type == CT_WORD)
             {
                const chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
-               if ((tmp2 != NULL) &&
-                   ((tmp2->type == CT_SEMICOLON) ||
-                    (tmp2->type == CT_ASSIGN) ||
-                    (tmp2->type == CT_COMMA) ||
-                    (tmp2->type == CT_BRACE_OPEN)))
+               if ( (tmp2       != NULL         ) &&
+                   ((tmp2->type == CT_SEMICOLON ) ||
+                    (tmp2->type == CT_ASSIGN    ) ||
+                    (tmp2->type == CT_COMMA     ) ||
+                    (tmp2->type == CT_BRACE_OPEN) ) )
                {
                   doit = true;
                }
@@ -877,11 +879,11 @@ static void check_template(chunk_t *start)
        * template. */
 
       /* A template requires a word/type right before the open angle */
-      if ((prev->type != CT_WORD) &&
-          (prev->type != CT_TYPE) &&
-          (prev->type != CT_COMMA) &&
-          (prev->type != CT_OPERATOR_VAL) &&
-          (prev->parent_type != CT_OPERATOR))
+      if ((prev->type        != CT_WORD        ) &&
+          (prev->type        != CT_TYPE        ) &&
+          (prev->type        != CT_COMMA       ) &&
+          (prev->type        != CT_OPERATOR_VAL) &&
+          (prev->parent_type != CT_OPERATOR    ) )
       {
          LOG_FMT(LTEMPL, " - after %s + ( - Not a template\n", get_token_name(prev->type));
          set_chunk_type(start, CT_COMPARE);
@@ -895,10 +897,10 @@ static void check_template(chunk_t *start)
       pc = start;
       while ((pc = chunk_get_prev_ncnl(pc, CNAV_PREPROC)) != NULL)
       {
-         if ((pc->type == CT_SEMICOLON) ||
-             (pc->type == CT_BRACE_OPEN) ||
-             (pc->type == CT_BRACE_CLOSE) ||
-             (pc->type == CT_SQUARE_CLOSE))
+         if ((pc->type == CT_SEMICOLON   ) ||
+             (pc->type == CT_BRACE_OPEN  ) ||
+             (pc->type == CT_BRACE_CLOSE ) ||
+             (pc->type == CT_SQUARE_CLOSE) )
          {
             break;
          }
@@ -944,29 +946,30 @@ static void check_template(chunk_t *start)
          }
          else if (chunk_is_str(pc, ">", 1))
          {
-            if ((num_tokens > 0) && (tokens[num_tokens - 1] == CT_PAREN_OPEN))
+            if ((num_tokens             >  0            ) &&
+                (tokens[num_tokens - 1] == CT_PAREN_OPEN) )
             {
                handle_double_angle_close(pc);
             }
-            else if (--num_tokens <= 0)
+            else if (--num_tokens == 0)
             {
                break;
             }
             else if (tokens[num_tokens] != CT_ANGLE_OPEN)
             {
-               /* unbalanced parens */
+               /* unbalanced parentheses */
                break;
             }
          }
          else if (in_if &&
-                  ((pc->type == CT_BOOL) ||
-                   (pc->type == CT_COMPARE)))
+                  ((pc->type == CT_BOOL   ) ||
+                   (pc->type == CT_COMPARE) ) )
          {
             break;
          }
-         else if ((pc->type == CT_BRACE_OPEN) ||
+         else if ((pc->type == CT_BRACE_OPEN ) ||
                   (pc->type == CT_BRACE_CLOSE) ||
-                  (pc->type == CT_SEMICOLON))
+                  (pc->type == CT_SEMICOLON  ) )
          {
             break;
          }
@@ -984,7 +987,7 @@ static void check_template(chunk_t *start)
             num_tokens--;
             if (tokens[num_tokens] != CT_PAREN_OPEN)
             {
-               /* unbalanced parens */
+               /* unbalanced parentheses */
                break;
             }
          }
@@ -995,7 +998,8 @@ static void check_template(chunk_t *start)
    if ((end != NULL) && (end->type == CT_ANGLE_CLOSE))
    {
       pc = chunk_get_next_ncnl(end, CNAV_PREPROC);
-      if ((pc == NULL) || (pc->type != CT_NUMBER))
+      if ((pc       == NULL     ) ||
+          (pc->type != CT_NUMBER) )
       {
          LOG_FMT(LTEMPL, " - Template Detected\n");
 

@@ -121,7 +121,7 @@ static const chunk_tag_t symbols1[] =
 #include "punc_table.h"
 
 
-const chunk_tag_t *find_punctuator(const char *str, int lang_flags)
+const chunk_tag_t *find_punctuator(const char *str, size_t lang_flags)
 {
    const chunk_tag_t    *p_match = NULL;
    const lookup_entry_t *p_tab   = punc_table;

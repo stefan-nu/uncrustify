@@ -121,11 +121,6 @@ bool Args::GetUsed(size_t idx) const
 }
 
 
-/*  this is similar to an assignment operator
- * \todo better transform it into a proper assignment operator */
- *
- * @param idx  The index of the argument
- */
 void Args::SetUsed(size_t idx)
 {
    if ((m_used != NULL) && (idx > 0) && (idx < m_count))

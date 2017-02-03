@@ -384,8 +384,8 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEnco
    }
 
    /* There are a lot of 0's in UTF-16 (~50%) */
-   if ((zero_cnt >  ((int)in_data.size() / 4)) &&
-       (zero_cnt <= ((int)in_data.size() / 2)) )
+   if ((zero_cnt >  (in_data.size() / 4u)) &&
+       (zero_cnt <= (in_data.size() / 2u)) )
    {
       /* likely is UTF-16 */
       if (decode_utf16(in_data, out_data, enc))

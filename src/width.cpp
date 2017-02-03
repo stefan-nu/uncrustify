@@ -465,7 +465,7 @@ static void split_for_statement(chunk_t *start)
    }
 
    /* first scan backwards for the semicolons */
-   while ( (count < max_cnt                  ) &&
+   while ( (count < (int)max_cnt             ) &&
            ((pc = chunk_get_prev(pc)) != NULL) &&
            (pc->flags & PCF_IN_SPAREN        ) )
    {
@@ -479,7 +479,7 @@ static void split_for_statement(chunk_t *start)
 
    /* And now scan forward */
    pc = start;
-   while ((count < max_cnt                  ) &&
+   while ((count < (int)max_cnt             ) &&
           ((pc = chunk_get_next(pc)) != NULL) &&
           (pc->flags & PCF_IN_SPAREN        ) )
    {

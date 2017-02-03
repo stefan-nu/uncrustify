@@ -45,7 +45,7 @@ void print_universal_indent_cfg(FILE *pfile)
 
    /* Add all the recognized file extensions */
    ch = '=';
-   int fileIdx = 0;
+   size_t fileIdx = 0;
    fprintf(pfile, "fileTypes");
    while ((p_name = get_file_extension(fileIdx)) != NULL)
    {
