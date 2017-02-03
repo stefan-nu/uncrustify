@@ -17,9 +17,9 @@
  * See if all characters are ASCII (0-127)
  */
 static bool is_ascii(
-   const vector<UINT8> &data,
-   int &non_ascii_cnt,
-   int &zero_cnt
+   const  vector<UINT8> &data,
+   size_t &non_ascii_cnt,
+   size_t &zero_cnt
 );
 
 
@@ -46,9 +46,9 @@ static bool decode_utf8(
  * Extract 2 bytes from the stream and increment idx by 2
  */
 static int get_word(
-   const vector<UINT8> &in_data,
+   const  vector<UINT8> &in_data,
    size_t &idx,
-   bool be
+   bool   be
 );
 
 
@@ -97,7 +97,7 @@ static void write_utf16(
 );
 
 
-static bool is_ascii(const vector<UINT8> &data, int &non_ascii_cnt, int &zero_cnt)
+static bool is_ascii(const vector<UINT8> &data, size_t &non_ascii_cnt, size_t &zero_cnt)
 {
    non_ascii_cnt = 0;
    zero_cnt      = 0;
@@ -375,8 +375,8 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, CharEnco
    has_bom = false;
 
    /* Check for simple ASCII */
-   int non_ascii_cnt;
-   int zero_cnt;
+   size_t non_ascii_cnt;
+   size_t zero_cnt;
    if (is_ascii(in_data, non_ascii_cnt, zero_cnt))
    {
       enc = ENC_ASCII;

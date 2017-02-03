@@ -44,10 +44,10 @@ void print_universal_indent_cfg(FILE *pfile)
 
 
    /* Add all the recognized file extensions */
-   ch  = '=';
-   idx = 0;
+   ch = '=';
+   int fileIdx = 0;
    fprintf(pfile, "fileTypes");
-   while ((p_name = get_file_extension(idx)) != NULL)
+   while ((p_name = get_file_extension(fileIdx)) != NULL)
    {
       fprintf(pfile, "%c*%s", ch, p_name);
       ch = '|';

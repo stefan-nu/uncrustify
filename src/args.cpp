@@ -113,7 +113,7 @@ const char *Args::Params(const char *token, size_t &index)
 
 bool Args::GetUsed(size_t idx) const
 {
-   if ((m_used != NULL) && (idx < m_count))
+   if ((m_used != NULL) && (idx > 0) && (idx < m_count))
    {
       return((m_used[idx >> 3] & (1 << (idx & 0x07))) != 0);   // DRY
    }
@@ -123,9 +123,12 @@ bool Args::GetUsed(size_t idx) const
 
 /*  this is similar to an assignment operator
  * \todo better transform it into a proper assignment operator */
+ *
+ * @param idx  The index of the argument
+ */
 void Args::SetUsed(size_t idx)
 {
-   if ((m_used != NULL) && (idx < m_count))
+   if ((m_used != NULL) && (idx > 0) && (idx < m_count))
    {
       m_used[idx >> 3] |= (1 << (idx & 0x07));  // DRY
    }

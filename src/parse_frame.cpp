@@ -7,6 +7,7 @@
  */
 #include "parse_frame.h"
 #include "uncrustify_types.h"
+#include "prototypes.h"
 #include "chunk_list.h"
 #include "uncrustify.h"
 #include <cstdio>
@@ -14,15 +15,7 @@
 #include <cstdlib>
 
 
-static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf);
-
-
-/**
- * Logs the entire parse frame stack
- */
-static void pf_log_all(
-   log_sev_t logsev
-);
+void pf_log_frms(log_sev_t logsev, const char *txt, struct parse_frame *pf);
 
 
 /**
@@ -31,61 +24,78 @@ static void pf_log_all(
  * The stack contains [...] [base] [if] at this point.
  * We want to copy [base].
  */
-static void pf_copy_2nd_tos(
-   parse_frame_t *pf
-);
+void pf_copy_2nd_tos(parse_frame *pf);
 
 
+/**
+ * Logs one parse frame
+ */
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
 {
    LOG_FMT(logsev, "[%s] BrLevel=%d Level=%d PseTos=%zu\n",
-           get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
+           get_token_name(pf->in_ifdef),
+           pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
    for (size_t idx = 1; idx <= pf->pse_tos; idx++)
    {
-      LOG_FMT(logsev, " [%s-%d]", get_token_name(pf->pse[idx].type), pf->pse[idx].stage);
+      LOG_FMT(logsev, " [%s-%d]",
+              get_token_name(pf->pse[idx].type),
+              pf->pse[idx].stage);
    }
    LOG_FMT(logsev, "\n");
 }
 
 
-static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
+void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
 {
    LOG_FMT(logsev, "%s Parse Frames(%d):", txt, cpd.frame_count);
    for (int idx = 0; idx < cpd.frame_count; idx++)
    {
-      LOG_FMT(logsev, " [%s-%d]", get_token_name(cpd.frames[idx].in_ifdef),
+      LOG_FMT(logsev, " [%s-%d]",
+              get_token_name(cpd.frames[idx].in_ifdef),
               cpd.frames[idx].ref_no);
    }
    LOG_FMT(logsev, "-[%s-%d]\n", get_token_name(pf->in_ifdef), pf->ref_no);
 }
 
 
-static void pf_log_all(log_sev_t logsev)
+/**
+ * Logs the entire parse frame stack
+ */
+void pf_log_all(log_sev_t logsev)
 {
    LOG_FMT(logsev, "##=- Parse Frame : %d entries\n", cpd.frame_count);
 
    for (int idx = 0; idx < cpd.frame_count; idx++)
    {
       LOG_FMT(logsev, "##  <%d> ", idx);
+
       pf_log(logsev, &cpd.frames[idx]);
    }
    LOG_FMT(logsev, "##=-\n");
 }
 
 
+/**
+ * Copies src to dst.
+ */
 void pf_copy(parse_frame_t *dst, const parse_frame_t *src)
 {
    memcpy(dst, src, sizeof(parse_frame_t));
 }
 
 
+/**
+ * Push a copy of the parse frame onto the stack.
+ * This is called on #if and #ifdef.
+ */
 void pf_push(parse_frame_t *pf)
 {
+   static int ref_no = 1;
+
    if (cpd.frame_count < (int)ARRAY_SIZE(cpd.frames))
    {
-      static int ref_no = 1;
       pf_copy(&cpd.frames[cpd.frame_count], pf);
       cpd.frame_count++;
 
@@ -95,6 +105,11 @@ void pf_push(parse_frame_t *pf)
 }
 
 
+/**
+ * Push a copy of the parse frame onto the stack, under the tos.
+ * If this were a linked list, just add before the last item.
+ * This is called on the first #else and #elif.
+ */
 void pf_push_under(parse_frame_t *pf)
 {
    LOG_FMT(LPF, "%s(%d): before count = %d\n", __func__, __LINE__, cpd.frame_count);
@@ -102,8 +117,8 @@ void pf_push_under(parse_frame_t *pf)
    if ((cpd.frame_count < (int)ARRAY_SIZE(cpd.frames)) &&
        (cpd.frame_count >= 1))
    {
-      parse_frame_t *npf1 = &cpd.frames[cpd.frame_count-1];
-      parse_frame_t *npf2 = &cpd.frames[cpd.frame_count  ];
+      parse_frame_t *npf1 = &cpd.frames[cpd.frame_count - 1];
+      parse_frame_t *npf2 = &cpd.frames[cpd.frame_count];
       pf_copy(npf2, npf1);
       pf_copy(npf1, pf);
       cpd.frame_count++;
@@ -113,26 +128,33 @@ void pf_push_under(parse_frame_t *pf)
 }
 
 
+/**
+ * Copy the top item off the stack into pf.
+ * This is called on #else and #elif.
+ */
 void pf_copy_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 0)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count-1]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count - 1]);
    }
    LOG_FMT(LPF, "%s(%d): count = %d\n", __func__, __LINE__, cpd.frame_count);
 }
 
 
-static void pf_copy_2nd_tos(parse_frame_t *pf)
+void pf_copy_2nd_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 1)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count-2]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count - 2]);
    }
    LOG_FMT(LPF, "%s(%d): count = %d\n", __func__, __LINE__, cpd.frame_count);
 }
 
 
+/**
+ * Deletes the top frame from the stack.
+ */
 void pf_trash_tos(void)
 {
    if (cpd.frame_count > 0)
@@ -143,6 +165,10 @@ void pf_trash_tos(void)
 }
 
 
+/**
+ * Pop the top item off the stack and copy into pf.
+ * This is called on #endif
+ */
 void pf_pop(parse_frame_t *pf)
 {
    if (cpd.frame_count > 0)
@@ -150,18 +176,28 @@ void pf_pop(parse_frame_t *pf)
       pf_copy_tos(pf);
       pf_trash_tos();
    }
+   //fprintf(stderr, "%s: count = %d\n", __func__, cpd.frame_count);
 }
 
 
-size_t pf_check(parse_frame_t *frm, chunk_t *pc)
+/**
+ * Returns the pp_indent to use for this line
+ */
+int pf_check(parse_frame_t *frm, chunk_t *pc)
 {
-   int in_ifdef = (int)frm->in_ifdef;
+   int in_ifdef = frm->in_ifdef;
    int b4_cnt   = cpd.frame_count;
-   size_t pp_level = cpd.pp_level;
+   int pp_level = cpd.pp_level;
 
-   if (pc->type != CT_PREPROC) { return(pp_level); }
-   const chunk_t *next = chunk_get_next(pc);
-   if (next == NULL) { return(pp_level); }
+   if (pc->type != CT_PREPROC)
+   {
+      return(pp_level);
+   }
+   chunk_t *next = chunk_get_next(pc);
+   if (next == NULL)
+   {
+      return(pp_level);
+   }
 
    if (pc->parent_type != next->type)
    {
@@ -244,7 +280,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          }
          else
          {
-            txt = "unknown";
+            txt = "???";
          }
       }
    }
@@ -262,4 +298,4 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    pf_log_frms(LPFCHK, "END", frm);
 
    return(pp_level);
-}
+} // pf_check

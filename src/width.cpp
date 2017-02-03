@@ -18,13 +18,13 @@
 struct cw_entry
 {
    chunk_t *pc;
-   int     pri;
+   size_t  pri;
 };
 
 struct token_pri
 {
    c_token_t tok;
-   int       pri;
+   size_t    pri;
 };
 
 
@@ -37,7 +37,7 @@ static_inline bool is_past_width(chunk_t *pc);
 static void split_before_chunk(chunk_t *pc);
 
 
-static int get_split_pri(c_token_t tok);
+static size_t get_split_pri(c_token_t tok);
 
 
 /**
@@ -114,7 +114,7 @@ static_inline bool is_past_width(chunk_t *pc)
 {
    assert(pc != NULL);
    // allow char to sit at last column by subtracting 1
-   return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);	// todo was n before
+   return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);
 }
 
 
@@ -184,9 +184,9 @@ static const token_pri pri_table[] =
 };
 
 
-static int get_split_pri(c_token_t tok)
+static size_t get_split_pri(c_token_t tok)
 {
-   for (int idx = 0; idx < (int)ARRAY_SIZE(pri_table); idx++)
+   for (size_t idx = 0; idx < ARRAY_SIZE(pri_table); idx++)
    {
       if (pri_table[idx].tok == tok)
       {
@@ -201,7 +201,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   int pc_pri = get_split_pri(pc->type);
+   size_t pc_pri = get_split_pri(pc->type);
    if (pc_pri == 0)
    {
       return;
@@ -423,7 +423,7 @@ static bool split_line(chunk_t *start)
 static void split_for_statement(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   int     max_cnt     = cpd.settings[UO_ls_for_split_full].b ? 2 : 1;
+   size_t  max_cnt     = cpd.settings[UO_ls_for_split_full].b ? 2 : 1;
    chunk_t *open_paren = NULL;
    size_t  nl_cnt      = 0;
 
@@ -581,7 +581,7 @@ static void split_fcn_params(chunk_t *start)
    assert(pc != NULL);
    size_t  min_col = pc->column;
 
-   LOG_FMT(LSPLIT, " mincol=%zu, max_width=%d ",
+   LOG_FMT(LSPLIT, " mincol=%zu, max_width=%zu ",
            min_col, cpd.settings[UO_code_width].u - min_col);
 
    int cur_width = 0;
@@ -607,7 +607,7 @@ static void split_fcn_params(chunk_t *start)
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
-            if (((last_col - 1) > cpd.settings[UO_code_width].n) ||
+            if (((last_col - 1) > (int)cpd.settings[UO_code_width].u) ||
                 (pc->type == CT_FPAREN_CLOSE))
             {
                break;

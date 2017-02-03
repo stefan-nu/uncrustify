@@ -69,7 +69,7 @@
 cp_data_t cpd;
 
 
-static int language_flags_from_name(
+static size_t language_flags_from_name(
    const char *tag
 );
 
@@ -81,7 +81,7 @@ static int language_flags_from_name(
  * @param filename   The name of the file
  * @return           LANG_xxx
  */
-static int language_flags_from_filename(
+static size_t language_flags_from_filename(
    const char *filename
 );
 
@@ -93,7 +93,7 @@ static int language_flags_from_filename(
  * @return        A string
  */
 const char *language_name_from_flags(
-   int lang
+   size_t lang
 );
 
 
@@ -684,10 +684,10 @@ int main(int argc, char *argv[])
          usage_exit("Unable to load the config file", argv[0], EX_IOERR);
       }
       // test if all options are compatible to each other
-      if (cpd.settings[UO_nl_max].n > 0)
+      if (cpd.settings[UO_nl_max].u > 0)
       {
          // test if one/some option(s) is/are not too big for that
-         if (cpd.settings[UO_nl_func_var_def_blk].n >= cpd.settings[UO_nl_max].n)
+         if (cpd.settings[UO_nl_func_var_def_blk].u >= cpd.settings[UO_nl_max].u)
          {
             fprintf(stderr, "The option 'nl_func_var_def_blk' is too big against the option 'nl_max'\n");
             exit(EX_CONFIG);
@@ -1822,7 +1822,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       bool first = true;
       int  old_changes;
 
-      if (cpd.settings[UO_nl_remove_extra_newlines].n == 2)
+      if (cpd.settings[UO_nl_remove_extra_newlines].u == 2)
       {
          newlines_remove_newlines();
       }
@@ -1925,7 +1925,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       space_text();
 
       /* Do any aligning of preprocessors */
-      if (cpd.settings[UO_align_pp_define_span].n > 0)
+      if (cpd.settings[UO_align_pp_define_span].u > 0)
       {
          align_preprocessor();
       }
@@ -1935,17 +1935,17 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       indent_text();
 
       /* Insert trailing comments after certain close braces */
-      if ((cpd.settings[UO_mod_add_long_switch_closebrace_comment].n > 0) ||
-          (cpd.settings[UO_mod_add_long_function_closebrace_comment].n > 0) ||
-          (cpd.settings[UO_mod_add_long_class_closebrace_comment].n > 0) ||
-          (cpd.settings[UO_mod_add_long_namespace_closebrace_comment].n > 0))
+      if ((cpd.settings[UO_mod_add_long_switch_closebrace_comment].u > 0) ||
+          (cpd.settings[UO_mod_add_long_function_closebrace_comment].u > 0) ||
+          (cpd.settings[UO_mod_add_long_class_closebrace_comment].u > 0) ||
+          (cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u > 0))
       {
          add_long_closebrace_comment();
       }
 
       /* Insert trailing comments after certain preprocessor conditional blocks */
-      if ((cpd.settings[UO_mod_add_long_ifdef_else_comment].n > 0) ||
-          (cpd.settings[UO_mod_add_long_ifdef_endif_comment].n > 0))
+      if ((cpd.settings[UO_mod_add_long_ifdef_else_comment].u > 0) ||
+          (cpd.settings[UO_mod_add_long_ifdef_endif_comment].u > 0))
       {
          add_long_preprocessor_conditional_block_comment();
       }
@@ -1958,7 +1958,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
          align_all();
          indent_text();
          old_changes = cpd.changes;
-         if (cpd.settings[UO_code_width].n > 0)
+         if (cpd.settings[UO_code_width].u > 0)
          {
             LOG_FMT(LNEWLINE, "Code_width loop start: %d\n", cpd.changes);
             do_code_width();
@@ -2086,7 +2086,7 @@ static bool ends_with(const char *filename, const char *tag, bool case_sensitive
 struct lang_name_t
 {
    const char *name;
-   int        lang;
+   size_t     lang;
 };
 
 
@@ -2105,9 +2105,9 @@ static const lang_name_t language_names[] =
 };
 
 
-static int language_flags_from_name(const char *name)
+static size_t language_flags_from_name(const char *name)
 {
-   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < ARRAY_SIZE(language_names); i++)
    {
       if (strcasecmp(name, language_names[i].name) == 0)
       {
@@ -2118,10 +2118,10 @@ static int language_flags_from_name(const char *name)
 }
 
 
-const char *language_name_from_flags(int lang)
+const char *language_name_from_flags(size_t lang)
 {
    /* Check for an exact match first */
-   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < ARRAY_SIZE(language_names); i++)
    {
       if (language_names[i].lang == lang)
       {
@@ -2130,7 +2130,7 @@ const char *language_name_from_flags(int lang)
    }
 
    /* Check for the first set language bit */
-   for (size_t i = 0; i < (int)ARRAY_SIZE(language_names); i++)
+   for (size_t i = 0; i < ARRAY_SIZE(language_names); i++)
    {
       if ((language_names[i].lang & lang) != 0)
       {
@@ -2199,7 +2199,7 @@ static extension_map_t g_ext_map;
 
 const char *extension_add(const char *ext_text, const char *lang_text)
 {
-   int lang_flags = language_flags_from_name(lang_text);
+   size_t lang_flags = language_flags_from_name(lang_text);
    if (lang_flags)
    {
       const char *lang_name = language_name_from_flags(lang_flags);
@@ -2236,7 +2236,7 @@ void print_extensions(FILE *pfile)
 }
 
 
-static int language_flags_from_filename(const char *filename)
+static size_t language_flags_from_filename(const char *filename)
 {
    /* check custom extensions first */
    extension_map_t::iterator it = g_ext_map.begin();

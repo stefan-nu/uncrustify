@@ -839,12 +839,12 @@ static void check_template(chunk_t *start)
       LOG_FMT(LTEMPL, " CT_TEMPLATE:");
 
       /* We have: "template< ... >", which is a template declaration */
-      int level = 1;
+      size_t level = 1;
       for (pc = chunk_get_next_ncnl(start, CNAV_PREPROC);
            pc != NULL;
            pc = chunk_get_next_ncnl(pc, CNAV_PREPROC))
       {
-         LOG_FMT(LTEMPL, " [%s,%d]", get_token_name(pc->type), level);
+         LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), level);
 
          if ((pc->str[0] == '>') && (pc->len() > 1))
          {
@@ -917,15 +917,16 @@ static void check_template(chunk_t *start)
 
       /* Scan forward to the angle close
        * If we have a comparison in there, then it can't be a template. */
-      c_token_t tokens[1024];
-      int       num_tokens = 1;
+#define MAX_NUMBER_OF_TOKEN    1024
+      c_token_t tokens[MAX_NUMBER_OF_TOKEN];
+      size_t    num_tokens = 1;
 
       tokens[0] = CT_ANGLE_OPEN;
       for (pc = chunk_get_next_ncnl(start, CNAV_PREPROC);
            pc != NULL;
            pc = chunk_get_next_ncnl(pc, CNAV_PREPROC))
       {
-         LOG_FMT(LTEMPL, " [%s,%d]", get_token_name(pc->type), num_tokens);
+         LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), num_tokens);
 
          if ((tokens[num_tokens - 1] == CT_ANGLE_OPEN) &&
              (pc->str[0] == '>') && (pc->len() > 1) &&
@@ -938,7 +939,8 @@ static void check_template(chunk_t *start)
 
          if (chunk_is_str(pc, "<", 1))
          {
-            tokens[num_tokens++] = CT_ANGLE_OPEN;
+            tokens[num_tokens] = CT_ANGLE_OPEN;
+            num_tokens++;
          }
          else if (chunk_is_str(pc, ">", 1))
          {
@@ -970,11 +972,12 @@ static void check_template(chunk_t *start)
          }
          else if (pc->type == CT_PAREN_OPEN)
          {
-            if (num_tokens >= (int)(ARRAY_SIZE(tokens) - 1))
+            if (num_tokens >= MAX_NUMBER_OF_TOKEN - 1)
             {
                break;
             }
-            tokens[num_tokens++] = CT_PAREN_OPEN;
+            tokens[num_tokens] = CT_PAREN_OPEN;
+            num_tokens++;
          }
          else if (pc->type == CT_PAREN_CLOSE)
          {
