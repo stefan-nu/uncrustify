@@ -386,7 +386,7 @@ struct cp_data_t
    int            check_fail_cnt; // total failures
    bool           if_changed;
 
-   UINT32         error_count;
+   size_t         error_count;
    const char     *filename;
 
    file_mem_t     file_hdr;       // for cmt_insert_file_header
@@ -400,17 +400,17 @@ struct cp_data_t
 
    bool           unc_off;
    bool           unc_off_used;   // to check if "unc_off" is used
-   UINT32         line_number;
-   UINT16         column;         // column for parsing
-   UINT16         spaces;         // space count on output
+   size_t         line_number;
+   size_t         column;         // column for parsing
+   size_t         spaces;         // space count on output
 
    int            ifdef_over_whole_file;
 
    bool           frag;           /* activates code fragment option */
-   UINT16         frag_cols;
+   size_t         frag_cols;
 
    // stuff to auto-detect line endings
-   UINT32         le_counts[LE_AUTO];
+   size_t         le_counts[LE_AUTO];
    unc_text       newline;
 
    bool           consumed;

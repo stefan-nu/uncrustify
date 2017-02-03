@@ -31,7 +31,7 @@ rem save results to file
 rem cpd.bat --language Cpp --minimum-tokens 30 --format xml --files src/*.* --files include/*.* > tests\pmd\cpd_results.xml
 
 rem display results directly in console of eclipse
-cpd.bat --language Cpp --minimum-tokens 30 --ignore-literals --ignore-identifiers --format txt --files src/*.* --files include/*.* --exclude include\char_table.h
+cpd.bat --language Cpp --minimum-tokens 50 --ignore-literals --ignore-identifiers --format txt --files src/*.* --files include/*.* --exclude include\char_table.h
 
 goto END
 

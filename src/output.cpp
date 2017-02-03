@@ -229,31 +229,6 @@ static void calculate_comment_body_indent(
 );
 
 
-static chunk_t *get_next_function(
-   chunk_t *pc
-);
-
-
-static chunk_t *get_prev_category(
-   chunk_t *pc
-);
-
-
-static chunk_t *get_next_scope(
-   chunk_t *pc
-);
-
-
-static chunk_t *get_next_class(
-   chunk_t *pc
-);
-
-
-static chunk_t *get_prev_oc_class(
-   chunk_t *pc
-);
-
-
 static int next_up(
    const unc_text &text,
    size_t idx,
@@ -314,6 +289,25 @@ static void output_cmt_start(
 );
 
 
+static void add_newline_if_required(
+   bool condition,
+   unc_text &out_txt
+);
+
+
+static void add_space_if_required(
+   bool condition,
+   unc_text &out_txt
+);
+
+
+static void add_str_if_required(
+   bool condition,
+   unc_text &out_txt,
+   const char* str
+);
+
+
 /**
  * Checks to see if the current comment can be combined with the next comment.
  * The two can be combined if:
@@ -322,7 +316,7 @@ static void output_cmt_start(
  *  3. They are indented to the same level
  */
 static bool can_combine_comment(
-   chunk_t *pc,
+   chunk_t          *pc,
    const cmt_reflow &cmt
 );
 
@@ -333,8 +327,8 @@ static bool can_combine_comment(
 
 static void add_char(UINT32 ch)
 {
-   /* If we did a '\r' and it isn't followed by a '\n', then output a newline */
-   if ((cpd.last_char == '\r') && (ch != '\n'))
+   /* output a newline if ... */
+   if ((cpd.last_char == '\r') && (ch != '\n')) /* we did a '\r' not followed by a '\n' */
    {
       write_string(cpd.newline);
       cpd.column      = 1;
@@ -350,9 +344,8 @@ static void add_char(UINT32 ch)
       cpd.did_newline = 1;
       cpd.spaces      = 0;
    }
-   else if (ch == '\r')
+   else if (ch == '\r') /* do not output '\r' */
    {
-      /* do not output '\r' */
       cpd.column      = 1;
       cpd.did_newline = 1;
       cpd.spaces      = 0;
@@ -368,12 +361,10 @@ static void add_char(UINT32 ch)
    }
    else
    {
-      /* Explicitly disallow a tab after a space */
+      /* explicitly disallow a tab after a space */
       if ((ch == '\t') && (cpd.last_char == ' '))
       {
          size_t endcol = next_tab_column(cpd.column);
-
-
          while (cpd.column < endcol)
          {
             add_char(' ');
@@ -393,24 +384,37 @@ static void add_char(UINT32 ch)
             cpd.spaces--;
          }
          write_char(ch);
-         if (ch == '\t')
-         {
-            cpd.column = (UINT16)next_tab_column(cpd.column);
-         }
-         else
-         {
-            cpd.column++;
-         }
+         cpd.column = (ch == '\t') ? next_tab_column(cpd.column) : cpd.column+1;
       }
    }
    cpd.last_char = ch; /*lint !e713 */
 }
 
 
+static void add_newline_if_required(bool condition, unc_text &out_txt)
+{
+   add_str_if_required(condition, out_txt, "\n");
+}
+
+
+static void add_space_if_required(bool condition, unc_text &out_txt)
+{
+   add_str_if_required(condition, out_txt, " ");
+}
+
+
+static void add_str_if_required(bool condition, unc_text &out_txt, const char* str)
+{
+   if (condition == true)
+   {
+      out_txt.append(str);
+   }
+}
+
+
 static void add_text(const char *ascii_text)
 {
    char ch;
-
    while ((ch = *ascii_text) != 0)
    {
       ascii_text++;
@@ -424,6 +428,7 @@ static void add_text(const unc_text &text, bool is_ignored = false)
    for (size_t idx = 0; idx < text.size(); idx++)
    {
       int ch = text[idx];
+
       if( (is_ignored == true) &&
           (ch         >= 0   ) )
       {
@@ -458,6 +463,15 @@ static bool next_word_exceeds_limit(const unc_text &text, size_t idx)
 }
 
 
+void space_out_the_rest(size_t column)
+{
+   while (cpd.column < column)
+   {
+      add_text(" ");
+   }
+}
+
+
 static void output_to_column(size_t column, bool allow_tabs)
 {
    cpd.did_newline = 0;
@@ -471,18 +485,22 @@ static void output_to_column(size_t column, bool allow_tabs)
          next_column = next_tab_column(cpd.column);
       }
    }
+
+   space_out_the_rest(column);
+#if 0
    /* space out the final bit */
    while (cpd.column < column)
    {
       add_text(" ");
    }
+#endif
 }
 
 
 static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
 {
    size_t iwt = cpd.settings[UO_indent_cmt_with_tabs].b ? 2 :
-                (cpd.settings[UO_indent_with_tabs].n ? 1 : 0);
+               (cpd.settings[UO_indent_with_tabs    ].n ? 1 : 0);
 
    size_t tab_col = (iwt == 0) ? 0 : ((iwt == 1) ? brace_col : base_col);
 
@@ -490,8 +508,8 @@ static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
    //        __func__, brace_col, base_col, column, iwt, tab_col, cpd.column);
 
    cpd.did_newline = 0;
-   if ( (iwt == 2) ||
-        ((cpd.column == 1) && (iwt == 1)))
+   if ( (                      iwt == 2 ) ||
+        ((cpd.column == 1) && (iwt == 1)) )
    {
       /* tab out as far as possible and then use spaces */
       while (next_tab_column(cpd.column) <= tab_col)
@@ -500,11 +518,14 @@ static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
       }
    }
 
+   space_out_the_rest(column);
+#if 0
    /* space out the rest */
    while (cpd.column < column)
    {
       add_text(" ");
    }
+#endif
 }
 
 
@@ -530,14 +551,9 @@ void output_parsed(FILE *pfile)
          {
             fprintf(pfile, " ");
          }
-         if (pc->type != CT_NL_CONT)
-         {
-            fprintf(pfile, "%s", pc->text());
-         }
-         else
-         {
-            fprintf(pfile, "\\");
-         }
+
+         if (pc->type != CT_NL_CONT) { fprintf(pfile, "%s", pc->text()); }
+         else                        { fprintf(pfile, "\\");             }
       }
    }
    fprintf(pfile, "\n# -=====-\n");
@@ -551,10 +567,7 @@ void output_text(FILE *pfile)
    cpd.did_newline = 1;
    cpd.column      = 1;
 
-   if (cpd.bom)
-   {
-      write_bom();
-   }
+   if (cpd.bom) { write_bom(); }
 
    chunk_t *pc;
    if (cpd.frag_cols > 0)
@@ -608,9 +621,9 @@ void output_text(FILE *pfile)
                   int orig_sp = (int)pc->orig_col - (int)prev->orig_col_end;
                   pc->column = (size_t)((int)cpd.column + orig_sp);
                   // the value might be negative --> use an int
-                  int columnDiff = cpd.column + orig_sp;
+                  int columnDiff = (int)cpd.column + orig_sp;
                   if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
-                      (columnDiff < (cpd.column + 1)))
+                      (columnDiff < (int)(cpd.column + 1u) ))
                   {
                      pc->column = cpd.column + 1;
                   }
@@ -769,17 +782,9 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
 
    if (len > 30) { return(1); }
 
-   if ((len > 0) && ((len >= line.size()) || unc_isspace(line[len])))
-   {
-      return(len);
-   }
-
-   if ((len == 1) && (line[0] == '*'))
-   {
-      return(len);
-   }
-
-   if (is_last && (len > 0))
+   if(((len >  0) && ((len >= line.size()) || unc_isspace(line[len])) ) ||
+      ((len >  0) && (is_last == true                               ) ) ||
+      ((len == 1) && (line[0] == '*'                                ) ) )
    {
       return(len);
    }
@@ -789,10 +794,7 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
 
 static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
 {
-   if (!cpd.settings[UO_cmt_indent_multi].b)
-   {
-      return;
-   }
+   if (!cpd.settings[UO_cmt_indent_multi].b) { return; }
 
    cmt.xtra_indent = 0;
    size_t idx      = 0;
@@ -895,48 +897,6 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
    }
 
    cmt.xtra_indent = ((width == 2) ? 0 : 1);
-} // calculate_comment_body_indent
-
-
-/* \todo can we use search_next_chunk here? */
-static chunk_t *get_next_function(chunk_t *pc)
-{
-   while ((pc = chunk_get_next(pc)) != NULL)
-   {
-      if ((pc->type == CT_FUNC_DEF        ) ||
-          (pc->type == CT_FUNC_PROTO      ) ||
-          (pc->type == CT_FUNC_CLASS_DEF  ) ||
-          (pc->type == CT_FUNC_CLASS_PROTO) ||
-          (pc->type == CT_OC_MSG_DECL     ) )
-      {
-         return(pc);
-      }
-   }
-   return(NULL);
-}
-
-
-static chunk_t *get_next_class(chunk_t *pc)
-{
-   return(chunk_get_next(chunk_search_next_cat(pc, CT_CLASS)));
-}
-
-
-static chunk_t *get_prev_category(chunk_t *pc)
-{
-   return(chunk_search_prev_cat(pc, CT_OC_CATEGORY));
-}
-
-
-static chunk_t *get_next_scope(chunk_t *pc)
-{
-   return(chunk_search_next_cat(pc, CT_OC_SCOPE));
-}
-
-
-static chunk_t *get_prev_oc_class(chunk_t *pc)
-{
-   return(chunk_search_prev_cat(pc, CT_OC_CLASS));
 }
 
 
@@ -1004,31 +964,27 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          }
          ch_cnt = 0;
       }
-      else if (cmt.reflow &&
-               (text[idx] == ' ') &&
+      else if ((cmt.reflow == true              ) &&
+               (text[idx]  == ' '               ) &&
                (cpd.settings[UO_cmt_width].n > 0) &&
-               ((cpd.column > cpd.settings[UO_cmt_width].n) ||
+               (((int)cpd.column > cpd.settings[UO_cmt_width].n) ||
                 ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))))
       {
          in_word = false;
          add_char('\n');
          cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-         if (cmt.xtra_indent > 0)
-         {
-            add_char(' ');
-         }
+         if (cmt.xtra_indent > 0) { add_char(' '); }
 
          add_text(cmt.cont_text);
-         output_to_column(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u,
-                          false);
+         output_to_column(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
          ch_cnt = 0;
       }
       else
       {
          /* Escape a C closure in a CPP comment */
-         if (esc_close &&
+         if ( (esc_close               == true) &&
              ((was_star  && (text[idx] == '/')) ||
-              (was_slash && (text[idx] == '*')) ))
+              (was_slash && (text[idx] == '*')) ) )
          {
             add_char(' ');
          }
@@ -1058,14 +1014,11 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    cmt.cont_text.clear();
    cmt.reflow = false;
 
-   if ((pc->flags & PCF_INSERTED))
-   {
-      do_kw_subst(pc);
-   }
+   if ((pc->flags & PCF_INSERTED)) { do_kw_subst(pc); }
 
    if (cmt.brace_col == 0)
    {
-      cmt.brace_col = 1 + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
+      cmt.brace_col = 1u + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
    }
 
    // LOG_FMT(LSYS, "%s: line %d, brace=%d base=%d col=%d orig=%d aligned=%x\n",
@@ -1079,9 +1032,9 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
           (pc->orig_col == 1) &&
           !(pc->flags & PCF_INSERTED))
       {
-         cmt.column    = 1;
-         cmt.base_col  = 1;
-         cmt.brace_col = 1;
+         cmt.column    = 1u;
+         cmt.base_col  = 1u;
+         cmt.brace_col = 1u;
       }
    }
 
@@ -1102,21 +1055,19 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
    /* Bump out to the column */
    cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-} // output_cmt_start
+}
 
 
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
    assert(pc != NULL);
    /* We can't combine if there is something other than a newline next */
-   if (pc->parent_type == CT_COMMENT_START)
-   {
-      return(false);
-   }
+   if (pc->parent_type == CT_COMMENT_START) { return(false); }
 
    /* next is a newline for sure, make sure it is a single newline */
    chunk_t *next = chunk_get_next(pc);
-   if ((next != NULL) && (next->nl_count == 1))
+   if ((next           != NULL) &&
+       (next->nl_count == 1   ) )
    {
       /* Make sure the comment is the same type at the same column */
       next = chunk_get_next(next);
@@ -1136,7 +1087,6 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 static chunk_t *output_comment_c(chunk_t *first)
 {
    cmt_reflow cmt;
-
    output_cmt_start(cmt, first);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
@@ -1163,22 +1113,28 @@ static chunk_t *output_comment_c(chunk_t *first)
    unc_text tmp;
    while (can_combine_comment(pc, cmt))
    {
+      // \todo DRY 3 start
       tmp.set(pc->str, 2, pc->len() - 4);
       if ((cpd.last_char == '*') && (tmp[0] == '/'))
       {
          add_text(" ");
       }
       add_comment_text(tmp,  cmt, false);
+      // \todo DRR 3 end
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
    assert(pc != NULL);
+
+   // \todo DRY 3 start
    tmp.set(pc->str, 2, pc->len() - 4);
    if ((cpd.last_char == '*') && (tmp[0] == '/'))
    {
       add_text(" ");
    }
    add_comment_text(tmp, cmt, false);
+   // \todo DRR 3 end
+
    if (cpd.settings[UO_cmt_c_nl_end].b)
    {
       cmt.cont_text = " ";
@@ -1202,10 +1158,8 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (cpd.settings[UO_sp_cmt_cpp_doxygen].b) // special treatment for doxygen style comments (treat as unity)
    {
       const char *sComment = first->text();
-      if (sComment == NULL)
-      {
-         return(first);
-      }
+      if (sComment == NULL) { return(first); }
+
       bool grouping = (sComment[2] == '@');
       int  brace    = 3;
       if ((sComment[2] == '/') || (sComment[2] == '!')) // doxygen style found!
@@ -1221,7 +1175,9 @@ static chunk_t *output_comment_cpp(chunk_t *first)
             brace    = 4;
          }
       }
-      if (grouping && ((sComment[brace] == '{') || (sComment[brace] == '}')))
+      if ( (grouping == true       )   &&
+           ((sComment[brace] == '{') ||
+            (sComment[brace] == '}') ) )
       {
          leadin += '@';
          leadin += sComment[brace];
@@ -1240,18 +1196,19 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       }
    }
 
+   const argval_t sp_cmt_cpp_start = cpd.settings[UO_sp_cmt_cpp_start].a;
 
    /* CPP comments can't be grouped unless they are converted to C comments */
    if (!cpd.settings[UO_cmt_cpp_to_c].b)
    {
       cmt.cont_text = leadin;
-      if (cpd.settings[UO_sp_cmt_cpp_start].a != AV_REMOVE)
+      if (is_not_option(sp_cmt_cpp_start, AV_REMOVE))
       {
          cmt.cont_text += ' ';
       }
       LOG_CONTTEXT();
 
-      if (cpd.settings[UO_sp_cmt_cpp_start].a == AV_IGNORE)
+      if (is_option(sp_cmt_cpp_start, AV_IGNORE))
       {
          add_comment_text(first->str, cmt, false);
       }
@@ -1263,7 +1220,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 
          tmp.set(first->str, iLISz, first->len() - iLISz);
 
-         if (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_REMOVE))
+         if (is_option_set(sp_cmt_cpp_start, AV_REMOVE))
          {
             while ((tmp.size() > 0) && unc_isspace(tmp[0]))
             {
@@ -1272,7 +1229,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
          }
          if (tmp.size() > 0)
          {
-            if (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_ADD))
+            if (is_option_set(sp_cmt_cpp_start, AV_ADD))
             {
                if (!unc_isspace(tmp[0]) && (tmp[0] != '/'))
                {
@@ -1282,7 +1239,6 @@ static chunk_t *output_comment_cpp(chunk_t *first)
             add_comment_text(tmp, cmt, false);
          }
       }
-
       return(first);
    }
 
@@ -1298,7 +1254,8 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       /* nothing to group: just output a single line */
       add_text("/*");
       // patch # 32, 2012-03-23
-      if (!unc_isspace(first->str[2]) && (is_option_set(cpd.settings[UO_sp_cmt_cpp_start].a, AV_ADD)))
+      if( (!unc_isspace(first->str[2])            ) &&
+          (is_option_set(sp_cmt_cpp_start, AV_ADD)) )
       {
          add_char(' ');
       }
@@ -1328,7 +1285,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       {
          add_text(" ");
       }
-      add_comment_text(tmp, cmt, true);
+      add_comment_text(tmp,  cmt, true );
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
@@ -1350,31 +1307,31 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
 {
    /* Remove trailing whitespace on the line */
-   while ((line.size() > 0) &&
-          ((line.back() == ' ') ||
-           (line.back() == '\t')))
+   while ( (line.size() > 0    )   &&
+          ((line.back() == ' ' ) ||
+           (line.back() == '\t') ) )
    {
       line.pop_back();
    }
 
    /* If in a preproc, shift any bs-nl back to the comment text */
-   if (in_preproc && (line.size() > 1) && (line.back() == '\\'))
+   if((in_preproc  == true) &&
+      (line.size() >  1   ) &&
+      (line.back() == '\\') )
    {
       bool do_space = false;
 
       /* If there was any space before the backslash, change it to 1 space */
       line.pop_back();
-      while ((line.size() > 0) &&
-             ((line.back() == ' ') ||
-              (line.back() == '\t')))
+      while ( (line.size() >   0  )   &&
+             ((line.back() == ' ' ) ||
+              (line.back() == '\t') ) )
       {
          do_space = true;
          line.pop_back();
       }
-      if (do_space)
-      {
-         line.append(' ');
-      }
+
+      if (do_space) { line.append(' '); }
       line.append('\\');
    }
 }
@@ -1382,10 +1339,9 @@ static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
 
 static void output_comment_multi(chunk_t *pc)
 {
-   cmt_reflow cmt;
-
    // LOG_FMT(LSYS, "%s: line %d\n", __func__, pc->orig_line);
 
+   cmt_reflow cmt;
    output_cmt_start(cmt, pc);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
@@ -1395,7 +1351,7 @@ static void output_comment_multi(chunk_t *pc)
    calculate_comment_body_indent(cmt, pc->str);
 
    cmt.cont_text = !cpd.settings[UO_cmt_indent_multi].b ? "" :
-                   (cpd.settings[UO_cmt_star_cont].b ? "* " : "  ");
+                   (cpd.settings[UO_cmt_star_cont   ].b ? "* " : "  ");
    LOG_CONTTEXT();
 
    // LOG_FMT(LSYS, "Indenting1 line %d to col %d (orig=%d) col_diff=%d xtra=%d cont='%s'\n",
@@ -1415,7 +1371,8 @@ static void output_comment_multi(chunk_t *pc)
       if (ch == '\r')
       {
          ch = '\n';
-         if ((cmt_idx < pc->len()) && (pc->str[cmt_idx] == '\n'))
+         if ((cmt_idx < pc->len()     ) &&
+             (pc->str[cmt_idx] == '\n') )
          {
             cmt_idx++;
          }
@@ -1441,15 +1398,12 @@ static void output_comment_multi(chunk_t *pc)
          }
       }
 
-      /*
-       * Now see if we need/must fold the next line with the current to enable
-       * full reflow
-       */
+      /* Now see if we need/must fold the next line with the current to enable
+       * full reflow */
       if ((cpd.settings[UO_cmt_reflow_mode].n == 2) &&
           (ch == '\n') &&
           (cmt_idx < pc->len()))
       {
-         int    next_nonempty_line = -1;
          int    prev_nonempty_line = -1;
          size_t nwidx              = line.size();
          bool   star_is_bullet     = false;
@@ -1467,14 +1421,15 @@ static void output_comment_multi(chunk_t *pc)
                   (line[nwidx + 1] != '\n'))
                  : true))
             {
-               prev_nonempty_line = (int)nwidx;      // last nonwhitespace char in the previous line
+               prev_nonempty_line = (int)nwidx; // last non-whitespace char in the previous line
             }
          }
 
+         int    next_nonempty_line = -1;
          size_t remaining = pc->len() - cmt_idx;
          for (size_t nxt_len = 0;
-              (nxt_len <= remaining) &&
-              (pc->str[nxt_len] != 'r') &&
+              (nxt_len <= remaining    ) &&
+              (pc->str[nxt_len] != 'r' ) &&
               (pc->str[nxt_len] != '\n');
               nxt_len++)
          {
@@ -1488,12 +1443,11 @@ static void output_comment_multi(chunk_t *pc)
                    (pc->str[nxt_len + 1] != '\n'))
                   : true)))
             {
-               next_nonempty_line = (int)nxt_len;      // first nonwhitespace char in the next line
+               next_nonempty_line = (int)nxt_len;      // first non-whitespace char in the next line
             }
          }
 
-         /*
-          * see if we should fold up; usually that'd be a YES, but there are a few
+         /* see if we should fold up; usually that'd be a YES, but there are a few
           * situations where folding/reflowing by merging lines is frowned upon:
           *
           * - ASCII art in the comments (most often, these are drawings done in +-\/|.,*)
@@ -1520,8 +1474,7 @@ static void output_comment_multi(chunk_t *pc)
           * is when the next line starts with an alphanumeric character AND the last
           * line didn't end with an non-alphanumeric character, except: ',' AND the next
           * line didn't start with a '*' all of a sudden while the previous one didn't
-          * (the ambiguous '*'-for-bullet case!)
-          */
+          * (the ambiguous '*'-for-bullet case!) */
          if ( (prev_nonempty_line >= 0) &&
               (next_nonempty_line >= 0) &&
               (((unc_isalnum(line   [(size_t)prev_nonempty_line]) || strchr(",)]", line   [(size_t)prev_nonempty_line])) &&
@@ -1560,21 +1513,14 @@ static void output_comment_multi(chunk_t *pc)
          {
             /* this is the first line - add unchanged */
             add_comment_text(line, cmt, false);
-            if (nl_end)
-            {
-               add_char('\n');
-            }
+            if (nl_end) { add_char('\n'); }  // \todo
          }
          else
          {
             /* This is not the first line, so we need to indent to the
-             * correct column. Each line is indented 0 or more spaces.
-             */
-            ccol =  (size_t)((int)ccol - col_diff);
-            if (ccol < (cmt_col + 3))
-            {
-               ccol = cmt_col + 3;
-            }
+             * correct column. Each line is indented 0 or more spaces. */
+            ccol = (size_t)((int)ccol - col_diff);
+            if (ccol < (cmt_col + 3)) { ccol = cmt_col + 3; }
 
             if (line.size() == 0)
             {
@@ -1583,10 +1529,8 @@ static void output_comment_multi(chunk_t *pc)
                {
                   cmt.column = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
                   cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-                  if (cmt.xtra_indent > 0)
-                  {
-                     add_char(' ');
-                  }
+
+                  if (cmt.xtra_indent > 0) { add_char(' '); }
                   add_text(cmt.cont_text);
                }
                add_char('\n');
@@ -1594,11 +1538,13 @@ static void output_comment_multi(chunk_t *pc)
             else
             {
                /* If this doesn't start with a '*' or '|'.
-                * '\name' is a common parameter documentation thing.
-                */
+                * '\name' is a common parameter documentation thing. */
                if (cpd.settings[UO_cmt_indent_multi].b &&
-                   (line[0] != '*') && (line[0] != '|') && (line[0] != '#') &&
-                   ((line[0] != '\\') || unc_isalpha(line[1])) && (line[0] != '+'))
+                    (line[0] != '*' ) &&
+                    (line[0] != '|' ) &&
+                    (line[0] != '#' ) &&
+                   ((line[0] != '\\') || unc_isalpha(line[1])) &&
+                    (line[0] != '+' ) )
                {
                   size_t start_col = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
 
@@ -1606,10 +1552,7 @@ static void output_comment_multi(chunk_t *pc)
                   {
                      cmt.column = start_col;
                      cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-                     if (cmt.xtra_indent > 0)
-                     {
-                        add_char(' ');
-                     }
+                     if (cmt.xtra_indent > 0) { add_char(' '); }
                      add_text(cmt.cont_text);
                      output_to_column(ccol + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
                   }
@@ -1623,10 +1566,7 @@ static void output_comment_multi(chunk_t *pc)
                {
                   cmt.column = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
                   cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-                  if (cmt.xtra_indent > 0)
-                  {
-                     add_char(' ');
-                  }
+                  if (cmt.xtra_indent > 0) { add_char(' '); }
 
                   // Checks for and updates the lead chars.
                   // @return 0=not present, >0=number of chars that are part of the lead
@@ -1644,19 +1584,12 @@ static void output_comment_multi(chunk_t *pc)
                   else
                   {
                      // bug #653
-                     if (cpd.lang_flags & LANG_D)
-                     {
-                        // 0=no lead char present
-                        add_text(cmt.cont_text);
-                     }
+                     if (cpd.lang_flags & LANG_D) { add_text(cmt.cont_text); } // 0=no lead char present
                   }
                }
 
                add_comment_text(line, cmt, false);
-               if (nl_end)
-               {
-                  add_text("\n");
-               }
+               if (nl_end) { add_text("\n"); }
             }
          }
          line.clear();
@@ -1683,35 +1616,23 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       const chunk_t *fcn = get_next_function(cmt);
       assert(fcn != NULL);
 
-      if (fcn->type == CT_OC_MSG_DECL)
-      {
-         tmp = get_prev_oc_class(cmt);
-      }
-      else
-      {
-         tmp = get_next_class(cmt);
-      }
+      tmp = (fcn->type == CT_OC_MSG_DECL) ? get_prev_oc_class(cmt) : get_next_class(cmt);
    }
    else if (cpd.lang_flags & LANG_OC)
    {
       tmp = get_prev_oc_class(cmt);
    }
-   if (tmp == NULL)
-   {
-      tmp = get_next_class(cmt);
-   }
 
-   if (tmp)
+   if (tmp == NULL) { tmp = get_next_class(cmt); }
+
+   if (tmp != NULL)
    {
       out_txt.append(tmp->str);
       if (cpd.lang_flags)
       {
          while ((tmp = chunk_get_next(tmp)) != NULL)
          {
-            if (tmp->type != CT_DC_MEMBER)
-            {
-               break;
-            }
+            if (tmp->type != CT_DC_MEMBER) { break; }
             tmp = chunk_get_next(tmp);
             if (tmp)
             {
@@ -1735,7 +1656,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 
    chunk_t *tmp  = chunk_get_next_ncnl(fcn);
    const chunk_t *word = NULL;
-   while (tmp)
+   while (tmp != NULL)
    {
       if ((tmp->type == CT_BRACE_OPEN) ||
           (tmp->type == CT_SEMICOLON ) )
@@ -1751,10 +1672,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
          }
          out_txt.append(":");
       }
-      if (tmp->type == CT_WORD)
-      {
-         word = tmp;
-      }
+      if (tmp->type == CT_WORD) { word = tmp; }
       tmp = chunk_get_next_ncnl(tmp);
    }
    return(true);
@@ -1764,8 +1682,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_category(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *category = get_prev_category(cmt);
-
-   if (category)
+   if (category != NULL)
    {
       out_txt.append('(');
       out_txt.append(category->str);
@@ -1796,7 +1713,8 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
       {
          out_txt.append("operator ");
       }
-      if (fcn->prev && fcn->prev->type == CT_DESTRUCTOR)
+      if ( (fcn->prev      !=  NULL         ) &&
+           (fcn->prev->type == CT_DESTRUCTOR) )
       {
          out_txt.append('~');
       }
@@ -1823,17 +1741,15 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       has_param = false;
       while (tmp)
       {
-         if ((tmp->type == CT_BRACE_OPEN) || (tmp->type == CT_SEMICOLON))
+         if ((tmp->type == CT_BRACE_OPEN) ||
+             (tmp->type == CT_SEMICOLON ) )
          {
             break;
          }
 
          if (has_param)
          {
-            if (need_nl)
-            {
-               out_txt.append("\n");
-            }
+            add_newline_if_required(need_nl, out_txt);
             need_nl = true;
             out_txt.append("@param");
             out_txt.append(" ");
@@ -1842,10 +1758,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
          }
 
          has_param = false;
-         if (tmp->type == CT_PAREN_CLOSE)
-         {
-            has_param = true;
-         }
+         if (tmp->type == CT_PAREN_CLOSE) { has_param = true; }
          tmp = chunk_get_next_ncnl(tmp);
       }
       fpo = fpc = NULL;
@@ -1853,15 +1766,10 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    else
    {
       fpo = chunk_get_next_type(fcn, CT_FPAREN_OPEN, (int)fcn->level);
-      if (fpo == NULL)
-      {
-         return(true);
-      }
-      fpc = chunk_get_next_type(fpo, CT_FPAREN_CLOSE, (int)fcn->level);
-      if (fpc == NULL)
-      {
-         return(true);
-      }
+      if (fpo == NULL) { return(true); }
+
+      fpc = chunk_get_next_type(fpo, CT_FPAREN_CLOSE,(int)fcn->level);
+      if (fpc == NULL) { return(true); }
    }
 
    chunk_t *tmp;
@@ -1880,7 +1788,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       }
    }
 
-   if (has_param)
+   if (has_param == true)
    {
       const chunk_t *prev = NULL;
       tmp = fpo;
@@ -1888,10 +1796,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       {
          if ((tmp->type == CT_COMMA) || (tmp == fpc))
          {
-            if (need_nl)
-            {
-               out_txt.append("\n");
-            }
+            add_newline_if_required(need_nl, out_txt);
             need_nl = true;
             out_txt.append("@param");
             if (prev != NULL)
@@ -1901,33 +1806,28 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
                out_txt.append(" TODO");
             }
             prev = NULL;
-            if (tmp == fpc)
-            {
-               break;
-            }
+            if (tmp == fpc) { break; }
          }
-         if (tmp->type == CT_WORD)
-         {
-            prev = tmp;
-         }
+
+         if (tmp->type == CT_WORD) { prev = tmp; }
       }
    }
 
    /* Do the return stuff */
    tmp = chunk_get_prev_ncnl(fcn);
    assert(tmp != NULL);
+
    /* For Objective-C we need to go to the previous chunk */
    if ((tmp->parent_type == CT_OC_MSG_DECL) &&
        (tmp->type        == CT_PAREN_CLOSE) )
    {
       tmp = chunk_get_prev_ncnl(tmp);
    }
-   if ((tmp != NULL) && !chunk_is_str(tmp, "void", 4))
+
+   if ( (tmp != NULL                  ) &&
+        (!chunk_is_str(tmp, "void", 4)) )
    {
-      if (need_nl)
-      {
-         out_txt.append("\n");
-      }
+      add_newline_if_required(need_nl, out_txt);
       out_txt.append("@return TODO");
    }
 
@@ -1967,8 +1867,9 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
       {
          tmp = chunk_get_prev_ncnl(tmp);
       }
+
       if ((tmp != NULL) && ((tmp->type == CT_DC_MEMBER) ||
-                            (tmp->type == CT_MEMBER)))
+                            (tmp->type == CT_MEMBER   ) ) )
       {
          tmp = chunk_get_prev_ncnl(tmp);
          assert(tmp != NULL);
@@ -1983,7 +1884,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
 struct kw_subst_t
 {
    const char *tag;
-   bool       (*func)(chunk_t *cmt, unc_text &out_txt);
+   bool      (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
 };
 
 
@@ -2042,17 +1943,9 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
    cmt_reflow cmt;
    output_cmt_start(cmt, pc);
 
-   int col_diff = 0;
-   if (chunk_is_newline(chunk_get_prev(pc)))
-   {
-      /* The comment should be indented correctly */
-      col_diff = (int)pc->orig_col - (int)pc->column;
-   }
-   else
-   {
-      /* The comment starts after something else */
-      col_diff = 0;
-   }
+   int col_diff = (chunk_is_newline(chunk_get_prev(pc))) ?
+      (int)pc->orig_col - (int)pc->column : 0;
+   /* The comment should be indented correctly : The comment starts after something else */
 
    unc_text line;
    line.clear();
@@ -2124,10 +2017,8 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
             cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
             add_text(line);
          }
-         if (nl_end)
-         {
-            add_char('\n');
-         }
+
+         if (nl_end) { add_char('\n'); }
          line.clear();
          ccol = 1;
       }
@@ -2203,16 +2094,12 @@ void add_long_preprocessor_conditional_block_comment(void)
       chunk_t *br_close;
       chunk_t *br_open = pc;
       size_t  nl_count = 0;
-
-      chunk_t *tmp = pc;
+      chunk_t *tmp     = pc;
       while ((tmp = chunk_get_next(tmp)) != NULL)
       {
          assert(tmp != NULL);
          /* just track the preproc level: */
-         if (tmp->type == CT_PREPROC)
-         {
-            pp_end = tmp;
-         }
+         if (tmp->type == CT_PREPROC) { pp_end = tmp; }
 
          assert(pp_end != NULL);
          if (chunk_is_newline(tmp))
@@ -2232,23 +2119,18 @@ void add_long_preprocessor_conditional_block_comment(void)
             /* Found the matching #else or #endif - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
-            LOG_FMT(LPPIF, "next item type %d (is %s)\n",
+            LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
                     ((tmp != NULL) ? (int)tmp->type : -1),
                     ((tmp != NULL) ?
                       chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
                      "comment" : "other" : "---"));
-            if ((tmp == NULL) || (tmp->type == CT_NEWLINE) /* chunk_is_newline(tmp) */)
-            {
-               size_t nl_min;
 
-               if (br_close->type == CT_PP_ENDIF)
-               {
-                  nl_min = cpd.settings[UO_mod_add_long_ifdef_endif_comment].u;
-               }
-               else
-               {
-                  nl_min = cpd.settings[UO_mod_add_long_ifdef_else_comment].u;
-               }
+            if ((tmp       == NULL      ) ||
+                (tmp->type == CT_NEWLINE) )  /* chunk_is_newline(tmp) */
+            {
+               size_t nl_min = (br_close->type == CT_PP_ENDIF) ?
+                    cpd.settings[UO_mod_add_long_ifdef_endif_comment].u :
+                    cpd.settings[UO_mod_add_long_ifdef_else_comment ].u;
 
                const char *txt = !tmp ? "EOF" : ((tmp->type == CT_PP_ENDIF) ? "#endif" : "#else");
                LOG_FMT(LPPIF, "#if / %s section candidate for augmenting when over NL threshold %zu != 0 (nl_count=%zu)\n",
@@ -2271,10 +2153,7 @@ void add_long_preprocessor_conditional_block_comment(void)
             }
 
             /* checks both the #else and #endif for a given level, only then look further in the main loop */
-            if (br_close->type == CT_PP_ENDIF)
-            {
-               break;
-            }
+            if (br_close->type == CT_PP_ENDIF) { break; }
          }
       }
    }

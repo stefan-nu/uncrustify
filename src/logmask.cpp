@@ -14,7 +14,11 @@
 
 char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 {
-   if ((buf == NULL) || (size == 0)) { return(buf); }
+   if ((buf  == NULL) ||
+       (size == 0   ) )
+   {
+      return(buf);
+   }
 
    int  last_sev = -1;
    bool is_range = false;

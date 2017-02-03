@@ -149,6 +149,39 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2);
 chunk_t *chunk_first_on_line(chunk_t *pc);
 
 
+chunk_t *get_prev_category(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
+chunk_t *get_next_scope(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
+chunk_t *get_next_class(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
+chunk_t *get_prev_oc_class(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
+/**
+ * Gets the next function chunk
+ */
+chunk_t *get_next_function(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
 /**
  * Gets the next NEWLINE chunk
  */
@@ -165,8 +198,6 @@ chunk_t *chunk_get_next_nc(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
-
-
 
 
 /**
@@ -422,6 +453,16 @@ static_inline chunk_t *chunk_skip_to_match_rev(chunk_t *cur, nav_t nav = CNAV_AL
       return(chunk_get_prev_type(cur, get_inverse_type(cur->type), cur->level, nav));
    }
    return(cur);
+}
+
+
+static_inline bool chunk_is_function(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_FUNC_DEF        ) ||
+                           (pc->type == CT_FUNC_PROTO      ) ||
+                           (pc->type == CT_FUNC_CLASS_DEF  ) ||
+                           (pc->type == CT_FUNC_CLASS_PROTO) ||
+                           (pc->type == CT_OC_MSG_DECL     ) ) );
 }
 
 

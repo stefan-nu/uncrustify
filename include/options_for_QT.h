@@ -14,11 +14,17 @@
 
 #include "uncrustify_types.h"
 
+
+void save_set_options_for_QT(size_t level);
+
+
+void restore_options_for_QT(void);
+
+
+/* \todo can we avoid those extern variables */
 extern bool   QT_SIGNAL_SLOT_found;
 extern size_t QT_SIGNAL_SLOT_level;
 extern bool   restoreValues;
 
-void save_set_options_for_QT(size_t level);
-void restore_options_for_QT(void);
 
 #endif /* OPTIONS_FOR_QT_H_INCLUDED */

@@ -269,9 +269,8 @@ chunk_t *chunk_search_str(chunk_t *cur, const char *str, nav_t nav, loc_t dir, i
 }
 
 
-static chunk_t
-*chunk_search(chunk_t *cur, const check_t check_fct, const nav_t nav,
-              const loc_t dir, const bool cond)
+static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct,
+      const nav_t nav, const loc_t dir, const bool cond)
 {
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
@@ -495,6 +494,51 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
       pc_in->orig_col     = (UINT32)pc_in->column;
       pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
    }
+}
+
+
+
+chunk_t *get_next_function(chunk_t *pc, const nav_t nav)
+{
+   return (chunk_search(pc, chunk_is_function, nav, AFTER, true));
+#if 0
+   while ((pc = chunk_get_next(pc)) != NULL)
+   {
+      if ((pc->type == CT_FUNC_DEF        ) ||
+          (pc->type == CT_FUNC_PROTO      ) ||
+          (pc->type == CT_FUNC_CLASS_DEF  ) ||
+          (pc->type == CT_FUNC_CLASS_PROTO) ||
+          (pc->type == CT_OC_MSG_DECL     ) )
+      {
+         return(pc);
+      }
+   }
+   return(NULL);
+#endif
+}
+
+
+chunk_t *get_next_class(chunk_t *pc, const nav_t nav)
+{
+   return(chunk_get_next(chunk_search_next_cat(pc, CT_CLASS)));
+}
+
+
+chunk_t *get_prev_category(chunk_t *pc, const nav_t nav)
+{
+   return(chunk_search_prev_cat(pc, CT_OC_CATEGORY));
+}
+
+
+chunk_t *get_next_scope(chunk_t *pc, const nav_t nav)
+{
+   return(chunk_search_next_cat(pc, CT_OC_SCOPE));
+}
+
+
+chunk_t *get_prev_oc_class(chunk_t *pc, const nav_t nav)
+{
+   return(chunk_search_prev_cat(pc, CT_OC_CLASS));
 }
 
 

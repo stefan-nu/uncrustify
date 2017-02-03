@@ -59,10 +59,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if(pc == NULL)
-   {
-      return NULL;
-   }
+   if(pc == NULL) { return NULL; }
 
    if ((pc->type == CT_VSEMICOLON) ||
        (pc->type == CT_SEMICOLON))
@@ -77,15 +74,15 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
    {
       return(pc);
    }
-   chunk_t chunk = *pc;
+
+   chunk_t chunk     = *pc;
    chunk.type        = CT_VSEMICOLON;
    chunk.str         = cpd.settings[UO_mod_pawn_semicolon].b ? ";" : "";
    chunk.column     += pc->len();
    chunk.parent_type = CT_NONE;
 
    LOG_FMT(LPVSEMI, "%s: Added VSEMI on line %zu, prev='%s' [%s]\n",
-           __func__, pc->orig_line, pc->text(),
-           get_token_name(pc->type));
+           __func__, pc->orig_line, pc->text(), get_token_name(pc->type));
 
    return(chunk_add_after(&chunk, pc));
 }
@@ -94,17 +91,11 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 void pawn_scrub_vsemi(void)
 {
    LOG_FUNC_ENTRY();
-   if (!cpd.settings[UO_mod_pawn_semicolon].b)
-   {
-      return;
-   }
+   if (!cpd.settings[UO_mod_pawn_semicolon].b) { return; }
 
    for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next(pc))
    {
-      if (pc->type != CT_VSEMICOLON)
-      {
-         continue;
-      }
+      if (pc->type != CT_VSEMICOLON) { continue; }
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if ((prev != NULL) && (prev->type == CT_BRACE_CLOSE))
       {
@@ -124,39 +115,37 @@ void pawn_scrub_vsemi(void)
 static bool pawn_continued(chunk_t *pc, int br_level)
 {
    LOG_FUNC_ENTRY();
-   if (pc == NULL)
-   {
-      return(false);
-   }
-   if (((int)pc->level > br_level) ||
-       (pc->type == CT_ARITH) ||
-       (pc->type == CT_CARET) ||
-       (pc->type == CT_QUESTION) ||
-       (pc->type == CT_BOOL) ||
-       (pc->type == CT_ASSIGN) ||
-       (pc->type == CT_COMMA) ||
-       (pc->type == CT_COMPARE) ||
-       (pc->type == CT_IF) ||
-       (pc->type == CT_ELSE) ||
-       (pc->type == CT_DO) ||
-       (pc->type == CT_SWITCH) ||
-       (pc->type == CT_WHILE) ||
-       (pc->type == CT_BRACE_OPEN) ||
-       (pc->type == CT_VBRACE_OPEN) ||
-       (pc->type == CT_FPAREN_OPEN) ||
-       (pc->parent_type == CT_IF) ||
-       (pc->parent_type == CT_ELSE) ||
-       (pc->parent_type == CT_ELSEIF) ||
-       (pc->parent_type == CT_DO) ||
-       (pc->parent_type == CT_FOR) ||
-       (pc->parent_type == CT_SWITCH) ||
-       (pc->parent_type == CT_WHILE) ||
-       (pc->parent_type == CT_FUNC_DEF) ||
-       (pc->parent_type == CT_ENUM) ||
+   if (pc == NULL) { return(false); }
+
+   if (((int)pc->level  > br_level       ) ||
+       (pc->type        == CT_ARITH      ) ||
+       (pc->type        == CT_CARET      ) ||
+       (pc->type        == CT_QUESTION   ) ||
+       (pc->type        == CT_BOOL       ) ||
+       (pc->type        == CT_ASSIGN     ) ||
+       (pc->type        == CT_COMMA      ) ||
+       (pc->type        == CT_COMPARE    ) ||
+       (pc->type        == CT_IF         ) ||
+       (pc->type        == CT_ELSE       ) ||
+       (pc->type        == CT_DO         ) ||
+       (pc->type        == CT_SWITCH     ) ||
+       (pc->type        == CT_WHILE      ) ||
+       (pc->type        == CT_BRACE_OPEN ) ||
+       (pc->type        == CT_VBRACE_OPEN) ||
+       (pc->type        == CT_FPAREN_OPEN) ||
+       (pc->parent_type == CT_IF         ) ||
+       (pc->parent_type == CT_ELSE       ) ||
+       (pc->parent_type == CT_ELSEIF     ) ||
+       (pc->parent_type == CT_DO         ) ||
+       (pc->parent_type == CT_FOR        ) ||
+       (pc->parent_type == CT_SWITCH     ) ||
+       (pc->parent_type == CT_WHILE      ) ||
+       (pc->parent_type == CT_FUNC_DEF   ) ||
+       (pc->parent_type == CT_ENUM       ) ||
        (pc->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) ||
-       chunk_is_str(pc, ":", 1) ||
-       chunk_is_str(pc, "+", 1) ||
-       chunk_is_str(pc, "-", 1))
+       chunk_is_str(pc, ":", 1)            ||
+       chunk_is_str(pc, "+", 1)            ||
+       chunk_is_str(pc, "-", 1)            )
    {
       return(true);
    }
@@ -174,8 +163,10 @@ void pawn_prescan(void)
    chunk_t *pc    = chunk_get_head();
    while (pc != NULL)
    {
-      if (did_nl && (pc->type != CT_PREPROC) &&
-          !chunk_is_newline(pc) && (pc->level == 0))
+      if( (did_nl   == true      ) &&
+          (pc->type != CT_PREPROC) &&
+          (!chunk_is_newline(pc) ) &&
+          (pc->level == 0        ) )
       {
          /* pc now points to the start of a line */
          pc = pawn_process_line(pc);
@@ -195,11 +186,10 @@ static chunk_t *pawn_process_line(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
 
-   //LOG_FMT(LSYS, "%s: %d - %s\n", __func__,
-   //        start->orig_line, start->text());
+   //LOG_FMT(LSYS, "%s: %d - %s\n", __func__, start->orig_line, start->text());
 
-   if ((start->type == CT_NEW) ||
-       chunk_is_str(start, "const", 5))
+   if( (start->type == CT_NEW          ) ||
+       (chunk_is_str(start, "const", 5)) )
    {
       return(pawn_process_variable(start));
    }
@@ -248,7 +238,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
    //LOG_FMT(LSYS, "%s: Don't understand line %d, starting with '%s' [%s]\n",
    //        __func__, start->orig_line, start->text(), get_token_name(start->type));
    return(start);
-} // pawn_process_line
+}
 
 
 static chunk_t *pawn_process_variable(chunk_t *start)
@@ -264,7 +254,7 @@ static chunk_t *pawn_process_variable(chunk_t *start)
       {
          assert(prev != NULL);
          if ((prev->type != CT_VSEMICOLON) &&
-             (prev->type != CT_SEMICOLON))
+             (prev->type != CT_SEMICOLON ) )
          {
             pawn_add_vsemi_after(prev);
          }
@@ -290,23 +280,23 @@ void pawn_add_virtual_semicolons(void)
          if (!chunk_is_comment(pc) &&
              !chunk_is_newline(pc) &&
              (pc->type != CT_VBRACE_CLOSE) &&
-             (pc->type != CT_VBRACE_OPEN))
+             (pc->type != CT_VBRACE_OPEN ) )
          {
             prev = pc;
          }
          if ((prev == NULL) ||
-             ((pc->type != CT_NEWLINE) &&
-              (pc->type != CT_BRACE_CLOSE) &&
-              (pc->type != CT_VBRACE_CLOSE)))
+             ((pc->type != CT_NEWLINE     ) &&
+              (pc->type != CT_BRACE_CLOSE ) &&
+              (pc->type != CT_VBRACE_CLOSE) ) )
          {
             continue;
          }
 
          /* we just hit a newline and we have a previous token */
-         if (((prev->flags & PCF_IN_PREPROC) == 0) &&
+         if (((prev->flags & PCF_IN_PREPROC)                == 0) &&
              ((prev->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) == 0) &&
              (prev->type != CT_VSEMICOLON) &&
-             (prev->type != CT_SEMICOLON) &&
+             (prev->type != CT_SEMICOLON ) &&
              !pawn_continued(prev, (int)prev->brace_level))
          {
             pawn_add_vsemi_after(prev);
@@ -325,8 +315,10 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    if (start == fcn)
    {
       chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
-      last = chunk_get_next(last);
-      if ((last != NULL) && (last->type == CT_SEMICOLON))
+      last          = chunk_get_next     (last);
+
+      if ((last       != NULL        ) &&
+          (last->type == CT_SEMICOLON) )
       {
          LOG_FMT(LPFUNC, "%s: %zu] '%s' proto due to semicolon\n",
                  __func__, fcn->orig_line, fcn->text());
@@ -337,12 +329,11 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    else
    {
       if ((start->type == CT_FORWARD) ||
-          (start->type == CT_NATIVE))
+          (start->type == CT_NATIVE ) )
       {
          LOG_FMT(LPFUNC, "%s: %zu] '%s' [%s] proto due to %s\n",
                  __func__, fcn->orig_line, fcn->text(),
-                 get_token_name(fcn->type),
-                 get_token_name(start->type));
+                 get_token_name(fcn->type), get_token_name(start->type));
          set_chunk_type(fcn, CT_FUNC_PROTO);
          return(chunk_get_next_nc(fcn));
       }
@@ -381,8 +372,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       LOG_FMT(LPFUNC, "%s: %zu] '%s' has state angle open %s\n",
               __func__, pc->orig_line, pc->text(), get_token_name(last->type));
 
-      set_chunk_type(last, CT_ANGLE_OPEN);
-      set_chunk_parent(last, CT_FUNC_DEF);
+      set_chunk_type  (last, CT_ANGLE_OPEN);
+      set_chunk_parent(last, CT_FUNC_DEF  );
       while (((last = chunk_get_next(last)) != NULL) &&
              !chunk_is_str(last, ">", 1))
       {
@@ -392,8 +383,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       {
          LOG_FMT(LPFUNC, "%s: %zu] '%s' has state angle close %s\n",
                  __func__, pc->orig_line, pc->text(), get_token_name(last->type));
-         set_chunk_type(last, CT_ANGLE_CLOSE);
-         set_chunk_parent(last, CT_FUNC_DEF);
+         set_chunk_type  (last, CT_ANGLE_CLOSE);
+         set_chunk_parent(last, CT_FUNC_DEF   );
       }
       last = chunk_get_next_ncnl(last);
    }
@@ -441,9 +432,9 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
              (prev->level == 0))
          {
             const chunk_t *next = chunk_get_next_ncnl(prev);
-            if ((next != NULL) &&
-                (next->type != CT_ELSE) &&
-                (next->type != CT_WHILE_OF_DO))
+            if ((next       != NULL          ) &&
+                (next->type != CT_ELSE       ) &&
+                (next->type != CT_WHILE_OF_DO) )
             {
                break;
             }
@@ -490,8 +481,8 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *    + arith, assign, bool, comma, compare
     */
    chunk_t *prev = chunk_get_prev_ncnl(pc);
-   if ((prev == NULL) ||
-       (prev == vb_open) ||
+   if ((prev == NULL                ) ||
+       (prev == vb_open             ) ||
        (prev->flags & PCF_IN_PREPROC) ||
        pawn_continued(prev, (int)vb_open->level + 1))
    {

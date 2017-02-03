@@ -59,19 +59,20 @@ static struct log_buf_t g_log;
 
 /**
  * Flushes the cached log text to the stream
- *
- * @param force_nl   Append NL if not present
  */
-static void log_flush(bool force_nl);
+static void log_flush(
+   bool force_nl  /**< [in] Append NL if not present */
+);
 
 
 /**
  * Starts the log statement by flushing if needed and printing the header
  *
- * @param sev  The log severity
- * @return     The number of bytes available
+ * @return The number of bytes available
  */
-static size_t log_start(log_sev_t sev);
+static size_t log_start(
+   log_sev_t sev /**< [in] The log severity */
+);
 
 
 /**
@@ -146,10 +147,7 @@ static size_t log_start(log_sev_t sev)
 {
    if (sev != g_log.sev)
    {
-      if (g_log.buf_len > 0)
-      {
-         log_flush(true);
-      }
+      if (g_log.buf_len > 0) { log_flush(true); }
       g_log.sev    = sev;
       g_log.in_log = false;
    }
@@ -178,15 +176,17 @@ static void log_end(void)
 
 void log_str(log_sev_t sev, const char *str, size_t len)
 {
-   if ((str == NULL) || (len == 0) || !log_sev_on(sev)) { return; }
+   if ((str == NULL     ) ||
+       (len == 0        ) ||
+       (!log_sev_on(sev)) )
+   {
+      return;
+   }
 
    size_t cap = log_start(sev);
    if (cap > 0)
    {
-      if (len > cap)
-      {
-         len = cap;
-      }
+      len = min(len, cap); // if (len > cap) { len = cap; }
       memcpy(&g_log.buf[g_log.buf_len], str, len);
       g_log.buf_len           += len;
       g_log.buf[g_log.buf_len] = 0;
@@ -197,7 +197,11 @@ void log_str(log_sev_t sev, const char *str, size_t len)
 
 void log_fmt(log_sev_t sev, const char *fmt, ...)
 {
-   if ((fmt == NULL) || !log_sev_on(sev)) { return; }
+   if ((fmt == NULL     ) ||
+       (!log_sev_on(sev)) )
+   {
+      return;
+   }
 
    /* Some implementation of vsnprintf() return the number of characters
     * that would have been stored if the buffer was large enough instead of
@@ -212,10 +216,7 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
 
    if (len > 0)
    {
-      if (len > cap)
-      {
-         len = cap;
-      }
+      len = min(len, cap); // if (len > cap) { len = cap; }
       g_log.buf_len           += len;
       g_log.buf[g_log.buf_len] = 0;
    }
@@ -267,12 +268,12 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
 
    /* Loop through the data of the current iov */
    int count = 0;
-   UINT32 total = 0;	// \todo was int
+   UINT32 total = 0;
    for (size_t idx = 0; idx < len; idx++)
    {
       if (count == 0)
       {
-         str_idx = 6;
+         str_idx =  6;
          chr_idx = 56;
 
          buf[0] = to_hex_char(total >> 12);
@@ -282,9 +283,9 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
 
       UINT8 tmp = dat[idx]; // \todo was int
 
-      buf[str_idx]     = to_hex_char(tmp >> 4);
-      buf[str_idx + 1] = to_hex_char(tmp);
-      str_idx         += 3;
+      buf[str_idx  ] = to_hex_char(tmp >> 4);
+      buf[str_idx+1] = to_hex_char(tmp     );
+      str_idx       += 3;
 
       buf[chr_idx++] = (char)(unc_isprint(tmp) ? tmp : '.');
 
@@ -303,7 +304,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
       /* Clear out any junk */
       while (count < 16)
       {
-         buf[str_idx]     = ' ';   /* MSB hex */
+         buf[str_idx    ] = ' ';   /* MSB hex */
          buf[str_idx + 1] = ' ';   /* LSB hex */
          str_idx         += 3;
 
@@ -348,7 +349,7 @@ void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, size_
    }
 #ifdef DEBUG
    size_t     g_fq_size = g_fq.size();
-   if (g_fq_size > (skip_cnt + 1))
+   if (g_fq_size > (skip_cnt + 1) )
    {
       size_t     begin_with;
       const char *sep = "";

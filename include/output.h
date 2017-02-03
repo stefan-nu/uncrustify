@@ -15,10 +15,14 @@
 /**
  * This renders the chunk list to a file.
  */
-void output_text(FILE *pfile);
+void output_text(
+   FILE *pfile
+);
 
 
-void output_parsed(FILE *pfile);
+void output_parsed(
+   FILE *pfile
+);
 
 
 /**
