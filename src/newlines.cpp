@@ -2377,7 +2377,6 @@ void newlines_remove_newlines(void)
 }
 
 
-/* \todo reduce cyclic complexity of this function */
 void newlines_cleanup_braces(bool first)
 {
    LOG_FUNC_ENTRY();
@@ -3612,7 +3611,6 @@ static void _blank_line_max(chunk_t *pc, const char *text, uncrustify_options_t 
 #define blank_line_max(pc, op)    _blank_line_max(pc, # op, op)
 
 
-/* \todo reduce cyclic complexity of this function */
 void do_blank_lines(void)
 {
    LOG_FUNC_ENTRY();

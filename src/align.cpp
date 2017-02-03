@@ -1916,8 +1916,7 @@ static void align_left_shift(void)
              * indent it. Eg:
              *
              *      cout
-             *          << "something";
-             */
+             *          << "something"; */
             chunk_t *prev = chunk_get_prev(pc);
             if (prev && chunk_is_newline(prev))
             {
@@ -1942,8 +1941,7 @@ static void align_left_shift(void)
           * and then it. Eg:
           *
           *      cout <<
-          *          "something";
-          */
+          *          "something"; */
          chunk_t *prev = chunk_get_prev(pc);
          if (prev && chunk_is_newline(prev))
          {

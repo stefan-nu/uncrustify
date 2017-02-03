@@ -1173,10 +1173,10 @@ static const char *make_output_filename(char *buf, const size_t buf_size,
 
    if (prefix != NULL)
    {
-      len = snprintf(buf, buf_size, "%s/", prefix);
+      len = snprintf(&buf[len], buf_size, "%s/", prefix);
    }
 
-   snprintf(&buf[len], buf_size - len, "%s%s", filename,
+   snprintf(&buf[len], buf_size - (size_t)len, "%s%s", filename,
             (suffix != NULL) ? suffix : "");
 
    return(buf);

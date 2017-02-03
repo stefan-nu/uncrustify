@@ -852,7 +852,6 @@ static chunk_t *skip_dc_member(chunk_t *start)
 }
 
 
-/* \todo reduce cyclic complexity of this function */
 void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 {
    LOG_FUNC_ENTRY();
@@ -3542,7 +3541,6 @@ static bool can_be_full_param(chunk_t *start, chunk_t *end)
 }
 
 
-/* \todo reduce cyclic complexity of this function */
 static void mark_function(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();

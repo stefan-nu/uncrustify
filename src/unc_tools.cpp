@@ -34,6 +34,20 @@ void prot_the_line(int theLine, unsigned int actual_line)
 }
 
 
+void log_newline(chunk_t *pc)
+{
+   if (pc->type == CT_NEWLINE)
+   {
+      LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
+   }
+   else
+   {
+      LOG_FMT(LGUY, "(%zu)%s %s, col=%zu, column=%zu\n", pc->orig_line, pc->text(),
+            get_token_name(pc->type), pc->orig_col, pc->column);
+   }
+}
+
+
 /* \todo examine_Data seems not to be used, is it still required? */
 void examine_Data(const char *func_name, int theLine, int what)
 {
@@ -46,7 +60,7 @@ void examine_Data(const char *func_name, int theLine, int what)
       for (pc = chunk_get_head(); pc != NULL; pc = pc->next)
       {
          if ((pc->type == CT_SQUARE_CLOSE) ||
-             (pc->type == CT_TSQUARE))
+             (pc->type == CT_TSQUARE     ) )
          {
             LOG_FMT(LGUY, "\n");
             LOG_FMT(LGUY, "1:(%d),", theLine);
@@ -61,15 +75,7 @@ void examine_Data(const char *func_name, int theLine, int what)
       {
          if (pc->orig_line == 7)
          {
-            if (pc->type == CT_NEWLINE)
-            {
-               LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
-            }
-            else
-            {
-               LOG_FMT(LGUY, "(%zu)%s %s, col=%zu, column=%zu\n", pc->orig_line, pc->text(),
-                     get_token_name(pc->type), pc->orig_col, pc->column);
-            }
+            log_newline(pc);
          }
       }
       break;
@@ -78,15 +84,7 @@ void examine_Data(const char *func_name, int theLine, int what)
       LOG_FMT(LGUY, "3:(%d)\n", theLine);
       for (pc = chunk_get_head(); pc != NULL; pc = pc->next)
       {
-         if (pc->type == CT_NEWLINE)
-         {
-            LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
-         }
-         else
-         {
-            LOG_FMT(LGUY, "(%zu)%s %s, col=%zu, column=%zu\n", pc->orig_line, pc->text(),
-                  get_token_name(pc->type), pc->orig_col, pc->column);
-         }
+         log_newline(pc);
       }
       break;
 
@@ -96,15 +94,7 @@ void examine_Data(const char *func_name, int theLine, int what)
       {
          if (pc->orig_line == 6)
          {
-            if (pc->type == CT_NEWLINE)
-            {
-               LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
-            }
-            else
-            {
-               LOG_FMT(LGUY, "(%zu)%s %s, col=%zu, column=%zu\n", pc->orig_line, pc->text(),
-                     get_token_name(pc->type), pc->orig_col, pc->column);
-            }
+            log_newline(pc);
          }
       }
       break;

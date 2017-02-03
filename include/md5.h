@@ -71,9 +71,9 @@ public:
 
 
 private:
-   UINT32 m_buf[M_BUF_SIZE];
+   UINT32 m_buf [M_BUF_SIZE];
    UINT32 m_bits[M_BITS_SIZE];
-   UINT8  m_in[M_IN_SIZE];
+   UINT8  m_in  [M_IN_SIZE];
    bool   m_need_byteswap;
    bool   m_big_endian;
 

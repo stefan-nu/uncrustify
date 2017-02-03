@@ -122,18 +122,18 @@ void MD5::Update(const void *data, UINT32 len)
    /* Process data in 64-byte chunks */
    while (len >= M_IN_SIZE)
    {
-      memcpy(m_in, buf, M_IN_SIZE);
+      memcpy(m_in, buf, M_IN_SIZE); /*lint !e670 */
       if (m_need_byteswap)
       {
          reverse_u32(m_in, 16);
       }
       Transform(m_buf, (UINT32 *)m_in);
-      buf += M_IN_SIZE;        /* \todo possible creation of out-of-bounds pointer 64 beyond end of data */
+      buf += M_IN_SIZE; /*lint !e662 */
       len -= M_IN_SIZE;
    }
 
    /* Save off any remaining bytes of data */
-   memcpy(m_in, buf, len);      /* \todo possible access beyond array */
+   memcpy(m_in, buf, len);  /*lint !e670 */
 }
 
 

@@ -436,7 +436,7 @@ void AlignStack::Flush()
 
    if (m_skipped.Empty())
    {
-      /* Nothing was skipped, sync the seqnums */
+      /* Nothing was skipped, sync the sequence numbers */
       m_nl_seqnum = m_seqnum;
    }
    else
@@ -470,7 +470,5 @@ void AlignStack::End()
       LOG_FMT(LAS, "End-");
       Flush();
    }
-
-   m_aligned.Reset();
-   m_skipped.Reset();
+   AlignStack::Reset();
 }

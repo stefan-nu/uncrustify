@@ -118,7 +118,6 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
    }
 }
 
-/* \todo reduce cyclic complexity of this function */
 
 /* \todo make min_sp a size_t */
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
@@ -878,6 +877,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
        (first->parent_type == CT_OPERATOR) &&
        (is_not_option(cpd.settings[UO_sp_after_operator_sym].a, AV_IGNORE)))
    {
+
+      // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_after_operator_sym_empty].a, AV_IGNORE)) &&
           (second->type == CT_FPAREN_OPEN))
       {
@@ -891,12 +892,16 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
       log_rule("sp_after_operator_sym");
       return(cpd.settings[UO_sp_after_operator_sym].a);
+      // DRY1 end
+
    }
 
    /* spaces between function and open paren */
    if ((first->type == CT_FUNC_CALL) ||
        (first->type == CT_FUNC_CTOR_VAR))
    {
+
+      // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_func_call_paren_empty].a, AV_IGNORE)) &&
           (second->type == CT_FPAREN_OPEN))
       {
@@ -909,6 +914,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       }
       log_rule("sp_func_call_paren");
       return(cpd.settings[UO_sp_func_call_paren].a);
+      // DRY1 end
+
    }
    if (first->type == CT_FUNC_CALL_USER)
    {
@@ -922,6 +929,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    }
    if (first->type == CT_FUNC_DEF)
    {
+
+      // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_func_def_paren_empty].a, AV_IGNORE)) &&
           (second->type == CT_FPAREN_OPEN))
       {
@@ -934,6 +943,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       }
       log_rule("sp_func_def_paren");
       return(cpd.settings[UO_sp_func_def_paren].a);
+      // DRY1 end
+
    }
    if ((first->type == CT_CPP_CAST ) ||
        (first->type == CT_TYPE_WRAP) )
@@ -985,6 +996,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
        ((second->type == CT_FPAREN_OPEN) &&
         (second->parent_type == CT_FUNC_PROTO)))
    {
+
+      // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_func_proto_paren_empty].a, AV_IGNORE)) &&
           (second->type == CT_FPAREN_OPEN))
       {
@@ -997,10 +1010,13 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       }
       log_rule("sp_func_proto_paren");
       return(cpd.settings[UO_sp_func_proto_paren].a);
+      // DRY1 end
+
    }
    if ((first->type == CT_FUNC_CLASS_DEF) ||
        (first->type == CT_FUNC_CLASS_PROTO))
    {
+      // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_func_class_paren_empty].a, AV_IGNORE)) &&
           (second->type == CT_FPAREN_OPEN))
       {
@@ -1013,6 +1029,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       }
       log_rule("sp_func_class_paren");
       return(cpd.settings[UO_sp_func_class_paren].a);
+      // DRY1 end
+
    }
    if ((first->type == CT_CLASS) && !(first->flags & PCF_IN_OC_MSG))
    {

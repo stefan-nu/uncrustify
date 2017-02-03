@@ -456,6 +456,7 @@ static void split_for_statement(chunk_t *start)
    st[0] = NULL;
    st[1] = NULL;
    pc = start;
+
    if ((pc->type        == CT_SEMICOLON) &&
        (pc->parent_type == CT_FOR      ) )
    {
@@ -468,7 +469,8 @@ static void split_for_statement(chunk_t *start)
            ((pc = chunk_get_prev(pc)) != NULL) &&
            (pc->flags & PCF_IN_SPAREN        ) )
    {
-      if ((pc->type == CT_SEMICOLON) && (pc->parent_type == CT_FOR))
+      if ((pc->type        == CT_SEMICOLON) &&
+          (pc->parent_type == CT_FOR      ) )
       {
          st[count] = pc;
          count++;

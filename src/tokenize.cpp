@@ -1681,7 +1681,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
    /* handle VALA """ strings """ */
    if ((cpd.lang_flags & LANG_VALA) &&
-       (ctx.peek() == '"') &&
+       (ctx.peek( ) == '"') &&
        (ctx.peek(1) == '"') &&
        (ctx.peek(2) == '"'))
    {
@@ -1837,7 +1837,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* Check for pawn/ObjectiveC/Java and normal identifiers */
    if (CharTable::IsKeyword1(ctx.peek()) ||
        ((ctx.peek() == '\\') && (unc_tolower(ctx.peek(1)) == 'u')) ||
-       ((ctx.peek() == '@') && CharTable::IsKeyword1(ctx.peek(1))))
+       ((ctx.peek() == '@' ) && CharTable::IsKeyword1(ctx.peek(1))))
    {
       parse_word(ctx, pc, false);
       return(true);
@@ -2019,19 +2019,19 @@ void tokenize(const deque<int> &data, chunk_t *ref)
    }
 
    /* Set the cpd.newline string for this file */
-   if ((cpd.settings[UO_newlines].le == LE_LF) ||
+   if ( (cpd.settings[UO_newlines].le == LE_LF  ) ||
        ((cpd.settings[UO_newlines].le == LE_AUTO) &&
         (cpd.le_counts[LE_LF] >= cpd.le_counts[LE_CRLF]) &&
-        (cpd.le_counts[LE_LF] >= cpd.le_counts[LE_CR])))
+        (cpd.le_counts[LE_LF] >= cpd.le_counts[LE_CR  ]) ) )
    {
       /* LF line ends */
       cpd.newline = "\n";
       LOG_FMT(LLINEENDS, "Using LF line endings\n");
    }
-   else if ((cpd.settings[UO_newlines].le == LE_CRLF) ||
+   else if ( (cpd.settings[UO_newlines].le == LE_CRLF) ||
             ((cpd.settings[UO_newlines].le == LE_AUTO) &&
              (cpd.le_counts[LE_CRLF] >= cpd.le_counts[LE_LF]) &&
-             (cpd.le_counts[LE_CRLF] >= cpd.le_counts[LE_CR])))
+             (cpd.le_counts[LE_CRLF] >= cpd.le_counts[LE_CR]) ) )
    {
       /* CRLF line ends */
       cpd.newline = "\r\n";
