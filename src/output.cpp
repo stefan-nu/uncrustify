@@ -111,8 +111,8 @@ static void output_comment_multi_simple(
  * This renders the #if condition to a string buffer.
  */
 static void generate_if_conditional_as_text(
-   unc_text &dst,
-   chunk_t *ifdef
+   unc_text &dst,    /**< [out] unc_text buffer to be filled */
+   chunk_t *ifdef    /**< [in]  if conditional as chunk list */
 );
 
 
@@ -121,7 +121,7 @@ static void generate_if_conditional_as_text(
  * NOTE: it is assumed that a comment will contain at most one of each type
  * of keyword.
  */
-static void do_kw_subst(
+static void do_keyword_substitution(
    chunk_t *pc
 );
 
@@ -156,15 +156,32 @@ static bool next_word_exceeds_limit(
 
 
 /**
- * Advance to a specific column
- * cpd.column is the current column
- *
- * @param column  The column to advance to
+ * fill a line with empty characters until a specific column
+ * cpd.column is reached
  */
-static void output_to_column(
-   size_t column,
-   bool allow_tabs
+static void fill_line(
+   size_t column,    /**< [in] The column to advance to */
+   bool   allow_tabs /**< [in] false=use only spaces, true=use tabs+spaces */
 );
+
+
+/**
+ * fill a line with tab stops until the limit given by the parameter
+ * column is reached as close as possible
+ */
+void fill_line_with_tabs(
+   size_t column  /**< [in] column to not exceed with tab stops */
+);
+
+
+/**
+ * fill a line with spaces until the limit given by the parameter
+ * column is reached
+ */
+void fill_line_with_spaces(
+   size_t column  /**< [in] column which determines where to stop */
+);
+
 
 
 /**
@@ -289,25 +306,6 @@ static void output_cmt_start(
 );
 
 
-static void add_newline_if_required(
-   bool condition,
-   unc_text &out_txt
-);
-
-
-static void add_space_if_required(
-   bool condition,
-   unc_text &out_txt
-);
-
-
-static void add_str_if_required(
-   bool condition,
-   unc_text &out_txt,
-   const char* str
-);
-
-
 /**
  * Checks to see if the current comment can be combined with the next comment.
  * The two can be combined if:
@@ -332,7 +330,7 @@ static void add_char(UINT32 ch)
    {
       write_string(cpd.newline);
       cpd.column      = 1;
-      cpd.did_newline = 1;
+      cpd.did_newline = true;
       cpd.spaces      = 0;
    }
 
@@ -341,13 +339,13 @@ static void add_char(UINT32 ch)
    {
       write_string(cpd.newline);
       cpd.column      = 1;
-      cpd.did_newline = 1;
+      cpd.did_newline = true;
       cpd.spaces      = 0;
    }
    else if (ch == '\r') /* do not output '\r' */
    {
       cpd.column      = 1;
-      cpd.did_newline = 1;
+      cpd.did_newline = true;
       cpd.spaces      = 0;
    }
    else if ((ch == '\t') && cpd.output_tab_as_space)
@@ -365,10 +363,13 @@ static void add_char(UINT32 ch)
       if ((ch == '\t') && (cpd.last_char == ' '))
       {
          size_t endcol = next_tab_column(cpd.column);
+         fill_line_with_spaces(endcol);
+#if 0
          while (cpd.column < endcol)
          {
             add_char(' ');
          }
+#endif
          return;
       }
       else if ((ch == ' ') && !cpd.output_trailspace)
@@ -391,24 +392,32 @@ static void add_char(UINT32 ch)
 }
 
 
-static void add_newline_if_required(bool condition, unc_text &out_txt)
+void fill_line_with_tabs(size_t column)
 {
-   add_str_if_required(condition, out_txt, "\n");
-}
-
-
-static void add_space_if_required(bool condition, unc_text &out_txt)
-{
-   add_str_if_required(condition, out_txt, " ");
-}
-
-
-static void add_str_if_required(bool condition, unc_text &out_txt, const char* str)
-{
-   if (condition == true)
+   while (next_tab_column(cpd.column) <= column)
    {
-      out_txt.append(str);
+      add_text("\t");
    }
+}
+
+
+void fill_line_with_spaces(size_t column)
+{
+   while (cpd.column < column)
+   {
+      add_text(" ");
+   }
+}
+
+
+static void fill_line(size_t column, bool allow_tabs)
+{
+   cpd.did_newline = false;      // \todo what is this flag used for?
+   if (allow_tabs)
+   {
+      fill_line_with_tabs(column);   /* tab out as far as possible ... */
+   }
+   fill_line_with_spaces(column);    /* ...  and then use spaces */
 }
 
 
@@ -459,41 +468,9 @@ static bool next_word_exceeds_limit(const unc_text &text, size_t idx)
       idx++;
       length++;
    }
-   return((cpd.column + length - 1) > cpd.settings[UO_cmt_width].u);
-}
 
-
-void space_out_the_rest(size_t column)
-{
-   while (cpd.column < column)
-   {
-      add_text(" ");
-   }
-}
-
-
-static void output_to_column(size_t column, bool allow_tabs)
-{
-   cpd.did_newline = 0;
-   if (allow_tabs)
-   {
-      /* tab out as far as possible and then use spaces */
-      size_t next_column = next_tab_column(cpd.column);
-      while (next_column <= column)
-      {
-         add_text("\t");
-         next_column = next_tab_column(cpd.column);
-      }
-   }
-
-   space_out_the_rest(column);
-#if 0
-   /* space out the final bit */
-   while (cpd.column < column)
-   {
-      add_text(" ");
-   }
-#endif
+   const bool result = ((cpd.column + length - 1) > cpd.settings[UO_cmt_width].u);
+   return(result);
 }
 
 
@@ -502,30 +479,17 @@ static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
    size_t iwt = cpd.settings[UO_indent_cmt_with_tabs].b ? 2 :
                (cpd.settings[UO_indent_with_tabs    ].n ? 1 : 0);
 
-   size_t tab_col = (iwt == 0) ? 0 : ((iwt == 1) ? brace_col : base_col);
+   size_t tab_col = (iwt == 0) ? 0 : ((iwt == 1) ? brace_col : base_col); /* \todo what does this mean? */
 
-   // LOG_FMT(LSYS, "%s(brace=%d base=%d col=%d iwt=%d) tab=%d cur=%d\n",
-   //        __func__, brace_col, base_col, column, iwt, tab_col, cpd.column);
-
-   cpd.did_newline = 0;
+   /* \todo better use fill_line() */
+   cpd.did_newline = false;
    if ( (                      iwt == 2 ) ||
         ((cpd.column == 1) && (iwt == 1)) )
    {
-      /* tab out as far as possible and then use spaces */
-      while (next_tab_column(cpd.column) <= tab_col)
-      {
-         add_text("\t");
-      }
+      fill_line_with_tabs(tab_col);
    }
 
-   space_out_the_rest(column);
-#if 0
-   /* space out the rest */
-   while (cpd.column < column)
-   {
-      add_text(" ");
-   }
-#endif
+   fill_line_with_spaces(column);
 }
 
 
@@ -564,7 +528,7 @@ void output_parsed(FILE *pfile)
 void output_text(FILE *pfile)
 {
    cpd.fout        = pfile;
-   cpd.did_newline = 1;
+   cpd.did_newline = true;
    cpd.column      = 1;
 
    if (cpd.bom) { write_bom(); }
@@ -594,7 +558,7 @@ void output_text(FILE *pfile)
          {
             add_char('\n');
          }
-         cpd.did_newline = 1;
+         cpd.did_newline = true;
          cpd.column      = 1;
          LOG_FMT(LOUTIND, " xx\n");
       }
@@ -629,15 +593,15 @@ void output_text(FILE *pfile)
                   }
                }
             }
-            output_to_column(pc->column, false);
+            fill_line(pc->column, false);
          }
          else
          {
-            output_to_column(pc->column, (cpd.settings[UO_indent_with_tabs].n == 2));
+            fill_line(pc->column, (cpd.settings[UO_indent_with_tabs].n == 2));
          }
          add_char('\\');
          add_char('\n');
-         cpd.did_newline = 1;
+         cpd.did_newline = true;
          cpd.column      = 1;
          LOG_FMT(LOUTIND, " \\xx\n");
       }
@@ -665,7 +629,8 @@ void output_text(FILE *pfile)
       {
          pc = output_comment_c(pc);
       }
-      else if ((pc->type == CT_JUNK) || (pc->type == CT_IGNORED))
+      else if ((pc->type == CT_JUNK   ) ||
+               (pc->type == CT_IGNORED) )
       {
          /* do not adjust the column for junk */
          add_text(pc->str, true);
@@ -680,7 +645,7 @@ void output_text(FILE *pfile)
          bool allow_tabs;
          cpd.output_trailspace = (pc->type == CT_STRING_MULTI);
          /* indent to the 'level' first */
-         if (cpd.did_newline)
+         if (cpd.did_newline == true)
          {
             if (cpd.settings[UO_indent_with_tabs].n == 1)
             {
@@ -688,23 +653,20 @@ void output_text(FILE *pfile)
                /* FIXME: it would be better to properly set column_indent in
                 * indent_text(), but this hack for '}' and ':' seems to work. */
                if ((pc->type == CT_BRACE_CLOSE) ||
-                   chunk_is_str(pc, ":", 1) ||
-                   (pc->type == CT_PREPROC))
+                   (chunk_is_str(pc, ":", 1)  ) ||
+                   (pc->type == CT_PREPROC    ) )
                {
                   lvlcol = pc->column;
                }
                else
                {
                   lvlcol = pc->column_indent;
-                  if (lvlcol > pc->column)
-                  {
-                     lvlcol = pc->column;
-                  }
+                  lvlcol = min(lvlcol, pc->column);
                }
 
                if (lvlcol > 1)
                {
-                  output_to_column(lvlcol, true);
+                  fill_line(lvlcol, true);
                }
             }
             allow_tabs = (cpd.settings[UO_indent_with_tabs].n == 2) ||
@@ -737,7 +699,7 @@ void output_text(FILE *pfile)
             LOG_FMT(LOUTIND, " %zu(%d) -", pc->column, allow_tabs);
          }
 
-         output_to_column(pc->column, allow_tabs);
+         fill_line(pc->column, allow_tabs);
          add_text(pc->str);
          if (pc->type == CT_PP_DEFINE)  // Issue #876
          {
@@ -814,7 +776,7 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
             {
                idx++;
             }
-            last_len = len - idx;
+            last_len = (len - idx);
             break;
          }
       }
@@ -852,17 +814,13 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
       if ((str[idx] == ' ' ) ||
           (str[idx] == '\t') )
       {
-         if (width > 0)
-         {
-            break;
-         }
+         if (width > 0) { break; }
          continue;
       }
       if ((str[idx] == '\n') ||
           (str[idx] == '\r') )
       {
-         /* Done with second line */
-         break;
+         break;  /* Done with second line */
       }
 
       /* Count the leading chars */
@@ -876,7 +834,7 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
       }
       else
       {
-         if ((width != 1) || (str[idx - 1] != '*'))
+         if ((width != 1) || (str[idx-1] != '*'))
          {
             width = 0;
          }
@@ -889,9 +847,9 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
    // If the first and last line are the same length and don't contain any alnum
    // chars and (the first line len > cmt_multi_first_len_minimum or
    // the second leader is the same as the first line length), then the indent is 0.
-   if ((first_len == last_len) &&
+   if ( (first_len == last_len                                     )   &&
        ((first_len > cpd.settings[UO_cmt_multi_first_len_minimum].u) ||
-        (first_len == width)))
+        (first_len == width                                        ) ) )
    {
       return;
    }
@@ -968,7 +926,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
                (text[idx]  == ' '               ) &&
                (cpd.settings[UO_cmt_width].n > 0) &&
                (((int)cpd.column > cpd.settings[UO_cmt_width].n) ||
-                ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))))
+                ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))) )
       {
          in_word = false;
          add_char('\n');
@@ -976,7 +934,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          if (cmt.xtra_indent > 0) { add_char(' '); }
 
          add_text(cmt.cont_text);
-         output_to_column(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
+         fill_line(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
          ch_cnt = 0;
       }
       else
@@ -988,13 +946,14 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          {
             add_char(' ');
          }
+
          if (!in_word && !unc_isspace(text[idx]))
          {
             cmt.word_count++;
          }
          in_word = !unc_isspace(text[idx]);
 
-         add_char(text[idx]); /*lint !e732 */
+         add_char    (text[idx]); /*lint !e732 */
          was_star  = (text[idx] == '*');
          was_slash = (text[idx] == '/');
          ch_cnt++;
@@ -1014,23 +973,19 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    cmt.cont_text.clear();
    cmt.reflow = false;
 
-   if ((pc->flags & PCF_INSERTED)) { do_kw_subst(pc); }
+   if ((pc->flags & PCF_INSERTED)) { do_keyword_substitution(pc); }
 
    if (cmt.brace_col == 0)
    {
       cmt.brace_col = 1u + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
    }
 
-   // LOG_FMT(LSYS, "%s: line %d, brace=%d base=%d col=%d orig=%d aligned=%x\n",
-   //        __func__, pc->orig_line, cmt.brace_col, cmt.base_col, cmt.column, pc->orig_col,
-   //        pc->flags & (PCF_WAS_ALIGNED | PCF_RIGHT_COMMENT));
-
    if ((pc->parent_type == CT_COMMENT_START) ||
        (pc->parent_type == CT_COMMENT_WHOLE) )
    {
-      if (!cpd.settings[UO_indent_col1_comment].b &&
-          (pc->orig_col == 1) &&
-          !(pc->flags & PCF_INSERTED))
+      if ( (!cpd.settings[UO_indent_col1_comment].b) &&
+           (pc->orig_col == 1                      ) &&
+           (!(pc->flags & PCF_INSERTED)            ) )
       {
          cmt.column    = 1u;
          cmt.base_col  = 1u;
@@ -1039,19 +994,14 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    }
 
    /* tab aligning code */
-   if (cpd.settings[UO_indent_cmt_with_tabs].b &&
-       ((pc->parent_type == CT_COMMENT_END  ) ||
-        (pc->parent_type == CT_COMMENT_WHOLE)))
+   if ( (cpd.settings[UO_indent_cmt_with_tabs].b   ) &&
+        ((pc->parent_type == CT_COMMENT_END    ) ||
+         (pc->parent_type == CT_COMMENT_WHOLE  )   ) )
    {
       cmt.column = align_tab_column(cmt.column - 1);
-      // LOG_FMT(LSYS, "%s: line %d, orig:%d new:%d\n",
-      //        __func__, pc->orig_line, pc->column, cmt.column);
       pc->column = cmt.column;
    }
    cmt.base_col = cmt.column;
-
-   // LOG_FMT(LSYS, "%s: -- brace=%d base=%d col=%d\n",
-   //        __func__, cmt.brace_col, cmt.base_col, cmt.column);
 
    /* Bump out to the column */
    cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
@@ -1071,7 +1021,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
    {
       /* Make sure the comment is the same type at the same column */
       next = chunk_get_next(next);
-      if ((next != NULL) &&
+      if ((next != NULL          ) &&
           (next->type == pc->type) &&
           (((next->column ==            1) && (pc->column      ==            1  )) ||
            ((next->column == cmt.base_col) && (pc->column      == cmt.base_col  )) ||
@@ -1086,6 +1036,8 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 
 static chunk_t *output_comment_c(chunk_t *first)
 {
+   if (first == NULL) { return(first); }
+
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
@@ -1109,6 +1061,7 @@ static chunk_t *output_comment_c(chunk_t *first)
    {
       add_comment_text("\n", cmt, false);
    }
+
    chunk_t  *pc = first;
    unc_text tmp;
    while (can_combine_comment(pc, cmt))
@@ -1289,6 +1242,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
+
    assert(pc != NULL);
    offs = unc_isspace(pc->str[2]) ? 1 : 0;
    tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
@@ -1350,7 +1304,7 @@ static void output_comment_multi(chunk_t *pc)
 
    calculate_comment_body_indent(cmt, pc->str);
 
-   cmt.cont_text = !cpd.settings[UO_cmt_indent_multi].b ? "" :
+   cmt.cont_text = !cpd.settings[UO_cmt_indent_multi].b ? ""   :
                    (cpd.settings[UO_cmt_star_cont   ].b ? "* " : "  ");
    LOG_CONTTEXT();
 
@@ -1483,19 +1437,20 @@ static void output_comment_multi(chunk_t *pc)
               (('.' == line[(size_t)prev_nonempty_line]) && unc_isupper(pc->str[(size_t)next_nonempty_line]))) &&
               !star_is_bullet)
          {
-            // rewind the line to the last non-alpha:
-            line.resize((size_t)(prev_nonempty_line + 1));
-            // roll the current line forward to the first non-alpha:
-            cmt_idx =  (size_t)((int)cmt_idx + next_nonempty_line);
-            // override the NL and make it a single whitespace:
-            ch = ' ';
+
+            line.resize((size_t)(prev_nonempty_line + 1)); // rewind the line to the last non-alpha:
+
+            cmt_idx =  (size_t)((int)cmt_idx + next_nonempty_line);  // roll the current line forward to the first non-alpha:
+
+            ch = ' ';  /* override the NL and make it a single whitespace: */
          }
       }
 
       line.append(ch);
 
-      /* If we just hit an end of line OR we just hit end-of-comment... */
-      if ((ch == '\n') || (cmt_idx == pc->len()))
+      /* If we ... */
+      if ((ch      == '\n'     ) || /* hit an end of line sign or */
+          (cmt_idx == pc->len()) )  /* hit an end-of-comment */
       {
          line_count++;
 
@@ -1554,7 +1509,9 @@ static void output_comment_multi(chunk_t *pc)
                      cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
                      if (cmt.xtra_indent > 0) { add_char(' '); }
                      add_text(cmt.cont_text);
-                     output_to_column(ccol + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
+
+                     size_t end_col = ccol + cpd.settings[UO_cmt_sp_after_star_cont].u;
+                     fill_line(end_col, false);
                   }
                   else
                   {
@@ -1576,7 +1533,9 @@ static void output_comment_multi(chunk_t *pc)
                      // >0=number of chars that are part of the lead
                      cmt.cont_text.set(line, 0, idx);
                      LOG_CONTTEXT();
-                     if ((line.size() >= 2) && (line[0] == '*') && unc_isalnum(line[1]))
+                     if ((line.size() >=  2   ) &&
+                         (line[0]     == '*'  ) &&
+                         (unc_isalnum(line[1])) )
                      {
                         line.insert(1, ' ');
                      }
@@ -1611,7 +1570,8 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *tmp = NULL;
 
-   if ((cpd.lang_flags & LANG_CPP) && (cpd.lang_flags & LANG_OC))
+   if ((cpd.lang_flags & LANG_CPP) &&
+       (cpd.lang_flags & LANG_OC ) )
    {
       const chunk_t *fcn = get_next_function(cmt);
       assert(fcn != NULL);
@@ -1709,10 +1669,8 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
    const chunk_t *fcn = get_next_function(cmt);
    if (fcn != NULL)
    {
-      if (fcn->parent_type == CT_OPERATOR)
-      {
-         out_txt.append("operator ");
-      }
+      out_txt.append_cond(fcn->parent_type == CT_OPERATOR, "operator ");
+
       if ( (fcn->prev      !=  NULL         ) &&
            (fcn->prev->type == CT_DESTRUCTOR) )
       {
@@ -1749,12 +1707,9 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
          if (has_param)
          {
-            add_newline_if_required(need_nl, out_txt);
+            out_txt.append_cond(need_nl, "\n");
             need_nl = true;
-            out_txt.append("@param");
-            out_txt.append(" ");
-            out_txt.append(tmp->str);
-            out_txt.append(" TODO");
+            out_txt.append("@param %s TODO", tmp->str.c_str() );
          }
 
          has_param = false;
@@ -1790,20 +1745,18 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    if (has_param == true)
    {
-      const chunk_t *prev = NULL;
+      chunk_t *prev = NULL;
       tmp = fpo;
       while ((tmp = chunk_get_next(tmp)) != NULL)
       {
          if ((tmp->type == CT_COMMA) || (tmp == fpc))
          {
-            add_newline_if_required(need_nl, out_txt);
+            out_txt.append_cond(need_nl, "\n");
             need_nl = true;
             out_txt.append("@param");
             if (prev != NULL)
             {
-               out_txt.append(" ");
-               out_txt.append(prev->str);
-               out_txt.append(" TODO");
+               out_txt.append(" %s TODO", prev->str.c_str() );
             }
             prev = NULL;
             if (tmp == fpc) { break; }
@@ -1827,7 +1780,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    if ( (tmp != NULL                  ) &&
         (!chunk_is_str(tmp, "void", 4)) )
    {
-      add_newline_if_required(need_nl, out_txt);
+      out_txt.append_cond(need_nl, "\n");
       out_txt.append("@return TODO");
    }
 
@@ -1901,7 +1854,7 @@ static const kw_subst_t kw_subst_table[] =
 };
 
 
-static void do_kw_subst(chunk_t *pc)
+static void do_keyword_substitution(chunk_t *pc)
 {
    for (size_t kw_idx = 0; kw_idx < ARRAY_SIZE(kw_subst_table); kw_idx++)
    {
@@ -2028,7 +1981,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
 
 static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
 {
-   int column = -1;
+   int column = -1; /* \todo better use size_t avoid negative values for column */
 
    dst.clear();
    for (chunk_t *pc = ifdef; pc != NULL; pc = chunk_get_next(pc))
@@ -2051,6 +2004,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       else if ((pc->type == CT_COMMENT      ) ||
                (pc->type == CT_COMMENT_EMBED) )
       {
+         /* do nothing */
       }
       else // if (pc->type == CT_JUNK) || else
       {

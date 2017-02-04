@@ -247,11 +247,31 @@ void unc_text::append(const string &ascii_text)
 }
 
 
-void unc_text::append(const char *ascii_text)
+#define MAX_MSG_SIZE 256
+void unc_text::append_cond(const bool condition, const char* const msg, ...)
 {
-   unc_text tmp(ascii_text);
+   if(condition == true)
+   {
+      va_list arg;         /* stores variable list of arguments */
+      va_start(arg, msg);  /* convert msg to variable list */
+      append(msg, arg);    /* forward the arguments to unconditional append */
+   }
+}
 
-   append(tmp);
+
+void unc_text::append(const char* const msg, ...)
+{
+   va_list arg;         /* stores variable list of arguments */
+   va_start(arg, msg);  /* convert msg to variable list */
+
+   /* create fixed string from variable arguments */
+   char orig_msg[MAX_MSG_SIZE];
+   vsnprintf(orig_msg, MAX_MSG_SIZE, msg, arg);
+   va_end(arg);
+
+   /* convert string in unc_msg format and append it */
+   unc_text unc_msg(orig_msg);
+   append(unc_msg);
 }
 
 

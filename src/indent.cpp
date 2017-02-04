@@ -452,8 +452,7 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc)
       }
 
       /* Don't clear the stack entry because some code 'cheats' and uses the
-       * just-popped indent values
-       */
+       * just-popped indent values */
       frm.pse_tos--;
       LOG_FMT(LINDLINE, "(%d) ", __LINE__);
       if (pc != NULL)
@@ -574,7 +573,7 @@ void indent_text(void)
    chunk_t       *pc;
    chunk_t       *next;
    chunk_t       *prev       = NULL;
-   bool          did_newline = true;
+   bool          my_did_newline = true;
    int           idx;
    size_t        vardefcol    = 0;
    size_t        shiftcontcol = 0;
@@ -668,8 +667,7 @@ void indent_text(void)
             indent_pse_pop(frm, pc);
 
             /* If we just removed an #endregion, then check to see if a
-             * PP_REGION_INDENT entry is right below it
-             */
+             * PP_REGION_INDENT entry is right below it */
             if ((type == CT_PP_ENDREGION) &&
                 (frm.pse[frm.pse_tos].type == CT_PP_REGION_INDENT))
             {
@@ -1011,8 +1009,7 @@ void indent_text(void)
          }
       }
 
-      /**
-       * Handle stuff that can affect the current indent:
+      /* Handle stuff that can affect the current indent:
        *  - brace close
        *  - vbrace open
        *  - brace open
@@ -1024,8 +1021,7 @@ void indent_text(void)
        *  - open paren
        *  - open square
        *  - assignment
-       *  - return
-       */
+       *  - return */
 
       bool brace_indent = false;
       if ((pc->type == CT_BRACE_CLOSE) || (pc->type == CT_BRACE_OPEN))
@@ -1225,8 +1221,7 @@ void indent_text(void)
                 * UO_indent_case_brace can be used to indent the brace.
                 * So we need to take the CASE indent, subtract off the
                 * indent_size that was added above and then add indent_case_brace.
-                * may take negative value
-                */
+                * may take negative value */
                indent_column_set(frm.pse[frm.pse_tos - 1].indent - indent_size +
                                  cpd.settings[UO_indent_case_brace].u);
 
@@ -1282,13 +1277,11 @@ void indent_text(void)
          }
          else
          {
-            /**
-             * If there isn't a newline between the open brace and the next
+            /* If there isn't a newline between the open brace and the next
              * item, just indent to wherever the next token is.
              * This covers this sort of stuff:
              * { a++;
-             *   b--; };
-             */
+             *   b--; }; */
             next = chunk_get_next_ncnl(pc);
             if (next == NULL)
             {
@@ -1426,8 +1419,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = tmp;
 
             /* If we are indenting the body, then we must leave the access spec
-             * indented at brace level
-             */
+             * indented at brace level */
             indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
          }
          else
@@ -1513,8 +1505,7 @@ void indent_text(void)
                (pc->type == CT_ANGLE_OPEN ) )
       {
          /* Open parens and squares - never update indent_column, unless right
-          * after a newline.
-          */
+          * after a newline. */
          bool skipped = false;
 
          indent_pse_push(frm, pc);
@@ -1676,11 +1667,9 @@ void indent_text(void)
                (pc->type == CT_IMPORT) ||
                (pc->type == CT_USING))
       {
-         /**
-          * if there is a newline after the '=' or the line starts with a '=',
+         /* if there is a newline after the '=' or the line starts with a '=',
           * just indent one level,
-          * otherwise align on the '='.
-          */
+          * otherwise align on the '='. */
          if ((pc->type == CT_ASSIGN) && chunk_is_newline(chunk_get_prev(pc)))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent + indent_size;
@@ -1782,9 +1771,7 @@ void indent_text(void)
          /* anything else? */
       }
 
-      /**
-       * Handle shift expression continuation indenting
-       */
+      /* Handle shift expression continuation indenting */
       shiftcontcol = 0;
       if (cpd.settings[UO_indent_shift].b && !(pc->flags & PCF_IN_ENUM) &&
           pc->parent_type != CT_OPERATOR && pc->type != CT_COMMENT &&
@@ -1882,9 +1869,7 @@ void indent_text(void)
          }
       }
 
-      /**
-       * Handle variable definition continuation indenting
-       */
+      /* Handle variable definition continuation indenting */
       if ((vardefcol == 0) &&
           ((pc->type == CT_WORD) || (pc->type == CT_FUNC_CTOR_VAR)) &&
           ((pc->flags & PCF_IN_FCN_DEF) == 0) &&
@@ -1921,10 +1906,8 @@ void indent_text(void)
          vardefcol = 0;
       }
 
-      /**
-       * Indent the line if needed
-       */
-      if (did_newline && !chunk_is_newline(pc) && (pc->len() != 0))
+      /* Indent the line if needed */
+      if (my_did_newline && !chunk_is_newline(pc) && (pc->len() != 0))
       {
          pc->column_indent = frm.pse[frm.pse_tos].indent_tab;
 
@@ -1937,12 +1920,9 @@ void indent_text(void)
          LOG_FMT(LINDENT2, "%s(%d): %zu] %zu/%zu for %s\n",
                  __func__, __LINE__, pc->orig_line, pc->column_indent, indent_column, pc->text());
 
-         /**
-          * Check for special continuations.
+         /* Check for special continuations.
           * Note that some of these could be done as a stack item like
-          * everything else
-          */
-
+          * everything else */
          prev = chunk_get_prev_ncnl(pc);
          next = chunk_get_next_ncnl(pc);
 
@@ -2208,7 +2188,7 @@ void indent_text(void)
                }
             }
          }
-         did_newline = false;
+         my_did_newline = false;
 
          if ((pc->type == CT_SQL_EXEC) ||
              (pc->type == CT_SQL_BEGIN) ||
@@ -2263,7 +2243,7 @@ void indent_text(void)
          }
 
          /* Get ready to indent the next item */
-         did_newline = true;
+         my_did_newline = true;
       }
 
       /* Check for open XML tags "</..." */

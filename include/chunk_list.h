@@ -150,26 +150,22 @@ chunk_t *chunk_first_on_line(chunk_t *pc);
 
 
 chunk_t *get_prev_category(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   chunk_t     *pc  /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_next_scope(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   chunk_t     *pc  /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_next_class(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   chunk_t     *pc  /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_prev_oc_class(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   chunk_t     *pc  /**< [in] chunk to start with */
 );
 
 

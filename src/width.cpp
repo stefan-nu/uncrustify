@@ -457,25 +457,23 @@ static void split_for_statement(chunk_t *start)
    st[1] = NULL;
    pc = start;
 
-   if ((pc->type        == CT_SEMICOLON) &&
-       (pc->parent_type == CT_FOR      ) )
-   {
-      st[count] = pc;
-      count++;
-   }
 
    /* first scan backwards for the semicolons */
-   while ( (count < (int)max_cnt             ) &&
-           ((pc = chunk_get_prev(pc)) != NULL) &&
-           (pc->flags & PCF_IN_SPAREN        ) )
+   do
    {
+      // \todo DRY2 start
       if ((pc->type        == CT_SEMICOLON) &&
           (pc->parent_type == CT_FOR      ) )
       {
          st[count] = pc;
          count++;
       }
+      // DRY2 end
    }
+   while ( (count < (int)max_cnt             ) &&
+           ((pc = chunk_get_prev(pc)) != NULL) &&
+           (pc->flags & PCF_IN_SPAREN        ) );
+
 
    /* And now scan forward */
    pc = start;
@@ -483,11 +481,14 @@ static void split_for_statement(chunk_t *start)
           ((pc = chunk_get_next(pc)) != NULL) &&
           (pc->flags & PCF_IN_SPAREN        ) )
    {
-      if ((pc->type == CT_SEMICOLON) && (pc->parent_type == CT_FOR))
+      // \todo DRY2 start
+      if ((pc->type        == CT_SEMICOLON) &&
+          (pc->parent_type == CT_FOR      ) )
       {
          st[count] = pc;
          count++;
       }
+      // DRY2 end
    }
 
    while (--count >= 0)
@@ -502,7 +503,7 @@ static void split_for_statement(chunk_t *start)
       return;
    }
 
-   /* Still past width, check for commas at paren level */
+   /* Still past width, check for commas at parenthese level */
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
@@ -517,7 +518,7 @@ static void split_for_statement(chunk_t *start)
       }
    }
 
-   /* Still past width, check for a assignments at paren level */
+   /* Still past width, check for a assignments at parenthese level */
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {

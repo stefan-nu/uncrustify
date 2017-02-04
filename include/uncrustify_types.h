@@ -415,7 +415,7 @@ struct cp_data_t
 
    bool           consumed;
 
-   int            did_newline;
+   bool           did_newline;      /* flag indicates if a newline was added or converted */
    c_token_t      is_preproc;
    int            preproc_ncnl_count;
    bool           output_trailspace;

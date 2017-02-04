@@ -137,19 +137,58 @@ public:
    void erase(size_t idx, size_t len = 1);
 
 
-   void append(int ch);
+   /*
+    * Add a single character to an unc_text
+    */
+   void append(
+      int ch
+   );
 
 
+   /*
+    * Add a unc_text character to an unc_text
+    */
    void append(const unc_text &ref);
 
 
-   void append(const string &ascii_text);
+   /*
+    * Add a string to an unc_text
+    */
+   void append(
+      const string &ascii_text
+   );
 
 
-   void append(const char *ascii_text);
+   /*
+    * Add a variable length string to an unc_text
+    *
+    * The variable length string format is similar as for printf
+    *
+    * \note the overall length of the string must not exceed 256 characters
+    */
+   void append(
+      const char* const msg, ... /**< [in] a variable length string */
+   );
 
 
-   void append(const int_list_t &data, size_t idx = 0, size_t len = 0);
+   /*
+    * Conditionally add a variable length string to an unc_text
+    *
+    * The variable length string format is similar as for printf
+    *
+    * \note the overall length of the string must not exceed 256 characters
+    */
+   void append_cond(
+      const bool condition,      /**< [in] condition when to append string */
+      const char* const msg, ... /**< [in] a variable length string */
+   );
+
+
+   void append(
+      const int_list_t &data,
+      size_t idx = 0,
+      size_t len = 0
+   );
 
 
    unc_text &operator +=(int ch)
@@ -171,7 +210,6 @@ public:
       append(ascii_text);
       return(*this);
    }
-
 
    unc_text &operator +=(const char *ascii_text)
    {
