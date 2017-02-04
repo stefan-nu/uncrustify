@@ -441,7 +441,7 @@ int load_keyword_file(const char *filename)
    size_t line_no = 0;
 
    /* read file line by line */
-   while (fgets(buf, sizeof(buf), pf) != NULL)
+   while (fgets(buf, max_line_size, pf) != NULL)
    {
       line_no++;
 
@@ -452,10 +452,10 @@ int load_keyword_file(const char *filename)
          *ptr = 0; /* set string end where comment begins */
       }
 
-      const size_t arg_parts = 3;  /**< each define argument consists of three parts */
+      const size_t arg_parts = 2;  /**< each define argument consists of three parts */
       char *args[arg_parts];
-      size_t argc = Args::SplitLine(buf, args, arg_parts-1 );
-      args[arg_parts-1] = 0; /* third element of defines is not used currently */
+      size_t argc = Args::SplitLine(buf, args, arg_parts);
+      args[arg_parts] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
@@ -467,10 +467,15 @@ int load_keyword_file(const char *filename)
          }
          else
          {
-            LOG_FMT(LWARN, "%s: line %zu invalid (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s:%zu Invalid line (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }
+      }
+      else
+      {
+         // the line is empty
+         continue;
       }
    }
 
