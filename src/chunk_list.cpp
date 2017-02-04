@@ -226,8 +226,8 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 ChunkList_t g_cl; /** global chunk list */
 
 
-static chunk_t
-*chunk_search_type(chunk_t *cur, const c_token_t type, const nav_t nav, const loc_t dir)
+static chunk_t *chunk_search_type(chunk_t *cur, const c_token_t type,
+      const nav_t nav, const loc_t dir)
 {
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
@@ -241,7 +241,8 @@ static chunk_t
 }
 
 
-chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, nav_t nav, loc_t dir, int level)
+chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, nav_t nav,
+      loc_t dir, int level)
 {
    const search_t search_function = select_search_fct(dir);
    chunk_t        *pc             = cur;
@@ -451,7 +452,7 @@ static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const loc_t pos)
       switch(pos)
       {
          case(AFTER):  (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
-         case(BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // should be AddHead but tests fail
+         case(BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
          default:      /* invalid position indication */                           break;
       }
       chunk_log(pc, "chunk_add");
@@ -496,6 +497,11 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
    }
 }
 
+
+chunk_t *get_prev_fparen_open(chunk_t *pc, const nav_t nav)
+{
+   return (chunk_search(pc, chunk_is_fparen_open, nav, BEFORE, true));
+}
 
 
 chunk_t *get_next_function(chunk_t *pc, const nav_t nav)
@@ -822,12 +828,11 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const nav_t nav, const loc_t dir)
 }
 
 
-#if 1
 bool chunk_is_forin(chunk_t *pc)
 {
-   if ((cpd.lang_flags & LANG_OC   ) &&
-       (pc != NULL                 ) &&
-       (pc->type == CT_SPAREN_OPEN))
+   if ((cpd.lang_flags & LANG_OC  ) &&
+       (pc       != NULL          ) &&
+       (pc->type == CT_SPAREN_OPEN) )
    {
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
       assert(prev != NULL);
@@ -849,35 +854,284 @@ bool chunk_is_forin(chunk_t *pc)
    }
    return(false);
 }
-#else
-bool chunk_is_forin(chunk_t *pc)
-{
-   /* only start search if ... */
-   if ( (pc      !=            NULL) &&   /* start chunk is valid and */
-        (pc->type == CT_SPAREN_OPEN) &&   /* is a open parenthesis "(" and */
-        (cpd.lang_flags & LANG_OC  ) )    /* language is objective C */
-   {
-      /* check if the preceding chunk is a "for" instruction */
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
-      if (prev->type == CT_FOR)
-      {
-         chunk_t *next = pc;
-         do
-         {
-            next = chunk_get_next_ncnl(next);
-            if(next == NULL)
-            {
-               return false; /* reach end of chunk list */
-            }
 
-            if (next->type == CT_IN)
-            {
-               return(true); /* found "in" chunk */
-            }
-         } /* go on until closing parentheses occurs */
-         while(next->type != CT_SPAREN_CLOSE);
-      }
+
+chunk_t *chunk_skip_to_match(chunk_t *cur, nav_t nav)
+{
+   if ( (cur != NULL) && ((cur->type == CT_PAREN_OPEN ) ||
+                          (cur->type == CT_SPAREN_OPEN) ||
+                          (cur->type == CT_FPAREN_OPEN) ||
+                          (cur->type == CT_TPAREN_OPEN) ||
+                          (cur->type == CT_BRACE_OPEN ) ||
+                          (cur->type == CT_VBRACE_OPEN) ||
+                          (cur->type == CT_ANGLE_OPEN ) ||
+                          (cur->type == CT_SQUARE_OPEN) ) )
+   {
+      return(chunk_get_next_type(cur, get_inverse_type(cur->type), (int)cur->level, nav));
    }
-   return(false); /* no "in" in for loop found */
+   return(cur);
 }
-#endif
+
+
+chunk_t *chunk_skip_to_match_rev(chunk_t *cur, nav_t nav)
+{
+   if ((cur != NULL) && ((cur->type == CT_PAREN_CLOSE ) ||
+                         (cur->type == CT_SPAREN_CLOSE) ||
+                         (cur->type == CT_FPAREN_CLOSE) ||
+                         (cur->type == CT_TPAREN_CLOSE) ||
+                         (cur->type == CT_BRACE_CLOSE ) ||
+                         (cur->type == CT_VBRACE_CLOSE) ||
+                         (cur->type == CT_ANGLE_CLOSE ) ||
+                         (cur->type == CT_SQUARE_CLOSE) ) )
+   {
+      return(chunk_get_prev_type(cur, get_inverse_type(cur->type), (int)cur->level, nav));
+   }
+   return(cur);
+}
+
+
+bool chunk_is_function(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_FUNC_DEF        ) ||
+                           (pc->type == CT_FUNC_PROTO      ) ||
+                           (pc->type == CT_FUNC_CLASS_DEF  ) ||
+                           (pc->type == CT_FUNC_CLASS_PROTO) ||
+                           (pc->type == CT_OC_MSG_DECL     ) ) );
+}
+
+
+bool chunk_is_comment(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_COMMENT      ) ||
+                           (pc->type == CT_COMMENT_MULTI) ||
+                           (pc->type == CT_COMMENT_CPP  ) ) );
+}
+
+
+bool chunk_is_newline(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_NEWLINE) ||
+                           (pc->type == CT_NL_CONT) ) );
+}
+
+
+bool chunk_is_blank(chunk_t *pc)
+{
+   return((pc != NULL) && (pc->len() == 0));
+}
+
+
+bool chunk_is_comment_or_newline(chunk_t *pc)
+{
+   return(chunk_is_comment(pc) || chunk_is_newline(pc));
+}
+
+
+bool chunk_is_balanced_square(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_SQUARE_OPEN ) ||
+                           (pc->type == CT_TSQUARE     ) ||
+                           (pc->type == CT_SQUARE_CLOSE) ) );
+}
+
+
+bool chunk_is_preproc(chunk_t *pc)
+{
+   return((pc != NULL) && (pc->flags & PCF_IN_PREPROC));
+}
+
+
+bool chunk_is_comment_or_newline_in_preproc(chunk_t *pc)
+{
+   return((pc != NULL) && chunk_is_preproc(pc) &&
+          (chunk_is_comment(pc) || chunk_is_newline(pc)));
+}
+
+
+bool chunk_is_comment_newline_or_preproc(chunk_t *pc)
+{
+   return(chunk_is_comment(pc) ||
+          chunk_is_newline(pc) ||
+          chunk_is_preproc(pc) );
+}
+
+
+bool chunk_is_comment_newline_or_blank(chunk_t *pc)
+{
+   return(chunk_is_comment_or_newline(pc) || chunk_is_blank(pc));
+}
+
+
+bool chunk_is_single_line_comment(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_COMMENT    )  ||
+                           (pc->type == CT_COMMENT_CPP)) );
+}
+
+
+bool chunk_is_semicolon(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_SEMICOLON) ||
+                           (pc->type == CT_VSEMICOLON)));
+}
+
+
+bool chunk_is_type(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_TYPE     ) ||
+                           (pc->type == CT_PTR_TYPE ) ||
+                           (pc->type == CT_BYREF    ) ||
+                           (pc->type == CT_DC_MEMBER) ||
+                           (pc->type == CT_QUALIFIER) ||
+                           (pc->type == CT_STRUCT   ) ||
+                           (pc->type == CT_ENUM     ) ||
+                           (pc->type == CT_UNION    ) ) );
+}
+
+
+bool chunk_is_token(chunk_t *pc, c_token_t c_token)
+{
+   return((pc != NULL) && (pc->type == c_token));
+}
+
+
+bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
+{
+   return((pc                           != NULL) && /* valid pc pointer */
+          (pc->len()                    == len ) && /* token size equals size parameter */
+          (memcmp(pc->text(), str, len) == 0   ) ); /* token name is the same as str parameter */
+
+   /* \todo possible access beyond array for memcmp, check this
+    * why not use strncmp here?  */
+}
+
+
+bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
+{
+   return((pc        != NULL) &&
+          (pc->len() == len ) &&
+          (strncasecmp(pc->text(), str, len) == 0));
+}
+
+
+bool chunk_is_word(chunk_t *pc)
+{
+   return((pc        != NULL                          ) &&
+          (pc->len() >= 1u                            ) &&
+          (CharTable::IsKeyword1((size_t)(pc->str[0]))) );
+}
+
+
+bool chunk_is_star(chunk_t *pc)
+{
+   return((pc         != NULL           ) &&
+          (pc->len()  == 1              ) &&
+          (pc->str[0] == '*'            ) &&
+          (pc->type   != CT_OPERATOR_VAL) );
+}
+
+
+bool chunk_is_addr(chunk_t *pc)
+{
+   if (  (pc         != NULL           ) &&
+       ( (pc->type   == CT_BYREF       ) ||
+        ((pc->len()  ==  1             ) &&
+         (pc->str[0] == '&'            ) &&
+         (pc->type   != CT_OPERATOR_VAL) )))
+   {
+      chunk_t *prev = chunk_get_prev(pc);
+
+      if ((pc->flags & PCF_IN_TEMPLATE) &&
+          ((prev != NULL) &&
+           ((prev->type == CT_COMMA) || (prev->type == CT_ANGLE_OPEN))))
+      {
+         return(false);
+      }
+      return(true);
+   }
+   return(false);
+}
+
+
+// ms compilers for C++/CLI and WinRT use '^' instead of '*' for marking up reference types vs pointer types
+bool chunk_is_msref(chunk_t *pc)
+{
+   return((cpd.lang_flags & LANG_CPP     ) &&
+          ((pc         != NULL           ) &&
+           (pc->len()  == 1              ) &&
+           (pc->str[0] == '^'            ) &&
+           (pc->type   != CT_OPERATOR_VAL)));
+}
+
+
+bool chunk_is_ptr_operator(chunk_t *pc)
+{
+   return(chunk_is_star (pc) ||
+          chunk_is_addr (pc) ||
+          chunk_is_msref(pc) );
+}
+
+
+bool chunk_is_closing_brace(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_BRACE_CLOSE ) ||
+                           (pc->type == CT_VBRACE_CLOSE) ) );
+}
+
+
+bool chunk_is_opening_brace(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_BRACE_OPEN ) ||
+                           (pc->type == CT_VBRACE_OPEN) ) );
+}
+
+
+bool chunk_is_vbrace(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_VBRACE_CLOSE) ||
+                           (pc->type == CT_VBRACE_OPEN ) ) );
+}
+
+
+bool chunk_is_fparen_open(chunk_t *pc)
+{
+   return((pc != NULL) && (pc->type == CT_FPAREN_OPEN));
+}
+
+
+bool chunk_is_paren_open(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_PAREN_OPEN ) ||
+                           (pc->type == CT_SPAREN_OPEN) ||
+                           (pc->type == CT_TPAREN_OPEN) ||
+                           (pc->type == CT_FPAREN_OPEN) ) );
+}
+
+
+bool chunk_is_paren_close(chunk_t *pc)
+{
+   return((pc != NULL) && ((pc->type == CT_PAREN_CLOSE ) ||
+                           (pc->type == CT_SPAREN_CLOSE) ||
+                           (pc->type == CT_TPAREN_CLOSE) ||
+                           (pc->type == CT_FPAREN_CLOSE) ) );
+}
+
+
+bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
+{
+   return((pc1 == NULL) ||
+          (pc2 == NULL) ||
+          ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
+}
+
+
+bool chunk_safe_to_del_nl(chunk_t *nl)
+{
+   chunk_t *tmp = chunk_get_prev(nl);
+
+   if ((tmp != NULL) && (tmp->type == CT_COMMENT_CPP))
+   {
+      return(false);
+   }
+   return(chunk_same_preproc(chunk_get_prev(nl), chunk_get_next(nl)));
+}

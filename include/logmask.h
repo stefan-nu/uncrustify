@@ -25,7 +25,7 @@ typedef std::bitset<256> log_mask_t;
  * @param sev  The severity to check
  * @return     true (is set) or false (not set)
  */
-static_inline bool logmask_test(const log_mask_t &mask, log_sev_t sev)
+static inline bool logmask_test(const log_mask_t &mask, log_sev_t sev)
 {
    return(mask.test(sev));
 }
@@ -37,7 +37,7 @@ static_inline bool logmask_test(const log_mask_t &mask, log_sev_t sev)
  * @param sev     The severity to check
  * @param value   true (set bit) or false (clear bit)
  */
-static_inline void logmask_set_sev(log_mask_t &mask, log_sev_t sev, bool value)
+static inline void logmask_set_sev(log_mask_t &mask, log_sev_t sev, bool value)
 {
    mask.set(sev, value);
 }
@@ -46,18 +46,12 @@ static_inline void logmask_set_sev(log_mask_t &mask, log_sev_t sev, bool value)
 /**
  * Sets all bits to the same value
  *
- * @param value   true (set bit) or false (clear bit)
+ * @param value true (set bit) or false (clear bit)
  */
-static_inline void logmask_set_all(log_mask_t &mask, bool value)
+static inline void logmask_set_all(log_mask_t &mask, bool value)
 {
-   if (value)
-   {
-      mask.set();
-   }
-   else
-   {
-      mask.reset();
-   }
+   if (value) { mask.set  (); }
+   else       { mask.reset(); }
 }
 
 
@@ -66,20 +60,22 @@ static_inline void logmask_set_all(log_mask_t &mask, bool value)
  * The string is a comma-delimited list of severities.
  * Example: 1,3,5-10
  *
- * @param mask the mask to convert
- * @param buf  the buffer to hold the string
- * @param size the size of the buffer
  * @return     buf (pass through)
  */
-char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size);
+char *logmask_to_str(
+   const log_mask_t &mask, /**< [in] the mask to convert */
+   char             *buf,  /**< [in] buffer to hold the string */
+   size_t           size   /**< [in] size of the buffer */
+);
 
 
 /**
  * Parses a string into a log severity
- *
- * @param str     The string to parse
- * @param mask    The mask to populate
  */
-void logmask_from_string(const char *str, log_mask_t &mask);
+void logmask_from_string(
+   const char *str,  /**< [in] string to parse */
+   log_mask_t &mask  /**< [in] mask to populate */
+);
+
 
 #endif /* LOGMASK_H_INCLUDED */

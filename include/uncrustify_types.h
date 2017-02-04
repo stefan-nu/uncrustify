@@ -305,19 +305,19 @@ enum
 enum pattern_class
 {
    PATCLS_NONE,
-   PATCLS_BRACED,   // keyword + braced stmt:
-                    //    do, try, finally, body, unittest, unsafe, volatile
+   PATCLS_BRACED,   // keyword + braced statement:
+                    //    do, try, finally, body, unit test, unsafe, volatile
                     //    add, get, remove, set
-   PATCLS_PBRACED,  // keyword + parens + braced stmt:
+   PATCLS_PBRACED,  // keyword + parens + braced statement:
                     //    if, elseif, switch, for, while, synchronized,
                     //    using, lock, with, version, CT_D_SCOPE_IF
-   PATCLS_OPBRACED, // keyword + optional parens + braced stmt:
+   PATCLS_OPBRACED, // keyword + optional parens + braced statement:
                     //    catch, version, debug
-   PATCLS_VBRACED,  // keyword + value + braced stmt:
+   PATCLS_VBRACED,  // keyword + value + braced statement:
                     //    namespace
    PATCLS_PAREN,    // keyword + parens:
                     //    while-of-do
-   PATCLS_OPPAREN,  // keyword + optional parens: invariant (D lang)
+   PATCLS_OPPAREN,  // keyword + optional parens: invariant (D language)
    PATCLS_ELSE,     // Special case of PATCLS_BRACED for handling CT_IF
                     //    else
 };

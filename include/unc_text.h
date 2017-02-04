@@ -68,7 +68,9 @@ public:
    }
 
 
-   void resize(size_t new_size);
+   void resize(
+      size_t new_size
+   );
 
 
    void clear();
@@ -82,22 +84,39 @@ public:
       return(m_chars.size());
    }
 
-   void set(int ch);
+
+   void set(
+      int ch
+   );
 
 
-   void set(const unc_text &ref);
+   void set(
+      const unc_text &ref
+   );
 
 
-   void set(const unc_text &ref, size_t idx, size_t len = 0);
+   void set(
+      const unc_text &ref,
+      size_t idx,
+      size_t len = 0
+   );
 
 
-   void set(const string &ascii_text);
+   void set(
+      const string &ascii_text
+   );
 
 
-   void set(const char *ascii_text);
+   void set(
+      const char *ascii_text
+   );
 
 
-   void set(const int_list_t &data, size_t idx = 0, size_t len = 0);
+   void set(
+      const int_list_t &data,
+      size_t idx = 0,
+      size_t len = 0
+   );
 
 
    unc_text &operator =(int ch)
@@ -128,13 +147,22 @@ public:
    }
 
 
-   void insert(size_t idx, int ch);
+   void insert(
+      size_t idx,
+      int ch
+   );
 
 
-   void insert(size_t idx, const unc_text &ref);
+   void insert(
+      size_t idx,
+      const unc_text &ref
+   );
 
 
-   void erase(size_t idx, size_t len = 1);
+   void erase(
+      size_t idx,
+      size_t len = 1
+   );
 
 
    /*
@@ -316,18 +344,28 @@ public:
    }
 
 
-   bool startswith(const unc_text &text, size_t idx = 0) const;
+   bool startswith(
+      const unc_text &text,
+      size_t idx = 0
+   ) const;
 
 
-   bool startswith(const char *text, size_t idx = 0) const;
+   bool startswith(
+      const char *text,
+      size_t idx = 0
+   ) const;
+
 
    /**
-    * look for 'text', beginning with position 'sidx'
-    * return value:
-    *           -1: if not found
-    * the position: if found
+    * look for 'text', beginning with position 'idx'
+    *
+    * @retval == -1 if not found
+    * @retval >=  0 if found gives position
     */
-   int find(const char *text, size_t idx = 0) const;
+   int find(
+      const char *text,  /**< [in] text to search for */
+      size_t idx = 0     /**< [in] position to start search */
+   ) const;
 
 
    int rfind(const char *text, size_t idx = 0) const;
@@ -338,11 +376,9 @@ public:
 protected:
    void update_logtext();
 
-   /* this contains the non-encoded 31-bit chars */
-   int_list_t m_chars;
 
-   /* logging text, utf8 encoded - updated in c_str() */
-   vector<UINT8> m_logtext;
+   int_list_t    m_chars;   /**< contains the non-encoded 31-bit chars */
+   vector<UINT8> m_logtext; /**< logging text, utf8 encoded - updated in c_str() */
    bool          m_logok;
 };
 

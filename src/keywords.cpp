@@ -428,7 +428,6 @@ int load_keyword_file(const char *filename)
    if (filename == NULL) { return(EX_CONFIG); }
 
    FILE *pf = fopen(filename, "r");
-
    if (pf == NULL)
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
@@ -453,14 +452,14 @@ int load_keyword_file(const char *filename)
       }
 
       const size_t arg_parts = 2;  /**< each define argument consists of three parts */
-      char *args[arg_parts];
+      char *args[arg_parts+1];
       size_t argc = Args::SplitLine(buf, args, arg_parts);
       args[arg_parts] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
-         if ((argc < arg_parts             ) &&
-             CharTable::IsKeyword1(*args[0]) )
+         if ((argc < arg_parts                         ) &&
+             (CharTable::IsKeyword1((size_t)(*args[0]))) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_keyword(args[0], CT_TYPE);
@@ -472,11 +471,7 @@ int load_keyword_file(const char *filename)
             cpd.error_count++;
          }
       }
-      else
-      {
-         // the line is empty
-         continue;
-      }
+      else { continue; } // the line is empty
    }
 
    fclose(pf);
@@ -522,8 +517,8 @@ pattern_class get_token_pattern_class(c_token_t tok)
       case CT_LOCK:         /* fallthrough */
       case CT_D_WITH:       /* fallthrough */
       case CT_D_VERSION_IF: /* fallthrough */
-      case CT_D_SCOPE_IF:   return(PATCLS_PBRACED);
-      case CT_ELSE:         return(PATCLS_ELSE);
+      case CT_D_SCOPE_IF:   return(PATCLS_PBRACED );
+      case CT_ELSE:         return(PATCLS_ELSE    );
       case CT_DO:           /* fallthrough */
       case CT_TRY:          /* fallthrough */
       case CT_FINALLY:      /* fallthrough */
@@ -531,13 +526,13 @@ pattern_class get_token_pattern_class(c_token_t tok)
       case CT_UNITTEST:     /* fallthrough */
       case CT_UNSAFE:       /* fallthrough */
       case CT_VOLATILE:     /* fallthrough */
-      case CT_GETSET:       return(PATCLS_BRACED);
+      case CT_GETSET:       return(PATCLS_BRACED  );
       case CT_CATCH:        /* fallthrough */
       case CT_D_VERSION:    /* fallthrough */
       case CT_DEBUG:        return(PATCLS_OPBRACED);
-      case CT_NAMESPACE:    return(PATCLS_VBRACED);
-      case CT_WHILE_OF_DO:  return(PATCLS_PAREN);
-      case CT_INVARIANT:    return(PATCLS_OPPAREN);
-      default:              return(PATCLS_NONE);
+      case CT_NAMESPACE:    return(PATCLS_VBRACED );
+      case CT_WHILE_OF_DO:  return(PATCLS_PAREN   );
+      case CT_INVARIANT:    return(PATCLS_OPPAREN );
+      default:              return(PATCLS_NONE    );
    }
 }

@@ -74,9 +74,9 @@ static const char * const DOC_TEXT_END =
    "#   file_ext CPP .ch .cxx .cpp.in\n"
    "#\n";
 
-map<uncrustify_options_t, option_map_value_t> option_name_map;
-map<uncrustify_groups_t,  group_map_value_t>  group_map;
-static uncrustify_groups_t                    current_group;
+map<uo_t, option_map_value_t> option_name_map;
+map<ug_t,  group_map_value_t>  group_map;
+static ug_t                    current_group;
 
 
 const char *get_argtype_name(
@@ -105,7 +105,7 @@ static void convert_value(
 
 static void unc_add_option(
    const char *name,
-   uncrustify_options_t id,
+   uo_t id,
    argtype_t type,
    const char *short_desc = NULL,
    const char *long_desc = NULL,
@@ -114,7 +114,7 @@ static void unc_add_option(
 );
 
 
-void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
+void unc_begin_group(ug_t id, const char *short_desc,
                      const char *long_desc)
 {
    current_group = id;
@@ -132,6 +132,33 @@ void unc_begin_group(uncrustify_groups_t id, const char *short_desc,
 argval_t add_option(argval_t var, argval_t opt)
 {
    return (argval_t)((int)var | (int)opt);
+}
+
+
+uo_t get_inverse_uo(uo_t option)
+{
+   switch(option)
+   {
+      case(UO_nl_before_if):           return(UO_nl_after_if);
+      case(UO_nl_after_if):            return(UO_nl_before_if);
+
+      case(UO_nl_before_for):          return(UO_nl_after_for);
+      case(UO_nl_after_for):           return(UO_nl_before_for);
+
+      case(UO_nl_before_while):        return(UO_nl_after_while);
+      case(UO_nl_after_while):         return(UO_nl_before_while);
+
+      case(UO_nl_before_switch):       return(UO_nl_after_switch);
+      case(UO_nl_after_switch):        return(UO_nl_before_switch);
+
+      case(UO_nl_before_synchronized): return(UO_nl_after_synchronized);
+      case(UO_nl_after_synchronized):  return(UO_nl_before_synchronized);
+
+      case(UO_nl_before_do):           return(UO_nl_after_do);
+      case(UO_nl_after_do):            return(UO_nl_before_do);
+
+      default:                         return (option);
+   }
 }
 
 
@@ -195,7 +222,7 @@ bool is_bit_unset(UINT64 var, UINT64 flag)
    return ((var & flag) == 0);
 }
 
-static void unc_add_option(const char *name, uncrustify_options_t id, argtype_t type,
+static void unc_add_option(const char *name, uo_t id, argtype_t type,
       const char *short_desc, const char *long_desc, int min_val, int max_val)
 {
    const size_t option_max_length = 60;
@@ -1666,7 +1693,7 @@ const group_map_value_t *get_group_name(size_t ug)
 }
 
 
-const option_map_value_t *get_option_name(uncrustify_options_t option)
+const option_map_value_t *get_option_name(uo_t option)
 {
    const option_name_map_it it = option_name_map.find(option);
 
@@ -1884,7 +1911,6 @@ bool is_path_relative(const char *path)
 
    // /path/to/file style absolute path
    return(path[0] != '/');
-
 }
 
 
@@ -2297,12 +2323,12 @@ const char *get_argtype_name(argtype_t argtype)
 {
    switch (argtype)
    {
-      case AT_BOOL:   return("AT_BOOL");
-      case AT_IARF:   return("AT_IARF");
-      case AT_NUM:    return("AT_NUM");
-      case AT_UNUM:   return("AT_UNUM");
-      case AT_LINE:   return("AT_LINE");
-      case AT_POS:    return("AT_POS");
+      case AT_BOOL:   return("AT_BOOL"  );
+      case AT_IARF:   return("AT_IARF"  );
+      case AT_NUM:    return("AT_NUM"   );
+      case AT_UNUM:   return("AT_UNUM"  );
+      case AT_LINE:   return("AT_LINE"  );
+      case AT_POS:    return("AT_POS"   );
       case AT_STRING: return("AT_STRING");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
                       return("");
@@ -2321,9 +2347,9 @@ string argval_to_string(argval_t argval)
    switch (argval)
    {
       case AV_IGNORE: return("ignore");
-      case AV_ADD:    return("add");
+      case AV_ADD:    return("add"   );
       case AV_REMOVE: return("remove");
-      case AV_FORCE:  return("force");
+      case AV_FORCE:  return("force" );
       default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
                       return("");
    }
@@ -2345,9 +2371,9 @@ string lineends_to_string(lineends_t linends)
 {
    switch (linends)
    {
-      case LE_LF:   return("lf");
+      case LE_LF:   return("lf"  );
       case LE_CRLF: return("crlf");
-      case LE_CR:   return("cr");
+      case LE_CR:   return("cr"  );
       case LE_AUTO: return("auto");
       default:      fprintf(stderr, "Unknown lineends '%d'\n", linends);
                     return("");
@@ -2359,12 +2385,12 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
-      case TP_IGNORE:      return("ignore");
-      case TP_JOIN:        return("join");
-      case TP_LEAD:        return("lead");
-      case TP_LEAD_BREAK:  return("lead_break");
-      case TP_LEAD_FORCE:  return("lead_force");
-      case TP_TRAIL:       return("trail");
+      case TP_IGNORE:      return("ignore"     );
+      case TP_JOIN:        return("join"       );
+      case TP_LEAD:        return("lead"       );
+      case TP_LEAD_BREAK:  return("lead_break" );
+      case TP_LEAD_FORCE:  return("lead_force" );
+      case TP_TRAIL:       return("trail"      );
       case TP_TRAIL_BREAK: return("trail_break");
       case TP_TRAIL_FORCE: return("trail_force");
       default:             fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
@@ -2377,10 +2403,10 @@ string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
 {
    switch (argtype)
    {
-      case AT_BOOL:   return(bool_to_string       (op_val.b));
-      case AT_IARF:   return(argval_to_string     (op_val.a));
-      case AT_NUM:    return(number_to_string     (op_val.n));
-      case AT_UNUM:   return(number_to_string((int)op_val.u));
+      case AT_BOOL:   return(bool_to_string       (op_val.b ));
+      case AT_IARF:   return(argval_to_string     (op_val.a ));
+      case AT_NUM:    return(number_to_string     (op_val.n ));
+      case AT_UNUM:   return(number_to_string((int)op_val.u ));
       case AT_LINE:   return(lineends_to_string   (op_val.le));
       case AT_POS:    return(tokenpos_to_string   (op_val.tp));
       case AT_STRING: return(op_val.str != NULL ? op_val.str : "");

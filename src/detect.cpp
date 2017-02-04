@@ -183,7 +183,7 @@ static void detect_space_options(void)
          if      (prev->type == CT_PTR_TYPE) { vote_sp_between_ptr_star.vote       (prev, pc); }
          else if (next->type != CT_WORD    ) { vote_sp_before_unnamed_ptr_star.vote(prev, pc); }
          else                                { vote_sp_before_ptr_star.vote        (prev, pc); }
-         if (CharTable::IsKeyword1(next->str[0])) { vote_sp_after_ptr_star.vote         (pc, next); }
+         if (CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_after_ptr_star.vote  (pc, next); }
       }
 
       if (pc->type == CT_BYREF)
@@ -193,8 +193,9 @@ static void detect_space_options(void)
          vote_sp_after_byref.vote(pc, next);
       }
 
-      if ((pc->type != CT_PTR_TYPE) &&
-          ((prev->type == CT_QUALIFIER) || (prev->type == CT_TYPE)))
+      if ( (pc->type   != CT_PTR_TYPE )   &&
+          ((prev->type == CT_QUALIFIER) ||
+           (prev->type == CT_TYPE     ) ) )
       {
          vote_sp_after_type.vote(prev, pc);
       }
@@ -207,11 +208,11 @@ static void detect_space_options(void)
 
       if (pc->type == CT_ANGLE_CLOSE)
       {
-                                                 vote_sp_inside_angle.vote(prev, pc);
-         if      (chunk_is_paren_open(next))   { vote_sp_angle_paren.vote(prev, pc); }
+                                                              vote_sp_inside_angle.vote(prev, pc);
+         if      (chunk_is_paren_open(next))                { vote_sp_angle_paren.vote (prev, pc); }
          else if ((next->type == CT_WORD) ||
-               CharTable::IsKeyword1(next->str[0])) { vote_sp_angle_word.vote (prev, pc); }
-         else                                  { vote_sp_after_angle.vote(pc, next); }
+               CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_angle_word.vote  (prev, pc); }
+         else                                               { vote_sp_after_angle.vote (pc, next); }
       }
 
       if (pc->type == CT_SPAREN_OPEN)
@@ -254,7 +255,7 @@ static void detect_space_options(void)
       if (pc->type == CT_BRACE_CLOSE)
       {
          vote_sp_inside_braces.vote(prev, pc);
-         if      (next->type == CT_ELSE   ) { vote_sp_brace_else.vote(   pc, next); }
+         if      (next->type == CT_ELSE   ) { vote_sp_brace_else.vote   (pc, next); }
          else if (next->type == CT_CATCH  ) { vote_sp_brace_catch.vote  (pc, next); }
          else if (next->type == CT_FINALLY) { vote_sp_brace_finally.vote(pc, next); }
       }

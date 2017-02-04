@@ -19,7 +19,7 @@
  * and more intuitive like chunk.is_comment() */
 
 
-#define ANY_LEVEL    -1 /* \todo explain level */
+#define ANY_LEVEL    -1 /* level refers to the braces nesting level */
 
 
 /**
@@ -38,9 +38,11 @@ enum nav_t
 };
 
 
-/* duplicate a chunk in a chunk list */
+/**
+ *  duplicate a chunk in a chunk list
+ */
 chunk_t *chunk_dup(
-   const chunk_t *pc_in
+   const chunk_t *pc_in  /**< [in] chunk to duplicate */
 );
 
 
@@ -76,7 +78,7 @@ chunk_t *chunk_add_before(
  * delete a chunk from a chunk list
  */
 void chunk_del(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] chunk to delete */
 );
 
 
@@ -87,6 +89,7 @@ void chunk_move_after(
    chunk_t *pc_in,
    chunk_t *ref
 );
+
 
 /**
  * \brief returns the head of a chunk list
@@ -131,11 +134,11 @@ void chunk_swap(chunk_t *pc1, chunk_t *pc2);
 
 /**
  * Swaps two lines that are started with the specified chunks.
- *
- * @param pc1  The first chunk of line 1
- * @param pc2  The first chunk of line 2
  */
-void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2);
+void chunk_swap_lines(
+   chunk_t *pc1, /**< [in] The first chunk of line 1 */
+   chunk_t *pc2  /**< [in] The first chunk of line 2 */
+);
 
 
 /**
@@ -146,26 +149,37 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2);
  * input: [ a | b | c | n1 ] => a
  * input: [ d | e | n2 ]     => d
  */
-chunk_t *chunk_first_on_line(chunk_t *pc);
+chunk_t *chunk_first_on_line(
+   chunk_t *pc  /**< [in] chunk to start with */
+);
 
 
 chunk_t *get_prev_category(
-   chunk_t     *pc  /**< [in] chunk to start with */
+   chunk_t *pc /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_next_scope(
-   chunk_t     *pc  /**< [in] chunk to start with */
+   chunk_t *pc  /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_next_class(
-   chunk_t     *pc  /**< [in] chunk to start with */
+   chunk_t *pc  /**< [in] chunk to start with */
 );
 
 
 chunk_t *get_prev_oc_class(
-   chunk_t     *pc  /**< [in] chunk to start with */
+   chunk_t *pc  /**< [in] chunk to start with */
+);
+
+
+/**
+ * Gets the previous function open brace
+ */
+chunk_t *get_prev_fparen_open(
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
 
@@ -405,307 +419,6 @@ chunk_t *chunk_search_next_cat(
 );
 
 
-/* \todo better move the function implementations to the source file.
- * No need to make the implementation public. */
-
-/* \todo I doubt that inline is required for the functions below.
- * The compiler should know how to optimize the code itself.
- * To clarify do a profiling run with and without inline  */
-
-
-/**
- * Skips to the closing match for the current paren/brace/square.
- */
-static_inline chunk_t *chunk_skip_to_match(chunk_t *cur, nav_t nav = CNAV_ALL)
-{
-   if ( (cur != NULL) &&
-       ((cur->type == CT_PAREN_OPEN ) ||
-        (cur->type == CT_SPAREN_OPEN) ||
-        (cur->type == CT_FPAREN_OPEN) ||
-        (cur->type == CT_TPAREN_OPEN) ||
-        (cur->type == CT_BRACE_OPEN ) ||
-        (cur->type == CT_VBRACE_OPEN) ||
-        (cur->type == CT_ANGLE_OPEN ) ||
-        (cur->type == CT_SQUARE_OPEN) ) )
-   {
-      return(chunk_get_next_type(cur, get_inverse_type(cur->type), cur->level, nav));
-   }
-   return(cur);
-}
-
-
-static_inline chunk_t *chunk_skip_to_match_rev(chunk_t *cur, nav_t nav = CNAV_ALL)
-{
-   if ((cur != NULL) &&
-       ((cur->type == CT_PAREN_CLOSE ) ||
-        (cur->type == CT_SPAREN_CLOSE) ||
-        (cur->type == CT_FPAREN_CLOSE) ||
-        (cur->type == CT_TPAREN_CLOSE) ||
-        (cur->type == CT_BRACE_CLOSE ) ||
-        (cur->type == CT_VBRACE_CLOSE) ||
-        (cur->type == CT_ANGLE_CLOSE ) ||
-        (cur->type == CT_SQUARE_CLOSE) ) )
-   {
-      return(chunk_get_prev_type(cur, get_inverse_type(cur->type), cur->level, nav));
-   }
-   return(cur);
-}
-
-
-static_inline bool chunk_is_function(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_FUNC_DEF        ) ||
-                           (pc->type == CT_FUNC_PROTO      ) ||
-                           (pc->type == CT_FUNC_CLASS_DEF  ) ||
-                           (pc->type == CT_FUNC_CLASS_PROTO) ||
-                           (pc->type == CT_OC_MSG_DECL     ) ) );
-}
-
-
-static_inline bool chunk_is_comment(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_COMMENT      ) ||
-                           (pc->type == CT_COMMENT_MULTI) ||
-                           (pc->type == CT_COMMENT_CPP  ) ) );
-}
-
-
-static_inline bool chunk_is_newline(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_NEWLINE) ||
-                           (pc->type == CT_NL_CONT) ) );
-}
-
-
-static_inline bool chunk_is_blank(chunk_t *pc)
-{
-   return((pc != NULL) && (pc->len() == 0));
-}
-
-
-static_inline bool chunk_is_comment_or_newline(chunk_t *pc)
-{
-   return(chunk_is_comment(pc) || chunk_is_newline(pc));
-}
-
-
-static_inline bool chunk_is_balanced_square(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_SQUARE_OPEN ) ||
-                           (pc->type == CT_TSQUARE     ) ||
-                           (pc->type == CT_SQUARE_CLOSE) ) );
-}
-
-
-static_inline bool chunk_is_preproc(chunk_t *pc)
-{
-   return((pc != NULL) && (pc->flags & PCF_IN_PREPROC));
-}
-
-
-static_inline bool chunk_is_comment_or_newline_in_preproc(chunk_t *pc)
-{
-   return((pc != NULL) && chunk_is_preproc(pc) &&
-          (chunk_is_comment(pc) || chunk_is_newline(pc)));
-}
-
-
-static_inline bool chunk_is_comment_newline_or_preproc(chunk_t *pc)
-{
-   return(chunk_is_comment(pc) ||
-          chunk_is_newline(pc) ||
-          chunk_is_preproc(pc) );
-}
-
-
-static_inline bool chunk_is_comment_newline_or_blank(chunk_t *pc)
-{
-   return(chunk_is_comment_or_newline(pc) || chunk_is_blank(pc));
-}
-
-
-static_inline bool chunk_is_single_line_comment(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_COMMENT) ||
-                           (pc->type == CT_COMMENT_CPP)));
-}
-
-
-static_inline bool chunk_is_semicolon(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_SEMICOLON) ||
-                           (pc->type == CT_VSEMICOLON)));
-}
-
-
-static_inline bool chunk_is_type(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_TYPE     ) ||
-                           (pc->type == CT_PTR_TYPE ) ||
-                           (pc->type == CT_BYREF    ) ||
-                           (pc->type == CT_DC_MEMBER) ||
-                           (pc->type == CT_QUALIFIER) ||
-                           (pc->type == CT_STRUCT   ) ||
-                           (pc->type == CT_ENUM     ) ||
-                           (pc->type == CT_UNION    ) ) );
-}
-
-
-static_inline bool chunk_is_token(chunk_t *pc, c_token_t c_token)
-{
-   return((pc != NULL) && (pc->type == c_token));
-}
-
-
-static_inline bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
-{
-   return((pc                           != NULL) && /* valid pc pointer */
-          (pc->len()                    == len ) && /* token size equals size parameter */
-          (memcmp(pc->text(), str, len) == 0   ) ); /* token name is the same as str parameter */
-
-   /* \todo possible access beyond array for memcmp, check this
-    * why not use strncmp here?  */
-}
-
-
-static_inline bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
-{
-   return((pc != NULL) && (pc->len() == len) && (strncasecmp(pc->text(), str, len) == 0));
-}
-
-
-static_inline bool chunk_is_word(chunk_t *pc)
-{
-   return((pc != NULL) && (pc->len() >= 1) && CharTable::IsKeyword1(pc->str[0]));
-}
-
-
-static_inline bool chunk_is_star(chunk_t *pc)
-{
-   return((pc != NULL) && (pc->len() == 1) && (pc->str[0] == '*') && (pc->type != CT_OPERATOR_VAL));
-}
-
-
-static_inline bool chunk_is_addr(chunk_t *pc)
-{
-   if ((pc != NULL) &&
-       ((pc->type == CT_BYREF)
-        || ((pc->len() == 1) && (pc->str[0] == '&') && (pc->type != CT_OPERATOR_VAL))))
-   {
-      chunk_t *prev = chunk_get_prev(pc);
-
-      if ((pc->flags & PCF_IN_TEMPLATE) &&
-          ((prev != NULL) && ((prev->type == CT_COMMA) || (prev->type == CT_ANGLE_OPEN))))
-      {
-         return(false);
-      }
-      return(true);
-   }
-   return(false);
-}
-
-
-// ms compilers for C++/CLI and WinRT use '^' instead of '*' for marking up reference types vs pointer types
-static_inline bool chunk_is_msref(chunk_t *pc)
-{
-   return((cpd.lang_flags & LANG_CPP) &&
-          ((pc != NULL) && (pc->len() == 1) && (pc->str[0] == '^') && (pc->type != CT_OPERATOR_VAL)));
-}
-
-
-static_inline bool chunk_is_ptr_operator(chunk_t *pc)
-{
-   return(chunk_is_star(pc) || chunk_is_addr(pc) || chunk_is_msref(pc));
-}
-
-
-/**
- * Check to see if there is a newline between the two chunks
- */
-bool chunk_is_newline_between(chunk_t *start, chunk_t *end);
-
-
-static_inline bool chunk_is_closing_brace(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_BRACE_CLOSE ) ||
-                           (pc->type == CT_VBRACE_CLOSE) ) );
-}
-
-
-static_inline bool chunk_is_opening_brace(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_BRACE_OPEN ) ||
-                           (pc->type == CT_VBRACE_OPEN) ) );
-}
-
-
-static_inline bool chunk_is_vbrace(chunk_t *pc)
-{
-   return((pc != NULL) && ((pc->type == CT_VBRACE_CLOSE) ||
-                           (pc->type == CT_VBRACE_OPEN ) ) );
-}
-
-
-static_inline bool chunk_is_paren_open(chunk_t *pc)
-{
-   return((pc != NULL) &&
-          ((pc->type == CT_PAREN_OPEN ) ||
-           (pc->type == CT_SPAREN_OPEN) ||
-           (pc->type == CT_TPAREN_OPEN) ||
-           (pc->type == CT_FPAREN_OPEN) ) );
-}
-
-
-static_inline bool chunk_is_paren_close(chunk_t *pc)
-{
-   return((pc != NULL) &&
-          ((pc->type == CT_PAREN_CLOSE ) ||
-           (pc->type == CT_SPAREN_CLOSE) ||
-           (pc->type == CT_TPAREN_CLOSE) ||
-           (pc->type == CT_FPAREN_CLOSE) ) );
-}
-
-
-/**
- * Returns true if either chunk is null or both have the same preproc flags.
- * If this is true, you can remove a newline/nl_cont between the two.
- */
-static_inline bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
-{
-   return((pc1 == NULL) || (pc2 == NULL) ||
-          ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
-}
-
-
-/**
- * Returns true if it is safe to delete the newline token.
- * The prev and next chunks must have the same PCF_IN_PREPROC flag AND
- * the newline can't be after a C++ comment.
- */
-static_inline bool chunk_safe_to_del_nl(chunk_t *nl)
-{
-   chunk_t *tmp = chunk_get_prev(nl);
-
-   if ((tmp != NULL) && (tmp->type == CT_COMMENT_CPP))
-   {
-      return(false);
-   }
-   return(chunk_same_preproc(chunk_get_prev(nl), chunk_get_next(nl)));
-}
-
-
-/**
- * check if a chunk points to the opening parenthese of a
- * for(...in...) loop in Objective-C.
- *
- *@retval true  - the chunk is the opening parentheses of a for in loop
- *@retval false - no for(...in...) loop found
- */
-bool chunk_is_forin(
-   chunk_t *pc /**< [in] chunk to start search with */
-);
-
-
 void set_chunk_type(
    chunk_t   *pc,
    c_token_t tt
@@ -736,5 +449,205 @@ void chunk_flags_update(
    UINT64  set_bits
 );
 
+
+/**
+ * Skips to the closing match for the current paren/brace/square.
+ */
+chunk_t *chunk_skip_to_match(
+   chunk_t *cur,
+   nav_t nav = CNAV_ALL
+);
+
+
+/**
+ * Check to see if there is a newline between the two chunks
+ */
+bool chunk_is_newline_between(
+   chunk_t *start,
+   chunk_t *end
+);
+
+
+chunk_t *chunk_skip_to_match_rev(
+   chunk_t *cur,
+   nav_t   nav = CNAV_ALL
+);
+
+
+bool chunk_is_ptr_operator(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_newline(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_function(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_comment(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_blank(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_comment_or_newline(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_balanced_square(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_preproc(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_comment_or_newline_in_preproc(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_comment_newline_or_blank(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_comment_newline_or_preproc(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_single_line_comment(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_semicolon(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_semicolon(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_type(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_token(
+   chunk_t *pc,  /**< [in] chunk to check */
+   c_token_t c_token
+);
+
+
+bool chunk_is_str(
+   chunk_t *pc,  /**< [in] chunk to check */
+   const char *str,
+   size_t len
+);
+
+
+bool chunk_is_str_case(
+   chunk_t *pc,  /**< [in] chunk to check */
+   const char *str,
+   size_t len
+);
+
+
+ bool chunk_is_word(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_star(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_addr(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_msref(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_closing_brace(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_opening_brace(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_vbrace(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_fparen_open(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_paren_open(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+bool chunk_is_paren_close(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+/**
+ * Returns true if either chunk is null or both have the same preproc flags.
+ * If this is true, you can remove a newline/nl_cont between the two.
+ */
+bool chunk_same_preproc(
+   chunk_t *pc1, /**< [in] chunk 1 to compare */
+   chunk_t *pc2  /**< [in] chunk 2 to compare */
+);
+
+
+/**
+ * Returns true if it is safe to delete the newline token.
+ * The prev and next chunks must have the same PCF_IN_PREPROC flag AND
+ * the newline can't be after a C++ comment.
+ */
+bool chunk_safe_to_del_nl(
+   chunk_t *nl
+);
+
+
+/**
+ * check if a chunk points to the opening parenthese of a
+ * for(...in...) loop in Objective-C.
+ *
+ *@retval true  - the chunk is the opening parentheses of a for in loop
+ *@retval false - no for(...in...) loop found
+ */
+bool chunk_is_forin(
+   chunk_t *pc /**< [in] chunk to start search with */
+);
 
 #endif /* CHUNK_LIST_H_INCLUDED */

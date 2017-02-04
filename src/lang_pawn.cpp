@@ -461,7 +461,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       last              = chunk_add_after(&chunk, last);
    }
    return(last);
-} // pawn_process_func_def
+}
 
 
 chunk_t *pawn_check_vsemicolon(chunk_t *pc)

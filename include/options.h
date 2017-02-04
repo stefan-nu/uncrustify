@@ -84,8 +84,8 @@ union op_val_t
 };
 
 
-/** Groups for options */
-enum uncrustify_groups_t
+/** uncrustify groups for uncrustify options */
+enum ug_t
 {
    UG_general,
    UG_indent,
@@ -108,7 +108,7 @@ enum uncrustify_groups_t
 /**
  * lists all options that uncrustify knows about
  */
-enum uncrustify_options_t
+enum uo_t
 {
    /* Keep this enum grouped by functionality */
    UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
@@ -835,14 +835,14 @@ enum uncrustify_options_t
 
 
 #ifdef EMSCRIPTEN
-   #define group_map_value_options_t    vector<uncrustify_options_t>
+   #define group_map_value_options_t    vector<uo_t>
 #else
-   #define group_map_value_options_t    list<uncrustify_options_t>
+   #define group_map_value_options_t    list<uo_t>
 #endif
 
 struct group_map_value_t
 {
-   uncrustify_groups_t       id;
+   ug_t       id;
    const char                *short_desc;
    const char                *long_desc;
    group_map_value_options_t options;
@@ -851,8 +851,8 @@ struct group_map_value_t
 
 struct option_map_value_t
 {
-   uncrustify_options_t id;
-   uncrustify_groups_t  group_id;
+   uo_t      id;
+   ug_t      group_id;
    argtype_t            type;
    int                  min_val;
    int                  max_val;
@@ -863,6 +863,9 @@ struct option_map_value_t
 
 
 const option_map_value_t *unc_find_option(const char *name);
+
+
+uo_t get_inverse_uo(uo_t option);
 
 
 /**
@@ -1028,7 +1031,7 @@ void register_options(void);
 
 
 void unc_begin_group(
-   uncrustify_groups_t id,
+   ug_t       id,
    const char *short_desc,
    const char *long_desc = NULL
 );
@@ -1067,7 +1070,7 @@ int save_option_file_kernel(
 
 
 /**
- * \rief
+ * \brief
  *
  * @retval >= 0 entry was found
  * @retval -1   entry was not found
@@ -1089,7 +1092,7 @@ const group_map_value_t *get_group_name(
 
 
 const option_map_value_t *get_option_name(
-   uncrustify_options_t uo
+   uo_t uo
 );
 
 
@@ -1171,8 +1174,8 @@ const option_map_value_t *unc_find_option(
 );
 
 
-typedef map<uncrustify_options_t, option_map_value_t>::iterator option_name_map_it;
-typedef map<uncrustify_groups_t,  group_map_value_t>::iterator  group_map_it;
+typedef map<uo_t, option_map_value_t>::iterator option_name_map_it;
+typedef map<ug_t, group_map_value_t> ::iterator  group_map_it;
 typedef group_map_value_options_t::iterator                     option_list_it;
 typedef group_map_value_options_t::const_iterator               option_list_cit;
 

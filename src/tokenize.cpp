@@ -79,18 +79,18 @@ struct tok_ctx
 
    size_t peek() const
    {
-      return((more() == true) ? data[c.idx] : 0);
+      return((more() == true) ? data[c.idx] : 0u);
    }
 
 
    size_t peek(size_t idx) const
    {
       idx += c.idx;
-      return((idx < data.size()) ? data[idx] : 0);
+      return((idx < data.size()) ? data[idx] : 0u);
    }
 
 
-   size_t get()
+   int get()
    {
       if (more())
       {
@@ -145,30 +145,27 @@ struct tok_ctx
  * Count the number of characters in a word.
  * The first character is already valid for a keyword
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a word was parsed (always true)
  */
 static bool parse_word(
-   tok_ctx &ctx,
-   chunk_t &pc,
-   bool    skipcheck
+   tok_ctx &ctx,      /**< [in]  */
+   chunk_t &pc,       /**< [in] structure to update, str is an input. */
+   bool    skipcheck  /**< [in]  */
 );
 
-static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow_escape);
 
 /**
  * Count the number of characters in a quoted string.
  * The next bit of text starts with a quote char " or ' or <.
  * Count the number of characters until the matching character.
  *
- * @param pc   The structure to update, str is an input.
- * @return     Whether a string was parsed
+ * @return Whether a string was parsed
  */
 static bool parse_string(
-   tok_ctx &ctx,
-   chunk_t &pc,
-   size_t  quote_idx,
-   bool    allow_escape
+   tok_ctx &ctx,        /**< [in]  */
+   chunk_t &pc,         /**< [in] The structure to update, str is an input. */
+   size_t  quote_idx,   /**< [in]  */
+   bool    allow_escape /**< [in]  */
 );
 
 
@@ -193,7 +190,12 @@ static bool parse_cs_string(
  * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
-static bool tag_compare(const deque<int> &d, size_t a_idx, size_t b_idx, size_t len);
+static bool tag_compare(
+   const deque<int> &d,
+   size_t           a_idx,
+   size_t           b_idx,
+   size_t           len
+);
 
 
 /**
@@ -205,14 +207,6 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, size_t q_idx);
 static void parse_verbatim_string(
    tok_ctx &ctx,
    chunk_t &pc
-);
-
-
-static bool tag_compare(
-   const deque<int> &d,
-   size_t           a_idx,
-   size_t           b_idx,
-   size_t           len
 );
 
 
@@ -1025,8 +1019,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 }
 
 
-static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx,
-      bool allow_escape)
+static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow_escape)
 {
    size_t escape_char        = cpd.settings[UO_string_escape_char].u;
    size_t escape_char2       = cpd.settings[UO_string_escape_char2].u;

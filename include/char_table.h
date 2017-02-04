@@ -13,8 +13,8 @@
 
 /**
  * bit0-7 = paired char
- * bit8 = OK for keyword 1st char
- * bit9 = OK for keyword 2+ char
+ * bit8   = OK for keyword 1st char
+ * bit9   = OK for keyword 2+ char
  */
 #define CHAR_TABLE_SIZE 128
 struct CharTable
@@ -28,32 +28,30 @@ struct CharTable
    };
 
 
-   static inline size_t Get(int ch)
+   static inline size_t Get(size_t idx)
    {
-      if (ch < ARRAY_SIZE(chars))
+      if (idx < ARRAY_SIZE(chars))
       {
-         return(chars[ch]);
+         return(chars[idx]);
       }
 
       /* HACK: If the top bit is set, then we are likely dealing with UTF-8,
        * and since that is only allowed in identifiers, then assume that is
        * what this is. This only prevents corruption, it does not properly
        * handle UTF-8 because the byte length and screen size are assumed to be
-       * the same.
-       */
+       * the same. */
       return(KEYWORD1 | KEYWORD2);
    }
 
 
-   static inline bool IsKeyword1(size_t ch)
+   static inline bool IsKeyword1(size_t idx)
    {
-      return((Get(ch) & KEYWORD1) != 0);
+      return((Get(idx) & KEYWORD1) != 0);
    }
 
-
-   static inline bool IsKeyword2(size_t ch)
+   static inline bool IsKeyword2(size_t idx)
    {
-      return((Get(ch) & KEYWORD2) != 0);
+      return((Get(idx) & KEYWORD2) != 0);
    }
 };
 
