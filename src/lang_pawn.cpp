@@ -17,7 +17,7 @@
  * We need to check for 'open' braces/paren/etc because the level doesn't
  * change until the token after the open.
  */
-static bool pawn_continued(chunk_t *pc, int br_level);
+static bool pawn_continued(chunk_t *pc, size_t br_level);
 
 
 /**
@@ -112,7 +112,7 @@ void pawn_scrub_vsemi(void)
 }
 
 
-static bool pawn_continued(chunk_t *pc, int br_level)
+static bool pawn_continued(chunk_t *pc, size_t br_level)
 {
    LOG_FUNC_ENTRY();
    if (pc == NULL) { return(false); }
