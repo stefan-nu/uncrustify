@@ -255,6 +255,7 @@ void unc_text::append_cond(const bool condition, const char* const msg, ...)
       va_list arg;         /* stores variable list of arguments */
       va_start(arg, msg);  /* convert msg to variable list */
       append(msg, arg);    /* forward the arguments to unconditional append */
+      va_end(arg);
    }
 }
 

@@ -299,6 +299,7 @@ static void mark_define_expressions(void);
 
 static void process_returns(void);
 
+
 /**
  * Processes a return statement, labeling the parens and marking the parent.
  * May remove or add parens around the return statement
@@ -414,7 +415,7 @@ static void handle_oc_block_type(
  * Specs:
  * -(void) foo ARGS;
  *
- * Decl:
+ * Declaration:
  * -(void) foo ARGS {  }
  *
  * LABEL : (ARGTYPE) ARGNAME
@@ -440,7 +441,7 @@ static void handle_oc_message_decl(
  *
  * Mainly find the matching ']' and ';' and mark the colons.
  *
- * @param os points to the open square '['
+ * @param points to the open square '['
  */
 static void handle_oc_message_send(
    chunk_t *pc
@@ -456,7 +457,7 @@ static void handle_oc_property_decl(
 
 
 /**
- * Process a type that is enclosed in parens in message decls.
+ * Process a type that is enclosed in parens in message declarations.
  * TODO: handle block types, which get special formatting
  *
  * @param pc points to the open paren
@@ -477,7 +478,7 @@ static chunk_t *handle_oc_md_type(
  *
  * Set the next chunk to a statement start after the close ']'
  *
- * @param os points to the open square '['
+ * @param points to the open square '['
  */
 static void handle_cs_square_stmt(
    chunk_t *pc
@@ -606,9 +607,9 @@ static bool chunkstack_match(
 
 enum PLBfound_t
 {
-   FOUND_ANGLE_CLOSE = 0, // '>' found
-   NO_PROTOCOL_FOUND = 1, // no protocol found,
-   FOUND_ANGLE_OPEN  = 2  // '<' found
+   FOUND_ANGLE_CLOSE = 0, /**< '>' found */
+   NO_PROTOCOL_FOUND = 1, /**< no protocol found */
+   FOUND_ANGLE_OPEN  = 2  /**< '<' found */
 };
 
 

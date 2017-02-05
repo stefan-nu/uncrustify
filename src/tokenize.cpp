@@ -711,9 +711,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
       if (pc.str.find(offtext) >= 0)
       {
          LOG_FMT(LBCTRL, "Found '%s' on line %zu\n", offtext, pc.orig_line);
-         cpd.unc_off = true;
-         // Issue #842
-         cpd.unc_off_used = true;
+         cpd.unc_off      = true;
+         cpd.unc_off_used = true;          // Issue #842
       }
    }
    return(true);

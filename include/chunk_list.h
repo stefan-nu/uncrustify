@@ -184,6 +184,15 @@ chunk_t *get_prev_fparen_open(
 
 
 /**
+ * Gets the previous chunk that is not a preprocessor
+ */
+chunk_t *get_prev_non_pp(
+      chunk_t     *pc,            /**< [in] chunk to start with */
+      const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+);
+
+
+/**
  * Gets the next function chunk
  */
 chunk_t *get_next_function(
@@ -250,29 +259,29 @@ chunk_t *chunk_get_next_nisq(
 /**
  * Gets the next non-blank chunk
  */
-
 chunk_t *chunk_get_next_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Gets the prev non-blank chunk
  */
-
 chunk_t *chunk_get_prev_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Gets the prev NEWLINE chunk
  */
-
 chunk_t *chunk_get_prev_nl(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
+
 
 /**
  * Gets the prev non-comment chunk
@@ -283,36 +292,36 @@ chunk_t *chunk_get_prev_nc(
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Gets the prev non-NEWLINE chunk
  */
-
 chunk_t *chunk_get_prev_nnl(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Gets the prev non-NEWLINE and non-comment chunk
  */
-
 chunk_t *chunk_get_prev_ncnl(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Gets the prev non-NEWLINE and non-comment chunk, non-preprocessor chunk
  */
-
 chunk_t *chunk_get_prev_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
    nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
 );
 
+
 /**
  * Grabs the next chunk of the given type at the level.
- *
  *
  * @return NULL or the match
  */

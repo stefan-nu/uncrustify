@@ -27,11 +27,22 @@ void indent_text(void);
 void indent_preproc(void);
 
 
-void indent_to_column(chunk_t *pc, size_t column);
+/**
+ * tbd
+ */
+void indent_to_column(
+   chunk_t *pc,   /**< [in] chunk at the start of the line */
+   size_t  column /**< [in] desired column */
+);
 
 
-/** Same as indent_to_column, except we can move both ways */
-void align_to_column(chunk_t *pc, size_t column);
+/**
+ * Same as indent_to_column, except we can move both ways
+ */
+void align_to_column(
+   chunk_t *pc,   /**< [in] chunk at the start of the line */
+   size_t  column /**< [in] desired column */
+);
 
 
 /**
@@ -42,13 +53,17 @@ bool ifdef_over_whole_file(void);
 
 /**
  * Changes the initial indent for a line to the given column
- *
- * @param pc      The chunk at the start of the line
- * @param column  The desired column
  */
-void reindent_line(chunk_t *pc, size_t column);
+void reindent_line(
+   chunk_t *pc,   /**< [in] chunk at the start of the line */
+   size_t  column /**< [in] desired column */
+);
 
 
+/**
+ * tbd
+ */
 void quick_indent_again(void);
+
 
 #endif /* INDENT_H_INCLUDED */

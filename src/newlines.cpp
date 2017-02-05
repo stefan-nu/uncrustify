@@ -3846,10 +3846,10 @@ static void newlines_double_space_struct_enum_union(chunk_t *open_brace)
    chunk_t *pc = open_brace;
 
    while (((pc = chunk_get_next_nc(pc)) != NULL) &&
-          (pc->level > open_brace->level))
+           (pc->level > open_brace->level      ) )
    {
       if ((pc->level != (open_brace->level + 1)) ||
-          (pc->type != CT_NEWLINE))
+          (pc->type  != CT_NEWLINE             ) )
       {
          continue;
       }
@@ -3878,22 +3878,14 @@ void annotations_newlines(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *next;
-   chunk_t *ae;   /* last token of the annotation */
    chunk_t *pc = chunk_get_head();
    while (((pc = chunk_get_next_type(pc, CT_ANNOTATION, -1)) != NULL) &&
           ((next = chunk_get_next_nnl(pc)) != NULL))
    {
       /* find the end of this annotation */
-      if (chunk_is_paren_open(next))
-      {
-         /* TODO: control newline between annotation and '(' ? */
-         ae = chunk_skip_to_match(next);
-      }
-      else
-      {
-         ae = pc;
-      }
-
+      /* TODO: control newline between annotation and '(' ? */
+      /* last token of the annotation */
+      chunk_t *ae = (chunk_is_paren_open(next)) ? chunk_skip_to_match(next) : pc;
       if (ae == NULL) { break; }
 
       LOG_FMT(LANNOT, "%s: %zu:%zu annotation '%s' end@%zu:%zu '%s'",

@@ -108,7 +108,7 @@ static void unc_add_option(
    uo_t id,
    argtype_t type,
    const char *short_desc = NULL,
-   const char *long_desc = NULL,
+   const char *long_desc  = NULL,
    int min_val = 0,
    int max_val = 16
 );
@@ -1711,7 +1711,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
 
       if (strcasecmp(val, "AUTO") != 0)
       {
-         fprintf(stderr, "%s:%u Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
+         fprintf(stderr, "%s:%zu Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
          cpd.error_count++;
       }
@@ -1730,7 +1730,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       if (strcasecmp(val, "TRAIL_FORCE") == 0) { dest->tp = TP_TRAIL_FORCE; return; }
       if (strcasecmp(val, "IGNORE"     ) != 0)
       {
-         fprintf(stderr, "%s:%u Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
+         fprintf(stderr, "%s:%zu Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
                  "TRAIL, TRAIL_BREAK, TRAIL_FORCE for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
          cpd.error_count++;
@@ -1749,7 +1749,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          if ((entry->type == AT_UNUM) &&
              (*val == '-'))
          {
-            fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
+            fprintf(stderr, "%s:%zu\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
             exit(EX_CONFIG);
          }
@@ -1770,7 +1770,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          tmp = unc_find_option(val);
          if (tmp == NULL)
          {
-            fprintf(stderr, "%s:%u\n  for the assigment: unknown option '%s':",
+            fprintf(stderr, "%s:%zu\n  for the assigment: unknown option '%s':",
                     cpd.filename, cpd.line_number, val);
             exit(EX_CONFIG);
          }
@@ -1789,13 +1789,13 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          }
          else
          {
-            fprintf(stderr, "%s:%u\n  for the assigment: expected type for %s is %s, got %s\n",
+            fprintf(stderr, "%s:%zu\n  for the assigment: expected type for %s is %s, got %s\n",
                     cpd.filename, cpd.line_number,
                     entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
             exit(EX_CONFIG);
          }
       }
-      fprintf(stderr, "%s:%u Expected a number for %s, got %s\n",
+      fprintf(stderr, "%s:%zu Expected a number for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
       cpd.error_count++;
       dest->n = 0;
@@ -1833,7 +1833,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
          return;
       }
-      fprintf(stderr, "%s:%u Expected 'True' or 'False' for %s, got %s\n",
+      fprintf(stderr, "%s:%zu Expected 'True' or 'False' for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
       cpd.error_count++;
       dest->b = false;
@@ -1873,7 +1873,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       dest->a = cpd.settings[tmp->id].a;
       return;
    }
-   fprintf(stderr, "%s:%u Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
+   fprintf(stderr, "%s:%zu Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
            cpd.filename, cpd.line_number, entry->name, val);
    cpd.error_count++;
    dest->a = AV_IGNORE;
@@ -1945,7 +1945,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc > 0)
       {
-         fprintf(stderr, "%s:%u Wrong number of arguments: %s...\n",
+         fprintf(stderr, "%s:%zu Wrong number of arguments: %s...\n",
                  filename, cpd.line_number, configLine);
          cpd.error_count++;
       }
@@ -1968,7 +1968,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc < 3)
       {
-         fprintf(stderr, "%s:%u 'set' requires at least three arguments\n",
+         fprintf(stderr, "%s:%zu 'set' requires at least three arguments\n",
                  filename, cpd.line_number);
       }
       else
@@ -1986,7 +1986,7 @@ void process_option_line(char *configLine, const char *filename)
          }
          else
          {
-            fprintf(stderr, "%s:%u unknown type '%s':", filename, cpd.line_number, args[1]);
+            fprintf(stderr, "%s:%zu unknown type '%s':", filename, cpd.line_number, args[1]);
          }
       }
    }
@@ -2016,7 +2016,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc < 3)
       {
-         fprintf(stderr, "%s:%u 'file_ext' requires at least three arguments\n",
+         fprintf(stderr, "%s:%zu 'file_ext' requires at least three arguments\n",
                  filename, cpd.line_number);
       }
       else
@@ -2031,7 +2031,7 @@ void process_option_line(char *configLine, const char *filename)
             }
             else
             {
-               fprintf(stderr, "%s:%u file_ext has unknown language '%s'\n",
+               fprintf(stderr, "%s:%zu file_ext has unknown language '%s'\n",
                        filename, cpd.line_number, args[1]);
             }
          }
@@ -2043,7 +2043,7 @@ void process_option_line(char *configLine, const char *filename)
       const int id = set_option_value(args[0], args[1]);
       if (id < 0)
       {
-         fprintf(stderr, "%s:%u Unknown symbol '%s'\n",
+         fprintf(stderr, "%s:%zu Unknown symbol '%s'\n",
                  filename, cpd.line_number, args[0]);
          cpd.error_count++;
       }
@@ -2243,61 +2243,62 @@ void print_options(FILE *pfile)
 void set_option_defaults(void)
 {
    /* set all the default values to zero */
-   for (size_t count = 0; count < (size_t)UO_option_count; count++)
+   const size_t option_count = (size_t)UO_option_count;
+   for (size_t i = 0; i < option_count; i++)
    {
-      cpd.defaults[count].n = 0;
+      cpd.defaults[i].n = 0;
    }
 
    /* the options with non-zero default values */
-   cpd.defaults[UO_align_left_shift].b                                  = true;
-   cpd.defaults[UO_cmt_indent_multi].b                                  = true;
-   cpd.defaults[UO_cmt_insert_before_inlines].b                         = true;
-   cpd.defaults[UO_cmt_multi_check_last].b                              = true;
-   cpd.defaults[UO_cmt_multi_first_len_minimum].n                       = 4;
-   cpd.defaults[UO_indent_access_spec].n                                = 1;
-   cpd.defaults[UO_indent_align_assign].b                               = true;
-   cpd.defaults[UO_indent_columns].u                                    = 8;
-   cpd.defaults[UO_indent_cpp_lambda_body].b                            = false;
-   cpd.defaults[UO_indent_ctor_init_leading].n                          = 2;
-   cpd.defaults[UO_indent_label].n                                      = 1;
-   cpd.defaults[UO_indent_oc_msg_prioritize_first_colon].b              = true;
-   cpd.defaults[UO_indent_token_after_brace].b                          = true;
-   cpd.defaults[UO_indent_using_block].b                                = true;
-   cpd.defaults[UO_indent_with_tabs].n                                  = 1;
-   cpd.defaults[UO_input_tab_size].u                                    = 8;
-   cpd.defaults[UO_newlines].le                                         = LE_AUTO;
-   cpd.defaults[UO_output_tab_size].u                                   = 8;
-   cpd.defaults[UO_pp_indent_count].n                                   = 1;
-   cpd.defaults[UO_sp_addr].a                                           = AV_REMOVE;
-   cpd.defaults[UO_sp_after_semi].a                                     = AV_ADD;
-   cpd.defaults[UO_sp_after_semi_for].a                                 = AV_FORCE;
-   cpd.defaults[UO_sp_after_type].a                                     = AV_FORCE;
-   cpd.defaults[UO_sp_angle_shift].a                                    = AV_ADD;
-   cpd.defaults[UO_sp_before_case_colon].a                              = AV_REMOVE;
-   cpd.defaults[UO_sp_before_comma].a                                   = AV_REMOVE;
-   cpd.defaults[UO_sp_before_nl_cont].a                                 = AV_ADD;
-   cpd.defaults[UO_sp_before_semi].a                                    = AV_REMOVE;
-   cpd.defaults[UO_sp_deref].a                                          = AV_REMOVE;
-   cpd.defaults[UO_sp_incdec].a                                         = AV_REMOVE;
-   cpd.defaults[UO_sp_inv].a                                            = AV_REMOVE;
-   cpd.defaults[UO_sp_member].a                                         = AV_REMOVE;
-   cpd.defaults[UO_sp_not].a                                            = AV_REMOVE;
-   cpd.defaults[UO_sp_paren_comma].a                                    = AV_FORCE;
-   cpd.defaults[UO_sp_pp_concat].a                                      = AV_ADD;
-   cpd.defaults[UO_sp_sign].a                                           = AV_REMOVE;
-   cpd.defaults[UO_sp_super_paren].a                                    = AV_REMOVE;
-   cpd.defaults[UO_sp_this_paren].a                                     = AV_REMOVE;
-   cpd.defaults[UO_sp_word_brace].a                                     = AV_ADD;
-   cpd.defaults[UO_sp_word_brace_ns].a                                  = AV_ADD;
-   cpd.defaults[UO_string_escape_char].n                                = '\\';
-   cpd.defaults[UO_use_indent_func_call_param].b                        = true;
-   cpd.defaults[UO_use_options_overriding_for_qt_macros].b              = true;
+   cpd.defaults[UO_align_left_shift                                 ].b = true;
+   cpd.defaults[UO_cmt_indent_multi                                 ].b = true;
+   cpd.defaults[UO_cmt_insert_before_inlines                        ].b = true;
+   cpd.defaults[UO_cmt_multi_check_last                             ].b = true;
+   cpd.defaults[UO_cmt_multi_first_len_minimum                      ].n = 4;
+   cpd.defaults[UO_indent_access_spec                               ].n = 1;
+   cpd.defaults[UO_indent_align_assign                              ].b = true;
+   cpd.defaults[UO_indent_columns                                   ].u = 8;
+   cpd.defaults[UO_indent_cpp_lambda_body                           ].b = false;
+   cpd.defaults[UO_indent_ctor_init_leading                         ].n = 2;
+   cpd.defaults[UO_indent_label                                     ].n = 1;
+   cpd.defaults[UO_indent_oc_msg_prioritize_first_colon             ].b = true;
+   cpd.defaults[UO_indent_token_after_brace                         ].b = true;
+   cpd.defaults[UO_indent_using_block                               ].b = true;
+   cpd.defaults[UO_indent_with_tabs                                 ].n = 1;
+   cpd.defaults[UO_input_tab_size                                   ].u = 8;
+   cpd.defaults[UO_newlines                                         ].le= LE_AUTO;
+   cpd.defaults[UO_output_tab_size                                  ].u = 8;
+   cpd.defaults[UO_pp_indent_count                                  ].n = 1;
+   cpd.defaults[UO_sp_addr                                          ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_after_semi                                    ].a = AV_ADD;
+   cpd.defaults[UO_sp_after_semi_for                                ].a = AV_FORCE;
+   cpd.defaults[UO_sp_after_type                                    ].a = AV_FORCE;
+   cpd.defaults[UO_sp_angle_shift                                   ].a = AV_ADD;
+   cpd.defaults[UO_sp_before_case_colon                             ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_before_comma                                  ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_before_nl_cont                                ].a = AV_ADD;
+   cpd.defaults[UO_sp_before_semi                                   ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_deref                                         ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_incdec                                        ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_inv                                           ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_member                                        ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_not                                           ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_paren_comma                                   ].a = AV_FORCE;
+   cpd.defaults[UO_sp_pp_concat                                     ].a = AV_ADD;
+   cpd.defaults[UO_sp_sign                                          ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_super_paren                                   ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_this_paren                                    ].a = AV_REMOVE;
+   cpd.defaults[UO_sp_word_brace                                    ].a = AV_ADD;
+   cpd.defaults[UO_sp_word_brace_ns                                 ].a = AV_ADD;
+   cpd.defaults[UO_string_escape_char                               ].n = '\\';
+   cpd.defaults[UO_use_indent_func_call_param                       ].b = true;
+   cpd.defaults[UO_use_options_overriding_for_qt_macros             ].b = true;
    cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int)LWARN;
 
    /* copy all the default values to settings array */
-   for (size_t count = 0; count < (size_t)UO_option_count; count++)
+   for (size_t i = 0; i < option_count; i++)
    {
-      cpd.settings[count].a = cpd.defaults[count].a;
+      cpd.settings[i].a = cpd.defaults[i].a;
    }
 }
 

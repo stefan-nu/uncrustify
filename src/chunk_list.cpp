@@ -498,6 +498,13 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 }
 
 
+chunk_t *get_prev_non_pp(chunk_t *pc, const nav_t nav)
+{
+   return (chunk_search(pc, chunk_is_preproc, nav, BEFORE, false));
+}
+
+
+
 chunk_t *get_prev_fparen_open(chunk_t *pc, const nav_t nav)
 {
    return (chunk_search(pc, chunk_is_fparen_open, nav, BEFORE, true));
@@ -823,7 +830,7 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const nav_t nav, const loc_t dir)
 
    pc = (chunk_is_preproc(pc) == true) ?
         chunk_search(pc, chunk_is_comment_or_newline_in_preproc, nav, dir, false) :
-        chunk_search(pc, chunk_is_comment_newline_or_preproc, nav, dir, false);
+        chunk_search(pc, chunk_is_comment_newline_or_preproc,    nav, dir, false);
    return(pc);
 }
 
@@ -943,8 +950,9 @@ bool chunk_is_preproc(chunk_t *pc)
 
 bool chunk_is_comment_or_newline_in_preproc(chunk_t *pc)
 {
-   return((pc != NULL) && chunk_is_preproc(pc) &&
-          (chunk_is_comment(pc) || chunk_is_newline(pc)));
+   return((pc != NULL         ) &&
+           chunk_is_preproc(pc) && (chunk_is_comment(pc) ||
+                                    chunk_is_newline(pc) ) );
 }
 
 
