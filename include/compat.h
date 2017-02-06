@@ -11,8 +11,15 @@
 #include "uncrustify_types.h"
 
 
-bool unc_getenv(const char *name, std::string &str);
+bool unc_getenv(
+   const char *name,
+   std::string &str
+);
 
-bool unc_homedir(std::string &home);
+
+bool unc_homedir(
+   std::string &home
+);
+
 
 #endif /* COMPAT_H_INCLUDED */

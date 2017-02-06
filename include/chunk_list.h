@@ -129,7 +129,13 @@ chunk_t *chunk_get_prev(
 );
 
 
-void chunk_swap(chunk_t *pc1, chunk_t *pc2);
+/**
+ * tbd
+ */
+void chunk_swap(
+   chunk_t *pc1,
+   chunk_t *pc2
+);
 
 
 /**

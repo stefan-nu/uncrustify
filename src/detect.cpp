@@ -64,7 +64,9 @@ void sp_votes::vote(chunk_t *first, chunk_t *second)
 sp_votes::~sp_votes()
 {
    /* no change if no items were added */
-   if ((m_remove == 0) && (m_add == 0) && (m_force == 0))
+   if ((m_remove == 0) &&
+       (m_add    == 0) &&
+       (m_force  == 0) )
    {
       return;
    }
@@ -73,7 +75,8 @@ sp_votes::~sp_votes()
    {
       *m_av = (m_force > m_add) ? AV_FORCE : AV_ADD;
    }
-   else if ((m_force == 0) && (m_add == 0))
+   else if ((m_force == 0) &&
+            (m_add   == 0) )
    {
       *m_av = AV_REMOVE;
    }

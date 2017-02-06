@@ -265,7 +265,9 @@ public:
    );
 
 
-   bool equals(const unc_text &ref) const;
+   bool equals(
+      const unc_text &ref
+   ) const;
 
    /**
     *  grab the data as a series of ints for outputting to a file
@@ -368,10 +370,16 @@ public:
    ) const;
 
 
-   int rfind(const char *text, size_t idx = 0) const;
+   int rfind(
+      const char *text,
+      size_t idx = 0
+   ) const;
 
 
-   int replace(const char *oldtext, const unc_text &newtext);
+   int replace(
+      const char *oldtext,
+      const unc_text &newtext
+   );
 
 protected:
    void update_logtext();

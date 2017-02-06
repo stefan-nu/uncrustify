@@ -9,7 +9,10 @@
 #include "uncrustify_types.h"
 
 
-const chunk_tag_t *find_punctuator(const char *str, size_t lang_flags);
+const chunk_tag_t *find_punctuator(
+   const char *str,
+   size_t lang_flags
+);
 
 
 #endif /* PUNCTUATORS_H_INCLUDED */

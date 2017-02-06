@@ -17,4 +17,5 @@
  */
 void do_code_width(void);
 
+
 #endif /* WIDTH_H_INCLUDED */

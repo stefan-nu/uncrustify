@@ -8,21 +8,11 @@
 #ifndef ERROR_TYPES_H_INCLUDED
 #define ERROR_TYPES_H_INCLUDED
 
-#if 1
+
 #include <stdlib.h>      /* provides EXIT_SUCCESS and EXIT FAILURE */
 
 /* \todo if we decided to only use EX_OK and EX_xxx we can
  * avoid including stdlib.h here */
-
-#else
-/* \todo I left this to show my modifications
- *       remove it after the PR was reviewed     */
-
-/* the good old SUCCESS/FAILURE */
-#define SUCCESS    0      /* same as EX_OK */
-#define FAILURE    -1     /* incompatible to EXIT_FAILURE */
-#endif
-
 
 #ifdef WIN32
 /* Windows does not know sysexists.h. Thus define the error codes */

@@ -21,10 +21,17 @@
  *  prot_the_line(__LINE__, 6);
  *  examine_Data(__func__, __LINE__, n);
  */
-void prot_the_line(int theLine, unsigned int actual_line);
+void prot_the_line(
+   int theLine,
+   unsigned int actual_line
+);
 
 
-void examine_Data(const char *func_name, int theLine, int what);
+void examine_Data(
+   const char *func_name,
+   int theLine,
+   int what
+);
 
 
 #endif /* UNC_TOOLS_H_INCLUDED */

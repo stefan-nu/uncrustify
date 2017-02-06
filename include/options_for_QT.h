@@ -15,7 +15,9 @@
 #include "uncrustify_types.h"
 
 
-void save_set_options_for_QT(size_t level);
+void save_set_options_for_QT(
+   size_t level
+);
 
 
 void restore_options_for_QT(void);

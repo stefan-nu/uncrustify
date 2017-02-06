@@ -19,7 +19,10 @@
  * @param tabsize The tabsize
  * @return the next tabstop column
  */
-size_t calc_next_tab_column(size_t col, size_t tabsize);
+size_t calc_next_tab_column(
+   size_t col,
+   size_t tabsize
+);
 
 
 /**
@@ -28,7 +31,9 @@ size_t calc_next_tab_column(size_t col, size_t tabsize);
  * @param col  The current column
  * @return the next tabstop column
  */
-size_t next_tab_column(size_t col);
+size_t next_tab_column(
+   size_t col
+);
 
 
 /**
@@ -37,7 +42,9 @@ size_t next_tab_column(size_t col);
  * @param col  The current column
  * @return the next tabstop column
  */
-size_t align_tab_column(size_t col);
+size_t align_tab_column(
+   size_t col
+);
 
 
 #endif /* C_TABULATOR_H_INCLUDED */

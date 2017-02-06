@@ -26,6 +26,10 @@ void add_long_closebrace_comment(void);
  * Adds a comment after the ref chunk
  * Returns the added chunk or NULL
  */
-chunk_t *insert_comment_after(chunk_t *ref, c_token_t cmt_type, const unc_text &cmt_text);
+chunk_t *insert_comment_after(
+   chunk_t        *ref,
+   c_token_t      cmt_type,
+   const unc_text &cmt_text
+);
 
 #endif /* BRACES_H_INCLUDED */

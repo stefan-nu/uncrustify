@@ -21,7 +21,9 @@ void init_keywords(void);
  * @retval           EX_OK    - successfully read keywords from file
  * @retval           EX_IOERR - reading keywords file failed
  */
-int load_keyword_file(const char *filename);
+int load_keyword_file(
+   const char *filename
+);
 
 
 /**
@@ -31,7 +33,10 @@ int load_keyword_file(const char *filename);
  * @param len     The length of the text
  * @return        CT_WORD (no match) or the keyword token
  */
-c_token_t find_keyword_type(const char *word, size_t len);
+c_token_t find_keyword_type(
+   const char *word,
+   size_t     len
+);
 
 
 /**
@@ -40,10 +45,15 @@ c_token_t find_keyword_type(const char *word, size_t len);
  * @param tag        The tag (string) must be zero terminated
  * @param type       The type, usually CT_TYPE
  */
-void add_keyword(const char *tag, c_token_t type);
+void add_keyword(
+   const char *tag,
+   c_token_t  type
+);
 
 
-void print_keywords(FILE *pfile);
+void print_keywords(
+   FILE *pfile
+);
 
 
 void clear_keyword_file(void);
@@ -52,7 +62,9 @@ void clear_keyword_file(void);
 /**
  * Returns the pattern that the keyword needs based on the token
  */
-pattern_class get_token_pattern_class(c_token_t tok);
+pattern_class get_token_pattern_class(
+   c_token_t tok
+);
 
 
 bool keywords_are_sorted(void);

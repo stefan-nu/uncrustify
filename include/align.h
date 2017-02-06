@@ -51,7 +51,9 @@ void align_struct_initializers(void);
  * @param start   Start point
  * @return        pointer the last item looked at (NULL/newline/comment)
  */
-chunk_t *align_nl_cont(chunk_t *start);
+chunk_t *align_nl_cont(
+   chunk_t *start
+);
 
 
 /**
@@ -61,7 +63,11 @@ chunk_t *align_nl_cont(chunk_t *start);
  * For variable definitions, only consider the '=' for the first variable.
  * Otherwise, only look at the first '=' on the line.
  */
-chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh);
+chunk_t *align_assign(
+   chunk_t *first,
+   size_t  span,
+   size_t  thresh
+);
 
 
 void quick_align_again(void);

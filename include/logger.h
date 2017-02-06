@@ -25,7 +25,9 @@
  *
  * @param log_file   NULL for stderr or the FILE stream for logs.
  */
-void log_init(FILE *log_file);
+void log_init(
+   FILE *log_file
+);
 
 
 /**
@@ -33,7 +35,9 @@ void log_init(FILE *log_file);
  *
  * @param true=show  false=hide
  */
-void log_show_sev(bool show);
+void log_show_sev(
+   bool show
+);
 
 
 /**
@@ -42,7 +46,9 @@ void log_show_sev(bool show);
  * @param sev  The severity
  * @return     true/false
  */
-bool log_sev_on(log_sev_t sev);
+bool log_sev_on(
+   log_sev_t sev
+);
 
 
 /**
@@ -51,7 +57,10 @@ bool log_sev_on(log_sev_t sev);
  * @param sev  The severity
  * @return     true/false
  */
-void log_set_sev(log_sev_t sev, bool value);
+void log_set_sev(
+   log_sev_t sev,
+   bool value
+);
 
 
 /**
@@ -59,7 +68,9 @@ void log_set_sev(log_sev_t sev, bool value);
  *
  * @param mask The mask to copy
  */
-void log_set_mask(const log_mask_t &mask);
+void log_set_mask(
+   const log_mask_t &mask
+);
 
 
 /**
@@ -67,7 +78,9 @@ void log_set_mask(const log_mask_t &mask);
  *
  * @param mask Where to copy the mask
  */
-void log_get_mask(log_mask_t &mask);
+void log_get_mask(
+   log_mask_t &mask
+);
 
 
 /**
@@ -77,7 +90,12 @@ void log_get_mask(log_mask_t &mask);
  * @param str  The pointer to the string
  * @param len  The length of the string from strlen(str)
  */
-void log_str(log_sev_t sev, const char *str, size_t len);
+void log_str(
+   log_sev_t sev,
+   const char *str,
+   size_t len
+);
+
 
 #define LOG_STR(sev, str, len)                           \
    do { if (log_sev_on(sev)) { log_str(sev, str, len); } \
@@ -95,7 +113,10 @@ void log_str(log_sev_t sev, const char *str, size_t len);
  * @param fmt     The format string
  * @param ...     Additional arguments
  */
-void log_fmt(log_sev_t sev, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+void log_fmt(
+   log_sev_t sev,
+   const char *fmt, ...)
+__attribute__((format(printf, 2, 3)));
 
 #ifdef NO_MACRO_VARARG
 #define LOG_FMT    log_fmt
@@ -113,7 +134,12 @@ void log_fmt(log_sev_t sev, const char *fmt, ...) __attribute__((format(printf, 
  * @param data    The data to log
  * @param len     The number of bytes to log
  */
-void log_hex(log_sev_t sev, const void *vdata, size_t len);
+void log_hex(
+   log_sev_t sev,
+   const void *vdata,
+   size_t len
+);
+
 
 #define LOG_HEX(sev, ptr, len)                           \
    do { if (log_sev_on(sev)) { log_hex(sev, ptr, len); } \
@@ -133,7 +159,12 @@ void log_hex(log_sev_t sev, const void *vdata, size_t len);
  * @param data    The data to log
  * @param len     The number of bytes to log
  */
-void log_hex_blk(log_sev_t sev, const void *data, size_t len);
+void log_hex_blk(
+   log_sev_t sev,
+   const void *data,
+   size_t len
+);
+
 
 #define LOG_HEX_BLK(sev, ptr, len)                           \
    do { if (log_sev_on(sev)) { log_hex_blk(sev, ptr, len); } \
@@ -189,12 +220,20 @@ public:
 };
 
 
-void log_func_call(int line);
+void log_func_call(
+   int line
+);
 
 
-void log_func_stack(log_sev_t sev, const char *prefix = "", const char *suffix = "\n", size_t skip_cnt = 0);
+void log_func_stack(
+   log_sev_t sev,
+   const char *prefix = "",
+   const char *suffix = "\n",
+   size_t skip_cnt = 0
+);
 
 
 #define log_func_stack_inline(_sev)    log_func_stack((_sev), " [CallStack:", "]\n", 1)
+
 
 #endif /* LOGGER_H_INCLUDED */

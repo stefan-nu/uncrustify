@@ -44,7 +44,10 @@
  * @retval           EX_OK    - successfully created backup file
  * @retval           EX_IOERR - could not create backup file
  */
-int backup_copy_file(const char *filename, const vector<UINT8> &data);
+int backup_copy_file(
+   const char *filename,
+   const vector<UINT8> &data
+);
 
 
 /**
@@ -59,7 +62,9 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data);
  *
  * @param filename   The file that was written (full path)
  */
-void backup_create_md5_file(const char *filename);
+void backup_create_md5_file(
+   const char *filename
+);
 
 
 #endif /* BACKUP_H_INCLUDED */

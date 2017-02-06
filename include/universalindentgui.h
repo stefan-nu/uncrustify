@@ -11,6 +11,9 @@
 #include "uncrustify_types.h"
 
 
-void print_universal_indent_cfg(FILE *pfile);
+void print_universal_indent_cfg(
+   FILE *pfile
+);
+
 
 #endif /* UNIVERSALINDENTGUI_H_INCLUDED */

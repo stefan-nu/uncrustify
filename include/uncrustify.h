@@ -86,7 +86,7 @@ void print_extensions(
 void usage_exit(
    const char *msg,
    const char *argv0,
-   int code
+   int        code
 );
 
 
@@ -99,7 +99,7 @@ const char *extension_add(
 void usage_exit(
    const char *msg,
    const char *argv0,
-   int code
+   int        code
 );
 
 

@@ -31,7 +31,9 @@ void pawn_add_virtual_semicolons(void);
  * @param pc   The newline (CT_NEWLINE)
  * @return     Either the newline or the newly inserted virtual semicolon
  */
-chunk_t *pawn_check_vsemicolon(chunk_t *pc);
+chunk_t *pawn_check_vsemicolon(
+   chunk_t *pc
+);
 
 
 /**
@@ -41,6 +43,9 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc);
 void pawn_scrub_vsemi(void);
 
 
-chunk_t *pawn_add_vsemi_after(chunk_t *pc);
+chunk_t *pawn_add_vsemi_after(
+   chunk_t *pc
+);
+
 
 #endif /* LONG_PAWN_H_INCLUDED */

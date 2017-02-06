@@ -18,7 +18,9 @@
  * @retval           EX_OK    - defines successfully loaded from file
  * @retval           EX_IOERR - reading defines file failed
  */
-int load_define_file(const char *filename);
+int load_define_file(
+   const char *filename
+);
 
 
 /**
@@ -27,12 +29,18 @@ int load_define_file(const char *filename);
  * @param tag        The tag (string) must be zero terminated
  * @param value      NULL or the value of the define
  */
-void add_define(const char *tag, const char *value);
+void add_define(
+   const char *tag,
+   const char *value
+);
 
 
-void print_defines(FILE *pfile);
+void print_defines(
+   FILE *pfile
+);
 
 
 void clear_defines(void);
+
 
 #endif /* DEFINES_H_INCLUDED */

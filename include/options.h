@@ -862,10 +862,14 @@ struct option_map_value_t
 };
 
 
-const option_map_value_t *unc_find_option(const char *name);
+const option_map_value_t *unc_find_option(
+   const char *name
+);
 
 
-uo_t get_inverse_uo(uo_t option);
+uo_t get_inverse_uo(
+   uo_t option
+);
 
 
 /**

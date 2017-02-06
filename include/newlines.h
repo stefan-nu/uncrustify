@@ -20,7 +20,9 @@ void newlines_remove_newlines(void);
 /**
  * Step through all chunks.
  */
-void newlines_cleanup_braces(bool first);
+void newlines_cleanup_braces(
+   bool first
+);
 
 
 /**
@@ -48,14 +50,19 @@ void newlines_eat_start_end(void);
  * exactly 1 newline before (UO_pos_comma == TRAIL) or after (UO_pos_comma == LEAD).
  * We can't remove a newline if it is right before a preprocessor.
  */
-void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode);
+void newlines_chunk_pos(
+   c_token_t chunk_type,
+   tokenpos_t mode
+);
 
 
 /**
  * Searches for CT_CLASS_COLON and moves them, if needed.
  * Also breaks up the args
  */
-void newlines_class_colon_pos(c_token_t tok);
+void newlines_class_colon_pos(
+   c_token_t tok
+);
 
 
 void newlines_cleanup_dup(void);
@@ -87,7 +94,9 @@ void do_blank_lines(void);
  * Clears the PCF_ONE_LINER flag on the current line.
  * Done right before inserting a newline.
  */
-void undo_one_liner(chunk_t *pc);
+void undo_one_liner(
+   chunk_t *pc
+);
 
 
 /**
@@ -96,27 +105,38 @@ void undo_one_liner(chunk_t *pc);
  * @param pc   The chunk
  * @param av   The IARF value
  */
-void newline_iarf(chunk_t *pc, argval_t av);
+void newline_iarf(
+   chunk_t *pc,
+   argval_t av
+);
 
 
 /**
  * Add a newline before the chunk if there isn't already a newline present.
  * Virtual braces are skipped, as they do not contribute to the output.
  */
-chunk_t *newline_add_before(chunk_t *pc);
+chunk_t *newline_add_before(
+   chunk_t *pc
+);
 
 
-chunk_t *newline_force_before(chunk_t *pc);
+chunk_t *newline_force_before(
+   chunk_t *pc
+);
 
 
 /**
  * Add a newline after the chunk if there isn't already a newline present.
  * Virtual braces are skipped, as they do not contribute to the output.
  */
-chunk_t *newline_add_after(chunk_t *pc);
+chunk_t *newline_add_after(
+   chunk_t *pc
+);
 
 
-chunk_t *newline_force_after(chunk_t *pc);
+chunk_t *newline_force_after(
+   chunk_t *pc
+);
 
 
 /**
@@ -129,7 +149,10 @@ chunk_t *newline_force_after(chunk_t *pc);
  * @param end     The ending chunk (will not be removed, even if it is a newline)
  * @return        true/false - removed something
  */
-void newline_del_between(chunk_t *start, chunk_t *end);
+void newline_del_between(
+   chunk_t *start,
+   chunk_t *end
+);
 
 
 /**
@@ -147,6 +170,10 @@ void newline_del_between(chunk_t *start, chunk_t *end);
  *    if (...)   //comment
  *    {
  */
-chunk_t *newline_add_between(chunk_t *start, chunk_t *end);
+chunk_t *newline_add_between(
+   chunk_t *start,
+   chunk_t *end
+);
+
 
 #endif /* NEWLINES_H_INCLUDED */

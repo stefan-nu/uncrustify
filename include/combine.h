@@ -46,13 +46,20 @@ void combine_labels(void);
  * The three parameters never get the value NULL.
  * it is not necessary to test.
  */
-void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next);
+void do_symbol_check(
+   chunk_t *prev,
+   chunk_t *pc,
+   chunk_t *next
+);
 
 
 /**
  * help function for mark_variable_definition...
  */
-bool go_on(chunk_t *pc, chunk_t *start);
+bool go_on(
+   chunk_t *pc,
+   chunk_t *start
+);
 
 
 /**
@@ -64,7 +71,10 @@ bool go_on(chunk_t *pc, chunk_t *start);
  * @param parent  The type to assign as the parent
  * @return        The chunk after the close paren
  */
-chunk_t *set_paren_parent(chunk_t *start, c_token_t parent);
+chunk_t *set_paren_parent(
+   chunk_t *start,
+   c_token_t parent
+);
 
 
 /**
@@ -73,10 +83,18 @@ chunk_t *set_paren_parent(chunk_t *start, c_token_t parent);
 void mark_comments(void);
 
 
-void make_type(chunk_t *pc);
+void make_type(
+   chunk_t *pc
+);
 
 
-void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags, UINT64 clr_flags = 0, nav_t nav = CNAV_ALL);
+void flag_series(
+   chunk_t *start,
+   chunk_t *end,
+   UINT64 set_flags,
+   UINT64 clr_flags = 0,
+   nav_t nav = CNAV_ALL
+);
 
 
 /**
@@ -88,7 +106,10 @@ void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags, UINT64 clr_flag
  * @param parent  The type to assign as the parent
  * @return        The chunk after the close paren
  */
-chunk_t *set_paren_parent(chunk_t *start, c_token_t parent);
+chunk_t *set_paren_parent(
+   chunk_t *start,
+   c_token_t parent
+);
 
 
 /**
@@ -99,7 +120,11 @@ chunk_t *set_paren_parent(chunk_t *start, c_token_t parent);
  * The three parameters never get the value NULL.
  * it is not necessary to test.
  */
-void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next);
+void do_symbol_check(
+   chunk_t *prev,
+   chunk_t *pc,
+   chunk_t *next
+);
 
 
 /**
@@ -107,7 +132,9 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next);
  * Points to the chunk after the CT_ANGLE_CLOSE.
  * If the chunk isn't an CT_ANGLE_OPEN, then it is returned.
  */
-chunk_t *skip_template_next(chunk_t *ang_open);
+chunk_t *skip_template_next(
+   chunk_t *ang_open
+);
 
 
 /**
@@ -115,14 +142,18 @@ chunk_t *skip_template_next(chunk_t *ang_open);
  * Points to the chunk before the CT_ANGLE_OPEN
  * If the chunk isn't an CT_ANGLE_CLOSE, then it is returned.
  */
-chunk_t *skip_template_prev(chunk_t *ang_close);
+chunk_t *skip_template_prev(
+   chunk_t *ang_close
+);
 
 
 /**
  * Skips the rest of the array definitions if ary_def is indeed a
  * CT_TSQUARE or CT_SQUARE_OPEN
  */
-chunk_t *skip_tsquare_next(chunk_t *ary_def);
+chunk_t *skip_tsquare_next(
+   chunk_t *ary_def
+);
 
 
 /**
@@ -130,7 +161,9 @@ chunk_t *skip_tsquare_next(chunk_t *ary_def);
  * after the CT_FPAREN_CLOSE.
  * If the chunk isn't an CT_ATTRIBUTE, then it is returned.
  */
-chunk_t *skip_attribute_next(chunk_t *attr);
+chunk_t *skip_attribute_next(
+   chunk_t *attr
+);
 
 
 /**
@@ -138,7 +171,9 @@ chunk_t *skip_attribute_next(chunk_t *attr);
  * and the '__attribute__' thingy and return the chunk before CT_ATTRIBUTE.
  * Otherwise return fp_close.
  */
-chunk_t *skip_attribute_prev(chunk_t *fp_close);
+chunk_t *skip_attribute_prev(
+   chunk_t *fp_close
+);
 
 
 /**

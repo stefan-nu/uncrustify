@@ -62,7 +62,9 @@ public:
    {
    }
 
-   void Set(const ChunkStack &cs);
+   void Set(
+      const ChunkStack &cs
+   );
 
 
    void Push_Back(chunk_t *pc)
@@ -100,8 +102,9 @@ public:
 
    void Push_Back(
       chunk_t *pc,
-      size_t seqnum
+      size_t  seqnum
    );
+
 
    chunk_t *Pop_Front();
 
@@ -114,11 +117,9 @@ public:
 
    /**
     * Mark an entry to be removed by Collapse()
-    *
-    * @param idx  The item to remove
     */
    void Zap(
-      size_t idx
+      size_t idx /**< [in] item to remove */
    );
 
 
