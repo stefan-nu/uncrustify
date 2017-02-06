@@ -305,13 +305,6 @@ static void newline_after_return(
 );
 
 
-static void _blank_line_max(
-   chunk_t    *pc,
-   const char *text,
-   uo_t       uo
-);
-
-
 #define MARK_CHANGE()    mark_change(__func__, __LINE__)
 
 
@@ -904,6 +897,7 @@ static void _blank_line_set(chunk_t *pc, const char *text, uo_t uo)
 }
 
 #define blank_line_set(pc, op)    _blank_line_set(pc, #op, op)
+
 
 void log_msg2(chunk_t *pc, const char* str);
 void log_msg3(chunk_t *pc, const char* str);
@@ -3464,33 +3458,6 @@ void newlines_class_colon_pos(c_token_t tok)
 }
 
 
-static void _blank_line_max(chunk_t *pc, const char *text, uo_t uo)
-{
-   LOG_FUNC_ENTRY();
-   if (pc == NULL)
-   {
-      return;
-   }
-   const option_map_value_t *option = get_option_name(uo);
-   assert(option != NULL);
-   if (option->type != AT_UNUM)  // \todo use is_option_set
-   {
-      fprintf(stderr, "Program error for UO_=%d\n", (int)uo);
-      fprintf(stderr, "Please make a report\n");
-      exit(2);
-   }
-   if ((cpd.settings[uo].u > 0) && (pc->nl_count > cpd.settings[uo].u))
-   {
-      LOG_FMT(LBLANKD, "do_blank_lines: %s max line %zu\n", text + 3, pc->orig_line);
-      pc->nl_count = cpd.settings[uo].u;
-      MARK_CHANGE();
-   }
-}
-
-
-#define blank_line_max(pc, op)    _blank_line_max(pc, # op, op)
-
-
 void do_blank_lines(void)
 {
    LOG_FUNC_ENTRY();
@@ -3529,7 +3496,7 @@ void do_blank_lines(void)
       if ((cpd.settings[UO_nl_max].u > 0) &&
           (pc->nl_count > cpd.settings[UO_nl_max].u))
       {
-         blank_line_max(pc, UO_nl_max);
+         blank_line_set(pc, UO_nl_max);
       }
 
       if (!can_increase_nl(pc))

@@ -17,7 +17,10 @@
  * We need to check for 'open' braces/paren/etc because the level doesn't
  * change until the token after the open.
  */
-static bool pawn_continued(chunk_t *pc, size_t br_level);
+static bool pawn_continued(
+   chunk_t *pc,
+   size_t  br_level
+);
 
 
 /**
@@ -36,23 +39,32 @@ static bool pawn_continued(chunk_t *pc, size_t br_level);
  *
  * Variable definitions start with 'stock', 'static', 'new', or 'public'.
  */
-static chunk_t *pawn_process_line(chunk_t *start);
+static chunk_t *pawn_process_line(
+   chunk_t *start
+);
 
 
 /**
  * We are on a level 0 function proto of def
  */
-static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn);
+static chunk_t *pawn_mark_function0(
+   chunk_t *start,
+   chunk_t *fcn
+);
 
 
 /**
  * follows a variable definition at level 0 until the end.
  * Adds a semicolon at the end, if needed.
  */
-static chunk_t *pawn_process_variable(chunk_t *start);
+static chunk_t *pawn_process_variable(
+   chunk_t *start
+);
 
 
-static chunk_t *pawn_process_func_def(chunk_t *pc);
+static chunk_t *pawn_process_func_def(
+   chunk_t *pc
+);
 
 
 chunk_t *pawn_add_vsemi_after(chunk_t *pc)
@@ -62,7 +74,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
    if(pc == NULL) { return NULL; }
 
    if ((pc->type == CT_VSEMICOLON) ||
-       (pc->type == CT_SEMICOLON))
+       (pc->type == CT_SEMICOLON ) )
    {
       return(pc);
    }
@@ -70,7 +82,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
    const chunk_t *next = chunk_get_next_nc(pc);
    if ((next != NULL) &&
        ((next->type == CT_VSEMICOLON) ||
-        (next->type == CT_SEMICOLON)))
+        (next->type == CT_SEMICOLON ) ) )
    {
       return(pc);
    }
@@ -99,11 +111,11 @@ void pawn_scrub_vsemi(void)
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
       if ((prev != NULL) && (prev->type == CT_BRACE_CLOSE))
       {
-         if ((prev->parent_type == CT_IF) ||
-             (prev->parent_type == CT_ELSE) ||
-             (prev->parent_type == CT_SWITCH) ||
-             (prev->parent_type == CT_CASE) ||
-             (prev->parent_type == CT_WHILE_OF_DO))
+         if ((prev->parent_type == CT_IF         ) ||
+             (prev->parent_type == CT_ELSE       ) ||
+             (prev->parent_type == CT_SWITCH     ) ||
+             (prev->parent_type == CT_CASE       ) ||
+             (prev->parent_type == CT_WHILE_OF_DO) )
          {
             pc->str.clear();
          }
@@ -117,7 +129,7 @@ static bool pawn_continued(chunk_t *pc, size_t br_level)
    LOG_FUNC_ENTRY();
    if (pc == NULL) { return(false); }
 
-   if (((int)pc->level  > br_level       ) ||
+   if ((pc->level       > br_level       ) ||
        (pc->type        == CT_ARITH      ) ||
        (pc->type        == CT_CARET      ) ||
        (pc->type        == CT_QUESTION   ) ||

@@ -1118,38 +1118,40 @@ void indent_text(void)
          if (cpd.settings[UO_indent_cpp_lambda_body].b &&
              pc->parent_type == CT_CPP_LAMBDA)
          {
-            frm.pse[frm.pse_tos].brace_indent = frm.pse[frm.pse_tos-1].indent;
-            indent_column                     = frm.pse[frm.pse_tos  ].brace_indent;
-            frm.pse[frm.pse_tos].indent       = indent_column + indent_size;
-            frm.pse[frm.pse_tos].indent_tab   = frm.pse[frm.pse_tos  ].indent;
-            frm.pse[frm.pse_tos].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
-
-            frm.pse[frm.pse_tos - 1].indent_tmp = frm.pse[frm.pse_tos].indent_tmp;
+            // DRY6
+            frm.pse[frm.pse_tos  ].brace_indent = frm.pse[frm.pse_tos-1].indent;
+            indent_column                       = frm.pse[frm.pse_tos  ].brace_indent;
+            frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
+            frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
+            frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
+            frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos  ].indent_tmp;
          }
-         else if ((cpd.lang_flags & LANG_CS) && cpd.settings[UO_indent_cs_delegate_brace].b &&
-                  (pc->parent_type == CT_LAMBDA || pc->parent_type == CT_DELEGATE))
+         else if ((cpd.lang_flags & LANG_CS) &&
+                   cpd.settings[UO_indent_cs_delegate_brace].b &&
+                  (pc->parent_type == CT_LAMBDA ||
+                   pc->parent_type == CT_DELEGATE))
          {
-            frm.pse[frm.pse_tos].brace_indent = 1 + ((pc->brace_level+1) * indent_size);
-            indent_column                     = frm.pse[frm.pse_tos].brace_indent;
-            frm.pse[frm.pse_tos].indent       = indent_column + indent_size;
-            frm.pse[frm.pse_tos].indent_tab   = frm.pse[frm.pse_tos].indent;
-            frm.pse[frm.pse_tos].indent_tmp   = frm.pse[frm.pse_tos].indent;
-
-            frm.pse[frm.pse_tos - 1].indent_tmp = frm.pse[frm.pse_tos].indent_tmp;
+            // DRY6
+            frm.pse[frm.pse_tos  ].brace_indent = 1 + ((pc->brace_level+1) * indent_size);
+            indent_column                       = frm.pse[frm.pse_tos].brace_indent;
+            frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
+            frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
+            frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
+            frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos].indent_tmp;
          }
          /* any '{' that is inside of a '(' overrides the '(' indent */
          else if (!cpd.settings[UO_indent_paren_open_brace].b &&
-                  chunk_is_paren_open(frm.pse[frm.pse_tos - 1].pc) &&
+                  chunk_is_paren_open(frm.pse[frm.pse_tos-1].pc) &&
                   chunk_is_newline(chunk_get_next_nc(pc)))
          {
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
-            frm.pse[frm.pse_tos].brace_indent = 1 + (pc->brace_level * indent_size);
-            indent_column                     = frm.pse[frm.pse_tos].brace_indent;
-            frm.pse[frm.pse_tos].indent       = indent_column + indent_size;
-            frm.pse[frm.pse_tos].indent_tab   = frm.pse[frm.pse_tos].indent;
-            frm.pse[frm.pse_tos].indent_tmp   = frm.pse[frm.pse_tos].indent;
-
-            frm.pse[frm.pse_tos - 1].indent_tmp = frm.pse[frm.pse_tos].indent_tmp;
+            // DRY6
+            frm.pse[frm.pse_tos  ].brace_indent = 1 + (pc->brace_level * indent_size);
+            indent_column                       = frm.pse[frm.pse_tos].brace_indent;
+            frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
+            frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
+            frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
+            frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos].indent_tmp;
          }
          else if (frm.paren_count != 0)
          {
@@ -1162,7 +1164,7 @@ void indent_text(void)
                   frm.pse[frm.pse_tos].ip.delta = cpd.settings[UO_indent_oc_block_msg].n;
                }
 
-               if (cpd.settings[UO_indent_oc_block].b ||
+               if (cpd.settings[UO_indent_oc_block                ].b ||
                    cpd.settings[UO_indent_oc_block_msg_xcode_style].b)
                {
                   bool in_oc_msg           = (pc->flags & PCF_IN_OC_MSG) != 0;     // forcing value to bool

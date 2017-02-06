@@ -77,19 +77,19 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
    /* Check threshold limits */
    if ( (m_max_col == 0) ||
         (m_thresh  == 0) ||
+#if 1
         (((start->column + m_gap) <= (m_max_col + m_thresh)) &&
+#else
+        why does this fail some tests?
+        (((start->column + m_gap - m_thresh) <= (m_max_col)) &&
+#endif
         (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
-         // change the expression to mind negative expression
-         (start->column >= m_min_col))))
+          (start->column >= m_min_col))))
    {
       /* we are adding it, so update the newline seqnum */
-      if (seqnum > m_nl_seqnum)
-      {
-         m_nl_seqnum = seqnum;
-      }
+      if (seqnum > m_nl_seqnum) { m_nl_seqnum = seqnum; }
 
-      /**
-       * SS_IGNORE: no special handling of '*' or '&', only 'foo' is aligned
+      /* SS_IGNORE: no special handling of '*' or '&', only 'foo' is aligned
        *     void     foo;  // gap=5, 'foo' is aligned
        *     char *   foo;  // gap=3, 'foo' is aligned
        *     foomatic foo;  // gap=1, 'foo' is aligned
@@ -141,9 +141,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
        *
        * The '*' and '&' can float between the two.
        *
-       * If align_on_tabstop=true, then SS_DANGLE is changed to SS_INCLUDE.
-       */
-
+       * If align_on_tabstop=true, then SS_DANGLE is changed to SS_INCLUDE. */
       if (cpd.settings[UO_align_on_tabstop].b && (m_star_style == SS_DANGLE))
       {
          m_star_style = SS_INCLUDE;
@@ -169,7 +167,8 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       {
          /* back up to the first '*' or '^' preceding the token */
          prev = chunk_get_prev(ali);
-         while (chunk_is_star(prev) || chunk_is_msref(prev))
+         while (chunk_is_star (prev) ||
+                chunk_is_msref(prev) )
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -362,7 +361,7 @@ void AlignStack::Flush()
       if (chunk_is_ptr_operator(tmp) && (m_star_style == SS_DANGLE))
       {
          col_adj = (int)pc->align.start->column - (int)pc->column;
-         gap     = pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
+         gap     =      pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
       }
       if (m_right_align)
       {
@@ -371,7 +370,8 @@ void AlignStack::Flush()
          if (pc->align.start->type == CT_NEG)
          {
             tmp = chunk_get_next(pc->align.start);
-            if ((tmp != NULL) && (tmp->type == CT_NUMBER))
+            if ((tmp       != NULL     ) &&
+                (tmp->type == CT_NUMBER) )
             {
                start_len += tmp->len();
             }

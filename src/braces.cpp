@@ -280,6 +280,7 @@ static bool should_add_braces(chunk_t *vbopen)
 }
 
 
+// DRY with examine_brace
 static bool can_remove_braces(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
@@ -293,31 +294,32 @@ static bool can_remove_braces(chunk_t *bopen)
    chunk_t *pc = chunk_get_next_ncnl(bopen, CNAV_PREPROC);
    if(pc == NULL)
    {
-      return (false);                     /* no valid chunk found */
+      return (false);                   /* no valid chunk found */
    }
    else if (pc->type == CT_BRACE_CLOSE) /* Can't remove empty statement */
    {
       return(false);
    }
-
+   // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
    const chunk_t *prev = NULL;
-   size_t  semi_count = 0;
+   size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
-   bool    hit_semi   = false;
-   bool    was_fcn    = false;
+   bool          hit_semi   = false;
+   bool          was_fcn    = false;
    const size_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
-   size_t  nl_count   = 0;
-   size_t  if_count   = 0;
-   int     br_count   = 0;
+   size_t        nl_count   = 0;
+   size_t        if_count   = 0;
+   int           br_count   = 0;
 
-   pc = chunk_get_next_nc(bopen, CNAV_ALL);
+   pc = chunk_get_next_nc(bopen);
    while ((pc != NULL) && (pc->level >= level))
    {
       if (pc->flags & PCF_IN_PREPROC)
       {
          /* Cannot remove braces that contain a preprocessor */
+         LOG_FMT(LBRDEL, " PREPROC\n");
          return(false);
       }
 
@@ -340,6 +342,7 @@ static bool can_remove_braces(chunk_t *bopen)
          {
             br_count--;
          }
+
          else if ((pc->type == CT_IF    ) ||
                   (pc->type == CT_ELSEIF) )
          {
@@ -398,6 +401,7 @@ static bool can_remove_braces(chunk_t *bopen)
       LOG_FMT(LBRDEL, " NULL\n");
       return(false);
    }
+   // DRY 7 end
 
    if ((pc->type        == CT_BRACE_CLOSE) &&
        (pc->parent_type == CT_IF         ) )
@@ -426,15 +430,16 @@ static bool can_remove_braces(chunk_t *bopen)
 }
 
 
+// DRY with can_remove_braces
 static void examine_brace(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
 
    if(bopen == NULL) { return; }
 
+   // DRY7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
-   chunk_t       *next;
    chunk_t       *prev      = NULL;
    size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
@@ -450,6 +455,7 @@ static void examine_brace(chunk_t *bopen)
    {
       if (pc->flags & PCF_IN_PREPROC)
       {
+         /* Cannot remove braces that contain a preprocessor */
          LOG_FMT(LBRDEL, " PREPROC\n");
          return;
       }
@@ -472,17 +478,10 @@ static void examine_brace(chunk_t *bopen)
          else if (pc->type == CT_BRACE_CLOSE)
          {
             br_count--;
-            if (br_count == 0)
-            {
-               next = chunk_get_next_ncnl(pc, CNAV_PREPROC);
-               if ((next == NULL) || (next->type != CT_BRACE_CLOSE))
-               {
-                  LOG_FMT(LBRDEL, " junk after close brace\n");
-                  return;
-               }
-            }
          }
-         else if ((pc->type == CT_IF) || (pc->type == CT_ELSEIF))
+
+         else if ((pc->type == CT_IF    ) ||
+                  (pc->type == CT_ELSEIF) )
          {
             if (br_count == 0)
             {
@@ -492,7 +491,8 @@ static void examine_brace(chunk_t *bopen)
 
          if (pc->level == level)
          {
-            if ((semi_count > 0) && hit_semi)
+            if ((semi_count > 0  ) &&
+                (hit_semi == true) )
             {
                /* should have bailed due to close brace level drop */
                LOG_FMT(LBRDEL, " no close brace\n");
@@ -508,7 +508,8 @@ static void examine_brace(chunk_t *bopen)
                return;
             }
 
-            was_fcn = (prev != NULL) && (prev->type == CT_FPAREN_CLOSE);
+            was_fcn = (prev       != NULL           ) &&
+                      (prev->type == CT_FPAREN_CLOSE);
 
             if ( (chunk_is_semicolon(pc)   ) ||
                  (pc->type == CT_IF        ) ||
@@ -539,14 +540,16 @@ static void examine_brace(chunk_t *bopen)
       LOG_FMT(LBRDEL, " NULL\n");
       return;
    }
+   // DRY7 end
 
    LOG_FMT(LBRDEL, " - end on '%s' on line %zu. if_count=%zu semi_count=%zu\n",
            get_token_name(pc->type), pc->orig_line, if_count, semi_count);
 
    if (pc->type == CT_BRACE_CLOSE)
    {
-      next = chunk_get_next_ncnl(pc);
-      while ((next != NULL) && (next->type == CT_VBRACE_CLOSE))
+      chunk_t *next = chunk_get_next_ncnl(pc);
+      while ((next       != NULL           ) &&
+             (next->type == CT_VBRACE_CLOSE) )
       {
          next = chunk_get_next_ncnl(next);
       }
