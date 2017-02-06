@@ -1293,7 +1293,7 @@ static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
 
 static void output_comment_multi(chunk_t *pc)
 {
-   // LOG_FMT(LSYS, "%s: line %d\n", __func__, pc->orig_line);
+   // \todo DRY 5 with output_comment_multi_simple
 
    cmt_reflow cmt;
    output_cmt_start(cmt, pc);
@@ -1308,12 +1308,9 @@ static void output_comment_multi(chunk_t *pc)
                    (cpd.settings[UO_cmt_star_cont   ].b ? "* " : "  ");
    LOG_CONTTEXT();
 
-   // LOG_FMT(LSYS, "Indenting1 line %d to col %d (orig=%d) col_diff=%d xtra=%d cont='%s'\n",
-   //        pc->orig_line, cmt_col, pc->orig_col, col_diff, cmt.xtra_indent, cmt.cont_text.c_str());
-
    size_t   line_count = 0;
-   size_t   ccol       = pc->column; /* the col of subsequent comment lines */
    size_t   cmt_idx    = 0;
+   size_t   ccol       = pc->column; /* the col of subsequent comment lines */
    bool     nl_end     = false;
    unc_text line;
    line.clear();
@@ -1352,11 +1349,13 @@ static void output_comment_multi(chunk_t *pc)
          }
       }
 
+      // DRY 5 end
+
       /* Now see if we need/must fold the next line with the current to enable
        * full reflow */
       if ((cpd.settings[UO_cmt_reflow_mode].n == 2) &&
-          (ch == '\n') &&
-          (cmt_idx < pc->len()))
+          (ch      == '\n'     ) &&
+          (cmt_idx <  pc->len()) )
       {
          int    prev_nonempty_line = -1;
          size_t nwidx              = line.size();
@@ -1893,6 +1892,9 @@ static void do_keyword_substitution(chunk_t *pc)
 static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
 {
    UNUSED(kw_subst);
+
+   // DRY 5 start with output_comment_multi
+
    cmt_reflow cmt;
    output_cmt_start(cmt, pc);
 
@@ -1900,12 +1902,12 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       (int)pc->orig_col - (int)pc->column : 0;
    /* The comment should be indented correctly : The comment starts after something else */
 
-   unc_text line;
-   line.clear();
    size_t   line_count = 0;
    size_t   cmt_idx    = 0;
    size_t   ccol       = pc->column;
    bool     nl_end     = false;
+   unc_text line;
+   line.clear();
    while (cmt_idx < pc->len())
    {
       int ch = pc->str[cmt_idx++];
@@ -1914,7 +1916,8 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       if (ch == '\r')
       {
          ch = '\n';
-         if ((cmt_idx < pc->len()) && (pc->str[cmt_idx] == '\n'))
+         if ((cmt_idx < pc->len()     ) &&
+             (pc->str[cmt_idx] == '\n') )
          {
             cmt_idx++;
          }
@@ -1940,6 +1943,8 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
             //        line_count, ccol, col_diff, ccol - col_diff);
          }
       }
+
+      // DRY 5 end
 
       line.append(ch);
 

@@ -44,8 +44,27 @@ struct tok_ctx
    {
    }
 
-
+#if 0
+   // \todo separate declarations and implementation
    /* save before trying to parse something that may fail */
+   void save();
+   void save(tok_info &info) const;
+
+   /* restore previous saved state */
+   void restore();
+   void restore(const tok_info &info);
+
+   bool more() const;
+
+   size_t peek() const;
+   size_t peek(size_t idx) const;
+
+   int get();
+
+   bool expect(size_t ch);
+#endif
+
+
    void save()
    {
       save(s);
@@ -58,7 +77,6 @@ struct tok_ctx
    }
 
 
-   /* restore previous saved state */
    void restore()
    {
       restore(s);
@@ -94,32 +112,26 @@ struct tok_ctx
    {
       if (more())
       {
-         size_t ch = data[c.idx++];
+         int ch = data[c.idx++];
          switch (ch)
          {
-         case '\t':
-            c.col = calc_next_tab_column(c.col, cpd.settings[UO_input_tab_size].u);
-            break;
+            case '\t':
+               c.col = calc_next_tab_column(c.col, cpd.settings[UO_input_tab_size].u);
+               break;
 
-         case '\n':
-            if (c.last_ch != '\r')
-            {
-               c.row++;
-               c.col = 1;
+            case '\n':
+               if (c.last_ch != '\r')
+               {
+                  c.row++;
+                  c.col = 1;
+               }
+               break;
+
+            case '\r': c.row++; c.col = 1; break;
+            default:            c.col++;   break;
             }
-            break;
-
-         case '\r':
-            c.row++;
-            c.col = 1;
-            break;
-
-         default:
-            c.col++;
-            break;
-         }
-         c.last_ch = ch;
-         return(ch);
+            c.last_ch = ch;
+            return(ch);
       }
       return(0);
    }
@@ -519,6 +531,36 @@ static const char *str_search(const char *needle, const char *haystack, int hays
 #endif
 
 
+/* \todo name might be improved */
+void parse_char(tok_ctx &ctx, chunk_t &pc)
+{
+  size_t ch = ctx.get();
+  pc.str.append(ch);
+  if ((ch == '\n') || (ch == '\r'))
+  {
+     pc.type = CT_COMMENT_MULTI;
+     pc.nl_count++;
+
+     if (ch == '\r')
+     {
+        if (ctx.peek() == '\n')
+        {
+           cpd.le_counts[LE_CRLF]++;
+           pc.str.append(ctx.get());  /* store the '\n' */
+        }
+        else
+        {
+           cpd.le_counts[LE_CR]++;
+        }
+     }
+     else
+     {
+        cpd.le_counts[LE_LF]++;
+     }
+  }
+}
+
+
 static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 {
    bool   is_d    = (cpd.lang_flags & LANG_D ) != 0;
@@ -526,9 +568,11 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
    size_t d_level = 0;
 
    /* does this start with '/ /' or '/ *' or '/ +' (d) */
-   if ((ctx.peek() != '/') ||
-       ((ctx.peek(1) != '*') && (ctx.peek(1) != '/') &&
-        ((ctx.peek(1) != '+') || !is_d)))
+   if ((  ctx.peek() != '/'       ) ||
+       ( (ctx.peek(1) != '*'  ) &&
+         (ctx.peek(1) != '/'  ) &&
+        ((ctx.peek(1) != '+'  ) ||
+         (is_d        == false) ) ) )
    {
       return(false);
    }
@@ -604,39 +648,17 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
             d_level++;
             continue;
          }
-
-         ch = ctx.get();
-         pc.str.append(ch);
-         if ((ch == '\n') || (ch == '\r'))
-         {
-            pc.type = CT_COMMENT_MULTI;
-            pc.nl_count++;
-
-            if (ch == '\r')
-            {
-               if (ctx.peek() == '\n')
-               {
-                  cpd.le_counts[LE_CRLF]++;
-                  pc.str.append(ctx.get());  /* store the '\n' */
-               }
-               else
-               {
-                  cpd.le_counts[LE_CR]++;
-               }
-            }
-            else
-            {
-               cpd.le_counts[LE_LF]++;
-            }
-         }
+         parse_char(ctx, pc);
       }
+
    }
    else  /* must be '/ *' */
    {
       pc.type = CT_COMMENT;
       while (ctx.more())
       {
-         if ((ctx.peek() == '*') && (ctx.peek(1) == '/'))
+         if ((ctx.peek( ) == '*') &&
+             (ctx.peek(1) == '/') )
          {
             pc.str.append(ctx.get());  /* store the '*' */
             pc.str.append(ctx.get());  /* store the '/' */
@@ -658,31 +680,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
                break;
             }
          }
-
-         ch = ctx.get();
-         pc.str.append(ch);
-         if ((ch == '\n') || (ch == '\r'))
-         {
-            pc.type = CT_COMMENT_MULTI;
-            pc.nl_count++;
-
-            if (ch == '\r')
-            {
-               if (ctx.peek() == '\n')
-               {
-                  cpd.le_counts[LE_CRLF]++;
-                  pc.str.append(ctx.get());  /* store the '\n' */
-               }
-               else
-               {
-                  cpd.le_counts[LE_CR]++;
-               }
-            }
-            else
-            {
-               cpd.le_counts[LE_LF]++;
-            }
-         }
+         parse_char(ctx, pc);
       }
    }
 
@@ -721,7 +719,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 
 static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc)
 {
-   if ((ctx.peek() != '<') || (ctx.peek(1) != '#'))
+   if ((ctx.peek()  != '<') ||
+       (ctx.peek(1) != '#') )
    {
       return(false);
    }
@@ -761,9 +760,9 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
       /* don't add the suffix if we see L" or L' or S" */
       size_t p1 = ctx.peek();
       size_t p2 = ctx.peek(1);
-      if (forstring &&
+      if (( forstring == true                             ) &&
           (((p1 == 'L') && ((p2 == '"') || (p2 == '\''))) ||
-           ((p1 == 'S') &&  (p2 == '"'))))
+           ((p1 == 'S') &&  (p2 == '"')                 ) ) )
       {
          return;
       }
@@ -776,9 +775,10 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
          pc.str.append(ctx.get());
       }
 
-      if (forstring && (slen >= 4) &&
+      if ((forstring == true) &&
+          (slen      >= 4   ) &&
           (pc.str.startswith("PRI", oldsize) ||
-           pc.str.startswith("SCN", oldsize)))
+           pc.str.startswith("SCN", oldsize) ) )
       {
          ctx.restore(ss);
          pc.str.resize(oldsize);
@@ -837,6 +837,53 @@ static bool is_hex_(int ch)
 }
 
 
+/* \todo rename to  more suitable name */
+bool analyze_character(tok_ctx &ctx, chunk_t &pc)
+{
+   bool did_hex = false;
+
+   switch (unc_toupper(ctx.peek()) )
+   {
+      case 'X':  /* hex */
+         did_hex = true;
+         do
+         {
+            pc.str.append(ctx.get());  /* store the 'x' and then the rest */
+         } while (is_hex_(ctx.peek()));
+         break;
+
+      case 'B':  /* binary */
+         do
+         {
+            pc.str.append(ctx.get());  /* store the 'b' and then the rest */
+         } while (is_bin_(ctx.peek()));
+         break;
+
+      case '0':  /* octal or decimal */
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+         do
+         {
+            pc.str.append(ctx.get());
+         } while (is_oct_(ctx.peek()));
+         break;
+
+      default:
+         /* either just 0 or 0.1 or 0UL, etc */
+         break;
+   }
+
+   return(did_hex);
+}
+
+
 static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 {
    /* A number must start with a digit or a dot, followed by a digit */
@@ -846,8 +893,9 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       return(false);
    }
 
-   bool is_float = (ctx.peek() == '.');
-   if (is_float && (ctx.peek(1) == '.'))
+   bool is_float = (ctx.peek( ) == '.');
+   if ((is_float    == true) &&
+       (ctx.peek(1) == '.' ) )
    {
       return(false);
    }
@@ -859,9 +907,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    {
       pc.str.append(ctx.get());  /* store the '0' */
       size_t  ch;
-      chunk_t pc_temp;
       size_t  pc_length;
-
+      chunk_t pc_temp;
       pc_temp.str.append('0');
       // MS constant might have an "h" at the end. Look for it
       ctx.save();
@@ -874,7 +921,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       ch        = pc_temp.str[pc_length - 1];
       ctx.restore();
       LOG_FMT(LGUY, "%s(%d): pc_temp:%s\n", __func__, __LINE__, pc_temp.text());
-      if (ch == 'h')
+      if (ch == 'h') /** \todo can we combine this in analyze_character */
       {
          // we have an MS hexadecimal number with "h" at the end
          LOG_FMT(LGUY, "%s(%d): MS hexadecimal number\n", __func__, __LINE__);
@@ -888,43 +935,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       }
       else
       {
-         switch (unc_toupper(ctx.peek()))
-         {
-         case 'X':               /* hex */
-            did_hex = true;
-            do
-            {
-               pc.str.append(ctx.get());  /* store the 'x' and then the rest */
-            } while (is_hex_(ctx.peek()));
-            break;
-
-         case 'B':               /* binary */
-            do
-            {
-               pc.str.append(ctx.get());  /* store the 'b' and then the rest */
-            } while (is_bin_(ctx.peek()));
-            break;
-
-         case '0':               /* octal or decimal */
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-         case '8':
-         case '9':
-            do
-            {
-               pc.str.append(ctx.get());
-            } while (is_oct_(ctx.peek()));
-            break;
-
-         default:
-            /* either just 0 or 0.1 or 0UL, etc */
-            break;
-         }
+         did_hex = analyze_character(ctx, pc);
       }
    }
    else
@@ -941,20 +952,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    {
       pc.str.append(ctx.get());
       is_float = true;
-      if (did_hex)
-      {
-         while (is_hex_(ctx.peek()))
-         {
-            pc.str.append(ctx.get());
-         }
-      }
-      else
-      {
-         while (is_dec_(ctx.peek()))
-         {
-            pc.str.append(ctx.get());
-         }
-      }
+      if (did_hex) { while (is_hex_(ctx.peek())) { pc.str.append(ctx.get()); } }
+      else         { while (is_dec_(ctx.peek())) { pc.str.append(ctx.get()); } }
    }
 
    /* Check exponent
@@ -962,18 +961,14 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
     * C/C++/D/Java: eEpP
     * C#/Pawn:      eE */
    size_t tmp = unc_toupper(ctx.peek());
-   if ((tmp == 'E') || (tmp == 'P'))
+   if ((tmp == 'E') ||
+       (tmp == 'P') )
    {
       is_float = true;
       pc.str.append(ctx.get());
-      if ((ctx.peek() == '+') || (ctx.peek() == '-'))
-      {
-         pc.str.append(ctx.get());
-      }
-      while (is_dec_(ctx.peek()))
-      {
-         pc.str.append(ctx.get());
-      }
+      if ((ctx.peek() == '+') ||
+          (ctx.peek() == '-') )  { pc.str.append(ctx.get()); }
+      while (is_dec_(ctx.peek())){ pc.str.append(ctx.get()); }
    }
 
    /* Check the suffixes
@@ -989,11 +984,15 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    while (1)
    {
       size_t tmp2 = unc_toupper(ctx.peek());
-      if ((tmp2 == 'I') || (tmp2 == 'F') || (tmp2 == 'D') || (tmp2 == 'M'))
+      if ((tmp2 == 'I') ||
+          (tmp2 == 'F') ||
+          (tmp2 == 'D') ||
+          (tmp2 == 'M') )
       {
          is_float = true;
       }
-      else if ((tmp2 != 'L') && (tmp2 != 'U'))
+      else if ((tmp2 != 'L') &&
+               (tmp2 != 'U') )
       {
          break;
       }
@@ -1001,7 +1000,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* skip the Microsoft-specific '64' suffix */
-   if ((ctx.peek() == '6') && (ctx.peek(1) == '4'))
+   if ((ctx.peek( ) == '6') &&
+       (ctx.peek(1) == '4') )
    {
       pc.str.append(ctx.get());
       pc.str.append(ctx.get());
@@ -1010,8 +1010,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    pc.type = is_float ? CT_NUMBER_FP : CT_NUMBER;
 
    /* If there is anything left, then we are probably dealing with garbage or
-    * some sick macro junk. Eat it.
-    */
+    * some sick macro junk. Eat it. */
    parse_suffix(ctx, pc);
 
    return(true);
@@ -1056,7 +1055,8 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow
          escaped = false;
          continue;
       }
-      if ((ch == '\r') && (ctx.peek() != '\n'))
+      if ((ch         == '\r') &&
+          (ctx.peek() != '\n') )
       {
          pc.str.append(ctx.get());
          pc.nl_count++;
@@ -1070,7 +1070,8 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow
          {
             escaped = (escape_char != 0);
          }
-         else if ((ch == escape_char2) && (ctx.peek() == end_ch))
+         else if ((ch         == escape_char2) &&
+                  (ctx.peek() == end_ch      ) )
          {
             escaped = allow_escape;
          }
@@ -1103,7 +1104,8 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
    {
       size_t ch = ctx.get();
       pc.str.append(ch);
-      if ((ch == '\n') || (ch == '\r'))
+      if ((ch == '\n') ||
+          (ch == '\r') )
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
@@ -1217,9 +1219,9 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
    {
       size_t ch = ctx.get();
       pc.str.append(ch);
-      if ((ch == '"') &&
-          (ctx.peek() == '"') &&
-          (ctx.peek(1) == '"'))
+      if ((ch          == '"') &&
+          (ctx.peek( ) == '"') &&
+          (ctx.peek(1) == '"') )
       {
          pc.str.append(ctx.get());
          pc.str.append(ctx.get());
@@ -1280,7 +1282,7 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, size_t q_idx)
    pc.type = CT_STRING;
    while (ctx.more())
    {
-      if ((ctx.peek() == ')') &&
+      if ((ctx.peek()            == ')') &&
           (ctx.peek(tag_len + 1) == '"') &&
           tag_compare(ctx.data, tag_idx, ctx.c.idx + 1, tag_len))
       {
@@ -1455,11 +1457,13 @@ static bool parse_newline(tok_ctx &ctx)
    ctx.save();
 
    /* Eat whitespace */
-   while ((ctx.peek() == ' ') || (ctx.peek() == '\t'))
+   while ((ctx.peek() == ' ' ) ||
+          (ctx.peek() == '\t') )
    {
       ctx.get();
    }
-   if ((ctx.peek() == '\r'  ) || (ctx.peek() == '\n'))
+   if ((ctx.peek() == '\r') ||
+       (ctx.peek() == '\n') )
    {
       if (!ctx.expect('\n'))
       {
@@ -1483,7 +1487,8 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
       if (ctx.peek() == '\\')
       {
          size_t ch = ctx.peek(1);
-         if ((ch == '\n') || (ch == '\r'))
+         if ((ch == '\n') ||
+             (ch == '\r') )
          {
             break;
          }
@@ -1551,9 +1556,9 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
    /* Reset the chunk & scan to until a newline */
    pc.str.clear();
-   while (ctx.more() &&
+   while ( ctx.more()          &&
           (ctx.peek() != '\r') &&
-          (ctx.peek() != '\n'))
+          (ctx.peek() != '\n') )
    {
       pc.str.append(ctx.get());
    }
@@ -1585,21 +1590,15 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* If it is turned off, we put everything except newlines into CT_UNKNOWN */
    if (cpd.unc_off)
    {
-      if (parse_ignored(ctx, pc))
-      {
-         return(true);
-      }
+      if (parse_ignored(ctx, pc)) { return(true); }
    }
 
    /* Parse whitespace */
-   if (parse_whitespace(ctx, pc))
-   {
-      return(true);
-   }
+   if (parse_whitespace(ctx, pc)){ return(true); }
 
    /* Handle unknown/unhandled preprocessors */
-   if ((cpd.is_preproc > CT_PP_BODYCHUNK) &&
-       (cpd.is_preproc <= CT_PP_OTHER))
+   if ((cpd.is_preproc >  CT_PP_BODYCHUNK) &&
+       (cpd.is_preproc <= CT_PP_OTHER    ) )
    {
       pc.str.clear();
       tok_info ss;
@@ -1611,7 +1610,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       {
          size_t ch = ctx.peek();
 
-         if ((ch == '\n') || (ch == '\r'))
+         if ((ch == '\n') ||
+             (ch == '\r') )
          {
             /* Back off if this is an escaped newline */
             if (last == '\\')
@@ -1623,7 +1623,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
          }
 
          /* Quit on a C++ comment start */
-         if ((ch == '/') && (ctx.peek(1) == '/'))
+         if ((ch          == '/') &&
+             (ctx.peek(1) == '/') )
          {
             break;
          }
@@ -1664,7 +1665,9 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for C# Interpolated strings */
-   if ((cpd.lang_flags & LANG_CS) && (ctx.peek() == '$') && (ctx.peek(1) == '"'))
+   if ((cpd.lang_flags & LANG_CS) &&
+       (ctx.peek( ) == '$'      ) &&
+       (ctx.peek(1) == '"'      ) )
    {
       parse_cs_interpolated_string(ctx, pc);
       return(true);
@@ -1672,9 +1675,9 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
    /* handle VALA """ strings """ */
    if ((cpd.lang_flags & LANG_VALA) &&
-       (ctx.peek( ) == '"') &&
-       (ctx.peek(1) == '"') &&
-       (ctx.peek(2) == '"'))
+       (ctx.peek( ) == '"'        ) &&
+       (ctx.peek(1) == '"'        ) &&
+       (ctx.peek(2) == '"'        ) )
    {
       parse_verbatim_string(ctx, pc);
       return(true);
@@ -1683,12 +1686,15 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* handle C++0x strings u8"x" u"x" U"x" R"x" u8R"XXX(I'm a "raw UTF-8" string.)XXX" */
    size_t ch = ctx.peek();
    if ((cpd.lang_flags & LANG_CPP) &&
-       ((ch == 'u') || (ch == 'U') || (ch == 'R')))
+       ((ch == 'u') ||
+        (ch == 'U') ||
+        (ch == 'R') ) )
    {
       size_t idx     = 0;
       bool   is_real = false;
 
-      if ((ch == 'u') && (ctx.peek(1) == '8'))
+      if ((ch          == 'u') &&
+          (ctx.peek(1) == '8') )
       {
          idx = 2;
       }
@@ -1725,15 +1731,16 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* PAWN specific stuff */
    if (cpd.lang_flags & LANG_PAWN)
    {
-      if ((cpd.preproc_ncnl_count == 1) &&
+      if (( cpd.preproc_ncnl_count == 1   )   &&
           ((cpd.is_preproc == CT_PP_DEFINE) ||
-           (cpd.is_preproc == CT_PP_EMIT)))
+           (cpd.is_preproc == CT_PP_EMIT  ) ) )
       {
          parse_pawn_pattern(ctx, pc, CT_MACRO);
          return(true);
       }
       /* Check for PAWN strings: \"hi" or !"hi" or !\"hi" or \!"hi" */
-      if ((ctx.peek() == '\\') || (ctx.peek() == '!'))
+      if ((ctx.peek() == '\\') ||
+          (ctx.peek() == '!' ) )
       {
          if (ctx.peek(1) == '"')
          {
@@ -1741,7 +1748,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
             return(true);
          }
          else if (((ctx.peek(1) == '\\') || (ctx.peek(1) == '!')) &&
-                  (ctx.peek(2) == '"'))
+                   (ctx.peek(2) == '"'))
          {
             parse_string(ctx, pc, 2, false);
             return(true);

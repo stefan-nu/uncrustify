@@ -43,11 +43,11 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
 
    if (next)
    {
-      if ((pc->type == CT_ANGLE_CLOSE) &&
-          (next->type == CT_ANGLE_CLOSE) &&
-          (pc->parent_type == CT_NONE) &&
-          ((pc->orig_col_end + 1) == next->orig_col) &&
-          (next->parent_type == CT_NONE))
+      if ((pc->type               == CT_ANGLE_CLOSE) &&
+          (next->type             == CT_ANGLE_CLOSE) &&
+          (pc->parent_type        == CT_NONE       ) &&
+          (next->parent_type      == CT_NONE       ) &&
+          ((pc->orig_col_end + 1) == next->orig_col) )
       {
          pc->str.append('>');
          set_chunk_type(pc, CT_ARITH);
@@ -130,14 +130,11 @@ void tokenize_cleanup(void)
    /* We can handle everything else in the second pass */
    pc   = chunk_get_head();
    next = chunk_get_next_ncnl(pc);
-   while ((pc != NULL) && (next != NULL))
+   while ((pc   != NULL) &&
+          (next != NULL) )
    {
-      if ((pc->type == CT_DOT) && (cpd.lang_flags & LANG_ALLC))
-      {
-         set_chunk_type(pc, CT_MEMBER);
-      }
-
-      if ((pc->type == CT_NULLCOND) && (cpd.lang_flags & LANG_CS))
+      if (((pc->type == CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
+          ((pc->type == CT_NULLCOND) && (cpd.lang_flags & LANG_CS  )) )
       {
          set_chunk_type(pc, CT_MEMBER);
       }
@@ -177,17 +174,14 @@ void tokenize_cleanup(void)
        * Change CT_WORD before CT_WORD to CT_TYPE */
       if (next->type == CT_WORD)
       {
-         if ((pc->type == CT_ENUM) ||
+         if ((pc->type == CT_ENUM      ) ||
              (pc->type == CT_ENUM_CLASS) ||
-             (pc->type == CT_UNION) ||
-             (pc->type == CT_STRUCT))
+             (pc->type == CT_UNION     ) ||
+             (pc->type == CT_STRUCT    ) )
          {
             set_chunk_type(next, CT_TYPE);
          }
-         if (pc->type == CT_WORD)
-         {
-            set_chunk_type(pc, CT_TYPE);
-         }
+         if (pc->type == CT_WORD) { set_chunk_type(pc, CT_TYPE); }
       }
 
       /* change extern to qualifier if extern isn't followed by a string or
@@ -215,23 +209,24 @@ void tokenize_cleanup(void)
 
       /* Change CT_STAR to CT_PTR_TYPE if preceded by CT_TYPE,
        * CT_QUALIFIER, or CT_PTR_TYPE. */
-      if ((next->type == CT_STAR) &&
-          ((pc->type == CT_TYPE) ||
-           (pc->type == CT_QUALIFIER) ||
-           (pc->type == CT_PTR_TYPE)))
+      if ((next->type == CT_STAR     )   &&
+          ((pc->type  == CT_TYPE     ) ||
+           (pc->type  == CT_QUALIFIER) ||
+           (pc->type  == CT_PTR_TYPE ) ) )
       {
          set_chunk_type(next, CT_PTR_TYPE);
       }
 
-      if ((pc->type == CT_TYPE_CAST) &&
-          (next->type == CT_ANGLE_OPEN))
+      if ((pc->type   == CT_TYPE_CAST ) &&
+          (next->type == CT_ANGLE_OPEN) )
       {
          set_chunk_parent(next, CT_TYPE_CAST);
          in_type_cast = true;
       }
 
       /* Change angle open/close to CT_COMPARE, if not a template thingy */
-      if ((pc->type == CT_ANGLE_OPEN) && (pc->parent_type != CT_TYPE_CAST))
+      if ((pc->type        == CT_ANGLE_OPEN) &&
+          (pc->parent_type != CT_TYPE_CAST ) )
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
@@ -246,7 +241,8 @@ void tokenize_cleanup(void)
             set_chunk_type(pc, CT_COMPARE);
          }
       }
-      if ((pc->type == CT_ANGLE_CLOSE) && (pc->parent_type != CT_TEMPLATE))
+      if ((pc->type        == CT_ANGLE_CLOSE) &&
+          (pc->parent_type != CT_TEMPLATE   ) )
       {
          if (in_type_cast)
          {
@@ -264,9 +260,11 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_D)
       {
          /* Check for the D string concat symbol '~' */
-         if ( (pc->type == CT_INV) &&
-              (prev != NULL) &&
-              ((prev->type == CT_STRING) || (prev->type == CT_WORD) || (next->type == CT_STRING)))
+         if ( (pc->type    == CT_INV   )   &&
+              (prev        != NULL     )   &&
+              ((prev->type == CT_STRING) ||
+               (prev->type == CT_WORD  ) ||
+               (next->type == CT_STRING) ) )
          {
             set_chunk_type(pc, CT_CONCAT);
          }
@@ -307,7 +305,8 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_CPP)
       {
          /* Change Word before '::' into a type */
-         if ((pc->type == CT_WORD) && (next->type == CT_DC_MEMBER))
+         if ((pc->type   == CT_WORD     ) &&
+             (next->type == CT_DC_MEMBER) )
          {
             set_chunk_type(pc, CT_TYPE);
          }
@@ -318,10 +317,10 @@ void tokenize_cleanup(void)
       {
          assert(prev != NULL);
 
-         if ((next->type == CT_SEMICOLON) &&
+         if ( (next->type == CT_SEMICOLON  )   &&
              ((prev->type == CT_BRACE_CLOSE) ||
-              (prev->type == CT_BRACE_OPEN) ||
-              (prev->type == CT_SEMICOLON)))
+              (prev->type == CT_BRACE_OPEN ) ||
+              (prev->type == CT_SEMICOLON  ) ) )
          {
             set_chunk_type(pc, CT_GETSET_EMPTY);
             set_chunk_parent(next, CT_GETSET);
@@ -551,9 +550,9 @@ void tokenize_cleanup(void)
       }
 
       /* Another hack to clean up more keyword abuse */
-      if ((pc->type == CT_CLASS) &&
+      if ((pc->type == CT_CLASS       )   &&
           (chunk_is_token(prev, CT_DOT) ||
-           chunk_is_token(next, CT_DOT)))
+           chunk_is_token(next, CT_DOT) ) )
       {
          set_chunk_type(pc, CT_WORD);
       }
@@ -586,7 +585,8 @@ void tokenize_cleanup(void)
       if (pc->type == CT_OC_INTF)
       {
          chunk_t *tmp = chunk_get_next_ncnl(pc, CNAV_PREPROC);
-         while ((tmp != NULL) && (tmp->type != CT_OC_END))
+         while ((tmp       != NULL     ) &&
+                (tmp->type != CT_OC_END) )
          {
             if (get_token_pattern_class(tmp->type) != PATCLS_NONE)
             {
@@ -735,7 +735,7 @@ void tokenize_cleanup(void)
             if (tmp->type == CT_WORD)
             {
                const chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
-               if ( (tmp2       != NULL         ) &&
+               if ( (tmp2       != NULL         )   &&
                    ((tmp2->type == CT_SEMICOLON ) ||
                     (tmp2->type == CT_ASSIGN    ) ||
                     (tmp2->type == CT_COMMA     ) ||
@@ -773,7 +773,8 @@ void tokenize_cleanup(void)
       }
 
       if (((pc->type  == CT_USING) ||
-           ((pc->type == CT_TRY  ) && (cpd.lang_flags & LANG_JAVA))) &&
+           ((pc->type == CT_TRY  ) &&
+            (cpd.lang_flags & LANG_JAVA))) &&
             (next     != NULL    ) &&
           (next->type == CT_PAREN_OPEN) )
       {
