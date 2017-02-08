@@ -40,9 +40,9 @@ typedef bool (*check_t)(chunk_t *pc);
  *
  * @note this typedef defines the function type "search_t"
  * for a function pointer of type
- * chunk_t *function(chunk_t *cur, nav_t scope)
+ * chunk_t *function(chunk_t *cur, scope_t scope)
  ******************************************************************************/
-typedef chunk_t * (*search_t)(chunk_t *cur, scope_e scope);
+typedef chunk_t * (*search_t)(chunk_t *cur, const scope_e scope);
 
 
 typedef ListManager<chunk_t> ChunkList_t;
@@ -321,7 +321,7 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
  * into a common function However this should be done with the preprocessor
  * to avoid addition check conditions that would be evaluated in the
  * while loop of the calling function */
-chunk_t *chunk_get_next(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 {
    if (cur == NULL) { return(cur); }
 
@@ -348,7 +348,7 @@ chunk_t *chunk_get_next(chunk_t *cur, scope_e scope)
 }
 
 
-chunk_t *chunk_get_prev(chunk_t *cur, scope_e scope)
+chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
 {
    if (cur == NULL) { return(cur); }
 
