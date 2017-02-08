@@ -503,7 +503,7 @@ void clear_keyword_file(void)
 }
 
 
-pattern_class get_token_pattern_class(c_token_t tok)
+pattern_class_e get_token_pattern_class(c_token_t tok)
 {
    switch (tok)
    {
@@ -517,8 +517,8 @@ pattern_class get_token_pattern_class(c_token_t tok)
       case CT_LOCK:         /* fallthrough */
       case CT_D_WITH:       /* fallthrough */
       case CT_D_VERSION_IF: /* fallthrough */
-      case CT_D_SCOPE_IF:   return(PATCLS_PBRACED );
-      case CT_ELSE:         return(PATCLS_ELSE    );
+      case CT_D_SCOPE_IF:   return(pattern_class_e::PBRACED );
+      case CT_ELSE:         return(pattern_class_e::ELSE    );
       case CT_DO:           /* fallthrough */
       case CT_TRY:          /* fallthrough */
       case CT_FINALLY:      /* fallthrough */
@@ -526,13 +526,13 @@ pattern_class get_token_pattern_class(c_token_t tok)
       case CT_UNITTEST:     /* fallthrough */
       case CT_UNSAFE:       /* fallthrough */
       case CT_VOLATILE:     /* fallthrough */
-      case CT_GETSET:       return(PATCLS_BRACED  );
+      case CT_GETSET:       return(pattern_class_e::BRACED  );
       case CT_CATCH:        /* fallthrough */
       case CT_D_VERSION:    /* fallthrough */
-      case CT_DEBUG:        return(PATCLS_OPBRACED);
-      case CT_NAMESPACE:    return(PATCLS_VBRACED );
-      case CT_WHILE_OF_DO:  return(PATCLS_PAREN   );
-      case CT_INVARIANT:    return(PATCLS_OPPAREN );
-      default:              return(PATCLS_NONE    );
+      case CT_DEBUG:        return(pattern_class_e::OPBRACED);
+      case CT_NAMESPACE:    return(pattern_class_e::VBRACED );
+      case CT_WHILE_OF_DO:  return(pattern_class_e::PAREN   );
+      case CT_INVARIANT:    return(pattern_class_e::OPPAREN );
+      default:              return(pattern_class_e::NONE    );
    }
 }

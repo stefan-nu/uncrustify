@@ -34,7 +34,7 @@ void write_string(
 bool decode_unicode(
    const vector<UINT8> &in_data,
    deque<int> &out_data,
-   CharEncoding_t &enc,
+   char_encoding_e &enc,
    bool &has_bom
 );
 

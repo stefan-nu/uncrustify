@@ -62,7 +62,7 @@ void clear_keyword_file(void);
 /**
  * Returns the pattern that the keyword needs based on the token
  */
-pattern_class get_token_pattern_class(
+pattern_class_e get_token_pattern_class(
    c_token_t tok
 );
 

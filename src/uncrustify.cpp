@@ -979,6 +979,10 @@ static bool read_stdin(file_mem_t &fm)
    deque<UINT8> dq;
    UINT8        buf[4096];
 
+   fm.raw.clear();
+   fm.data.clear();
+   fm.enc = char_encoding_e::ASCII;
+
    while (!feof(stdin))
    {
       const size_t len = fread(buf, 1, sizeof(buf), stdin);
@@ -990,7 +994,7 @@ static bool read_stdin(file_mem_t &fm)
 
    fm.raw.clear();
    fm.data.clear();
-   fm.enc = ENC_ASCII;
+   fm.enc = char_encoding_e::ASCII;
 
    /* Copy the raw data from the deque to the vector */
    fm.raw.insert(fm.raw.end(), dq.begin(), dq.end());
@@ -1006,7 +1010,8 @@ static void make_folders(const string &filename)
    size_t last_idx = 0;
    for (size_t idx = 0; outname[idx] != 0; idx++)
    {
-      if ((outname[idx] == '/') || (outname[idx] == '\\'))
+      if ((outname[idx] == '/' ) ||
+          (outname[idx] == '\\') )
       {
          outname[idx] = PATH_SEP;
       }
@@ -1049,7 +1054,7 @@ static int load_mem_file(const char * const filename, file_mem_t &fm)
 
    fm.raw.clear();
    fm.data.clear();
-   fm.enc = ENC_ASCII;
+   fm.enc = char_encoding_e::ASCII;
 
    /* Grab the stat info for the file */
    if (stat(filename, &my_stat) < 0)
@@ -1075,7 +1080,7 @@ static int load_mem_file(const char * const filename, file_mem_t &fm)
       /* Empty file */
       retval = 0;
       fm.bom = false;
-      fm.enc = ENC_ASCII;
+      fm.enc = char_encoding_e::ASCII;
       fm.data.clear();
    }
    else
@@ -1095,11 +1100,11 @@ static int load_mem_file(const char * const filename, file_mem_t &fm)
       else
       {
          LOG_FMT(LNOTE, "%s: '%s' encoding looks like %s (%d)\n", __func__, filename,
-                 fm.enc == ENC_ASCII    ? "ASCII"     :  /* \todo better use a switch here */
-                 fm.enc == ENC_BYTE     ? "BYTES"     :
-                 fm.enc == ENC_UTF8     ? "UTF-8"     :
-                 fm.enc == ENC_UTF16_LE ? "UTF-16-LE" :
-                 fm.enc == ENC_UTF16_BE ? "UTF-16-BE" : "Error",
+                 fm.enc == char_encoding_e::ASCII ? "ASCII" :  /* \todo better use a switch here */
+                 fm.enc == char_encoding_e::BYTE ? "BYTES" :
+                 fm.enc == char_encoding_e::UTF8 ? "UTF-8" :
+                 fm.enc == char_encoding_e::UTF16_LE ? "UTF-16-LE" :
+                 fm.enc == char_encoding_e::UTF16_BE ? "UTF-16-BE" : "Error",
                  fm.enc);
          retval = 0;
       }
@@ -1547,7 +1552,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          /* If we hit an angle close, back up to the angle open */
          if (ref->type == CT_ANGLE_CLOSE)
          {
-            ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, CNAV_PREPROC);
+            ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
          }
 
@@ -1626,7 +1631,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (ref->type == CT_PAREN_CLOSE)
          {
-            ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, CNAV_PREPROC);
+            ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
          }
 
@@ -1683,7 +1688,7 @@ static void uncrustify_start(const deque<int> &data)
    /* Parse the text into chunks */
    tokenize(data, NULL);
 
-   cpd.unc_stage = US_HEADER;
+   cpd.unc_stage = unc_stage_e::HEADER;
 
    /* Get the column for the fragment indent */
    if (cpd.frag)
@@ -1732,19 +1737,19 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    cpd.bom = fm.bom;
    cpd.enc = fm.enc;
    if (cpd.settings[UO_utf8_force].b ||
-       ((cpd.enc == ENC_BYTE) && cpd.settings[UO_utf8_byte].b))
+       ((cpd.enc == char_encoding_e::BYTE) && cpd.settings[UO_utf8_byte].b))
    {
-      cpd.enc = ENC_UTF8;
+      cpd.enc = char_encoding_e::UTF8;
    }
    argval_t av;
    switch (cpd.enc)
    {
-   case ENC_UTF8:
+   case char_encoding_e::UTF8:
       av = cpd.settings[UO_utf8_bom].a;
       break;
 
-   case ENC_UTF16_LE:
-   case ENC_UTF16_BE:
+   case char_encoding_e::UTF16_LE:
+   case char_encoding_e::UTF16_BE:
       av = AV_FORCE;
       break;
 
@@ -1777,7 +1782,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
    uncrustify_start(data);
 
-   cpd.unc_stage = US_OTHER;
+   cpd.unc_stage = unc_stage_e::OTHER;
 
    /* Done with detection. Do the rest only if the file will go somewhere.
     * The detection code needs as few changes as possible. */
@@ -2017,7 +2022,7 @@ static void uncrustify_end()
    /* Free all the memory */
    chunk_t *pc;
 
-   cpd.unc_stage = US_CLEANUP;
+   cpd.unc_stage = unc_stage_e::CLEANUP;
 
    while ((pc = chunk_get_head()) != NULL)
    {

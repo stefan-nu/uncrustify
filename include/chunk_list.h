@@ -19,22 +19,22 @@
  * and more intuitive like chunk.is_comment() */
 
 
-#define ANY_LEVEL    -1 /* level refers to the braces nesting level */
+#define ANY_LEVEL    -1
 
 
 /**
- * Specifies how to handle preprocessors.
- * CNAV_ALL (default)
+ * Specifies which chunks should/should not be found.
+ * ALL (default)
  *  - return the true next/prev
  *
- * CNAV_PREPROC
+ * PREPROC
  *  - If not in a preprocessor, skip over any encountered preprocessor stuff
  *  - If in a preprocessor, fail to leave (return NULL)
  */
-enum nav_t
+enum class scope_e : unsigned int
 {
-   CNAV_ALL,      /**< search in all kind of chunks */
-   CNAV_PREPROC,  /**< search only in preprocessor chunks */
+   ALL,      /**< search in all kind of chunks */
+   PREPROC,  /**< search only in preprocessor chunks */
 };
 
 
@@ -47,7 +47,7 @@ chunk_t *chunk_dup(
 
 
 /**
- * \brief Add a chunk to a chunk list after the given position
+ * \brief Add a copy of a chunk to a chunk list after the given position
  *
  * \note If ref is NULL, add at the tail of the chunk list
  *
@@ -60,7 +60,7 @@ chunk_t *chunk_add_after(
 
 
 /**
- * \brief Add a chunk to a chunk list before the given position
+ * \brief Add a copy of a chunk to a chunk list before the given position
  *
  * \note If ref is NULL, add at the head of the chunk list
  * \bug currently chunks are added to the tail fix this
@@ -114,7 +114,7 @@ chunk_t *chunk_get_tail(void);
  */
 chunk_t *chunk_get_next(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -125,12 +125,15 @@ chunk_t *chunk_get_next(
  */
 chunk_t *chunk_get_prev(
    chunk_t    *cur,	   /**< [in] chunk to use as start point */
-   nav_t nav = CNAV_ALL /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
 /**
+ * Swaps two chunks
  * tbd
+ * @param pc1  The first chunk
+ * @param pc2  The second chunk
  */
 void chunk_swap(
    chunk_t *pc1,
@@ -185,7 +188,7 @@ chunk_t *get_prev_oc_class(
  */
 chunk_t *get_prev_fparen_open(
    chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -193,8 +196,8 @@ chunk_t *get_prev_fparen_open(
  * Gets the previous chunk that is not a preprocessor
  */
 chunk_t *get_prev_non_pp(
-      chunk_t     *pc,            /**< [in] chunk to start with */
-      const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   chunk_t     *pc,            /**< [in] chunk to start with */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -203,7 +206,7 @@ chunk_t *get_prev_non_pp(
  */
 chunk_t *get_next_function(
    chunk_t     *pc,            /**< [in] chunk to start with */
-   const nav_t nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -212,7 +215,7 @@ chunk_t *get_next_function(
  */
 chunk_t *chunk_get_next_nl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -221,7 +224,7 @@ chunk_t *chunk_get_next_nl(
  */
 chunk_t *chunk_get_next_nc(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -230,7 +233,7 @@ chunk_t *chunk_get_next_nc(
  */
 chunk_t *chunk_get_next_nnl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -239,7 +242,7 @@ chunk_t *chunk_get_next_nnl(
  */
 chunk_t *chunk_get_next_ncnl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -252,13 +255,13 @@ chunk_t *chunk_get_next_ncnl(
  */
 chunk_t *chunk_get_next_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
 chunk_t *chunk_get_next_nisq(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -267,7 +270,7 @@ chunk_t *chunk_get_next_nisq(
  */
 chunk_t *chunk_get_next_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -276,7 +279,7 @@ chunk_t *chunk_get_next_nblank(
  */
 chunk_t *chunk_get_prev_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -285,7 +288,7 @@ chunk_t *chunk_get_prev_nblank(
  */
 chunk_t *chunk_get_prev_nl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -295,7 +298,7 @@ chunk_t *chunk_get_prev_nl(
 
 chunk_t *chunk_get_prev_nc(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -304,7 +307,7 @@ chunk_t *chunk_get_prev_nc(
  */
 chunk_t *chunk_get_prev_nnl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -313,7 +316,7 @@ chunk_t *chunk_get_prev_nnl(
  */
 chunk_t *chunk_get_prev_ncnl(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -322,7 +325,7 @@ chunk_t *chunk_get_prev_ncnl(
  */
 chunk_t *chunk_get_prev_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
-   nav_t   nav = CNAV_ALL  /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -335,7 +338,7 @@ chunk_t *chunk_get_next_type(
    chunk_t *cur,        /**< [in] Starting chunk */
    c_token_t type,      /**< [in] The type to look for */
    int level,           /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   nav_t nav = CNAV_ALL /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -348,7 +351,7 @@ chunk_t *chunk_get_prev_type(
    chunk_t   *cur,          /**< [in] Starting chunk */
    c_token_t type,          /**< [in] The type to look for */
    int       level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   nav_t     nav = CNAV_ALL /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -366,7 +369,7 @@ chunk_t *chunk_get_next_str(
    const char *str,          /**< [in] string to search for */
    size_t     len,           /**< [in] length of string */
    int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   nav_t      nav = CNAV_ALL /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -384,7 +387,7 @@ chunk_t *chunk_get_prev_str(
    const char *str,          /**< [in] string to search for */
    size_t     len,           /**< [in] length of string */
    int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   nav_t      nav = CNAV_ALL /**< [in] code region to search in */
+   scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -393,7 +396,7 @@ chunk_t *chunk_get_prev_str(
  */
 chunk_t *chunk_get_next_nvb(
    chunk_t     *cur,          /**< [in] chunk to start search */
-   const nav_t nav = CNAV_ALL /**< [in] chunk section to consider */
+   const scope_e scope = scope_e::ALL /**< [in] chunk section to consider */
 );
 
 
@@ -406,7 +409,7 @@ chunk_t *chunk_get_next_nvb(
  */
 chunk_t *chunk_get_prev_nvb(
    chunk_t     *cur,          /**< [in] chunk to start search */
-   const nav_t nav = CNAV_ALL /**< [in] chunk section to consider */
+   const scope_e scope = scope_e::ALL /**< [in] chunk section to consider */
 );
 
 
@@ -470,7 +473,7 @@ void chunk_flags_update(
  */
 chunk_t *chunk_skip_to_match(
    chunk_t *cur,
-   nav_t nav = CNAV_ALL
+   scope_e scope = scope_e::ALL
 );
 
 
@@ -485,7 +488,7 @@ bool chunk_is_newline_between(
 
 chunk_t *chunk_skip_to_match_rev(
    chunk_t *cur,
-   nav_t   nav = CNAV_ALL
+   scope_e scope = scope_e::ALL
 );
 
 

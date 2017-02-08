@@ -47,30 +47,29 @@ using namespace std;
 /**
  * Brace stage enum used in brace_cleanup
  */
-enum brstage_t
+enum class brace_stage_e : unsigned int
 {
-   BS_NONE,
-   BS_PAREN1,     /* if/for/switch/while/synchronized */
-   BS_OP_PAREN1,  /* optional paren: catch () { */
-   BS_WOD_PAREN,  /* while of do parens */
-   BS_WOD_SEMI,   /* semicolon after while of do */
-   BS_BRACE_DO,   /* do */
-   BS_BRACE2,     /* if/else/for/switch/while */
-   BS_ELSE,       /* expecting 'else' after 'if' */
-   BS_ELSEIF,     /* expecting 'if' after 'else' */
-   BS_WHILE,      /* expecting 'while' after 'do' */
-   BS_CATCH,      /* expecting 'catch' or 'finally' after 'try' */
-   BS_CATCH_WHEN, /* optional 'when' after 'catch' */
+   NONE,
+   PAREN1,     /* if/for/switch/while/synchronized */
+   OP_PAREN1,  /* optional paren: catch () { */
+   WOD_PAREN,  /* while of do parens */
+   WOD_SEMI,   /* semicolon after while of do */
+   BRACE_DO,   /* do */
+   BRACE2,     /* if/else/for/switch/while */
+   ELSE,       /* expecting 'else' after 'if' */
+   ELSEIF,     /* expecting 'if' after 'else' */
+   WHILE,      /* expecting 'while' after 'do' */
+   CATCH,      /* expecting 'catch' or 'finally' after 'try' */
+   CATCH_WHEN, /* optional 'when' after 'catch' */
 };
 
-
-enum CharEncoding_t
+enum class char_encoding_e : unsigned int
 {
-   ENC_ASCII,     /* 0-127 */
-   ENC_BYTE,      /* 0-255, not UTF-8 */
-   ENC_UTF8,
-   ENC_UTF16_LE,
-   ENC_UTF16_BE,
+   ASCII,     /* 0-127 */
+   BYTE,      /* 0-255, not UTF-8 */
+   UTF8,
+   UTF16_LE,
+   UTF16_BE,
 };
 
 
@@ -93,22 +92,22 @@ struct indent_ptr_t
  */
 struct paren_stack_entry_t
 {
-   c_token_t    type;         /**< the type that opened the entry */
-   size_t       level;        /**< Level of opening type */
-   size_t       open_line;    /**< line that open symbol is on */
-   chunk_t      *pc;          /**< Chunk that opened the level */
-   size_t       brace_indent; /**< indent for braces - may not relate to indent */
-   size_t       indent;       /**< indent level (depends on use) */
-   size_t       indent_tmp;   /**< temporary indent level (depends on use) */
-   size_t       indent_tab;   /**< the 'tab' indent (always <= real column) */
-   bool         indent_cont;  /**< indent_continue was applied */
-   int          ref;
-   c_token_t    parent;       /**< if, for, function, etc */
-   brstage_t    stage;
-   bool         in_preproc;   /**< whether this was created in a preprocessor */
-   size_t       ns_cnt;
-   bool         non_vardef;   /**< Hit a non-vardef line */
-   indent_ptr_t ip;
+   c_token_t     type;         /**< the type that opened the entry */
+   size_t        level;        /**< Level of opening type */
+   size_t        open_line;    /**< line that open symbol is on */
+   chunk_t       *pc;          /**< Chunk that opened the level */
+   int           brace_indent; /**< indent for braces - may not relate to indent */
+   size_t        indent;       /**< indent level (depends on use) */
+   size_t        indent_tmp;   /**< temporary indent level (depends on use) */
+   size_t        indent_tab;   /**< the 'tab' indent (always <= real column) */
+   bool          indent_cont;  /**< indent_continue was applied */
+   int           ref;
+   c_token_t     parent;       /**< if, for, function, etc */
+   brace_stage_e stage;
+   bool          in_preproc;   /**< whether this was created in a preprocessor */
+   size_t        ns_cnt;
+   bool          non_vardef;   /**< Hit a non-vardef line */
+   indent_ptr_t  ip;
 };
 
 
@@ -302,24 +301,24 @@ enum
 /**
  * Pattern classes for special keywords
  */
-enum pattern_class
+enum class pattern_class_e : unsigned int
 {
-   PATCLS_NONE,
-   PATCLS_BRACED,   // keyword + braced statement:
-                    //    do, try, finally, body, unit test, unsafe, volatile
-                    //    add, get, remove, set
-   PATCLS_PBRACED,  // keyword + parens + braced statement:
-                    //    if, elseif, switch, for, while, synchronized,
-                    //    using, lock, with, version, CT_D_SCOPE_IF
-   PATCLS_OPBRACED, // keyword + optional parens + braced statement:
-                    //    catch, version, debug
-   PATCLS_VBRACED,  // keyword + value + braced statement:
-                    //    namespace
-   PATCLS_PAREN,    // keyword + parens:
-                    //    while-of-do
-   PATCLS_OPPAREN,  // keyword + optional parens: invariant (D language)
-   PATCLS_ELSE,     // Special case of PATCLS_BRACED for handling CT_IF
-                    //    else
+   NONE,
+   BRACED,   // keyword + braced statement:
+             //    do, try, finally, body, unittest, unsafe, volatile
+             //    add, get, remove, set
+   PBRACED,  // keyword + parens + braced statement:
+             //    if, elseif, switch, for, while, synchronized,
+             //    using, lock, with, version, CT_D_SCOPE_IF
+   OPBRACED, // keyword + optional parens + braced statement:
+             //    catch, version, debug
+   VBRACED,  // keyword + value + braced statement:
+             //    namespace
+   PAREN,    // keyword + parens:
+             //    while-of-do
+   OPPAREN,  // keyword + optional parens: invariant (D lang)
+   ELSE,     // Special case of pattern_class_e::BRACED for handling CT_IF
+             //    else
 };
 
 
@@ -350,44 +349,43 @@ struct align_t
 
 struct file_mem_t
 {
-   vector<UINT8>  raw;
-   deque<int>     data;
-   bool           bom;
-   CharEncoding_t enc;
+   vector<UINT8>   raw;
+   deque<int>      data;
+   bool            bom;
+   char_encoding_e enc;
 #ifdef HAVE_UTIME_H
-   struct utimbuf utb;
+   struct utimbuf  utb;
 #endif
 };
 
-
-enum unc_stage
+enum class unc_stage_e : unsigned int
 {
-   US_TOKENIZE,
-   US_HEADER,
-   US_TOKENIZE_CLEANUP,
-   US_BRACE_CLEANUP,
-   US_FIX_SYMBOLS,
-   US_MARK_COMMENTS,
-   US_COMBINE_LABELS,
-   US_OTHER,
+   TOKENIZE,
+   HEADER,
+   TOKENIZE_CLEANUP,
+   BRACE_CLEANUP,
+   FIX_SYMBOLS,
+   MARK_COMMENTS,
+   COMBINE_LABELS,
+   OTHER,
 
-   US_CLEANUP
+   CLEANUP
 };
 
 #define MAX_OPTION_NAME_LEN    32 /* sets a limit to the name padding */
 
 struct cp_data_t
 {
-   deque<UINT8>   *bout;
-   FILE           *fout;
-   int            last_char;
-   bool           do_check;
-   enum unc_stage unc_stage;
-   int            check_fail_cnt; // total failures
-   bool           if_changed;
+   deque<UINT8>    *bout;
+   FILE            *fout;
+   int             last_char;
+   bool            do_check;
+   unc_stage_e     unc_stage;
+   int             check_fail_cnt;    // total failures
+   bool            if_changed;
 
-   size_t         error_count;
-   const char     *filename;
+   UINT32          error_count;
+   const char      *filename;
 
    file_mem_t     file_hdr;       // for cmt_insert_file_header
    file_mem_t     file_ftr;       // for cmt_insert_file_footer
@@ -395,25 +393,25 @@ struct cp_data_t
    file_mem_t     oc_msg_hdr;     // for cmt_insert_oc_msg_header
    file_mem_t     class_hdr;      // for cmt_insert_class_header
 
-   size_t         lang_flags;     // LANG_xxx
-   bool           lang_forced;
+   size_t          lang_flags;    // LANG_xxx
+   bool            lang_forced;
 
-   bool           unc_off;
-   bool           unc_off_used;   // to check if "unc_off" is used
-   size_t         line_number;
-   size_t         column;         // column for parsing
-   size_t         spaces;         // space count on output
+   bool            unc_off;
+   bool            unc_off_used;    // to check if "unc_off" is used
+   UINT32          line_number;
+   UINT16          column;          // column for parsing
+   UINT16          spaces;          // space count on output
 
-   int            ifdef_over_whole_file;
+   int             ifdef_over_whole_file;
 
-   bool           frag;           /* activates code fragment option */
-   size_t         frag_cols;
+   bool            frag;           /* activates code fragment option */
+   UINT16          frag_cols;
 
    // stuff to auto-detect line endings
-   size_t         le_counts[LE_AUTO];
-   unc_text       newline;
+   UINT32          le_counts[LE_AUTO];
+   unc_text        newline;
 
-   bool           consumed;
+   bool            consumed;
 
    bool           did_newline;      /* flag indicates if a newline was added or converted */
    c_token_t      is_preproc;
@@ -421,28 +419,28 @@ struct cp_data_t
    bool           output_trailspace;
    bool           output_tab_as_space;
 
-   bool           bom;
-   CharEncoding_t enc;
+   bool            bom;
+   char_encoding_e enc;
 
    // bumped up when a line is split or indented
-   int            changes;
-   int            pass_count;
+   int             changes;
+   int             pass_count;
 
-   align_t        al[80];
-   size_t         al_cnt;
-   bool           al_c99_array;
+   align_t         al[80];
+   size_t          al_cnt;
+   bool            al_c99_array;
 
-   bool           warned_unable_string_replace_tab_chars;
+   bool            warned_unable_string_replace_tab_chars;
 
    // Here are all the settings
-   op_val_t       settings[UO_option_count];
+   op_val_t        settings[UO_option_count];
 
    parse_frame_t  frames[16];
    int            frame_count;
    size_t         pp_level;   /* \todo can this ever be -1 */
 
    // the default values for settings
-   op_val_t       defaults[UO_option_count];
+   op_val_t        defaults[UO_option_count];
 };
 
 

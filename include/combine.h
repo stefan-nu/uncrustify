@@ -93,7 +93,7 @@ void flag_series(
    chunk_t *end,
    UINT64 set_flags,
    UINT64 clr_flags = 0,
-   nav_t nav = CNAV_ALL
+   scope_e nav = scope_e::ALL
 );
 
 

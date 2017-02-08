@@ -909,7 +909,6 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          {
             add_char(' ');
          }
-
          /* hack to get escaped newlines to align and not dup the leading '//' */
          int tmp = next_up(text, idx + 1, cmt.cont_text);
          if (tmp < 0)
@@ -921,12 +920,13 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
             idx = (size_t)((int)idx + tmp);
          }
          ch_cnt = 0;
+
       }
       else if ((cmt.reflow == true              ) &&
                (text[idx]  == ' '               ) &&
-               (cpd.settings[UO_cmt_width].n > 0) &&
-               (((int)cpd.column > cpd.settings[UO_cmt_width].n) ||
-                ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))) )
+               (cpd.settings[UO_cmt_width].u > 0) &&
+               ((cpd.column > cpd.settings[UO_cmt_width].u) ||
+                ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))))
       {
          in_word = false;
          add_char('\n');
@@ -936,6 +936,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
          add_text(cmt.cont_text);
          fill_line(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
          ch_cnt = 0;
+
       }
       else
       {
