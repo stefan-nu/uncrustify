@@ -15,7 +15,7 @@
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1
-#define __DBL_DENORM_MIN__ double(4.94065645841246544177e-324L)
+#define __DBL_DENORM_MIN__ ((double)4.94065645841246544177e-324L)
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 1
 #define __GCC_ATOMIC_CHAR_LOCK_FREE 2
 #define __FLT_EVAL_METHOD__ 2
@@ -46,13 +46,11 @@
 #define __GCC_ATOMIC_POINTER_LOCK_FREE 2
 #define __SIZEOF_INT__ 4
 #define __SIZEOF_POINTER__ 4
-#define __GCC_ATOMIC_CHAR16_T_LOCK_FREE 2
 #define __USER_LABEL_PREFIX__ _
 #define __STDC_HOSTED__ 1
 #define __WIN32 1
 #define __LDBL_HAS_INFINITY__ 1
 #define __FLT_EPSILON__ 1.19209289550781250000e-7F
-#define __GXX_WEAK__ 1
 #define __LDBL_MIN__ 3.36210314311209350626e-4932L
 #define __DEC32_MAX__ 9.999999E96DF
 #define __MINGW32__ 1
@@ -63,34 +61,29 @@
 #define __LDBL_HAS_QUIET_NAN__ 1
 #define __GNUC__ 4
 #define _cdecl __attribute__((__cdecl__))
-#define __GXX_RTTI 1
 #define __FLT_HAS_DENORM__ 1
 #define __SIZEOF_LONG_DOUBLE__ 12
 #define __BIGGEST_ALIGNMENT__ 16
 #define __i686 1
-#define __DBL_MAX__ double(1.79769313486231570815e+308L)
+#define __DBL_MAX__ ((double)1.79769313486231570815e+308L)
 #define _thiscall __attribute__((__thiscall__))
 #define __INT_FAST32_MAX__ 2147483647
 #define __WINNT 1
 #define __DBL_HAS_INFINITY__ 1
-#define __INT64_MAX__ 9223372036854775807LL
 #define __WINNT__ 1
 #define __DEC32_MIN_EXP__ (-94)
 #define __INT_FAST16_TYPE__ short int
 #define _fastcall __attribute__((__fastcall__))
 #define __LDBL_HAS_DENORM__ 1
-#define __cplusplus 199711L
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 2147483647
 #define __DEC32_MIN__ 1E-95DF
-#define __DEPRECATED 1
 #define __DBL_MAX_EXP__ 1024
 #define __DEC128_EPSILON__ 1E-33DL
 #define __ATOMIC_HLE_RELEASE 131072
 #define __WIN32__ 1
 #define __PTRDIFF_MAX__ 2147483647
 #define __ATOMIC_HLE_ACQUIRE 65536
-#define __GNUG__ 4
 #define __LONG_LONG_MAX__ 9223372036854775807LL
 #define __SIZEOF_SIZE_T__ 4
 #define __SIZEOF_WINT_T__ 2
@@ -99,8 +92,7 @@
 #define __FLT_MIN_EXP__ (-125)
 #define __i686__ 1
 #define __INT_FAST64_TYPE__ long long int
-#define __DBL_MIN__ double(2.22507385850720138309e-308L)
-#define __FLT_MIN_10_EXP__ (-37)
+#define __DBL_MIN__ ((double)2.22507385850720138309e-308L)
 #define __DECIMAL_BID_FORMAT__ 1
 #define __GXX_TYPEINFO_EQUALITY_INLINE 0
 #define __DEC128_MIN__ 1E-6143DL
@@ -153,6 +145,7 @@
 #define __PRAGMA_REDEFINE_EXTNAME 1
 #define __INT_LEAST16_MAX__ 32767
 #define __DEC64_MANT_DIG__ 16
+#define __INT64_MAX__ 9223372036854775807LL
 #define __UINT_LEAST32_MAX__ 4294967295U
 #define __GCC_ATOMIC_LONG_LOCK_FREE 2
 #define __INT_LEAST64_TYPE__ long long int
@@ -163,7 +156,6 @@
 #define __INTPTR_MAX__ 2147483647
 #define __GXX_MERGED_TYPEINFO_NAMES 0
 #define __stdcall __attribute__((__stdcall__))
-#define __EXCEPTIONS 1
 #define __LDBL_MANT_DIG__ 64
 #define __DBL_HAS_QUIET_NAN__ 1
 #define __SIG_ATOMIC_MIN__ (-__SIG_ATOMIC_MAX__ - 1)
@@ -183,16 +175,16 @@
 #define __FLT_MAX_EXP__ 128
 #define __DBL_MANT_DIG__ 53
 #define __INT_LEAST64_MAX__ 9223372036854775807LL
+#define __GCC_ATOMIC_CHAR16_T_LOCK_FREE 2
 #define __DEC64_MIN__ 1E-383DD
 #define __WINT_TYPE__ short unsigned int
 #define __UINT_LEAST32_TYPE__ unsigned int
 #define __SIZEOF_SHORT__ 2
 #define __LDBL_MIN_EXP__ (-16381)
 #define __INT_LEAST8_MAX__ 127
-#define __WCHAR_UNSIGNED__ 1
 #define __LDBL_MAX_10_EXP__ 4932
 #define __ATOMIC_RELAXED 0
-#define __DBL_EPSILON__ double(2.22044604925031308085e-16L)
+#define __DBL_EPSILON__ ((double)2.22044604925031308085e-16L)
 #define __thiscall __attribute__((__thiscall__))
 #define __UINT8_C(c) c
 #define __INT_LEAST32_TYPE__ int
@@ -214,6 +206,7 @@
 #define __FLT_MAX__ 3.40282346638528859812e+38F
 #define __INT32_TYPE__ int
 #define __SIZEOF_DOUBLE__ 8
+#define __FLT_MIN_10_EXP__ (-37)
 #define __INTMAX_TYPE__ long long int
 #define i386 1
 #define _INTEGRAL_MAX_BITS 64

@@ -114,7 +114,7 @@ chunk_t *chunk_get_tail(void);
  */
 chunk_t *chunk_get_next(
    chunk_t *cur,           /**< [in] chunk to start with */
-   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -125,7 +125,7 @@ chunk_t *chunk_get_next(
  */
 chunk_t *chunk_get_prev(
    chunk_t    *cur,	   /**< [in] chunk to use as start point */
-   scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 

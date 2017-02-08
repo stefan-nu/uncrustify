@@ -18,7 +18,7 @@
 -e31					// redefinition of symbol
 +e32					// field size should not be zero
 +e36					// redefining the storage class of symbol
-+e40					// undeclared identifier
+-e40					// undeclared identifier
 +e46					// field type should be an integral or enumeration type
 +e48					// bad type
 +e49					// expected a typed
@@ -34,7 +34,7 @@
 +e114					// inconsistent
 +e119					// too many arguments 
 -e123					// macro defined with arguments
-+e129					// declaration expected
+-e129					// declaration expected
 +e200					// internal error
 -e309					// #error
 +e438					// last value assignd to variable not used

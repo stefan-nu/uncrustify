@@ -55,6 +55,7 @@ scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 -dDEFINE_CHAR_TABLE
 -dDEFINE_PCF_NAMES 
 -dDEBUG
+-A(C++2011)
 
 // define compiler specific keywords
 
