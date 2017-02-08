@@ -77,6 +77,18 @@ rem dir /s/b %SRC_DIR%\output.cpp		 	>> .\%OUT_DIR%\files.lnt
 rem to check all source files use the line below
 dir /s/b %SRC_DIR%\*.cpp 	>> .\%OUT_DIR%\files.lnt
 
+
+rem Update the pclint configuration to reflect the compiler settings
+rem ensure to run the following commands with the same compiler switches
+rem that are used in your project. Best it to add a rule to the Makefile
+rem to update the configuration automatically using the current compiler settings
+
+rem for C project
+gcc -E -dM empty.c > lint_cmac.h
+
+rem for C++ project
+g++ -E -dM empty.c > lint_cppmac.h
+
 rem use this to save the pclint errors to a file for later review
 rem lint-nt .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt > .\%OUT_DIR%\pclint-results.xml
 

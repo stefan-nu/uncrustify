@@ -1,6 +1,3 @@
-#ifndef LINT_CPPMAC_H
-#define LINT_CPPMAC_H
-
 #define __DBL_MIN_EXP__ (-1021)
 #define __pentiumpro__ 1
 #define __UINT_LEAST16_MAX__ 65535
@@ -247,5 +244,3 @@
 #define __ATOMIC_ACQ_REL 4
 #define __ATOMIC_RELEASE 3
 #define __declspec(x) __attribute__((x))
-
-#endif //LINT_CPPMAC_H
