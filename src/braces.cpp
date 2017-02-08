@@ -303,7 +303,6 @@ static bool can_remove_braces(chunk_t *bopen)
    // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
-   pc = chunk_get_next_nc(bopen, scope_e::ALL);
    const chunk_t *prev = NULL;
    size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
@@ -314,7 +313,7 @@ static bool can_remove_braces(chunk_t *bopen)
    size_t        if_count   = 0;
    int           br_count   = 0;
 
-   pc = chunk_get_next_nc(bopen);
+   pc = chunk_get_next_nc(bopen, scope_e::ALL);
    while ((pc != NULL) && (pc->level >= level))
    {
       if (pc->flags & PCF_IN_PREPROC)

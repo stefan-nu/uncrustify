@@ -1711,7 +1711,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
 
       if (strcasecmp(val, "AUTO") != 0)
       {
-         fprintf(stderr, "%s:%zu Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
+         fprintf(stderr, "%s:%u Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
          cpd.error_count++;
       }
@@ -1730,7 +1730,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       if (strcasecmp(val, "TRAIL_FORCE") == 0) { dest->tp = TP_TRAIL_FORCE; return; }
       if (strcasecmp(val, "IGNORE"     ) != 0)
       {
-         fprintf(stderr, "%s:%zu Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
+         fprintf(stderr, "%s:%u Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
                  "TRAIL, TRAIL_BREAK, TRAIL_FORCE for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
          cpd.error_count++;
@@ -1749,7 +1749,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          if ((entry->type == AT_UNUM) &&
              (*val == '-'))
          {
-            fprintf(stderr, "%s:%zu\n  for the option '%s' is a negative value not possible: %s",
+            fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
             exit(EX_CONFIG);
          }
@@ -1770,7 +1770,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          tmp = unc_find_option(val);
          if (tmp == NULL)
          {
-            fprintf(stderr, "%s:%zu\n  for the assigment: unknown option '%s':",
+            fprintf(stderr, "%s:%u\n  for the assigment: unknown option '%s':",
                     cpd.filename, cpd.line_number, val);
             exit(EX_CONFIG);
          }
@@ -1789,13 +1789,13 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          }
          else
          {
-            fprintf(stderr, "%s:%zu\n  for the assigment: expected type for %s is %s, got %s\n",
+            fprintf(stderr, "%s:%u\n  for the assigment: expected type for %s is %s, got %s\n",
                     cpd.filename, cpd.line_number,
                     entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
             exit(EX_CONFIG);
          }
       }
-      fprintf(stderr, "%s:%zu Expected a number for %s, got %s\n",
+      fprintf(stderr, "%s:%u Expected a number for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
       cpd.error_count++;
       dest->n = 0;
@@ -1833,7 +1833,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
          return;
       }
-      fprintf(stderr, "%s:%zu Expected 'True' or 'False' for %s, got %s\n",
+      fprintf(stderr, "%s:%u Expected 'True' or 'False' for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
       cpd.error_count++;
       dest->b = false;
@@ -1873,7 +1873,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       dest->a = cpd.settings[tmp->id].a;
       return;
    }
-   fprintf(stderr, "%s:%zu Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
+   fprintf(stderr, "%s:%u Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
            cpd.filename, cpd.line_number, entry->name, val);
    cpd.error_count++;
    dest->a = AV_IGNORE;
@@ -1945,7 +1945,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc > 0)
       {
-         fprintf(stderr, "%s:%zu Wrong number of arguments: %s...\n",
+         fprintf(stderr, "%s:%u Wrong number of arguments: %s...\n",
                  filename, cpd.line_number, configLine);
          cpd.error_count++;
       }
@@ -1968,7 +1968,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc < 3)
       {
-         fprintf(stderr, "%s:%zu 'set' requires at least three arguments\n",
+         fprintf(stderr, "%s:%u 'set' requires at least three arguments\n",
                  filename, cpd.line_number);
       }
       else
@@ -1986,7 +1986,7 @@ void process_option_line(char *configLine, const char *filename)
          }
          else
          {
-            fprintf(stderr, "%s:%zu unknown type '%s':", filename, cpd.line_number, args[1]);
+            fprintf(stderr, "%s:%u unknown type '%s':", filename, cpd.line_number, args[1]);
          }
       }
    }
@@ -2016,7 +2016,7 @@ void process_option_line(char *configLine, const char *filename)
    {
       if (argc < 3)
       {
-         fprintf(stderr, "%s:%zu 'file_ext' requires at least three arguments\n",
+         fprintf(stderr, "%s:%u 'file_ext' requires at least three arguments\n",
                  filename, cpd.line_number);
       }
       else
@@ -2031,7 +2031,7 @@ void process_option_line(char *configLine, const char *filename)
             }
             else
             {
-               fprintf(stderr, "%s:%zu file_ext has unknown language '%s'\n",
+               fprintf(stderr, "%s:%u file_ext has unknown language '%s'\n",
                        filename, cpd.line_number, args[1]);
             }
          }
@@ -2043,7 +2043,7 @@ void process_option_line(char *configLine, const char *filename)
       const int id = set_option_value(args[0], args[1]);
       if (id < 0)
       {
-         fprintf(stderr, "%s:%zu Unknown symbol '%s'\n",
+         fprintf(stderr, "%s:%u Unknown symbol '%s'\n",
                  filename, cpd.line_number, args[0]);
          cpd.error_count++;
       }
