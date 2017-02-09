@@ -134,8 +134,8 @@ void uncrustify_file(
  * Does a source file.
  *
  * @param filename_in  the file to read
- * @param filename_out NULL (stdout) or the file to write
- * @param parsed_file  NULL or the filename for the parsed debug info
+ * @param filename_out nullptr (stdout) or the file to write
+ * @param parsed_file  nullptr or the filename for the parsed debug info
  * @param no_backup    don't create a backup, if filename_out == filename_in
  * @param keep_mtime   don't change the mtime (dangerous)
  */
@@ -607,14 +607,14 @@ int main(int argc, char *argv[])
    if (((source_file = arg_list.Param("--file")) == nullptr) &&
        ((source_file = arg_list.Param("-f")) == nullptr))
    {
-      // not using a single file, source_file is NULL
+      // not using a single file, source_file is nullptr
    }
 
    const char *source_list;
    if (((source_list = arg_list.Param("--files")) == nullptr) &&
        ((source_list = arg_list.Param("-F")) == nullptr))
    {
-      // not using a file list, source_list is NULL
+      // not using a file list, source_list is nullptr
    }
 
    const char * const prefix    = arg_list.Param  ("--prefix");
@@ -632,12 +632,12 @@ int main(int argc, char *argv[])
    const char *output_file = arg_list.Param("-o");
 
    LOG_FMT(LDATA, "config_file = %s\n", cfg_file.c_str());
-   LOG_FMT(LDATA, "output_file = %s\n", (output_file != NULL) ? output_file : "null");
-   LOG_FMT(LDATA, "source_file = %s\n", (source_file != NULL) ? source_file : "null");
-   LOG_FMT(LDATA, "source_list = %s\n", (source_list != NULL) ? source_list : "null");
-   LOG_FMT(LDATA, "prefix      = %s\n", (prefix != NULL) ? prefix : "null");
-   LOG_FMT(LDATA, "suffix      = %s\n", (suffix != NULL) ? suffix : "null");
-   LOG_FMT(LDATA, "assume      = %s\n", (assume != NULL) ? assume : "null");
+   LOG_FMT(LDATA, "output_file = %s\n", (output_file != nullptr) ? output_file : "null");
+   LOG_FMT(LDATA, "source_file = %s\n", (source_file != nullptr) ? source_file : "null");
+   LOG_FMT(LDATA, "source_list = %s\n", (source_list != nullptr) ? source_list : "null");
+   LOG_FMT(LDATA, "prefix      = %s\n", (prefix != nullptr) ? prefix : "null");
+   LOG_FMT(LDATA, "suffix      = %s\n", (suffix != nullptr) ? suffix : "null");
+   LOG_FMT(LDATA, "assume      = %s\n", (assume != nullptr) ? assume : "null");
    LOG_FMT(LDATA, "replace     = %d\n", replace);
    LOG_FMT(LDATA, "no_backup   = %d\n", no_backup);
    LOG_FMT(LDATA, "detect      = %d\n", detect);
@@ -1351,7 +1351,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    string filename_tmp;
    bool   need_backup = false;
    bool   did_open    = false;
-   FILE   *pfout      = NULL;
+   FILE   *pfout      = nullptr;
    if (!cpd.do_check)
    {
       if (filename_out == nullptr) { pfout = stdout; }
@@ -1390,7 +1390,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
       }
    }
 
-   if (pfout != NULL)
+   if (pfout != nullptr)
    {
       if (cpd.if_changed)
       {
@@ -1410,7 +1410,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
    if (did_open)
    {
-      if (pfout != NULL) { fclose(pfout); }
+      if (pfout != nullptr) { fclose(pfout); }
       if (need_backup) { backup_create_md5_file(filename_in); }
 
       if (filename_tmp != filename_out)
@@ -1593,8 +1593,8 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          tokenize(fm.data, after);
          for (tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
          {
-            assert(tmp   != NULL);
-            assert(after != NULL);
+            assert(tmp   != nullptr);
+            assert(after != nullptr);
             tmp->level = after->level;
          }
       }
@@ -1674,8 +1674,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          tokenize(fm.data, after);
          for (tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
          {
-            assert(tmp   != NULL);
-            assert(after != NULL);
+            assert(tmp   != nullptr);
+            assert(after != nullptr);
             tmp->level = after->level;
          }
       }

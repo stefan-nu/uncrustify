@@ -43,7 +43,7 @@ void combine_labels(void);
  * First on all non-preprocessor chunks and then on each preprocessor chunk.
  * It does all the detection and classifying.
  * This is only called by fix_symbols.
- * The three parameters never get the value NULL.
+ * The three parameters never get the value nullptr.
  * it is not necessary to test.
  */
 void do_symbol_check(
@@ -83,11 +83,17 @@ chunk_t *set_paren_parent(
 void mark_comments(void);
 
 
+/**
+ * tbd
+ */
 void make_type(
    chunk_t *pc
 );
 
 
+/**
+ * tbd
+ */
 void flag_series(
    chunk_t *start,
    chunk_t *end,
@@ -117,7 +123,7 @@ chunk_t *set_paren_parent(
  * First on all non-preprocessor chunks and then on each preprocessor chunk.
  * It does all the detection and classifying.
  * This is only called by fix_symbols.
- * The three parameters never get the value NULL.
+ * The three parameters never get the value nullptr.
  * it is not necessary to test.
  */
 void do_symbol_check(
@@ -180,5 +186,6 @@ chunk_t *skip_attribute_prev(
  * Remove 'return;' that appears as the last statement in a function
  */
 void remove_extra_returns(void);
+
 
 #endif /* COMBINE_H_INCLUDED */

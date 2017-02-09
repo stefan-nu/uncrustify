@@ -15,7 +15,7 @@ enum CmtAlignType_t
 {
    CAT_REGULAR,
    CAT_BRACE,
-   CAT_ENDIF,
+   CAT_ENDIF
 };
 
 
@@ -29,6 +29,9 @@ void align_all(void);
 void align_backslash_newline(void);
 
 
+/**
+ * tbd
+ */
 void align_right_comments(void);
 
 
@@ -49,7 +52,7 @@ void align_struct_initializers(void);
  * The series ends when a newline or multi-line C comment is encountered.
  *
  * @param start   Start point
- * @return        pointer the last item looked at (NULL/newline/comment)
+ * @return        pointer the last item looked at (nullptr/newline/comment)
  */
 chunk_t *align_nl_cont(
    chunk_t *start
@@ -70,6 +73,9 @@ chunk_t *align_assign(
 );
 
 
+/**
+ * tbd
+ */
 void quick_align_again(void);
 
 

@@ -11,12 +11,18 @@
 #include "uncrustify_types.h"
 
 
+/**
+ * tbd
+ */
 bool unc_getenv(
    const char *name,
    std::string &str
 );
 
 
+/**
+ * tbd
+ */
 bool unc_homedir(
    std::string &home
 );

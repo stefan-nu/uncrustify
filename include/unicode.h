@@ -12,6 +12,9 @@
 #include "unc_text.h"
 
 
+/**
+ * tbd
+ */
 void write_bom(void);
 
 
@@ -23,6 +26,9 @@ void write_char(
 );
 
 
+/**
+ * tbd
+ */
 void write_string(
    const unc_text &text
 );
@@ -39,6 +45,9 @@ bool decode_unicode(
 );
 
 
+/**
+ * tbd
+ */
 void encode_utf8(
    UINT32 ch,
    vector<UINT8> &res

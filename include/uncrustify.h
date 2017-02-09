@@ -14,9 +14,15 @@
 #include "base_types.h"
 
 
+/**
+ * tbd
+ */
 int main(int argc, char *argv[]);
 
 
+/**
+ * tbd
+ */
 const char *get_token_name(
    c_token_t token
 );
@@ -31,6 +37,9 @@ c_token_t find_token_name(
 );
 
 
+/**
+ * tbd
+ */
 void log_pcf_flags(
    log_sev_t sev,
    UINT64 flags
@@ -40,10 +49,10 @@ void log_pcf_flags(
 /**
  * Replace the brain-dead and non-portable basename().
  * Returns a pointer to the character after the last '/'.
- * The returned value always points into path, unless path is NULL.
+ * The returned value always points into path, unless path is nullptr.
  *
  * Input            Returns
- * NULL          => ""
+ * nullptr          => ""
  * "/some/path/" => ""
  * "/some/path"  => "path"
  * "afile"       => "afile"
@@ -68,7 +77,7 @@ size_t path_dirname_len(
 
 /**
  * Set idx = 0 before the first call.
- * Done when returns NULL
+ * Done when returns nullptr
  */
 const char *get_file_extension(
    size_t &idx
@@ -83,6 +92,9 @@ void print_extensions(
 );
 
 
+/**
+ * tbd
+ */
 void usage_exit(
    const char *msg,
    const char *argv0,
@@ -90,12 +102,18 @@ void usage_exit(
 );
 
 
+/**
+ * tbd
+ */
 const char *extension_add(
    const char *ext_text,
    const char *lang_text
 );
 
 
+/**
+ * tbd
+ */
 void usage_exit(
    const char *msg,
    const char *argv0,

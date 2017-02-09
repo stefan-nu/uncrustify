@@ -15,11 +15,17 @@
 #include "uncrustify_types.h"
 
 
+/**
+ * tbd
+ */
 void save_set_options_for_QT(
    size_t level
 );
 
 
+/**
+ * tbd
+ */
 void restore_options_for_QT(void);
 
 

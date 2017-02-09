@@ -50,7 +50,7 @@ void add_define(const char *tag, const char *value)
 /* \todo DRY with load_keyword_file */
 int load_define_file(const char *filename)
 {
-   if (filename == NULL) { return(EX_CONFIG); }
+   if (filename == nullptr) { return(EX_CONFIG); }
    FILE *pf = fopen(filename, "r");
 
    if (pf == nullptr)

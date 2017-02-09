@@ -56,7 +56,7 @@ static const char * const DOC_TEXT_END =
    "# type token1 token2 token3 ...\n"
    "#             ^ optionally specify multiple tokens on a single line\n"
    "# define def_token output_token\n"
-   "#                  ^ output_token is optional, then NULL is assumed\n"
+   "#                  ^ output_token is optional, then nullptr is assumed\n"
    "# macro-open token\n"
    "# macro-close token\n"
    "# macro-else token\n"
@@ -2103,7 +2103,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
-         assert(option != NULL);
+         assert(option != nullptr);
 
          if (withDoc && (option->short_desc != nullptr) && (*option->short_desc != 0))
          {
@@ -2213,7 +2213,7 @@ void print_options(FILE *pfile)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
-         assert(option != NULL);
+         assert(option != nullptr);
          size_t cur = strlen(option->name);
          size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);

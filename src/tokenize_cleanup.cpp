@@ -105,7 +105,7 @@ void tokenize_cleanup(void)
       if (pc->type == CT_SQUARE_OPEN)
       {
          next = chunk_get_next_ncnl(pc);
-         assert(next != NULL);
+         assert(next != nullptr);
          if (chunk_is_token(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
@@ -255,13 +255,13 @@ void tokenize_cleanup(void)
          }
       }
 
-      assert(next != NULL);
+      assert(next != nullptr);
 
       if (cpd.lang_flags & LANG_D)
       {
          /* Check for the D string concat symbol '~' */
          if ( (pc->type    == CT_INV   )   &&
-              (prev        != NULL     )   &&
+              (prev        != nullptr     )   &&
               ((prev->type == CT_STRING) ||
                (prev->type == CT_WORD  ) ||
                (next->type == CT_STRING) ) )
@@ -271,7 +271,7 @@ void tokenize_cleanup(void)
 
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
          if ( (pc->type   == CT_NOT       ) &&
-              (prev       != NULL         ) &&
+              (prev       != nullptr         ) &&
               (prev->type == CT_WORD      ) &&
               ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE)))
          {
@@ -280,7 +280,7 @@ void tokenize_cleanup(void)
 
          /* handle "version(unittest) { }" vs "unittest { }" */
          if ((pc->type   == CT_UNITTEST  ) &&
-             (prev       != NULL         ) &&
+             (prev       != nullptr         ) &&
              (prev->type == CT_PAREN_OPEN) )
          {
             set_chunk_type(pc, CT_WORD);
@@ -288,7 +288,7 @@ void tokenize_cleanup(void)
 
          /* handle 'static if' and merge the tokens */
          if ( (pc->type == CT_IF              ) &&
-              (prev     != NULL               ) &&
+              (prev     != nullptr               ) &&
               (chunk_is_str(prev, "static", 6)) )
          {
             /* delete PREV and merge with IF */
@@ -315,7 +315,7 @@ void tokenize_cleanup(void)
       /* Change get/set to CT_WORD if not followed by a brace open */
       if ((pc->type == CT_GETSET) && (next->type != CT_BRACE_OPEN))
       {
-         assert(prev != NULL);
+         assert(prev != nullptr);
 
          if ( (next->type == CT_SEMICOLON  )   &&
              ((prev->type == CT_BRACE_CLOSE) ||
@@ -507,7 +507,7 @@ void tokenize_cleanup(void)
       if ((pc->type == CT_FOR) && chunk_is_str(next, "each", 4) &&
           (next == chunk_get_next(pc)))
       {
-         assert(next != NULL);
+         assert(next != nullptr);
          /* merge the two with a space between */
          pc->str.append(' ');
          pc->str         += next->str;
@@ -562,7 +562,7 @@ void tokenize_cleanup(void)
           (pc->type == CT_OC_INTF    ) ||
           (pc->type == CT_OC_PROTOCOL) )
       {
-         assert(next != NULL);
+         assert(next != nullptr);
          if (next->type != CT_PAREN_OPEN)
          {
             set_chunk_type(next, CT_OC_CLASS);
@@ -607,7 +607,7 @@ void tokenize_cleanup(void)
       if (((pc->parent_type == CT_OC_IMPL   ) ||
            (pc->parent_type == CT_OC_INTF   ) ||
            (pc->type        == CT_OC_CLASS) ) &&
-           (next            != NULL         ) &&
+           (next            != nullptr         ) &&
            (next->type      == CT_PAREN_OPEN) )
       {
          set_chunk_parent(next, pc->parent_type);
@@ -639,7 +639,7 @@ void tokenize_cleanup(void)
        *  @property(nonatomic, retain) NSMutableDictionary *shareWith; */
       if (pc->type == CT_OC_PROPERTY)
       {
-         assert(next != NULL);
+         assert(next != nullptr);
          if (next->type != CT_PAREN_OPEN)
          {
             chunk_flags_set(next, PCF_STMT_START | PCF_EXPR_START);
@@ -672,7 +672,7 @@ void tokenize_cleanup(void)
        *  @selector(msgNameWith1Arg:)
        *  @selector(msgNameWith2Args:arg2Name:) */
       if ( (pc->type   == CT_OC_SEL    ) &&
-           (next       != NULL         ) &&
+           (next       != nullptr         ) &&
            (next->type == CT_PAREN_OPEN) )
       {
          set_chunk_parent(next, pc->type);
@@ -699,14 +699,14 @@ void tokenize_cleanup(void)
       /* Handle special preprocessor junk */
       if (pc->type == CT_PREPROC)
       {
-         assert(next != NULL);
+         assert(next != nullptr);
          set_chunk_parent(pc, next->type);
       }
 
       /* Detect "pragma region" and "pragma endregion" */
       if (pc->type == CT_PP_PRAGMA)
       {
-         assert(next != NULL);
+         assert(next != nullptr);
          if(next->type == CT_PREPROC_BODY)
          {
             const char*  str = next->str.c_str();
@@ -722,7 +722,7 @@ void tokenize_cleanup(void)
 
       /* Check for C# nullable types '?' is in next */
       if ((cpd.lang_flags & LANG_CS     ) &&
-          (next           != NULL       ) &&
+          (next           != nullptr       ) &&
           (next->type     == CT_QUESTION) &&
           (next->orig_col == (pc->orig_col + pc->len())))
       {
@@ -747,7 +747,7 @@ void tokenize_cleanup(void)
 
             if (doit == true)
             {
-               assert(next != NULL);
+               assert(next != nullptr);
                pc->str         += next->str;
                pc->orig_col_end = next->orig_col_end;
                chunk_del(next);
@@ -759,14 +759,14 @@ void tokenize_cleanup(void)
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS) &&
           (pc->type   == CT_DEFAULT) &&
-          (next       != NULL      ) &&
+          (next       != nullptr      ) &&
           (next->type == CT_PAREN_OPEN))
       {
          set_chunk_type(pc, CT_SIZEOF);
       }
 
       if ((pc->type   == CT_UNSAFE    ) &&
-          (next       != NULL         ) &&
+          (next       != nullptr         ) &&
           (next->type != CT_BRACE_OPEN) )
       {
          set_chunk_type(pc, CT_QUALIFIER);
@@ -775,7 +775,7 @@ void tokenize_cleanup(void)
       if (((pc->type  == CT_USING) ||
            ((pc->type == CT_TRY  ) &&
             (cpd.lang_flags & LANG_JAVA))) &&
-            (next     != NULL    ) &&
+            (next     != nullptr    ) &&
           (next->type == CT_PAREN_OPEN) )
       {
          set_chunk_type(pc, CT_USING_STMT);
@@ -784,7 +784,7 @@ void tokenize_cleanup(void)
       /* Add minimal support for C++0x rvalue references */
       if ((pc->type == CT_BOOL) && chunk_is_str(pc, "&&", 2))
       {
-         assert(prev != NULL);
+         assert(prev != nullptr);
          if (prev->type == CT_TYPE)
          {
             set_chunk_type(pc, CT_BYREF);
@@ -806,7 +806,7 @@ void tokenize_cleanup(void)
        * a qualifier. */
       if ((cpd.lang_flags & LANG_JAVA      ) &&
           (pc->type      == CT_SYNCHRONIZED) &&
-          (next          != NULL           ) &&
+          (next          != nullptr           ) &&
           (next->type    != CT_PAREN_OPEN  ) )
       {
          set_chunk_type(pc, CT_QUALIFIER);
@@ -1011,7 +1011,7 @@ static void check_template(chunk_t *start)
          {
             chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
             chunk_flags_set(pc, PCF_IN_TEMPLATE);
-            if ( (next       != NULL         ) &&
+            if ( (next       != nullptr         ) &&
                  (next->type != CT_PAREN_OPEN) )
             {
                make_type(pc);
@@ -1025,6 +1025,6 @@ static void check_template(chunk_t *start)
    }
 
    LOG_FMT(LTEMPL, " - Not a template: end = %s\n",
-           (end != NULL) ? get_token_name(end->type) : "<null>");
+           (end != nullptr) ? get_token_name(end->type) : "<null>");
    set_chunk_type(start, CT_COMPARE);
 }

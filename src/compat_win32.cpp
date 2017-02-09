@@ -15,7 +15,7 @@
 
 bool unc_getenv(const char *name, std::string &str)
 {
-   DWORD len = GetEnvironmentVariableA(name, NULL, 0);
+   DWORD len = GetEnvironmentVariableA(name, nullptr, 0);
    char  *buf;
 
    if (len == 0)
@@ -27,7 +27,7 @@ bool unc_getenv(const char *name, std::string &str)
    }
 
    buf = (char *)malloc(len);
-   if(buf == NULL)
+   if(buf == nullptr)
    {
       /* \todo print error message */
       return false;

@@ -103,8 +103,8 @@ const no_space_table_t no_space_table[] =
 static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
    if (second->type != CT_NEWLINE)
    {
       LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
@@ -123,8 +123,8 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
 
 #ifdef DEBUG
    LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -920,7 +920,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (second->type == CT_FPAREN_OPEN))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if ((next       != NULL           ) &&
+         if ((next       != nullptr           ) &&
              (next->type == CT_FPAREN_CLOSE) )
          {
             log_rule("sp_func_call_paren_empty");
@@ -1940,11 +1940,11 @@ void space_text(void)
          next = chunk_get_next(pc);
          while ( (chunk_is_blank   (next)) &&
                  (!chunk_is_newline(next)) &&
-                 (next != NULL           ) &&
+                 (next != nullptr           ) &&
                 (next->type == CT_VBRACE_OPEN ||
                  next->type == CT_VBRACE_CLOSE))
          {
-            assert(next != NULL);
+            assert(next != nullptr);
             LOG_FMT(LSPACE, "%s: %zu:%zu Skip %s (%zu+%zu)\n",
                     __func__, next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
@@ -1953,7 +1953,7 @@ void space_text(void)
          }
       }
       else { next = pc->next; }
-      if (next == NULL) { break; }
+      if (next == nullptr) { break; }
 
       // Issue # 481
       if ((QT_SIGNAL_SLOT_found) &&
@@ -2196,7 +2196,7 @@ void space_text_balance_nested_parens(void)
          ///* find the opening paren that matches the 'next' close paren and force
          // * a space after it */
          //cur = first;
-         //while ((cur = chunk_get_prev(cur)) != NULL)
+         //while ((cur = chunk_get_prev(cur)) != nullptr)
          //{
          //   if (cur->level == next->level)
          //   {
@@ -2231,8 +2231,8 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 size_t space_col_align(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
 
    LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,

@@ -21,6 +21,9 @@
 void pawn_prescan(void);
 
 
+/**
+ * tbd
+ */
 void pawn_add_virtual_semicolons(void);
 
 
@@ -43,6 +46,9 @@ chunk_t *pawn_check_vsemicolon(
 void pawn_scrub_vsemi(void);
 
 
+/**
+ * tbd
+ */
 chunk_t *pawn_add_vsemi_after(
    chunk_t *pc
 );

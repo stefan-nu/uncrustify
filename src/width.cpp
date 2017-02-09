@@ -135,7 +135,7 @@ static void split_for_statement(
 
 static inline bool is_past_width(chunk_t *pc)
 {
-   assert(pc != NULL);
+   assert(pc != nullptr);
    // allow char to sit at last column by subtracting 1
    return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);
 }
@@ -144,7 +144,7 @@ static inline bool is_past_width(chunk_t *pc)
 static void split_before_chunk(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
    LOG_FMT(LSPLIT, "%s: %s\n", __func__, pc->text());
 
    if (!chunk_is_newline(pc) &&
@@ -242,7 +242,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc->type == CT_FPAREN_OPEN)
    {
       const chunk_t *next = chunk_get_next(pc);
-      assert(next != NULL);
+      assert(next != nullptr);
       if (next->type == CT_FPAREN_CLOSE) { return; }
    }
 
@@ -250,7 +250,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc->type == CT_STRING)
    {
       const chunk_t *next = chunk_get_next(pc);
-      assert(next != NULL);
+      assert(next != nullptr);
       if (next->type != CT_STRING) { return; }
    }
 
@@ -264,7 +264,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc_pri == 25)
    {
       const chunk_t *next = chunk_get_next(pc);
-      if ((next       != NULL             ) &&
+      if ((next       != nullptr             ) &&
           (next->type != CT_WORD          ) &&
           (get_split_pri(next->type) != 25) )
       {
@@ -398,7 +398,7 @@ static bool split_line(chunk_t *start)
       {
          pc = chunk_get_next(ent.pc);
       }
-      assert(pc != NULL);
+      assert(pc != nullptr);
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
    }
 
@@ -448,7 +448,7 @@ static bool split_line(chunk_t *start)
 static void split_for_statement(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   if(start == NULL) { return; }
+   if(start == nullptr) { return; }
 
    LOG_FMT(LSPLIT, "%s: starting on %s, line %zu\n",
            __func__, start->text(), start->orig_line);
@@ -477,8 +477,8 @@ static void split_for_statement(chunk_t *start)
    /* see if we started on the semicolon */
    int     count = 0;
    chunk_t *st[2];
-   st[0] = NULL;
-   st[1] = NULL;
+   st[0] = nullptr;
+   st[1] = nullptr;
    pc = start;
 
    /* first scan backwards for the semicolons */
@@ -494,7 +494,7 @@ static void split_for_statement(chunk_t *start)
       // DRY2 end
    }
    while ( (count < (int)max_cnt             ) &&
-           ((pc = chunk_get_prev(pc)) != NULL) &&
+           ((pc = chunk_get_prev(pc)) != nullptr) &&
            (pc->flags & PCF_IN_SPAREN        ) );
 
 
@@ -516,7 +516,7 @@ static void split_for_statement(chunk_t *start)
 
    while (--count >= 0)
    {
-      assert(st[count] != NULL);
+      assert(st[count] != nullptr);
       LOG_FMT(LSPLIT, "%s: split before %s\n", __func__, st[count]->text());
       split_before_chunk(chunk_get_next(st[count]));
    }
@@ -530,7 +530,7 @@ static void split_for_statement(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      assert(pc != NULL);
+      assert(pc != nullptr);
       if ((pc->type  == CT_COMMA               ) &&
           (pc->level == (open_paren->level + 1)) )
       {
@@ -546,7 +546,7 @@ static void split_for_statement(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      assert(pc != NULL);
+      assert(pc != nullptr);
       if ((pc->type == CT_ASSIGN) && (pc->level == (open_paren->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
@@ -593,7 +593,7 @@ static void split_fcn_params(chunk_t *start)
    assert(fpopen != nullptr);
 
    chunk_t *pc = chunk_get_next_ncnl(fpopen);
-   assert(pc != NULL);
+   assert(pc != nullptr);
 
    size_t  min_col = pc->column;
 
@@ -642,12 +642,12 @@ static void split_fcn_params(chunk_t *start)
       {
          break;
       }
-      assert(pc != NULL);
+      assert(pc != nullptr);
       last_col -= (int)pc->len();
       if (prev->type == CT_FPAREN_OPEN)
       {
          pc = chunk_get_next(prev);
-         assert(pc != NULL);
+         assert(pc != nullptr);
          if (!cpd.settings[UO_indent_paren_nl].b)
          {
             min_col = pc->brace_level * cpd.settings[UO_indent_columns].u + 1u;

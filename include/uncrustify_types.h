@@ -194,7 +194,7 @@ typedef enum StarStyle_e
 
 typedef struct align_ptr_s
 {
-   chunk_t      *next;       /**< NULL or the chunk that should be under this one */
+   chunk_t      *next;       /**< nullptr or the chunk that should be under this one */
    bool         right_align; /**< AlignStack.m_right_align */
    StarStyle_t  star_style;  /**< AlignStack.m_star_style */
    StarStyle_t  amp_style;   /**< AlignStack.m_amp_style */
@@ -213,12 +213,18 @@ typedef struct align_ptr_s
 /** This is the main type of this program */
 struct chunk_t
 {
+   /**
+    * tbd
+    */
    chunk_t()
    {
       reset();
    }
 
 
+   /**
+    * tbd
+    */
    void reset()
    {
       memset(&align,  0, sizeof(align ));
@@ -243,12 +249,18 @@ struct chunk_t
    }
 
 
+   /**
+    * tbd
+    */
    size_t len()
    {
       return(str.size());
    }
 
 
+   /**
+    * tbd
+    */
    const char *text()
    {
       return(str.c_str());

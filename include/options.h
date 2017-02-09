@@ -862,11 +862,17 @@ struct option_map_value_t
 };
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *unc_find_option(
    const char *name
 );
 
 
+/**
+ * tbd
+ */
 uo_t get_inverse_uo(
    uo_t option
 );
@@ -1031,13 +1037,19 @@ bool is_bit_unset(
 void set_option_defaults(void);
 
 
+/**
+ * tbd
+ */
 void register_options(void);
 
 
+/**
+ * tbd
+ */
 void unc_begin_group(
    ug_t       id,
    const char *short_desc,
-   const char *long_desc = NULL
+   const char *long_desc = nullptr
 );
 
 
@@ -1055,17 +1067,26 @@ void process_option_line(
 );
 
 
+/**
+ * tbd
+ */
 int load_option_file(
    const char *filename
 );
 
 
+/**
+ * tbd
+ */
 int save_option_file(
    FILE *pfile,
    bool withDoc
 );
 
 
+/**
+ * tbd
+ */
 int save_option_file_kernel(
    FILE *pfile,
    bool withDoc,
@@ -1085,21 +1106,33 @@ int set_option_value(
 );
 
 
+/**
+ * tbd
+ */
 bool is_path_relative(
    const char *path
 );
 
 
+/**
+ * tbd
+ */
 const group_map_value_t *get_group_name(
    size_t ug
 );
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *get_option_name(
    uo_t uo
 );
 
 
+/**
+ * tbd
+ */
 void print_options(
    FILE *pfile
 );
@@ -1173,6 +1206,9 @@ bool is_path_relative(
 );
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *unc_find_option(
    const char *name
 );

@@ -45,8 +45,8 @@ void AlignStack::ReAddSkipped()
       for (size_t idx = 0; idx < m_scratch.Len(); idx++)
       {
          const ChunkStack::Entry *ce = m_scratch.Get(idx);
-         assert(ce != NULL);
-         if(ce == NULL) return;
+         assert(ce != nullptr);
+         if(ce == nullptr) return;
          LOG_FMT(LAS, "ReAddSkipped [%zu] - ", ce->m_seqnum);
          Add(ce->m_pc, ce->m_seqnum);
       }
@@ -61,16 +61,10 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
 
-   if (start == NULL)
-   {
-      return;
-   }
+   if (start == nullptr) { return; }
 
    /* Assign a seqnum if needed */
-   if (seqnum == 0)
-   {
-      seqnum = m_seqnum;
-   }
+   if (seqnum == 0) { seqnum = m_seqnum; }
 
    m_last_added = 0;
 
@@ -193,9 +187,10 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
-      if((ali == NULL) || (ref == NULL))
+      if((ali == nullptr) ||
+         (ref == nullptr) )
       {
-         return;  /* \todo if pointer is NULL print some error log message */
+         return;  /* \todo if pointer is nullptr print some error log message */
       }
 
       chunk_t *tmp;
@@ -207,7 +202,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          while (tmp != start)
          {
             chunk_t *next = chunk_get_next(tmp);
-            assert(next != NULL);
+            assert(next != nullptr);
             tmp_col += (size_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
             {
@@ -324,7 +319,7 @@ void AlignStack::Flush()
    if (m_aligned.Len() == 1)
    {
       // check if we have *one* typedef in the line
-      assert(m_aligned.Get(0) != NULL);
+      assert(m_aligned.Get(0) != nullptr);
       pc = m_aligned.Get(0)->m_pc;
       const chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
       if (temp != nullptr)
@@ -343,12 +338,12 @@ void AlignStack::Flush()
    /* Recalculate the max_col - it may have shifted since the last Add() */
    for (size_t idx = 0; idx < m_aligned.Len(); idx++)
    {
-      assert(m_aligned.Get(idx) != NULL);
+      assert(m_aligned.Get(idx) != nullptr);
       pc = m_aligned.Get(idx)->m_pc;
 
       /* Set the column adjust and gap */
       int    col_adj = 0;
-      size_t gap     = 0;
+      size_t gap     = 0u;
       if (pc != pc->align.ref)
       {
          gap = pc->column - (pc->align.ref->column + pc->align.ref->len());
@@ -396,7 +391,7 @@ void AlignStack::Flush()
    for (size_t idx = 0; idx < m_aligned.Len(); idx++)
    {
       ce = m_aligned.Get(idx);
-      assert(ce != NULL);
+      assert(ce != nullptr);
       pc = ce->m_pc;
 
       const size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);

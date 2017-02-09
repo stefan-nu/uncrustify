@@ -303,7 +303,7 @@ static bool can_remove_braces(chunk_t *bopen)
    // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
-   const chunk_t *prev = NULL;
+   const chunk_t *prev = nullptr;
    size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
    bool          hit_semi   = false;
@@ -398,7 +398,7 @@ static bool can_remove_braces(chunk_t *bopen)
 
    if (pc == nullptr)
    {
-      LOG_FMT(LBRDEL, " NULL\n");
+      LOG_FMT(LBRDEL, " nullptr\n");
       return(false);
    }
    // DRY 7 end
@@ -435,12 +435,12 @@ static void examine_brace(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
 
-   if(bopen == NULL) { return; }
+   if(bopen == nullptr) { return; }
 
    // DRY7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
-   chunk_t       *prev      = NULL;
+   chunk_t       *prev      = nullptr;
    size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
    bool          hit_semi   = false;
@@ -549,7 +549,7 @@ static void examine_brace(chunk_t *bopen)
 
    if (pc == nullptr)
    {
-      LOG_FMT(LBRDEL, " NULL\n");
+      LOG_FMT(LBRDEL, " nullptr\n");
       return;
    }
    // DRY7 end
@@ -566,7 +566,7 @@ static void examine_brace(chunk_t *bopen)
          next = chunk_get_next_ncnl(next);
       }
 
-      assert(next != NULL);
+      assert(next != nullptr);
       LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
       if ( (if_count    > 0        )   &&
           ((next->type == CT_ELSE  ) ||
@@ -581,7 +581,7 @@ static void examine_brace(chunk_t *bopen)
          if (bopen->parent_type == CT_ELSE)
          {
             next = chunk_get_next_ncnl(bopen);
-            assert(next != NULL);
+            assert(next != nullptr);
             if (next->type == CT_IF)
             {
                prev = chunk_get_prev_ncnl(bopen);
@@ -623,7 +623,7 @@ static void convert_brace(chunk_t *br)
    LOG_FUNC_ENTRY();
    chunk_t *tmp;
 
-   if ((br == NULL                ) ||
+   if ((br == nullptr                ) ||
        (br->flags & PCF_KEEP_BRACE) )
    {
       return;
@@ -647,7 +647,7 @@ static void convert_brace(chunk_t *br)
 
    if (chunk_is_newline(tmp))
    {
-      assert(tmp != NULL);
+      assert(tmp != nullptr);
       if (tmp->nl_count > 1) { tmp->nl_count--; }
       else
       {
@@ -791,7 +791,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if (pc == NULL) { return; }
+   if (pc == nullptr) { return; }
 
    chunk_t *tmp = pc;
 
@@ -808,7 +808,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
       if (!chunk_is_word(tmp)) { break; }
    }
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
    txt += pc->str;
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
@@ -919,14 +919,14 @@ void add_long_closebrace_comment(void)
 
                   /* obtain the next chunck, normally this is the name of the namespace
                    * and append it to generate "namespace xyz" */
-                  assert(ns_pc != NULL);
-                  xstr = ns_pc->str; // \todo can we be sure that ns_pc is not NULL here
+                  assert(ns_pc != nullptr);
+                  xstr = ns_pc->str; // \todo can we be sure that ns_pc is not nullptr here
                   xstr.append(" ");
                   append_tag_name(xstr, chunk_get_next(ns_pc));
                }
                else if ( (br_open->parent_type == CT_CLASS) &&
-                         (cl_semi_pc           != NULL    ) &&
-                         (cl_pc                != NULL    ) )
+                         (cl_semi_pc           != nullptr    ) &&
+                         (cl_pc                != nullptr    ) )
                {
                   nl_min = cpd.settings[UO_mod_add_long_class_closebrace_comment].u;
                   tag_pc = cl_pc;
@@ -1004,7 +1004,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
         (pc->type != CT_GOTO       ) &&
         (pc->type != CT_BRACE_CLOSE) ) )
    {
-      LOG_FMT(LMCB, " - after '%s'\n", (pc == NULL) ? "<null>" : get_token_name(pc->type));
+      LOG_FMT(LMCB, " - after '%s'\n", (pc == nullptr) ? "<null>" : get_token_name(pc->type));
       return(next);
    }
 
@@ -1036,7 +1036,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
 {
    LOG_FUNC_ENTRY();
 
-   if(cl_colon == NULL) { return cl_colon; }
+   if(cl_colon == nullptr) { return cl_colon; }
 
    chunk_t *pc   = cl_colon;
    LOG_FMT(LMCB, "%s: line %zu", __func__, pc->orig_line);
@@ -1068,7 +1068,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
 
    if (last == nullptr)
    {
-      LOG_FMT(LMCB, " - NULL last\n");
+      LOG_FMT(LMCB, " - nullptr last\n");
       return(next);
    }
 
@@ -1082,7 +1082,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    chunk.brace_level = cl_colon->brace_level;
    chunk.str         = "{";
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
    chunk.flags       = pc->flags & PCF_COPY_FLAGS;
 
    chunk_t *br_open = chunk_add_after(&chunk, cl_colon);
@@ -1098,7 +1098,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
         pc != br_close;
         pc = chunk_get_next(pc, scope_e::PREPROC))
    {
-      assert(pc != NULL);
+      assert(pc != nullptr);
       pc->level++;
       pc->brace_level++;
    }
@@ -1146,7 +1146,7 @@ static void process_if_chain(chunk_t *br_start)
 {
    LOG_FUNC_ENTRY();
 
-   if (br_start == NULL)
+   if (br_start == nullptr)
    {
       return;
    }

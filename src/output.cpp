@@ -688,7 +688,7 @@ void output_text(FILE *pfile)
 
             /* not the first item on a line */
             chunk_t *prev = chunk_get_prev(pc);
-            assert(prev != NULL);
+            assert(prev != nullptr);
             allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
                           (pc->flags & PCF_WAS_ALIGNED) &&
                           ((prev->column + prev->len() + 1) != pc->column));
@@ -1011,7 +1011,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
-   assert(pc != NULL);
+   assert(pc != nullptr);
    /* We can't combine if there is something other than a newline next */
    if (pc->parent_type == CT_COMMENT_START) { return(false); }
 
@@ -1037,7 +1037,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 
 static chunk_t *output_comment_c(chunk_t *first)
 {
-   if (first == NULL) { return(first); }
+   if (first == nullptr) { return(first); }
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1078,7 +1078,7 @@ static chunk_t *output_comment_c(chunk_t *first)
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
-   assert(pc != NULL);
+   assert(pc != nullptr);
 
    // \todo DRY 3 start
    tmp.set(pc->str, 2, pc->len() - 4);
@@ -1102,7 +1102,7 @@ static chunk_t *output_comment_c(chunk_t *first)
 
 static chunk_t *output_comment_cpp(chunk_t *first)
 {
-   if (first == NULL) { return(first); }
+   if (first == nullptr) { return(first); }
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1112,7 +1112,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (cpd.settings[UO_sp_cmt_cpp_doxygen].b) // special treatment for doxygen style comments (treat as unity)
    {
       const char *sComment = first->text();
-      if (sComment == NULL) { return(first); }
+      if (sComment == nullptr) { return(first); }
 
       bool grouping = (sComment[2] == '@');
       int  brace    = 3;
@@ -1244,7 +1244,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       pc = chunk_get_next(chunk_get_next(pc));
    }
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
    offs = unc_isspace(pc->str[2]) ? 1 : 0;
    tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
    add_comment_text(tmp, cmt, true);
@@ -1574,7 +1574,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
        (cpd.lang_flags & LANG_OC ) )
    {
       const chunk_t *fcn = get_next_function(cmt);
-      assert(fcn != NULL);
+      assert(fcn != nullptr);
 
       tmp = (fcn->type == CT_OC_MSG_DECL) ? get_prev_oc_class(cmt) : get_next_class(cmt);
    }
@@ -1583,9 +1583,9 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       tmp = get_prev_oc_class(cmt);
    }
 
-   if (tmp == NULL) { tmp = get_next_class(cmt); }
+   if (tmp == nullptr) { tmp = get_next_class(cmt); }
 
-   if (tmp != NULL)
+   if (tmp != nullptr)
    {
       out_txt.append(tmp->str);
       if (cpd.lang_flags)
@@ -1610,7 +1610,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == NULL) { return(false); }
+   if (fcn == nullptr) { return(false); }
 
    out_txt.append(fcn->str);
 
@@ -1642,7 +1642,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_category(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *category = get_prev_category(cmt);
-   if (category != NULL)
+   if (category != nullptr)
    {
       out_txt.append('(');
       out_txt.append(category->str);
@@ -1655,7 +1655,7 @@ static bool kw_fcn_category(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_scope(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *scope = get_next_scope(cmt);
-   if (scope != NULL)
+   if (scope != nullptr)
    {
       out_txt.append(scope->str);
       return(true);
@@ -1667,11 +1667,11 @@ static bool kw_fcn_scope(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *fcn = get_next_function(cmt);
-   if (fcn != NULL)
+   if (fcn != nullptr)
    {
       out_txt.append_cond(fcn->parent_type == CT_OPERATOR, "operator ");
 
-      if ( (fcn->prev      !=  NULL         ) &&
+      if ( (fcn->prev      !=  nullptr         ) &&
            (fcn->prev->type == CT_DESTRUCTOR) )
       {
          out_txt.append('~');
@@ -1686,7 +1686,7 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == NULL) { return(false); }
+   if (fcn == nullptr) { return(false); }
 
    chunk_t *fpo;
    chunk_t *fpc;
@@ -1768,7 +1768,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    /* Do the return stuff */
    tmp = chunk_get_prev_ncnl(fcn);
-   assert(tmp != NULL);
+   assert(tmp != nullptr);
 
    /* For Objective-C we need to go to the previous chunk */
    if ((tmp->parent_type == CT_OC_MSG_DECL) &&
@@ -1791,13 +1791,13 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == NULL) { return(false); }
+   if (fcn == nullptr) { return(false); }
 
    if (fcn->flags & PCF_IN_CLASS)
    {
       /* if inside a class, we need to find to the class name */
       chunk_t *tmp = chunk_get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));
-      assert(tmp != NULL);
+      assert(tmp != nullptr);
       tmp = chunk_get_prev_type(tmp, CT_CLASS, (int)tmp->level);
       tmp = chunk_get_next_ncnl(tmp);
       while (chunk_is_token(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
@@ -1825,7 +1825,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
                                (tmp->type == CT_MEMBER   ) ) )
       {
          tmp = chunk_get_prev_ncnl(tmp);
-         assert(tmp != NULL);
+         assert(tmp != nullptr);
          out_txt.append(tmp->str);
          return(true);
       }
@@ -2031,7 +2031,7 @@ void add_long_preprocessor_conditional_block_comment(void)
    const chunk_t *pp_start = nullptr;
    const chunk_t *pp_end   = nullptr;
 
-   for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next_ncnl(pc))
+   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next_ncnl(pc))
    {
       /* just track the preproc level: */
       if (pc->type == CT_PREPROC)
@@ -2057,11 +2057,11 @@ void add_long_preprocessor_conditional_block_comment(void)
       chunk_t *tmp     = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         assert(tmp != NULL);
+         assert(tmp != nullptr);
          /* just track the preproc level: */
          if (tmp->type == CT_PREPROC) { pp_end = tmp; }
 
-         assert(pp_end != NULL);
+         assert(pp_end != nullptr);
          if (chunk_is_newline(tmp))
          {
             nl_count += tmp->nl_count;

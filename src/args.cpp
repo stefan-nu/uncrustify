@@ -65,17 +65,13 @@ bool Args::Present(const char *token)
 const char *Args::Param(const char *token)
 {
    size_t idx = 0;
-
    return(Params(token, idx));
 }
 
 
 const char *Args::Params(const char *token, size_t &index)
 {
-   if (token == nullptr)
-   {
-      return(token);
-   }
+   if (token == nullptr) { return(token); }
 
    size_t token_len = strlen(token);
 
@@ -132,10 +128,7 @@ void Args::SetUsed(size_t idx)
 
 const char *Args::Unused(size_t &index) const
 {
-   if (m_used == nullptr)
-   {
-      return(nullptr);
-   }
+   if (m_used == nullptr) { return(nullptr); }
 
    for (size_t idx = index; idx < m_count; idx++)
    {
@@ -186,7 +179,9 @@ size_t Args::SplitLine(char *text, char *args[], size_t num_args)
          {
             cur_quote = 0;
          }
-         else if ((*text == '\'') || (*text == '"') || (*text == '`'))
+         else if ((*text == '\'') ||
+                  (*text == '"' ) ||
+                  (*text == '`' ) )
          {
             cur_quote = *text;
          }

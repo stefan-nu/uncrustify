@@ -46,12 +46,19 @@ protected:
 
 
 public:
+
+   /**
+    * tbd
+    */
    ChunkStack()
       : m_seqnum(0)
    {
    }
 
 
+   /**
+    * tbd
+    */
    ChunkStack(const ChunkStack &cs)
    {
       Set(cs);
@@ -62,53 +69,88 @@ public:
    {
    }
 
+
+   /**
+    * tbd
+    */
    void Set(
       const ChunkStack &cs
    );
 
 
+   /**
+    * tbd
+    */
    void Push_Back(chunk_t *pc)
    {
       Push_Back(pc, ++m_seqnum);
    }
 
 
+   /**
+    * tbd
+    */
    bool Empty() const
    {
       return(m_cse.empty());
    }
 
 
+   /**
+    * tbd
+    */
    size_t Len() const
    {
       return(m_cse.size());
    }
 
+
+   /**
+    * tbd
+    */
    const Entry *Top() const;
 
 
+   /**
+    * tbd
+    */
    const Entry *Get(
       size_t idx
    ) const;
 
 
+   /**
+    * tbd
+    */
    chunk_t *GetChunk(
       size_t idx
    ) const;
 
 
+   /**
+    * tbd
+    */
    chunk_t *Pop_Back();
 
 
+   /**
+    * tbd
+    */
    void Push_Back(
       chunk_t *pc,
       size_t  seqnum
    );
 
 
+   /**
+    * tbd
+    */
    chunk_t *Pop_Front();
 
 
+   /**
+    * tbd
+    */
    void Reset()
    {
       m_cse.clear();
@@ -128,5 +170,6 @@ public:
     */
    void Collapse();
 };
+
 
 #endif   /* CHUNKSTACK_H_INCLUDED */

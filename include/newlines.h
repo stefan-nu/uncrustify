@@ -38,9 +38,15 @@ void newlines_insert_blank_lines(void);
 void newlines_functions_remove_extra_blank_lines(void);
 
 
+/**
+ * tbd
+ */
 void newlines_squeeze_ifdef(void);
 
 
+/**
+ * tbd
+ */
 void newlines_eat_start_end(void);
 
 
@@ -65,12 +71,21 @@ void newlines_class_colon_pos(
 );
 
 
+/**
+ * tbd
+ */
 void newlines_cleanup_dup(void);
 
 
+/**
+ * tbd
+ */
 void annotations_newlines(void);
 
 
+/**
+ * tbd
+ */
 void newline_after_multiline_comment(void);
 
 
@@ -120,6 +135,9 @@ chunk_t *newline_add_before(
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *newline_force_before(
    chunk_t *pc
 );
@@ -134,6 +152,9 @@ chunk_t *newline_add_after(
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *newline_force_after(
    chunk_t *pc
 );

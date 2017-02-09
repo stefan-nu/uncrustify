@@ -23,7 +23,7 @@
  * Initializes the log subsystem - call this first.
  * This function sets the log stream and enables the top 3 sevs (0-2).
  *
- * @param log_file   NULL for stderr or the FILE stream for logs.
+ * @param log_file   nullptr for stderr or the FILE stream for logs.
  */
 void log_init(
    FILE *log_file
@@ -220,11 +220,17 @@ public:
 };
 
 
+/**
+ * tbd
+ */
 void log_func_call(
    int line
 );
 
 
+/**
+ * tbd
+ */
 void log_func_stack(
    log_sev_t sev,
    const char *prefix = "",

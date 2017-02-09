@@ -27,7 +27,7 @@ int load_define_file(
  * Adds an entry to the define list
  *
  * @param tag        The tag (string) must be zero terminated
- * @param value      NULL or the value of the define
+ * @param value      nullptr or the value of the define
  */
 void add_define(
    const char *tag,
@@ -35,11 +35,17 @@ void add_define(
 );
 
 
+/**
+ * tbd
+ */
 void print_defines(
    FILE *pfile
 );
 
 
+/**
+ * tbd
+ */
 void clear_defines(void);
 
 

@@ -74,8 +74,8 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 {
    LOG_FUNC_ENTRY();
 
-   if ((first == NULL) ||
-       (last == NULL))
+   if ((first == nullptr) ||
+       (last == nullptr))
    {
       return;
    }
@@ -87,7 +87,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
    chunk_t *first_n = chunk_get_next_ncnl(first);
-   assert(first_n != NULL);
+   assert(first_n != nullptr);
    if (first_n == last)
    {
       return;
@@ -104,7 +104,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    chunk_add_before(&pc, first_n);
 
    chunk_t *last_p = chunk_get_prev_ncnl(last, scope_e::PREPROC);
-   assert(last_p != NULL);
+   assert(last_p != nullptr);
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";
    pc.flags       = last_p->flags & PCF_COPY_FLAGS;

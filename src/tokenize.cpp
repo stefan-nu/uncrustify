@@ -526,7 +526,7 @@ static const char *str_search(const char *needle, const char *haystack, int hays
       }
       haystack++;
    }
-   return(NULL);
+   return(nullptr);
 }
 #endif
 
@@ -1948,7 +1948,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
-         assert(pc != NULL);
+         assert(pc != nullptr);
          if (pc->type == CT_NEWLINE)
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);
@@ -1963,7 +1963,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk.flags &= ~PCF_INSERTED;
       }
       pc = chunk_add_before(&chunk, ref);
-      assert(pc != NULL);
+      assert(pc != nullptr);
 
       /* A newline marks the end of a preprocessor */
       if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))

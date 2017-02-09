@@ -20,6 +20,9 @@ void output_text(
 );
 
 
+/**
+ * tbd
+ */
 void output_parsed(
    FILE *pfile
 );

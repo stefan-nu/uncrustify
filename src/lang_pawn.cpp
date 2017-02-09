@@ -71,7 +71,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if(pc == NULL) { return NULL; }
+   if(pc == nullptr) { return nullptr; }
 
    if ((pc->type == CT_VSEMICOLON) ||
        (pc->type == CT_SEMICOLON ) )
@@ -264,7 +264,7 @@ static chunk_t *pawn_process_variable(chunk_t *start)
       if ((pc->type == CT_NEWLINE) &&
           !pawn_continued(prev, (int)start->level))
       {
-         assert(prev != NULL);
+         assert(prev != nullptr);
          if ((prev->type != CT_VSEMICOLON) &&
              (prev->type != CT_SEMICOLON ) )
          {
@@ -435,7 +435,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
 
       /* find the next newline at level 0 */
       prev = chunk_get_next_ncnl(prev);
-      assert(prev != NULL);
+      assert(prev != nullptr);
       do
       {
          LOG_FMT(LPFUNC, "%s:%zu] check %s, level %zu\n",
@@ -462,7 +462,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
                  __func__, last->orig_line, get_token_name(last->type), last->level);
       }
 
-      assert(last != NULL);
+      assert(last != nullptr);
       chunk = *last;
       chunk.str.clear();
       chunk.column     += last->len();

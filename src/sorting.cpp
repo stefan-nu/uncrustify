@@ -93,7 +93,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
    LOG_FMT(LSORT, "\n@begin pc1->len=%zu, line=%zu, column=%zu\n", pc1->len(), pc1->orig_line, pc1->orig_col);
    LOG_FMT(LSORT,   "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
    if (pc1 == pc2) { return(0); }   /* \todo same chunk is always identical thus return 0 differences */
-   while ((pc1 != NULL) && (pc2 != NULL) ) /* ensure there are two valid pointers */
+   while ((pc1 != nullptr) && (pc2 != nullptr) ) /* ensure there are two valid pointers */
    {
       const int ppc1 = get_chunk_priority(pc1);
       const int ppc2 = get_chunk_priority(pc2);
@@ -114,31 +114,31 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* Same word, same length. Step to the next chunk. */
       pc1 = chunk_get_next(pc1);
-      if (pc1 != NULL)
+      if (pc1 != nullptr)
       {
          LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
          if (pc1->type == CT_MEMBER)
          {
             pc1 = chunk_get_next(pc1);
-            if(pc1 != NULL)
+            if(pc1 != nullptr)
             {
                LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
             }
          }
       }
       pc2 = chunk_get_next(pc2);
-      if(pc2 != NULL)
+      if(pc2 != nullptr)
       {
          LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          if (pc2->type == CT_MEMBER)
          {
             pc2 = chunk_get_next(pc2);
-            assert(pc2 != NULL);
+            assert(pc2 != nullptr);
             LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          }
       }
 
-      /* If we hit a newline or NULL, we are done */
+      /* If we hit a newline or nullptr, we are done */
       if ((pc1 == nullptr)      ||
           (pc2 == nullptr)      ||
           chunk_is_newline(pc1) ||

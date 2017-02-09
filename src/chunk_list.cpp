@@ -66,7 +66,7 @@ typedef ListManager<chunk_t> ChunkList_t;
  * If there are performance issues this function might be worth to
  * be optimized as it is heavily used.
  *
- * @retval NULL    - no requested chunk was found or invalid parameters provided
+ * @retval nullptr    - no requested chunk was found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 static chunk_t *chunk_search(
@@ -86,7 +86,7 @@ static chunk_t *chunk_search(
  *
  * This function is a specialization of chunk_search.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 static chunk_t *chunk_search_type(
@@ -105,7 +105,7 @@ static chunk_t *chunk_search_type(
  *
  * This function is a specialization of chunk_search.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t *chunk_search_typelevel(
@@ -123,7 +123,7 @@ chunk_t *chunk_search_typelevel(
  * traverses a chunk list either in forward or backward direction.
  * The traversal continues until a chunk of a given category is found.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 static chunk_t *chunk_get_ncnlnp(
@@ -139,7 +139,7 @@ static chunk_t *chunk_get_ncnlnp(
  * traverses a chunk list either in forward or backward direction.
  * The traversal continues until a chunk of a given category is found.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t *chunk_search_str(
@@ -156,7 +156,7 @@ chunk_t *chunk_search_str(
 /**
  * \brief Add a new chunk after the given position in a chunk list
  *
- * \note If ref is NULL:
+ * \note If ref is nullptr:
  *       add at the head of the chunk list if position is BEFOR
  *       add at the tail of the chunk list if position is AFTER
  *
@@ -308,7 +308,7 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
 {
    chunk_t *first = pc;
 
-   while (((pc = chunk_get_prev(pc)) != NULL) && !chunk_is_newline(pc))
+   while (((pc = chunk_get_prev(pc)) != nullptr) && !chunk_is_newline(pc))
    {
       first = pc;
    }
@@ -332,7 +332,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
    }
    if (cur->flags & PCF_IN_PREPROC)
    {
-      /* If in a preproc, return NULL if trying to leave */
+      /* If in a preproc, return nullptr if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
          return((chunk_t *)nullptr);
@@ -359,7 +359,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
    }
    if (cur->flags & PCF_IN_PREPROC)
    {
-      /* If in a preproc, return NULL if trying to leave */
+      /* If in a preproc, return nullptr if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
          return((chunk_t *)nullptr);
@@ -399,7 +399,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
    }
 
    /* Copy all fields and then init the entry */
-   *pc = *pc_in;  /* \todo what happens if pc_in == NULL? */
+   *pc = *pc_in;  /* \todo what happens if pc_in == nullptr? */
    g_cl.InitEntry(pc);
 
    return(pc);
@@ -426,16 +426,16 @@ static void chunk_log(chunk_t *pc, const char *text)
 
       chunk_log_msg(pc, log, text);
 
-      if ((prev != NULL) && (next != NULL))
+      if ((prev != nullptr) && (next != nullptr))
       {
          chunk_log_msg(prev, log, " @ between");
          chunk_log_msg(next, log, " and");
       }
-      else if (next != NULL)
+      else if (next != nullptr)
       {
          chunk_log_msg(next, log, " @ before");
       }
-      else if (prev != NULL)
+      else if (prev != nullptr)
       {
          chunk_log_msg(prev, log, " @ after");
       }
@@ -448,12 +448,12 @@ static void chunk_log(chunk_t *pc, const char *text)
 static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const dir_e pos)
 {
    chunk_t *pc = chunk_dup(pc_in);
-   if (pc != NULL)
+   if (pc != nullptr)
    {
       switch(pos)
       {
-         case(dir_e::AFTER ): (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
-         case(dir_e::BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
+         case(dir_e::AFTER ): (ref != nullptr) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
+         case(dir_e::BEFORE): (ref != nullptr) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
          default:              /* invalid position indication */                          break;
       }
       chunk_log(pc, "chunk_add");
@@ -486,7 +486,7 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 {
    LOG_FUNC_ENTRY();
 
-   if ((pc_in != NULL) && (ref != NULL))
+   if ((pc_in != nullptr) && (ref != nullptr))
    {
       g_cl.Pop(pc_in);
       g_cl.AddAfter(pc_in, ref);
@@ -743,7 +743,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 {
    LOG_FUNC_ENTRY();
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
 
    c_token_t       *where;
    const c_token_t *type;
@@ -765,7 +765,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
       return;
    }
 
-   if ((pc != NULL) && (*where != token))
+   if ((pc != nullptr) && (*where != token))
    {
       LOG_FMT(what, "%s: %zu:%zu '%s' %s:%s => %s:%s",
               str, pc->orig_line, pc->orig_col, pc->text(),
@@ -839,20 +839,20 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const scope_e scope, const dir_e 
 bool chunk_is_forin(chunk_t *pc)
 {
    if ((cpd.lang_flags & LANG_OC  ) &&
-       (pc       != NULL          ) &&
+       (pc       != nullptr          ) &&
        (pc->type == CT_SPAREN_OPEN) )
    {
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
-      assert(prev != NULL);
+      assert(prev != nullptr);
       if (prev->type == CT_FOR)
       {
          chunk_t *next = pc;
-         while ( (next       != NULL           ) &&
+         while ( (next       != nullptr           ) &&
                  (next->type != CT_SPAREN_CLOSE) &&
                  (next->type != CT_IN          ) )
          {
             next = chunk_get_next_ncnl(next);
-            assert(next != NULL);
+            assert(next != nullptr);
             if (next->type == CT_IN)
             {
                return(true);
@@ -866,7 +866,7 @@ bool chunk_is_forin(chunk_t *pc)
 
 chunk_t *chunk_skip_to_match(chunk_t *cur, scope_e scope)
 {
-   if ( (cur != NULL) && ((cur->type == CT_PAREN_OPEN ) ||
+   if ( (cur != nullptr) && ((cur->type == CT_PAREN_OPEN ) ||
                           (cur->type == CT_SPAREN_OPEN) ||
                           (cur->type == CT_FPAREN_OPEN) ||
                           (cur->type == CT_TPAREN_OPEN) ||
@@ -900,7 +900,7 @@ chunk_t *chunk_skip_to_match_rev(chunk_t *cur, scope_e scope)
 
 bool chunk_is_function(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_FUNC_DEF        ) ||
+   return((pc != nullptr) && ((pc->type == CT_FUNC_DEF        ) ||
                            (pc->type == CT_FUNC_PROTO      ) ||
                            (pc->type == CT_FUNC_CLASS_DEF  ) ||
                            (pc->type == CT_FUNC_CLASS_PROTO) ||
@@ -910,7 +910,7 @@ bool chunk_is_function(chunk_t *pc)
 
 bool chunk_is_comment(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_COMMENT      ) ||
+   return((pc != nullptr) && ((pc->type == CT_COMMENT      ) ||
                            (pc->type == CT_COMMENT_MULTI) ||
                            (pc->type == CT_COMMENT_CPP  ) ) );
 }
@@ -918,7 +918,7 @@ bool chunk_is_comment(chunk_t *pc)
 
 bool chunk_is_newline(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_NEWLINE) ||
+   return((pc != nullptr) && ((pc->type == CT_NEWLINE) ||
                            (pc->type == CT_NL_CONT) ) );
 }
 
@@ -1067,7 +1067,7 @@ bool chunk_is_addr(chunk_t *pc)
 bool chunk_is_msref(chunk_t *pc)
 {
    return((cpd.lang_flags & LANG_CPP     ) &&
-          ((pc         != NULL           ) &&
+          ((pc         != nullptr           ) &&
            (pc->len()  == 1              ) &&
            (pc->str[0] == '^'            ) &&
            (pc->type   != CT_OPERATOR_VAL)));
@@ -1084,34 +1084,34 @@ bool chunk_is_ptr_operator(chunk_t *pc)
 
 bool chunk_is_closing_brace(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_BRACE_CLOSE ) ||
+   return((pc != nullptr) && ((pc->type == CT_BRACE_CLOSE ) ||
                            (pc->type == CT_VBRACE_CLOSE) ) );
 }
 
 
 bool chunk_is_opening_brace(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_BRACE_OPEN ) ||
+   return((pc != nullptr) && ((pc->type == CT_BRACE_OPEN ) ||
                            (pc->type == CT_VBRACE_OPEN) ) );
 }
 
 
 bool chunk_is_vbrace(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_VBRACE_CLOSE) ||
+   return((pc != nullptr) && ((pc->type == CT_VBRACE_CLOSE) ||
                            (pc->type == CT_VBRACE_OPEN ) ) );
 }
 
 
 bool chunk_is_fparen_open(chunk_t *pc)
 {
-   return((pc != NULL) && (pc->type == CT_FPAREN_OPEN));
+   return((pc != nullptr) && (pc->type == CT_FPAREN_OPEN));
 }
 
 
 bool chunk_is_paren_open(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_PAREN_OPEN ) ||
+   return((pc != nullptr) && ((pc->type == CT_PAREN_OPEN ) ||
                            (pc->type == CT_SPAREN_OPEN) ||
                            (pc->type == CT_TPAREN_OPEN) ||
                            (pc->type == CT_FPAREN_OPEN) ) );
@@ -1120,7 +1120,7 @@ bool chunk_is_paren_open(chunk_t *pc)
 
 bool chunk_is_paren_close(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_PAREN_CLOSE ) ||
+   return((pc != nullptr) && ((pc->type == CT_PAREN_CLOSE ) ||
                            (pc->type == CT_SPAREN_CLOSE) ||
                            (pc->type == CT_TPAREN_CLOSE) ||
                            (pc->type == CT_FPAREN_CLOSE) ) );
@@ -1129,8 +1129,8 @@ bool chunk_is_paren_close(chunk_t *pc)
 
 bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 {
-   return((pc1 == NULL) ||
-          (pc2 == NULL) ||
+   return((pc1 == nullptr) ||
+          (pc2 == nullptr) ||
           ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
 }
 
@@ -1139,7 +1139,7 @@ bool chunk_safe_to_del_nl(chunk_t *nl)
 {
    chunk_t *tmp = chunk_get_prev(nl);
 
-   if ((tmp != NULL) && (tmp->type == CT_COMMENT_CPP))
+   if ((tmp != nullptr) && (tmp->type == CT_COMMENT_CPP))
    {
       return(false);
    }

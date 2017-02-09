@@ -230,7 +230,7 @@ void add_define(string tag)
       LOG_FMT(LERR, "%s: tag string is empty\n", __func__);
       return;
    }
-   add_define(tag.c_str(), NULL);
+   add_define(tag.c_str(), nullptr);
 }
 
 
@@ -301,7 +301,7 @@ string get_option(string name)
    }
 
    const auto option = unc_find_option(name.c_str());
-   if (option == NULL)
+   if (option == nullptr)
    {
       LOG_FMT(LWARN, "Option %s not found\n", name.c_str());
       return("");
@@ -320,7 +320,7 @@ string show_options()
    // TODO (upstream): see uncrustify()
    FILE *stream = open_memstream(&buf, &len);
 
-   if (stream == NULL)
+   if (stream == nullptr)
    {
       LOG_FMT(LERR, "Failed to open_memstream\n");
       fflush(stream);
@@ -358,7 +358,7 @@ string show_config(bool withDoc, bool only_not_default)
    // TODO (upstream): see uncrustify()
    FILE *stream = open_memstream(&buf, &len);
 
-   if (stream == NULL)
+   if (stream == nullptr)
    {
       LOG_FMT(LERR, "Failed to open_memstream\n");
       fflush(stream);
@@ -525,7 +525,7 @@ string uncrustify(string file, bool frag)
    // apparently emscripten has its own implementation, if that is not working
    // see: stackoverflow.com/questions/10305095#answer-10341073
    FILE *stream = open_memstream(&buf, &len);
-   if (stream == NULL)
+   if (stream == nullptr)
    {
       LOG_FMT(LERR, "Failed to open_memstream\n");
       fflush(stream);
@@ -548,7 +548,7 @@ string uncrustify(string file, bool frag)
    // function which passes the debug output into a dedicated output js target.
    // This therefore would introduce the dependency on the user to always have
    // the output js target available.
-   uncrustify_file(fm, stream, NULL);
+   uncrustify_file(fm, stream, nullptr);
 
    fflush(stream);
    fclose(stream);
@@ -603,21 +603,21 @@ string uncrustify(string file)
 //! helper function to access option_map_value::name
 string option_map_value_name(const option_map_value &o)
 {
-   return((o.name != NULL) ? string(o.name) : "");
+   return((o.name != nullptr) ? string(o.name) : "");
 }
 
 
 //! helper function to access option_map_value::short_desc
 string option_map_value_sDesc(const option_map_value &o)
 {
-   return((o.short_desc != NULL) ? string(o.short_desc) : "");
+   return((o.short_desc != nullptr) ? string(o.short_desc) : "");
 }
 
 
 //! helper function to access option_map_value::long_desc
 string option_map_value_lDesc(const option_map_value &o)
 {
-   return((o.long_desc != NULL) ? string(o.long_desc) : "");
+   return((o.long_desc != nullptr) ? string(o.long_desc) : "");
 }
 
 

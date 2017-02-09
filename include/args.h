@@ -16,6 +16,7 @@
 
 #include "base_types.h"
 
+
 class Args
 {
 private:
@@ -77,7 +78,7 @@ public:
     *   "-c", "all" returns "all"
     *   "-c=", "all" returns ""
     *
-    * @return        NULL or the pointer to the string
+    * @return        nullptr or the pointer to the string
     */
    const char *Param(
       const char *token /**< [in] The token string to match */
@@ -88,7 +89,7 @@ public:
     * Similar to arg_param, but can iterate over all matches.
     * Set index to 0 before the first call.
     *
-    * @return        NULL or the pointer to the string.
+    * @return        nullptr or the pointer to the string.
     */
    const char *Params(
       const char *token, /**< [in] The token string to match */
@@ -117,7 +118,7 @@ public:
     * You must set the index before the first call.
     * Set the index to 1 to skip argv[0].
     *
-    * @return NULL (done) or the pointer to the string
+    * @return nullptr (done) or the pointer to the string
     */
    const char *Unused(
       size_t &idx /**< [in] Pointer to the index */
@@ -139,5 +140,6 @@ public:
       size_t num_args  /**< [in]  number of items in input string */
    );
 };
+
 
 #endif /* ARGS_H_INCLUDED */

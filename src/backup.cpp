@@ -36,7 +36,13 @@
 /**< overall size of a MD5 checksum string including termination character */
 #define MD5_STR_SIZE   ((MD5_CHAR_COUNT * MD5_CHAR_SIZE) + 1u)
 
-void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16]);
+
+void md5_to_string(
+   char         *md5_str,
+   const size_t str_len,
+   UINT8        dig[16]
+);
+
 
 void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
 {
