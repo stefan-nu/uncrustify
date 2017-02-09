@@ -106,9 +106,12 @@
 ++d__const=const        // gconv.h uses __const rather than const
 ++dconst=const          // ensure const expands to const.
 
--rw_asgn( asm,      _up_to_brackets )
--rw_asgn( __asm,    _up_to_brackets )
--rw_asgn( __asm__,  _up_to_brackets )
+// If code contains assembly code theses options are helpful
+-d__asm__=txt1
+-dasm=txt2
+//-rw_asgn( asm,      _up_to_brackets )
+//-rw_asgn( __asm,    _up_to_brackets )
+//-rw_asgn( __asm__,  _up_to_brackets )
 // This re-definition of the various spellings of the asm keyword enables
 // Lint to pass gracefully over expression-statements like:
 // __asm __volatile ("fsqrt" : "=t" (__result) : "0" (__x));

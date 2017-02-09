@@ -38,24 +38,31 @@ scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 
 // Configuration for checking the operating unit source code
 
+-t3			// one tabstop is 3 blank characters wide
+-$			// regard $ as an identifier character
 
 -d__cplusplus
 //-d__cplusplus=20130531
 //-d_GNU_SOURCE
--d__GNUC__
+//-d__GNUC__
 //-d__STDC__
--d__GLIBCXX__=20130531
+//-d__GLIBCXX__=20130531
 //-d__SIZE_TYPE__=int
 //-d__PTRDIFF_TYPE__=int
 //-d__CHAR_BIT__=8
--dWIN32
+//-dWIN32
 //-d__i386__
 //-d__i586__
--d__i686__
+//-d__i686__
 -dDEFINE_CHAR_TABLE
 -dDEFINE_PCF_NAMES 
 -dDEBUG
+-d__STRICT_ANSI__
 -A(C++2011)
+//-A(C2011)
+--u__GXX_EXPERIMENTAL_CXX0X__
+-d_CXX0X_WARNING_H=1
+
 
 // define compiler specific keywords
 
@@ -64,6 +71,8 @@ scripts\pclint\co-gcc.lnt 	// Compiler Options for GCC
 //-d"_exit=_up_to_brackets"
 //-d"extern 'C'=gobble"
 //+fkp        				// complain about non-KR extensions
+-fvl						// disabel variable length arrays
 
 // To print a stack usage report pclint has to know how much space is required by some functions
 // define an upper limit of stack space usage for recursion and function pointers
+

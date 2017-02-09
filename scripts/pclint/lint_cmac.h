@@ -75,6 +75,7 @@
 #define __INT_FAST16_TYPE__ short int
 #define _fastcall __attribute__((__fastcall__))
 #define __LDBL_HAS_DENORM__ 1
+#define __cplusplus 201103L
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 2147483647
 #define __DEC32_MIN__ 1E-95DF

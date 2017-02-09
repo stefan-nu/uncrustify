@@ -13,30 +13,35 @@
 -e18					// symbol redefined
 +e19					// useless declaration
 -e14					// symbol previously defined
-+e26					// expected an expression found const/return
+-e24					// expected an expression found >
+-e26					// expected an expression found const/return
 -e27					// illegal character
 +e30					// expected an integer constant
 -e31					// redefinition of symbol
 +e32					// field size should not be zero
-+e36					// redefining the storage class of symbol
+-e36					// redefining the storage class of symbol
+-e39					// redefinition of symbol
 -e40					// undeclared identifier
 +e46					// field type should be an integral or enumeration type
 +e48					// bad type
-+e49					// expected a typed
-+e50					// attempted to take the address of a non-lvalue
+-e49					// expected a typed
+-e50					// attempted to take the address of a non-lvalue
 +e52					// expected an lvalue
-+e55					// bad type
+-e55					// bad type
 +e56					// bad type
-+e63					// expected an lvalue
+-e63					// expected an lvalue
 +e64					// type mismatch
 -e78					// typedef'd symbol used in expression
 +e85 					// array has dimension 0
-+e96					// unmatched left brace for linkage specification
+-e96					// unmatched left brace for linkage specification
+-e98					// recovery error (variadic template count not be resolved)
 +e114					// inconsistent
 +e119					// too many arguments 
 -e123					// macro defined with arguments
 -e129					// declaration expected
-+e200					// internal error
+-e150					// token unexpected for non-constructor funtion			
+-e151					// token inconsitent with abstract type
+-e200					// internal error
 -e309					// #error
 +e438					// last value assignd to variable not used
 -e451					// header without include guard
@@ -340,26 +345,29 @@
 -e970					// (noisy) Use of modifier or type outside of a typedef
 -e971					// (noisy) Use of 'char' without 'signed' or 'unsigned'
 +e974 					// print Worst case function for stack usage:
-+e1013					// symbol is not a member of class
-+e1015					// symbol not found in class
+-e1013					// symbol is not a member of class
+-e1015					// symbol not found in class
+-e1016					// symbol is supposed to denote class
 +e1025					// no function or template matches invocation
-+e1039					// symbol is not a member of class
+-e1039					// symbol is not a member of class
 +e1040					// symbol is not a legal declaration within class
 +e1042					// a least one class like operand is required with operator
-+e1048					// expected a constant expression
+-e1048					// expected a constant expression
 +e1051					// symbol is both a function and a variable
 +e1052					// a type was expected, class assumed
-+e1054					// template variable declaration expects a type
+-e1054					// template variable declaration expects a type
 +e1055					// symbol undeclared, assumed to return int
 +e1057					// member cannot be used without an object				
 +e1058					// initializing a non-const reference
-+e1062					// template must be either a class or a function
+-e1059					// symbol is supposed to denote a class
+-e1062					// template must be either a class or a function
 -e1065					// symbol not declared as "C"
 -e1066					// symbol declared as "C" 
 +e1075					// Ambiguous reference to symbol
 +e1077					// could not evaluate default template parameter			
 +e1086					// do not warn about compount literals
 +e1087					// previous declaration is incompatible
+-e1220					// internal error
 +e1401					// member not initialized by constructor
 +e1502					// object has no nonstatic data member
 +e1526					// Member function not defined
@@ -385,6 +393,7 @@
 +e1757					// discarded instance of post decrement/increment
 +e1762					// member could be made const
 +e1764					// reference parameter could be declared const 
+-e1770					// function defined without function
 +e1776					// converting a string literal to char*
 +e1786					// implicit conversion to bool
 +e1788					// variable is referenced only by its constructor or destructor
