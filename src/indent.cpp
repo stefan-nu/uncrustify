@@ -251,7 +251,7 @@ enum class align_mode_e : unsigned int
 {
    SHIFT,     /* shift relative to the current column */
    KEEP_ABS,  /* try to keep the original absolute column */
-   KEEP_REL,  /* try to keep the original gap */
+   KEEP_REL   /* try to keep the original gap */
 };
 
 
@@ -1119,7 +1119,7 @@ void indent_text(void)
              pc->parent_type == CT_CPP_LAMBDA)
          {
             // DRY6
-            frm.pse[frm.pse_tos  ].brace_indent = frm.pse[frm.pse_tos-1].indent;
+            frm.pse[frm.pse_tos  ].brace_indent = (int)frm.pse[frm.pse_tos-1].indent;
             indent_column                       = frm.pse[frm.pse_tos  ].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
@@ -1132,7 +1132,7 @@ void indent_text(void)
                    pc->parent_type == CT_DELEGATE))
          {
             // DRY6
-            frm.pse[frm.pse_tos  ].brace_indent = 1 + ((pc->brace_level+1) * indent_size);
+            frm.pse[frm.pse_tos  ].brace_indent = (int)(1 + ((pc->brace_level+1) * indent_size));
             indent_column                       = frm.pse[frm.pse_tos].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
@@ -1146,7 +1146,7 @@ void indent_text(void)
          {
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
             // DRY6
-            frm.pse[frm.pse_tos  ].brace_indent = 1 + (pc->brace_level * indent_size);
+            frm.pse[frm.pse_tos  ].brace_indent = (int)(1 + (pc->brace_level * indent_size));
             indent_column                       = frm.pse[frm.pse_tos].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
@@ -1345,7 +1345,7 @@ void indent_text(void)
          }
 
          /* Save the brace indent */
-         frm.pse[frm.pse_tos].brace_indent = indent_column;
+         frm.pse[frm.pse_tos].brace_indent = (int)indent_column;
       }
       else if (pc->type == CT_SQL_END)
       {

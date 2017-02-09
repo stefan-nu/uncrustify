@@ -14,6 +14,7 @@
 +e19					// useless declaration
 -e14					// symbol previously defined
 +e26					// expected an expression found const/return
+-e27					// illegal character
 +e30					// expected an integer constant
 -e31					// redefinition of symbol
 +e32					// field size should not be zero
@@ -322,7 +323,7 @@
 +e945 					// Undefined struct used with extern
 +e946 					// Relational or subtract operator applied to pointers
 +e947 					// Subtract operator applied to pointers
-+e950 					// Non-ISO/ANSI reserved word or construct:
+-e950 					// Non-ISO/ANSI reserved word or construct:
 +e951 					// Pointer to incomplete type employed in operation
 -e952 					// Parameter could be declared const
 -e953 					// Variable could be declared as const

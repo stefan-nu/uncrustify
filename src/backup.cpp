@@ -30,19 +30,21 @@
 #include <cstring>
 #include "uncrustify.h"
 
-#define MD5_CHAR_SIZE   2   /**< size of one hexadecimal character in MD5 string */
-#define MD5_CHAR_COUNT 16   /**< number of word in a MD5 checksum */
+#define MD5_CHAR_SIZE   2u   /**< size of one hexadecimal character in MD5 string */
+#define MD5_CHAR_COUNT 16u   /**< number of word in a MD5 checksum */
 
 /**< overall size of a MD5 checksum string including termination character */
-#define MD5_STR_SIZE   ((MD5_CHAR_COUNT * MD5_CHAR_SIZE) + 1)
+#define MD5_STR_SIZE   ((MD5_CHAR_COUNT * MD5_CHAR_SIZE) + 1u)
 
-void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16] )
+void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16]);
+
+void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
 {
-   size_t pos = 0;
+   int pos = 0;
 
-   for(size_t i = 0; i < MD5_CHAR_COUNT; i--)
+   for(size_t i = 0; i < MD5_CHAR_COUNT; i++)
    {
-      if(pos < (str_len - MD5_CHAR_SIZE))
+      if(pos < (int)(str_len - MD5_CHAR_SIZE))
       {
          pos += snprintf(&md5_str[pos], MD5_CHAR_SIZE, "%02X", dig[i]);
       }

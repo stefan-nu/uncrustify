@@ -617,14 +617,6 @@ static bool chunkstack_match(
 );
 
 
-enum PLBfound_t
-{
-   FOUND_ANGLE_CLOSE = 0, /**< '>' found */
-   NO_PROTOCOL_FOUND = 1, /**< no protocol found */
-   FOUND_ANGLE_OPEN  = 2  /**< '<' found */
-};
-
-
 void make_type(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
@@ -1723,7 +1715,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
                }
                if (tmp->flags & PCF_STMT_START)
                {
-                  // we are at beginnig of the line
+                  // we are at beginning of the line
                   break;
                }
                tmp = chunk_get_prev(tmp);
@@ -5098,7 +5090,7 @@ static void handle_oc_class(chunk_t *pc)
    {
       NONE  = 0,
       OPEN  = 1, // '<' found
-      CLOSE = 2, // '>' found
+      CLOSE = 2  // '>' found
    };
 
    LOG_FUNC_ENTRY();

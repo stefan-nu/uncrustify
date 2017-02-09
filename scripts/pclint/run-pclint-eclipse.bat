@@ -36,7 +36,7 @@ rem to check single files activate one of the lines below
 echo.										> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\align_stack.cpp		> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\align.cpp			>> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\args.cpp				>> .\%OUT_DIR%\files.lnt
+ rem dir /s/b %SRC_DIR%\args.cpp			>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\backup.cpp			>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\brace_cleanup.cpp	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\braces.cpp			>> .\%OUT_DIR%\files.lnt
@@ -50,13 +50,13 @@ rem dir /s/b %SRC_DIR%\args.cpp				>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\indent.cpp 			>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\keywords.cpp 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\lang_pawn.cpp	 	>> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\logger.cpp	 		>> .\%OUT_DIR%\files.lnt
+ rem dir /s/b %SRC_DIR%\logger.cpp	 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\logmask.cpp	 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\md5.cpp			 	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\newlines.cpp	 	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\options_for_QT.cpp	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\options.cpp	 		>> .\%OUT_DIR%\files.lnt
-rem dir /s/b %SRC_DIR%\output.cpp		 	>> .\%OUT_DIR%\files.lnt
+ rem dir /s/b %SRC_DIR%\output.cpp		 	>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\parens.cpp	 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\parse_frame.cpp		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\punctuators.cpp		>> .\%OUT_DIR%\files.lnt
@@ -84,10 +84,10 @@ rem that are used in your project. Best it to add a rule to the Makefile
 rem to update the configuration automatically using the current compiler settings
 
 rem for C project
-gcc -E -dM empty.c > lint_cmac.h
+gcc -E -dM -O0 -g3 -c -fmessage-length=0 -Wno-format -std=gnu++0x .\%LNT_DIR%\empty.c > .\%LNT_DIR%\lint_cmac.h
 
 rem for C++ project
-g++ -E -dM empty.c > lint_cppmac.h
+g++ -E -dM -O0 -g3 -c -fmessage-length=0 -Wno-format -std=gnu++0x .\%LNT_DIR%\empty.c > .\%LNT_DIR%\lint_cppmac.h
 
 rem use this to save the pclint errors to a file for later review
 rem lint-nt .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt > .\%OUT_DIR%\pclint-results.xml

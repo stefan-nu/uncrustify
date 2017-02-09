@@ -25,7 +25,7 @@ enum class comment_align_e : unsigned int
 {
    REGULAR,
    BRACE,
-   ENDIF,
+   ENDIF
 };
 
 

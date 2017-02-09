@@ -452,9 +452,9 @@ static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const dir_e pos)
    {
       switch(pos)
       {
-         case(dir_e::AFTER):  (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
+         case(dir_e::AFTER ): (ref != NULL) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
          case(dir_e::BEFORE): (ref != NULL) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
-         default:      /* invalid position indication */                           break;
+         default:              /* invalid position indication */                          break;
       }
       chunk_log(pc, "chunk_add");
    }

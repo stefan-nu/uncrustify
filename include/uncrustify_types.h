@@ -399,13 +399,13 @@ struct cp_data_t
    bool            unc_off;
    bool            unc_off_used;    // to check if "unc_off" is used
    UINT32          line_number;
-   UINT16          column;          // column for parsing
-   UINT16          spaces;          // space count on output
+   UINT32          column;          // column for parsing
+   UINT32          spaces;          // space count on output
 
    int             ifdef_over_whole_file;
 
    bool            frag;           /* activates code fragment option */
-   UINT16          frag_cols;
+   UINT32          frag_cols;
 
    // stuff to auto-detect line endings
    UINT32          le_counts[LE_AUTO];

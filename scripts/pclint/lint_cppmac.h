@@ -37,6 +37,7 @@
 #define __UINTMAX_TYPE__ long long unsigned int
 #define __DEC32_EPSILON__ 1E-6DF
 #define __UINT32_MAX__ 4294967295U
+#define __GXX_EXPERIMENTAL_CXX0X__ 1
 #define __LDBL_MAX_EXP__ 16384
 #define __WINT_MIN__ 0
 #define __SCHAR_MAX__ 127
@@ -79,7 +80,7 @@
 #define __INT_FAST16_TYPE__ short int
 #define _fastcall __attribute__((__fastcall__))
 #define __LDBL_HAS_DENORM__ 1
-#define __cplusplus 199711L
+#define __cplusplus 201103L
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 2147483647
 #define __DEC32_MIN__ 1E-95DF
@@ -200,6 +201,7 @@
 #define __UINT64_TYPE__ long long unsigned int
 #define __INT_FAST8_TYPE__ signed char
 #define __fastcall __attribute__((__fastcall__))
+#define __GNUC_STDC_INLINE__ 1
 #define __DBL_DECIMAL_DIG__ 17
 #define __DEC_EVAL_METHOD__ 2
 #define __ORDER_BIG_ENDIAN__ 4321
@@ -238,7 +240,6 @@
 #define __LDBL_DIG__ 18
 #define __FLT_DECIMAL_DIG__ 9
 #define __UINT_FAST16_MAX__ 65535
-#define __GNUC_GNU_INLINE__ 1
 #define __GCC_ATOMIC_SHORT_LOCK_FREE 2
 #define __UINT_FAST8_TYPE__ unsigned char
 #define __ATOMIC_ACQ_REL 4
