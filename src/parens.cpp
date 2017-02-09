@@ -48,7 +48,7 @@ void do_parens(void)
    if (cpd.settings[UO_mod_full_paren_if_bool].b)
    {
       chunk_t *pc = chunk_get_head();
-      while ((pc = chunk_get_next_ncnl(pc)) != NULL)
+      while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
          if ((pc->type != CT_SPAREN_OPEN) ||
              ((pc->parent_type != CT_IF) &&
@@ -60,7 +60,7 @@ void do_parens(void)
 
          /* Grab the close sparen */
          chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
-         if (pclose != NULL)
+         if (pclose != nullptr)
          {
             check_bool_parens(pc, pclose, 0);
             pc = pclose;
@@ -138,7 +138,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
            popen->level);
 
    chunk_t *pc = popen;
-   while (((pc = chunk_get_next_ncnl(pc)) != NULL) && (pc != pclose))
+   while (((pc = chunk_get_next_ncnl(pc)) != nullptr) && (pc != pclose))
    {
       if (pc->flags & PCF_IN_PREPROC)
       {
@@ -172,7 +172,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
       else if (chunk_is_paren_open(pc))
       {
          chunk_t *next = chunk_skip_to_match(pc);
-         if (next != NULL)
+         if (next != nullptr)
          {
             check_bool_parens(pc, next, nest + 1);
             pc = next;

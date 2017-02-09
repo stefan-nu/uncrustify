@@ -31,13 +31,13 @@ static void prepare_categories()
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (cpd.settings[UO_include_category_first + i].str != NULL)
+      if (cpd.settings[UO_include_category_first + i].str != nullptr)
       {
          include_categories[i] = new include_category(cpd.settings[UO_include_category_first + i].str);
       }
       else
       {
-         include_categories[i] = NULL;
+         include_categories[i] = nullptr;
       }
    }
 }
@@ -47,10 +47,10 @@ static void cleanup_categories()
 {
    for (int i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (include_categories[i] != NULL)
+      if (include_categories[i] != nullptr)
       {
          delete include_categories[i];
-         include_categories[i] = NULL;
+         include_categories[i] = nullptr;
       }
    }
 }
@@ -60,7 +60,7 @@ static int get_chunk_priority(chunk_t *pc)
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (include_categories[i] != NULL)
+      if (include_categories[i] != nullptr)
       {
          if (std::regex_match(pc->text(), include_categories[i]->regex))
          {
@@ -139,8 +139,8 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
 
       /* If we hit a newline or NULL, we are done */
-      if ((pc1 == NULL)         ||
-          (pc2 == NULL)         ||
+      if ((pc1 == nullptr)      ||
+          (pc2 == nullptr)      ||
           chunk_is_newline(pc1) ||
           chunk_is_newline(pc2) )
       {
@@ -148,7 +148,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
    }
 
-   if ((pc1 == NULL) || !chunk_is_newline(pc2))
+   if ((pc1 == nullptr) || !chunk_is_newline(pc2))
    {
       return(-1);
    }
@@ -201,13 +201,13 @@ void sort_imports(void)
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
    size_t  num_chunks = 0;
-   const chunk_t *p_last    = NULL;
-   chunk_t *p_imp     = NULL;
+   const chunk_t *p_last    = nullptr;
+   chunk_t *p_imp     = nullptr;
 
    prepare_categories();
 
    chunk_t *pc = chunk_get_head();
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       chunk_t *next = chunk_get_next(pc);
 
@@ -215,7 +215,7 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ((p_imp != NULL) && (p_last != NULL) &&
+         if ((p_imp != nullptr) && (p_last != nullptr) &&
              ((p_last->type == CT_SEMICOLON) ||
               (p_imp->flags & PCF_IN_PREPROC)))
          {
@@ -233,7 +233,7 @@ void sort_imports(void)
             }
             did_import = true;
          }
-         if (!did_import || (pc->nl_count > 1) || next == NULL)
+         if (!did_import || (pc->nl_count > 1) || next == nullptr)
          {
             if (num_chunks > 1)
             {
@@ -241,8 +241,8 @@ void sort_imports(void)
             }
             num_chunks = 0;
          }
-         p_imp  = NULL;
-         p_last = NULL;
+         p_imp  = nullptr;
+         p_last = nullptr;
       }
       else if (pc->type == CT_IMPORT)
       {

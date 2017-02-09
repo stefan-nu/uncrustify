@@ -236,7 +236,7 @@ static chunk_t *chunk_search_type(chunk_t *cur, const c_token_t type,
    do                                /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != NULL) &&            /* the end of the list was not reached yet */
+   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
             (pc->type != type));       /* and the demanded chunk was not found either */
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -251,7 +251,7 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, scope_e scope,
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != NULL) &&          /* the end of the list was not reached yet */
+   } while ((pc != nullptr) &&       /* the end of the list was not reached yet */
             (is_expected_type_and_level(pc, type, level) == false));
    return(pc);                       /* the latest chunk is the searched one */
 }
@@ -265,7 +265,7 @@ chunk_t *chunk_search_str(chunk_t *cur, const char *str, size_t len, scope_e sco
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != NULL) &&            /* the end of the list was not reached yet */
+   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
             (is_expected_string_and_level(pc, str, level, len) == false));
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -280,7 +280,7 @@ static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct,
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != NULL) &&            /* the end of the list was not reached yet */
+   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
             (check_fct(pc) != cond));  /* and the demanded chunk was not found either */
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -323,10 +323,10 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
  * while loop of the calling function */
 chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 {
-   if (cur == NULL) { return(cur); }
+   if (cur == nullptr) { return(cur); }
 
    chunk_t *pc = g_cl.GetNext(cur);
-   if ((pc == NULL) || (scope == scope_e::ALL))
+   if ((pc == nullptr) || (scope == scope_e::ALL))
    {
       return(pc);
    }
@@ -335,12 +335,12 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
       /* If in a preproc, return NULL if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
-         return((chunk_t *)NULL);
+         return((chunk_t *)nullptr);
       }
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while ((pc != NULL) && (pc->flags & PCF_IN_PREPROC))
+   while ((pc != nullptr) && (pc->flags & PCF_IN_PREPROC))
    {
       pc = g_cl.GetNext(pc);
    }
@@ -350,10 +350,10 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 
 chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
 {
-   if (cur == NULL) { return(cur); }
+   if (cur == nullptr) { return(cur); }
 
    chunk_t *pc = g_cl.GetPrev(cur);
-   if ((pc == NULL) || (scope == scope_e::ALL))
+   if ((pc == nullptr) || (scope == scope_e::ALL))
    {
       return(pc);
    }
@@ -362,12 +362,12 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
       /* If in a preproc, return NULL if trying to leave */
       if ((pc->flags & PCF_IN_PREPROC) == 0)
       {
-         return((chunk_t *)NULL);
+         return((chunk_t *)nullptr);
       }
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while ((pc != NULL) && (pc->flags & PCF_IN_PREPROC))
+   while ((pc != nullptr) && (pc->flags & PCF_IN_PREPROC))
    {
       pc = g_cl.GetPrev(pc);
    }
@@ -391,7 +391,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
 {
    chunk_t *const pc = new chunk_t; /* Allocate a new chunk */
 
-   if (pc == NULL)
+   if (pc == nullptr)
    {
       /* @todo clean up properly before crashing */
       LOG_FMT(LERR, "Failed to allocate memory\n");
@@ -416,7 +416,7 @@ static void chunk_log_msg(chunk_t *chunk, const log_sev_t log, const char *str)
 
 static void chunk_log(chunk_t *pc, const char *text)
 {
-   if ((pc            != NULL                 ) &&
+   if ((pc            != nullptr              ) &&
        (cpd.unc_stage != unc_stage_e::TOKENIZE) &&
        (cpd.unc_stage != unc_stage_e::CLEANUP ) )
    {
@@ -681,9 +681,9 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    pc1 = chunk_first_on_line(pc1);
    pc2 = chunk_first_on_line(pc2);
 
-   if ((pc1 == NULL) ||
-       (pc2 == NULL) ||
-       (pc1 == pc2 ) )
+   if ((pc1 == nullptr) ||
+       (pc2 == nullptr) ||
+       (pc1 == pc2    ) )
    {
       return;
    }
@@ -694,7 +694,7 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    /* Move the line started at pc2 before pc1 */
-   while ((pc2 != NULL) && !chunk_is_newline(pc2))
+   while ((pc2 != nullptr) && !chunk_is_newline(pc2))
    {
       chunk_t *tmp = chunk_get_next(pc2);
       g_cl.Pop(pc2);
@@ -707,12 +707,12 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     *                         ^- pc1                              ^- pc2 */
 
    /* Now move the line started at pc1 after ref2 */
-   while ((pc1 != NULL) && !chunk_is_newline(pc1))
+   while ((pc1 != nullptr) && !chunk_is_newline(pc1))
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
-      if (ref2 != NULL) { g_cl.AddAfter(pc1, ref2); }
-      else              { g_cl.AddHead (pc1);       }
+      if (ref2 != nullptr) { g_cl.AddAfter(pc1, ref2); }
+      else                 { g_cl.AddHead (pc1);       }
       ref2 = pc1;
       pc1  = tmp;
    }
@@ -724,7 +724,7 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    /* pc1 and pc2 should be the newlines for their lines.
     * swap the chunks and the nl_count so that the spacing remains the same.
     */
-   if ((pc1 != NULL) && (pc2 != NULL))
+   if ((pc1 != nullptr) && (pc2 != nullptr))
    {
 #if 0
       SWAP(pc1->nl_count, pc2->nl_count); /* \todo check this */
@@ -809,7 +809,7 @@ void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
 {
    LOG_FUNC_ENTRY();
 
-   if (pc != NULL)
+   if (pc != nullptr)
    {
       const UINT64 nflags = (pc->flags & ~clr_bits) | set_bits;
       if (pc->flags != nflags)
@@ -883,14 +883,14 @@ chunk_t *chunk_skip_to_match(chunk_t *cur, scope_e scope)
 
 chunk_t *chunk_skip_to_match_rev(chunk_t *cur, scope_e scope)
 {
-   if ((cur != NULL) && ((cur->type == CT_PAREN_CLOSE ) ||
-                         (cur->type == CT_SPAREN_CLOSE) ||
-                         (cur->type == CT_FPAREN_CLOSE) ||
-                         (cur->type == CT_TPAREN_CLOSE) ||
-                         (cur->type == CT_BRACE_CLOSE ) ||
-                         (cur->type == CT_VBRACE_CLOSE) ||
-                         (cur->type == CT_ANGLE_CLOSE ) ||
-                         (cur->type == CT_SQUARE_CLOSE) ) )
+   if ((cur != nullptr) && ((cur->type == CT_PAREN_CLOSE ) ||
+                            (cur->type == CT_SPAREN_CLOSE) ||
+                            (cur->type == CT_FPAREN_CLOSE) ||
+                            (cur->type == CT_TPAREN_CLOSE) ||
+                            (cur->type == CT_BRACE_CLOSE ) ||
+                            (cur->type == CT_VBRACE_CLOSE) ||
+                            (cur->type == CT_ANGLE_CLOSE ) ||
+                            (cur->type == CT_SQUARE_CLOSE) ) )
    {
       return(chunk_get_prev_type(cur, get_inverse_type(cur->type), (int)cur->level, scope));
    }
@@ -925,7 +925,7 @@ bool chunk_is_newline(chunk_t *pc)
 
 bool chunk_is_blank(chunk_t *pc)
 {
-   return((pc != NULL) && (pc->len() == 0));
+   return((pc != nullptr) && (pc->len() == 0));
 }
 
 
@@ -937,21 +937,21 @@ bool chunk_is_comment_or_newline(chunk_t *pc)
 
 bool chunk_is_balanced_square(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_SQUARE_OPEN ) ||
-                           (pc->type == CT_TSQUARE     ) ||
-                           (pc->type == CT_SQUARE_CLOSE) ) );
+   return((pc != nullptr) && ((pc->type == CT_SQUARE_OPEN ) ||
+                              (pc->type == CT_TSQUARE     ) ||
+                              (pc->type == CT_SQUARE_CLOSE) ) );
 }
 
 
 bool chunk_is_preproc(chunk_t *pc)
 {
-   return((pc != NULL) && (pc->flags & PCF_IN_PREPROC));
+   return((pc != nullptr) && (pc->flags & PCF_IN_PREPROC));
 }
 
 
 bool chunk_is_comment_or_newline_in_preproc(chunk_t *pc)
 {
-   return((pc != NULL         ) &&
+   return((pc != nullptr      ) &&
            chunk_is_preproc(pc) && (chunk_is_comment(pc) ||
                                     chunk_is_newline(pc) ) );
 }
@@ -973,42 +973,42 @@ bool chunk_is_comment_newline_or_blank(chunk_t *pc)
 
 bool chunk_is_single_line_comment(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_COMMENT    )  ||
-                           (pc->type == CT_COMMENT_CPP)) );
+   return((pc != nullptr) && ((pc->type == CT_COMMENT    )  ||
+                              (pc->type == CT_COMMENT_CPP)) );
 }
 
 
 bool chunk_is_semicolon(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_SEMICOLON) ||
-                           (pc->type == CT_VSEMICOLON)));
+   return((pc != nullptr) && ((pc->type == CT_SEMICOLON) ||
+                              (pc->type == CT_VSEMICOLON)));
 }
 
 
 bool chunk_is_type(chunk_t *pc)
 {
-   return((pc != NULL) && ((pc->type == CT_TYPE     ) ||
-                           (pc->type == CT_PTR_TYPE ) ||
-                           (pc->type == CT_BYREF    ) ||
-                           (pc->type == CT_DC_MEMBER) ||
-                           (pc->type == CT_QUALIFIER) ||
-                           (pc->type == CT_STRUCT   ) ||
-                           (pc->type == CT_ENUM     ) ||
-                           (pc->type == CT_UNION    ) ) );
+   return((pc != nullptr) && ((pc->type == CT_TYPE     ) ||
+                              (pc->type == CT_PTR_TYPE ) ||
+                              (pc->type == CT_BYREF    ) ||
+                              (pc->type == CT_DC_MEMBER) ||
+                              (pc->type == CT_QUALIFIER) ||
+                              (pc->type == CT_STRUCT   ) ||
+                              (pc->type == CT_ENUM     ) ||
+                              (pc->type == CT_UNION    ) ) );
 }
 
 
 bool chunk_is_token(chunk_t *pc, c_token_t c_token)
 {
-   return((pc != NULL) && (pc->type == c_token));
+   return((pc != nullptr) && (pc->type == c_token));
 }
 
 
 bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 {
-   return((pc                           != NULL) && /* valid pc pointer */
-          (pc->len()                    == len ) && /* token size equals size parameter */
-          (memcmp(pc->text(), str, len) == 0   ) ); /* token name is the same as str parameter */
+   return((pc                           != nullptr) && /* valid pc pointer */
+          (pc->len()                    == len    ) && /* token size equals size parameter */
+          (memcmp(pc->text(), str, len) == 0      ) ); /* token name is the same as str parameter */
 
    /* \todo possible access beyond array for memcmp, check this
     * why not use strncmp here?  */
@@ -1017,15 +1017,15 @@ bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 
 bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 {
-   return((pc        != NULL) &&
-          (pc->len() == len ) &&
+   return((pc        != nullptr) &&
+          (pc->len() == len    ) &&
           (strncasecmp(pc->text(), str, len) == 0));
 }
 
 
 bool chunk_is_word(chunk_t *pc)
 {
-   return((pc        != NULL                          ) &&
+   return((pc        != nullptr                       ) &&
           (pc->len() >= 1u                            ) &&
           (CharTable::IsKeyword1((size_t)(pc->str[0]))) );
 }
@@ -1033,7 +1033,7 @@ bool chunk_is_word(chunk_t *pc)
 
 bool chunk_is_star(chunk_t *pc)
 {
-   return((pc         != NULL           ) &&
+   return((pc         != nullptr        ) &&
           (pc->len()  == 1              ) &&
           (pc->str[0] == '*'            ) &&
           (pc->type   != CT_OPERATOR_VAL) );
@@ -1042,7 +1042,7 @@ bool chunk_is_star(chunk_t *pc)
 
 bool chunk_is_addr(chunk_t *pc)
 {
-   if (  (pc         != NULL           ) &&
+   if (  (pc         != nullptr        ) &&
        ( (pc->type   == CT_BYREF       ) ||
         ((pc->len()  ==  1             ) &&
          (pc->str[0] == '&'            ) &&
@@ -1051,7 +1051,7 @@ bool chunk_is_addr(chunk_t *pc)
       chunk_t *prev = chunk_get_prev(pc);
 
       if ((pc->flags & PCF_IN_TEMPLATE) &&
-          ((prev != NULL) &&
+          ((prev != nullptr) &&
            ((prev->type == CT_COMMA) || (prev->type == CT_ANGLE_OPEN))))
       {
 //      (pos == dir_e::AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);

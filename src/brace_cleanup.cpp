@@ -147,7 +147,7 @@ static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
 
    /* Get the type of preprocessor and handle it */
    next = chunk_get_next_ncnl(pc);
-   if (next != NULL)
+   if (next != nullptr)
    {
       cpd.is_preproc = next->type;
 
@@ -217,7 +217,7 @@ void brace_cleanup(void)
    cpd.pp_level    = 0;
 
    pc = chunk_get_head();
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       /* Check for leaving a #define body */
       if ((cpd.is_preproc               != CT_NONE) &&
@@ -280,7 +280,7 @@ static bool maybe_while_of_do(chunk_t *pc)
    chunk_t *prev;
 
    prev = chunk_get_prev_ncnl(pc);
-   if ((  prev == NULL                  ) ||
+   if ((  prev == nullptr               ) ||
        (!(prev->flags & PCF_IN_PREPROC) ) )
    {
       return(false);
@@ -290,13 +290,13 @@ static bool maybe_while_of_do(chunk_t *pc)
 #if 0
    prev = chunk_get_prev_ncnlnp(prev); // fails test 02300, 02301 why?
 #else
-   while ((prev != NULL) && (prev->flags & PCF_IN_PREPROC))
+   while ((prev != nullptr) && (prev->flags & PCF_IN_PREPROC))
    {
       prev = chunk_get_prev_ncnl(prev);
    }
 #endif
 
-   if (( prev              != NULL             ) &&
+   if (( prev              != nullptr          ) &&
        ( prev->parent_type == CT_DO            ) &&
        ((prev->type        == CT_VBRACE_CLOSE) ||
         (prev->type        == CT_BRACE_CLOSE ) ) )
@@ -579,7 +579,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
        (pc->type == CT_BRACE_OPEN ) )
    {
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
-      if (prev != NULL)
+      if (prev != nullptr)
       {
          if ((pc->type == CT_PAREN_OPEN ) ||
              (pc->type == CT_FPAREN_OPEN) ||
@@ -945,7 +945,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1)
    {
-      if ((pc->next       != NULL   ) &&
+      if ((pc->next       != nullptr) &&
           (pc->next->type == CT_WHEN) )
       {
          frm->pse[frm->pse_tos].type  = pc->type;
@@ -968,7 +968,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_ELSE, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if ((next != NULL) && (next->type != CT_ELSE))
+         if ((next != nullptr) && (next->type != CT_ELSE))
          {
             frm->pse_tos--;
             print_stack(LBCSPOP, "-IF-HCS ", frm, pc);
@@ -982,7 +982,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if ((next       != NULL      ) &&
+         if ((next       != nullptr   ) &&
              (next->type != CT_CATCH  ) &&
              (next->type != CT_FINALLY) )
          {

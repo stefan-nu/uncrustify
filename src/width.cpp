@@ -164,7 +164,7 @@ void do_code_width(void)
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPLIT, "%s\n", __func__);
 
-   for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next(pc))
+   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
    {
       if (!chunk_is_newline(pc) &&
           !chunk_is_comment(pc) &&
@@ -232,7 +232,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 
    /* Can't split after a newline */
    chunk_t *prev = chunk_get_prev(pc);
-   if ((prev == NULL                                     ) ||
+   if ((prev == nullptr                                  ) ||
        (chunk_is_newline(prev) && (pc->type != CT_STRING)) )
    {
       return;
@@ -274,7 +274,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 
    /* Check levels first */
    bool change = false;
-   if ((ent.pc    == NULL         ) ||
+   if ((ent.pc    == nullptr      ) ||
        (pc->level <  ent.pc->level) )
    {
       change = true;
@@ -350,22 +350,22 @@ static bool split_line(chunk_t *start)
    chunk_t *pc = start;
    chunk_t *prev;
 
-   while (((pc = chunk_get_prev(pc)) != NULL) &&
-          ( !chunk_is_newline(pc)           ) )
+   while (((pc = chunk_get_prev(pc)) != nullptr) &&
+          ( !chunk_is_newline(pc)              ) )
    {
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
       if (pc->type != CT_SPACE)
       {
          try_split_here(ent, pc);
          /*  break at maximum line length */
-         if ((ent.pc != NULL) && (cpd.settings[UO_ls_code_width].b))
+         if ((ent.pc != nullptr) && (cpd.settings[UO_ls_code_width].b))
          {
             break;
          }
       }
    }
 
-   if (ent.pc == NULL)
+   if (ent.pc == nullptr)
    {
       LOG_FMT(LSPLIT, "\n%s:    TRY_SPLIT yielded NO SOLUTION for line %zu at %s [%s]\n",
               __func__, start->orig_line, start->text(), get_token_name(start->type));
@@ -379,9 +379,9 @@ static bool split_line(chunk_t *start)
    }
 
    /* Break before the token instead of after it according to the pos_xxx rules */
-   if (ent.pc == NULL)
+   if (ent.pc == nullptr)
    {
-      pc = NULL;
+      pc = nullptr;
    }
    else
    {
@@ -402,7 +402,7 @@ static bool split_line(chunk_t *start)
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
    }
 
-   if (pc == NULL)
+   if (pc == nullptr)
    {
       pc = start;
       /* Don't break before a close, comma, or colon */
@@ -428,7 +428,7 @@ static bool split_line(chunk_t *start)
 
    /* add a newline before pc */
    prev = chunk_get_prev(pc);
-   if ((prev != NULL) && !chunk_is_newline(pc) && !chunk_is_newline(prev))
+   if ((prev != nullptr) && !chunk_is_newline(pc) && !chunk_is_newline(prev))
    {
       //int plen = (pc->len() < 5) ? pc->len() : 5;
       //int slen = (start->len() < 5) ? start->len() : 5;
@@ -454,12 +454,12 @@ static void split_for_statement(chunk_t *start)
            __func__, start->text(), start->orig_line);
 
    size_t  max_cnt     = cpd.settings[UO_ls_for_split_full].b ? 2 : 1;
-   chunk_t *open_paren = NULL;
+   chunk_t *open_paren = nullptr;
    size_t  nl_cnt      = 0;
 
    /* Find the open paren so we know the level and count newlines */
    chunk_t *pc = start;
-   while ((pc = chunk_get_prev(pc)) != NULL)
+   while ((pc = chunk_get_prev(pc)) != nullptr)
    {
       if (pc->type == CT_SPAREN_OPEN)
       {
@@ -468,7 +468,7 @@ static void split_for_statement(chunk_t *start)
       }
       nl_cnt += pc->nl_count;
    }
-   if (open_paren == NULL)
+   if (open_paren == nullptr)
    {
       LOG_FMT(LSPLIT, "No open paren\n");
       return;
@@ -500,9 +500,9 @@ static void split_for_statement(chunk_t *start)
 
    /* And now scan forward */
    pc = start;
-   while (( count < (int)max_cnt            ) &&
-          ((pc = chunk_get_next(pc)) != NULL) &&
-          ( pc->flags & PCF_IN_SPAREN       ) )
+   while (( count < (int)max_cnt               ) &&
+          ((pc = chunk_get_next(pc)) != nullptr) &&
+          ( pc->flags & PCF_IN_SPAREN          ) )
    {
       // \todo DRY2 start
       if ((pc->type        == CT_SEMICOLON) &&
@@ -566,11 +566,11 @@ static void split_fcn_params_full(chunk_t *start)
 
    /* Find the opening function parenthesis */
    chunk_t *fpopen = get_prev_fparen_open(start);
-   assert(fpopen != NULL);
+   assert(fpopen != nullptr);
 
    /* Now break after every comma */
    chunk_t *pc = fpopen;
-   while ((pc = chunk_get_next_ncnl(pc)) != NULL)
+   while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
       if ( pc->level <= fpopen->level) { break; }
 
@@ -590,7 +590,7 @@ static void split_fcn_params(chunk_t *start)
 
    /* Find the opening function parenthesis */
    chunk_t *fpopen = get_prev_fparen_open(start);
-   assert(fpopen != NULL);
+   assert(fpopen != nullptr);
 
    chunk_t *pc = chunk_get_next_ncnl(fpopen);
    assert(pc != NULL);
@@ -602,7 +602,7 @@ static void split_fcn_params(chunk_t *start)
 
    int cur_width = 0;
    int last_col  = -1;
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       if (chunk_is_newline(pc))
       {
@@ -635,7 +635,7 @@ static void split_fcn_params(chunk_t *start)
 
    /* back up until the prev is a comma */
    chunk_t *prev = pc;
-   while ((prev = chunk_get_prev(prev)) != NULL)
+   while ((prev = chunk_get_prev(prev)) != nullptr)
    {
       if (chunk_is_newline(prev ) ||
          (prev->type == CT_COMMA) )
@@ -669,7 +669,7 @@ static void split_fcn_params(chunk_t *start)
       }
    }
 
-   if ((prev != NULL           ) &&
+   if ((prev != nullptr        ) &&
        (!chunk_is_newline(prev)) )
    {
       LOG_FMT(LSPLIT, " -- ended on [%s] --\n", get_token_name(prev->type));

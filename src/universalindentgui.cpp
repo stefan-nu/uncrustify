@@ -30,7 +30,7 @@ void print_universal_indent_cfg(FILE *pfile)
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
-      if (p_grp != NULL)
+      if (p_grp != nullptr)
       {
          fprintf(pfile, "%c%s", ch, p_grp->short_desc);
          ch = '|';
@@ -47,7 +47,7 @@ void print_universal_indent_cfg(FILE *pfile)
    ch = '=';
    size_t fileIdx = 0;
    fprintf(pfile, "fileTypes");
-   while ((p_name = get_file_extension(fileIdx)) != NULL)
+   while ((p_name = get_file_extension(fileIdx)) != nullptr)
    {
       fprintf(pfile, "%c*%s", ch, p_name);
       ch = '|';
@@ -75,7 +75,7 @@ void print_universal_indent_cfg(FILE *pfile)
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
-      if (p_grp == NULL)
+      if (p_grp == nullptr)
       {
          continue;
       }

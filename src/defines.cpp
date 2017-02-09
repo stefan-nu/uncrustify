@@ -26,7 +26,7 @@ defmap defines;
 
 void add_define(const char *tag, const char *value)
 {
-   if ((tag == NULL) || (*tag == 0))
+   if ((tag == nullptr) || (*tag == 0))
    {
       return;
    }
@@ -53,7 +53,7 @@ int load_define_file(const char *filename)
    if (filename == NULL) { return(EX_CONFIG); }
    FILE *pf = fopen(filename, "r");
 
-   if (pf == NULL)
+   if (pf == nullptr)
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
@@ -65,13 +65,13 @@ int load_define_file(const char *filename)
    size_t line_no = 0;
 
    /* read file line by line */
-   while (fgets(buf, sizeof(buf), pf) != NULL)
+   while (fgets(buf, sizeof(buf), pf) != nullptr)
    {
       line_no++;
 
       /* remove comments after '#' sign */
       char *ptr;
-      if ((ptr = strchr(buf, '#')) != NULL)
+      if ((ptr = strchr(buf, '#')) != nullptr)
       {
          *ptr = 0; /* set string end where comment begins */
       }

@@ -87,10 +87,10 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    FILE *thefile = fopen(newpath, "rb");
-   if (thefile != NULL)
+   if (thefile != nullptr)
    {
       char buffer[128];
-      if (fgets(buffer, sizeof(buffer), thefile) != NULL)
+      if (fgets(buffer, sizeof(buffer), thefile) != nullptr)
       {
          for (int i = 0; buffer[i] != 0; i++)
          {
@@ -121,7 +121,7 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_SUFFIX);
 
    thefile = fopen(newpath, "wb");
-   if (thefile != NULL)
+   if (thefile != nullptr)
    {
       const size_t retval   = fwrite(&data[0], data.size(), 1, thefile);
       const int    my_errno = errno;
@@ -146,7 +146,7 @@ void backup_create_md5_file(const char *filename)
 {
    /* Try to open file */
    FILE *thefile = fopen(filename, "rb");
-   if (thefile == NULL)
+   if (thefile == nullptr)
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, filename, strerror(errno), errno);
@@ -171,7 +171,7 @@ void backup_create_md5_file(const char *filename)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    thefile = fopen(newpath, "wb");
-   if (thefile != NULL)
+   if (thefile != nullptr)
    {
 #if 1
       char  md5_str[MD5_STR_SIZE];
