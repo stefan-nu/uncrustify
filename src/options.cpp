@@ -99,18 +99,18 @@ static bool match_text(
 static void convert_value(
    const option_map_value_t *entry,
    const char *val,
-   op_val_t *dest
+   op_val_t   *dest
 );
 
 
 static void unc_add_option(
    const char *name,
-   uo_t id,
-   argtype_t type,
+   uo_t       id,
+   argtype_t  type,
    const char *short_desc = nullptr,
    const char *long_desc  = nullptr,
-   int min_val = 0,
-   int max_val = 16
+   int        min_val     =  0,
+   int        max_val     = 16
 );
 
 

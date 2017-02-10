@@ -901,25 +901,25 @@ chunk_t *chunk_skip_to_match_rev(chunk_t *cur, scope_e scope)
 bool chunk_is_function(chunk_t *pc)
 {
    return((pc != nullptr) && ((pc->type == CT_FUNC_DEF        ) ||
-                           (pc->type == CT_FUNC_PROTO      ) ||
-                           (pc->type == CT_FUNC_CLASS_DEF  ) ||
-                           (pc->type == CT_FUNC_CLASS_PROTO) ||
-                           (pc->type == CT_OC_MSG_DECL     ) ) );
+                              (pc->type == CT_FUNC_PROTO      ) ||
+                              (pc->type == CT_FUNC_CLASS_DEF  ) ||
+                              (pc->type == CT_FUNC_CLASS_PROTO) ||
+                              (pc->type == CT_OC_MSG_DECL     ) ) );
 }
 
 
 bool chunk_is_comment(chunk_t *pc)
 {
    return((pc != nullptr) && ((pc->type == CT_COMMENT      ) ||
-                           (pc->type == CT_COMMENT_MULTI) ||
-                           (pc->type == CT_COMMENT_CPP  ) ) );
+                              (pc->type == CT_COMMENT_MULTI) ||
+                              (pc->type == CT_COMMENT_CPP  ) ) );
 }
 
 
 bool chunk_is_newline(chunk_t *pc)
 {
    return((pc != nullptr) && ((pc->type == CT_NEWLINE) ||
-                           (pc->type == CT_NL_CONT) ) );
+                              (pc->type == CT_NL_CONT) ) );
 }
 
 
@@ -973,15 +973,15 @@ bool chunk_is_comment_newline_or_blank(chunk_t *pc)
 
 bool chunk_is_single_line_comment(chunk_t *pc)
 {
-   return((pc != nullptr) && ((pc->type == CT_COMMENT    )  ||
-                              (pc->type == CT_COMMENT_CPP)) );
+   return((pc != nullptr) && ((pc->type == CT_COMMENT    ) ||
+                              (pc->type == CT_COMMENT_CPP) ) );
 }
 
 
 bool chunk_is_semicolon(chunk_t *pc)
 {
-   return((pc != nullptr) && ((pc->type == CT_SEMICOLON) ||
-                              (pc->type == CT_VSEMICOLON)));
+   return((pc != nullptr) && ((pc->type == CT_SEMICOLON ) ||
+                              (pc->type == CT_VSEMICOLON) ) );
 }
 
 

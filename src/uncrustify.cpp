@@ -97,24 +97,39 @@ const char *language_name_from_flags(
 );
 
 
+/**
+ * tbd
+ */
 static bool read_stdin(
    file_mem_t &fm
 );
 
 
+/**
+ * tbd
+ */
 static void make_folders(
    const string &filename
 );
 
 
+/**
+ * tbd
+ */
 static void uncrustify_start(
    const deque<int> &data
 );
 
 
+/**
+ * tbd
+ */
 static void uncrustify_end(void);
 
 
+/**
+ * tbd
+ */
 static bool ends_with(
    const char *filename,
    const char *tag,
@@ -122,10 +137,13 @@ static bool ends_with(
 );
 
 
+/**
+ * tbd
+ */
 void uncrustify_file(
    const file_mem_t &fm,
-   FILE *pfout,
-   const char *parsed_file,
+   FILE             *pfout,
+   const char       *parsed_file,
    bool defer_uncrustify_end = false
 );
 
@@ -148,24 +166,39 @@ static void do_source_file(
 );
 
 
+/**
+ * tbd
+ */
 static void add_file_header(void);
 
 
+/**
+ * tbd
+ */
 static void add_file_footer(void);
 
 
+/**
+ * tbd
+ */
 static void add_func_header(
    c_token_t type,
    const file_mem_t &fm
 );
 
 
+/**
+ * tbd
+ */
 static void add_msg_header(
    c_token_t type,
    const file_mem_t &fm
 );
 
 
+/**
+ * tbd
+ */
 static void process_source_list(
    const char * const source_list,
    const char *prefix,
@@ -175,9 +208,15 @@ static void process_source_list(
 );
 
 
+/**
+ * tbd
+ */
 int load_header_files(void);
 
 
+/**
+ * tbd
+ */
 static const char *make_output_filename(
    char *buf,
    const size_t       buf_size,
@@ -207,6 +246,9 @@ static string create_out_filename(
 );
 
 
+/**
+ * tbd
+ */
 static bool bout_content_matches(
    const file_mem_t &fm,
    const bool       report_status
@@ -231,9 +273,15 @@ static int load_mem_file_config(
 );
 
 
+/**
+ * tbd
+ */
 static void version_exit(void);
 
 
+/**
+ * tbd
+ */
 static void redir_stdout(
    const char *output_file
 );

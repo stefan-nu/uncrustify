@@ -550,7 +550,13 @@ bool chunk_is_function(
 
 
 /**
- * tbd
+ * checks if a chunk is valid and is a comment
+ *
+ * comment means any kind of
+ * - single line comment
+ * - multiline comment
+ * - C comment
+ * - C++ comment
  */
 bool chunk_is_comment(
    chunk_t *pc  /**< [in] chunk to check */
@@ -558,7 +564,10 @@ bool chunk_is_comment(
 
 
 /**
- * tbd
+ * checks if a chunk is valid and is a blank character
+ *
+ * \note check compares if len == 0
+ * \todo
  */
 bool chunk_is_blank(
    chunk_t *pc  /**< [in] chunk to check */
@@ -566,7 +575,7 @@ bool chunk_is_blank(
 
 
 /**
- * tbd
+ * checks if a chunk is valid and either a comment or newline
  */
 bool chunk_is_comment_or_newline(
    chunk_t *pc  /**< [in] chunk to check */

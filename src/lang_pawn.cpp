@@ -80,7 +80,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
    }
 
    const chunk_t *next = chunk_get_next_nc(pc);
-   if ((next != nullptr) &&
+   if ( (next       != nullptr      )   &&
        ((next->type == CT_VSEMICOLON) ||
         (next->type == CT_SEMICOLON ) ) )
    {
@@ -215,13 +215,13 @@ static chunk_t *pawn_process_line(chunk_t *start)
    chunk_t *pc = start;
    while (((pc = chunk_get_next_nc(pc)) != nullptr) &&
           !chunk_is_str(pc, "(", 1) &&
-          (pc->type != CT_ASSIGN) &&
-          (pc->type != CT_NEWLINE))
+          (pc->type != CT_ASSIGN ) &&
+          (pc->type != CT_NEWLINE) )
    {
-      if ((pc->level == 0) &&
-          ((pc->type == CT_FUNCTION) ||
-           (pc->type == CT_WORD) ||
-           (pc->type == CT_OPERATOR_VAL)))
+      if ((pc->level == 0              )   &&
+          ((pc->type == CT_FUNCTION    ) ||
+           (pc->type == CT_WORD        ) ||
+           (pc->type == CT_OPERATOR_VAL) ) )
       {
          fcn = pc;
       }
@@ -440,8 +440,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       {
          LOG_FMT(LPFUNC, "%s:%zu] check %s, level %zu\n",
                  __func__, prev->orig_line, get_token_name(prev->type), prev->level);
-         if ((prev->type == CT_NEWLINE) &&
-             (prev->level == 0))
+         if ((prev->type  == CT_NEWLINE) &&
+             (prev->level == 0         ) )
          {
             const chunk_t *next = chunk_get_next_ncnl(prev);
             if ((next       != nullptr       ) &&

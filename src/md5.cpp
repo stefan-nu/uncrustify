@@ -66,7 +66,7 @@ MD5::MD5()
 
 
 /**
- * Start MD5 accumulation.  Set bit c,ount to 0 and buffer to mysterious
+ * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
  */
 void MD5::Init()

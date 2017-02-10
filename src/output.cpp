@@ -43,37 +43,37 @@ static void output_comment_multi(
 
 
 static bool kw_fcn_filename(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_class(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_message(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_category(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_scope(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_function(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
@@ -85,13 +85,13 @@ static bool kw_fcn_function(
  * Likewise, if the return value is 'void', then no @return is added.
  */
 static bool kw_fcn_javaparam(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
 
 static bool kw_fcn_fclass(
-   chunk_t *cmt,
+   chunk_t  *cmt,
    unc_text &out_txt
 );
 
@@ -103,7 +103,7 @@ static bool kw_fcn_fclass(
  */
 static void output_comment_multi_simple(
    chunk_t *pc,
-   bool kw_subst
+   bool    kw_subst
 );
 
 
@@ -112,7 +112,7 @@ static void output_comment_multi_simple(
  */
 static void generate_if_conditional_as_text(
    unc_text &dst,    /**< [out] unc_text buffer to be filled */
-   chunk_t *ifdef    /**< [in]  if conditional as chunk list */
+   chunk_t  *ifdef   /**< [in]  if conditional as chunk list */
 );
 
 
@@ -141,7 +141,7 @@ static void add_text(
 
 static void add_text(
    const unc_text &text,
-   bool is_ignored
+   bool           is_ignored
 );
 
 
@@ -151,7 +151,7 @@ static void add_text(
  */
 static bool next_word_exceeds_limit(
    const unc_text &text,
-   size_t idx
+   size_t         idx
 );
 
 
@@ -210,7 +210,7 @@ static void cmt_output_indent(
  */
 static size_t cmt_parse_lead(
    const unc_text &line,
-   bool is_last
+   bool           is_last
 );
 
 
@@ -241,14 +241,14 @@ static size_t cmt_parse_lead(
  * @return          cmt.xtra_indent is set to 0 or 1
  */
 static void calculate_comment_body_indent(
-   cmt_reflow &cmt,
+   cmt_reflow     &cmt,
    const unc_text &str
 );
 
 
 static int next_up(
    const unc_text &text,
-   size_t idx,
+   size_t         idx,
    const unc_text &tag
 );
 
@@ -277,7 +277,7 @@ static chunk_t *output_comment_cpp(
 
 static void cmt_trim_whitespace(
    unc_text &line,
-   bool in_preproc
+   bool     in_preproc
 );
 
 
@@ -771,8 +771,9 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
              (str[idx] == '\r') )
          {
             idx++;
-            while ((idx < len) &&
-                   ((str[idx] == ' ') || (str[idx] == '\t')))
+            while ( (idx      <  len )   &&
+                   ((str[idx] == ' ' ) ||
+                    (str[idx] == '\t') ) )
             {
                idx++;
             }
@@ -1026,7 +1027,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
           (next->type == pc->type) &&
           (((next->column ==            1) && (pc->column      ==            1  )) ||
            ((next->column == cmt.base_col) && (pc->column      == cmt.base_col  )) ||
-           ((next->column  > cmt.base_col) && (pc->parent_type == CT_COMMENT_END)) ))
+           ((next->column  > cmt.base_col) && (pc->parent_type == CT_COMMENT_END)) ) )
       {
          return(true);
       }
@@ -1116,16 +1117,17 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 
       bool grouping = (sComment[2] == '@');
       int  brace    = 3;
-      if ((sComment[2] == '/') || (sComment[2] == '!')) // doxygen style found!
+      if ((sComment[2] == '/') ||
+          (sComment[2] == '!') ) // doxygen style found!
       {
-         leadin += sComment[2];                         // at least one additional char (either "///" or "//!")
-         if (sComment[3] == '<')                        // and a further one (either "///<" or "//!<")
+         leadin += sComment[2];               // at least one additional char (either "///" or "//!")
+         if (sComment[3] == '<')              // and a further one (either "///<" or "//!<")
          {
             leadin += '<';
          }
          else
          {
-            grouping = (sComment[3] == '@');            // or a further one (grouping)
+            grouping = (sComment[3] == '@');  // or a further one (grouping)
             brace    = 4;
          }
       }

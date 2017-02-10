@@ -886,7 +886,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2    ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO  ) ) )
    {
-      if ((cpd.lang_flags & LANG_CS) &&
+      if ((cpd.lang_flags & LANG_CS ) &&
           (pc->type == CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {

@@ -33,7 +33,10 @@
 #include "keywords.h"
 
 
-static void mark_change(const char *func, size_t line);
+static void mark_change(
+   const char *func,
+   size_t line
+);
 
 
 /**
@@ -43,13 +46,17 @@ static void mark_change(const char *func, size_t line);
  *  - if eat_blanks_before_close_brace and the next is '}'
  *  - if eat_blanks_after_open_brace and the prev is '{'
  */
-static bool can_increase_nl(chunk_t *nl);
+static bool can_increase_nl(
+   chunk_t *nl
+);
 
 
 /**
  * Double the newline, if allowed.
  */
-static void double_newline(chunk_t *nl);
+static void double_newline(
+   chunk_t *nl
+);
 
 
 /**
@@ -62,19 +69,28 @@ static void double_newline(chunk_t *nl);
  * b. if/while/switch/for/etc ") {"
  * d. else "} else {"
  */
-static void setup_newline_add(chunk_t *prev, chunk_t *nl, chunk_t *next);
+static void setup_newline_add(
+   chunk_t *prev,
+   chunk_t *nl,
+   chunk_t *next
+);
 
 
 /**
  * Make sure there is a blank line after a commented group of values
  */
-static void newlines_double_space_struct_enum_union(chunk_t *open_brace);
+static void newlines_double_space_struct_enum_union(
+   chunk_t *open_brace
+);
 
 
 /**
  * If requested, make sure each entry in an enum is on its own line
  */
-static void newlines_enum_entries(chunk_t *open_brace, argval_t av);
+static void newlines_enum_entries(
+   chunk_t *open_brace,
+   argval_t av
+);
 
 
 /**
@@ -84,16 +100,25 @@ static void newlines_enum_entries(chunk_t *open_brace, argval_t av);
  *  true: a new line may be added
  * false: a new line may NOT be added
  */
-static bool one_liner_nl_ok(chunk_t *pc);
+static bool one_liner_nl_ok(
+   chunk_t *pc
+);
 
 
-static void nl_create_one_liner(chunk_t *vbrace_open);
+/**
+ * tbd
+ */
+static void nl_create_one_liner(
+   chunk_t *vbrace_open
+);
 
 
 /**
  * Find the next newline or nl_cont
  */
-static void nl_handle_define(chunk_t *pc);
+static void nl_handle_define(
+   chunk_t *pc
+);
 
 
 /**
@@ -103,21 +128,29 @@ static void nl_handle_define(chunk_t *pc);
  * @param after  The second chunk
  * @param av     The IARF value
  */
-static void newline_iarf_pair(chunk_t *before, chunk_t *after, argval_t av);
+static void newline_iarf_pair(
+   chunk_t *before,
+   chunk_t *after,
+   argval_t av
+);
 
 
 /**
  * Adds newlines to multi-line function call/decl/def
  * Start points to the open paren
  */
-static void newline_func_multi_line(chunk_t *start);
+static void newline_func_multi_line(
+   chunk_t *start
+);
 
 
 /**
  * Formats a function declaration
  * Start points to the open paren
  */
-static void newline_func_def(chunk_t *start);
+static void newline_func_def(
+   chunk_t *start
+);
 
 
 /**
@@ -127,13 +160,17 @@ static void newline_func_def(chunk_t *start);
  * [myObject doFooWith:arg1 name:arg2  // some lines with >1 arg
  *            error:arg3];
  */
-static void newline_oc_msg(chunk_t *start);
+static void newline_oc_msg(
+   chunk_t *start
+);
 
 
 /**
  * Ensure that the next non-comment token after close brace is a newline
  */
-static void newline_end_newline(chunk_t *br_close);
+static void newline_end_newline(
+   chunk_t *br_close
+);
 
 
 /**
@@ -145,7 +182,10 @@ static void newline_end_newline(chunk_t *br_close);
  * For virtual braces, we can only add a newline after the vbrace open.
  * If we do so, also add a newline after the vbrace close.
  */
-static bool newlines_if_for_while_switch(chunk_t *start, argval_t nl_opt);
+static bool newlines_if_for_while_switch(
+   chunk_t *start,
+   argval_t nl_opt
+);
 
 
 /**
@@ -154,10 +194,17 @@ static bool newlines_if_for_while_switch(chunk_t *start, argval_t nl_opt);
  * Doesn't do anything if open brace before it
  * "code\n\ncomment\nif (...)" or "code\ncomment\nif (...)"
  */
-static void newlines_if_for_while_switch_pre_blank_lines(chunk_t *start, argval_t nl_opt);
+static void newlines_if_for_while_switch_pre_blank_lines(
+   chunk_t *start,
+   argval_t nl_opt
+);
 
 
-static void _blank_line_set(chunk_t *pc, const char *text, uo_t uo);
+static void _blank_line_set(
+   chunk_t    *pc,
+   const char *text,
+   uo_t       uo
+);
 
 
 /**
@@ -167,7 +214,9 @@ static void _blank_line_set(chunk_t *pc, const char *text, uo_t uo);
  * Doesn't do anything if open brace before it
  * "code\n\ncomment\nif (...)" or "code\ncomment\nif (...)"
  */
-static void newlines_func_pre_blank_lines(chunk_t *start);
+static void newlines_func_pre_blank_lines(
+   chunk_t *start
+);
 
 
 static chunk_t *get_closing_brace(
@@ -192,7 +241,7 @@ static void remove_next_newlines(
  * "if (...)\ncode\ncode" or "if (...)\ncode\n\ncode"
  */
 static void newlines_if_for_while_switch_post_blank_lines(
-   chunk_t *start,
+   chunk_t  *start,
    argval_t nl_opt
 );
 
@@ -206,9 +255,9 @@ static void newlines_if_for_while_switch_post_blank_lines(
  * "struct [name] {" or "struct [name] \n {"
  */
 static void newlines_struct_enum_union(
-   chunk_t *start,
+   chunk_t  *start,
    argval_t nl_opt,
-   bool leave_trailing
+   bool     leave_trailing
 );
 
 
@@ -221,7 +270,7 @@ static void newlines_struct_enum_union(
  * @param start   The chunk - should be CT_ELSE or CT_WHILE_OF_DO
  */
 static void newlines_cuddle_uncuddle(
-   chunk_t *start,
+   chunk_t  *start,
    argval_t nl_opt
 );
 
@@ -231,7 +280,7 @@ static void newlines_cuddle_uncuddle(
  * "else {" or "else \n {"
  */
 static void newlines_do_else(
-   chunk_t *start,
+   chunk_t  *start,
    argval_t nl_opt
 );
 
@@ -241,7 +290,7 @@ static void newlines_do_else(
  */
 static chunk_t *newline_def_blk(
    chunk_t *start,
-   bool fn_top
+   bool    fn_top
 );
 
 
@@ -326,12 +375,12 @@ static bool can_increase_nl(chunk_t *nl)
    if(nl == nullptr) { return false; }
 
    const chunk_t *prev = chunk_get_prev_nc(nl);
-   const chunk_t *pcmt = chunk_get_prev(nl);
-   const chunk_t *next = chunk_get_next(nl);
+   const chunk_t *pcmt = chunk_get_prev   (nl);
+   const chunk_t *next = chunk_get_next   (nl);
 
    if (cpd.settings[UO_nl_squeeze_ifdef].b)
    {
-      if ((prev       != nullptr              ) &&
+      if ((prev       != nullptr           ) &&
           (prev->type == CT_PREPROC        ) &&
           (prev->parent_type == CT_PP_ENDIF) &&
           (prev->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
@@ -340,7 +389,7 @@ static bool can_increase_nl(chunk_t *nl)
                  __func__, nl->orig_line, nl->pp_level);
          return(false);
       }
-      if ((next       != nullptr              ) &&
+      if ((next       != nullptr           ) &&
           (next->type == CT_PREPROC        ) &&
           (next->parent_type == CT_PP_ENDIF) &&
           (next->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
@@ -354,7 +403,7 @@ static bool can_increase_nl(chunk_t *nl)
 
    if (cpd.settings[UO_eat_blanks_before_close_brace].b)
    {
-      if ( (next       != nullptr          ) &&
+      if ( (next       != nullptr       ) &&
            (next->type == CT_BRACE_CLOSE) )
       {
          LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %zu\n", __func__, nl->orig_line);
@@ -364,7 +413,7 @@ static bool can_increase_nl(chunk_t *nl)
 
    if (cpd.settings[UO_eat_blanks_after_open_brace].b)
    {
-      if ( (prev       != nullptr         ) &&
+      if ( (prev       != nullptr      ) &&
            (prev->type == CT_BRACE_OPEN) )
       {
          LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %zu\n", __func__, nl->orig_line);
@@ -575,7 +624,7 @@ static void newline_min_after(chunk_t *ref, size_t count, UINT64 flag)
       pc = chunk_get_next(pc);
    } while ((pc != nullptr) && !chunk_is_newline(pc));
 
-   if (pc != nullptr)                 // Coverity CID 76002
+   if (pc != nullptr)    // Coverity CID 76002
    {
       LOG_FMT(LNEWLINE, "%s: on %s, line %zu, col %zu\n",
               __func__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
@@ -584,7 +633,8 @@ static void newline_min_after(chunk_t *ref, size_t count, UINT64 flag)
    chunk_t *next = chunk_get_next(pc);
    if (next == nullptr) { return; }
 
-   if (chunk_is_comment(next) && (next->nl_count == 1) &&
+   if (chunk_is_comment(next) &&
+      (next->nl_count == 1  ) &&
        chunk_is_comment(chunk_get_prev(pc)))
    {
       newline_min_after(next, count, flag);
@@ -611,10 +661,7 @@ chunk_t *newline_add_between(chunk_t *start, chunk_t *end)
    LOG_FUNC_ENTRY();
 
    if ((start == nullptr) ||
-       (end   == nullptr) )
-   {
-      return(nullptr);
-   }
+       (end   == nullptr) ) { return(nullptr); }
 
    LOG_FMT(LNEWLINE, "%s: '%s'[%s] line %zu:%zu and '%s' line %zu:%zu :",
            __func__, start->text(), get_token_name(start->type),
@@ -728,7 +775,8 @@ static bool newlines_if_for_while_switch(chunk_t *start, argval_t nl_opt)
 
    bool    retval = false;
    chunk_t *pc    = chunk_get_next_ncnl(start);
-   if ((pc != nullptr) && (pc->type == CT_SPAREN_OPEN))
+   if ((pc       != nullptr       ) &&
+       (pc->type == CT_SPAREN_OPEN) )
    {
       chunk_t *close_paren = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level);
       chunk_t *brace_open  = chunk_get_next_ncnl(close_paren);

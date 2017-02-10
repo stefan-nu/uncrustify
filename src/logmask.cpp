@@ -59,10 +59,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
    else
    {
       /* Eat the last comma */
-      if (len > 0)
-      {
-         len--;
-      }
+      if (len > 0) { len--; }
    }
 
    buf[len] = 0;

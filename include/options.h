@@ -842,7 +842,7 @@ enum uo_t
 
 struct group_map_value_t
 {
-   ug_t       id;
+   ug_t                      id;
    const char                *short_desc;
    const char                *long_desc;
    group_map_value_options_t options;
@@ -851,14 +851,14 @@ struct group_map_value_t
 
 struct option_map_value_t
 {
-   uo_t      id;
-   ug_t      group_id;
-   argtype_t            type;
-   int                  min_val;
-   int                  max_val;
-   const char           *name;
-   const char           *short_desc;
-   const char           *long_desc;
+   uo_t       id;
+   ug_t       group_id;
+   argtype_t  type;
+   int        min_val;
+   int        max_val;
+   const char *name;
+   const char *short_desc;
+   const char *long_desc;
 };
 
 
@@ -1062,7 +1062,7 @@ void unc_begin_group(
  *                  extracted
  */
 void process_option_line(
-   char *configLine,
+   char       *configLine,
    const char *filename
 );
 
@@ -1214,10 +1214,10 @@ const option_map_value_t *unc_find_option(
 );
 
 
-typedef map<uo_t, option_map_value_t>::iterator option_name_map_it;
-typedef map<ug_t, group_map_value_t> ::iterator  group_map_it;
-typedef group_map_value_options_t::iterator                     option_list_it;
-typedef group_map_value_options_t::const_iterator               option_list_cit;
+typedef map<uo_t, option_map_value_t>::iterator   option_name_map_it;
+typedef map<ug_t, group_map_value_t> ::iterator   group_map_it;
+typedef group_map_value_options_t::iterator       option_list_it;
+typedef group_map_value_options_t::const_iterator option_list_cit;
 
 
 #endif /* OPTIONS_H_INCLUDED */

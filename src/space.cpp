@@ -31,7 +31,13 @@
 #include "uncrustify.h"
 
 
-static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete);
+static void log_rule2(
+   size_t     line,
+   const char *rule,
+   chunk_t    *first,
+   chunk_t    *second,
+   bool       complete
+);
 
 
 /**
@@ -42,13 +48,20 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
  * @param second  The second chunk
  * @return        AV_IGNORE, AV_ADD, AV_REMOVE or AV_FORCE
  */
-static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete);
+static argval_t do_space(
+   chunk_t *first,
+   chunk_t *second,
+   int     &min_sp,
+   bool    complete
+);
+
 
 struct no_space_table_t
 {
    c_token_t first;
    c_token_t second;
 };
+
 
 /** this table lists out all combos where a space should NOT be present
  * CT_UNKNOWN is a wildcard.
@@ -532,7 +545,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // test if we are within a SIGNAL/SLOT call
    if (QT_SIGNAL_SLOT_found)
    {
-      if ((first->type   == CT_FPAREN_CLOSE) &&
+      if ((first->type   == CT_FPAREN_CLOSE)   &&
           ((second->type == CT_FPAREN_CLOSE) ||
            (second->type == CT_COMMA       ) ) )
       {
@@ -649,13 +662,12 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // Handle the special lambda case for C++11:
    //    [=](Something arg){.....}
    if ((cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE) &&
-       (((first->type        == CT_SQUARE_OPEN) &&
-         (first->parent_type == CT_CPP_LAMBDA ) &&
-         (second->type       == CT_ASSIGN     ) )
-        ||
+       (((first->type        == CT_SQUARE_OPEN  ) &&
+         (first->parent_type == CT_CPP_LAMBDA   ) &&
+         (second->type       == CT_ASSIGN       ) ) ||
         ((first->type         == CT_ASSIGN      ) &&
          (second->type        == CT_SQUARE_CLOSE) &&
-         (second->parent_type == CT_CPP_LAMBDA))) )
+         (second->parent_type == CT_CPP_LAMBDA  ) ) ) )
    {
       log_rule("UO_sp_cpp_lambda_assign");
       return(cpd.settings[UO_sp_cpp_lambda_assign].a);

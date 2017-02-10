@@ -60,7 +60,7 @@ enum class brace_stage_e : unsigned int
    ELSEIF,     /* expecting 'if' after 'else' */
    WHILE,      /* expecting 'while' after 'do' */
    CATCH,      /* expecting 'catch' or 'finally' after 'try' */
-   CATCH_WHEN, /* optional 'when' after 'catch' */
+   CATCH_WHEN  /* optional 'when' after 'catch' */
 };
 
 enum class char_encoding_e : unsigned int
@@ -69,7 +69,7 @@ enum class char_encoding_e : unsigned int
    BYTE,      /* 0-255, not UTF-8 */
    UTF8,
    UTF16_LE,
-   UTF16_BE,
+   UTF16_BE
 };
 
 
@@ -214,7 +214,7 @@ typedef struct align_ptr_s
 struct chunk_t
 {
    /**
-    * tbd
+    * constructor
     */
    chunk_t()
    {
@@ -223,7 +223,7 @@ struct chunk_t
 
 
    /**
-    * tbd
+    * sets all elements of the struct to their default value
     */
    void reset()
    {
@@ -250,7 +250,7 @@ struct chunk_t
 
 
    /**
-    * tbd
+    * provides the number of characters of string
     */
    size_t len()
    {
@@ -259,7 +259,7 @@ struct chunk_t
 
 
    /**
-    * tbd
+    * provides the content of a string a zero terminated character pointer
     */
    const char *text()
    {
@@ -399,11 +399,11 @@ struct cp_data_t
    UINT32          error_count;
    const char      *filename;
 
-   file_mem_t     file_hdr;       // for cmt_insert_file_header
-   file_mem_t     file_ftr;       // for cmt_insert_file_footer
-   file_mem_t     func_hdr;       // for cmt_insert_func_header
-   file_mem_t     oc_msg_hdr;     // for cmt_insert_oc_msg_header
-   file_mem_t     class_hdr;      // for cmt_insert_class_header
+   file_mem_t      file_hdr;       // for cmt_insert_file_header
+   file_mem_t      file_ftr;       // for cmt_insert_file_footer
+   file_mem_t      func_hdr;       // for cmt_insert_func_header
+   file_mem_t      oc_msg_hdr;     // for cmt_insert_oc_msg_header
+   file_mem_t      class_hdr;      // for cmt_insert_class_header
 
    size_t          lang_flags;    // LANG_xxx
    bool            lang_forced;
@@ -425,11 +425,11 @@ struct cp_data_t
 
    bool            consumed;
 
-   bool           did_newline;      /* flag indicates if a newline was added or converted */
-   c_token_t      is_preproc;
-   int            preproc_ncnl_count;
-   bool           output_trailspace;
-   bool           output_tab_as_space;
+   bool            did_newline;      /* flag indicates if a newline was added or converted */
+   c_token_t       is_preproc;
+   int             preproc_ncnl_count;
+   bool            output_trailspace;
+   bool            output_tab_as_space;
 
    bool            bom;
    char_encoding_e enc;
@@ -447,9 +447,9 @@ struct cp_data_t
    // Here are all the settings
    op_val_t        settings[UO_option_count];
 
-   parse_frame_t  frames[16];
-   int            frame_count;
-   size_t         pp_level;   /* \todo can this ever be -1 */
+   parse_frame_t   frames[16];
+   int             frame_count;
+   size_t          pp_level;   /* \todo can this ever be -1 */
 
    // the default values for settings
    op_val_t        defaults[UO_option_count];

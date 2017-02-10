@@ -45,7 +45,7 @@ static void prepare_categories()
 
 static void cleanup_categories()
 {
-   for (int i = 0; i < kIncludeCategoriesCount; i++)
+   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
       if (include_categories[i] != nullptr)
       {
@@ -76,7 +76,10 @@ static int get_chunk_priority(chunk_t *pc)
 /**
  * Compare two series of chunks, starting with the given ones.
  */
-static int compare_chunks(chunk_t *pc1, chunk_t *pc2);
+static int compare_chunks(
+   chunk_t *pc1,
+   chunk_t *pc2
+);
 
 
 /**
@@ -84,7 +87,10 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2);
  * We need to minimize the number of swaps, as those are expensive.
  * So, we do a min sort.
  */
-static void do_the_sort(chunk_t **chunks, const size_t num_chunks);
+static void do_the_sort(
+   chunk_t **chunks,
+   const size_t num_chunks
+);
 
 
 static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
@@ -200,9 +206,9 @@ void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
-   size_t  num_chunks = 0;
-   const chunk_t *p_last    = nullptr;
-   chunk_t *p_imp     = nullptr;
+   size_t  num_chunks      = 0;
+   const   chunk_t *p_last = nullptr;
+   chunk_t *p_imp          = nullptr;
 
    prepare_categories();
 
@@ -215,9 +221,10 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ((p_imp != nullptr) && (p_last != nullptr) &&
-             ((p_last->type == CT_SEMICOLON) ||
-              (p_imp->flags & PCF_IN_PREPROC)))
+         if ( (p_imp  != nullptr            )   &&
+              (p_last != nullptr            )   &&
+             ((p_last->type == CT_SEMICOLON ) ||
+              (p_imp->flags & PCF_IN_PREPROC) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {
@@ -233,7 +240,9 @@ void sort_imports(void)
             }
             did_import = true;
          }
-         if (!did_import || (pc->nl_count > 1) || next == nullptr)
+         if ((did_import == false) ||
+             (pc->nl_count > 1   ) ||
+             (next == nullptr    ) )
          {
             if (num_chunks > 1)
             {
