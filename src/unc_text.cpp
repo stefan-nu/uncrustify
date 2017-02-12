@@ -1,10 +1,12 @@
 /**
  * @file unc_text.cpp
+
  * A simple class that handles the chunk text.
  *
  * @author  Ben Gardner
  * @license GPL v2+
  */
+#include <stdarg.h>
 #include "unc_text.h"
 #include "unc_ctype.h"
 #include "unicode.h" /* encode_utf8() */

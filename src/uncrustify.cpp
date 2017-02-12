@@ -1148,9 +1148,9 @@ static int load_mem_file(const char * const filename, file_mem_t &fm)
       else
       {
          LOG_FMT(LNOTE, "%s: '%s' encoding looks like %s (%d)\n", __func__, filename,
-                 fm.enc == char_encoding_e::ASCII ? "ASCII" :  /* \todo better use a switch here */
-                 fm.enc == char_encoding_e::BYTE ? "BYTES" :
-                 fm.enc == char_encoding_e::UTF8 ? "UTF-8" :
+                 fm.enc == char_encoding_e::ASCII    ? "ASCII"     :  /* \todo better use a switch here */
+                 fm.enc == char_encoding_e::BYTE     ? "BYTES"     :
+                 fm.enc == char_encoding_e::UTF8     ? "UTF-8"     :
                  fm.enc == char_encoding_e::UTF16_LE ? "UTF-16-LE" :
                  fm.enc == char_encoding_e::UTF16_BE ? "UTF-16-BE" : "Error",
                  fm.enc);
@@ -1165,7 +1165,7 @@ static int load_mem_file(const char * const filename, file_mem_t &fm)
 static int load_mem_file_config(const char * const filename, file_mem_t &fm)
 {
    char buf[1024];
-   snprintf(buf, sizeof(buf), "%.*s%s", path_dirname_len(cpd.filename), cpd.filename, filename);
+   snprintf(buf, sizeof(buf), "%.*s%s", (int)path_dirname_len(cpd.filename), cpd.filename, filename);
 
    int retval = load_mem_file(buf, fm);
    if (retval < 0)
@@ -2131,7 +2131,7 @@ static bool ends_with(const char *filename, const char *tag, bool case_sensitive
    size_t len2 = strlen(tag);
 
    return((len2 <= len1) &&
-          ((case_sensitive && (strcmp(&filename[len1 - len2], tag) == 0)) ||
+          ((case_sensitive  && (strcmp    (&filename[len1 - len2], tag) == 0)) ||
            (!case_sensitive && (strcasecmp(&filename[len1 - len2], tag) == 0))));
 }
 
