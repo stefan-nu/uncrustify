@@ -8,6 +8,7 @@
  * @license GPL v2+
  */
 #include "indent.h"
+#include <algorithm>
 #include "uncrustify_types.h"
 #include "chunk_list.h"
 #include "options_for_QT.h"
@@ -2565,7 +2566,7 @@ void indent_preproc(void)
          if (is_option_set(cpd.settings[UO_pp_space].a, AV_ADD))
          {
             size_t mult = cpd.settings[UO_pp_space_count].u;
-            mult = max(mult, 1u);
+            mult = max(mult, (size_t)1u);
 
             reindent_line(next, (size_t)((int)pc->column + (int)pc->len() + (pp_level * (int)mult)));
          }

@@ -92,3 +92,4 @@ build/
 #.cproject
 #.project
 #.settings
+/debug_linux/
