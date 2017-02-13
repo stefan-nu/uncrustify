@@ -14,4 +14,5 @@
  */
 void detect_options(void);
 
+
 #endif /* DETECT_H_INCLUDED */

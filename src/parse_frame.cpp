@@ -169,7 +169,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 
    if (pc->type != CT_PREPROC) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
-   if (next == NULL) { return(pp_level); }
+   if (next == nullptr) { return(pp_level); }
 
    if (pc->parent_type != next->type)
    {
@@ -183,7 +183,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
            __func__, __LINE__, pc->orig_line, get_token_name(pc->parent_type));
    pf_log_frms(LPFCHK, "TOP", frm);
 
-   const char *txt = NULL;
+   const char *txt = nullptr;
    if (pc->flags & PCF_IN_PREPROC)
    {
       LOG_FMT(LPF, " <In> ");
@@ -201,13 +201,11 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       {
          pp_level--;
 
-         /**
-          * For #else of #elif, we want to keep the #if part and throw out the
+         /* For #else of #elif, we want to keep the #if part and throw out the
           * else parts.
           * We check to see what the top type is to see if we just push or
           * pop and then push.
-          * We need to use the copy right before the if.
-          */
+          * We need to use the copy right before the if. */
          if (frm->in_ifdef == CT_PP_IF)
          {
             /* we have [...] [base]-[if], so push an [else] */
@@ -221,19 +219,15 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       }
       else if (pc->parent_type == CT_PP_ENDIF)
       {
-         /**
-          * we may have [...] [base] [if]-[else] or [...] [base]-[if].
-          * Throw out the [else].
-          */
+         /* we may have [...] [base] [if]-[else] or [...] [base]-[if].
+          * Throw out the [else]. */
          cpd.pp_level--;
          pp_level--;
 
          if (frm->in_ifdef == CT_PP_ELSE)
          {
-            /**
-             * We have: [...] [base] [if]-[else]
-             * We want: [...]-[if]
-             */
+            /* We have: [...] [base] [if]-[else]
+             * We want: [...]-[if] */
             pf_copy_tos(frm);     /* [...] [base] [if]-[if] */
             frm->in_ifdef = cpd.frames[cpd.frame_count - 2].in_ifdef;
             pf_trash_tos();       /* [...] [base]-[if] */
@@ -243,10 +237,8 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          }
          else if (frm->in_ifdef == CT_PP_IF)
          {
-            /**
-             * We have: [...] [base] [if]
-             * We want: [...] [base]
-             */
+            /* We have: [...] [base] [if]
+             * We want: [...] [base] */
             pf_pop(frm);
             txt = "endif-pop";
          }
@@ -257,7 +249,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       }
    }
 
-   if (txt != NULL)
+   if (txt != nullptr)
    {
       LOG_FMT(LPF, "%s(%d): %zu> %s: %s in_ifdef=%d/%d counts=%d/%d\n", __func__, __LINE__,
               pc->orig_line, get_token_name(pc->parent_type), txt,

@@ -394,7 +394,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
          return(iter);
       }
    }
-   return(NULL);
+   return(nullptr);
 }
 
 
@@ -414,21 +414,21 @@ c_token_t find_keyword_type(const char *word, size_t len)
    const void* pos = bsearch(&key, keywords, ARRAY_SIZE(keywords), sizeof(keywords[0]), kw_compare);
    const chunk_tag_t *p_ret = reinterpret_cast<const chunk_tag_t*>(pos);
 
-   if (p_ret != NULL)
+   if (p_ret != nullptr)
    {
         p_ret = kw_static_match(p_ret);
    }
-   return((p_ret != NULL) ? p_ret->type : CT_WORD);
+   return((p_ret != nullptr) ? p_ret->type : CT_WORD);
 }
 
 
 /* \todo DRY with load_define_file */
 int load_keyword_file(const char *filename)
 {
-   if (filename == NULL) { return(EX_CONFIG); }
+   if (filename == nullptr) { return(EX_CONFIG); }
 
    FILE *pf = fopen(filename, "r");
-   if (pf == NULL)
+   if (pf == nullptr)
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
@@ -440,13 +440,13 @@ int load_keyword_file(const char *filename)
    size_t line_no = 0;
 
    /* read file line by line */
-   while (fgets(buf, max_line_size, pf) != NULL)
+   while (fgets(buf, max_line_size, pf) != nullptr)
    {
       line_no++;
 
       /* remove comments after '#' sign */
       char *ptr;
-      if ((ptr = strchr(buf, '#')) != NULL)
+      if ((ptr = strchr(buf, '#')) != nullptr)
       {
          *ptr = 0; /* set string end where comment begins */
       }

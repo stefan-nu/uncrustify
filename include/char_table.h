@@ -78,4 +78,5 @@ size_t CharTable::chars[] =
 };
 #endif
 
+
 #endif /* CHAR_TABLE_H_INCLUDED */

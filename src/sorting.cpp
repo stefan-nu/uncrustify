@@ -31,13 +31,13 @@ static void prepare_categories()
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (cpd.settings[UO_include_category_first + i].str != NULL)
+      if (cpd.settings[UO_include_category_first + i].str != nullptr)
       {
          include_categories[i] = new include_category(cpd.settings[UO_include_category_first + i].str);
       }
       else
       {
-         include_categories[i] = NULL;
+         include_categories[i] = nullptr;
       }
    }
 }
@@ -45,12 +45,12 @@ static void prepare_categories()
 
 static void cleanup_categories()
 {
-   for (int i = 0; i < kIncludeCategoriesCount; i++)
+   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (include_categories[i] != NULL)
+      if (include_categories[i] != nullptr)
       {
          delete include_categories[i];
-         include_categories[i] = NULL;
+         include_categories[i] = nullptr;
       }
    }
 }
@@ -60,7 +60,7 @@ static int get_chunk_priority(chunk_t *pc)
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (include_categories[i] != NULL)
+      if (include_categories[i] != nullptr)
       {
          if (std::regex_match(pc->text(), include_categories[i]->regex))
          {
@@ -76,7 +76,10 @@ static int get_chunk_priority(chunk_t *pc)
 /**
  * Compare two series of chunks, starting with the given ones.
  */
-static int compare_chunks(chunk_t *pc1, chunk_t *pc2);
+static int compare_chunks(
+   chunk_t *pc1,
+   chunk_t *pc2
+);
 
 
 /**
@@ -84,7 +87,10 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2);
  * We need to minimize the number of swaps, as those are expensive.
  * So, we do a min sort.
  */
-static void do_the_sort(chunk_t **chunks, const size_t num_chunks);
+static void do_the_sort(
+   chunk_t **chunks,
+   const size_t num_chunks
+);
 
 
 static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
@@ -93,7 +99,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
    LOG_FMT(LSORT, "\n@begin pc1->len=%zu, line=%zu, column=%zu\n", pc1->len(), pc1->orig_line, pc1->orig_col);
    LOG_FMT(LSORT,   "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
    if (pc1 == pc2) { return(0); }   /* \todo same chunk is always identical thus return 0 differences */
-   while ((pc1 != NULL) && (pc2 != NULL) ) /* ensure there are two valid pointers */
+   while ((pc1 != nullptr) && (pc2 != nullptr) ) /* ensure there are two valid pointers */
    {
       const int ppc1 = get_chunk_priority(pc1);
       const int ppc2 = get_chunk_priority(pc2);
@@ -114,33 +120,33 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* Same word, same length. Step to the next chunk. */
       pc1 = chunk_get_next(pc1);
-      if (pc1 != NULL)
+      if (pc1 != nullptr)
       {
          LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
          if (pc1->type == CT_MEMBER)
          {
             pc1 = chunk_get_next(pc1);
-            if(pc1 != NULL)
+            if(pc1 != nullptr)
             {
                LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
             }
          }
       }
       pc2 = chunk_get_next(pc2);
-      if(pc2 != NULL)
+      if(pc2 != nullptr)
       {
          LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          if (pc2->type == CT_MEMBER)
          {
             pc2 = chunk_get_next(pc2);
-            assert(pc2 != NULL);
+            assert(pc2 != nullptr);
             LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          }
       }
 
-      /* If we hit a newline or NULL, we are done */
-      if ((pc1 == NULL)         ||
-          (pc2 == NULL)         ||
+      /* If we hit a newline or nullptr, we are done */
+      if ((pc1 == nullptr)      ||
+          (pc2 == nullptr)      ||
           chunk_is_newline(pc1) ||
           chunk_is_newline(pc2) )
       {
@@ -148,7 +154,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
    }
 
-   if ((pc1 == NULL) || !chunk_is_newline(pc2))
+   if ((pc1 == nullptr) || !chunk_is_newline(pc2))
    {
       return(-1);
    }
@@ -200,14 +206,14 @@ void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
-   size_t  num_chunks = 0;
-   const chunk_t *p_last    = NULL;
-   chunk_t *p_imp     = NULL;
+   size_t  num_chunks      = 0;
+   const   chunk_t *p_last = nullptr;
+   chunk_t *p_imp          = nullptr;
 
    prepare_categories();
 
    chunk_t *pc = chunk_get_head();
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       chunk_t *next = chunk_get_next(pc);
 
@@ -215,9 +221,10 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ((p_imp != NULL) && (p_last != NULL) &&
-             ((p_last->type == CT_SEMICOLON) ||
-              (p_imp->flags & PCF_IN_PREPROC)))
+         if ( (p_imp  != nullptr            )   &&
+              (p_last != nullptr            )   &&
+             ((p_last->type == CT_SEMICOLON ) ||
+              (p_imp->flags & PCF_IN_PREPROC) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {
@@ -233,7 +240,9 @@ void sort_imports(void)
             }
             did_import = true;
          }
-         if (!did_import || (pc->nl_count > 1) || next == NULL)
+         if ((did_import == false) ||
+             (pc->nl_count > 1   ) ||
+             (next == nullptr    ) )
          {
             if (num_chunks > 1)
             {
@@ -241,8 +250,8 @@ void sort_imports(void)
             }
             num_chunks = 0;
          }
-         p_imp  = NULL;
-         p_last = NULL;
+         p_imp  = nullptr;
+         p_last = nullptr;
       }
       else if (pc->type == CT_IMPORT)
       {

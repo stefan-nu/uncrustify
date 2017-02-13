@@ -31,7 +31,13 @@
 #include "uncrustify.h"
 
 
-static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete);
+static void log_rule2(
+   size_t     line,
+   const char *rule,
+   chunk_t    *first,
+   chunk_t    *second,
+   bool       complete
+);
 
 
 /**
@@ -42,13 +48,20 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
  * @param second  The second chunk
  * @return        AV_IGNORE, AV_ADD, AV_REMOVE or AV_FORCE
  */
-static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete);
+static argval_t do_space(
+   chunk_t *first,
+   chunk_t *second,
+   int     &min_sp,
+   bool    complete
+);
+
 
 struct no_space_table_t
 {
    c_token_t first;
    c_token_t second;
 };
+
 
 /** this table lists out all combos where a space should NOT be present
  * CT_UNKNOWN is a wildcard.
@@ -103,8 +116,8 @@ const no_space_table_t no_space_table[] =
 static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
    if (second->type != CT_NEWLINE)
    {
       LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
@@ -123,8 +136,8 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
 
 #ifdef DEBUG
    LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -454,7 +467,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // mapped_file_source abc((int) ::CW2A(sTemp));
    if ((first->type        == CT_PAREN_CLOSE) &&
        (second->type       == CT_DC_MEMBER  ) &&
-       (second->next       != NULL          ) &&
+       (second->next       != nullptr       ) &&
        (second->next->type == CT_FUNC_CALL  ) )
    {
       log_rule("REMOVE_889_A");
@@ -532,7 +545,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // test if we are within a SIGNAL/SLOT call
    if (QT_SIGNAL_SLOT_found)
    {
-      if ((first->type   == CT_FPAREN_CLOSE) &&
+      if ((first->type   == CT_FPAREN_CLOSE)   &&
           ((second->type == CT_FPAREN_CLOSE) ||
            (second->type == CT_COMMA       ) ) )
       {
@@ -649,13 +662,12 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // Handle the special lambda case for C++11:
    //    [=](Something arg){.....}
    if ((cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE) &&
-       (((first->type        == CT_SQUARE_OPEN) &&
-         (first->parent_type == CT_CPP_LAMBDA ) &&
-         (second->type       == CT_ASSIGN     ) )
-        ||
+       (((first->type        == CT_SQUARE_OPEN  ) &&
+         (first->parent_type == CT_CPP_LAMBDA   ) &&
+         (second->type       == CT_ASSIGN       ) ) ||
         ((first->type         == CT_ASSIGN      ) &&
          (second->type        == CT_SQUARE_CLOSE) &&
-         (second->parent_type == CT_CPP_LAMBDA))) )
+         (second->parent_type == CT_CPP_LAMBDA  ) ) ) )
    {
       log_rule("UO_sp_cpp_lambda_assign");
       return(cpd.settings[UO_sp_cpp_lambda_assign].a);
@@ -851,7 +863,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       if (is_not_option(cpd.settings[UO_sp_before_byref_func].a, AV_IGNORE))
       {
          const chunk_t *next = chunk_get_next(second);
-         if ((next        != NULL         )   &&
+         if ((next        != nullptr      )   &&
              ((next->type == CT_FUNC_DEF  ) ||
               (next->type == CT_FUNC_PROTO) ) )
          {
@@ -862,7 +874,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       if (is_not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE))
       {
          const chunk_t *next = chunk_get_next_nc(second);
-         if ((next != NULL) && (next->type != CT_WORD))
+         if ((next != nullptr) && (next->type != CT_WORD))
          {
             log_rule("sp_before_unnamed_byref");
             return(cpd.settings[UO_sp_before_unnamed_byref].a);
@@ -920,7 +932,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (second->type == CT_FPAREN_OPEN))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if ((next       != NULL           ) &&
+         if ((next       != nullptr           ) &&
              (next->type == CT_FPAREN_CLOSE) )
          {
             log_rule("sp_func_call_paren_empty");
@@ -1526,8 +1538,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
        (CharTable::IsKeyword1((size_t)(second->str[0]))) )
    {
       const chunk_t *prev = chunk_get_prev(first);
-      if ((prev       != NULL ) &&
-          (prev->type == CT_IN) )
+      if ((prev       != nullptr) &&
+          (prev->type == CT_IN  ) )
       {
          log_rule("sp_deref");
          return(cpd.settings[UO_sp_deref].a);
@@ -1555,10 +1567,10 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          do
          {
             next = chunk_get_next(next);
-         } while ((next       != NULL       ) &&
+         } while ((next       != nullptr    ) &&
                   (next->type == CT_PTR_TYPE) );
 
-         if ( (next       != NULL         )   &&
+         if ( (next       != nullptr      )   &&
              ((next->type == CT_FUNC_DEF  ) ||
               (next->type == CT_FUNC_PROTO) ) )
          {
@@ -1569,12 +1581,12 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       if (is_not_option(cpd.settings[UO_sp_before_unnamed_ptr_star].a, AV_IGNORE))
       {
          chunk_t *next = chunk_get_next_nc(second);
-         while ((next       != NULL       ) &&
+         while ((next       != nullptr    ) &&
                 (next->type == CT_PTR_TYPE) )
          {
             next = chunk_get_next_nc(next);
          }
-         if ((next       != NULL   ) &&
+         if ((next       != nullptr) &&
              (next->type != CT_WORD) )
          {
             log_rule("sp_before_unnamed_ptr_star");
@@ -1882,9 +1894,9 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // mapped_file_source abc((int) A::CW2A(sTemp));
    if ((first->type        == CT_PAREN_CLOSE) &&
        (second->type       == CT_TYPE       ) &&
-       (second->next       != NULL          ) &&
+       (second->next       != nullptr       ) &&
        (second->next->type == CT_DC_MEMBER  ) &&
-       (second->next->next != NULL          ) &&
+       (second->next->next != nullptr       ) &&
        (second->next->next->type == CT_FUNC_CALL))
    {
       log_rule("REMOVE_889_B");
@@ -1907,12 +1919,12 @@ void space_text(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *pc = chunk_get_head();
-   if (pc == NULL) { return; }
+   if (pc == nullptr) { return; }
 
    chunk_t *next;
    size_t  prev_column;
    size_t  column = pc->column;
-   while (pc != NULL)
+   while (pc != nullptr)
    {
 #ifdef DEBUG
       LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -1940,11 +1952,11 @@ void space_text(void)
          next = chunk_get_next(pc);
          while ( (chunk_is_blank   (next)) &&
                  (!chunk_is_newline(next)) &&
-                 (next != NULL           ) &&
+                 (next != nullptr           ) &&
                 (next->type == CT_VBRACE_OPEN ||
                  next->type == CT_VBRACE_CLOSE))
          {
-            assert(next != NULL);
+            assert(next != nullptr);
             LOG_FMT(LSPACE, "%s: %zu:%zu Skip %s (%zu+%zu)\n",
                     __func__, next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
@@ -1953,13 +1965,13 @@ void space_text(void)
          }
       }
       else { next = pc->next; }
-      if (next == NULL) { break; }
+      if (next == nullptr) { break; }
 
       // Issue # 481
       if ((QT_SIGNAL_SLOT_found) &&
           (cpd.settings[UO_sp_balance_nested_parens].b))
       {
-         if ((next->next != NULL) &&
+         if ((next->next != nullptr) &&
              (next->next->type == CT_SPACE))
          {
             // remove the space
@@ -1999,11 +2011,11 @@ void space_text(void)
          {
             /* Find the next non-empty chunk on this line */
             chunk_t *tmp = next;
-            while ((tmp != NULL) && (tmp->len() == 0) && !chunk_is_newline(tmp))
+            while ((tmp != nullptr) && (tmp->len() == 0) && !chunk_is_newline(tmp))
             {
                tmp = chunk_get_next(tmp);
             }
-            if ((tmp != NULL) && (tmp->len() > 0))
+            if ((tmp != nullptr) && (tmp->len() > 0))
             {
                bool kw1 = CharTable::IsKeyword2((size_t)(pc->str[pc->len()-1]));
                bool kw2 = CharTable::IsKeyword1((size_t)(next->str[0]));
@@ -2025,7 +2037,7 @@ void space_text(void)
                   buf[pc->len() + next->len()] = 0;
 
                   const chunk_tag_t *ct = find_punctuator(buf, cpd.lang_flags);
-                  if ((ct != NULL) && (strlen(ct->tag) != pc->len()))
+                  if ((ct != nullptr) && (strlen(ct->tag) != pc->len()))
                   {
                      /* punctuator parsed to a different size.. */
 
@@ -2160,10 +2172,10 @@ void space_text_balance_nested_parens(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *first = chunk_get_head();
-   while (first != NULL)
+   while (first != nullptr)
    {
       chunk_t *next = chunk_get_next(first);
-      if (next == NULL) { break; }
+      if (next == nullptr) { break; }
 
       if (chunk_is_str(first, "(", 1) && chunk_is_str(next, "(", 1))
       {
@@ -2174,7 +2186,7 @@ void space_text_balance_nested_parens(void)
           * a space before it */
          chunk_t *cur  = next;
          chunk_t *prev = next;
-         while ((cur = chunk_get_next(cur)) != NULL)
+         while ((cur = chunk_get_next(cur)) != nullptr)
          {
             if (cur->level == first->level)
             {
@@ -2196,7 +2208,7 @@ void space_text_balance_nested_parens(void)
          ///* find the opening paren that matches the 'next' close paren and force
          // * a space after it */
          //cur = first;
-         //while ((cur = chunk_get_prev(cur)) != NULL)
+         //while ((cur = chunk_get_prev(cur)) != nullptr)
          //{
          //   if (cur->level == next->level)
          //   {
@@ -2231,8 +2243,8 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 size_t space_col_align(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != NULL);
-   assert(second != NULL);
+   assert(first  != nullptr);
+   assert(second != nullptr);
 
    LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,
@@ -2294,7 +2306,7 @@ void space_add_after(chunk_t *pc, size_t count)
    chunk_t *next = chunk_get_next(pc);
 
    /* don't add at the end of the file or before a newline */
-   if ((next == NULL) || chunk_is_newline(next))
+   if ((next == nullptr) || chunk_is_newline(next))
    {
       return;
    }

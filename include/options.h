@@ -16,6 +16,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include "uncrustify_types.h"
 
 
 enum argtype_t
@@ -26,7 +27,7 @@ enum argtype_t
    AT_LINE,    /**< Line Endings */
    AT_POS,     /**< start/end or Trail/Lead */
    AT_STRING,  /**< string value */
-   AT_UNUM,    /**< unsigned Number */
+   AT_UNUM     /**< unsigned Number */
 };
 
 
@@ -47,7 +48,7 @@ enum lineends_t
    LE_LF,      /* "\n"   */
    LE_CRLF,    /* "\r\n" */
    LE_CR,      /* "\r"   */
-   LE_AUTO,    /* keep last */
+   LE_AUTO     /* keep last */
 };
 
 
@@ -114,7 +115,7 @@ enum uo_t
    UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
 
    /* Basic Indenting stuff */
-   // UO_indent,                   //TODO: 0=don't change indentation, 1=change indentation
+   // UO_indent,                 //TODO: 0=don't change indentation, 1=change indentation
    UO_tok_split_gte,             // allow split of '>>=' in template detection
 
    UO_utf8_byte,
@@ -500,7 +501,7 @@ enum uo_t
                                    // 1: '*' part of the type - no space
                                    // 2: '*' part of type, dangling
    UO_align_typedef_amp_style,     // align_typedef_star_style for ref '&' stuff
-   // UO_align_struct_array_brace,  // TODO: align array of structure initializers
+   // UO_align_struct_array_brace, // TODO: align array of structure initializers
    UO_align_left_shift,            //
    UO_align_asm_colon,             //
    UO_align_oc_msg_colon_span,     //
@@ -537,7 +538,7 @@ enum uo_t
                                       // Only appears in separate member implementation (does not appear with in-line implmementation)
    UO_nl_func_scope_name,             // Add or remove newline between function scope and name in a definition
                                       // Controls the newline after '::' in 'void A::f() { }'
-   UO_nl_func_proto_type_name,        // nl_func_type_name, but for prottypes
+   UO_nl_func_proto_type_name,        // nl_func_type_name, but for prototypes
 
    UO_nl_func_call_start_multi_line,  // newline after the '(' in a function call if '(' and ')' are on different lines
    UO_nl_func_call_args_multi_line,   // newline after each ',' in a function call if '(' and ')' are on different lines
@@ -842,7 +843,7 @@ enum uo_t
 
 struct group_map_value_t
 {
-   ug_t       id;
+   ug_t                      id;
    const char                *short_desc;
    const char                *long_desc;
    group_map_value_options_t options;
@@ -851,22 +852,28 @@ struct group_map_value_t
 
 struct option_map_value_t
 {
-   uo_t      id;
-   ug_t      group_id;
-   argtype_t            type;
-   int                  min_val;
-   int                  max_val;
-   const char           *name;
-   const char           *short_desc;
-   const char           *long_desc;
+   uo_t       id;
+   ug_t       group_id;
+   argtype_t  type;
+   int        min_val;
+   int        max_val;
+   const char *name;
+   const char *short_desc;
+   const char *long_desc;
 };
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *unc_find_option(
    const char *name
 );
 
 
+/**
+ * tbd
+ */
 uo_t get_inverse_uo(
    uo_t option
 );
@@ -1023,6 +1030,16 @@ bool is_bit_unset(
 );
 
 
+enum class char_encoding_e : unsigned int; /* forward declaration of enum */
+
+/**
+ * provides a string that names a given encoding enum
+ */
+const char *get_encoding_name(
+   const char_encoding_e enc  /**< [in] encoding enum to get the name for */
+);
+
+
 /**
  * Sets non-zero settings defaults
  *
@@ -1031,13 +1048,19 @@ bool is_bit_unset(
 void set_option_defaults(void);
 
 
+/**
+ * tbd
+ */
 void register_options(void);
 
 
+/**
+ * tbd
+ */
 void unc_begin_group(
    ug_t       id,
    const char *short_desc,
-   const char *long_desc = NULL
+   const char *long_desc = nullptr
 );
 
 
@@ -1050,22 +1073,31 @@ void unc_begin_group(
  *                  extracted
  */
 void process_option_line(
-   char *configLine,
+   char       *configLine,
    const char *filename
 );
 
 
+/**
+ * tbd
+ */
 int load_option_file(
    const char *filename
 );
 
 
+/**
+ * tbd
+ */
 int save_option_file(
    FILE *pfile,
    bool withDoc
 );
 
 
+/**
+ * tbd
+ */
 int save_option_file_kernel(
    FILE *pfile,
    bool withDoc,
@@ -1085,21 +1117,33 @@ int set_option_value(
 );
 
 
+/**
+ * tbd
+ */
 bool is_path_relative(
    const char *path
 );
 
 
+/**
+ * tbd
+ */
 const group_map_value_t *get_group_name(
    size_t ug
 );
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *get_option_name(
    uo_t uo
 );
 
 
+/**
+ * tbd
+ */
 void print_options(
    FILE *pfile
 );
@@ -1173,15 +1217,18 @@ bool is_path_relative(
 );
 
 
+/**
+ * tbd
+ */
 const option_map_value_t *unc_find_option(
    const char *name
 );
 
 
-typedef map<uo_t, option_map_value_t>::iterator option_name_map_it;
-typedef map<ug_t, group_map_value_t> ::iterator  group_map_it;
-typedef group_map_value_options_t::iterator                     option_list_it;
-typedef group_map_value_options_t::const_iterator               option_list_cit;
+typedef map<uo_t, option_map_value_t>::iterator   option_name_map_it;
+typedef map<ug_t, group_map_value_t> ::iterator   group_map_it;
+typedef group_map_value_options_t::iterator       option_list_it;
+typedef group_map_value_options_t::const_iterator option_list_cit;
 
 
 #endif /* OPTIONS_H_INCLUDED */

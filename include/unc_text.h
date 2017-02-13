@@ -68,11 +68,17 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void resize(
       size_t new_size
    );
 
 
+   /**
+    * tbd
+    */
    void clear();
 
 
@@ -85,6 +91,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void set(
       int ch
    );
@@ -119,6 +128,9 @@ public:
    );
 
 
+   /**
+    * tbd
+    */
    unc_text &operator =(int ch)
    {
       set(ch);
@@ -147,6 +159,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void insert(
       size_t idx,
       int ch
@@ -219,6 +234,9 @@ public:
    );
 
 
+   /**
+    * tbd
+    */
    unc_text &operator +=(int ch)
    {
       append(ch);
@@ -265,6 +283,9 @@ public:
    );
 
 
+   /**
+    * tbd
+    */
    bool equals(
       const unc_text &ref
    ) const;
@@ -306,6 +327,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    const int &back() const
    {
       return(m_chars.back());
@@ -320,12 +344,18 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void push_back(int ch)
    {
       append(ch);
    }
 
 
+   /**
+    * tbd
+    */
    void pop_back()
    {
       if (size() > 0)
@@ -336,6 +366,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void pop_front()
    {
       if (size() > 0)
@@ -346,6 +379,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    bool startswith(
       const unc_text &text,
       size_t idx = 0
@@ -370,12 +406,18 @@ public:
    ) const;
 
 
+   /**
+    * tbd
+    */
    int rfind(
       const char *text,
       size_t idx = 0
    ) const;
 
 
+   /**
+    * tbd
+    */
    int replace(
       const char *oldtext,
       const unc_text &newtext

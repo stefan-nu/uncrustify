@@ -19,7 +19,7 @@ template<class T> class ListManager
 {
 protected:
    /* Pointers to the head and tail.
-    * They are either both NULL or both non-NULL.
+    * They are either both nullptr or both non-nullptr.
     */
    T *first;
    T *last;
@@ -28,22 +28,22 @@ private:
    /* Hide copy constructor */
    ListManager(const ListManager &ref)
    {
-      first = NULL;
-      last  = NULL;
+      first = nullptr;
+      last  = nullptr;
    }
 
 public:
    ListManager()
    {
-      first = NULL;
-      last  = NULL;
+      first = nullptr;
+      last  = nullptr;
    }
 
 
    /**
     * \brief return the first element of the linked list
     *
-    * @return pointer to first element or NULL if list is empty
+    * @return pointer to first element or nullptr if list is empty
     */
    T *GetHead()
    {
@@ -54,7 +54,7 @@ public:
    /**
     * \brief return the last element of the linked list
     *
-    * @return pointer to last element or NULL if list is empty
+    * @return pointer to last element or nullptr if list is empty
     */
    T *GetTail()
    {
@@ -66,11 +66,11 @@ public:
     *  \brief return the next element of the linked list
     *
     * @param [in] ref pointer to current list element
-    * @return pointer to next element or NULL if no next element exists
+    * @return pointer to next element or nullptr if no next element exists
     */
    T *GetNext(T *ref)
    {
-      return((ref != NULL) ? ref->next : NULL);
+      return((ref != nullptr) ? ref->next : nullptr);
    }
 
 
@@ -78,20 +78,23 @@ public:
     * \brief return the previous element of the linked list
     *
     * @param [in] ref pointer to current list element
-    * @return pointer to previous element or NULL if no previous element exists
+    * @return pointer to previous element or nullptr if no previous element exists
     */
    T *GetPrev(T *ref)
    {
-      return((ref != NULL) ? ref->prev : NULL);
+      return((ref != nullptr) ? ref->prev : nullptr);
    }
 
 
+   /**
+    * tbd
+    */
    void InitEntry(T *obj) const
    {
-      if (obj != NULL)
+      if (obj != nullptr)
       {
-         obj->next = NULL;
-         obj->prev = NULL;
+         obj->next = nullptr;
+         obj->prev = nullptr;
       }
    }
 
@@ -103,33 +106,24 @@ public:
     */
    void Pop(T *obj)
    {
-      if (obj != NULL)
+      if (obj != nullptr)
       {
-         if (first == obj)
-         {
-            first = obj->next;
-         }
-         if (last == obj)
-         {
-            last = obj->prev;
-         }
-         if (obj->next != NULL)
-         {
-            obj->next->prev = obj->prev;
-         }
-         if (obj->prev != NULL)
-         {
-            obj->prev->next = obj->next;
-         }
-         obj->next = NULL;
-         obj->prev = NULL;
+         if (first == obj)         { first = obj->next; }
+         if (last  == obj)         { last  = obj->prev; }
+         if (obj->next != nullptr) { obj->next->prev = obj->prev; }
+         if (obj->prev != nullptr) { obj->prev->next = obj->next; }
+         obj->next = nullptr;
+         obj->prev = nullptr;
       }
    }
 
 
+   /**
+    * tbd
+    */
    void Swap(T *obj1, T *obj2)
    {
-      if ((obj1 != NULL) && (obj2 != NULL))
+      if ((obj1 != nullptr) && (obj2 != nullptr))
       {
          if (obj1->prev == obj2)
          {
@@ -156,14 +150,17 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void AddAfter(T *obj, T *ref)
    {
-      if ((obj != NULL) && (ref != NULL))
+      if ((obj != nullptr) && (ref != nullptr))
       {
          Pop(obj);
          obj->next = ref->next;
          obj->prev = ref;
-         if (ref->next != NULL)
+         if (ref->next != nullptr)
          {
             ref->next->prev = obj;
          }
@@ -176,14 +173,17 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void AddBefore(T *obj, T *ref)
    {
-      if ((obj != NULL) && (ref != NULL))
+      if ((obj != nullptr) && (ref != nullptr))
       {
          Pop(obj);
          obj->next = ref;
          obj->prev = ref->prev;
-         if (ref->prev != NULL)
+         if (ref->prev != nullptr)
          {
             ref->prev->next = obj;
          }
@@ -196,11 +196,14 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void AddTail(T *obj)
    {
-      obj->next = NULL;
+      obj->next = nullptr;
       obj->prev = last;
-      if (last == NULL)
+      if (last == nullptr)
       {
          last  = obj;
          first = obj;
@@ -213,11 +216,14 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    void AddHead(T *obj)
    {
       obj->next = first;
-      obj->prev = NULL;
-      if (first == NULL)
+      obj->prev = nullptr;
+      if (first == nullptr)
       {
          last  = obj;
          first = obj;
@@ -229,5 +235,6 @@ public:
       first = obj;
    }
 };
+
 
 #endif /* LIST_MANAGER_H_INCLUDED */

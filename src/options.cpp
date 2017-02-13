@@ -56,7 +56,7 @@ static const char * const DOC_TEXT_END =
    "# type token1 token2 token3 ...\n"
    "#             ^ optionally specify multiple tokens on a single line\n"
    "# define def_token output_token\n"
-   "#                  ^ output_token is optional, then NULL is assumed\n"
+   "#                  ^ output_token is optional, then nullptr is assumed\n"
    "# macro-open token\n"
    "# macro-close token\n"
    "# macro-else token\n"
@@ -99,18 +99,18 @@ static bool match_text(
 static void convert_value(
    const option_map_value_t *entry,
    const char *val,
-   op_val_t *dest
+   op_val_t   *dest
 );
 
 
 static void unc_add_option(
    const char *name,
-   uo_t id,
-   argtype_t type,
-   const char *short_desc = NULL,
-   const char *long_desc  = NULL,
-   int min_val = 0,
-   int max_val = 16
+   uo_t       id,
+   argtype_t  type,
+   const char *short_desc = nullptr,
+   const char *long_desc  = nullptr,
+   int        min_val     =  0,
+   int        max_val     = 16
 );
 
 
@@ -304,7 +304,7 @@ const option_map_value_t *unc_find_option(const char *name)
          return(&it->second);
       }
    }
-   return(NULL);
+   return(nullptr);
 }
 
 
@@ -1689,7 +1689,7 @@ const group_map_value_t *get_group_name(size_t ug)
          return(&it->second);
       }
    }
-   return(NULL);
+   return(nullptr);
 }
 
 
@@ -1697,7 +1697,7 @@ const option_map_value_t *get_option_name(uo_t option)
 {
    const option_name_map_it it = option_name_map.find(option);
 
-   return((it == option_name_map.end()) ? NULL : (&it->second));
+   return((it == option_name_map.end()) ? nullptr : (&it->second));
 }
 
 
@@ -1753,7 +1753,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
                     cpd.filename, cpd.line_number, entry->name, val);
             exit(EX_CONFIG);
          }
-         dest->n = strtol(val, NULL, 0);
+         dest->n = strtol(val, nullptr, 0);
          // is the same as dest->u
          return;
       }
@@ -1768,7 +1768,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          }
 
          tmp = unc_find_option(val);
-         if (tmp == NULL)
+         if (tmp == nullptr)
          {
             fprintf(stderr, "%s:%u\n  for the assigment: unknown option '%s':",
                     cpd.filename, cpd.line_number, val);
@@ -1828,7 +1828,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          val++;
       }
 
-      if (((tmp = unc_find_option(val)) != NULL) && (tmp->type == entry->type))
+      if (((tmp = unc_find_option(val)) != nullptr) && (tmp->type == entry->type))
       {
          dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
          return;
@@ -1868,7 +1868,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       dest->a = AV_IGNORE;
       return;
    }
-   if (((tmp = unc_find_option(val)) != NULL) && (tmp->type == entry->type))
+   if (((tmp = unc_find_option(val)) != nullptr) && (tmp->type == entry->type))
    {
       dest->a = cpd.settings[tmp->id].a;
       return;
@@ -1884,7 +1884,7 @@ int set_option_value(const char *name, const char *value)
 {
    const option_map_value_t *entry;
 
-   if ((entry = unc_find_option(name)) != NULL)
+   if ((entry = unc_find_option(name)) != nullptr)
    {
       convert_value(entry, value, &cpd.settings[entry->id]);
       return((int)entry->id);
@@ -1920,20 +1920,20 @@ void process_option_line(char *configLine, const char *filename)
 
    char *ptr;
    /* Chop off trailing comments */
-   if ((ptr = strchr(configLine, '#')) != NULL)
+   if ((ptr = strchr(configLine, '#')) != nullptr)
    {
       *ptr = 0;
    }
 
    /* Blow away the '=' to make things simple */
-   if ((ptr = strchr(configLine, '=')) != NULL)
+   if ((ptr = strchr(configLine, '=')) != nullptr)
    {
       *ptr = ' ';
    }
 
    /* Blow away all commas */
    ptr = configLine;
-   while ((ptr = strchr(ptr, ',')) != NULL)
+   while ((ptr = strchr(ptr, ',')) != nullptr)
    {
       *ptr = ' ';
    }
@@ -1951,7 +1951,7 @@ void process_option_line(char *configLine, const char *filename)
       }
       return;
    }
-   args[argc] = NULL;
+   args[argc] = nullptr;
 
    if (strcasecmp(args[0], "type") == 0)
    {
@@ -2062,7 +2062,7 @@ int load_option_file(const char *filename)
 #endif
 
    FILE *pfile = fopen(filename, "r");
-   if (pfile == NULL)
+   if (pfile == nullptr)
    {
       fprintf(stderr, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, filename, strerror(errno), errno);
@@ -2072,7 +2072,7 @@ int load_option_file(const char *filename)
 
    /* Read in the file line by line */
    char buffer[256];
-   while (fgets(buffer, sizeof(buffer), pfile) != NULL)
+   while (fgets(buffer, sizeof(buffer), pfile) != nullptr)
    {
       process_option_line(buffer, filename);
    }
@@ -2103,9 +2103,9 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
-         assert(option != NULL);
+         assert(option != nullptr);
 
-         if (withDoc && (option->short_desc != NULL) && (*option->short_desc != 0))
+         if (withDoc && (option->short_desc != nullptr) && (*option->short_desc != 0))
          {
             fprintf(pfile, "%s# ", first ? "" : "\n");
             int idx;
@@ -2213,14 +2213,14 @@ void print_options(FILE *pfile)
       for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
       {
          const option_map_value_t *option = get_option_name(*it);
-         assert(option != NULL);
+         assert(option != nullptr);
          size_t cur = strlen(option->name);
          size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;
 
-         if (text != NULL)
+         if (text != nullptr)
          {
             fputs("  ", pfile);
             while (*text != 0)
@@ -2319,6 +2319,19 @@ string argtype_to_string(argtype_t argtype)
    }
 }
 
+const char *get_encoding_name(const char_encoding_e enc)
+{
+   switch(enc)
+   {
+      case(char_encoding_e::ASCII   ): return ("ASCII"    );
+      case(char_encoding_e::BYTE    ): return ("BYTE"     );
+      case(char_encoding_e::UTF8    ): return ("UTF-8"    );
+      case(char_encoding_e::UTF16_LE): return ("UTF-16-LE");
+      case(char_encoding_e::UTF16_BE): return ("UTF-16-BE");
+      default:                         return ("Error"    );
+   }
+}
+
 
 const char *get_argtype_name(argtype_t argtype)
 {
@@ -2410,7 +2423,7 @@ string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
       case AT_UNUM:   return(number_to_string((int)op_val.u ));
       case AT_LINE:   return(lineends_to_string   (op_val.le));
       case AT_POS:    return(tokenpos_to_string   (op_val.tp));
-      case AT_STRING: return(op_val.str != NULL ? op_val.str : "");
+      case AT_STRING: return(op_val.str != nullptr ? op_val.str : "");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
                       return("");
    }

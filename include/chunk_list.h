@@ -29,7 +29,7 @@
  *
  * PREPROC
  *  - If not in a preprocessor, skip over any encountered preprocessor stuff
- *  - If in a preprocessor, fail to leave (return NULL)
+ *  - If in a preprocessor, fail to leave (return nullptr)
  */
 enum class scope_e : unsigned int
 {
@@ -49,7 +49,7 @@ chunk_t *chunk_dup(
 /**
  * \brief Add a copy of a chunk to a chunk list after the given position
  *
- * \note If ref is NULL, add at the tail of the chunk list
+ * \note If ref is nullptr, add at the tail of the chunk list
  *
  * @retval pointer to the added chunk
  */
@@ -62,7 +62,7 @@ chunk_t *chunk_add_after(
 /**
  * \brief Add a copy of a chunk to a chunk list before the given position
  *
- * \note If ref is NULL, add at the head of the chunk list
+ * \note If ref is nullptr, add at the head of the chunk list
  * \bug currently chunks are added to the tail fix this
  *
  * @retval pointer to the added chunk
@@ -110,7 +110,7 @@ chunk_t *chunk_get_tail(void);
 /**
  * \brief returns the next chunk in a list of chunks
  *
- * @return pointer to next chunk or NULL if no chunk was found
+ * @return pointer to next chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_next(
    chunk_t *cur,           /**< [in] chunk to start with */
@@ -121,7 +121,7 @@ chunk_t *chunk_get_next(
 /**
  * \brief returns the previous chunk in a list of chunks
  *
- * @return pointer to previous chunk or NULL if no chunk was found
+ * @return pointer to previous chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_prev(
    chunk_t    *cur,	   /**< [in] chunk to use as start point */
@@ -152,7 +152,7 @@ void chunk_swap_lines(
 
 /**
  * Finds the first chunk on the line that pc is on.
- * This just backs up until a newline or NULL is hit.
+ * This just backs up until a newline or nullptr is hit.
  *
  * given: [ a - b - c - n1 - d - e - n2 ]
  * input: [ a | b | c | n1 ] => a
@@ -163,21 +163,33 @@ chunk_t *chunk_first_on_line(
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *get_prev_category(
    chunk_t *pc /**< [in] chunk to start with */
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *get_next_scope(
    chunk_t *pc  /**< [in] chunk to start with */
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *get_next_class(
    chunk_t *pc  /**< [in] chunk to start with */
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *get_prev_oc_class(
    chunk_t *pc  /**< [in] chunk to start with */
 );
@@ -251,7 +263,7 @@ chunk_t *chunk_get_next_ncnl(
  * brackets. This handles stacked [] instances to accommodate
  * multi-dimensional array declarations
  *
- * @return NULL or the next chunk not in or part of square brackets
+ * @return nullptr or the next chunk not in or part of square brackets
  */
 chunk_t *chunk_get_next_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
@@ -259,6 +271,9 @@ chunk_t *chunk_get_next_ncnlnp(
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *chunk_get_next_nisq(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
@@ -332,7 +347,7 @@ chunk_t *chunk_get_prev_ncnlnp(
 /**
  * Grabs the next chunk of the given type at the level.
  *
- * @return NULL or the match
+ * @return nullptr or the match
  */
 chunk_t *chunk_get_next_type(
    chunk_t *cur,        /**< [in] Starting chunk */
@@ -345,7 +360,7 @@ chunk_t *chunk_get_next_type(
 /**
  * Grabs the prev chunk of the given type at the level.
  *
- * @return NULL or the match
+ * @return nullptr or the match
  */
 chunk_t *chunk_get_prev_type(
    chunk_t   *cur,          /**< [in] Starting chunk */
@@ -361,7 +376,7 @@ chunk_t *chunk_get_prev_type(
  * traverses a chunk list either in forward or backward direction.
  * The traversal continues until a chunk of a given category is found.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t *chunk_get_next_str(
@@ -379,7 +394,7 @@ chunk_t *chunk_get_next_str(
  * traverses a chunk list either in forward or backward direction.
  * The traversal continues until a chunk of a given category is found.
  *
- * @retval NULL    - no chunk found or invalid parameters provided
+ * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t *chunk_get_prev_str(
@@ -392,7 +407,7 @@ chunk_t *chunk_get_prev_str(
 
 
 /**
- * @return pointer to found chunk or NULL if no chunk was found
+ * @return pointer to found chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_next_nvb(
    chunk_t     *cur,          /**< [in] chunk to start search */
@@ -405,7 +420,7 @@ chunk_t *chunk_get_next_nvb(
  *
  * \brief Gets the previous non-vbrace chunk
  *
- * @return pointer to found chunk or NULL if no chunk was found
+ * @return pointer to found chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_prev_nvb(
    chunk_t     *cur,          /**< [in] chunk to start search */
@@ -416,7 +431,7 @@ chunk_t *chunk_get_prev_nvb(
 /**
  * \brief reverse search a chunk of a given category in a chunk list
  *
- * @retval NULL    - no object found, or invalid parameters provided
+ * @retval nullptr    - no object found, or invalid parameters provided
  * @retval chunk_t - pointer to the found object
  */
 chunk_t *chunk_search_prev_cat(
@@ -428,7 +443,7 @@ chunk_t *chunk_search_prev_cat(
 /**
  * \brief forward search a chunk of a given category in a chunk list
  *
- * @retval NULL    - no object found, or invalid parameters provided
+ * @retval nullptr    - no object found, or invalid parameters provided
  * @retval chunk_t - pointer to the found object
  */
 chunk_t *chunk_search_next_cat(
@@ -437,30 +452,45 @@ chunk_t *chunk_search_next_cat(
 );
 
 
+/**
+ * tbd
+ */
 void set_chunk_type(
    chunk_t   *pc,
    c_token_t tt
 );
 
 
+/**
+ * tbd
+ */
 void set_chunk_parent(
    chunk_t   *pc,
    c_token_t tt
 );
 
 
+/**
+ * tbd
+ */
 void chunk_flags_set(
    chunk_t *pc,
    UINT64  set_bits
 );
 
 
+/**
+ * tbd
+ */
 void chunk_flags_clr(
    chunk_t *pc,
    UINT64  clr_bits
 );
 
 
+/**
+ * tbd
+ */
 void chunk_flags_update(
    chunk_t *pc,
    UINT64  clr_bits,
@@ -486,93 +516,156 @@ bool chunk_is_newline_between(
 );
 
 
+/**
+ * tbd
+ */
 chunk_t *chunk_skip_to_match_rev(
    chunk_t *cur,
    scope_e scope = scope_e::ALL
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_ptr_operator(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_newline(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_function(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * checks if a chunk is valid and is a comment
+ *
+ * comment means any kind of
+ * - single line comment
+ * - multiline comment
+ * - C comment
+ * - C++ comment
+ */
 bool chunk_is_comment(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * checks if a chunk is valid and is a blank character
+ *
+ * \note check compares if len == 0
+ * \todo rename function: blank is a space not an empty string
+ */
 bool chunk_is_blank(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * checks if a chunk is valid and either a comment or newline
+ */
 bool chunk_is_comment_or_newline(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_balanced_square(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_comment_or_newline_in_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_comment_newline_or_blank(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_comment_newline_or_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_single_line_comment(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_semicolon(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_semicolon(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_type(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_token(
    chunk_t *pc,  /**< [in] chunk to check */
    c_token_t c_token
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_str(
    chunk_t *pc,  /**< [in] chunk to check */
    const char *str,
@@ -580,6 +673,9 @@ bool chunk_is_str(
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_str_case(
    chunk_t *pc,  /**< [in] chunk to check */
    const char *str,
@@ -587,51 +683,81 @@ bool chunk_is_str_case(
 );
 
 
+/**
+ * tbd
+ */
  bool chunk_is_word(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+ /**
+  * tbd
+  */
 bool chunk_is_star(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_addr(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_msref(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_closing_brace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_opening_brace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_vbrace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_fparen_open(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_paren_open(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
+/**
+ * tbd
+ */
 bool chunk_is_paren_close(
    chunk_t *pc  /**< [in] chunk to check */
 );
@@ -667,5 +793,6 @@ bool chunk_safe_to_del_nl(
 bool chunk_is_forin(
    chunk_t *pc /**< [in] chunk to start search with */
 );
+
 
 #endif /* CHUNK_LIST_H_INCLUDED */

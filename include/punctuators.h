@@ -9,6 +9,9 @@
 #include "uncrustify_types.h"
 
 
+/**
+ * tbd
+ */
 const chunk_tag_t *find_punctuator(
    const char *str,
    size_t lang_flags

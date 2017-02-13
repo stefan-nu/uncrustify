@@ -14,7 +14,7 @@
 
 char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 {
-   if ((buf  == NULL) ||
+   if ((buf  == nullptr) ||
        (size == 0   ) )
    {
       return(buf);
@@ -59,10 +59,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
    else
    {
       /* Eat the last comma */
-      if (len > 0)
-      {
-         len--;
-      }
+      if (len > 0) { len--; }
    }
 
    buf[len] = 0;
@@ -73,7 +70,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 
 void logmask_from_string(const char *str, log_mask_t &mask)
 {
-   if (str == NULL) { return; }
+   if (str == nullptr) { return; }
 
    /* Start with a clean mask */
    logmask_set_all(mask, false);

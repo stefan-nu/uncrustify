@@ -352,7 +352,9 @@ typedef enum
  * This makes only sense for tokens that occur in groups like ( and )
  * If there is no inverse the same token is returned
  */
-c_token_t get_inverse_type(c_token_t type);
+c_token_t get_inverse_type(
+   c_token_t type
+);
 
 
 #endif /* TOKEN_ENUM_H_INCLUDED */

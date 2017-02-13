@@ -21,7 +21,7 @@
  *  - trailing whitespace are removed.
  *  - leading space & tabs are converted to the appropriate format.
  *
- * All the tokens are inserted before ref. If ref is NULL, they are inserted
+ * All the tokens are inserted before ref. If ref is nullptr, they are inserted
  * at the end of the list.  Line numbers are relative to the start of the data.
  */
 void tokenize(

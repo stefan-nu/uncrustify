@@ -48,6 +48,9 @@ size_t space_needed(
 );
 
 
+/**
+ * tbd
+ */
 void space_add_after(
    chunk_t *pc,
    size_t count

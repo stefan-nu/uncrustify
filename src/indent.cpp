@@ -154,7 +154,18 @@
  * @param pc   The comment, which is the first item on a line
  * @param col  The column if this is to be put at indent level
  */
-static void indent_comment(chunk_t *pc, size_t col);
+static void indent_comment(
+   chunk_t *pc,
+   size_t  col
+);
+
+
+ enum class align_mode_e : unsigned int
+ {
+    SHIFT,     /* shift relative to the current column */
+    KEEP_ABS,  /* try to keep the original absolute column */
+    KEEP_REL   /* try to keep the original gap */
+ };
 
 
 /**
@@ -165,7 +176,7 @@ static void indent_comment(chunk_t *pc, size_t col);
  */
 static void indent_pse_push(
    parse_frame_t &frm,
-   chunk_t *pc
+   chunk_t       *pc
 );
 
 
@@ -177,18 +188,24 @@ static void indent_pse_push(
  */
 static void indent_pse_pop(
    parse_frame_t &frm,
-   chunk_t *pc
+   chunk_t       *pc
 );
 
 
+/**
+ * tbd
+ */
 static size_t token_indent(
    c_token_t type
 );
 
 
+/**
+ * tbd
+ */
 static size_t calc_indent_continue(
    const parse_frame_t &frm,
-   size_t pse_tos
+   size_t              pse_tos
 );
 
 
@@ -223,6 +240,9 @@ static bool single_line_comment_indent_rule_applies(
 );
 
 
+/**
+ * tbd
+ */
 void log_and_reindent(
    chunk_t      *pc,   /**< [in] chunk to operate with */
    const size_t val,   /**< [in] value to print */
@@ -230,11 +250,14 @@ void log_and_reindent(
 );
 
 
+/**
+ * tbd
+ */
 void log_and_indent_comment(
-      chunk_t      *pc,   /**< [in] chunk to operate with */
-      const size_t val,   /**< [in] value to print */
-      const char   *str   /**< [in] string to print */
-   );
+   chunk_t      *pc,   /**< [in] chunk to operate with */
+   const size_t val,   /**< [in] value to print */
+   const char   *str   /**< [in] string to print */
+);
 
 
 void indent_to_column(chunk_t *pc, size_t column)
@@ -248,18 +271,10 @@ void indent_to_column(chunk_t *pc, size_t column)
 }
 
 
-enum class align_mode_e : unsigned int
-{
-   SHIFT,     /* shift relative to the current column */
-   KEEP_ABS,  /* try to keep the original absolute column */
-   KEEP_REL   /* try to keep the original gap */
-};
-
-
 void align_to_column(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
    if (column == pc->column)
    {
       return;
@@ -279,7 +294,7 @@ void align_to_column(chunk_t *pc, size_t column)
       chunk_t      *prev;
       align_mode_e almod = align_mode_e::SHIFT;
 
-      if (next == NULL)
+      if (next == nullptr)
       {
          break;
       }
@@ -299,52 +314,41 @@ void align_to_column(chunk_t *pc, size_t column)
       {
          /* Keep same absolute column */
          pc->column = pc->orig_col;
-         if (pc->column < min_col)
-         {
-            pc->column = min_col;
-         }
+         pc->column = max(min_col, pc->column);
       }
       else if (almod == align_mode_e::KEEP_REL)
       {
          /* Keep same relative column */
          int orig_delta = (int)pc->orig_col - (int)prev->orig_col;
-         if (orig_delta < min_delta)
-         {
-            orig_delta = min_delta;
-         }
+         orig_delta = max(min_delta, orig_delta);
+
          pc->column = (size_t)((int)prev->column + orig_delta);
       }
       else /* SHIFT */
       {
          /* Shift by the same amount */
          pc->column += col_delta;
-         if (pc->column < min_col)
-         {
-            pc->column = min_col;
-         }
+         pc->column = max(min_col, pc->column);
       }
       LOG_FMT(LINDLINED, "   %s set column of %s on line %zu to col %zu (orig %zu)\n",
               (almod == align_mode_e::KEEP_ABS) ? "abs" :
               (almod == align_mode_e::KEEP_REL) ? "rel" : "sft",
               get_token_name(pc->type), pc->orig_line, pc->column, pc->orig_col);
-   } while ((pc != NULL) && (pc->nl_count == 0));
+   } while ((pc != nullptr) && (pc->nl_count == 0));
 }
 
 
 void reindent_line(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on '%s' [%s/%s] => %zu",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), get_token_name(pc->parent_type),
            column);
    log_func_stack_inline(LINDLINE);
 
-   if (column == pc->column)
-   {
-      return;
-   }
+   if (column == pc->column) { return; }
 
    size_t col_delta = column - pc->column;
    size_t min_col   = column;
@@ -374,10 +378,8 @@ void reindent_line(chunk_t *pc, size_t column)
       }
       chunk_t *next = chunk_get_next(pc);
 
-      if (next == NULL)
-      {
-         break;
-      }
+      if (next == nullptr) { break; }
+
       if (pc->nl_count)
       {
          min_col   = 0;
@@ -393,20 +395,16 @@ void reindent_line(chunk_t *pc, size_t column)
       if (is_comment && (pc->parent_type != CT_COMMENT_EMBED) && !keep)
       {
          pc->column = pc->orig_col;
-         if (pc->column < min_col)
-         {
-            pc->column = min_col; // + 1;
-         }
+         pc->column = max(min_col, pc->column);
+
          LOG_FMT(LINDLINE, "%s(%d): set comment on line %zu to col %zu (orig %zu)\n",
                  __func__, __LINE__, pc->orig_line, pc->column, pc->orig_col);
       }
       else
       {
          pc->column += col_delta;
-         if (pc->column < min_col)
-         {
-            pc->column = min_col;
-         }
+         pc->column = max(min_col, pc->column);
+
          LOG_FMT(LINDLINED, "   set column of ");
          if (pc->type == CT_NEWLINE)
          {
@@ -418,14 +416,14 @@ void reindent_line(chunk_t *pc, size_t column)
          }
          LOG_FMT(LINDLINED, " to %zu (orig %zu)\n", pc->column, pc->orig_col);
       }
-   } while ((pc != NULL) && (pc->nl_count == 0));
+   } while ((pc != nullptr) && (pc->nl_count == 0));
 }
 
 
 static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
 
    /* check the stack depth */
    if (frm.pse_tos < (ARRAY_SIZE(frm.pse) - 1))
@@ -470,15 +468,12 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc)
    /* Bump up the index and initialize it */
    if (frm.pse_tos > 0)
    {
-      if (pc != NULL)
+      if (pc != nullptr)
       {
          LOG_FMT(LINDPSE, "%4zu] (pp=%d) CLOSE [%zu,%s] on %s, started on line %zu, level=%zu/%zu\n",
                  pc->orig_line, cpd.pp_level, frm.pse_tos,
-                 get_token_name(frm.pse[frm.pse_tos].type),
-                 get_token_name(pc->type),
-                 frm.pse[frm.pse_tos].open_line,
-                 frm.pse[frm.pse_tos].level,
-                 pc->level);
+                 get_token_name(frm.pse[frm.pse_tos].type), get_token_name(pc->type),
+                 frm.pse[frm.pse_tos].open_line, frm.pse[frm.pse_tos].level, pc->level);
       }
       else
       {
@@ -491,7 +486,7 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc)
        * just-popped indent values */
       frm.pse_tos--;
       LOG_FMT(LINDLINE, "(%d) ", __LINE__);
-      if (pc != NULL)
+      if (pc != nullptr)
       {
          LOG_FMT(LINDLINE, "%s(%d): orig_line=%zu, pse_tos=%zu, type=%s\n",
                  __func__, __LINE__, pc->orig_line, frm.pse_tos, get_token_name(pc->type));
@@ -506,7 +501,7 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc)
    {
       /* fatal error */
       fprintf(stderr, "the stack index is already zero\n");
-      assert(pc != NULL);
+      assert(pc != nullptr);
       fprintf(stderr, "at line=%zu, type is %s\n",
               pc->orig_line, get_token_name(pc->type));
       exit(EXIT_FAILURE);
@@ -559,10 +554,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    LOG_FUNC_ENTRY();
    chunk_t *tmp = chunk_get_prev_nc(pc);
 
-   if (from_brace)
-   {
-      return(pc);
-   }
+   if (from_brace) { return(pc); }
 
    if (chunk_is_paren_close(tmp))
    {
@@ -570,7 +562,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    }
    if (!tmp || (tmp->type != CT_OC_BLOCK_CARET))
    {
-      return(NULL);
+      return(nullptr);
    }
    if (from_caret)
    {
@@ -579,7 +571,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    tmp = chunk_get_prev_nc(tmp);
    if (!tmp || (tmp->type != CT_OC_COLON))
    {
-      return(NULL);
+      return(nullptr);
    }
    if (from_colon)
    {
@@ -588,13 +580,13 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    tmp = chunk_get_prev_nc(tmp);
    if (!tmp || ((tmp->type != CT_OC_MSG_NAME) && (tmp->type != CT_OC_MSG_FUNC)))
    {
-      return(NULL);
+      return(nullptr);
    }
    if (from_keyword)
    {
       return(tmp);
    }
-   return(NULL);
+   return(nullptr);
 }
 
 
@@ -609,7 +601,7 @@ void indent_text(void)
    LOG_FUNC_ENTRY();
    chunk_t       *pc;
    chunk_t       *next;
-   chunk_t       *prev       = NULL;
+   chunk_t       *prev       = nullptr;
    bool          my_did_newline = true;
    int           idx;
    size_t        vardefcol    = 0;
@@ -636,7 +628,7 @@ void indent_text(void)
    frm.pse[0].type       = CT_EOF;
 
    pc = chunk_get_head();
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       if (pc->type == CT_NEWLINE)
       {
@@ -672,7 +664,7 @@ void indent_text(void)
             next = chunk_get_next_ncnl(pc);
             if ((pc->parent_type == CT_FUNC_DEF) ||
                 ((pc->type == CT_COMMENT) &&
-                 (next != NULL          ) &&
+                 (next != nullptr          ) &&
                  (next->parent_type == CT_FUNC_DEF)))
             {
                in_func_def = true;
@@ -685,7 +677,7 @@ void indent_text(void)
          else
          {
             prev = chunk_get_prev(pc);
-            assert(prev != NULL);
+            assert(prev != nullptr);
             if ((prev->type == CT_BRACE_CLOSE) &&
                 (prev->parent_type == CT_FUNC_DEF))
             {
@@ -729,7 +721,7 @@ void indent_text(void)
              (pc->parent_type == CT_PP_REGION))
          {
             next = chunk_get_next(pc);
-            if (next == NULL)
+            if (next == nullptr)
             {
                break;
             }
@@ -751,7 +743,7 @@ void indent_text(void)
               (pc->parent_type == CT_PP_ELSE)))
          {
             next = chunk_get_next(pc);
-            if (next == NULL)
+            if (next == nullptr)
             {
                break;
             }
@@ -965,7 +957,7 @@ void indent_text(void)
             /* return & throw are ended with a semicolon */
             if (chunk_is_semicolon(pc) &&
                 ((frm.pse[frm.pse_tos].type == CT_RETURN) ||
-                 (frm.pse[frm.pse_tos].type == CT_THROW)))
+                 (frm.pse[frm.pse_tos].type == CT_THROW ) ) )
             {
                indent_pse_pop(frm, pc);
             }
@@ -981,7 +973,7 @@ void indent_text(void)
             /* a typedef and an OC SCOPE ('-' or '+') ends with a semicolon or
              * brace open */
             if ((frm.pse[frm.pse_tos].type == CT_TYPEDEF) &&
-                (chunk_is_semicolon(pc) ||
+                (chunk_is_semicolon (pc) ||
                  chunk_is_paren_open(pc) ||
                  (pc->type == CT_BRACE_OPEN)))
             {
@@ -1061,7 +1053,8 @@ void indent_text(void)
        *  - return */
 
       bool brace_indent = false;
-      if ((pc->type == CT_BRACE_CLOSE) || (pc->type == CT_BRACE_OPEN))
+      if ((pc->type == CT_BRACE_CLOSE) ||
+          (pc->type == CT_BRACE_OPEN ) )
       {
          brace_indent = (( cpd.settings[UO_indent_braces          ].b                                          ) &&
                          (!cpd.settings[UO_indent_braces_no_func  ].b || (pc->parent_type != CT_FUNC_DEF      )) &&
@@ -1110,7 +1103,7 @@ void indent_text(void)
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
       }
       else if ( (pc->type       == CT_BRACE_OPEN ) &&
-                (pc->next       != NULL          ) &&
+                (pc->next       != nullptr       ) &&
                 (pc->next->type != CT_NAMESPACE  ) )
       {
          frm.level++;
@@ -1211,25 +1204,25 @@ void indent_text(void)
                   }
                   else
                   {
-                     frm.pse[frm.pse_tos].indent = 1 + ((pc->brace_level + 1) * indent_size);
+                     frm.pse[frm.pse_tos].indent = 1 + ((pc->brace_level+1) * indent_size);
                      indent_column_set(frm.pse[frm.pse_tos].indent - indent_size);
                   }
                }
                else
                {
-                  frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent_tmp + indent_size;
+                  frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos-1].indent_tmp + indent_size;
                }
             }
             else
             {
                /* We are inside ({ ... }) -- indent one tab from the paren */
-               frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent_tmp + indent_size;
+               frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos-1].indent_tmp + indent_size;
             }
          }
          else
          {
             /* Use the prev indent level + indent_size. */
-            frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent + indent_size;
+            frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos-1].indent + indent_size;
 
             /* If this brace is part of a statement, bump it out by indent_brace */
             if ((pc->parent_type == CT_IF          ) ||
@@ -1261,7 +1254,7 @@ void indent_text(void)
                 * So we need to take the CASE indent, subtract off the
                 * indent_size that was added above and then add indent_case_brace.
                 * may take negative value */
-               indent_column_set(frm.pse[frm.pse_tos - 1].indent - indent_size +
+               indent_column_set(frm.pse[frm.pse_tos-1].indent - indent_size +
                                  cpd.settings[UO_indent_case_brace].u);
 
                /* Stuff inside the brace still needs to be indented */
@@ -1283,7 +1276,7 @@ void indent_text(void)
                      /* undo indent on all except the first namespace */
                      frm.pse[frm.pse_tos].indent -= indent_size;
                   }
-                  indent_column_set((frm.pse_tos <= 1) ? 1 : frm.pse[frm.pse_tos - 1].brace_indent);
+                  indent_column_set((frm.pse_tos <= 1) ? 1 : frm.pse[frm.pse_tos-1].brace_indent);
                }
                else if ((pc->flags & PCF_LONG_BLOCK) ||
                         !cpd.settings[UO_indent_namespace].b)
@@ -1324,7 +1317,7 @@ void indent_text(void)
              * { a++;
              *   b--; }; */
             next = chunk_get_next_ncnl(pc);
-            if (next == NULL)
+            if (next == nullptr)
             {
                break;
             }
@@ -1396,7 +1389,7 @@ void indent_text(void)
 
          /* comments before 'case' need to be aligned with the 'case' */
          chunk_t *pct = pc;
-         while (((pct = chunk_get_prev_nnl(pct)) != NULL) &&
+         while (((pct = chunk_get_prev_nnl(pct)) != nullptr) &&
                 chunk_is_comment(pct))
          {
             chunk_t *t2 = chunk_get_prev(pct);
@@ -1410,13 +1403,13 @@ void indent_text(void)
       else if (pc->type == CT_BREAK)
       {
          prev = chunk_get_prev_ncnl(pc);
-         if ((prev              != NULL          ) &&
+         if ((prev              != nullptr       ) &&
              (prev->type        == CT_BRACE_CLOSE) &&
              (prev->parent_type == CT_CASE       ) )
          {
             // issue #663
             const chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, (int)pc->level);
-            assert(temp != NULL);
+            assert(temp != nullptr);
             /* This only affects the 'break', so no need for a stack entry */
             indent_column_set(temp->column);
          }
@@ -1429,11 +1422,11 @@ void indent_text(void)
             indent_column_set(cpd.settings[UO_indent_label].u);
 
             next = chunk_get_next(pc);   /* colon */
-            if (next != NULL)
+            if (next != nullptr)
             {
                next = chunk_get_next(next); /* possible statement */
 
-               if ((next != NULL) && !chunk_is_newline(next) &&
+               if ((next != nullptr) && !chunk_is_newline(next) &&
                    /* label (+ 2, because there is colon and space after it) must fit into indent */
                    (cpd.settings[UO_indent_label].n + (int)pc->len() + 2 <= (int)frm.pse[frm.pse_tos].indent))
                {
@@ -1521,7 +1514,7 @@ void indent_text(void)
                else
                {
                   next = chunk_get_next(pc);
-                  if (next != NULL)
+                  if (next != nullptr)
                   {
                      if (cpd.settings[UO_indent_ctor_init].u != 0)
                      {
@@ -1626,7 +1619,7 @@ void indent_text(void)
                   (chunk_is_str(pc, "[", 1) && !cpd.settings[UO_indent_square_nl].b) )
          {
             next = chunk_get_next_nc(pc);
-            if (next == NULL)
+            if (next == nullptr)
             {
                break;
             }
@@ -1649,7 +1642,7 @@ void indent_text(void)
                   if (next->type == CT_SPACE)
                   {
                      next = chunk_get_next_nc(next);
-                     if (next == NULL)
+                     if (next == nullptr)
                      {
                         break;
                      }
@@ -1722,7 +1715,7 @@ void indent_text(void)
          }
 
          next = chunk_get_next(pc);
-         if (next != NULL)
+         if (next != nullptr)
          {
             indent_pse_push(frm, pc);
             if (cpd.settings[UO_indent_continue].n != 0)
@@ -1833,14 +1826,14 @@ void indent_text(void)
          chunk_t *tmp = pc;
          do
          {
-            if ((tmp != NULL                ) &&
+            if ((tmp != nullptr             ) &&
                 (chunk_is_str(tmp, "<<", 2) ||
                  chunk_is_str(tmp, ">>", 2) ) )
             {
                in_shift = true;
 
                tmp = chunk_get_prev_ncnl(tmp);
-               if ((tmp       != NULL       ) &&
+               if ((tmp       != nullptr       ) &&
                    (tmp->type == CT_OPERATOR) )
                {
                   is_operator = true;
@@ -1850,7 +1843,7 @@ void indent_text(void)
             }
             tmp = chunk_get_prev_ncnl(tmp);
          } while ((!in_shift                   ) && // DRY
-                  (tmp       != NULL           ) &&
+                  (tmp       != nullptr        ) &&
                   (tmp->type != CT_SEMICOLON   ) &&
                   (tmp->type != CT_BRACE_OPEN  ) &&
                   (tmp->type != CT_BRACE_CLOSE ) &&
@@ -1862,7 +1855,7 @@ void indent_text(void)
          do
          {
             tmp = chunk_get_next_ncnl(tmp);
-            if ((tmp != NULL) &&
+            if ((tmp != nullptr) &&
                 (chunk_is_str(tmp, "<<", 2) ||
                  chunk_is_str(tmp, ">>", 2)))
             {
@@ -1876,7 +1869,7 @@ void indent_text(void)
                break;
             }
          } while ((!in_shift                   ) &&
-                  (tmp       != NULL           ) &&
+                  (tmp       != nullptr        ) &&
                   (tmp->type != CT_SEMICOLON   ) &&
                   (tmp->type != CT_BRACE_OPEN  ) &&
                   (tmp->type != CT_BRACE_CLOSE ) &&
@@ -1887,7 +1880,7 @@ void indent_text(void)
          chunk_t *prev_nonl   = chunk_get_prev_ncnl(pc);
          const chunk_t *prev2 = chunk_get_prev_nc  (pc);
 
-         if ( (prev_nonl       != NULL           ) &&
+         if ( (prev_nonl       != nullptr        ) &&
              ((chunk_is_semicolon(prev_nonl)     ) ||
               (prev_nonl->type == CT_BRACE_OPEN  ) ||
               (prev_nonl->type == CT_BRACE_CLOSE ) ||
@@ -1901,7 +1894,7 @@ void indent_text(void)
             in_shift = false;
          }
 
-         if ( (prev2       != NULL      ) &&
+         if ( (prev2       != nullptr   ) &&
               (prev2->type == CT_NEWLINE) &&
               (in_shift    == true      ) )
          {
@@ -1955,7 +1948,7 @@ void indent_text(void)
             chunk_t *tmp = chunk_get_prev_nc(pc);
             while (chunk_is_token(tmp, CT_PTR_TYPE))
             {
-               assert(tmp != NULL);
+               assert(tmp != nullptr);
                vardefcol = tmp->column;
                tmp       = chunk_get_prev_nc(tmp);
             }
@@ -1993,7 +1986,7 @@ void indent_text(void)
          bool do_vardefcol = false;
          if ((vardefcol  > 0              ) &&
              (pc->level == pc->brace_level) &&
-             (prev      != NULL           ) &&
+             (prev      != nullptr        ) &&
              ((prev->type == CT_COMMA   ) ||
               (prev->type == CT_TYPE    ) ||
               (prev->type == CT_PTR_TYPE) ||
@@ -2004,7 +1997,7 @@ void indent_text(void)
             {
                tmp = chunk_get_next_ncnl(tmp);
             }
-            if (( tmp       != NULL            )   &&
+            if (( tmp       != nullptr         )   &&
                 ( tmp->flags & PCF_VAR_DEF     )   &&
                 ((tmp->type == CT_WORD         ) ||
                  (tmp->type == CT_FUNC_CTOR_VAR) ) )
@@ -2027,7 +2020,7 @@ void indent_text(void)
          else if (((pc->flags & PCF_STMT_START) == 0) &&
                   ((pc->type == CT_MEMBER   ) ||
                    (pc->type == CT_DC_MEMBER) ||
-                   ((prev != NULL) &&
+                   ((prev != nullptr) &&
                     ((prev->type == CT_MEMBER   ) ||
                      (prev->type == CT_DC_MEMBER)))))
          {
@@ -2050,7 +2043,7 @@ void indent_text(void)
          {
             log_and_reindent(pc, frm.pse[frm.pse_tos].brace_indent, "Namespace");
          }
-         else if ((pc->type == CT_STRING) && (prev != NULL) && (prev->type == CT_STRING) &&
+         else if ((pc->type == CT_STRING) && (prev != nullptr) && (prev->type == CT_STRING) &&
                   cpd.settings[UO_indent_align_string].b)
          {
             size_t tmp = (xml_indent != 0) ? (size_t)xml_indent : prev->column;
@@ -2079,7 +2072,7 @@ void indent_text(void)
                chunk_t *ck1 = frm.pse[frm.pse_tos + 1].pc;
                chunk_t *ck2 = chunk_get_prev(ck1);
 
-               assert(ck2 != NULL);
+               assert(ck2 != nullptr);
                /* If the open paren was the first thing on the line or we are
                 * doing mode 1, then put the close paren in the same column */
                if (chunk_is_newline(ck2) ||
@@ -2135,7 +2128,7 @@ void indent_text(void)
          else if (cpd.settings[UO_indent_func_const].u &&
                   (pc->type    == CT_QUALIFIER  ) &&
                   (strncasecmp(pc->text(), "const", pc->len()) == 0) &&
-                  ((next       == NULL          ) ||
+                  ((next       == nullptr       ) ||
                    (next->type == CT_BRACED     ) ||
                    (next->type == CT_BRACE_OPEN ) ||
                    (next->type == CT_NEWLINE    ) ||
@@ -2179,19 +2172,19 @@ void indent_text(void)
                     (pc->type   == CT_NUMBER     ) ||
                     (pc->type   == CT_STRING     ) ||
                     (pc->type   == CT_PAREN_OPEN )) &&
-                    (prev       != NULL           ) &&
+                    (prev       != nullptr        ) &&
                     (prev->type == CT_COND_COLON  ) ) )
          {
             chunk_t *tmp = chunk_get_prev_type(prev, CT_QUESTION, -1);
             tmp = chunk_get_next_ncnl(tmp);
-            assert(tmp != NULL);
+            assert(tmp != nullptr);
             log_and_reindent(pc, tmp->column, "ternaydefcol");
          }
          else if ((cpd.settings[UO_indent_ternary_operator].u == 2) &&
                   (pc->type == CT_COND_COLON))
          {
             const chunk_t *tmp = chunk_get_prev_type(pc, CT_QUESTION, -1);
-            assert(tmp != NULL);
+            assert(tmp != nullptr);
             log_and_reindent(pc, tmp->column, "ternarydefcol");
          }
          else
@@ -2365,7 +2358,7 @@ static bool single_line_comment_indent_rule_applies(chunk_t *start)
     * code, we want to apply */
    chunk_t *pc = start;
    size_t nl_count = 0;
-   while ((pc = chunk_get_next(pc)) != NULL)
+   while ((pc = chunk_get_next(pc)) != nullptr)
    {
       if (chunk_is_newline(pc))
       {
@@ -2416,7 +2409,7 @@ static void indent_comment(chunk_t *pc, size_t col)
    /* outside of any expression or statement? */
    if (pc->level == 0)
    {
-      if ((nl != NULL) && (nl->nl_count > 1))
+      if ((nl != nullptr) && (nl->nl_count > 1))
       {
          LOG_FMT(LCMTIND, "rule 2 - level 0, nl before\n");
          reindent_line(pc, 1);
@@ -2425,11 +2418,11 @@ static void indent_comment(chunk_t *pc, size_t col)
    }
 
    chunk_t *prev = chunk_get_prev(nl);
-   if((chunk_is_comment(prev)) &&
-      (nl           != NULL  ) &&
-      (nl->nl_count == 1     ) )
+   if((chunk_is_comment(prev) ) &&
+      (nl           != nullptr) &&
+      (nl->nl_count == 1      ) )
    {
-      assert(prev != NULL);
+      assert(prev != nullptr);
       int     coldiff = (int)prev->orig_col - (int)pc->orig_col;
       chunk_t *pp     = chunk_get_prev(prev);
 
@@ -2471,9 +2464,9 @@ bool ifdef_over_whole_file(void)
    }
 
    size_t        stage   = 0;
-   chunk_t       *end_pp = NULL;
+   chunk_t       *end_pp = nullptr;
    const chunk_t *next;
-   for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next(pc))
+   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
    {
       if( chunk_is_comment_or_newline(pc) ) { continue; }
 
@@ -2485,7 +2478,7 @@ bool ifdef_over_whole_file(void)
             break;
          }
          next = chunk_get_next(pc);
-         if ((next       == NULL    ) ||
+         if ((next       == nullptr ) ||
              (next->type != CT_PP_IF) )
          {
             break;
@@ -2539,12 +2532,12 @@ void indent_preproc(void)
       pp_level_sub = 1;
    }
 
-   for (chunk_t *pc = chunk_get_head(); pc != NULL; pc = chunk_get_next(pc))
+   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
    {
       if (pc->type != CT_PREPROC) { continue; }
 
       next = chunk_get_next_ncnl(pc);
-      if (next == NULL) { break; }
+      if (next == nullptr) { break; }
 
       pp_level = (int)pc->pp_level - pp_level_sub;
 
@@ -2561,7 +2554,7 @@ void indent_preproc(void)
       }
 
       /* Add spacing by adjusting the length */
-      if ((cpd.settings[UO_pp_space].a != AV_IGNORE) && (next != NULL))
+      if ((cpd.settings[UO_pp_space].a != AV_IGNORE) && (next != nullptr))
       {
          if (is_option_set(cpd.settings[UO_pp_space].a, AV_ADD))
          {

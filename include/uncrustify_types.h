@@ -50,26 +50,27 @@ using namespace std;
 enum class brace_stage_e : unsigned int
 {
    NONE,
-   PAREN1,     /* if/for/switch/while/synchronized */
-   OP_PAREN1,  /* optional paren: catch () { */
-   WOD_PAREN,  /* while of do parens */
-   WOD_SEMI,   /* semicolon after while of do */
-   BRACE_DO,   /* do */
-   BRACE2,     /* if/else/for/switch/while */
-   ELSE,       /* expecting 'else' after 'if' */
-   ELSEIF,     /* expecting 'if' after 'else' */
-   WHILE,      /* expecting 'while' after 'do' */
-   CATCH,      /* expecting 'catch' or 'finally' after 'try' */
-   CATCH_WHEN, /* optional 'when' after 'catch' */
+   PAREN1,     /**< if/for/switch/while/synchronized */
+   OP_PAREN1,  /**< optional paren: catch () { */
+   WOD_PAREN,  /**< while of do parens */
+   WOD_SEMI,   /**< semicolon after while of do */
+   BRACE_DO,   /**< do */
+   BRACE2,     /**< if/else/for/switch/while */
+   ELSE,       /**< expecting 'else' after 'if' */
+   ELSEIF,     /**< expecting 'if' after 'else' */
+   WHILE,      /**< expecting 'while' after 'do' */
+   CATCH,      /**< expecting 'catch' or 'finally' after 'try' */
+   CATCH_WHEN  /**< optional 'when' after 'catch' */
 };
+
 
 enum class char_encoding_e : unsigned int
 {
-   ASCII,     /* 0-127 */
-   BYTE,      /* 0-255, not UTF-8 */
-   UTF8,
-   UTF16_LE,
-   UTF16_BE,
+   ASCII,      /**< 0-127 */
+   BYTE,       /**< 0-255, not UTF-8 */
+   UTF8,       /**< utf 8 bit wide */
+   UTF16_LE,   /**< utf 16 bit wide, little endian */
+   UTF16_BE    /**< utf 16 bit wide, big endian */
 };
 
 
@@ -194,7 +195,7 @@ typedef enum StarStyle_e
 
 typedef struct align_ptr_s
 {
-   chunk_t      *next;       /**< NULL or the chunk that should be under this one */
+   chunk_t      *next;       /**< nullptr or the chunk that should be under this one */
    bool         right_align; /**< AlignStack.m_right_align */
    StarStyle_t  star_style;  /**< AlignStack.m_star_style */
    StarStyle_t  amp_style;   /**< AlignStack.m_amp_style */
@@ -213,12 +214,18 @@ typedef struct align_ptr_s
 /** This is the main type of this program */
 struct chunk_t
 {
+   /**
+    * constructor
+    */
    chunk_t()
    {
       reset();
    }
 
 
+   /**
+    * sets all elements of the struct to their default value
+    */
    void reset()
    {
       memset(&align,  0, sizeof(align ));
@@ -243,12 +250,18 @@ struct chunk_t
    }
 
 
+   /**
+    * provides the number of characters of string
+    */
    size_t len()
    {
       return(str.size());
    }
 
 
+   /**
+    * provides the content of a string a zero terminated character pointer
+    */
    const char *text()
    {
       return(str.c_str());
@@ -387,11 +400,11 @@ struct cp_data_t
    UINT32          error_count;
    const char      *filename;
 
-   file_mem_t     file_hdr;       // for cmt_insert_file_header
-   file_mem_t     file_ftr;       // for cmt_insert_file_footer
-   file_mem_t     func_hdr;       // for cmt_insert_func_header
-   file_mem_t     oc_msg_hdr;     // for cmt_insert_oc_msg_header
-   file_mem_t     class_hdr;      // for cmt_insert_class_header
+   file_mem_t      file_hdr;       // for cmt_insert_file_header
+   file_mem_t      file_ftr;       // for cmt_insert_file_footer
+   file_mem_t      func_hdr;       // for cmt_insert_func_header
+   file_mem_t      oc_msg_hdr;     // for cmt_insert_oc_msg_header
+   file_mem_t      class_hdr;      // for cmt_insert_class_header
 
    size_t          lang_flags;    // LANG_xxx
    bool            lang_forced;
@@ -413,11 +426,11 @@ struct cp_data_t
 
    bool            consumed;
 
-   bool           did_newline;      /* flag indicates if a newline was added or converted */
-   c_token_t      is_preproc;
-   int            preproc_ncnl_count;
-   bool           output_trailspace;
-   bool           output_tab_as_space;
+   bool            did_newline;      /* flag indicates if a newline was added or converted */
+   c_token_t       is_preproc;
+   int             preproc_ncnl_count;
+   bool            output_trailspace;
+   bool            output_tab_as_space;
 
    bool            bom;
    char_encoding_e enc;
@@ -435,9 +448,9 @@ struct cp_data_t
    // Here are all the settings
    op_val_t        settings[UO_option_count];
 
-   parse_frame_t  frames[16];
-   int            frame_count;
-   size_t         pp_level;   /* \todo can this ever be -1 */
+   parse_frame_t   frames[16];
+   int             frame_count;
+   size_t          pp_level;   /* \todo can this ever be -1 */
 
    // the default values for settings
    op_val_t        defaults[UO_option_count];

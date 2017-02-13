@@ -402,21 +402,41 @@ static bool is_hex_(int ch);
  * @param pc   The structure to update, str is an input.
  * @return     Whether a number was parsed
  */
-static bool parse_number(tok_ctx &ctx, chunk_t &pc);
+static bool parse_number(
+   tok_ctx &ctx,
+   chunk_t &pc
+);
+
+
+void append_multiple(
+   tok_ctx &ctx,
+   chunk_t &pc,
+   size_t cnt
+);
+
+
+void append_multiple(tok_ctx &ctx, chunk_t &pc, size_t cnt)
+{
+   while (cnt--)
+   {
+      pc.str.append(ctx.get());
+   }
+}
 
 
 static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
 {
    size_t ch = ctx.peek();
 
-   if ((ch == '"') || (ch == '\'') || (ch == '`'))
+   if ((ch == '"' ) ||
+       (ch == '\'') ||
+       (ch == '`' ) )
    {
       return(parse_string(ctx, pc, 0, true));
    }
    else if (ch == '\\')
    {
       ctx.save();
-      int cnt;
       pc.str.clear();
       while (ctx.peek() == '\\')
       {
@@ -424,72 +444,48 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
          /* Check for end of file */
          switch (ctx.peek())
          {
-         case 'x':
-            /* \x HexDigit HexDigit */
-            cnt = 3;
-            while (cnt--)  // \todo DRY
-            {
-               pc.str.append(ctx.get());
-            }
-            break;
-
-         case 'u':
-            /* \u HexDigit HexDigit HexDigit HexDigit */
-            cnt = 5;
-            while (cnt--)
-            {
-               pc.str.append(ctx.get());
-            }
-            break;
-
-         case 'U':
-            /* \U HexDigit (x8) */
-            cnt = 9;
-            while (cnt--)
-            {
-               pc.str.append(ctx.get());
-            }
-            break;
-
-         case '0':
-         case '1':
-         case '2':
-         case '3':
-         case '4':
-         case '5':
-         case '6':
-         case '7':
-            /* handle up to 3 octal digits */
-            pc.str.append(ctx.get());
-            ch = ctx.peek();
-            if ((ch >= '0') && (ch <= '7'))
-            {
+            case 'x': append_multiple(ctx, pc, 3); break; /* \x HexDigit HexDigit */
+            case 'u': append_multiple(ctx, pc, 5); break; /* \u HexDigit HexDigit HexDigit HexDigit */
+            case 'U': append_multiple(ctx, pc, 9); break; /* \U HexDigit (x8) */
+            case '0': /* fallthrough */
+            case '1': /* fallthrough */
+            case '2': /* fallthrough */
+            case '3': /* fallthrough */
+            case '4': /* fallthrough */
+            case '5': /* fallthrough */
+            case '6': /* fallthrough */
+            case '7':
+               /* handle up to 3 octal digits */
                pc.str.append(ctx.get());
                ch = ctx.peek();
-               if ((ch >= '0') && (ch <= '7'))
+               if (is_oct(ch))
+               {
+                  pc.str.append(ctx.get());
+                  ch = ctx.peek();
+                  if (is_oct(ch))
+                  {
+                     pc.str.append(ctx.get());
+                  }
+               }
+               break;
+
+            case '&':
+               /* \& NamedCharacterEntity ; */
+               pc.str.append(ctx.get());
+               while (unc_isalpha(ctx.peek()))
                {
                   pc.str.append(ctx.get());
                }
-            }
-            break;
+               if (ctx.peek() == ';')
+               {
+                  pc.str.append(ctx.get());
+               }
+               break;
 
-         case '&':
-            /* \& NamedCharacterEntity ; */
-            pc.str.append(ctx.get());
-            while (unc_isalpha(ctx.peek()))
-            {
+            default:
+               /* Everything else is a single character */
                pc.str.append(ctx.get());
-            }
-            if (ctx.peek() == ';')
-            {
-               pc.str.append(ctx.get());
-            }
-            break;
-
-         default:
-            /* Everything else is a single character */
-            pc.str.append(ctx.get());
-            break;
+               break;
          }
       }
 
@@ -500,7 +496,9 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
       }
       ctx.restore();
    }
-   else if (((ch == 'r') || (ch == 'x')) && (ctx.peek(1) == '"'))
+   else if (((ch == 'r'         ) ||
+             (ch == 'x'         ) ) &&
+             (ctx.peek(1) == '"')   )
    {
       return(parse_string(ctx, pc, 1, false));
    }
@@ -526,7 +524,7 @@ static const char *str_search(const char *needle, const char *haystack, int hays
       }
       haystack++;
    }
-   return(NULL);
+   return(nullptr);
 }
 #endif
 
@@ -568,9 +566,9 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
    size_t d_level = 0;
 
    /* does this start with '/ /' or '/ *' or '/ +' (d) */
-   if ((  ctx.peek() != '/'       ) ||
-       ( (ctx.peek(1) != '*'  ) &&
-         (ctx.peek(1) != '/'  ) &&
+   if (  (ctx.peek( ) != '/'  )     ||
+       ( (ctx.peek(1) != '*'  )   &&
+         (ctx.peek(1) != '/'  )   &&
         ((ctx.peek(1) != '+'  ) ||
          (is_d        == false) ) ) )
    {
@@ -580,9 +578,9 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
    ctx.save();
 
    /* account for opening two chars */
-   pc.str = ctx.get();   /* opening '/' */
-   size_t ch = ctx.get();
-   pc.str.append(ch);    /* second char */
+   pc.str = ctx.get(); /* opening '/' */
+   int ch = ctx.get();
+   pc.str.append(ch);     /* second char */
 
    if (ch == '/')
    {
@@ -687,7 +685,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
    if (cpd.unc_off)
    {
       const char *ontext = cpd.settings[UO_enable_processing_cmt].str;
-      if ((ontext == NULL) || !ontext[0])
+      if ((ontext == nullptr) || !ontext[0])
       {
          ontext = UNCRUSTIFY_ON_TEXT;
       }
@@ -701,7 +699,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
    else
    {
       const char *offtext = cpd.settings[UO_disable_processing_cmt].str;
-      if ((offtext == NULL) || !offtext[0])
+      if ((offtext == nullptr) || !offtext[0])
       {
          offtext = UNCRUSTIFY_OFF_TEXT;
       }
@@ -719,7 +717,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 
 static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc)
 {
-   if ((ctx.peek()  != '<') ||
+   if ((ctx.peek( ) != '<') ||
        (ctx.peek(1) != '#') )
    {
       return(false);
@@ -1227,7 +1225,8 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
          pc.str.append(ctx.get());
          break;
       }
-      if ((ch == '\n') || (ch == '\r'))
+      if ((ch == '\n') ||
+          (ch == '\r') )
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
@@ -1359,7 +1358,8 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    else
    {
       /* '@interface' is reserved, not an interface itself */
-      if ((cpd.lang_flags & LANG_JAVA) && pc.str.startswith("@") &&
+      if ((cpd.lang_flags & LANG_JAVA) &&
+           pc.str.startswith("@") &&
           !pc.str.equals(intr_txt))
       {
          pc.type = CT_ANNOTATION;
@@ -1434,7 +1434,8 @@ static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc)
    while (ctx.more() && unc_isspace(ch = ctx.peek()))
    {
       ctx.get();
-      if ((ch == '\r') || (ch == '\n'))
+      if ((ch == '\r') ||
+          (ch == '\n') )
       {
          if (ch == '\r')
          {
@@ -1530,7 +1531,7 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    }
    /* Note that we aren't actually making sure this is in a comment, yet */
    const char *ontext = cpd.settings[UO_enable_processing_cmt].str;
-   if (ontext == NULL)
+   if (ontext == nullptr)
    {
       ontext = UNCRUSTIFY_ON_TEXT;
    }
@@ -1817,13 +1818,14 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    if ((cpd.lang_flags & (LANG_OC | LANG_VALA)) && (ctx.peek() == '@'))
    {
       size_t nc = ctx.peek(1);
-      if ((nc == '"') || (nc == '\''))
+      if ((nc == '"' ) ||
+          (nc == '\'') )
       {
          /* literal string */
          parse_string(ctx, pc, 1, true);
          return(true);
       }
-      else if ((nc >= '0') && (nc <= '9'))
+      else if (is_dec(nc))
       {
          /* literal number */
          pc.str.append(ctx.get());  /* store the '@' */
@@ -1848,7 +1850,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    punc_txt[2] = (char)ctx.peek(2);
    punc_txt[3] = (char)ctx.peek(3);
    const chunk_tag_t *punc;
-   if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != NULL)
+   if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != nullptr)
    {
       int cnt = (int)strlen(punc->tag);	// \todo can cnt be size_t?
       while (cnt--)
@@ -1875,8 +1877,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 {
    tok_ctx       ctx(data);
    chunk_t       chunk;
-   chunk_t       *pc    = NULL;
-   const chunk_t *rprev = NULL;
+   chunk_t       *pc    = nullptr;
+   const chunk_t *rprev = nullptr;
    parse_frame_t frm;
    bool          last_was_tab = false;
    size_t        prev_sp      = 0;
@@ -1931,7 +1933,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       {
          // If comment contains backslash '\' followed by whitespace chars, keep last one;
          // this will prevent it from turning '\' into line continuation.
-         if ((chunk.str.size() > 1) && (chunk.str[chunk.str.size() - 2] == '\\'))
+         if ((chunk.str.size() > 1) &&
+             (chunk.str[chunk.str.size() - 2] == '\\'))
          {
             break;
          }
@@ -1943,18 +1946,18 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
       /* Add the chunk to the list */
       rprev = pc;
-      if (rprev != NULL)
+      if (rprev != nullptr)
       {
          chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
-         assert(pc != NULL);
+         assert(pc != nullptr);
          if (pc->type == CT_NEWLINE)
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);
          }
       }
-      if (ref != NULL)
+      if (ref != nullptr)
       {
          chunk.flags |= PCF_INSERTED;
       }
@@ -1963,7 +1966,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk.flags &= ~PCF_INSERTED;
       }
       pc = chunk_add_before(&chunk, ref);
-      assert(pc != NULL);
+      assert(pc != nullptr);
 
       /* A newline marks the end of a preprocessor */
       if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))
@@ -1978,7 +1981,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-         if (!chunk_is_comment(pc) && !chunk_is_newline(pc))
+         if (!chunk_is_comment(pc) &&
+             !chunk_is_newline(pc) )
          {
             cpd.preproc_ncnl_count++;
          }
@@ -1986,7 +1990,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          /* Figure out the type of preprocessor for #include parsing */
          if (cpd.is_preproc == CT_PREPROC)
          {
-            if ((pc->type < CT_PP_DEFINE) || (pc->type > CT_PP_OTHER))
+            if ((pc->type < CT_PP_DEFINE) ||
+                (pc->type > CT_PP_OTHER ) )
             {
                set_chunk_type(pc, CT_PP_OTHER);
             }
@@ -1997,7 +2002,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       {
          /* Check for a preprocessor start */
          if ((pc->type == CT_POUND) &&
-             ((rprev == NULL) || (rprev->type == CT_NEWLINE)))
+             ((rprev == nullptr) || (rprev->type == CT_NEWLINE)))
          {
             set_chunk_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;

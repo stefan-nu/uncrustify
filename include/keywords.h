@@ -11,6 +11,9 @@
 #include "uncrustify_types.h"
 
 
+/**
+ * tbd
+ */
 void init_keywords(void);
 
 
@@ -51,11 +54,17 @@ void add_keyword(
 );
 
 
+/**
+ * tbd
+ */
 void print_keywords(
    FILE *pfile
 );
 
 
+/**
+ * tbd
+ */
 void clear_keyword_file(void);
 
 
@@ -67,6 +76,10 @@ pattern_class_e get_token_pattern_class(
 );
 
 
+/**
+ * tbd
+ */
 bool keywords_are_sorted(void);
+
 
 #endif /* KEYWORDS_H_INCLUDED */

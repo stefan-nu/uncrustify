@@ -11,9 +11,15 @@
 #include "uncrustify_types.h"
 
 
+/**
+ * tbd
+ */
 void tokenize_cleanup(void);
 
 
+/**
+ * tbd
+ */
 void split_off_angle_close(
    chunk_t *pc
 );

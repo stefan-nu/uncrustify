@@ -16,7 +16,7 @@ Args::Args(int argc, char **argv)
    m_values = argv;
    const size_t len = NumberOfBits(argc);
    m_used = new UINT8[len];
-   if (m_used != NULL)
+   if (m_used != nullptr)
    {
       memset(m_used, 0, len);
    }
@@ -47,7 +47,7 @@ Args::~Args()
 
 bool Args::Present(const char *token)
 {
-   if (token != NULL)
+   if (token != nullptr)
    {
       for (size_t idx = 0; idx < m_count; idx++)
       {
@@ -65,17 +65,13 @@ bool Args::Present(const char *token)
 const char *Args::Param(const char *token)
 {
    size_t idx = 0;
-
    return(Params(token, idx));
 }
 
 
 const char *Args::Params(const char *token, size_t &index)
 {
-   if (token == NULL)
-   {
-      return(token);
-   }
+   if (token == nullptr) { return(token); }
 
    size_t token_len = strlen(token);
 
@@ -107,13 +103,13 @@ const char *Args::Params(const char *token, size_t &index)
       }
    }
 
-   return(NULL);
+   return(nullptr);
 }
 
 
 bool Args::GetUsed(size_t idx) const
 {
-   if ((m_used != NULL) && (idx > 0) && (idx < m_count))
+   if ((m_used != nullptr) && (idx > 0) && (idx < m_count))
    {
       return((m_used[idx >> 3] & (1 << (idx & 0x07))) != 0);   // DRY
    }
@@ -123,7 +119,7 @@ bool Args::GetUsed(size_t idx) const
 
 void Args::SetUsed(size_t idx)
 {
-   if ((m_used != NULL) && (idx > 0) && (idx < m_count))
+   if ((m_used != nullptr) && (idx > 0) && (idx < m_count))
    {
       m_used[idx >> 3] |= (1 << (idx & 0x07));  // DRY
    }
@@ -132,10 +128,7 @@ void Args::SetUsed(size_t idx)
 
 const char *Args::Unused(size_t &index) const
 {
-   if (m_used == NULL)
-   {
-      return(NULL);
-   }
+   if (m_used == nullptr) { return(nullptr); }
 
    for (size_t idx = index; idx < m_count; idx++)
    {
@@ -146,7 +139,7 @@ const char *Args::Unused(size_t &index) const
       }
    }
    index = m_count;
-   return(NULL);
+   return(nullptr);
 }
 
 
@@ -186,7 +179,9 @@ size_t Args::SplitLine(char *text, char *args[], size_t num_args)
          {
             cur_quote = 0;
          }
-         else if ((*text == '\'') || (*text == '"') || (*text == '`'))
+         else if ((*text == '\'') ||
+                  (*text == '"' ) ||
+                  (*text == '`' ) )
          {
             cur_quote = *text;
          }

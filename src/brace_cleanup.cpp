@@ -147,7 +147,7 @@ static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
 
    /* Get the type of preprocessor and handle it */
    next = chunk_get_next_ncnl(pc);
-   if (next != NULL)
+   if (next != nullptr)
    {
       cpd.is_preproc = next->type;
 
@@ -217,7 +217,7 @@ void brace_cleanup(void)
    cpd.pp_level    = 0;
 
    pc = chunk_get_head();
-   while (pc != NULL)
+   while (pc != nullptr)
    {
       /* Check for leaving a #define body */
       if ((cpd.is_preproc               != CT_NONE) &&
@@ -250,7 +250,7 @@ void brace_cleanup(void)
       }
 
       /* Assume the level won't change */
-      assert(pc != NULL);
+      assert(pc != nullptr);
       pc->level       = frm.level;
       pc->brace_level = frm.brace_level;
       pc->pp_level    = pp_level;
@@ -280,7 +280,7 @@ static bool maybe_while_of_do(chunk_t *pc)
    chunk_t *prev;
 
    prev = chunk_get_prev_ncnl(pc);
-   if ((  prev == NULL                  ) ||
+   if ((  prev == nullptr               ) ||
        (!(prev->flags & PCF_IN_PREPROC) ) )
    {
       return(false);
@@ -290,14 +290,14 @@ static bool maybe_while_of_do(chunk_t *pc)
 #if 0
    prev = chunk_get_prev_ncnlnp(prev); // fails test 02300, 02301 why?
 #else
-   while ((prev != NULL) && (prev->flags & PCF_IN_PREPROC))
+   while ((prev != nullptr) && (prev->flags & PCF_IN_PREPROC))
    {
       prev = chunk_get_prev_ncnl(prev);
    }
 #endif
 
-   if (( prev              != NULL             ) &&
-       ( prev->parent_type == CT_DO            ) &&
+   if (( prev              != nullptr        )   &&
+       ( prev->parent_type == CT_DO          )   &&
        ((prev->type        == CT_VBRACE_CLOSE) ||
         (prev->type        == CT_BRACE_CLOSE ) ) )
    {
@@ -312,7 +312,7 @@ static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc,
 {
    LOG_FUNC_ENTRY();
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
 
    if (frm->pse_tos < ((int)ARRAY_SIZE(frm->pse) - 1))
    {
@@ -390,7 +390,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
    LOG_FMT(LTOK, "%s:%zu] %16s - tos:%zu/%16s stg:%d\n",
            __func__, pc->orig_line, get_token_name(pc->type),
            frm->pse_tos, get_token_name(frm->pse[frm->pse_tos].type),
@@ -429,7 +429,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
       /* Mark the parent on semicolons in for() statements */
       if ((pc->type == CT_SEMICOLON) &&
-          (frm->pse_tos > 1) &&
+          (frm->pse_tos > 1        ) &&
           (frm->pse[frm->pse_tos - 1].type == CT_FOR))
       {
          set_chunk_parent(pc, CT_FOR);
@@ -546,7 +546,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          if (cpd.lang_flags & LANG_PAWN)
          {
             tmp = chunk_get_next_ncnl(pc);
-            assert(tmp != NULL);
+            assert(tmp != nullptr);
             if ((tmp->type != CT_SEMICOLON) && (tmp->type != CT_VSEMICOLON))
             {
                pawn_add_vsemi_after(pc);
@@ -556,7 +556,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       else
       {
          /* Complain if this ISN'T a semicolon, but close out WHILE_OF_DO anyway */
-         if ((pc->type == CT_SEMICOLON) || (pc->type == CT_VSEMICOLON))
+         if ((pc->type == CT_SEMICOLON ) ||
+             (pc->type == CT_VSEMICOLON) )
          {
             cpd.consumed = true;
             set_chunk_parent(pc, CT_WHILE_OF_DO);
@@ -579,7 +580,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
        (pc->type == CT_BRACE_OPEN ) )
    {
       const chunk_t *prev = chunk_get_prev_ncnl(pc);
-      if (prev != NULL)
+      if (prev != nullptr)
       {
          if ((pc->type == CT_PAREN_OPEN ) ||
              (pc->type == CT_FPAREN_OPEN) ||
@@ -768,7 +769,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    LOG_FUNC_ENTRY();
    c_token_t parent;
 
-   assert(pc != NULL);
+   assert(pc != nullptr);
    /* Turn an optional paren into either a real paren or a brace */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
@@ -885,7 +886,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2    ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO  ) ) )
    {
-      if ((cpd.lang_flags & LANG_CS) &&
+      if ((cpd.lang_flags & LANG_CS ) &&
           (pc->type == CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {
@@ -940,12 +941,12 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
 static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
    const chunk_t *next;
 
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1)
    {
-      if ((pc->next       != NULL   ) &&
+      if ((pc->next       != nullptr) &&
           (pc->next->type == CT_WHEN) )
       {
          frm->pse[frm->pse_tos].type  = pc->type;
@@ -968,7 +969,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_ELSE, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if ((next != NULL) && (next->type != CT_ELSE))
+         if ((next != nullptr) && (next->type != CT_ELSE))
          {
             frm->pse_tos--;
             print_stack(LBCSPOP, "-IF-HCS ", frm, pc);
@@ -982,7 +983,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if ((next       != NULL      ) &&
+         if ((next       != nullptr   ) &&
              (next->type != CT_CATCH  ) &&
              (next->type != CT_FINALLY) )
          {
@@ -1037,7 +1038,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 {
    LOG_FUNC_ENTRY();
 
-   if(pc == NULL) { return(pc); }
+   if(pc == nullptr) { return(pc); }
 
    chunk_t chunk;
    chunk.orig_line   = pc->orig_line;
@@ -1055,7 +1056,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
    else
    {
       chunk_t *ref = chunk_get_prev(pc);
-      assert(ref != NULL);
+      assert(ref != nullptr);
       if ((ref->flags & PCF_IN_PREPROC) == 0)
       {
          chunk.flags &= ~PCF_IN_PREPROC;
@@ -1069,7 +1070,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       }
 
       /* Don't back into a preprocessor */
-      assert(ref != NULL);
+      assert(ref != nullptr);
       if (((pc->flags  & PCF_IN_PREPROC) == 0) &&
            (ref->flags & PCF_IN_PREPROC      ) )
       {
@@ -1077,7 +1078,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
          else                              { ref = chunk_get_next (ref); }
       }
 
-      assert(ref != NULL);
+      assert(ref != nullptr);
       chunk.orig_line = ref->orig_line;
       chunk.column    = ref->column + ref->len() + 1;
       chunk.type      = CT_VBRACE_OPEN;
@@ -1090,7 +1091,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 static bool close_statement(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != NULL);
+   assert(pc != nullptr);
    chunk_t *vbc = pc;
 
    LOG_FMT(LTOK, "%s:%zu] %s '%s' type %s stage %d\n", __func__,
