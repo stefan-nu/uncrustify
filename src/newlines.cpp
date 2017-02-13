@@ -2726,8 +2726,7 @@ void newlines_cleanup_braces(bool first)
          next = chunk_get_next_ncnl(pc);
          if ((next != nullptr) && (next->type == CT_BRACE_OPEN))
          {
-            /* TODO:
-             * this could be used to control newlines between the
+            /* \TODO: this could be used to control newlines between the
              * the if/while/for/switch close paren and the open brace, but
              * that is currently handled elsewhere.
              */

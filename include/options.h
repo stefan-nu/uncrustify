@@ -16,6 +16,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include "uncrustify_types.h"
 
 
 enum argtype_t
@@ -26,7 +27,7 @@ enum argtype_t
    AT_LINE,    /**< Line Endings */
    AT_POS,     /**< start/end or Trail/Lead */
    AT_STRING,  /**< string value */
-   AT_UNUM,    /**< unsigned Number */
+   AT_UNUM     /**< unsigned Number */
 };
 
 
@@ -47,7 +48,7 @@ enum lineends_t
    LE_LF,      /* "\n"   */
    LE_CRLF,    /* "\r\n" */
    LE_CR,      /* "\r"   */
-   LE_AUTO,    /* keep last */
+   LE_AUTO     /* keep last */
 };
 
 
@@ -114,7 +115,7 @@ enum uo_t
    UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
 
    /* Basic Indenting stuff */
-   // UO_indent,                   //TODO: 0=don't change indentation, 1=change indentation
+   // UO_indent,                 //TODO: 0=don't change indentation, 1=change indentation
    UO_tok_split_gte,             // allow split of '>>=' in template detection
 
    UO_utf8_byte,
@@ -500,7 +501,7 @@ enum uo_t
                                    // 1: '*' part of the type - no space
                                    // 2: '*' part of type, dangling
    UO_align_typedef_amp_style,     // align_typedef_star_style for ref '&' stuff
-   // UO_align_struct_array_brace,  // TODO: align array of structure initializers
+   // UO_align_struct_array_brace, // TODO: align array of structure initializers
    UO_align_left_shift,            //
    UO_align_asm_colon,             //
    UO_align_oc_msg_colon_span,     //
@@ -537,7 +538,7 @@ enum uo_t
                                       // Only appears in separate member implementation (does not appear with in-line implmementation)
    UO_nl_func_scope_name,             // Add or remove newline between function scope and name in a definition
                                       // Controls the newline after '::' in 'void A::f() { }'
-   UO_nl_func_proto_type_name,        // nl_func_type_name, but for prottypes
+   UO_nl_func_proto_type_name,        // nl_func_type_name, but for prototypes
 
    UO_nl_func_call_start_multi_line,  // newline after the '(' in a function call if '(' and ')' are on different lines
    UO_nl_func_call_args_multi_line,   // newline after each ',' in a function call if '(' and ')' are on different lines
@@ -1026,6 +1027,16 @@ bool is_bit_set(
 bool is_bit_unset(
    UINT64 var, /**> [in] variable to operate with */
    UINT64 flag /**< [in] bit mask to check for */
+);
+
+
+enum class char_encoding_e : unsigned int; /* forward declaration of enum */
+
+/**
+ * provides a string that names a given encoding enum
+ */
+const char *get_encoding_name(
+   const char_encoding_e enc  /**< [in] encoding enum to get the name for */
 );
 
 

@@ -50,26 +50,27 @@ using namespace std;
 enum class brace_stage_e : unsigned int
 {
    NONE,
-   PAREN1,     /* if/for/switch/while/synchronized */
-   OP_PAREN1,  /* optional paren: catch () { */
-   WOD_PAREN,  /* while of do parens */
-   WOD_SEMI,   /* semicolon after while of do */
-   BRACE_DO,   /* do */
-   BRACE2,     /* if/else/for/switch/while */
-   ELSE,       /* expecting 'else' after 'if' */
-   ELSEIF,     /* expecting 'if' after 'else' */
-   WHILE,      /* expecting 'while' after 'do' */
-   CATCH,      /* expecting 'catch' or 'finally' after 'try' */
-   CATCH_WHEN  /* optional 'when' after 'catch' */
+   PAREN1,     /**< if/for/switch/while/synchronized */
+   OP_PAREN1,  /**< optional paren: catch () { */
+   WOD_PAREN,  /**< while of do parens */
+   WOD_SEMI,   /**< semicolon after while of do */
+   BRACE_DO,   /**< do */
+   BRACE2,     /**< if/else/for/switch/while */
+   ELSE,       /**< expecting 'else' after 'if' */
+   ELSEIF,     /**< expecting 'if' after 'else' */
+   WHILE,      /**< expecting 'while' after 'do' */
+   CATCH,      /**< expecting 'catch' or 'finally' after 'try' */
+   CATCH_WHEN  /**< optional 'when' after 'catch' */
 };
+
 
 enum class char_encoding_e : unsigned int
 {
-   ASCII,     /* 0-127 */
-   BYTE,      /* 0-255, not UTF-8 */
-   UTF8,
-   UTF16_LE,
-   UTF16_BE
+   ASCII,      /**< 0-127 */
+   BYTE,       /**< 0-255, not UTF-8 */
+   UTF8,       /**< utf 8 bit wide */
+   UTF16_LE,   /**< utf 16 bit wide, little endian */
+   UTF16_BE    /**< utf 16 bit wide, big endian */
 };
 
 

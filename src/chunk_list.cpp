@@ -48,7 +48,7 @@ typedef chunk_t * (*search_t)(chunk_t *cur, const scope_e scope);
 typedef ListManager<chunk_t> ChunkList_t;
 
 
-/* \todo if we use C++ we can overload the following two functions
+/* \todo if we use C++ we can overload the following functions
  * and thus name them equally */
 
 /**
@@ -694,7 +694,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    /* Move the line started at pc2 before pc1 */
-   while ((pc2 != nullptr) && !chunk_is_newline(pc2))
+   while ((pc2 != nullptr) &&
+          !chunk_is_newline(pc2))
    {
       chunk_t *tmp = chunk_get_next(pc2);
       g_cl.Pop(pc2);
@@ -707,7 +708,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     *                         ^- pc1                              ^- pc2 */
 
    /* Now move the line started at pc1 after ref2 */
-   while ((pc1 != nullptr) && !chunk_is_newline(pc1))
+   while ((pc1 != nullptr) &&
+         !chunk_is_newline(pc1))
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
@@ -722,18 +724,11 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     *                         ^- pc1                              ^- pc2 */
 
    /* pc1 and pc2 should be the newlines for their lines.
-    * swap the chunks and the nl_count so that the spacing remains the same.
-    */
-   if ((pc1 != nullptr) && (pc2 != nullptr))
+    * swap the chunks and the nl_count so that the spacing remains the same. */
+   if ((pc1 != nullptr) &&
+       (pc2 != nullptr) )
    {
-#if 0
       SWAP(pc1->nl_count, pc2->nl_count); /* \todo check this */
-#else
-      const size_t nl_count = pc1->nl_count;
-
-      pc1->nl_count = pc2->nl_count;
-      pc2->nl_count = nl_count;
-#endif
       chunk_swap(pc1, pc2);
    }
 }

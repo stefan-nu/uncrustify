@@ -2414,7 +2414,6 @@ static void fix_casts(chunk_t *start)
        * number or string.
        *
        * If the next item is a +, the next item has to be a number.
-       *
        * If the next item is a -, the next item can't be a string.
        *
        * For this to be a cast, the close paren must be followed by:
@@ -2497,9 +2496,9 @@ static void fix_casts(chunk_t *start)
 
    /* if the 'cast' is followed by a semicolon, comma or close paren, it isn't */
    pc = chunk_get_next_ncnl(paren_close);
-   if (chunk_is_semicolon(pc) ||
+   if (chunk_is_semicolon(pc)       ||
        chunk_is_token(pc, CT_COMMA) ||
-       chunk_is_paren_close(pc))
+       chunk_is_paren_close(pc)     )
    {
       assert(pc != nullptr);
       LOG_FMT(LCASTS, " -- not a cast - followed by %s\n", get_token_name(pc->type));
@@ -2581,8 +2580,8 @@ static void fix_enum_struct_union(chunk_t *pc)
    {
       next = chunk_get_next_ncnl(next);
    }
-   if ((next != nullptr) &&
-       (next->type == CT_TYPE))
+   if ((next      != nullptr ) &&
+       (next->type == CT_TYPE) )
    {
       set_chunk_parent(next, pc->type);
       prev = next;
@@ -2598,8 +2597,8 @@ static void fix_enum_struct_union(chunk_t *pc)
       {
          next = set_paren_parent(next, CT_ENUM);
       }
-      else if ((pc->type == CT_ENUM) &&
-               (next->type == CT_COLON))
+      else if ((pc->type   == CT_ENUM ) &&
+               (next->type == CT_COLON) )
       {
          /* enum TYPE : INT_TYPE { */
          next = chunk_get_next_ncnl(next);
@@ -2615,8 +2614,8 @@ static void fix_enum_struct_union(chunk_t *pc)
       flag_parens(next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT,
                   CT_NONE, CT_NONE, false);
 
-      if ((pc->type == CT_UNION) ||
-          (pc->type == CT_STRUCT))
+      if ((pc->type == CT_UNION ) ||
+          (pc->type == CT_STRUCT) )
       {
          mark_struct_union_body(next);
       }
@@ -2638,8 +2637,8 @@ static void fix_enum_struct_union(chunk_t *pc)
       set_chunk_parent(prev, CT_NONE);
    }
 
-   if ((next == nullptr) ||
-       (next->type == CT_PAREN_CLOSE))
+   if ((next       == nullptr       ) ||
+       (next->type == CT_PAREN_CLOSE) )
    {
       return;
    }
@@ -2681,8 +2680,8 @@ static void fix_enum_struct_union(chunk_t *pc)
          }
 
          /* If we hit a comma in a function param, we are done */
-         if (((next->type == CT_COMMA) ||
-              (next->type == CT_FPAREN_CLOSE)) &&
+         if (((next->type == CT_COMMA       ) ||
+              (next->type == CT_FPAREN_CLOSE) ) &&
              (next->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)))
          {
             return;
@@ -2692,7 +2691,9 @@ static void fix_enum_struct_union(chunk_t *pc)
       next = chunk_get_next_ncnl(next);
    }
 
-   if (next && !prev && (next->type == CT_SEMICOLON))
+   if ((next       != NULL        ) &&
+       (prev       == NULL        ) &&
+       (next->type == CT_SEMICOLON) )
    {
       set_chunk_parent(next, pc->type);
    }
@@ -2708,8 +2709,8 @@ static void fix_typedef(chunk_t *start)
    LOG_FMT(LTYPEDEF, "%s: typedef @ %zu:%zu\n", __func__, start->orig_line, start->orig_col);
 
    chunk_t *the_type = nullptr;
-   chunk_t *open_paren;
    chunk_t *last_op = nullptr;
+   chunk_t *open_paren;
 
    /* Mark everything in the typedef and scan for ")(", which makes it a
     * function type */
@@ -2729,7 +2730,8 @@ static void fix_typedef(chunk_t *start)
          {
             break;
          }
-         if ((cpd.lang_flags & LANG_D) && (next->type == CT_ASSIGN))
+         if ((cpd.lang_flags & LANG_D) &&
+             (next->type == CT_ASSIGN) )
          {
             set_chunk_parent(next, CT_TYPEDEF);
             break;
@@ -2857,7 +2859,7 @@ static bool cs_top_is_question(const ChunkStack &cs, size_t level)
    }
 #endif
 
-   return((pc        != nullptr       ) &&
+   return((pc        != nullptr    ) &&
           (pc->type  == CT_QUESTION) &&
           (pc->level == level      ) );
 }
@@ -2906,8 +2908,8 @@ void combine_labels(void)
          hit_class = false;
       }
 
-      if (prev->type         == CT_SQUARE_OPEN &&
-          prev->parent_type == CT_OC_MSG       )
+      if (prev->type        == CT_SQUARE_OPEN &&
+          prev->parent_type == CT_OC_MSG      )
       {
          cs.Push_Back(prev);
       }
@@ -2942,7 +2944,7 @@ void combine_labels(void)
             hit_case = true;
          }
       }
-      else if ((next->type == CT_COLON) ||
+      else if ( (next->type == CT_COLON   ) ||
                ((next->type == CT_OC_COLON) &&
                 cs_top_is_question(cs, next->level)))
       {
@@ -2961,7 +2963,8 @@ void combine_labels(void)
             hit_case = false;
             set_chunk_type(next, CT_CASE_COLON);
             tmp = chunk_get_next_ncnl(next);
-            if ((tmp != nullptr) && (tmp->type == CT_BRACE_OPEN))
+            if ((tmp       != nullptr      ) &&
+                (tmp->type == CT_BRACE_OPEN) )
             {
                set_chunk_parent(tmp, CT_CASE);
                tmp = chunk_get_next_type(tmp, CT_BRACE_CLOSE, (int)tmp->level);
@@ -2984,7 +2987,7 @@ void combine_labels(void)
 
                   tmp = chunk_get_next_nc(next);
                   if (chunk_is_newline(prev) &&
-                      chunk_is_newline(tmp))
+                      chunk_is_newline(tmp ) )
                   {
                      new_type = CT_LABEL;
                      set_chunk_type(next, CT_LABEL_COLON);
@@ -3017,10 +3020,10 @@ void combine_labels(void)
                   /* Must be a macro thingy, assume some sort of label */
                   set_chunk_type(next, CT_LABEL_COLON);
                }
-               else if (((tmp->type != CT_NUMBER) &&
-                         (tmp->type != CT_SIZEOF) &&
-                         !(tmp->flags & (PCF_IN_STRUCT | PCF_IN_CLASS))) ||
-                        (tmp->type == CT_NEWLINE) )
+               else if (((tmp->type != CT_NUMBER ) &&
+                         (tmp->type != CT_SIZEOF ) &&
+                        !(tmp->flags & (PCF_IN_STRUCT | PCF_IN_CLASS))) ||
+                         (tmp->type == CT_NEWLINE) )
                {
                   /* the CT_SIZEOF isn't great - test 31720 happens to use a sizeof expr,
                    * but this really should be able to handle any constant expr */
@@ -3152,8 +3155,9 @@ static void fix_fcn_def_params(chunk_t *start)
 
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
-      if (((start->len() == 1) && (start->str[0] == ')')) ||
-          (pc->level < level))
+      if (((start->len()  == 1   ) &&
+           (start->str[0] == ')')) ||
+           (pc->level < level))
       {
          LOG_FMT(LFCNP, "%s: bailed on %s on line %zu\n",
                  __func__, pc->text(), pc->orig_line);
@@ -3175,7 +3179,8 @@ static void fix_fcn_def_params(chunk_t *start)
          cs.Push_Back(pc);
       }
       else if ((pc->type == CT_AMP) ||
-               ((cpd.lang_flags & LANG_CPP) && chunk_is_str(pc, "&&", 2)))
+               ((cpd.lang_flags & LANG_CPP) &&
+                 chunk_is_str(pc, "&&", 2)))
       {
          set_chunk_type(pc, CT_BYREF);
          cs.Push_Back(pc);
@@ -3206,8 +3211,8 @@ static void fix_fcn_def_params(chunk_t *start)
 
 static chunk_t *skip_to_next_statement(chunk_t *pc)
 {
-   while ((pc != nullptr) &&
-          !chunk_is_semicolon(pc) &&
+   while ((pc       != nullptr       ) &&
+          !chunk_is_semicolon(pc)      &&
           (pc->type != CT_BRACE_OPEN ) &&
           (pc->type != CT_BRACE_CLOSE) )
    {
@@ -3230,7 +3235,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    ChunkStack cs;
 
    /* Scan for words and types and stars oh my! */
-   while ((pc != nullptr) &&
+   while ( (pc       != nullptr     ) &&
           ((pc->type == CT_TYPE     ) ||
            (pc->type == CT_WORD     ) ||
            (pc->type == CT_QUALIFIER) ||
@@ -3258,7 +3263,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    if (end == nullptr) { return(end); }
 
    /* Function defs are handled elsewhere */
-   if ((cs.Len() <= 1                   ) ||
+   if ((cs.Len()  <= 1                  ) ||
        (end->type == CT_FUNC_DEF        ) ||
        (end->type == CT_FUNC_PROTO      ) ||
        (end->type == CT_FUNC_CLASS_DEF  ) ||
@@ -3332,7 +3337,8 @@ static chunk_t *skip_expression(chunk_t *start)
 {
    chunk_t *pc = start;
 
-   while ((pc != nullptr) && (pc->level >= start->level))
+   while ((pc        != nullptr     ) &&
+          (pc->level >= start->level) )
    {
       if ((pc->level == start->level) &&
           (chunk_is_semicolon(pc) ||
@@ -3348,9 +3354,9 @@ static chunk_t *skip_expression(chunk_t *start)
 
 bool go_on(chunk_t *pc, chunk_t *start)
 {
-   if ((pc    == nullptr) ||
-       (start == nullptr) ||
-       (pc->level != start->level))
+   if ((pc        == nullptr     ) ||
+       (start     == nullptr     ) ||
+       (pc->level != start->level) )
    {
       return(false);
    }
@@ -6161,9 +6167,14 @@ static void handle_proto_wrap(chunk_t *pc)
    chunk_t *clp  = chunk_skip_to_match(opp);
    const chunk_t *cma  = chunk_get_next_ncnl(clp);
 
-   if (!opp || !name || !clp || !cma || !tmp ||
-       ((name->type != CT_WORD) && (name->type != CT_TYPE)) ||
-       (opp->type != CT_PAREN_OPEN))
+   if (opp  == nullptr ||
+       name == nullptr ||
+       clp  == nullptr ||
+       cma  == nullptr ||
+       tmp  == nullptr ||
+       ((name->type != CT_WORD      ) &&
+        (name->type != CT_TYPE      ) ) ||
+        (opp->type  != CT_PAREN_OPEN) )
    {
       return;
    }
@@ -6196,10 +6207,10 @@ static void handle_proto_wrap(chunk_t *pc)
    tmp = pc;
    while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
    {
-      if (!chunk_is_type(tmp) &&
+      if (!chunk_is_type(tmp)        &&
           (tmp->type != CT_OPERATOR) &&
-          (tmp->type != CT_WORD) &&
-          (tmp->type != CT_ADDR))
+          (tmp->type != CT_WORD    ) &&
+          (tmp->type != CT_ADDR    ) )
       {
          break;
       }

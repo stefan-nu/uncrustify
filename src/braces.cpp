@@ -917,10 +917,10 @@ void add_long_closebrace_comment(void)
                   // 76007 Explicit null dereferenced, 2016-03-17
                   tag_pc = ns_pc;
 
-                  /* obtain the next chunck, normally this is the name of the namespace
+                  /* obtain the next chunk, normally this is the name of the namespace
                    * and append it to generate "namespace xyz" */
                   assert(ns_pc != nullptr);
-                  xstr = ns_pc->str; // \todo can we be sure that ns_pc is not nullptr here
+                  xstr = ns_pc->str;
                   xstr.append(" ");
                   append_tag_name(xstr, chunk_get_next(ns_pc));
                }

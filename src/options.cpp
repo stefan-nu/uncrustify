@@ -2319,6 +2319,19 @@ string argtype_to_string(argtype_t argtype)
    }
 }
 
+const char *get_encoding_name(const char_encoding_e enc)
+{
+   switch(enc)
+   {
+      case(char_encoding_e::ASCII   ): return ("ASCII"    );
+      case(char_encoding_e::BYTE    ): return ("BYTE"     );
+      case(char_encoding_e::UTF8    ): return ("UTF-8"    );
+      case(char_encoding_e::UTF16_LE): return ("UTF-16-LE");
+      case(char_encoding_e::UTF16_BE): return ("UTF-16-BE");
+      default:                         return ("Error"    );
+   }
+}
+
 
 const char *get_argtype_name(argtype_t argtype)
 {

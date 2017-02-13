@@ -567,7 +567,7 @@ bool chunk_is_comment(
  * checks if a chunk is valid and is a blank character
  *
  * \note check compares if len == 0
- * \todo
+ * \todo rename function: blank is a space not an empty string
  */
 bool chunk_is_blank(
    chunk_t *pc  /**< [in] chunk to check */

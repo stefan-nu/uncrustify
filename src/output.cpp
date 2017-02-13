@@ -286,8 +286,7 @@ static void cmt_trim_whitespace(
  * Subsequent openings (if combining comments), should not be included.
  * The closing (for C/D comments) should not be included.
  *
- * TODO:
- * If reflowing text, the comment should be added one word (or line) at a time.
+ * \TODO: If reflowing text, the comment should be added one word (or line) at a time.
  * A newline should only be sent if a blank line is encountered or if the next
  * line is indented beyond the current line (optional?).
  * If the last char on a line is a ':' or '.', then the next line won't be
@@ -1470,7 +1469,7 @@ static void output_comment_multi(chunk_t *pc)
          {
             /* this is the first line - add unchanged */
             add_comment_text(line, cmt, false);
-            if (nl_end) { add_char('\n'); }  // \todo
+            if (nl_end == true) { add_char('\n'); }
          }
          else
          {
