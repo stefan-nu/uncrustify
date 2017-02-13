@@ -974,10 +974,9 @@ static void align_same_func_call_params(void)
       {
          if (chunk_is_newline(pc))
          {
-            const size_t element_count = as.size();
-            for (size_t idx = 0; idx < element_count; idx++)
+            for (auto &as_v : as)
             {
-               as[idx].NewLines(pc->nl_count);
+               as_v.NewLines(pc->nl_count);
             }
             fcn_as.NewLines(pc->nl_count);
          }
@@ -990,10 +989,9 @@ static void align_same_func_call_params(void)
 
                /* Flush it all! */
                fcn_as.Flush();
-               const size_t element_count = (size_t)as.size();
-               for (size_t idx = 0; idx < element_count; idx++)
+               for (auto &as_v : as)
                {
-                  as[idx].Flush();
+                  as_v.Flush();
                }
                align_root = nullptr;
             }
@@ -1059,10 +1057,9 @@ static void align_same_func_call_params(void)
 
             /* Flush it all! */
             fcn_as.Flush();
-            const size_t element_count = (size_t)as.size();
-            for (size_t idx = 0; idx < element_count; idx++)
+            for (auto &as_v : as)
             {
-               as[idx].Flush();
+               as_v.Flush();
             }
             align_root = nullptr;
          }
@@ -1113,10 +1110,9 @@ static void align_same_func_call_params(void)
    {
       LOG_FMT(LASFCP, "  ++ Ended with %zu fcns\n", align_len);
       fcn_as.End();
-      const size_t element_count = (size_t)as.size();
-      for (size_t idx = 0; idx < element_count; idx++)
+      for (auto &as_v : as)
       {
-         as[idx].End();
+         as_v.End();
       }
    }
 }

@@ -45,13 +45,15 @@ static void prepare_categories()
 
 static void cleanup_categories()
 {
-   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
+   for (auto &include_category : include_categories)
    {
-      if (include_categories[i] != nullptr)
+      if (include_category == nullptr)
       {
-         delete include_categories[i];
-         include_categories[i] = nullptr;
+         continue;
       }
+
+      delete include_category;
+      include_category = NULL;
    }
 }
 

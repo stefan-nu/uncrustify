@@ -11,6 +11,7 @@
 #include "args.h"
 #include "uncrustify_version.h"
 #include "uncrustify.h"
+#include "error_types.h"
 #include "keywords.h"
 #include "defines.h"
 #include <cstring>
@@ -231,7 +232,7 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
    {
       fprintf(stderr, "FATAL: length of the option name (%s) is too big (%zu)\n", name, lengthOfTheOption);
       fprintf(stderr, "FATAL: the maximal length of an option name is %zu characters\n", option_max_length);
-      exit(EXIT_FAILURE);
+      exit(EX_SOFTWARE);
    }
    group_map[current_group].options.push_back(id);
 
@@ -258,7 +259,7 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
 
    default:
       fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
-      exit(EXIT_FAILURE);
+      exit(EX_SOFTWARE);
    }
 
    option_name_map[id] = value;
@@ -295,13 +296,11 @@ static bool match_text(const char *str1, const char *str2)
 
 const option_map_value_t *unc_find_option(const char *name)
 {
-   const option_name_map_it itE = option_name_map.end();
-
-   for (option_name_map_it it = option_name_map.begin(); it != itE; ++it)
+   for (const auto &it : option_name_map)
    {
-      if (match_text(it->second.name, name))
+      if (match_text(it.second.name, name))
       {
-         return(&it->second);
+         return(&it.second);
       }
    }
    return(nullptr);
@@ -1681,12 +1680,11 @@ void register_options(void)
 
 const group_map_value_t *get_group_name(size_t ug)
 {
-   group_map_it it = group_map.begin();
-   for (;it != group_map.end(); ++it)
+   for (const auto &it : group_map)
    {
-      if ((size_t)it->second.id == ug)
+      if ((size_t)it.second.id == ug)
       {
-         return(&it->second);
+         return(&it.second);
       }
    }
    return(nullptr);
@@ -2089,21 +2087,20 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the options by group */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
+   for (auto &jt : group_map)
    {
       if (withDoc)
       {
          fputs("\n#\n", pfile);
-         fprintf(pfile, "# %s\n", jt->second.short_desc);
+         fprintf(pfile, "# %s\n", jt.second.short_desc);
          fputs("#\n\n", pfile);
       }
 
       bool first = true;
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
+      for (auto option_id : jt.second.options)
       {
-         const option_map_value_t *option = get_option_name(*it);
-         assert(option != nullptr);
+         const option_map_value_t *option = get_option_name(option_id);
 
          if (withDoc && (option->short_desc != nullptr) && (*option->short_desc != 0))
          {
@@ -2206,13 +2203,13 @@ void print_options(FILE *pfile)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the all out */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); ++jt)
+   for (auto &jt : group_map)
    {
-      fprintf(pfile, "#\n# %s\n#\n\n", jt->second.short_desc);
+      fprintf(pfile, "#\n# %s\n#\n\n", jt.second.short_desc);
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); ++it)
+      for (auto option_id : jt.second.options)
       {
-         const option_map_value_t *option = get_option_name(*it);
+         const option_map_value_t *option = get_option_name(option_id);
          assert(option != nullptr);
          size_t cur = strlen(option->name);
          size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
@@ -2243,10 +2240,9 @@ void print_options(FILE *pfile)
 void set_option_defaults(void)
 {
    /* set all the default values to zero */
-   const size_t option_count = (size_t)UO_option_count;
-   for (size_t i = 0; i < option_count; i++)
+   for (auto &count : cpd.defaults)
    {
-      cpd.defaults[i].n = 0;
+      count.n = 0;
    }
 
    /* the options with non-zero default values */
@@ -2296,6 +2292,7 @@ void set_option_defaults(void)
    cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int)LWARN;
 
    /* copy all the default values to settings array */
+   const size_t option_count = (size_t)UO_option_count;
    for (size_t i = 0; i < option_count; i++)
    {
       cpd.settings[i].a = cpd.defaults[i].a;
