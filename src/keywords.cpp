@@ -311,6 +311,7 @@ static const chunk_tag_t keywords[] =
 
 void init_keywords(void)
 {
+   /* nothing to do here */
 }
 
 
@@ -445,8 +446,8 @@ int load_keyword_file(const char *filename)
       line_no++;
 
       /* remove comments after '#' sign */
-      char *ptr;
-      if ((ptr = strchr(buf, '#')) != nullptr)
+      char *ptr = strchr(buf, '#');
+      if (ptr != nullptr)
       {
          *ptr = 0; /* set string end where comment begins */
       }

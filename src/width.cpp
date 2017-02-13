@@ -20,12 +20,15 @@
  * - fparen = function parenthesis
  */
 
+/** tbd */
 struct cw_entry
 {
    chunk_t *pc;
    size_t  pri;
 };
 
+
+/** tbd */
 struct token_pri
 {
    c_token_t tok;
@@ -33,6 +36,9 @@ struct token_pri
 };
 
 
+/**
+ * tbd
+ */
 static inline bool is_past_width(
    chunk_t *pc
 );
@@ -46,6 +52,9 @@ static void split_before_chunk(
 );
 
 
+/**
+ * tbd
+ */
 static size_t get_split_pri(
    c_token_t tok
 );
@@ -82,7 +91,6 @@ static void try_split_here(
  *
  * @param start The first chunk that exceeded the limit
  */
-
 static bool split_line(
    chunk_t *pc
 );
@@ -133,55 +141,10 @@ static void split_for_statement(
 );
 
 
-static inline bool is_past_width(chunk_t *pc)
-{
-   assert(pc != nullptr);
-   // allow char to sit at last column by subtracting 1
-   return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);
-}
-
-
-static void split_before_chunk(chunk_t *pc)
-{
-   LOG_FUNC_ENTRY();
-   assert(pc != nullptr);
-   LOG_FMT(LSPLIT, "%s: %s\n", __func__, pc->text());
-
-   if (!chunk_is_newline(pc) &&
-       !chunk_is_newline(chunk_get_prev(pc)))
-   {
-      newline_add_before(pc);
-      // reindent needs to include the indent_continue value and was off by one
-      reindent_line(pc, pc->brace_level * cpd.settings[UO_indent_columns].u +
-                    (size_t)abs(cpd.settings[UO_indent_continue].n) + 1u);
-      cpd.changes++;
-   }
-}
-
-
-void do_code_width(void)
-{
-   LOG_FUNC_ENTRY();
-   LOG_FMT(LSPLIT, "%s\n", __func__);
-
-   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
-   {
-      if (!chunk_is_newline(pc) &&
-          !chunk_is_comment(pc) &&
-          (pc->type != CT_SPACE) &&
-          is_past_width(pc))
-      {
-         if (!split_line(pc))
-         {
-            LOG_FMT(LSPLIT, "%s: Bailed on %zu:%zu %s\n",
-                    __func__, pc->orig_line, pc->orig_col, pc->text());
-            break;
-         }
-      }
-   }
-}
-
-
+/** priorities of the different tokens
+ *
+ * low   numbers mean high priority
+ * large numbers mean low  priority */
 static const token_pri pri_table[] =
 {
    { CT_SEMICOLON,    1 },
@@ -205,6 +168,55 @@ static const token_pri pri_table[] =
    { CT_TYPENAME,    25 },
    { CT_VOLATILE,    25 },
 };
+
+
+static inline bool is_past_width(chunk_t *pc)
+{
+   assert(pc != nullptr);
+   // allow char to sit at last column by subtracting 1
+   return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);
+}
+
+
+static void split_before_chunk(chunk_t *pc)
+{
+   LOG_FUNC_ENTRY();
+   assert(pc != nullptr);
+   LOG_FMT(LSPLIT, "%s: %s\n", __func__, pc->text());
+
+   if ((chunk_is_newline(pc)                 == false) &&
+       (chunk_is_newline(chunk_get_prev(pc)) == false) )
+   {
+      newline_add_before(pc);
+      // reindent needs to include the indent_continue value and was off by one
+      reindent_line(pc, pc->brace_level * cpd.settings[UO_indent_columns].u +
+                    (size_t)abs(cpd.settings[UO_indent_continue].n) + 1u);
+      cpd.changes++;
+   }
+}
+
+
+void do_code_width(void)
+{
+   LOG_FUNC_ENTRY();
+   LOG_FMT(LSPLIT, "%s\n", __func__);
+
+   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
+   {
+      if ((chunk_is_newline(pc) == false   ) &&
+          (chunk_is_comment(pc) == false   ) &&
+          (pc->type             != CT_SPACE) &&
+          (is_past_width(pc)               ) )
+      {
+         if (split_line(pc) == false)
+         {
+            LOG_FMT(LSPLIT, "%s: Bailed on %zu:%zu %s\n",
+                    __func__, pc->orig_line, pc->orig_col, pc->text());
+            break;
+         }
+      }
+   }
+}
 
 
 static size_t get_split_pri(c_token_t tok)
@@ -255,7 +267,8 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    }
 
    /* keep common groupings unless ls_code_width */
-   if (!cpd.settings[UO_ls_code_width].b && (pc_pri >= 20))
+   if ((cpd.settings[UO_ls_code_width].b == false) &&
+       (pc_pri                           >= 20   ) )
    {
       return;
    }
@@ -264,9 +277,9 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc_pri == 25)
    {
       const chunk_t *next = chunk_get_next(pc);
-      if ((next       != nullptr             ) &&
-          (next->type != CT_WORD          ) &&
-          (get_split_pri(next->type) != 25) )
+      if ((next                      != nullptr) &&
+          (next->type                != CT_WORD) &&
+          (get_split_pri(next->type) != 25     ) )
       {
          return;
       }

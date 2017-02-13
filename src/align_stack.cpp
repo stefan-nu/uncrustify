@@ -195,7 +195,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */
-      if (!cpd.settings[UO_align_keep_extra_space].b)
+      if (cpd.settings[UO_align_keep_extra_space].b == false)
       {
          size_t tmp_col = ref->column;
          tmp = ref;
@@ -353,7 +353,8 @@ void AlignStack::Flush()
       {
          tmp = chunk_get_next(tmp);
       }
-      if (chunk_is_ptr_operator(tmp) && (m_star_style == SS_DANGLE))
+      if (chunk_is_ptr_operator(tmp) &&
+         (m_star_style == SS_DANGLE))
       {
          col_adj = (int)pc->align.start->column - (int)pc->column;
          gap     =      pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
@@ -382,7 +383,8 @@ void AlignStack::Flush()
       if (endcol > m_max_col) { m_max_col = endcol;    }
    }
 
-   if (cpd.settings[UO_align_on_tabstop].b && (m_aligned.Len() > 1))
+   if (cpd.settings[UO_align_on_tabstop].b &&
+       (m_aligned.Len() > 1))
    {
       m_max_col = align_tab_column(m_max_col);
    }
@@ -397,7 +399,8 @@ void AlignStack::Flush()
       const size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
       if (idx == 0)
       {
-         if (m_skip_first && (pc->column != tmp_col))
+         if ((m_skip_first == true   ) &&
+             (pc->column   != tmp_col) )
          {
             LOG_FMT(LAS, "%s: %zu:%zu dropping first item due to skip_first\n",
                     __func__, pc->orig_line, pc->orig_col);

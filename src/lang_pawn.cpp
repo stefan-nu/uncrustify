@@ -62,6 +62,9 @@ static chunk_t *pawn_process_variable(
 );
 
 
+/**
+ * tbd
+ */
 static chunk_t *pawn_process_func_def(
    chunk_t *pc
 );
@@ -215,8 +218,8 @@ static chunk_t *pawn_process_line(chunk_t *start)
    chunk_t *pc = start;
    while (((pc = chunk_get_next_nc(pc)) != nullptr) &&
           !chunk_is_str(pc, "(", 1) &&
-          (pc->type != CT_ASSIGN ) &&
-          (pc->type != CT_NEWLINE) )
+          (pc->type != CT_ASSIGN  ) &&
+          (pc->type != CT_NEWLINE ) )
    {
       if ((pc->level == 0              )   &&
           ((pc->type == CT_FUNCTION    ) ||
@@ -227,12 +230,10 @@ static chunk_t *pawn_process_line(chunk_t *start)
       }
    }
 
-   if (pc != nullptr)
+   if((pc       != nullptr  ) &&
+      (pc->type == CT_ASSIGN) )
    {
-      if (pc->type == CT_ASSIGN)
-      {
-         return(pawn_process_variable(pc));
-      }
+      return(pawn_process_variable(pc));
    }
 
    if (fcn != nullptr)
@@ -261,8 +262,8 @@ static chunk_t *pawn_process_variable(chunk_t *start)
 
    while ((pc = chunk_get_next_nc(pc)) != nullptr)
    {
-      if ((pc->type == CT_NEWLINE) &&
-          !pawn_continued(prev, (int)start->level))
+      if ( (pc->type == CT_NEWLINE                          ) &&
+           (pawn_continued(prev, (int)start->level) == false) )
       {
          assert(prev != nullptr);
          if ((prev->type != CT_VSEMICOLON) &&
@@ -289,14 +290,14 @@ void pawn_add_virtual_semicolons(void)
       chunk_t *pc   = chunk_get_head();
       while ((pc = chunk_get_next(pc)) != nullptr)
       {
-         if (!chunk_is_comment(pc) &&
-             !chunk_is_newline(pc) &&
-             (pc->type != CT_VBRACE_CLOSE) &&
-             (pc->type != CT_VBRACE_OPEN ) )
+         if ((chunk_is_comment(pc) == false) &&
+             (chunk_is_newline(pc) == false) &&
+             (pc->type != CT_VBRACE_CLOSE  ) &&
+             (pc->type != CT_VBRACE_OPEN   ) )
          {
             prev = pc;
          }
-         if ((prev == nullptr) ||
+         if ( (prev     == nullptr        )   ||
              ((pc->type != CT_NEWLINE     ) &&
               (pc->type != CT_BRACE_CLOSE ) &&
               (pc->type != CT_VBRACE_CLOSE) ) )
@@ -389,6 +390,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       while (((last = chunk_get_next(last)) != nullptr) &&
              !chunk_is_str(last, ">", 1))
       {
+         /* do nothing just search, \todo use search_chunk */
       }
 
       if (last != nullptr)
@@ -401,10 +403,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       last = chunk_get_next_ncnl(last);
    }
 
-   if (last == nullptr)
-   {
-      return(last);
-   }
+   if (last == nullptr) { return(last); }
+
    if (last->type == CT_BRACE_OPEN)
    {
       set_chunk_parent(last, CT_FUNC_DEF);

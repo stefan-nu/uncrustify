@@ -260,10 +260,10 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if (!chunk_is_comment(pc) &&
-          !chunk_is_newline(pc) &&
-          ((cpd.is_preproc == CT_PP_DEFINE) ||
-           (cpd.is_preproc == CT_NONE     ) ) )
+      if ((chunk_is_comment(pc) == false       )   &&
+          (chunk_is_newline(pc) == false       )   &&
+          ((cpd.is_preproc      == CT_PP_DEFINE) ||
+           (cpd.is_preproc      == CT_NONE     ) ) )
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);
@@ -290,7 +290,8 @@ static bool maybe_while_of_do(chunk_t *pc)
 #if 0
    prev = chunk_get_prev_ncnlnp(prev); // fails test 02300, 02301 why?
 #else
-   while ((prev != nullptr) && (prev->flags & PCF_IN_PREPROC))
+   while ((prev != nullptr             ) &&
+          (prev->flags & PCF_IN_PREPROC) )
    {
       prev = chunk_get_prev_ncnl(prev);
    }

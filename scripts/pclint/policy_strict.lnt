@@ -27,21 +27,21 @@
 -e49					// expected a typed
 -e50					// attempted to take the address of a non-lvalue
 +e52					// expected an lvalue
--e55					// bad type
++e55					// bad type
 +e56					// bad type
 -e63					// expected an lvalue
 +e64					// type mismatch
 -e78					// typedef'd symbol used in expression
 +e85 					// array has dimension 0
--e96					// unmatched left brace for linkage specification
--e98					// recovery error (variadic template count not be resolved)
++e96					// unmatched left brace for linkage specification
++e98					// recovery error (variadic template count not be resolved)
 +e114					// inconsistent
 +e119					// too many arguments 
 -e123					// macro defined with arguments
 -e129					// declaration expected
--e150					// token unexpected for non-constructor funtion			
+-e150					// token unexpected for non-constructor function			
 -e151					// token inconsitent with abstract type
--e200					// internal error
++e200					// internal error
 -e309					// #error
 +e438					// last value assignd to variable not used
 -e451					// header without include guard

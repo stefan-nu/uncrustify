@@ -171,14 +171,8 @@ size_t Args::SplitLine(char *text, char *args[], size_t num_args)
             *dest        = *text;
             dest++;
          }
-         else if (*text == '\\')
-         {
-            in_backslash = true;
-         }
-         else if (*text == cur_quote)
-         {
-            cur_quote = 0;
-         }
+         else if (*text == BACKSLASH) { in_backslash = true; }
+         else if (*text == cur_quote) { cur_quote    = 0;    }
          else if ((*text == '\'') ||
                   (*text == '"' ) ||
                   (*text == '`' ) )

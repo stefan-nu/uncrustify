@@ -30,6 +30,7 @@
 -i".\include"
 -i".\lib"
 -i".\src"
+-i".\win32"
 
 // Compiler specific configuration for MinGW
 

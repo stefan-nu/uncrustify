@@ -24,6 +24,30 @@ enum
    kIncludeCategoriesCount = UO_include_category_last - UO_include_category_first + 1
 };
 
+
+
+/**
+ * Compare two series of chunks, starting with the given ones.
+ *
+ * @return tbd
+ */
+static int compare_chunks(
+   chunk_t *pc1,  /**< [in] chunk 1 to compare */
+   chunk_t *pc2   /**< [in] chunk 2 to compare */
+);
+
+
+/**
+ * Sorting should be pretty rare and should usually only include a few chunks.
+ * We need to minimize the number of swaps, as those are expensive.
+ * So, we do a min sort.
+ */
+static void do_the_sort(
+   chunk_t      **chunks,  /**< [in]  */
+   const size_t num_chunks /**< [in]  */
+);
+
+
 include_category *include_categories[kIncludeCategoriesCount];
 
 
@@ -75,26 +99,6 @@ static int get_chunk_priority(chunk_t *pc)
 }
 
 
-/**
- * Compare two series of chunks, starting with the given ones.
- */
-static int compare_chunks(
-   chunk_t *pc1,
-   chunk_t *pc2
-);
-
-
-/**
- * Sorting should be pretty rare and should usually only include a few chunks.
- * We need to minimize the number of swaps, as those are expensive.
- * So, we do a min sort.
- */
-static void do_the_sort(
-   chunk_t **chunks,
-   const size_t num_chunks
-);
-
-
 static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 {
    LOG_FUNC_ENTRY();
@@ -106,10 +110,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       const int ppc1 = get_chunk_priority(pc1);
       const int ppc2 = get_chunk_priority(pc2);
 
-      if (ppc1 != ppc2)
-      {
-         return(ppc1 - ppc2);
-      }
+      if (ppc1 != ppc2) { return(ppc1 - ppc2); }
 
       LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
       LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
@@ -147,20 +148,21 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
 
       /* If we hit a newline or nullptr, we are done */
-      if ((pc1 == nullptr)      ||
-          (pc2 == nullptr)      ||
-          chunk_is_newline(pc1) ||
-          chunk_is_newline(pc2) )
+      if ((pc1 == nullptr       ) ||
+          (pc2 == nullptr       ) ||
+          (chunk_is_newline(pc1)) ||
+          (chunk_is_newline(pc2)) )
       {
          break;
       }
    }
 
-   if ((pc1 == nullptr) || !chunk_is_newline(pc2))
+   if ( (pc1                   == nullptr) ||
+        (chunk_is_newline(pc2) == false  ) )
    {
       return(-1);
    }
-   if (!chunk_is_newline(pc1))
+   if (chunk_is_newline(pc1) == false)
    {
       return(1);
    }
@@ -255,29 +257,17 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if (pc->type == CT_IMPORT)
+      else if(((pc->type == CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
+              ((pc->type == CT_USING)  && (cpd.settings[UO_mod_sort_using  ].b == true)) )
       {
-         if (cpd.settings[UO_mod_sort_import].b)
-         {
-            p_imp = chunk_get_next(pc);
-         }
+         p_imp = chunk_get_next(pc);
       }
-      else if (pc->type == CT_USING)
+      else if ((pc->type == CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
       {
-         if (cpd.settings[UO_mod_sort_using].b)
-         {
-            p_imp = chunk_get_next(pc);
-         }
+         p_imp  = chunk_get_next(pc);
+         p_last = pc;
       }
-      else if (pc->type == CT_PP_INCLUDE)
-      {
-         if (cpd.settings[UO_mod_sort_include].b)
-         {
-            p_imp  = chunk_get_next(pc);
-            p_last = pc;
-         }
-      }
-      else if (!chunk_is_comment(pc))
+      else if (chunk_is_comment(pc) == false)
       {
          p_last = pc;
       }

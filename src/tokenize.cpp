@@ -185,12 +185,11 @@ static bool parse_string(
  * Literal string, ends with single "
  * Two "" don't end the string.
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
 static bool parse_cs_string(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -199,7 +198,6 @@ static bool parse_cs_string(
  * Double quotes are escaped by doubling.
  * Need to track embedded { } pairs and ignore anything between.
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
 static bool tag_compare(
@@ -218,7 +216,7 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, size_t q_idx);
  */
 static void parse_verbatim_string(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -228,7 +226,7 @@ static void parse_verbatim_string(
  */
 static bool parse_cr_string(
    tok_ctx &ctx,
-   chunk_t &pc,
+   chunk_t &pc,  /**< [in] structure to update, str is an input. */
    size_t  q_idx
 );
 
@@ -236,12 +234,11 @@ static bool parse_cr_string(
 /**
  * Count the number of whitespace characters.
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether whitespace was parsed
  */
 static bool parse_whitespace(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -252,7 +249,7 @@ static bool parse_whitespace(
  */
 static bool parse_bs_newline(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -276,14 +273,17 @@ static bool parse_newline(
  */
 static void parse_pawn_pattern(
    tok_ctx   &ctx,
-   chunk_t   &pc,
+   chunk_t   &pc,  /**< [in] structure to update, str is an input. */
    c_token_t tt
 );
 
 
+/**
+ * tbd
+ */
 static bool parse_ignored(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -295,12 +295,11 @@ static bool parse_ignored(
  * pc.type is the output type
  * pc.column is output column
  *
- * @param pc      The structure to update, str is an input.
  * @return        true/false - whether anything was parsed
  */
 static bool parse_next(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -322,12 +321,11 @@ static bool parse_next(
  * \&amp;            # named entity
  * \n                # single character
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a string was parsed
  */
 static bool d_parse_string(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -339,12 +337,11 @@ static bool d_parse_string(
  *  - C++ comments that start with //
  *  - D nestable comments '/+' '+/'
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a comment was parsed
  */
 static bool parse_comment(
    tok_ctx &ctx,
-   chunk_t &pc
+   chunk_t &pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -353,12 +350,11 @@ static bool parse_comment(
  * This is only for Xcode which sometimes inserts temporary code placeholder
  * chunks, which in plaintext <#look like this#>.
  *
- * @param pc   The structure to update, str is an input.
  * @return     Whether a placeholder was parsed.
  */
 static bool parse_code_placeholder(
-   tok_ctx &ctx,
-   chunk_t &pc
+   tok_ctx &ctx,  /**< [in]  */
+   chunk_t &pc    /**< [in] structure to update, str is an input. */
 );
 
 
@@ -368,9 +364,9 @@ static bool parse_code_placeholder(
  * PRIx32 and SCNx64.
  */
 static void parse_suffix(
-   tok_ctx &ctx,
-   chunk_t &pc,
-   bool    forstring
+   tok_ctx &ctx,      /**< [in]  */
+   chunk_t &pc,       /**< [in]  */
+   bool    forstring  /**< [in]  */
 );
 
 
@@ -403,15 +399,18 @@ static bool is_hex_(int ch);
  * @return     Whether a number was parsed
  */
 static bool parse_number(
-   tok_ctx &ctx,
-   chunk_t &pc
+   tok_ctx &ctx, /**< [in]  */
+   chunk_t &pc   /**< [in]  */
 );
 
 
+/**
+ * tbd
+ */
 void append_multiple(
-   tok_ctx &ctx,
-   chunk_t &pc,
-   size_t cnt
+   tok_ctx &ctx,  /**< [in]  */
+   chunk_t &pc,   /**< [in]  */
+   size_t  cnt    /**< [in]  */
 );
 
 
@@ -595,7 +594,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
             {
                break;
             }
-            if ((ch == '\\') && !is_cs) /* backslashes aren't special in comments in C# */
+            if ((ch == '\\') && is_cs == false) /* backslashes aren't special in comments in C# */
             {
                bs_cnt++;
             }
@@ -619,7 +618,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          cpd.did_newline = true;
       }
    }
-   else if (!ctx.more())
+   else if (ctx.more() == false)
    {
       /* unexpected end of file */
       ctx.restore();
@@ -631,7 +630,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
       d_level++;
       while ((d_level > 0) && ctx.more())
       {
-         if ((ctx.peek() == '+') && (ctx.peek(1) == '/'))
+         if ((ctx.peek( ) == '+') &&
+             (ctx.peek(1) == '/') )
          {
             pc.str.append(ctx.get());  /* store the '+' */
             pc.str.append(ctx.get());  /* store the '/' */
@@ -639,7 +639,8 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
             continue;
          }
 
-         if ((ctx.peek() == '/') && (ctx.peek(1) == '+'))
+         if ((ctx.peek( ) == '/') &&
+             (ctx.peek(1) == '+') )
          {
             pc.str.append(ctx.get());  /* store the '/' */
             pc.str.append(ctx.get());  /* store the '+' */
@@ -1877,14 +1878,14 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 {
    tok_ctx       ctx(data);
    chunk_t       chunk;
-   chunk_t       *pc    = nullptr;
-   const chunk_t *rprev = nullptr;
-   parse_frame_t frm;
+   chunk_t       *pc          = nullptr;
+   const chunk_t *rprev       = nullptr;
    bool          last_was_tab = false;
    size_t        prev_sp      = 0;
 
    cpd.unc_stage = unc_stage_e::TOKENIZE;
 
+   parse_frame_t frm;
    memset(&frm, 0, sizeof(frm));
 
    while (ctx.more())
@@ -1928,13 +1929,13 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
       /* Strip trailing whitespace (for CPP comments and PP blocks) */
       while ((chunk.str.size() > 0) &&
-             ((chunk.str[chunk.str.size() - 1] == ' ') ||
-              (chunk.str[chunk.str.size() - 1] == '\t')))
+             ((chunk.str[chunk.str.size() - 1] == ' ' ) ||
+              (chunk.str[chunk.str.size() - 1] == '\t') ) )
       {
          // If comment contains backslash '\' followed by whitespace chars, keep last one;
          // this will prevent it from turning '\' into line continuation.
-         if ((chunk.str.size() > 1) &&
-             (chunk.str[chunk.str.size() - 2] == '\\'))
+         if ((chunk.str.size()               > 1        ) &&
+             (chunk.str[chunk.str.size()-2] == BACKSLASH) )
          {
             break;
          }

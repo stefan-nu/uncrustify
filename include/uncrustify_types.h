@@ -25,6 +25,9 @@ using namespace std;
 #include <utime.h>
 #endif
 
+
+/** special strings to mark a part of the input file where
+ *  uncrustify shall not change anything */
 #define UNCRUSTIFY_OFF_TEXT    " *INDENT-OFF*"
 #define UNCRUSTIFY_ON_TEXT     " *INDENT-ON*"
 
@@ -215,7 +218,7 @@ typedef struct align_ptr_s
 struct chunk_t
 {
    /**
-    * constructor
+    * constructor for chunk_t
     */
    chunk_t()
    {
@@ -291,29 +294,28 @@ struct chunk_t
 };
 
 
+/** list of all programming languages known to uncrustify */
 enum
 {
-   LANG_C    = 0x0001,
-   LANG_CPP  = 0x0002,
-   LANG_D    = 0x0004,
-   LANG_CS   = 0x0008,     /*<< C# or C-sharp */
-   LANG_JAVA = 0x0010,
-   LANG_OC   = 0x0020,     /*<< Objective C */
-   LANG_VALA = 0x0040,     /*<< Like C# */
-   LANG_PAWN = 0x0080,
-   LANG_ECMA = 0x0100,
-   LANG_ALLC = (LANG_C    | LANG_CPP | LANG_D    | LANG_CS   |
+   LANG_C    = 0x0001,                                           //!< LANG_C
+   LANG_CPP  = 0x0002,                                           //!< LANG_CPP
+   LANG_D    = 0x0004,                                           //!< LANG_D
+   LANG_CS   = 0x0008,     /*<< C# or C-sharp */                 //!< LANG_CS
+   LANG_JAVA = 0x0010,                                           //!< LANG_JAVA
+   LANG_OC   = 0x0020,     /*<< Objective C */                   //!< LANG_OC
+   LANG_VALA = 0x0040,     /*<< Like C# */                       //!< LANG_VALA
+   LANG_PAWN = 0x0080,                                           //!< LANG_PAWN
+   LANG_ECMA = 0x0100,                                           //!< LANG_ECMA
+   LANG_ALLC = (LANG_C    | LANG_CPP | LANG_D    | LANG_CS   |   //!< LANG_ALLC
                 LANG_JAVA | LANG_OC  | LANG_VALA | LANG_ECMA ),
-   LANG_ALL  = 0x0fff,
+   LANG_ALL  = 0x0fff,                                           //!< LANG_ALL
 
-   FLAG_DIG  = 0x4000,     /*<< digraph/trigraph */
-   FLAG_PP   = 0x8000,     /*<< only appears in a preprocessor */
+   FLAG_DIG  = 0x4000,     /*<< digraph/trigraph */              //!< FLAG_DIG
+   FLAG_PP   = 0x8000,     /*<< only appears in a preprocessor *///!< FLAG_PP
 };
 
 
-/**
- * Pattern classes for special keywords
- */
+/** Pattern classes for special keywords */
 enum class pattern_class_e : unsigned int
 {
    NONE,

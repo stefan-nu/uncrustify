@@ -15,6 +15,7 @@
 
 #define NO_MACRO_VARARG    /* variable parameter numbers don't work on windows */
 
+/* \todo better use types from stdint.h */
 typedef char                 CHAR;
 
 typedef signed char          INT8;
@@ -33,17 +34,18 @@ typedef unsigned long long   UINT64;
 /* eliminate GNU's attribute */
 #define __attribute__(x)
 
-/* MSVC compilers before VC7 don't have __func__ at all; later ones call it
- * __FUNCTION__.
- */
+/* MSVC compilers before VC7 don't have __func__ at all;
+ * later compiler MSVC versions call it __FUNCTION__. */
+
+/* \todo does MinGW provide a __func__ macro? if so use it */
 #ifdef _MSC_VER
 #if _MSC_VER < 1300
-   #define __func__    "unknown function"
+   #define __func__    "unknown_fct"
 #else
    #define __func__    __FUNCTION__
 #endif
 #else /* _MSC_VER */
-   #define __func__    "xxx" // __func__
+   #define __func__    "unknown_fct" // __func__
 #endif
 
 #include <stdio.h>
@@ -52,22 +54,22 @@ typedef unsigned long long   UINT64;
 #include <cstring>
 #include <windowsx.h>
 
-#undef snprintf
+#undef  snprintf
 #define snprintf       _snprintf
 
-#undef vsnprintf
+#undef  vsnprintf
 #define vsnprintf      _vsnprintf
 
-#undef strcasecmp
+#undef  strcasecmp
 #define strcasecmp     _strcmpi
 
-#undef strncasecmp
+#undef  strncasecmp
 #define strncasecmp    _strnicmp
 
-#undef strdup
+#undef  strdup
 #define strdup         _strdup
 
-#undef fileno
+#undef  fileno
 #define fileno         _fileno
 
 /* includes for _setmode() */
@@ -77,7 +79,5 @@ typedef unsigned long long   UINT64;
 
 /* on windows the file permissions have no meaning thus neglect them */
 #define mkdir(x, y)    _mkdir(x)
-
-#define PATH_SEP    '\\'
 
 #endif /* WINDOWS_COMPAT_H_INCLUDED */
