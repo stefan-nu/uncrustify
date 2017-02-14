@@ -398,10 +398,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
       if (!squeeze)
       {
-         if (min_col < pc->column)
-         {
-            min_col = pc->column;
-         }
+         min_col = max(min_col, pc->column);
       }
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu multi:%s prev->col=%d prev->len()=%zu %s\n",
               __func__, pc->orig_line, pc->column, max_col, min_pad, min_col, (prev->type == CT_COMMENT_MULTI) ? "Y" : "N",

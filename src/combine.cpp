@@ -5252,7 +5252,8 @@ static void handle_oc_block_literal(chunk_t *pc)
    for (tmp = next; tmp; tmp = chunk_get_next_ncnl(tmp))
    {
       LOG_FMT(LOCBLK, " %s", tmp->text());
-      if ((tmp->level < pc->level) || (tmp->type == CT_SEMICOLON))
+      if ((tmp->level < pc->level   ) ||
+          (tmp->type == CT_SEMICOLON) )
       {
          LOG_FMT(LOCBLK, "[DONE]");
          break;
@@ -5433,30 +5434,20 @@ static void handle_oc_message_decl(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   bool did_it;
-   //bool      in_paren  = false;
-   //int       paren_cnt = 0;
-   //int       arg_cnt   = 0;
-
    /* Figure out if this is a spec or decl */
    chunk_t *tmp = pc;
    while ((tmp = chunk_get_next(tmp)) != nullptr)
    {
-      if (tmp->level < pc->level)
-      {
-         /* should not happen */
-         return;
-      }
-      if ((tmp->type == CT_SEMICOLON) ||
-          (tmp->type == CT_BRACE_OPEN))
+      if (tmp->level < pc->level) { return; }/* should not happen */
+
+      if ((tmp->type == CT_SEMICOLON ) ||
+          (tmp->type == CT_BRACE_OPEN) )
       {
          break;
       }
    }
-   if (tmp == nullptr)
-   {
-      return;
-   }
+   if (tmp == nullptr) { return; }
+
    c_token_t pt = (tmp->type == CT_SEMICOLON) ? CT_OC_MSG_SPEC : CT_OC_MSG_DECL;
 
    set_chunk_type(pc, CT_OC_SCOPE);
@@ -5467,6 +5458,7 @@ static void handle_oc_message_decl(chunk_t *pc)
    /* format: -(TYPE) NAME [: (TYPE)NAME */
 
    /* handle the return type */
+   bool did_it;
    tmp = handle_oc_md_type(chunk_get_next_ncnl(pc), pt, PCF_OC_RTYPE, did_it);
    if (!did_it)
    {

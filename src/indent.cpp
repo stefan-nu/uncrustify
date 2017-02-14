@@ -2540,7 +2540,6 @@ void indent_preproc(void)
       if (next == nullptr) { break; }
 
       pp_level = (int)pc->pp_level - pp_level_sub;
-
       pp_level = max(pp_level, 0);
 
       /* Adjust the indent of the '#' */

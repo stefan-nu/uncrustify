@@ -45,4 +45,26 @@ void output_parsed(
 void add_long_preprocessor_conditional_block_comment(void);
 
 
+/**
+ * check if a given character is part of a DOS or UNIX newline
+ * thus if it is either a carriage return CARRIAGERETURN or a
+ * line feed character
+ *
+ * \todo parameter should not be int type
+ */
+bool is_part_of_newline(
+   const int character /**< [in] character to check */
+);
+
+
+/**
+ * check if a given character is either a space or a tabstop character
+ *
+ * \todo parameter should not be int type
+ */
+bool is_space_or_tab(
+   const int character /**< [in] character to check */
+);
+
+
 #endif /* OUTPUT_H_INCLUDED */

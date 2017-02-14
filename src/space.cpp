@@ -1879,9 +1879,9 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // CT_UNKNOWN is a wildcard.
    for (auto it : no_space_table)
    {
-      if (((it.first == CT_UNKNOWN ) || 
+      if (((it.first == CT_UNKNOWN ) ||
            (it.first == first->type) )
-          && 
+          &&
            ((it.second == CT_UNKNOWN  ) ||
            (it.second  == second->type) ) )
       {
@@ -2086,10 +2086,7 @@ void space_text(void)
             {
                /* Keep the same relative spacing, minimum 1 */
                delta = (int)next->orig_col - (int)pc->orig_col_end;
-               if (delta < min_sp)
-               {
-                  delta = min_sp;
-               }
+               delta = max(delta, min_sp);
             }
             column = (size_t)((int)column + delta);
             break;

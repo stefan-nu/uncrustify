@@ -48,7 +48,7 @@ protected:
 public:
 
    /**
-    * tbd
+    * Constructor
     */
    ChunkStack()
       : m_seqnum(0)
@@ -57,7 +57,7 @@ public:
 
 
    /**
-    * tbd
+    * Constructor
     */
    ChunkStack(const ChunkStack &cs)
    {
@@ -65,6 +65,9 @@ public:
    }
 
 
+   /**
+    * Destructor
+    */
    virtual ~ChunkStack()
    {
    }

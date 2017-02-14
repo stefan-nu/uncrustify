@@ -18,6 +18,7 @@
 #include "unc_ctype.h"
 #include "uncrustify.h"
 #include "keywords.h"
+#include "output.h"
 #include "tabulator.h"
 
 
@@ -371,16 +372,16 @@ static void parse_suffix(
 
 
 static bool is_bin (int ch);
-static bool is_bin_(int ch);
+static bool is_bin_or_underline(int ch);
 
 static bool is_oct (int ch);
-static bool is_oct_(int ch);
+static bool is_oct_or_underline(int ch);
 
 static bool is_dec (int ch);
-static bool is_dec_(int ch);
+static bool is_dec_or_underline(int ch);
 
 static bool is_hex (int ch);
-static bool is_hex_(int ch);
+static bool is_hex_or_underline(int ch);
 
 
 /**
@@ -792,7 +793,7 @@ static bool is_bin(int ch)
 }
 
 
-static bool is_bin_(int ch)
+static bool is_bin_or_underline(int ch)
 {
    return(is_bin(ch) || (ch == '_'));
 }
@@ -804,7 +805,7 @@ static bool is_oct(int ch)
 }
 
 
-static bool is_oct_(int ch)
+static bool is_oct_or_underline(int ch)
 {
    return(is_oct(ch) || (ch == '_'));
 }
@@ -816,7 +817,7 @@ static bool is_dec(int ch)
 }
 
 
-static bool is_dec_(int ch)
+static bool is_dec_or_underline(int ch)
 {
    return(is_dec(ch) || (ch == '_'));
 }
@@ -830,7 +831,7 @@ static bool is_hex(int ch)
 }
 
 
-static bool is_hex_(int ch)
+static bool is_hex_or_underline(int ch)
 {
    return(is_hex(ch) || (ch == '_'));
 }
@@ -848,14 +849,14 @@ bool analyze_character(tok_ctx &ctx, chunk_t &pc)
          do
          {
             pc.str.append(ctx.get());  /* store the 'x' and then the rest */
-         } while (is_hex_(ctx.peek()));
+         } while (is_hex_or_underline(ctx.peek()));
          break;
 
       case 'B':  /* binary */
          do
          {
             pc.str.append(ctx.get());  /* store the 'b' and then the rest */
-         } while (is_bin_(ctx.peek()));
+         } while (is_bin_or_underline(ctx.peek()));
          break;
 
       case '0':  /* octal or decimal */
@@ -871,7 +872,7 @@ bool analyze_character(tok_ctx &ctx, chunk_t &pc)
          do
          {
             pc.str.append(ctx.get());
-         } while (is_oct_(ctx.peek()));
+         } while (is_oct_or_underline(ctx.peek()));
          break;
 
       default:
@@ -928,7 +929,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
          do
          {
             pc.str.append(ctx.get()); /* store the rest */
-         } while (is_hex_(ctx.peek()));
+         } while (is_hex_or_underline(ctx.peek()));
          pc.str.append(ctx.get());    /* store the h */
          LOG_FMT(LGUY, "%s(%d): pc:%s\n", __func__, __LINE__, pc.text());
       }
@@ -940,7 +941,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    else
    {
       /* Regular int or float */
-      while (is_dec_(ctx.peek()))
+      while (is_dec_or_underline(ctx.peek()))
       {
          pc.str.append(ctx.get());
       }
@@ -951,8 +952,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    {
       pc.str.append(ctx.get());
       is_float = true;
-      if (did_hex) { while (is_hex_(ctx.peek())) { pc.str.append(ctx.get()); } }
-      else         { while (is_dec_(ctx.peek())) { pc.str.append(ctx.get()); } }
+      if (did_hex) { while (is_hex_or_underline(ctx.peek())) { pc.str.append(ctx.get()); } }
+      else         { while (is_dec_or_underline(ctx.peek())) { pc.str.append(ctx.get()); } }
    }
 
    /* Check exponent
@@ -967,7 +968,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       pc.str.append(ctx.get());
       if ((ctx.peek() == '+') ||
           (ctx.peek() == '-') )  { pc.str.append(ctx.get()); }
-      while (is_dec_(ctx.peek())){ pc.str.append(ctx.get()); }
+      while (is_dec_or_underline(ctx.peek())){ pc.str.append(ctx.get()); }
    }
 
    /* Check the suffixes
@@ -1038,7 +1039,7 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow
       size_t lastcol = ctx.c.col;
       size_t ch      = ctx.get();
 
-      if ((ch == '\t') && should_escape_tabs)
+      if ((ch == TABSTOP) && should_escape_tabs)
       {
          ctx.c.col = lastcol + 2;
          pc.str.append(escape_char);
@@ -1054,8 +1055,8 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow
          escaped = false;
          continue;
       }
-      if ((ch         == '\r') &&
-          (ctx.peek() != '\n') )
+      if ((ch         == CARRIAGERETURN) &&
+          (ctx.peek() != LINEFEED      ) )
       {
          pc.str.append(ctx.get());
          pc.nl_count++;
@@ -1103,13 +1104,13 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
    {
       size_t ch = ctx.get();
       pc.str.append(ch);
-      if ((ch == '\n') ||
-          (ch == '\r') )
+
+      if(is_part_of_newline(ch))
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
       }
-      else if (ch == '\t')
+      else if (ch == TABSTOP)
       {
          if (should_escape_tabs && !cpd.warned_unable_string_replace_tab_chars)
          {
@@ -1226,8 +1227,8 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
          pc.str.append(ctx.get());
          break;
       }
-      if ((ch == '\n') ||
-          (ch == '\r') )
+
+      if(is_part_of_newline(ch))
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
@@ -1294,7 +1295,7 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, size_t q_idx)
          parse_suffix(ctx, pc);
          return(true);
       }
-      if (ctx.peek() == '\n')
+      if (ctx.peek() == LINEFEED)
       {
          pc.str.append(ctx.get());
          pc.nl_count++;
@@ -1325,7 +1326,8 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
       {
          pc.str.append(ctx.get());
       }
-      else if ((ch == '\\') && (unc_tolower(ctx.peek(1)) == 'u'))
+      else if ((ch == BACKSLASH) &&
+               (unc_tolower(ctx.peek(1)) == 'u'))
       {
          pc.str.append(ctx.get());
          pc.str.append(ctx.get());
@@ -1387,25 +1389,25 @@ static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
       ch = ctx.get();   /* throw away the whitespace char */
       switch (ch)
       {
-      case '\r':
+      case CARRIAGERETURN:
          if (ctx.expect('\n')) { cpd.le_counts[LE_CRLF]++; } /* CRLF ending */
          else                  { cpd.le_counts[LE_CR  ]++; } /* CR ending */
          nl_count++;
          pc.orig_prev_sp = 0;
          break;
 
-      case '\n':
+      case LINEFEED:
          /* LF ending */
          cpd.le_counts[LE_LF]++;
          nl_count++;
          pc.orig_prev_sp = 0;
          break;
 
-      case '\t':
+      case TABSTOP:
          pc.orig_prev_sp += calc_next_tab_column(cpd.column, cpd.settings[UO_input_tab_size].u) - cpd.column;
          break;
 
-      case ' ':
+      case SPACE:
          pc.orig_prev_sp++;
          break;
 
@@ -1435,12 +1437,11 @@ static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc)
    while (ctx.more() && unc_isspace(ch = ctx.peek()))
    {
       ctx.get();
-      if ((ch == '\r') ||
-          (ch == '\n') )
+      if(is_part_of_newline(ch))
       {
-         if (ch == '\r')
+         if (ch == CARRIAGERETURN)
          {
-            ctx.expect('\n');
+            ctx.expect(LINEFEED);
          }
          pc.str      = "\\";
          pc.type     = CT_NL_CONT;
@@ -1459,18 +1460,14 @@ static bool parse_newline(tok_ctx &ctx)
    ctx.save();
 
    /* Eat whitespace */
-   while ((ctx.peek() == ' ' ) ||
-          (ctx.peek() == '\t') )
+   while(is_space_or_tab(ctx.peek())) { ctx.get(); }
+
+   if(is_part_of_newline(ctx.peek()))
    {
-      ctx.get();
-   }
-   if ((ctx.peek() == '\r') ||
-       (ctx.peek() == '\n') )
-   {
-      if (!ctx.expect('\n'))
+      if (ctx.expect(LINEFEED) == false)
       {
          ctx.get();
-         ctx.expect('\n');
+         ctx.expect(LINEFEED);
       }
       return(true);
    }
@@ -1486,14 +1483,10 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
    while (!unc_isspace(ctx.peek()))
    {
       /* end the pattern on an escaped newline */
-      if (ctx.peek() == '\\')
+      if (ctx.peek() == BACKSLASH)
       {
          size_t ch = ctx.peek(1);
-         if ((ch == '\n') ||
-             (ch == '\r') )
-         {
-            break;
-         }
+         if(is_part_of_newline(ch)) { break; }
       }
       pc.str.append(ctx.get());
    }
@@ -1519,9 +1512,9 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    /* See if the UO_enable_processing_cmt text is on this line */
    ctx.save();
    pc.str.clear();
-   while ((ctx.more() == true) &&
-          (ctx.peek() != '\r') &&
-          (ctx.peek() != '\n') )
+   while ((ctx.more() == true          ) &&
+          (ctx.peek() != CARRIAGERETURN) &&
+          (ctx.peek() != LINEFEED      ) )
    {
       pc.str.append(ctx.get());
    }
@@ -1558,9 +1551,9 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
    /* Reset the chunk & scan to until a newline */
    pc.str.clear();
-   while ( ctx.more()          &&
-          (ctx.peek() != '\r') &&
-          (ctx.peek() != '\n') )
+   while ( ctx.more()                    &&
+          (ctx.peek() != CARRIAGERETURN) &&
+          (ctx.peek() != LINEFEED      ) )
    {
       pc.str.append(ctx.get());
    }
@@ -1612,21 +1605,19 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       {
          size_t ch = ctx.peek();
 
-         if ((ch == '\n') ||
-             (ch == '\r') )
+         if(is_part_of_newline(ch))
          {
             /* Back off if this is an escaped newline */
-            if (last == '\\')
+            if (last == BACKSLASH)
             {
                ctx.restore(ss);
                pc.str.pop_back();
             }
             break;
          }
-
          /* Quit on a C++ comment start */
-         if ((ch          == '/') &&
-             (ctx.peek(1) == '/') )
+         if ((ch          == SLASH) &&
+             (ctx.peek(1) == SLASH) )
          {
             break;
          }
@@ -1639,7 +1630,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Detect backslash-newline */
-   if ((ctx.peek() == '\\') && parse_bs_newline(ctx, pc))
+   if ((ctx.peek() == BACKSLASH) &&
+       parse_bs_newline(ctx, pc))
    {
       return(true);
    }
@@ -1741,7 +1733,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
          return(true);
       }
       /* Check for PAWN strings: \"hi" or !"hi" or !\"hi" or \!"hi" */
-      if ((ctx.peek() == '\\') ||
+      if ((ctx.peek() == BACKSLASH) ||
           (ctx.peek() == '!' ) )
       {
          if (ctx.peek(1) == '"')
@@ -1749,7 +1741,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
             parse_string(ctx, pc, 1, (ctx.peek() == '!'));
             return(true);
          }
-         else if (((ctx.peek(1) == '\\') || (ctx.peek(1) == '!')) &&
+         else if (((ctx.peek(1) == BACKSLASH) || (ctx.peek(1) == '!')) &&
                    (ctx.peek(2) == '"'))
          {
             parse_string(ctx, pc, 2, false);
@@ -1837,8 +1829,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
    /* Check for pawn/ObjectiveC/Java and normal identifiers */
    if (CharTable::IsKeyword1(ctx.peek()) ||
-       ((ctx.peek() == '\\') && (unc_tolower(ctx.peek(1)) == 'u')) ||
-       ((ctx.peek() == '@' ) && CharTable::IsKeyword1(ctx.peek(1))))
+       ((ctx.peek() == BACKSLASH) && (unc_tolower(ctx.peek(1)) == 'u')) ||
+       ((ctx.peek() == '@'      ) && CharTable::IsKeyword1(ctx.peek(1))))
    {
       parse_word(ctx, pc, false);
       return(true);
@@ -1928,9 +1920,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       }
 
       /* Strip trailing whitespace (for CPP comments and PP blocks) */
-      while ((chunk.str.size() > 0) &&
-             ((chunk.str[chunk.str.size() - 1] == ' ' ) ||
-              (chunk.str[chunk.str.size() - 1] == '\t') ) )
+      while ((chunk.str.size() > 0                        ) &&
+             is_space_or_tab(chunk.str[chunk.str.size()-1]) )
       {
          // If comment contains backslash '\' followed by whitespace chars, keep last one;
          // this will prevent it from turning '\' into line continuation.

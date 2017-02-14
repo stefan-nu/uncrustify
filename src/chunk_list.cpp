@@ -6,6 +6,7 @@
  * @license GPL v2+
  */
 #include "chunk_list.h"
+#include "char_table.h"
 #include <cstring>
 #include <cstdlib>
 
@@ -1020,9 +1021,12 @@ bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 
 bool chunk_is_word(chunk_t *pc)
 {
+   CharTable table;
+   const size_t str_pos = (size_t)pc->str[0];
+
    return((pc        != nullptr                       ) &&
           (pc->len() >= 1u                            ) &&
-          (CharTable::IsKeyword1((size_t)(pc->str[0]))) );
+          (table.IsKeyword1(str_pos)             ) );
 }
 
 

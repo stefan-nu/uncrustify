@@ -6,6 +6,7 @@
  * @license GPL v2+
  */
 #include "args.h"
+#include "char_table.h"
 #include <cstring>
 #include "unc_ctype.h"
 

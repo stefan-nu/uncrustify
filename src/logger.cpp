@@ -307,9 +307,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
          buf[str_idx    ] = ' ';   /* MSB hex */
          buf[str_idx + 1] = ' ';   /* LSB hex */
          str_idx         += 3;
-
          buf[chr_idx++] = ' ';
-
          count++;
       }
       log_str(sev, buf, 73);

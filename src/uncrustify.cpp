@@ -108,7 +108,11 @@ const struct lang_ext_t language_exts[] =
 };
 
 
-cp_data_t cpd;
+struct lang_name_t
+{
+   const char *name;
+   size_t     lang;
+};
 
 
 /**
@@ -345,6 +349,9 @@ static void redir_stdout(
 );
 
 
+cp_data_t cpd;
+
+
 #ifdef DEFINE_PCF_NAMES
 static const char * const pcf_names[] =
 {
@@ -391,6 +398,23 @@ static const char * const pcf_names[] =
    "IN_QT_MACRO",       // 40
 };
 #endif
+
+
+static const lang_name_t language_names[] =
+{
+   { "C",    LANG_C             },
+   { "CPP",  LANG_CPP           },
+   { "D",    LANG_D             },
+   { "CS",   LANG_CS            },
+   { "VALA", LANG_VALA          },
+   { "JAVA", LANG_JAVA          },
+   { "PAWN", LANG_PAWN          },
+   { "OC",   LANG_OC            },
+   { "OC+",  LANG_OC | LANG_CPP },
+   { "ECMA", LANG_ECMA          },
+};
+
+
 
 
 const char *path_basename(const char *path)
@@ -2144,28 +2168,6 @@ static bool ends_with(const char *filename, const char *tag, bool case_sensitive
           (((case_sensitive == true ) && (strcmp    (&filename[len1 - len2], tag) == 0)) ||
            ((case_sensitive == false) && (strcasecmp(&filename[len1 - len2], tag) == 0)) ));
 }
-
-
-struct lang_name_t
-{
-   const char *name;
-   size_t     lang;
-};
-
-
-static const lang_name_t language_names[] =
-{
-   { "C",    LANG_C             },
-   { "CPP",  LANG_CPP           },
-   { "D",    LANG_D             },
-   { "CS",   LANG_CS            },
-   { "VALA", LANG_VALA          },
-   { "JAVA", LANG_JAVA          },
-   { "PAWN", LANG_PAWN          },
-   { "OC",   LANG_OC            },
-   { "OC+",  LANG_OC | LANG_CPP },
-   { "ECMA", LANG_ECMA          },
-};
 
 
 static size_t language_flags_from_name(const char *name)

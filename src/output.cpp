@@ -357,25 +357,13 @@ static bool can_combine_comment(
 
 /**
  * check if a character combination is a DOS newline
- * thus if it is combination of carriage return '\r'
- * and linefeed '\n' character
+ * thus if it is combination of carriage return CARRIAGERETURN
+ * and line feed character
  *
  * \todo parameter should not be int type
  */
 bool is_dos_newline(
    const int* pchar /**< [in] pointer to first character of line ending */
-);
-
-
-/**
- * check if a given character is part of a DOS or UNIX newline
- * thus if it is either a carriage return '\r' or a
- * linefeed '\n' character
- *
- * \todo parameter should not be int type
- */
-bool is_part_of_newline(
-   const int pchar /**< [in] character to check */
 );
 
 
@@ -386,8 +374,8 @@ bool is_part_of_newline(
 static void add_char(UINT32 ch)
 {
    /* output a newline if ... */
-   if ((cpd.last_char == '\r') &&
-       (ch            != '\n') ) /* we did a '\r' not followed by a '\n' */
+   if ((cpd.last_char == CARRIAGERETURN) &&
+       (ch            != LINEFEED      ) ) /* we did a CARRIAGERETURN not followed by a LINEFEED */
    {
       write_string(cpd.newline);
       cpd.column      = 1;
@@ -396,44 +384,45 @@ static void add_char(UINT32 ch)
    }
 
    /* convert a newline into the LF/CRLF/CR sequence */
-   if (ch == '\n')
+   if (ch == LINEFEED)
    {
       write_string(cpd.newline);
       cpd.column      = 1;
       cpd.did_newline = true;
       cpd.spaces      = 0;
    }
-   else if (ch == '\r') /* do not output '\r' */
+   else if (ch == CARRIAGERETURN) /* do not output CARRIAGERETURN */
    {
       cpd.column      = 1;
       cpd.did_newline = true;
       cpd.spaces      = 0;
    }
-   else if ((ch == '\t') && cpd.output_tab_as_space)
+   else if ((ch == TABSTOP) && cpd.output_tab_as_space)
    {
       size_t endcol = next_tab_column(cpd.column);
       while (cpd.column < endcol)
       {
-         add_char(' ');
+         add_char(SPACE);
       }
       return;
    }
    else
    {
       /* explicitly disallow a tab after a space */
-      if ((ch == '\t') && (cpd.last_char == ' '))
+      if ((ch            == TABSTOP) &&
+          (cpd.last_char == SPACE  ) )
       {
          size_t endcol = next_tab_column(cpd.column);
          fill_line_with_spaces(endcol);
 #if 0
          while (cpd.column < endcol)
          {
-            add_char(' ');
+            add_char(SPACE);
          }
 #endif
          return;
       }
-      else if ((ch == ' ') && !cpd.output_trailspace)
+      else if ((ch == SPACE) && !cpd.output_trailspace)
       {
          cpd.spaces++;
          cpd.column++;
@@ -442,11 +431,11 @@ static void add_char(UINT32 ch)
       {
          while (cpd.spaces > 0)
          {
-            write_char(' ');
+            write_char(SPACE);
             cpd.spaces--;
          }
          write_char(ch);
-         cpd.column = (ch == '\t') ? next_tab_column(cpd.column) : cpd.column+1;
+         cpd.column = (ch == TABSTOP) ? next_tab_column(cpd.column) : cpd.column+1;
       }
    }
    cpd.last_char = ch; /*lint !e713 */
@@ -618,7 +607,7 @@ void output_text(FILE *pfile)
       {
          for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
          {
-            add_char('\n');
+            add_char(LINEFEED);
          }
          cpd.did_newline = true;
          cpd.column      = 1;
@@ -665,7 +654,7 @@ void output_text(FILE *pfile)
             fill_line(pc->column, (cpd.settings[UO_indent_with_tabs].n == 2));
          }
          add_char('\\');
-         add_char('\n');
+         add_char(LINEFEED);
          cpd.did_newline = true;
          cpd.column      = 1;
          LOG_FMT(LOUTIND, " \\xx\n");
@@ -770,7 +759,7 @@ void output_text(FILE *pfile)
          {
             if (cpd.settings[UO_force_tab_after_define].b)
             {
-               add_char('\t');
+               add_char(TABSTOP);
             }
          }
          cpd.did_newline       = chunk_is_newline(pc);
@@ -788,7 +777,7 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
           (len < line.size()) )
    {
       if ((len         >  0 ) &&
-           (line[len] == '/') )
+           (line[len] == SLASH) )
       {
          /* ignore combined comments */
          size_t tmp = len + 1;
@@ -798,7 +787,7 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
             tmp++;
          }
          if ((tmp < line.size()) &&
-             (line[tmp] == '/' ) )
+             (line[tmp] == SLASH ) )
          {
             return(1);
          }
@@ -825,16 +814,24 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
 
 bool is_dos_newline(const int* pchar)
 {
-   return((pchar[0] == '\r') &&
-          (pchar[1] == '\n') );
+   return((pchar[0] == CARRIAGERETURN) &&
+          (pchar[1] == LINEFEED      ) );
 }
 
 
-bool is_part_of_newline(const int pchar)
+bool is_part_of_newline(const int character)
 {
-   return((pchar == '\r') ||
-          (pchar == '\n') );
+   return((character == CARRIAGERETURN) ||
+          (character == LINEFEED      ) );
 }
+
+
+bool is_space_or_tab(const int character)
+{
+   return((character == SPACE  ) ||
+          (character == TABSTOP) );
+}
+
 
 static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
 {
@@ -852,14 +849,14 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
 #if 1
          if(is_part_of_newline(str[idx]))
 #else
-         if ((str[idx] == '\n') ||
-             (str[idx] == '\r') )
+         if ((str[idx] == LINEFEED      ) ||
+             (str[idx] == CARRIAGERETURN) )
 #endif
          {
             idx++;
-            while ( (idx      <  len )   &&
-                   ((str[idx] == ' ' ) ||
-                    (str[idx] == '\t') ) )
+            while ( (idx      <  len    )   &&
+                   ((str[idx] == SPACE  ) ||
+                    (str[idx] == TABSTOP) ) )
             {
                idx++;
             }
@@ -876,8 +873,8 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
       if(is_part_of_newline(str[idx]))
       {
          first_len = idx;
-         while ((str[first_len - 1] == ' ' ) ||
-                (str[first_len - 1] == '\t') )
+         while ((str[first_len - 1] == SPACE  ) ||
+                (str[first_len - 1] == TABSTOP) )
          {
             first_len--;
          }
@@ -886,8 +883,8 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
 #if 0
          if(is_dos_newline(&str[idx]))
 #else
-         if ((str[idx+0] == '\r') &&
-             (str[idx+1] == '\n') )
+         if ((str[idx+0] == CARRIAGERETURN) &&
+             (str[idx+1] == LINEFEED      ) )
 #endif
          {
             idx++;
@@ -901,8 +898,8 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
    size_t width = 0;
    for ( ; idx < len - 1; idx++)
    {
-      if ((str[idx] == ' ' ) ||
-          (str[idx] == '\t') )
+      if ((str[idx] == SPACE  ) ||
+          (str[idx] == TABSTOP) )
       {
          if (width > 0) { break; }
          continue;
@@ -914,11 +911,11 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
       }
 
       /* Count the leading chars */
-      if ((str[idx] == '*' ) ||
-          (str[idx] == '|' ) ||
-          (str[idx] == '\\') ||
-          (str[idx] == '#' ) ||
-          (str[idx] == '+' ) )
+      if ((str[idx] == '*'      ) ||
+          (str[idx] == '|'      ) ||
+          (str[idx] == BACKSLASH) ||
+          (str[idx] == '#'      ) ||
+          (str[idx] == '+'      ) )
       {
          width++;
       }
@@ -991,14 +988,14 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
    for ( ; idx < len; idx++)  /* \todo avoid modifying idx in loop */
    {
       /* Split the comment */
-      if (text[idx] == '\n')
+      if (text[idx] == LINEFEED)
       {
          in_word = false;
-         add_char('\n');
+         add_char(LINEFEED);
          cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
          if (cmt.xtra_indent > 0)
          {
-            add_char(' ');
+            add_char(SPACE);
          }
          /* hack to get escaped newlines to align and not dup the leading '//' */
          int tmp = next_up(text, idx + 1, cmt.cont_text);
@@ -1014,15 +1011,15 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
 
       }
       else if ((cmt.reflow == true              ) &&
-               (text[idx]  == ' '               ) &&
+               (text[idx]  == SPACE             ) &&
                (cpd.settings[UO_cmt_width].u > 0) &&
                ((cpd.column > cpd.settings[UO_cmt_width].u) ||
                 ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))))
       {
          in_word = false;
-         add_char('\n');
+         add_char(LINEFEED);
          cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-         if (cmt.xtra_indent > 0) { add_char(' '); }
+         if (cmt.xtra_indent > 0) { add_char(SPACE); }
 
          add_text(cmt.cont_text);
          fill_line(cmt.column + cpd.settings[UO_cmt_sp_after_star_cont].u, false);
@@ -1033,10 +1030,10 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
       {
          /* Escape a C closure in a CPP comment */
          if ( (esc_close               == true) &&
-             ((was_star  && (text[idx] == '/')) ||
+             ((was_star  && (text[idx] == SLASH)) ||
               (was_slash && (text[idx] == '*')) ) )
          {
-            add_char(' ');
+            add_char(SPACE);
          }
 
          if (!in_word && !unc_isspace(text[idx]))
@@ -1047,7 +1044,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
 
          add_char    (text[idx]); /*lint !e732 */
          was_star  = (text[idx] == '*');
-         was_slash = (text[idx] == '/');
+         was_slash = (text[idx] == SLASH);
          ch_cnt++;
       }
    }
@@ -1160,8 +1157,8 @@ static chunk_t *output_comment_c(chunk_t *first)
    {
       // \todo DRY 3 start
       tmp.set(pc->str, 2, pc->len() - 4);
-      if ((cpd.last_char == '*') &&
-           (tmp[0]       == '/') )
+      if ((cpd.last_char == '*'  ) &&
+           (tmp[0]       == SLASH) )
       {
          add_text(" ");
       }
@@ -1174,8 +1171,8 @@ static chunk_t *output_comment_c(chunk_t *first)
 
    // \todo DRY 3 start
    tmp.set(pc->str, 2, pc->len() - 4);
-   if ((cpd.last_char == '*') &&
-       (tmp[0]        == '/') )
+   if ((cpd.last_char == '*'  ) &&
+       (tmp[0]        == SLASH) )
    {
       add_text(" ");
    }
@@ -1209,7 +1206,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 
       bool grouping = (sComment[2] == '@');
       int  brace    = 3;
-      if ((sComment[2] == '/') ||
+      if ((sComment[2] == SLASH) ||
           (sComment[2] == '!') ) // doxygen style found!
       {
          leadin += sComment[2];               // at least one additional char (either "///" or "//!")
@@ -1252,7 +1249,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       cmt.cont_text = leadin;
       if (is_not_option(sp_cmt_cpp_start, AV_REMOVE))
       {
-         cmt.cont_text += ' ';
+         cmt.cont_text += SPACE;
       }
       LOG_CONTTEXT();
 
@@ -1281,7 +1278,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
             if (is_option_set(sp_cmt_cpp_start, AV_ADD))
             {
                if (!unc_isspace(tmp[0]) &&
-                   (tmp[0] != '/'     ) )
+                   (tmp[0] != SLASH   ) )
                {
                   add_comment_text(" ", cmt, false);
                }
@@ -1307,7 +1304,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       if( (!unc_isspace(first->str[2])            ) &&
           (is_option_set(sp_cmt_cpp_start, AV_ADD)) )
       {
-         add_char(' ');
+         add_char(SPACE);
       }
       tmp.set(first->str, 2, first->len() - 2);
       add_comment_text(tmp, cmt, true);
@@ -1331,7 +1328,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    {
       offs = unc_isspace(pc->str[2]) ? 1 : 0;
       tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
-      if ((cpd.last_char == '*') && (tmp[0] == '/'))
+      if ((cpd.last_char == '*') && (tmp[0] == SLASH))
       {
          add_text(" ");
       }
@@ -1358,32 +1355,32 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
 {
    /* Remove trailing whitespace on the line */
-   while ( (line.size() > 0    )   &&
-          ((line.back() == ' ' ) ||
-           (line.back() == '\t') ) )
+   while ( (line.size() > 0       )   &&
+          ((line.back() == SPACE  ) ||
+           (line.back() == TABSTOP) ) )
    {
       line.pop_back();
    }
 
    /* If in a preproc, shift any bs-nl back to the comment text */
-   if((in_preproc  == true) &&
-      (line.size() >  1   ) &&
-      (line.back() == '\\') )
+   if((in_preproc  == true     ) &&
+      (line.size() >  1        ) &&
+      (line.back() == BACKSLASH) )
    {
       bool do_space = false;
 
       /* If there was any space before the backslash, change it to 1 space */
       line.pop_back();
-      while ( (line.size() >   0  )   &&
-             ((line.back() == ' ' ) ||
-              (line.back() == '\t') ) )
+      while ( (line.size() >   0     )   &&
+             ((line.back() == SPACE  ) ||
+              (line.back() == TABSTOP) ) )
       {
          do_space = true;
          line.pop_back();
       }
 
-      if (do_space) { line.append(' '); }
-      line.append('\\');
+      if (do_space) { line.append(SPACE); }
+      line.append(BACKSLASH);
    }
 }
 
@@ -1416,11 +1413,11 @@ static void output_comment_multi(chunk_t *pc)
       int ch = pc->str[cmt_idx++];
 
       /* handle the CRLF and CR endings. convert both to LF */
-      if (ch == '\r')
+      if (ch == CARRIAGERETURN)
       {
-         ch = '\n';
-         if ((cmt_idx < pc->len()     ) &&
-             (pc->str[cmt_idx] == '\n') )
+         ch = LINEFEED;
+         if ((cmt_idx < pc->len()         ) &&
+             (pc->str[cmt_idx] == LINEFEED) )
          {
             cmt_idx++;
          }
@@ -1430,12 +1427,12 @@ static void output_comment_multi(chunk_t *pc)
       if (line.size() == 0)
       {
          nl_end = false;
-         if (ch == ' ')
+         if (ch == SPACE)
          {
             ccol++;
             continue;
          }
-         else if (ch == '\t')
+         else if (ch == TABSTOP)
          {
             ccol = calc_next_tab_column(ccol, cpd.settings[UO_input_tab_size].u);
             continue;
@@ -1451,7 +1448,7 @@ static void output_comment_multi(chunk_t *pc)
       /* Now see if we need/must fold the next line with the current to enable
        * full reflow */
       if ((cpd.settings[UO_cmt_reflow_mode].n == 2) &&
-          (ch      == '\n'     ) &&
+          (ch      == LINEFEED     ) &&
           (cmt_idx <  pc->len()) )
       {
          int    prev_nonempty_line = -1;
@@ -1468,7 +1465,7 @@ static void output_comment_multi(chunk_t *pc)
                 ((pc->flags & PCF_IN_PREPROC) ?
                   (line[nwidx  ] !=  '\\') ||
                  ((line[nwidx+1] !=  'r' ) &&
-                  (line[nwidx+1] != '\n' ) )
+                  (line[nwidx+1] != LINEFEED ) )
                  : true))
             {
                prev_nonempty_line = (int)nwidx; // last non-whitespace char in the previous line
@@ -1480,7 +1477,7 @@ static void output_comment_multi(chunk_t *pc)
          for (size_t nxt_len = 0;
               (nxt_len <= remaining    ) &&
               (pc->str[nxt_len] != 'r' ) &&
-              (pc->str[nxt_len] != '\n');
+              (pc->str[nxt_len] != LINEFEED);
               nxt_len++)
          {
             if ((next_nonempty_line < 0) &&
@@ -1490,7 +1487,7 @@ static void output_comment_multi(chunk_t *pc)
                  ((pc->flags & PCF_IN_PREPROC)
                   ? (pc->str[nxt_len] != '\\') ||
                   ((pc->str[nxt_len + 1] != 'r') &&
-                   (pc->str[nxt_len + 1] != '\n'))
+                   (pc->str[nxt_len + 1] != LINEFEED))
                   : true)))
             {
                next_nonempty_line = (int)nxt_len;      // first non-whitespace char in the next line
@@ -1538,20 +1535,20 @@ static void output_comment_multi(chunk_t *pc)
 
             cmt_idx =  (size_t)((int)cmt_idx + next_nonempty_line);  // roll the current line forward to the first non-alpha:
 
-            ch = ' ';  /* override the NL and make it a single whitespace: */
+            ch = SPACE;  /* override the NL and make it a single whitespace: */
          }
       }
 
       line.append(ch);
 
       /* If we ... */
-      if ((ch      == '\n'     ) || /* hit an end of line sign or */
+      if ((ch      == LINEFEED     ) || /* hit an end of line sign or */
           (cmt_idx == pc->len()) )  /* hit an end-of-comment */
       {
          line_count++;
 
          /* strip trailing tabs and spaces before the newline */
-         if (ch == '\n')
+         if (ch == LINEFEED)
          {
             nl_end = true;
             line.pop_back();
@@ -1564,7 +1561,7 @@ static void output_comment_multi(chunk_t *pc)
          {
             /* this is the first line - add unchanged */
             add_comment_text(line, cmt, false);
-            if (nl_end == true) { add_char('\n'); }
+            if (nl_end == true) { add_char(LINEFEED); }
          }
          else
          {
@@ -1575,16 +1572,16 @@ static void output_comment_multi(chunk_t *pc)
 
             if (line.size() == 0)
             {
-               /* Empty line - just a '\n' */
+               /* Empty line - just a LINEFEED */
                if (cpd.settings[UO_cmt_star_cont].b)
                {
                   cmt.column = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
                   cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
 
-                  if (cmt.xtra_indent > 0) { add_char(' '); }
+                  if (cmt.xtra_indent > 0) { add_char(SPACE); }
                   add_text(cmt.cont_text);
                }
-               add_char('\n');
+               add_char(LINEFEED);
             }
             else
             {
@@ -1603,7 +1600,7 @@ static void output_comment_multi(chunk_t *pc)
                   {
                      cmt.column = start_col;
                      cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-                     if (cmt.xtra_indent > 0) { add_char(' '); }
+                     if (cmt.xtra_indent > 0) { add_char(SPACE); }
                      add_text(cmt.cont_text);
 
                      size_t end_col = ccol + cpd.settings[UO_cmt_sp_after_star_cont].u;
@@ -1619,7 +1616,7 @@ static void output_comment_multi(chunk_t *pc)
                {
                   cmt.column = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
                   cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-                  if (cmt.xtra_indent > 0) { add_char(' '); }
+                  if (cmt.xtra_indent > 0) { add_char(SPACE); }
 
                   // Checks for and updates the lead chars.
                   // @return 0=not present, >0=number of chars that are part of the lead
@@ -1633,7 +1630,7 @@ static void output_comment_multi(chunk_t *pc)
                          (line[0]     == '*'  ) &&
                          (unc_isalnum(line[1])) )
                      {
-                        line.insert(1, ' ');
+                        line.insert(1, SPACE);
                      }
                   }
                   else
@@ -1965,7 +1962,7 @@ static void do_keyword_substitution(chunk_t *pc)
       tmp_txt.clear();
       if (kw.func(pc, tmp_txt))
       {
-         /* if the replacement contains '\n' we need to fix the lead */
+         /* if the replacement contains LINEFEED we need to fix the lead */
          if (tmp_txt.find("\n") >= 0)
          {
             size_t nl_idx = pc->str.rfind("\n", idx);
@@ -2011,11 +2008,11 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       int ch = pc->str[cmt_idx++];
 
       /* handle the CRLF and CR endings. convert both to LF */
-      if (ch == '\r')
+      if (ch == CARRIAGERETURN)
       {
-         ch = '\n';
-         if ((cmt_idx < pc->len()     ) &&
-             (pc->str[cmt_idx] == '\n') )
+         ch = LINEFEED;
+         if ((cmt_idx < pc->len()         ) &&
+             (pc->str[cmt_idx] == LINEFEED) )
          {
             cmt_idx++;
          }
@@ -2025,12 +2022,12 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       if (line.size() == 0)
       {
          nl_end = false;
-         if (ch == ' ')
+         if (ch == SPACE)
          {
             ccol++;
             continue;
          }
-         else if (ch == '\t')
+         else if (ch == TABSTOP)
          {
             ccol = calc_next_tab_column(ccol, cpd.settings[UO_input_tab_size].u);
             continue;
@@ -2047,13 +2044,13 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       line.append(ch);
 
       /* If we just hit an end of line OR we just hit end-of-comment... */
-      if ((ch      == '\n'     ) ||
+      if ((ch      == LINEFEED     ) ||
           (cmt_idx == pc->len()) )
       {
          line_count++;
 
          /* strip trailing tabs and spaces before the newline */
-         if (ch == '\n')
+         if (ch == LINEFEED)
          {
             line.pop_back();
             nl_end = true;
@@ -2074,7 +2071,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
             add_text(line);
          }
 
-         if (nl_end) { add_char('\n'); }
+         if (nl_end) { add_char(LINEFEED); }
          line.clear();
          ccol = 1;
       }
@@ -2101,7 +2098,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       }
       else if (pc->type == CT_NL_CONT)
       {
-         dst   += ' ';
+         dst   += SPACE;
          column = -1;
       }
       else if ((pc->type == CT_COMMENT      ) ||
@@ -2113,7 +2110,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       {
          for (int spacing = (int)pc->column - column; spacing > 0; spacing--)
          {
-            dst += ' ';
+            dst += SPACE;
             column++;
          }
          dst.append(pc->str);

@@ -10,6 +10,18 @@
 #define CHAR_TABLE_H_INCLUDED
 
 #include <stdint.h>
+#include <stddef.h>
+
+#define SPACE           ' '
+#define TABSTOP         '\t'
+#define CARRIAGERETURN  '\r'
+#define LINEFEED        '\n'
+#define BACKSLASH       '\\'
+#define SLASH           '/'
+
+#define WIN_PATH_SEP   BACKSLASH
+#define UNIX_PATH_SEP  SLASH
+
 
 /**
  * bit0-7 = paired char
@@ -30,17 +42,19 @@ struct CharTable
 
    static inline size_t Get(size_t idx)
    {
-      if (idx < ARRAY_SIZE(chars))
+      if (idx < CHAR_TABLE_SIZE)
       {
          return(chars[idx]);
       }
-
-      /* HACK: If the top bit is set, then we are likely dealing with UTF-8,
-       * and since that is only allowed in identifiers, then assume that is
-       * what this is. This only prevents corruption, it does not properly
-       * handle UTF-8 because the byte length and screen size are assumed to be
-       * the same. */
-      return(KEYWORD1 | KEYWORD2);
+      else
+      {
+         /* HACK: If the top bit is set, then we are likely dealing with UTF-8,
+          * and since that is only allowed in identifiers, then assume that is
+          * what this is. This only prevents corruption, it does not properly
+          * handle UTF-8 because the byte length and screen size are assumed to be
+          * the same. */
+         return(KEYWORD1 | KEYWORD2);
+      }
    }
 
 

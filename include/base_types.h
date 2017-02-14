@@ -10,13 +10,7 @@
 #define BASE_TYPES_H_INCLUDED
 
 #include "error_types.h"
-
-
-#define BACKSLASH      '\\'
-#define SLASH          '/'
-
-#define WIN_PATH_SEP   BACKSLASH
-#define UNIX_PATH_SEP  SLASH
+#include "char_table.h"
 
 
 #ifdef WIN32

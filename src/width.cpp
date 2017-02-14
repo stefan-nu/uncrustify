@@ -506,9 +506,9 @@ static void split_for_statement(chunk_t *start)
       }
       // DRY2 end
    }
-   while ( (count < (int)max_cnt             ) &&
+   while ( (count < (int)max_cnt                ) &&
            ((pc = chunk_get_prev(pc)) != nullptr) &&
-           (pc->flags & PCF_IN_SPAREN        ) );
+           (pc->flags & PCF_IN_SPAREN           ) );
 
 
    /* And now scan forward */
@@ -619,15 +619,12 @@ static void split_fcn_params(chunk_t *start)
    {
       if (chunk_is_newline(pc))
       {
-         cur_width = 0;
+         cur_width =  0;
          last_col  = -1;
       }
       else
       {
-         if (last_col < 0)
-         {
-            last_col = (int)pc->column;
-         }
+         last_col   = max(last_col, (int)pc->column);
          cur_width += (int) pc->column + (int)pc->len() - last_col;
          last_col   = (int)(pc->column +      pc->len());
 

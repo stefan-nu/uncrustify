@@ -24,31 +24,19 @@ void ChunkStack::Set(const ChunkStack &cs)
 
 const ChunkStack::Entry *ChunkStack::Top() const
 {
-   if (!m_cse.empty())
-   {
-      return(&m_cse[m_cse.size() - 1]);
-   }
-   return(nullptr);
+   return (m_cse.empty() == false) ? (&m_cse[m_cse.size() - 1]) : (nullptr);
 }
 
 
 const ChunkStack::Entry *ChunkStack::Get(size_t idx) const
 {
-   if (idx < m_cse.size())
-   {
-      return(&m_cse[idx]);
-   }
-   return(nullptr);
+   return (idx < m_cse.size()) ? (&m_cse[idx]) : (nullptr);
 }
 
 
 chunk_t *ChunkStack::GetChunk(size_t idx) const
 {
-   if (idx < m_cse.size())
-   {
-      return(m_cse[idx].m_pc);
-   }
-   return(nullptr);
+   return (idx < m_cse.size()) ? (m_cse[idx].m_pc) : (nullptr);
 }
 
 
