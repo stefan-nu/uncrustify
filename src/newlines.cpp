@@ -1823,7 +1823,7 @@ static void newline_iarf_pair(chunk_t *before, chunk_t *after, argval_t av)
       if (is_option_set(av, AV_ADD))
       {
          chunk_t *nl = newline_add_between(before, after);
-         if ( (nl != nullptr      ) &&
+         if ( (nl != nullptr   ) &&
               (av == AV_FORCE  ) &&
               (nl->nl_count > 1) )
          {
@@ -1847,6 +1847,47 @@ void newline_iarf(chunk_t *pc, argval_t av)
 }
 
 
+/*
+ * count how many commas are present
+ */
+static size_t count_commas(
+   chunk_t **end,               /**< [out] chunk where counting stopped */
+   chunk_t *start,              /**< [in]  chunk to start with */
+   const argval_t newline,      /**< [in]  defines if a newline is added */
+   const bool force_nl = false  /**< [in]  add newline independently of existing newline */
+);
+
+
+static size_t count_commas(chunk_t **end, chunk_t *start, const argval_t newline, bool force_nl)
+{
+   chunk_t *pc = *end;
+   size_t comma_count = 0;
+   for ( pc = chunk_get_next_ncnl(start);
+        (pc != nullptr           ) &&
+        (pc->level > start->level);
+         pc = chunk_get_next_ncnl(pc))
+   {
+      if ((pc->type  == CT_COMMA        ) &&
+          (pc->level == (start->level+1)) )
+      {
+         comma_count++;
+         chunk_t *tmp = chunk_get_next(pc);
+         if (chunk_is_comment(tmp))
+         {
+            pc = tmp;
+         }
+
+         if ((force_nl                             == true ) ||
+             (chunk_is_newline(chunk_get_next(pc)) == false) )
+         {
+            newline_iarf(pc, newline);
+         }
+      }
+   }
+   return comma_count;
+}
+
+
 static void newline_func_multi_line(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
@@ -1859,13 +1900,15 @@ static void newline_func_multi_line(chunk_t *start)
    bool add_args;
    bool add_end;
 
-   if ((start->parent_type == CT_FUNC_DEF) || (start->parent_type == CT_FUNC_CLASS_DEF))
+   if ((start->parent_type == CT_FUNC_DEF      ) ||
+       (start->parent_type == CT_FUNC_CLASS_DEF) )
    {
       add_start = cpd.settings[UO_nl_func_def_start_multi_line].b;
       add_args  = cpd.settings[UO_nl_func_def_args_multi_line ].b;
       add_end   = cpd.settings[UO_nl_func_def_end_multi_line  ].b;
    }
-   else if ((start->parent_type == CT_FUNC_CALL) || (start->parent_type == CT_FUNC_CALL_USER))
+   else if ((start->parent_type == CT_FUNC_CALL     ) ||
+            (start->parent_type == CT_FUNC_CALL_USER) )
    {
       add_start = cpd.settings[UO_nl_func_call_start_multi_line].b;
       add_args  = cpd.settings[UO_nl_func_call_args_multi_line ].b;
@@ -1878,43 +1921,30 @@ static void newline_func_multi_line(chunk_t *start)
       add_end   = cpd.settings[UO_nl_func_decl_end_multi_line  ].b;
    }
 
-   if (!add_start && !add_args && !add_end)
+   if((add_start == false) &&
+      (add_args  == false) &&
+      (add_end   == false) )
    {
       return;
    }
 
    chunk_t *pc = chunk_get_next_ncnl(start);
-   while ((pc != nullptr) && (pc->level > start->level))
+   while ((pc        != nullptr     ) &&
+          (pc->level >  start->level) )
    {
       pc = chunk_get_next_ncnl(pc);
    }
 
-   if ((pc != nullptr) && (pc->type == CT_FPAREN_CLOSE) && chunk_is_newline_between(start, pc))
+   if ((pc       != nullptr        ) &&
+       (pc->type == CT_FPAREN_CLOSE) &&
+       chunk_is_newline_between(start, pc))
    {
       if (add_start && !chunk_is_newline(chunk_get_next(start))) { newline_iarf(start,              AV_ADD); }
       if (add_end   && !chunk_is_newline(chunk_get_prev(pc)   )) { newline_iarf(chunk_get_prev(pc), AV_ADD); }
 
       if (add_args)
-      {  /* \todo avoid modifying pc in loop */
-         for (pc = chunk_get_next_ncnl(start);
-              (pc != nullptr) && (pc->level > start->level);
-              pc = chunk_get_next_ncnl(pc))
-         {
-            if ((pc->type  == CT_COMMA          ) &&
-                (pc->level == (start->level + 1)) )
-            {
-               chunk_t *tmp = chunk_get_next(pc);
-               if (chunk_is_comment(tmp))
-               {
-                  pc = tmp;
-               }
-
-               if (!chunk_is_newline(chunk_get_next(pc)))
-               {
-                  newline_iarf(pc, AV_ADD);
-               }
-            }
-         }
+      {
+         count_commas(&pc, start, AV_ADD);
       }
    }
 }
@@ -1955,10 +1985,10 @@ static void newline_func_def(chunk_t *start)
       newline_iarf(chunk_get_prev_ncnl(prev), cpd.settings[UO_nl_func_class_scope].a);
    }
 
-   chunk_t *tmp;
    if ((prev       != nullptr         ) &&
        (prev->type != CT_PRIVATE_COLON) )
    {
+      chunk_t *tmp;
       if (prev->type == CT_OPERATOR)
       {
          tmp  = prev;
@@ -2004,8 +2034,7 @@ static void newline_func_def(chunk_t *start)
             }
 
             /* If we are on a '::', step back two tokens
-             * TODO: do we also need to check for '.' ?
-             */
+             * TODO: do we also need to check for '.' ? */
             while ((prev       != nullptr     ) &&
                    (prev->type == CT_DC_MEMBER) )
             {
@@ -2038,24 +2067,30 @@ static void newline_func_def(chunk_t *start)
    }
 
    /* Now scan for commas */
+   uo_t option = ((start->parent_type == CT_FUNC_DEF      ) ||
+                  (start->parent_type == CT_FUNC_CLASS_DEF) ) ?
+                   UO_nl_func_def_args : UO_nl_func_decl_args;
+#if 0
+   size_t comma_count = count_commas(&pc, start, cpd.settings[option].a, true);
+   /* \bug returning pc does not work */
+#else
    size_t comma_count = 0;
    for ( pc = chunk_get_next_ncnl(start);
         (pc != nullptr           ) &&
         (pc->level > start->level);
          pc = chunk_get_next_ncnl(pc))
    {
-      if ((pc->type == CT_COMMA) && (pc->level == (start->level + 1)))
+      if ((pc->type  == CT_COMMA        ) &&
+          (pc->level == (start->level+1)) )
       {
          comma_count++;
-         tmp = chunk_get_next(pc);
+         chunk_t *tmp = chunk_get_next(pc);
          if (chunk_is_comment(tmp)) { pc = tmp; }
 
-         uo_t option = ((start->parent_type == CT_FUNC_DEF      ) ||
-                        (start->parent_type == CT_FUNC_CLASS_DEF) ) ?
-                         UO_nl_func_def_args : UO_nl_func_decl_args;
          newline_iarf(pc, cpd.settings[option].a);
       }
    }
+#endif
 
    argval_t as = cpd.settings[is_def ? UO_nl_func_def_start : UO_nl_func_decl_start].a;
    argval_t ae = cpd.settings[is_def ? UO_nl_func_def_end   : UO_nl_func_decl_end  ].a;
@@ -2074,7 +2109,7 @@ static void newline_func_def(chunk_t *start)
    }
    newline_iarf(start, as);
 
-   /* and fix up the close paren */
+   /* and fix up the close parenthesis */
    if ((pc       != nullptr        ) &&
        (pc->type == CT_FPAREN_CLOSE) )
    {
@@ -2556,9 +2591,9 @@ void newlines_cleanup_braces(bool first)
             }
          }
          else if (cpd.settings[UO_nl_ds_struct_enum_close_brace].b &&
-                  ((pc->parent_type == CT_ENUM) ||
+                  ((pc->parent_type == CT_ENUM  ) ||
                    (pc->parent_type == CT_STRUCT) ||
-                   (pc->parent_type == CT_UNION)))
+                   (pc->parent_type == CT_UNION ) ) )
          {
             if ((pc->flags & PCF_ONE_LINER) == 0)
             {
@@ -2580,21 +2615,21 @@ void newlines_cleanup_braces(bool first)
          /* Force a newline after a close brace */
          if ((cpd.settings[UO_nl_brace_struct_var].a != AV_IGNORE) &&
              ((pc->parent_type == CT_STRUCT) ||
-              (pc->parent_type == CT_ENUM) ||
-              (pc->parent_type == CT_UNION)))
+              (pc->parent_type == CT_ENUM  ) ||
+              (pc->parent_type == CT_UNION ) ) )
          {
             next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
             if (next &&
                 (next->type != CT_SEMICOLON) &&
-                (next->type != CT_COMMA))
+                (next->type != CT_COMMA    ) )
             {
                newline_iarf(pc, cpd.settings[UO_nl_brace_struct_var].a);
             }
          }
          else if (cpd.settings[UO_nl_after_brace_close].b ||
                   (pc->parent_type == CT_FUNC_CLASS_DEF) ||
-                  (pc->parent_type == CT_FUNC_DEF) ||
-                  (pc->parent_type == CT_OC_MSG_DECL))
+                  (pc->parent_type == CT_FUNC_DEF      ) ||
+                  (pc->parent_type == CT_OC_MSG_DECL   ) )
          {
             next = chunk_get_next(pc);
             if ((next       != nullptr        ) &&
@@ -2606,8 +2641,8 @@ void newlines_cleanup_braces(bool first)
                 (next->type != CT_WHILE_OF_DO ) &&
                 (next->type != CT_VBRACE_CLOSE) &&  // Issue #666
                 ((pc->flags & (PCF_IN_ARRAY_ASSIGN | PCF_IN_TYPEDEF)) == 0) &&
-                !chunk_is_newline(next) &&
-                !chunk_is_comment(next))
+                chunk_is_newline(next) == false &&
+                chunk_is_comment(next) == false)
             {
                newline_end_newline(pc);
             }
@@ -2703,7 +2738,8 @@ void newlines_cleanup_braces(bool first)
       else if (pc->type == CT_THROW)
       {
          prev = chunk_get_prev(pc);
-         if (prev && (prev->type == CT_PAREN_CLOSE))
+         if ((prev       != nullptr       ) &&
+             (prev->type == CT_PAREN_CLOSE) )
          {
             newline_iarf(chunk_get_prev_ncnl(pc), cpd.settings[UO_nl_before_throw].a);
          }

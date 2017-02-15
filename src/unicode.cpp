@@ -151,7 +151,7 @@ void encode_utf8(UINT32 ch, vector<UINT8> &res)
    else if (ch < 0x200000)
    {
       /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xF0 | ((ch >> 18)       ));
+      res.push_back(0xF0 | ((ch >> 18)       ));   /* \todo DRY */
       res.push_back(0x80 | ((ch >> 12) & 0x3f));
       res.push_back(0x80 | ((ch >>  6) & 0x3f));
       res.push_back(0x80 | ((ch >>  0) & 0x3f));

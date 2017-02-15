@@ -886,6 +886,8 @@ chunk_t *chunk_skip_to_match_rev(chunk_t *cur, scope_e scope)
    return(cur);
 }
 
+/* \todo use a type check function with variable number of arguments to check for more than one type
+ * this function can then be called by all other check functions */
 
 bool chunk_is_function(chunk_t *pc)
 {
@@ -1073,6 +1075,12 @@ bool chunk_is_ptr_operator(chunk_t *pc)
           chunk_is_msref(pc) );
 }
 
+
+bool chunk_is_member(chunk_t *pc)
+{
+   return ((pc != nullptr) && ((pc->type == CT_DC_MEMBER) ||
+                               (pc->type == CT_MEMBER   ) ) );
+}
 
 bool chunk_is_closing_brace(chunk_t *pc)
 {

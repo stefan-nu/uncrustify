@@ -716,6 +716,15 @@ bool chunk_is_msref(
 
 
 /**
+ * check if a chunk is a member sign
+ * thus is either "->" or "::"
+ */
+bool chunk_is_member(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+/**
  * tbd
  */
 bool chunk_is_closing_brace(

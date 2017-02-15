@@ -70,19 +70,20 @@
 #endif
 
 
-/** tbd */
+/** type to map a programming language to a typically used filename extension */
 struct lang_ext_t
 {
-   const char *ext;
-   const char *name;
+   const char *ext;  /**< filename extension typically used for ... */
+   const char *name; /**< a programming language */
 };
 
 
-/** maps file extensions to language names */
+/** list of programming languages and there filename extensions that are
+ *  known by uncrustify */
 const struct lang_ext_t language_exts[] =
 {
-   { ".c",    "C"    },
-   { ".cpp",  "CPP"  },
+   { ".c",    "C"    }, /* \todo the programming languages should */
+   { ".cpp",  "CPP"  }, /* better use an enum */
    { ".d",    "D"    },
    { ".cs",   "CS"   },
    { ".vala", "VALA" },
@@ -108,10 +109,11 @@ const struct lang_ext_t language_exts[] =
 };
 
 
+/** */
 struct lang_name_t
 {
-   const char *name;
-   size_t     lang;
+   const char *name;  /**<  */
+   size_t     lang;   /**<  */
 };
 
 
@@ -165,10 +167,12 @@ static bool read_stdin(
 
 
 /**
- * tbd
+ * create all folders required for a given path
+ * if necessary several subfolders are created until
+ * the full path was created on disk
  */
 static void make_folders(
-   const string &filename  /**< [in]  */
+   const string &filename  /**< [in] full path to create */
 );
 
 
@@ -1030,6 +1034,7 @@ int main(int argc, char *argv[])
    else
    {
       /* Doing multiple files */
+      /* \todo start multiple threads to process several files in parallel */
       if (prefix != nullptr) { LOG_FMT(LSYS, "Output prefix: %s/\n", prefix); }
       if (suffix != nullptr) { LOG_FMT(LSYS, "Output suffix: %s\n",  suffix); }
 
@@ -1039,8 +1044,8 @@ int main(int argc, char *argv[])
       {
          char outbuf[1024];
          do_source_file(p_arg,
-                        make_output_filename(outbuf, sizeof(outbuf), p_arg, prefix, suffix),
-                        nullptr, no_backup, keep_mtime);
+               make_output_filename(outbuf, sizeof(outbuf), p_arg, prefix, suffix),
+               nullptr, no_backup, keep_mtime);
       }
 
       if (source_list != nullptr)
@@ -1052,12 +1057,8 @@ int main(int argc, char *argv[])
    clear_keyword_file();
    clear_defines();
 
-   if (cpd.error_count != 0)
-   {
-      return(EXIT_FAILURE);
-   }
-   if (cpd.do_check            &&
-      (cpd.check_fail_cnt != 0))
+   if ((                           cpd.error_count    != 0 ) ||
+       ((cpd.do_check == true) && (cpd.check_fail_cnt != 0)) )
    {
       return(EXIT_FAILURE);
    }
@@ -1112,8 +1113,8 @@ static void process_source_list(const char * const source_list, const char *pref
       {
          char outbuf[1024];
          do_source_file(fname,
-                        make_output_filename(outbuf, sizeof(outbuf), fname, prefix, suffix),
-                        nullptr, no_backup, keep_mtime);
+               make_output_filename(outbuf, sizeof(outbuf), fname, prefix, suffix),
+               nullptr, no_backup, keep_mtime);
       }
    }
 
@@ -1164,29 +1165,32 @@ bool char_is_path_separation(const char character)
 }
 
 
+#define FOLDER_RIGHTS 0750 /**< rights used to create a new (sub-)folder */
 static void make_folders(const string &filename)
 {
    char   outname[4096];
    snprintf(outname, sizeof(outname), "%s", filename.c_str());
 
-   size_t last_idx = 0;
+   size_t start_of_subpath = 0;
    for (size_t idx = 0; outname[idx] != 0; idx++)
    {
+      /* use the path separation symbol that corresponds to the
+       * system uncrustify was build for */
       if(char_is_path_separation(outname[idx]))
       {
          outname[idx] = PATH_SEP;
       }
 
-      if ((idx > last_idx) && (outname[idx] == PATH_SEP))
+      if ((idx          > start_of_subpath ) && /* search until end of subpath */
+          (outname[idx] == PATH_SEP) )  /* is found */
       {
-         outname[idx] = 0;
+         outname[idx] = 0; /* mark the end of the subpath */
 
-         if ((strcmp(&outname[last_idx], "." ) != 0) &&
-             (strcmp(&outname[last_idx], "..") != 0) )
+         /* create subfolder if it is not the start symbol of a path */
+         if ((strcmp(&outname[start_of_subpath], "." ) != 0) &&
+             (strcmp(&outname[start_of_subpath], "..") != 0) )
          {
-            //fprintf(stderr, "%s: %s\n", __func__, outname);
-            int status;    // Coverity CID 75999
-            status = mkdir(outname, 0750);
+            int status = mkdir(outname, FOLDER_RIGHTS);
             if ((status != 0     ) &&
                 (errno  != EEXIST) )
             {
@@ -1196,12 +1200,12 @@ static void make_folders(const string &filename)
                return;
             }
          }
-         outname[idx] = PATH_SEP;
+         outname[idx] = PATH_SEP; /* reconstruct full path to search for next subpath */
       }
 
       if (outname[idx] == PATH_SEP)
       {
-         last_idx = idx + 1;
+         start_of_subpath = idx + 1;
       }
    }
 }
@@ -1217,11 +1221,11 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
    struct stat my_stat;
    if (stat(filename, &my_stat) < 0)
    {
-      return(false);
+      return(false); /* stat of file could not be read */
    }
 
 #ifdef HAVE_UTIME_H
-   /* Save off mtime */
+   /* Save off modification time */
    fm.utb.modtime = my_stat.st_mtime;
 #endif
 
@@ -1234,12 +1238,11 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 
    bool success = false;
    fm.raw.resize((size_t)my_stat.st_size);
-   if (my_stat.st_size == 0)
+   if (my_stat.st_size == 0) /* check if file is empty */
    {
-      /* Empty file */
       success = true;
-      fm.bom = false;
-      fm.enc = char_encoding_e::ASCII;
+      fm.bom  = false;
+      fm.enc  = char_encoding_e::ASCII;
       fm.data.clear();
    }
    else
@@ -1504,7 +1507,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    /* If we're only going to write on an actual change, then build the output buffer now
     * and if there were changes, run it through the normal file write path.
     *
-    * Future: many code paths could be simplified if 'bout' were always used and not
+    * \todo: many code paths could be simplified if 'bout' were always used and not
     * optionally selected in just for do_check and if_changed. */
    if (cpd.if_changed == true)
    {
@@ -1519,7 +1522,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    }
 
    string filename_tmp;
-   bool   need_backup = false;
+   bool   need_backup = false;   /* define if we want a backup copy */
    bool   did_open    = false;
    FILE   *pfout      = nullptr;
    if (cpd.do_check == false)
@@ -2260,7 +2263,7 @@ void print_extensions(FILE *pfile)
    }
 }
 
-
+/* \todo better use an enum for source file language */
 static size_t language_flags_from_filename(const char *filename)
 {
    /* check custom extensions first */

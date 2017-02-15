@@ -18,7 +18,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.2133173411." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.debug.531800406" name="MinGW GCC" nonInternalBuilderId="cdt.managedbuild.builder.gnu.cross" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.mingw.exe.debug.1834600426" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.debug"/>
-							<builder buildPath="${workspace_loc:/uncrustify}/Debug" id="cdt.managedbuild.builder.gnu.cross.760474509" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="false" stopOnErr="true" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/uncrustify}/Debug" id="cdt.managedbuild.builder.gnu.cross.760474509" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="unlimited" stopOnErr="true" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.1805603697" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.891196118" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -482,35 +482,35 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="GCov"/>
+		<configuration configurationName="test">
+			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
+		</configuration>
+		<configuration configurationName="debug_linux">
+			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
+		</configuration>
+		<configuration configurationName="GCov_win">
+			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
+		</configuration>
+		<configuration configurationName="Coverage"/>
+		<configuration configurationName="GProf_win"/>
+		<configuration configurationName="Gcov_linux">
+			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
+		</configuration>
+		<configuration configurationName="Profile"/>
+		<configuration configurationName="GProf"/>
+		<configuration configurationName="pclint">
+			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
+		</configuration>
+		<configuration configurationName="Debug_win"/>
 		<configuration configurationName="pclint_win"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
 		</configuration>
 		<configuration configurationName="Debug_linux"/>
-		<configuration configurationName="Coverage"/>
-		<configuration configurationName="GCov"/>
-		<configuration configurationName="test">
-			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
-		</configuration>
-		<configuration configurationName="GCov_win">
-			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
-		</configuration>
-		<configuration configurationName="Debug_win"/>
-		<configuration configurationName="debug_linux">
-			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
-		</configuration>
-		<configuration configurationName="Profile"/>
-		<configuration configurationName="Gcov_linux">
-			<resource resourceType="PROJECT" workspacePath="/uncrustify_nuinno"/>
-		</configuration>
-		<configuration configurationName="GProf_win"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
 		</configuration>
-		<configuration configurationName="pclint">
-			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
-		</configuration>
-		<configuration configurationName="GProf"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">

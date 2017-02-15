@@ -22,14 +22,14 @@
 /** tbd */
 struct cmt_reflow
 {
-   chunk_t  *pc;
-   size_t   column;        /* Column of the comment start */
-   size_t   brace_col;     /* Brace column (for indenting with tabs) */
-   size_t   base_col;      /* Base column (for indenting with tabs) */
-   size_t   word_count;    /* number of words on this line */
-   size_t   xtra_indent;   /* extra indent of non-first lines (0 or 1) */
-   unc_text cont_text;     /* fixed text to output at the start of a line (0 to 3 chars) */
-   bool     reflow;        /* reflow the current line */
+   chunk_t  *pc;           /**<   */
+   size_t   column;        /**< Column of the comment start */
+   size_t   brace_col;     /**< Brace column (for indenting with tabs) */
+   size_t   base_col;      /**< Base column (for indenting with tabs) */
+   size_t   word_count;    /**< number of words on this line */
+   size_t   xtra_indent;   /**< extra indent of non-first lines (0 or 1) */
+   unc_text cont_text;     /**< fixed text to output at the start of a line (0 to 3 chars) */
+   bool     reflow;        /**< reflow the current line */
 };
 
 
@@ -46,7 +46,7 @@ struct kw_subst_t
  * to get the comment to line up.
  */
 static void output_comment_multi(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -54,8 +54,8 @@ static void output_comment_multi(
  * tbd
  */
 static bool kw_fcn_filename(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,     /**< [in]  */
+   unc_text &out_txt  /**< [in]  */
 );
 
 
@@ -63,8 +63,8 @@ static bool kw_fcn_filename(
  * tbd
  */
 static bool kw_fcn_class(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,     /**< [in]  */
+   unc_text &out_txt  /**< [in]  */
 );
 
 
@@ -72,8 +72,8 @@ static bool kw_fcn_class(
  * tbd
  */
 static bool kw_fcn_message(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,    /**< [in]  */
+   unc_text &out_txt /**< [in]  */
 );
 
 
@@ -81,8 +81,8 @@ static bool kw_fcn_message(
  * tbd
  */
 static bool kw_fcn_category(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,     /**< [in]  */
+   unc_text &out_txt  /**< [in]  */
 );
 
 
@@ -90,8 +90,8 @@ static bool kw_fcn_category(
  * tbd
  */
 static bool kw_fcn_scope(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,    /**< [in]  */
+   unc_text &out_txt /**< [in]  */
 );
 
 
@@ -99,8 +99,8 @@ static bool kw_fcn_scope(
  * tbd
  */
 static bool kw_fcn_function(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,    /**< [in]  */
+   unc_text &out_txt /**< [in]  */
 );
 
 
@@ -111,8 +111,8 @@ static bool kw_fcn_function(
  * Likewise, if the return value is 'void', then no @return is added.
  */
 static bool kw_fcn_javaparam(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,    /**< [in]  */
+   unc_text &out_txt /**< [in]  */
 );
 
 
@@ -120,8 +120,8 @@ static bool kw_fcn_javaparam(
  * tbd
  */
 static bool kw_fcn_fclass(
-   chunk_t  *cmt,
-   unc_text &out_txt
+   chunk_t  *cmt,    /**< [in]  */
+   unc_text &out_txt /**< [in]  */
 );
 
 
@@ -131,8 +131,8 @@ static bool kw_fcn_fclass(
  * Trim trailing whitespace and do keyword substitution.
  */
 static void output_comment_multi_simple(
-   chunk_t *pc,
-   bool    kw_subst
+   chunk_t *pc,      /**< [in]  */
+   bool    kw_subst  /**< [in]  */
 );
 
 
@@ -151,7 +151,7 @@ static void generate_if_conditional_as_text(
  * of keyword.
  */
 static void do_keyword_substitution(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -159,7 +159,7 @@ static void do_keyword_substitution(
  * All output text is sent here, one char at a time.
  */
 static void add_char(
-   UINT32 ch
+   UINT32 ch /**< [in]  */
 );
 
 
@@ -167,7 +167,7 @@ static void add_char(
  * tbd
  */
 static void add_text(
-   const char *ascii_text
+   const char *ascii_text /**< [in]  */
 );
 
 
@@ -175,8 +175,8 @@ static void add_text(
  * tbd
  */
 static void add_text(
-   const unc_text &text,
-   bool           is_ignored
+   const unc_text &text,     /**< [in]  */
+   bool           is_ignored /**< [in]  */
 );
 
 
@@ -185,8 +185,8 @@ static void add_text(
  * If it exceeds the limit, return true.
  */
 static bool next_word_exceeds_limit(
-   const unc_text &text,
-   size_t         idx
+   const unc_text &text,  /**< [in]  */
+   size_t         idx     /**< [in]  */
 );
 
 
@@ -231,9 +231,9 @@ void fill_line_with_spaces(
  * @param column    the column that we should end up in
  */
 static void cmt_output_indent(
-   size_t brace_col,
-   size_t base_col,
-   size_t column
+   size_t brace_col, /**< [in]  */
+   size_t base_col,  /**< [in]  */
+   size_t column     /**< [in]  */
 );
 
 
@@ -244,8 +244,8 @@ static void cmt_output_indent(
  * @return 0=not present, >0=number of chars that are part of the lead
  */
 static size_t cmt_parse_lead(
-   const unc_text &line,
-   bool           is_last
+   const unc_text &line,   /**< [in]  */
+   bool           is_last  /**< [in]  */
 );
 
 
@@ -276,8 +276,8 @@ static size_t cmt_parse_lead(
  * @return          cmt.xtra_indent is set to 0 or 1
  */
 static void calculate_comment_body_indent(
-   cmt_reflow     &cmt,
-   const unc_text &str
+   cmt_reflow     &cmt, /**< [in]  */
+   const unc_text &str  /**< [in]  */
 );
 
 
@@ -285,9 +285,9 @@ static void calculate_comment_body_indent(
  * tbd
  */
 static int next_up(
-   const unc_text &text,
-   size_t         idx,
-   const unc_text &tag
+   const unc_text &text, /**< [in]  */
+   size_t         idx,   /**< [in]  */
+   const unc_text &tag   /**< [in]  */
 );
 
 
@@ -298,7 +298,7 @@ static int next_up(
  * @return the last chunk output'd
  */
 static chunk_t *output_comment_c(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -309,7 +309,7 @@ static chunk_t *output_comment_c(
  * @return the last chunk output'd
  */
 static chunk_t *output_comment_cpp(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -317,8 +317,8 @@ static chunk_t *output_comment_cpp(
  * tbd
  */
 static void cmt_trim_whitespace(
-   unc_text &line,
-   bool     in_preproc
+   unc_text &line,      /**< [in]  */
+   bool     in_preproc  /**< [in]  */
 );
 
 
@@ -334,9 +334,9 @@ static void cmt_trim_whitespace(
  * combined.
  */
 static void add_comment_text(
-   const unc_text &text,
-   cmt_reflow     &cmt,
-   bool           esc_close
+   const unc_text &text,     /**< [in]  */
+   cmt_reflow     &cmt,      /**< [in]  */
+   bool           esc_close  /**< [in]  */
 );
 
 
@@ -344,21 +344,22 @@ static void add_comment_text(
  * tbd
  */
 static void output_cmt_start(
-   cmt_reflow &cmt,
-   chunk_t    *pc
+   cmt_reflow &cmt, /**< [in]  */
+   chunk_t    *pc   /**< [in]  */
 );
 
 
 /**
- * Checks to see if the current comment can be combined with the next comment.
- * The two can be combined if:
+ * Checks if the current comment can be combined with the next comment.
+ *
+ * Two comments can be combined if:
  *  1. They are the same type
- *  2. There is exactly one newline between then
+ *  2. There is exactly one newline between them
  *  3. They are indented to the same level
  */
 static bool can_combine_comment(
-   chunk_t          *pc,
-   const cmt_reflow &cmt
+   chunk_t          *pc,   /**< [in] chunk with first comment */
+   const cmt_reflow &cmt   /**< [in]  */
 );
 
 
@@ -371,6 +372,15 @@ static bool can_combine_comment(
  */
 bool is_dos_newline(
    const int* pchar /**< [in] pointer to first character of line ending */
+);
+
+
+/**
+ * Checks if a line of source code has a whitespace character
+ * at its end. Whitespace is either a space or a tabstop.
+ */
+static bool line_has_trailing_whitespace(
+   unc_text &line /**< [in] line to check */
 );
 
 
@@ -1119,9 +1129,12 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
-   assert(pc != nullptr);
-   /* We can't combine if there is something other than a newline next */
-   if (pc->parent_type == CT_COMMENT_START) { return(false); }
+   /* We can't combine if ... */
+   if ((pc              == nullptr         ) || /* chunk is invalid or */
+       (pc->parent_type == CT_COMMENT_START) )  /* there is something other than a newline next */
+   {
+      return(false);
+   }
 
    /* next is a newline for sure, make sure it is a single newline */
    chunk_t *next = chunk_get_next(pc);
@@ -1140,6 +1153,28 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
       }
    }
    return(false);
+}
+
+
+/**
+ * tbd
+ */
+void combine_comment(
+   unc_text &tmp,   /**< [in]  */
+   chunk_t *pc,     /**< [in]  */
+   cmt_reflow &cmt  /**< [in]  */
+);
+
+/* \todo is this fct name correct? */
+void combine_comment(unc_text &tmp, chunk_t *pc, cmt_reflow &cmt)
+{
+   tmp.set(pc->str, 2, pc->len() - 4);
+   if ((cpd.last_char == '*'  ) &&
+        (tmp[0]       == SLASH) )
+   {
+      add_text(" ");
+   }
+   add_comment_text(tmp, cmt, false);
 }
 
 
@@ -1165,7 +1200,7 @@ static chunk_t *output_comment_c(chunk_t *first)
    cmt.cont_text = cpd.settings[UO_cmt_star_cont].b ? " *" : "  ";
    LOG_CONTTEXT();
 
-   add_text("/*");
+   add_text("/*"); /* comment start */
    if (cpd.settings[UO_cmt_c_nl_start].b)
    {
       add_comment_text("\n", cmt, false);
@@ -1175,29 +1210,12 @@ static chunk_t *output_comment_c(chunk_t *first)
    unc_text tmp;
    while (can_combine_comment(pc, cmt))
    {
-      // \todo DRY 3 start
-      tmp.set(pc->str, 2, pc->len() - 4);
-      if ((cpd.last_char == '*'  ) &&
-           (tmp[0]       == SLASH) )
-      {
-         add_text(" ");
-      }
-      add_comment_text(tmp,  cmt, false);
-      // \todo DRR 3 end
+      combine_comment(tmp, pc, cmt);
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
    }
    assert(pc != nullptr);
-
-   // \todo DRY 3 start
-   tmp.set(pc->str, 2, pc->len() - 4);
-   if ((cpd.last_char == '*'  ) &&
-       (tmp[0]        == SLASH) )
-   {
-      add_text(" ");
-   }
-   add_comment_text(tmp, cmt, false);
-   // \todo DRR 3 end
+   combine_comment(tmp, pc, cmt);
 
    if (cpd.settings[UO_cmt_c_nl_end].b)
    {
@@ -1205,9 +1223,17 @@ static chunk_t *output_comment_c(chunk_t *first)
       LOG_CONTTEXT();
       add_comment_text("\n", cmt, false);
    }
-   add_comment_text("*/", cmt, false);
+   add_comment_text("*/", cmt, false); /* comment end */
    return(pc);
 }
+
+
+/** \todo fct name */
+void do_something(
+   int      &offs, /**< [in]  */
+   chunk_t  *pc,   /**< [in]  */
+   unc_text &tmp   /**< [in]  */
+);
 
 
 static chunk_t *output_comment_cpp(chunk_t *first)
@@ -1346,20 +1372,20 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 
    while (can_combine_comment(pc, cmt))
    {
-      offs = unc_isspace(pc->str[2]) ? 1 : 0;
-      tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
-      if ((cpd.last_char == '*') && (tmp[0] == SLASH))
+      do_something(offs, pc, tmp);
+
+      if ((cpd.last_char == '*'  ) &&
+          (tmp[0]        == SLASH) )
       {
          add_text(" ");
       }
       add_comment_text(tmp,  cmt, true );
       add_comment_text("\n", cmt, false);
       pc = chunk_get_next(chunk_get_next(pc));
+      assert(pc != nullptr);
    }
+   do_something(offs, pc, tmp);
 
-   assert(pc != nullptr);
-   offs = unc_isspace(pc->str[2]) ? 1 : 0;
-   tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
    add_comment_text(tmp, cmt, true);
    if (cpd.settings[UO_cmt_cpp_nl_end].b)
    {
@@ -1372,28 +1398,39 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 }
 
 
+void do_something(int &offs, chunk_t *pc, unc_text &tmp)
+{
+   offs = unc_isspace(pc->str[2]) ? 1 : 0;
+   tmp.set(pc->str, (size_t)(2 + offs), (size_t)((int)pc->len() - 2 + offs));
+}
+
+
+static bool line_has_trailing_whitespace(unc_text &line)
+{
+   return ((line.size() > 0       )   &&
+          ((line.back() == SPACE  ) ||
+           (line.back() == TABSTOP) ) );
+}
+
 static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
 {
    /* Remove trailing whitespace on the line */
-   while ( (line.size() > 0       )   &&
-          ((line.back() == SPACE  ) ||
-           (line.back() == TABSTOP) ) )
+   while(line_has_trailing_whitespace(line))
    {
       line.pop_back();
    }
 
-   /* If in a preproc, shift any bs-nl back to the comment text */
-   if((in_preproc  == true     ) &&
-      (line.size() >  1        ) &&
-      (line.back() == BACKSLASH) )
+   /* Shift back to the comment text, ... */
+   if((in_preproc  == true     ) &&  /* if in a preproc ... */
+      (line.size() >  1        ) &&  /* with a line that holds ... */
+      (line.back() == BACKSLASH) )   /* a backslash-newline ... */
    {
       bool do_space = false;
 
       /* If there was any space before the backslash, change it to 1 space */
       line.pop_back();
-      while ( (line.size() >   0     )   &&
-             ((line.back() == SPACE  ) ||
-              (line.back() == TABSTOP) ) )
+
+      while(line_has_trailing_whitespace(line))
       {
          do_space = true;
          line.pop_back();
@@ -1562,7 +1599,7 @@ static void output_comment_multi(chunk_t *pc)
       line.append(ch);
 
       /* If we ... */
-      if ((ch      == LINEFEED     ) || /* hit an end of line sign or */
+      if ((ch      == LINEFEED ) || /* hit an end of line sign or */
           (cmt_idx == pc->len()) )  /* hit an end-of-comment */
       {
          line_count++;
@@ -1935,8 +1972,12 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
          tmp = chunk_get_prev_ncnl(tmp);
       }
 
+#if 1
+      if(chunk_is_member(tmp))
+#else
       if ((tmp != nullptr) && ((tmp->type == CT_DC_MEMBER) ||
                                (tmp->type == CT_MEMBER   ) ) )
+#endif
       {
          tmp = chunk_get_prev_ncnl(tmp);
          assert(tmp != nullptr);

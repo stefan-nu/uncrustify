@@ -32,10 +32,10 @@ struct tok_info
    {
    }
 
-   size_t last_ch;
-   size_t idx;
-   size_t row;
-   size_t col;
+   size_t last_ch;  /**< [in]  */
+   size_t idx;      /**< [in]  */
+   size_t row;      /**< [in]  */
+   size_t col;      /**< [in]  */
 };
 
 struct tok_ctx

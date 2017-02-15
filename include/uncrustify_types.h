@@ -362,14 +362,15 @@ struct align_t
 };
 
 
+/** holds information and data of a file */
 struct file_mem_t
 {
-   vector<UINT8>   raw;
-   deque<int>      data;
-   bool            bom;
-   char_encoding_e enc;
+   vector<UINT8>   raw;   /**< raw content of file  */
+   deque<int>      data;  /**< processed content of file  */
+   bool            bom;   /**<  */
+   char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
 #ifdef HAVE_UTIME_H
-   struct utimbuf  utb;
+   struct utimbuf  utb;   /**<  */
 #endif
 };
 
@@ -399,7 +400,7 @@ struct cp_data_t
    int             check_fail_cnt;    // total failures
    bool            if_changed;
 
-   UINT32          error_count;
+   UINT32          error_count;     /**< counts how many errors occurred so far */
    const char      *filename;
 
    file_mem_t      file_hdr;       // for cmt_insert_file_header
@@ -408,7 +409,7 @@ struct cp_data_t
    file_mem_t      oc_msg_hdr;     // for cmt_insert_oc_msg_header
    file_mem_t      class_hdr;      // for cmt_insert_class_header
 
-   size_t          lang_flags;    // LANG_xxx
+   size_t          lang_flags;     /**< defines the language of the source input LANG_xxx */
    bool            lang_forced;
 
    bool            unc_off;

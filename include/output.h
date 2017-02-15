@@ -16,7 +16,7 @@
  * This renders the chunk list to a file.
  */
 void output_text(
-   FILE *pfile
+   FILE *pfile  /**< [in]  */
 );
 
 
@@ -24,7 +24,7 @@ void output_text(
  * tbd
  */
 void output_parsed(
-   FILE *pfile
+   FILE *pfile  /**< [in]  */
 );
 
 

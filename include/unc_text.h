@@ -336,6 +336,9 @@ public:
    }
 
 
+   /*
+    * returns the last element of the character list
+    */
    int &back()
    {
       /* \todo returning a temporary via a reference
