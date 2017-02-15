@@ -26,11 +26,12 @@ defmap defines;
 
 void add_define(const char *tag, const char *value)
 {
-   if ((tag == nullptr) || (*tag == 0))
+   if ((tag  == nullptr) ||
+       (*tag == 0      ) )
    {
       return;
    }
-   value = value ? value : "";
+   value = (value != nullptr) ? value : "";
 
    /* Try to update an existing entry first */
    defmap::iterator it = defines.find(tag);

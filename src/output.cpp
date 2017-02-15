@@ -33,6 +33,13 @@ struct cmt_reflow
 };
 
 
+struct kw_subst_t
+{
+   const char *tag;
+   bool      (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
+};
+
+
 /**
  * A multiline comment
  * The only trick here is that we have to trim out whitespace characters
@@ -369,6 +376,19 @@ bool is_dos_newline(
 
 #define LOG_CONTTEXT() \
    LOG_FMT(LCONTTEXT, "%s:%d set cont_text to '%s'\n", __func__, __LINE__, cmt.cont_text.c_str())
+
+
+static const kw_subst_t kw_subst_table[] =
+{
+   { "$(filename)",  kw_fcn_filename  },
+   { "$(class)",     kw_fcn_class     },
+   { "$(message)",   kw_fcn_message   },
+   { "$(category)",  kw_fcn_category  },
+   { "$(scope)",     kw_fcn_scope     },
+   { "$(function)",  kw_fcn_function  },
+   { "$(javaparam)", kw_fcn_javaparam },
+   { "$(fclass)",    kw_fcn_fclass    },
+};
 
 
 static void add_char(UINT32 ch)
@@ -1926,26 +1946,6 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    }
    return(false);
 }
-
-
-struct kw_subst_t
-{
-   const char *tag;
-   bool      (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
-};
-
-
-static const kw_subst_t kw_subst_table[] =
-{
-   { "$(filename)",  kw_fcn_filename  },
-   { "$(class)",     kw_fcn_class     },
-   { "$(message)",   kw_fcn_message   },
-   { "$(category)",  kw_fcn_category  },
-   { "$(scope)",     kw_fcn_scope     },
-   { "$(function)",  kw_fcn_function  },
-   { "$(javaparam)", kw_fcn_javaparam },
-   { "$(fclass)",    kw_fcn_fclass    },
-};
 
 
 static void do_keyword_substitution(chunk_t *pc)

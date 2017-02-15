@@ -21,7 +21,7 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf);
  * Logs the entire parse frame stack
  */
 static void pf_log_all(
-   log_sev_t logsev
+   log_sev_t logsev  /**< [in]  */
 );
 
 
@@ -32,7 +32,7 @@ static void pf_log_all(
  * We want to copy [base].
  */
 static void pf_copy_2nd_tos(
-   parse_frame_t *pf
+   parse_frame_t *pf  /**< [in]  */
 );
 
 

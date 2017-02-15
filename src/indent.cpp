@@ -125,6 +125,15 @@
  *    thatreallyannoysme.whenIhavetomaintain[thecode] = 3;
  */
 
+
+ enum class align_mode_e : unsigned int
+ {
+    SHIFT,     /**< shift relative to the current column */
+    KEEP_ABS,  /**< try to keep the original absolute column */
+    KEEP_REL   /**< try to keep the original gap */
+ };
+
+
 /**
  * REVISIT: This needs to be re-checked, maybe cleaned up
  *
@@ -150,45 +159,28 @@
  *  - keep original column (don't move the comment, if possible)
  *  - keep relative column (move out the same amount as first item on line)
  *  - fix trailing comment in column TBD
- *
- * @param pc   The comment, which is the first item on a line
- * @param col  The column if this is to be put at indent level
  */
 static void indent_comment(
-   chunk_t *pc,
-   size_t  col
+   chunk_t *pc,  /**< [in] The comment, which is the first item on a line */
+   size_t  col   /**< [in] The column if this is to be put at indent level */
 );
-
-
- enum class align_mode_e : unsigned int
- {
-    SHIFT,     /* shift relative to the current column */
-    KEEP_ABS,  /* try to keep the original absolute column */
-    KEEP_REL   /* try to keep the original gap */
- };
 
 
 /**
  * Starts a new entry
- *
- * @param frm  The parse frame
- * @param pc   The chunk causing the push
  */
 static void indent_pse_push(
-   parse_frame_t &frm,
-   chunk_t       *pc
+   parse_frame_t &frm,  /**< [in] The parse frame */
+   chunk_t       *pc    /**< [in] The chunk causing the push */
 );
 
 
 /**
  * Removes the top entry
- *
- * @param frm  The parse frame
- * @param pc   The chunk causing the push
  */
 static void indent_pse_pop(
-   parse_frame_t &frm,
-   chunk_t       *pc
+   parse_frame_t &frm,  /**< [in] The parse frame */
+   chunk_t       *pc    /**< [in] The chunk causing the push */
 );
 
 
@@ -196,7 +188,7 @@ static void indent_pse_pop(
  * tbd
  */
 static size_t token_indent(
-   c_token_t type
+   c_token_t type  /**< [in]  */
 );
 
 
@@ -204,8 +196,8 @@ static size_t token_indent(
  * tbd
  */
 static size_t calc_indent_continue(
-   const parse_frame_t &frm,
-   size_t              pse_tos
+   const parse_frame_t &frm,    /**< [in] The parse frame */
+   size_t              pse_tos  /**< [in]  */
 );
 
 
@@ -214,11 +206,11 @@ static size_t calc_indent_continue(
  * find the column of the param tag
  */
 static chunk_t *oc_msg_block_indent(
-   chunk_t *pc,
-   bool from_brace,
-   bool from_caret,
-   bool from_colon,
-   bool from_keyword
+   chunk_t *pc,       /**< [in]  */
+   bool from_brace,   /**< [in]  */
+   bool from_caret,   /**< [in]  */
+   bool from_colon,   /**< [in]  */
+   bool from_keyword  /**< [in]  */
 );
 
 
@@ -226,7 +218,7 @@ static chunk_t *oc_msg_block_indent(
  * We are on a '{' that has parent = OC_BLOCK_EXPR
  */
 static chunk_t *oc_msg_prev_colon(
-   chunk_t *pc
+   chunk_t *pc   /**< [in]  */
 );
 
 
@@ -236,7 +228,7 @@ static chunk_t *oc_msg_prev_colon(
  * false if next thing hit is a closing brace, also if 2 newlines in a row
  */
 static bool single_line_comment_indent_rule_applies(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -260,13 +252,24 @@ void log_and_indent_comment(
 );
 
 
+
+static const char *get_align_mode_name(const align_mode_e align_mode);
+
+static const char *get_align_mode_name(const align_mode_e align_mode)
+{
+   switch(align_mode)
+   {
+      case(align_mode_e::SHIFT   ): return ("sft"  );
+      case(align_mode_e::KEEP_ABS): return ("abs"  );
+      case(align_mode_e::KEEP_REL): return ("rel"  );
+      default:                      return ("error");
+   }
+}
+
 void indent_to_column(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   if (column < pc->column)
-   {
-      column = pc->column;
-   }
+   column = max(column, pc->column);
    reindent_line(pc, column);
 }
 
@@ -274,11 +277,8 @@ void indent_to_column(chunk_t *pc, size_t column)
 void align_to_column(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   assert(pc != nullptr);
-   if (column == pc->column)
-   {
-      return;
-   }
+   if ((pc     == nullptr   ) ||
+       (column == pc->column) ) { return; }
 
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on %s [%s] => %zu\n",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
@@ -286,55 +286,59 @@ void align_to_column(chunk_t *pc, size_t column)
 
    size_t col_delta = column - pc->column;
    size_t min_col   = column;
-
    pc->column = column;
    do
    {
-      chunk_t      *next = chunk_get_next(pc);
-      chunk_t      *prev;
       align_mode_e almod = align_mode_e::SHIFT;
 
-      if (next == nullptr)
-      {
-         break;
-      }
+      chunk_t *next = chunk_get_next(pc);
+      if (next == nullptr) { break; }
+
       int min_delta = (int)space_col_align(pc, next);
       min_col  = (size_t)((int)min_col + min_delta);
-      prev     = pc;
+      chunk_t  *prev = pc;
       pc       = next;
 
-      if (chunk_is_comment(pc) && (pc->parent_type != CT_COMMENT_EMBED))
+      if (chunk_is_comment(pc) &&
+         (pc->parent_type != CT_COMMENT_EMBED))
       {
          almod = (chunk_is_single_line_comment(pc) &&
                   cpd.settings[UO_indent_relative_single_line_comments].b) ?
                  align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
       }
 
-      if (almod == align_mode_e::KEEP_ABS)
+      switch(almod)
       {
-         /* Keep same absolute column */
-         pc->column = pc->orig_col;
-         pc->column = max(min_col, pc->column);
-      }
-      else if (almod == align_mode_e::KEEP_REL)
-      {
-         /* Keep same relative column */
-         int orig_delta = (int)pc->orig_col - (int)prev->orig_col;
-         orig_delta = max(min_delta, orig_delta);
+         case(align_mode_e::KEEP_ABS):
+            /* Keep same absolute column */
+            pc->column = pc->orig_col;
+            pc->column = max(min_col, pc->column);
+            break;
 
-         pc->column = (size_t)((int)prev->column + orig_delta);
+         case(align_mode_e::KEEP_REL):
+         {
+            /* Keep same relative column */
+            int orig_delta = (int)pc->orig_col - (int)prev->orig_col;
+            orig_delta = max(min_delta, orig_delta);
+            pc->column = (size_t)((int)prev->column + orig_delta);
+            break;
+         }
+
+         case(align_mode_e::SHIFT):
+            /* Shift by the same amount */
+            pc->column += col_delta;
+            pc->column = max(min_col, pc->column);
+            break;
+
+         default: /* unknown enum, do nothing */ break;
       }
-      else /* SHIFT */
-      {
-         /* Shift by the same amount */
-         pc->column += col_delta;
-         pc->column = max(min_col, pc->column);
-      }
+
+
       LOG_FMT(LINDLINED, "   %s set column of %s on line %zu to col %zu (orig %zu)\n",
-              (almod == align_mode_e::KEEP_ABS) ? "abs" :
-              (almod == align_mode_e::KEEP_REL) ? "rel" : "sft",
-              get_token_name(pc->type), pc->orig_line, pc->column, pc->orig_col);
-   } while ((pc != nullptr) && (pc->nl_count == 0));
+            get_align_mode_name(almod), get_token_name(pc->type), pc->orig_line,
+            pc->column, pc->orig_col);
+   } while ((pc           != nullptr) &&
+            (pc->nl_count == 0      ) );
 }
 
 
@@ -369,7 +373,7 @@ void reindent_line(chunk_t *pc, size_t column)
       }
       else
       {
-         // look for begin of SIGNAL/SLOT block
+         /* look for begin of SIGNAL/SLOT block */
          if (pc->flags & PCF_IN_QT_MACRO)
          {
             LOG_FMT(LINDLINE, "FLAGS is set: PCF_IN_QT_MACRO\n");
@@ -377,22 +381,23 @@ void reindent_line(chunk_t *pc, size_t column)
          }
       }
       chunk_t *next = chunk_get_next(pc);
-
       if (next == nullptr) { break; }
 
-      if (pc->nl_count)
+      if (pc->nl_count > 0)
       {
          min_col   = 0;
          col_delta = 0;
       }
-      min_col  = min_col + space_col_align(pc, next);
+      min_col += space_col_align(pc, next);
       pc       = next;
 
       bool is_comment = chunk_is_comment(pc);
       bool keep       = is_comment && chunk_is_single_line_comment(pc) &&
                         cpd.settings[UO_indent_relative_single_line_comments].b;
 
-      if (is_comment && (pc->parent_type != CT_COMMENT_EMBED) && !keep)
+      if ((is_comment      == true            ) &&
+          (pc->parent_type != CT_COMMENT_EMBED) &&
+          (keep            == false           ) )
       {
          pc->column = pc->orig_col;
          pc->column = max(min_col, pc->column);
@@ -405,18 +410,11 @@ void reindent_line(chunk_t *pc, size_t column)
          pc->column += col_delta;
          pc->column = max(min_col, pc->column);
 
-         LOG_FMT(LINDLINED, "   set column of ");
-         if (pc->type == CT_NEWLINE)
-         {
-            LOG_FMT(LINDLINED, "newline");
-         }
-         else
-         {
-            LOG_FMT(LINDLINED, "'%s'", pc->text());
-         }
-         LOG_FMT(LINDLINED, " to %zu (orig %zu)\n", pc->column, pc->orig_col);
+         LOG_FMT(LINDLINED, "   set column of '%s' to %zu (orig %zu)\n",
+         (pc->type == CT_NEWLINE) ? "newline" : pc->text(), pc->column, pc->orig_col);
       }
-   } while ((pc != nullptr) && (pc->nl_count == 0));
+   } while ((pc           != nullptr) &&
+            (pc->nl_count == 0      ) );
 }
 
 
@@ -446,11 +444,11 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
       frm.pse[frm.pse_tos].open_line   = pc->orig_line;
       frm.pse[frm.pse_tos].ref         = (int)++ref;
       frm.pse[frm.pse_tos].in_preproc  = is_bit_set(pc->flags, PCF_IN_PREPROC);
-      frm.pse[frm.pse_tos].indent_tab  = frm.pse[frm.pse_tos - 1].indent_tab;
-      frm.pse[frm.pse_tos].indent_cont = frm.pse[frm.pse_tos - 1].indent_cont;
+      frm.pse[frm.pse_tos].indent_tab  = frm.pse[frm.pse_tos-1].indent_tab;
+      frm.pse[frm.pse_tos].indent_cont = frm.pse[frm.pse_tos-1].indent_cont;
       frm.pse[frm.pse_tos].non_vardef  = false;
-      frm.pse[frm.pse_tos].ns_cnt      = frm.pse[frm.pse_tos - 1].ns_cnt;
-      memcpy(&frm.pse[frm.pse_tos].ip,  &frm.pse[frm.pse_tos - 1].ip, sizeof(frm.pse[frm.pse_tos].ip));
+      frm.pse[frm.pse_tos].ns_cnt      = frm.pse[frm.pse_tos-1].ns_cnt;
+      memcpy(&frm.pse[frm.pse_tos].ip,  &frm.pse[frm.pse_tos-1].ip, sizeof(frm.pse[frm.pse_tos].ip));
    }
    else
    {

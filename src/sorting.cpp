@@ -166,7 +166,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
    {
       return(1);
    }
-   return(0);
+   return(0); /* \todo explain the return values */
 }
 
 

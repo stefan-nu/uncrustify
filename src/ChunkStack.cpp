@@ -44,7 +44,7 @@ chunk_t *ChunkStack::Pop_Front()
 {
    chunk_t *pc = nullptr;
 
-   if (!m_cse.empty())
+   if (m_cse.empty() == false)
    {
       pc = m_cse[0].m_pc;
       m_cse.pop_front();
@@ -57,9 +57,9 @@ chunk_t *ChunkStack::Pop_Back()
 {
    chunk_t *pc = nullptr;
 
-   if (!m_cse.empty())
+   if (m_cse.empty() == false)
    {
-      pc = m_cse[m_cse.size() - 1].m_pc;
+      pc = m_cse[m_cse.size()-1].m_pc;
       m_cse.pop_back();
    }
    return(pc);

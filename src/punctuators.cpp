@@ -76,13 +76,13 @@ static const chunk_tag_t symbols2[] =
    { "||", CT_BOOL,         LANG_ALL                                                   },
    { "~=", CT_COMPARE,      LANG_D                                                     },
    { "~~", CT_COMPARE,      LANG_D                                                     },
-   { "=>", CT_LAMBDA,       LANG_VALA | LANG_CS | LANG_D                               },
-   { "??", CT_COMPARE,      LANG_CS | LANG_VALA                                        }, /*lint !e585 */
-   { "<%", CT_BRACE_OPEN,   LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph {
-   { "%>", CT_BRACE_CLOSE,  LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph }
-   { "<:", CT_SQUARE_OPEN,  LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph [
-   { ":>", CT_SQUARE_CLOSE, LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph ]
-   { "%:", CT_POUND,        LANG_C | LANG_CPP | FLAG_DIG                               }, // digraph #
+   { "=>", CT_LAMBDA,       LANG_VALA | LANG_CS  | LANG_D                              },
+   { "??", CT_COMPARE,      LANG_CS   | LANG_VALA                                      }, /*lint !e585 */
+   { "<%", CT_BRACE_OPEN,   LANG_C    | LANG_CPP | FLAG_DIG                            }, // digraph {
+   { "%>", CT_BRACE_CLOSE,  LANG_C    | LANG_CPP | FLAG_DIG                            }, // digraph }
+   { "<:", CT_SQUARE_OPEN,  LANG_C    | LANG_CPP | FLAG_DIG                            }, // digraph [
+   { ":>", CT_SQUARE_CLOSE, LANG_C    | LANG_CPP | FLAG_DIG                            }, // digraph ]
+   { "%:", CT_POUND,        LANG_C    | LANG_CPP | FLAG_DIG                            }, // digraph #
 };
 
 /* 1-char symbols */

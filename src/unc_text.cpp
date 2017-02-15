@@ -12,7 +12,14 @@
 #include "unicode.h" /* encode_utf8() */
 
 
-static void fix_len_idx(size_t size, const size_t &idx, size_t &len);
+/**
+ * tbd
+ */
+static void fix_len_idx(
+   size_t       size, /**< [in]  */
+   const size_t &idx, /**< [in]  */
+   size_t       &len  /**< [in]  */
+);
 
 
 static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
@@ -34,7 +41,7 @@ static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
 
 void unc_text::update_logtext()
 {
-   if (!m_logok)
+   if (m_logok == false)
    {
       /* make a pessimistic guess at the size */
       m_logtext.clear();
@@ -280,7 +287,6 @@ void unc_text::append(const char* const msg, ...)
 void unc_text::append(const int_list_t &data, size_t idx, size_t len)
 {
    unc_text tmp(data, idx, len);
-
    append(tmp);
 }
 
@@ -349,8 +355,7 @@ int unc_text::find(const char *text, size_t sidx) const
          return((int)idx);
       }
    }
-   // 'text' not found
-   return(-1);
+   return(-1);  // 'text' not found
 }
 
 
@@ -359,11 +364,14 @@ int unc_text::rfind(const char *text, size_t sidx) const
    size_t len  = strlen(text);
    size_t midx = size() - len;
 
+#if 1
    if (sidx > midx)
    {
       sidx = midx;
    }
-
+#else
+   sidx = min(sidx, midx);
+#endif
    for (size_t idx = sidx; idx != 0; idx--)
    {
       bool match = true;
@@ -375,10 +383,7 @@ int unc_text::rfind(const char *text, size_t sidx) const
             break;
          }
       }
-      if (match)
-      {
-         return((int)idx);
-      }
+      if (match) { return((int)idx); }
    }
    return(-1);
 }

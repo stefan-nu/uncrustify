@@ -139,7 +139,7 @@ static bool load_header_file(
  * Find the language for the file extension
  * Default to C
  *
- * @return           LANG_xxx
+ * @return  LANG_xxx
  */
 static size_t language_flags_from_filename(
    const char *filenme  /**< [in] The name of the file */
@@ -149,7 +149,7 @@ static size_t language_flags_from_filename(
 /**
  * Gets the tag text for a language
  *
- * @return        A string
+ * @return  A string
  */
 const char *language_name_from_flags(
    size_t lang  /**< [in] The LANG_xxx enum */

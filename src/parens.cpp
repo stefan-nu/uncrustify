@@ -17,7 +17,10 @@
 /**
  * Add an open paren after first and add a close paren before the last
  */
-static void add_parens_between(chunk_t *first, chunk_t *last);
+static void add_parens_between(
+   chunk_t *first,  /**< [in]  */
+   chunk_t *last    /**< [in]  */
+);
 
 
 /**
@@ -38,7 +41,11 @@ static void add_parens_between(chunk_t *first, chunk_t *last);
  * FIXME: we really should bail if we transition between a preprocessor and
  *        a non-preprocessor
  */
-static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest);
+static void check_bool_parens(
+   chunk_t *popen,   /**< [in]  */
+   chunk_t *pclose,  /**< [in]  */
+   int     nest      /**< [in]  */
+);
 
 
 void do_parens(void)
@@ -50,10 +57,10 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
-         if ((pc->type != CT_SPAREN_OPEN) ||
-             ((pc->parent_type != CT_IF) &&
-              (pc->parent_type != CT_ELSEIF) &&
-              (pc->parent_type != CT_SWITCH)))
+         if ( (pc->type        != CT_SPAREN_OPEN)   ||
+             ((pc->parent_type != CT_IF         ) &&
+              (pc->parent_type != CT_ELSEIF     ) &&
+              (pc->parent_type != CT_SWITCH     ) ) )
          {
             continue;
          }
@@ -75,7 +82,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    LOG_FUNC_ENTRY();
 
    if ((first == nullptr) ||
-       (last == nullptr))
+       (last  == nullptr) )
    {
       return;
    }
@@ -148,10 +155,10 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
          return;
       }
 
-      if ((pc->type == CT_BOOL) ||
-          (pc->type == CT_QUESTION) ||
+      if ((pc->type == CT_BOOL      ) ||
+          (pc->type == CT_QUESTION  ) ||
           (pc->type == CT_COND_COLON) ||
-          (pc->type == CT_COMMA))
+          (pc->type == CT_COMMA     ) )
       {
          LOG_FMT(LPARADD2, " -- %s [%s] at line %zu col %zu, level %zu\n",
                  get_token_name(pc->type),
@@ -178,9 +185,9 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
             pc = next;
          }
       }
-      else if ((pc->type == CT_BRACE_OPEN) ||
+      else if ((pc->type == CT_BRACE_OPEN ) ||
                (pc->type == CT_SQUARE_OPEN) ||
-               (pc->type == CT_ANGLE_OPEN))
+               (pc->type == CT_ANGLE_OPEN ) )
       {
          /* Skip [], {}, and <> */
          pc = chunk_skip_to_match(pc);
@@ -191,4 +198,4 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
    {
       add_parens_between(ref, pclose);
    }
-} // check_bool_parens
+}

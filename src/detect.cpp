@@ -176,7 +176,8 @@ static void detect_space_options(void)
       {
          vote_sp_paren_paren.vote(pc, next);
       }
-      if (chunk_is_paren_close(pc) && (next->type == CT_BRACE_OPEN))
+      if (chunk_is_paren_close(pc) &&
+          (next->type == CT_BRACE_OPEN))
       {
          vote_sp_paren_brace.vote(pc, next);
       }

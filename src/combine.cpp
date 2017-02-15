@@ -25,26 +25,23 @@
 /**
  * Flags everything from the open paren to the close paren.
  *
- * @param po   Pointer to the open parenthesis
  * @return     The token after the close paren
  */
 static chunk_t *flag_parens(
-   chunk_t   *po,
-   UINT64    flags,
-   c_token_t opentype,
-   c_token_t parenttype,
-   bool      parent_all
+   chunk_t   *po,       /**< [in] Pointer to the open parenthesis */
+   UINT64    flags,     /**< [in]  */
+   c_token_t opentype,  /**< [in]  */
+   c_token_t parenttype,/**< [in]  */
+   bool      parent_all /**< [in]  */
 );
 
 
 /**
  * Mark the parens and colons in:
  *   asm volatile ( "xx" : "xx" (l), "yy"(h) : ...  );
- *
- * @param pc the CT_ASM item
  */
 static void flag_asm(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] the CT_ASM item */
 );
 
 
@@ -52,7 +49,7 @@ static void flag_asm(
  * Scan backwards to see if we might be on a type declaration
  */
 static bool chunk_ends_type(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -61,7 +58,7 @@ static bool chunk_ends_type(
  * pc is either a word or a ::
  */
 static chunk_t *skip_dc_member(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -69,7 +66,7 @@ static chunk_t *skip_dc_member(
  * Skips to the start of the next statement.
  */
 static chunk_t *skip_to_next_statement(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -78,7 +75,7 @@ static chunk_t *skip_to_next_statement(
  * Returns the semicolon, comma, or close brace/paren or nullptr.
  */
 static chunk_t *skip_expression(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -89,7 +86,7 @@ static chunk_t *skip_expression(
  *    int bar;
  */
 static chunk_t *skip_align(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 /**
@@ -97,16 +94,14 @@ static chunk_t *skip_align(
  * either pair.
  */
 static void check_double_brace_init(
-   chunk_t *bo1
+   chunk_t *bo1  /**< [in]  */
 );
 
 /**
  * Simply change any STAR to PTR_TYPE and WORD to TYPE
- *
- * @param start points to the open paren
  */
 static void fix_fcn_def_params(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] points to the function's open parenthesis */
 );
 
 
@@ -125,7 +120,7 @@ static void fix_fcn_def_params(
  * typedef <enum/struct/union> [type] { ... } [*] type [, [*]type] ;
  */
 static void fix_typedef(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -143,7 +138,7 @@ static void fix_typedef(
  * REVISIT: should this be consolidated with the typedef code?
  */
 static void fix_enum_struct_union(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -151,11 +146,9 @@ static void fix_enum_struct_union(
  * Checks to see if the current paren is part of a cast.
  * We already verified that this doesn't follow function, TYPE, IF, FOR,
  * SWITCH, or WHILE and is followed by WORD, TYPE, STRUCT, ENUM, or UNION.
- *
- * @param start   Pointer to the open paren
  */
 static void fix_casts(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -166,7 +159,7 @@ static void fix_casts(
  * Mark everything between the <> as a type and set the paren parent
  */
 static void fix_type_cast(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -177,7 +170,7 @@ static void fix_type_cast(
  *  - SEMICOLON
  */
 static chunk_t *fix_var_def(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -203,7 +196,7 @@ static chunk_t *fix_var_def(
  * 'class' token was encountered (see mark_class_ctor).
  */
 static void mark_function(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -224,26 +217,20 @@ static void mark_function(
  * "NUMBER"             ==> false
  * "STRING"             ==> false
  * "OPEN PAREN"         ==> false
- *
- * @param start the first chunk to look at
- * @param end   the chunk after the last one to look at
  */
 static bool can_be_full_param(
-   chunk_t *start,
-   chunk_t *end
+   chunk_t *start,  /**< [in] the first chunk to look at */
+   chunk_t *end     /**< [in] the chunk after the last one to look at */
 );
 
 
 /**
  * Changes the return type to type and set the parent.
- *
- * @param pc the last chunk of the return type
- * @param parent_type CT_NONE (no change) or the new parent type
  */
 static void mark_function_return_type(
-   chunk_t   *fname,
-   chunk_t   *pc,
-   c_token_t parent_type
+   chunk_t   *fname,      /**< [in]  */
+   chunk_t   *pc,         /**< [in] the last chunk of the return type */
+   c_token_t parent_type  /**< [in] CT_NONE (no change) or the new parent type */
 );
 
 
@@ -255,11 +242,10 @@ static void mark_function_return_type(
  * const char * (*func)(params);
  * const char * (^func)(params);   -- Objective C
  *
- * @param pc   Points to the first closing paren
  * @return whether a function type was processed
  */
 static bool mark_function_type(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] Points to the first closing paren */
 );
 
 
@@ -269,7 +255,7 @@ static bool mark_function_type(
  * Skip the methods, as they will get handled elsewhere.
  */
 static void mark_struct_union_body(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -286,7 +272,7 @@ static void mark_struct_union_body(
  * myclass a(4);
  */
 static chunk_t *mark_variable_definition(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -306,11 +292,9 @@ static void process_returns(void);
 /**
  * Processes a return statement, labeling the parens and marking the parent.
  * May remove or add parens around the return statement
- *
- * @param pc   Pointer to the return chunk
  */
 static chunk_t *process_return(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] Pointer to the return chunk */
 );
 
 
@@ -319,7 +303,7 @@ static chunk_t *process_return(
  * Scan for CT_FUNCTION with a string that matches pclass->str
  */
 static void mark_class_ctor(
-   chunk_t *pclass
+   chunk_t *pclass  /**< [in]  */
 );
 
 
@@ -327,7 +311,7 @@ static void mark_class_ctor(
  * We're on a 'namespace' skip the word and then set the parent of the braces.
  */
 static void mark_namespace(
-   chunk_t *pns
+   chunk_t *pns  /**< [in]  */
 );
 
 
@@ -335,7 +319,7 @@ static void mark_namespace(
  * tbd
  */
 static void mark_cpp_constructor(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -344,7 +328,7 @@ static void mark_cpp_constructor(
  * semicolon (TODO: other limiter?) and mark as a LValue.
  */
 static void mark_lvalue(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -357,8 +341,8 @@ static void mark_lvalue(
  *   Renderer<rgb32> rend;
  */
 static void mark_template_func(
-   chunk_t *pc,
-   chunk_t *pc_next
+   chunk_t *pc,      /**< [in]  */
+   chunk_t *pc_next  /**< [in]  */
 );
 
 
@@ -367,7 +351,7 @@ static void mark_template_func(
  * Adjust the levels if pc is CT_SQL_BEGIN
  */
 static void mark_exec_sql(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -378,7 +362,7 @@ static void mark_exec_sql(
  * Skips anything in braces.
  */
 static void handle_oc_class(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -390,11 +374,9 @@ static void handle_oc_class(
  *  on appearance of an OC_BLOCK_CARET for LANG_OC.
  *  repeat(10, ^{ putc('0'+d); });
  *  typedef void (^workBlk_t)(void);
- *
- * @param pc points to the '^'
  */
 static void handle_oc_block_literal(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] points to the '^' */
 );
 
 
@@ -407,11 +389,9 @@ static void handle_oc_block_literal(
  *  -(void)Foo:(void(^)())blk { }
  *
  * This is triggered when the sequence '(' '^' is found.
- *
- * @param pc points to the '^'
  */
 static void handle_oc_block_type(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] points to the '^' */
 );
 
 
@@ -433,7 +413,7 @@ static void handle_oc_block_type(
  * -(void) insertObject:(id)anObject atIndex:(int)index
  */
 static void handle_oc_message_decl(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -446,11 +426,9 @@ static void handle_oc_message_decl(
  * [func(a,b,c) lastObject ] // class from func
  *
  * Mainly find the matching ']' and ';' and mark the colons.
- *
- * @param points to the open square '['
  */
 static void handle_oc_message_send(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] points to the open square '[' */
 );
 
 
@@ -458,7 +436,7 @@ static void handle_oc_message_send(
  * Process @Property values and re-arrange them if necessary
  */
 static void handle_oc_property_decl(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -470,10 +448,10 @@ static void handle_oc_property_decl(
  * @return the chunk after the type
  */
 static chunk_t *handle_oc_md_type(
-   chunk_t  *paren_open,
-   c_token_t ptype,
-   UINT64    flags,
-   bool      &did_it
+   chunk_t  *paren_open, /**< [in]  */
+   c_token_t ptype,      /**< [in]  */
+   UINT64    flags,      /**< [in]  */
+   bool      &did_it     /**< [in]  */
 );
 
 /**
@@ -483,11 +461,9 @@ static chunk_t *handle_oc_md_type(
  *    [@X]
  *
  * Set the next chunk to a statement start after the close ']'
- *
- * @param points to the open square '['
  */
 static void handle_cs_square_stmt(
-   chunk_t *pc
+   chunk_t *pc  /**< [in] points to the open square '[' */
 );
 
 
@@ -497,7 +473,7 @@ static void handle_cs_square_stmt(
  * property and set its parent, too.
  */
 static void handle_cs_property(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -507,7 +483,7 @@ static void handle_cs_property(
  * If there is nothing but commas between the open and close, then mark it.
  */
 static void handle_cs_array_type(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -525,7 +501,7 @@ static void handle_cs_array_type(
  * Set the parent of the semicolon to CT_TEMPLATE.
  */
 static void handle_cpp_template(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -536,7 +512,7 @@ static void handle_cpp_template(
  * Split the '[]' so we can control the space
  */
 static void handle_cpp_lambda(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -551,7 +527,7 @@ static void handle_cpp_lambda(
  * Scan the body for each type in TYPELIST and change the type to CT_TYPE.
  */
 static void handle_d_template(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -563,7 +539,7 @@ static void handle_d_template(
  * Create new text for the chunk and call it a CT_TYPE.
  */
 static void handle_wrap(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -577,7 +553,7 @@ static void handle_wrap(
  * PARAMS is all marked as prototype parameters.
  */
 static void handle_proto_wrap(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -585,7 +561,7 @@ static void handle_proto_wrap(
  * tbd
  */
 static bool is_oc_block(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -594,7 +570,7 @@ static bool is_oc_block(
  * Mark the parent of the colon and semicolon
  */
 static void handle_java_assert(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -603,8 +579,8 @@ static void handle_java_assert(
  * returns the close_paren
  */
 static chunk_t *get_d_template_types(
-   ChunkStack &cs,
-   chunk_t    *open_paren
+   ChunkStack &cs,         /**< [in]  */
+   chunk_t    *open_paren  /**< [in]  */
 );
 
 
@@ -612,8 +588,8 @@ static chunk_t *get_d_template_types(
  * tbd
  */
 static bool chunkstack_match(
-   const   ChunkStack &cs,
-   chunk_t *pc
+   const   ChunkStack &cs, /**< [in]  */
+   chunk_t *pc             /**< [in]  */
 );
 
 

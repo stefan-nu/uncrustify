@@ -32,11 +32,11 @@
 
 
 static void log_rule2(
-   size_t     line,
-   const char *rule,
-   chunk_t    *first,
-   chunk_t    *second,
-   bool       complete
+   size_t     line,    /**< [in]  */
+   const char *rule,   /**< [in]  */
+   chunk_t    *first,  /**< [in]  */
+   chunk_t    *second, /**< [in]  */
+   bool       complete /**< [in]  */
 );
 
 
@@ -44,22 +44,20 @@ static void log_rule2(
  * Decides how to change inter-chunk spacing.
  * Note that the order of the if statements is VERY important.
  *
- * @param first   The first chunk
- * @param second  The second chunk
  * @return        AV_IGNORE, AV_ADD, AV_REMOVE or AV_FORCE
  */
 static argval_t do_space(
-   chunk_t *first,
-   chunk_t *second,
-   int     &min_sp,
-   bool    complete
+   chunk_t *first,   /**< [in] The first chunk */
+   chunk_t *second,  /**< [in] The second chunk */
+   int     &min_sp,  /**< [in]  */
+   bool    complete  /**< [in]  */
 );
 
 
 struct no_space_table_t
 {
-   c_token_t first;
-   c_token_t second;
+   c_token_t first;   /**< [in]  */
+   c_token_t second;  /**< [in]  */
 };
 
 
@@ -480,33 +478,29 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
        */
       switch (first->type)
       {
-      case CT_SBOOL:
-      case CT_SASSIGN:
-      case CT_ARITH:
-      case CT_CASE:
-      case CT_CLASS:
-      case CT_DELETE:
-      case CT_FRIEND:
-      case CT_NAMESPACE:
-      case CT_NEW:
-      case CT_SARITH:
-      case CT_SCOMPARE:
-      case CT_OPERATOR:
-      case CT_PRIVATE:
-      case CT_QUALIFIER:
-      case CT_RETURN:
-      case CT_SIZEOF:
-      case CT_STRUCT:
-      case CT_THROW:
-      case CT_TYPEDEF:
-      case CT_TYPENAME:
-      case CT_UNION:
-      case CT_USING:
-         log_rule("FORCE");
-         return(AV_FORCE);
-
-      default:
-         break;
+         case CT_SBOOL:     /* fallthrough */
+         case CT_SASSIGN:   /* fallthrough */
+         case CT_ARITH:     /* fallthrough */
+         case CT_CASE:      /* fallthrough */
+         case CT_CLASS:     /* fallthrough */
+         case CT_DELETE:    /* fallthrough */
+         case CT_FRIEND:    /* fallthrough */
+         case CT_NAMESPACE: /* fallthrough */
+         case CT_NEW:       /* fallthrough */
+         case CT_SARITH:    /* fallthrough */
+         case CT_SCOMPARE:  /* fallthrough */
+         case CT_OPERATOR:  /* fallthrough */
+         case CT_PRIVATE:   /* fallthrough */
+         case CT_QUALIFIER: /* fallthrough */
+         case CT_RETURN:    /* fallthrough */
+         case CT_SIZEOF:    /* fallthrough */
+         case CT_STRUCT:    /* fallthrough */
+         case CT_THROW:     /* fallthrough */
+         case CT_TYPEDEF:   /* fallthrough */
+         case CT_TYPENAME:  /* fallthrough */
+         case CT_UNION:     /* fallthrough */
+         case CT_USING:     log_rule("FORCE"); return(AV_FORCE);
+         default:           break;
       }
 
       if ((first->type == CT_WORD       ) ||
@@ -662,9 +656,9 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    // Handle the special lambda case for C++11:
    //    [=](Something arg){.....}
    if ((cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE) &&
-       (((first->type        == CT_SQUARE_OPEN  ) &&
-         (first->parent_type == CT_CPP_LAMBDA   ) &&
-         (second->type       == CT_ASSIGN       ) ) ||
+       (((first->type         == CT_SQUARE_OPEN ) &&
+         (first->parent_type  == CT_CPP_LAMBDA  ) &&
+         (second->type        == CT_ASSIGN      ) ) ||
         ((first->type         == CT_ASSIGN      ) &&
          (second->type        == CT_SQUARE_CLOSE) &&
          (second->parent_type == CT_CPP_LAMBDA  ) ) ) )
@@ -1021,7 +1015,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
    if ((first->type          == CT_FUNC_PROTO )   ||
        ((second->type        == CT_FPAREN_OPEN) &&
-        (second->parent_type == CT_FUNC_PROTO)  ) )
+        (second->parent_type == CT_FUNC_PROTO ) ) )
    {
 
       // \todo DRY1 start
@@ -1059,7 +1053,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       // DRY1 end
 
    }
-   if ((first->type == CT_CLASS) && !(first->flags & PCF_IN_OC_MSG))
+   if (  (first->type == CT_CLASS     ) &&
+        !(first->flags & PCF_IN_OC_MSG) )
    {
       log_rule("FORCE");
       return(AV_FORCE);
@@ -1311,19 +1306,19 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    {
       if ((first->flags & PCF_OC_RTYPE) /*== CT_OC_RTYPE)*/ &&
           ((first->parent_type == CT_OC_MSG_DECL) ||
-           (first->parent_type == CT_OC_MSG_SPEC)))
+           (first->parent_type == CT_OC_MSG_SPEC) ) )
       {
          log_rule("sp_after_oc_return_type");
          return(cpd.settings[UO_sp_after_oc_return_type].a);
       }
       else if ((first->parent_type == CT_OC_MSG_SPEC) ||
-               (first->parent_type == CT_OC_MSG_DECL))
+               (first->parent_type == CT_OC_MSG_DECL) )
       {
          log_rule("sp_after_oc_type");
          return(cpd.settings[UO_sp_after_oc_type].a);
       }
       else if ((first->parent_type == CT_OC_SEL) &&
-               (second->type != CT_SQUARE_CLOSE))
+               (second->type != CT_SQUARE_CLOSE) )
       {
          log_rule("sp_after_oc_at_sel_parens");
          return(cpd.settings[UO_sp_after_oc_at_sel_parens].a);
@@ -1332,13 +1327,13 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
    if (cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE)
    {
-      if (((first->type == CT_PAREN_OPEN) &&
-           ((first->parent_type == CT_OC_SEL) ||
-            (first->parent_type == CT_OC_PROTOCOL)))
+      if (( (first->type        == CT_PAREN_OPEN ) &&
+           ((first->parent_type == CT_OC_SEL     ) ||
+            (first->parent_type == CT_OC_PROTOCOL) ) )
           ||
-          ((second->type == CT_PAREN_CLOSE) &&
-           ((second->parent_type == CT_OC_SEL) ||
-            (second->parent_type == CT_OC_PROTOCOL))))
+          ( (second->type        == CT_PAREN_CLOSE) &&
+           ((second->parent_type == CT_OC_SEL     ) ||
+            (second->parent_type == CT_OC_PROTOCOL) ) ) )
       {
          log_rule("sp_inside_oc_at_sel_parens");
          return(cpd.settings[UO_sp_inside_oc_at_sel_parens].a);
