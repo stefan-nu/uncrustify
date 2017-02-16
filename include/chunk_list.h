@@ -526,7 +526,7 @@ chunk_t *chunk_skip_to_match_rev(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a pointer operator
  */
 bool chunk_is_ptr_operator(
    chunk_t *pc  /**< [in] chunk to check */
@@ -534,7 +534,7 @@ bool chunk_is_ptr_operator(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a newline
  */
 bool chunk_is_newline(
    chunk_t *pc  /**< [in] chunk to check */
@@ -542,7 +542,15 @@ bool chunk_is_newline(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds an empty string
+ */
+bool chunk_is_empty(
+chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is valid and holds any part of a function
  */
 bool chunk_is_function(
    chunk_t *pc  /**< [in] chunk to check */
@@ -564,17 +572,6 @@ bool chunk_is_comment(
 
 
 /**
- * checks if a chunk is valid and is a blank character
- *
- * \note check compares if len == 0
- * \todo rename function: blank is a space not an empty string
- */
-bool chunk_is_blank(
-   chunk_t *pc  /**< [in] chunk to check */
-);
-
-
-/**
  * checks if a chunk is valid and either a comment or newline
  */
 bool chunk_is_comment_or_newline(
@@ -591,7 +588,7 @@ bool chunk_is_balanced_square(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds part of a preprocessor region
  */
 bool chunk_is_preproc(
    chunk_t *pc  /**< [in] chunk to check */
@@ -599,7 +596,8 @@ bool chunk_is_preproc(
 
 
 /**
- * tbd
+ * check if a chunk is valid and is a comment or newline located in
+ * a preprocessor region
  */
 bool chunk_is_comment_or_newline_in_preproc(
    chunk_t *pc  /**< [in] chunk to check */
@@ -607,7 +605,7 @@ bool chunk_is_comment_or_newline_in_preproc(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a newline or blank character
  */
 bool chunk_is_comment_newline_or_blank(
    chunk_t *pc  /**< [in] chunk to check */
@@ -615,7 +613,8 @@ bool chunk_is_comment_newline_or_blank(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a comment, a newline or is
+ * a preprocessor part
  */
 bool chunk_is_comment_newline_or_preproc(
    chunk_t *pc  /**< [in] chunk to check */
@@ -623,7 +622,7 @@ bool chunk_is_comment_newline_or_preproc(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a single line comment
  */
 bool chunk_is_single_line_comment(
    chunk_t *pc  /**< [in] chunk to check */
@@ -631,7 +630,7 @@ bool chunk_is_single_line_comment(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a semicolon
  */
 bool chunk_is_semicolon(
    chunk_t *pc  /**< [in] chunk to check */
@@ -639,47 +638,63 @@ bool chunk_is_semicolon(
 
 
 /**
- * tbd
+ * check if a chunk is valid and holds a variable type
  */
-bool chunk_is_semicolon(
+bool chunk_is_var_type(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
 
 /**
- * tbd
+ * check if the given chunk is valid and holds a given token type
  */
 bool chunk_is_type(
-   chunk_t *pc  /**< [in] chunk to check */
+   chunk_t *pc,       /**< [in] chunk to check */
+   c_token_t c_token  /**< [in] token type to check for */
 );
 
 
 /**
- * tbd
+ * check if the given chunk is valid and holds a token type which is
+ * part of a given list
  */
-bool chunk_is_token(
-   chunk_t *pc,  /**< [in] chunk to check */
-   c_token_t c_token
+bool chunk_is_type(
+   chunk_t *pc,   /**< [in] chunk to check */
+   int count,     /**< [in] number of token types to check */
+   ...            /**< [in] list of token types to check for */
 );
 
 
 /**
- * tbd
+ * check if the given chunk is valid and holds a token type which is
+ * different from all types in a given list
+ */
+bool chunk_is_no_type(
+   chunk_t *pc,   /**< [in] chunk to check */
+   int count,     /**< [in] number of token types to check */
+   ...            /**< [in] list of token types to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given string
+ * The case of the string is considered.
  */
 bool chunk_is_str(
-   chunk_t *pc,  /**< [in] chunk to check */
-   const char *str,
-   size_t len
+   chunk_t *pc,     /**< [in] chunk to check */
+   const char *str, /**< [in] string to compare with */
+   size_t len       /**< [in] number of characters in string to compare */
 );
 
 
 /**
- * tbd
+ * check if the given chunk is valid and holds a given string.
+ * The case of the string is ignored.
  */
 bool chunk_is_str_case(
-   chunk_t *pc,  /**< [in] chunk to check */
-   const char *str,
-   size_t len
+   chunk_t *pc,      /**< [in] chunk to check */
+   const char *str,  /**< [in] string to compare with */
+   size_t len        /**< [in] number of characters in string to compare */
 );
 
 

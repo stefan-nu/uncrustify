@@ -399,11 +399,11 @@ static bool split_line(chunk_t *start)
    else
    {
       if(
-         ( (chunk_is_token(ent.pc, CT_ARITH     ) || chunk_is_token(ent.pc, CT_CARET   ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
-         ( (chunk_is_token(ent.pc, CT_ASSIGN                                           ) ) && is_token_set(cpd.settings[UO_pos_assign     ].tp, TP_LEAD) ) ||
-         ( (chunk_is_token(ent.pc, CT_COMPARE                                          ) ) && is_token_set(cpd.settings[UO_pos_compare    ].tp, TP_LEAD) ) ||
-         ( (chunk_is_token(ent.pc, CT_COND_COLON) || chunk_is_token(ent.pc, CT_QUESTION) ) && is_token_set(cpd.settings[UO_pos_conditional].tp, TP_LEAD) ) ||
-         ( (chunk_is_token(ent.pc, CT_BOOL                                             ) ) && is_token_set(cpd.settings[UO_pos_bool       ].tp, TP_LEAD) ) )
+         ( (chunk_is_type(ent.pc, CT_ARITH     ) || chunk_is_type(ent.pc, CT_CARET   ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
+         ( (chunk_is_type(ent.pc, CT_ASSIGN                                          ) ) && is_token_set(cpd.settings[UO_pos_assign     ].tp, TP_LEAD) ) ||
+         ( (chunk_is_type(ent.pc, CT_COMPARE                                         ) ) && is_token_set(cpd.settings[UO_pos_compare    ].tp, TP_LEAD) ) ||
+         ( (chunk_is_type(ent.pc, CT_COND_COLON) || chunk_is_type(ent.pc, CT_QUESTION) ) && is_token_set(cpd.settings[UO_pos_conditional].tp, TP_LEAD) ) ||
+         ( (chunk_is_type(ent.pc, CT_BOOL                                            ) ) && is_token_set(cpd.settings[UO_pos_bool       ].tp, TP_LEAD) ) )
       {
          pc = ent.pc;
       }
@@ -419,6 +419,18 @@ static bool split_line(chunk_t *start)
    {
       pc = start;
       /* Don't break before a close, comma, or colon */
+      if(chunk_is_type(start, 11, CT_PAREN_CLOSE,
+                                  CT_PAREN_OPEN,
+                                  CT_FPAREN_CLOSE,
+                                  CT_FPAREN_OPEN,
+                                  CT_SPAREN_CLOSE,
+                                  CT_SPAREN_OPEN,
+                                  CT_ANGLE_CLOSE,
+                                  CT_BRACE_CLOSE,
+                                  CT_COMMA,
+                                  CT_SEMICOLON,
+                                  CT_VSEMICOLON) ||
+#if 0
       if ((start->type == CT_PAREN_CLOSE ) ||
           (start->type == CT_PAREN_OPEN  ) ||
           (start->type == CT_FPAREN_CLOSE) ||
@@ -430,6 +442,7 @@ static bool split_line(chunk_t *start)
           (start->type == CT_COMMA       ) ||
           (start->type == CT_SEMICOLON   ) ||
           (start->type == CT_VSEMICOLON  ) ||
+#endif
           (start->len() == 0))
       {
          LOG_FMT(LSPLIT, " ** NO GO **\n");

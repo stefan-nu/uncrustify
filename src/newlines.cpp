@@ -34,8 +34,8 @@
 
 
 static void mark_change(
-   const char *func,
-   size_t line
+   const char *func,  /**< [in]  */
+   size_t      line   /**< [in]  */
 );
 
 
@@ -47,7 +47,7 @@ static void mark_change(
  *  - if eat_blanks_after_open_brace and the prev is '{'
  */
 static bool can_increase_nl(
-   chunk_t *nl
+   chunk_t *nl  /**< [in]  */
 );
 
 
@@ -55,7 +55,7 @@ static bool can_increase_nl(
  * Double the newline, if allowed.
  */
 static void double_newline(
-   chunk_t *nl
+   chunk_t *nl  /**< [in]  */
 );
 
 
@@ -70,9 +70,9 @@ static void double_newline(
  * d. else "} else {"
  */
 static void setup_newline_add(
-   chunk_t *prev,
-   chunk_t *nl,
-   chunk_t *next
+   chunk_t *prev,  /**< [in]  */
+   chunk_t *nl,    /**< [in]  */
+   chunk_t *next   /**< [in]  */
 );
 
 
@@ -80,7 +80,7 @@ static void setup_newline_add(
  * Make sure there is a blank line after a commented group of values
  */
 static void newlines_double_space_struct_enum_union(
-   chunk_t *open_brace
+   chunk_t *open_brace  /**< [in]  */
 );
 
 
@@ -88,8 +88,8 @@ static void newlines_double_space_struct_enum_union(
  * If requested, make sure each entry in an enum is on its own line
  */
 static void newlines_enum_entries(
-   chunk_t *open_brace,
-   argval_t av
+   chunk_t *open_brace,  /**< [in]  */
+   argval_t av           /**< [in]  */
 );
 
 
@@ -101,7 +101,7 @@ static void newlines_enum_entries(
  * false: a new line may NOT be added
  */
 static bool one_liner_nl_ok(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -109,7 +109,7 @@ static bool one_liner_nl_ok(
  * tbd
  */
 static void nl_create_one_liner(
-   chunk_t *vbrace_open
+   chunk_t *vbrace_open  /**< [in]  */
 );
 
 
@@ -117,7 +117,7 @@ static void nl_create_one_liner(
  * Find the next newline or nl_cont
  */
 static void nl_handle_define(
-   chunk_t *pc
+   chunk_t *pc  /**< [in]  */
 );
 
 
@@ -129,9 +129,9 @@ static void nl_handle_define(
  * @param av     The IARF value
  */
 static void newline_iarf_pair(
-   chunk_t *before,
-   chunk_t *after,
-   argval_t av
+   chunk_t *before,  /**< [in]  */
+   chunk_t *after,   /**< [in]  */
+   argval_t av       /**< [in]  */
 );
 
 
@@ -140,7 +140,7 @@ static void newline_iarf_pair(
  * Start points to the open paren
  */
 static void newline_func_multi_line(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -149,7 +149,7 @@ static void newline_func_multi_line(
  * Start points to the open paren
  */
 static void newline_func_def(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -161,7 +161,7 @@ static void newline_func_def(
  *            error:arg3];
  */
 static void newline_oc_msg(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -169,7 +169,7 @@ static void newline_oc_msg(
  * Ensure that the next non-comment token after close brace is a newline
  */
 static void newline_end_newline(
-   chunk_t *br_close
+   chunk_t *br_close  /**< [in]  */
 );
 
 
@@ -183,8 +183,8 @@ static void newline_end_newline(
  * If we do so, also add a newline after the vbrace close.
  */
 static bool newlines_if_for_while_switch(
-   chunk_t *start,
-   argval_t nl_opt
+   chunk_t *start,  /**< [in]  */
+   argval_t nl_opt  /**< [in]  */
 );
 
 
@@ -195,15 +195,15 @@ static bool newlines_if_for_while_switch(
  * "code\n\ncomment\nif (...)" or "code\ncomment\nif (...)"
  */
 static void newlines_if_for_while_switch_pre_blank_lines(
-   chunk_t *start,
-   argval_t nl_opt
+   chunk_t *start,  /**< [in]  */
+   argval_t nl_opt  /**< [in]  */
 );
 
 
 static void _blank_line_set(
-   chunk_t    *pc,
-   const char *text,
-   uo_t       uo
+   chunk_t    *pc,    /**< [in]  */
+   const char *text,  /**< [in]  */
+   uo_t       uo      /**< [in]  */
 );
 
 
@@ -215,12 +215,12 @@ static void _blank_line_set(
  * "code\n\ncomment\nif (...)" or "code\ncomment\nif (...)"
  */
 static void newlines_func_pre_blank_lines(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
 static chunk_t *get_closing_brace(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -229,7 +229,7 @@ static chunk_t *get_closing_brace(
  * skip vbraces
  */
 static void remove_next_newlines(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -241,8 +241,8 @@ static void remove_next_newlines(
  * "if (...)\ncode\ncode" or "if (...)\ncode\n\ncode"
  */
 static void newlines_if_for_while_switch_post_blank_lines(
-   chunk_t  *start,
-   argval_t nl_opt
+   chunk_t  *start,  /**< [in]  */
+   argval_t nl_opt   /**< [in]  */
 );
 
 
@@ -255,14 +255,14 @@ static void newlines_if_for_while_switch_post_blank_lines(
  * "struct [name] {" or "struct [name] \n {"
  */
 static void newlines_struct_enum_union(
-   chunk_t  *start,
-   argval_t nl_opt,
-   bool     leave_trailing
+   chunk_t  *start,         /**< [in]  */
+   argval_t nl_opt,         /**< [in]  */
+   bool     leave_trailing  /**< [in]  */
 );
 
 
 /**
- * Cuddles or un-cuddles a chunk with a previous close brace
+ * Cuddles or uncuddles a chunk with a previous close brace
  *
  * "} while" vs "} \n while"
  * "} else" vs "} \n else"
@@ -270,8 +270,8 @@ static void newlines_struct_enum_union(
  * @param start   The chunk - should be CT_ELSE or CT_WHILE_OF_DO
  */
 static void newlines_cuddle_uncuddle(
-   chunk_t  *start,
-   argval_t nl_opt
+   chunk_t  *start,  /**< [in]  */
+   argval_t nl_opt   /**< [in]  */
 );
 
 
@@ -280,8 +280,8 @@ static void newlines_cuddle_uncuddle(
  * "else {" or "else \n {"
  */
 static void newlines_do_else(
-   chunk_t  *start,
-   argval_t nl_opt
+   chunk_t  *start,  /**< [in]  */
+   argval_t nl_opt   /**< [in]  */
 );
 
 
@@ -289,8 +289,8 @@ static void newlines_do_else(
  * Put a newline before and after a block of variable definitions
  */
 static chunk_t *newline_def_blk(
-   chunk_t *start,
-   bool    fn_top
+   chunk_t *start,  /**< [in]  */
+   bool    fn_top   /**< [in]  */
 );
 
 
@@ -316,7 +316,7 @@ static chunk_t *newline_def_blk(
  * }
  */
 static void newlines_brace_pair(
-   chunk_t *br_open
+   chunk_t *br_open  /**< [in]  */
 );
 
 
@@ -326,12 +326,15 @@ static void newlines_brace_pair(
  * Does not work with PAWN (?)
  */
 static void newline_case(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
+/**
+ * tbd
+ */
 static void newline_case_colon(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -339,7 +342,7 @@ static void newline_case_colon(
  * Put a blank line before a return statement, unless it is after an open brace
  */
 static void newline_before_return(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -350,7 +353,7 @@ static void newline_before_return(
  * May not work with PAWN
  */
 static void newline_after_return(
-   chunk_t *start
+   chunk_t *start  /**< [in]  */
 );
 
 
@@ -1465,8 +1468,8 @@ static chunk_t *newline_def_blk(chunk_t *start, bool fn_top)
             first_var_blk = false;
             var_blk       = false;
          }
-         else if (  chunk_is_type(pc  ) &&
-                  ((chunk_is_type(next) ||
+         else if (  chunk_is_var_type(pc  ) &&
+                  ((chunk_is_var_type(next) ||
                     (next->type == CT_WORD         ) ||
                     (next->type == CT_FUNC_CTOR_VAR))) &&
                    !(next->type == CT_DC_MEMBER    ))   // DbConfig::configuredDatabase()->apply(db);
@@ -1860,7 +1863,7 @@ static size_t count_commas(
 
 static size_t count_commas(chunk_t **end, chunk_t *start, const argval_t newline, bool force_nl)
 {
-   chunk_t *pc = *end;
+   chunk_t *pc;
    size_t comma_count = 0;
    for ( pc = chunk_get_next_ncnl(start);
         (pc != nullptr           ) &&
@@ -1884,6 +1887,7 @@ static size_t count_commas(chunk_t **end, chunk_t *start, const argval_t newline
          }
       }
    }
+   *end = pc;
    return comma_count;
 }
 
@@ -2070,27 +2074,7 @@ static void newline_func_def(chunk_t *start)
    uo_t option = ((start->parent_type == CT_FUNC_DEF      ) ||
                   (start->parent_type == CT_FUNC_CLASS_DEF) ) ?
                    UO_nl_func_def_args : UO_nl_func_decl_args;
-#if 0
    size_t comma_count = count_commas(&pc, start, cpd.settings[option].a, true);
-   /* \bug returning pc does not work */
-#else
-   size_t comma_count = 0;
-   for ( pc = chunk_get_next_ncnl(start);
-        (pc != nullptr           ) &&
-        (pc->level > start->level);
-         pc = chunk_get_next_ncnl(pc))
-   {
-      if ((pc->type  == CT_COMMA        ) &&
-          (pc->level == (start->level+1)) )
-      {
-         comma_count++;
-         chunk_t *tmp = chunk_get_next(pc);
-         if (chunk_is_comment(tmp)) { pc = tmp; }
-
-         newline_iarf(pc, cpd.settings[option].a);
-      }
-   }
-#endif
 
    argval_t as = cpd.settings[is_def ? UO_nl_func_def_start : UO_nl_func_decl_start].a;
    argval_t ae = cpd.settings[is_def ? UO_nl_func_def_end   : UO_nl_func_decl_end  ].a;
@@ -3950,7 +3934,7 @@ void annotations_newlines(void)
               ae->orig_line, ae->orig_col, ae->text());
 
       next = chunk_get_next_nnl(ae);
-      if (chunk_is_token(next, CT_ANNOTATION))
+      if (chunk_is_type(next, CT_ANNOTATION))
       {
          LOG_FMT(LANNOT, " -- nl_between_annotation\n");
          newline_iarf(ae, cpd.settings[UO_nl_between_annotation].a);

@@ -10,6 +10,7 @@
 #ifndef TOKEN_ENUM_H_INCLUDED
 #define TOKEN_ENUM_H_INCLUDED
 
+
 /**
  * This is an enum of all the different chunks/tokens/elements that the
  * program can work with. The parser and scanner assigns one of these to
@@ -353,7 +354,7 @@ typedef enum
  * If there is no inverse the same token is returned
  */
 c_token_t get_inverse_type(
-   c_token_t type
+   c_token_t type /**< [in]  */
 );
 
 

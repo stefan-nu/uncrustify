@@ -77,7 +77,7 @@ enum class char_encoding_e : unsigned int
 };
 
 
-struct chunk_t;   /* forward declaration */
+struct chunk_t;   /**< forward declaration */
 
 /**
  * Sort of like the aligning stuff, but the token indent is relative to the
@@ -86,8 +86,8 @@ struct chunk_t;   /* forward declaration */
  */
 struct indent_ptr_t
 {
-   chunk_t *ref;
-   int     delta;
+   chunk_t *ref;   /**<  */
+   int     delta;  /**<  */
 };
 
 
@@ -105,11 +105,11 @@ struct paren_stack_entry_t
    size_t        indent_tmp;   /**< temporary indent level (depends on use) */
    size_t        indent_tab;   /**< the 'tab' indent (always <= real column) */
    bool          indent_cont;  /**< indent_continue was applied */
-   int           ref;
+   int           ref;          /**<  */
    c_token_t     parent;       /**< if, for, function, etc */
-   brace_stage_e stage;
+   brace_stage_e stage;        /**<  */
    bool          in_preproc;   /**< whether this was created in a preprocessor */
-   size_t        ns_cnt;
+   size_t        ns_cnt;       /**<  */
    bool          non_vardef;   /**< Hit a non-vardef line */
    indent_ptr_t  ip;
 };
@@ -119,80 +119,80 @@ struct paren_stack_entry_t
 struct parse_frame_t
 {
    int                 ref_no;
-   size_t              level;           // level of parens/square/angle/brace
-   size_t              brace_level;     // level of brace/vbrace
-   size_t              pp_level;        // level of preproc #if stuff
+   size_t              level;           /**< level of parens/square/angle/brace */
+   size_t              brace_level;     /**< level of brace/vbrace */
+   size_t              pp_level;        /**< level of preproc #if stuff */
 
-   int                 sparen_count;
+   int                 sparen_count;    /**<  */
 
-   paren_stack_entry_t pse[128];
-   size_t              pse_tos;
-   int                 paren_count;
+   paren_stack_entry_t pse[128];        /**<  */
+   size_t              pse_tos;         /**<  */
+   int                 paren_count;     /**<  */
 
-   c_token_t           in_ifdef;
-   int                 stmt_count;
-   int                 expr_count;
+   c_token_t           in_ifdef;        /**<  */
+   int                 stmt_count;      /**<  */
+   int                 expr_count;      /**<  */
 
-   bool                maybe_decl;
-   bool                maybe_cast;
+   bool                maybe_decl;      /**<  */
+   bool                maybe_cast;      /**<  */
 };
 
 
 #define PCF_BIT(b)    (1ULL << b)
 
 /* Copy flags are in the lower 16 bits */
-#define PCF_COPY_FLAGS         0x0000ffff
-#define PCF_IN_PREPROC         PCF_BIT(0)  /* in a preprocessor */
-#define PCF_IN_STRUCT          PCF_BIT(1)  /* in a struct */
-#define PCF_IN_ENUM            PCF_BIT(2)  /* in enum */
-#define PCF_IN_FCN_DEF         PCF_BIT(3)  /* inside function def parens */
-#define PCF_IN_FCN_CALL        PCF_BIT(4)  /* inside function call parens */
-#define PCF_IN_SPAREN          PCF_BIT(5)  /* inside for/if/while/switch parens */
-#define PCF_IN_TEMPLATE        PCF_BIT(6)
-#define PCF_IN_TYPEDEF         PCF_BIT(7)
-#define PCF_IN_CONST_ARGS      PCF_BIT(8)
-#define PCF_IN_ARRAY_ASSIGN    PCF_BIT(9)
-#define PCF_IN_CLASS           PCF_BIT(10)
-#define PCF_IN_CLASS_BASE      PCF_BIT(11)
-#define PCF_IN_NAMESPACE       PCF_BIT(12)
-#define PCF_IN_FOR             PCF_BIT(13)
-#define PCF_IN_OC_MSG          PCF_BIT(14)
+#define PCF_COPY_FLAGS         0x0000ffff   /**<  */
+#define PCF_IN_PREPROC         PCF_BIT(0)   /**< in a preprocessor */
+#define PCF_IN_STRUCT          PCF_BIT(1)   /**< in a struct */
+#define PCF_IN_ENUM            PCF_BIT(2)   /**< in enum */
+#define PCF_IN_FCN_DEF         PCF_BIT(3)   /**< inside function def parens */
+#define PCF_IN_FCN_CALL        PCF_BIT(4)   /**< inside function call parens */
+#define PCF_IN_SPAREN          PCF_BIT(5)   /**< inside for/if/while/switch parens */
+#define PCF_IN_TEMPLATE        PCF_BIT(6)   /**<  */
+#define PCF_IN_TYPEDEF         PCF_BIT(7)   /**<  */
+#define PCF_IN_CONST_ARGS      PCF_BIT(8)   /**<  */
+#define PCF_IN_ARRAY_ASSIGN    PCF_BIT(9)   /**<  */
+#define PCF_IN_CLASS           PCF_BIT(10)  /**<  */
+#define PCF_IN_CLASS_BASE      PCF_BIT(11)  /**<  */
+#define PCF_IN_NAMESPACE       PCF_BIT(12)  /**<  */
+#define PCF_IN_FOR             PCF_BIT(13)  /**<  */
+#define PCF_IN_OC_MSG          PCF_BIT(14)  /**<  */
 
 /* Non-Copy flags are in the upper 48 bits */
-#define PCF_FORCE_SPACE        PCF_BIT(16)  /* must have a space after this token */
-#define PCF_STMT_START         PCF_BIT(17)  /* marks the start of a statement */
-#define PCF_EXPR_START         PCF_BIT(18)
-#define PCF_DONT_INDENT        PCF_BIT(19)  /* already aligned! */
-#define PCF_ALIGN_START        PCF_BIT(20)
-#define PCF_WAS_ALIGNED        PCF_BIT(21)
-#define PCF_VAR_TYPE           PCF_BIT(22)  /* part of a variable def type */
-#define PCF_VAR_DEF            PCF_BIT(23)  /* variable name in a variable def */
-#define PCF_VAR_1ST            PCF_BIT(24)  /* 1st variable def in a statement */
+#define PCF_FORCE_SPACE        PCF_BIT(16)  /**< must have a space after this token */
+#define PCF_STMT_START         PCF_BIT(17)  /**< marks the start of a statement */
+#define PCF_EXPR_START         PCF_BIT(18)  /**<  */
+#define PCF_DONT_INDENT        PCF_BIT(19)  /**< already aligned! */
+#define PCF_ALIGN_START        PCF_BIT(20)  /**<  */
+#define PCF_WAS_ALIGNED        PCF_BIT(21)  /**<  */
+#define PCF_VAR_TYPE           PCF_BIT(22)  /**< part of a variable def type */
+#define PCF_VAR_DEF            PCF_BIT(23)  /**< variable name in a variable def */
+#define PCF_VAR_1ST            PCF_BIT(24)  /**< 1st variable def in a statement */
 #define PCF_VAR_1ST_DEF        (PCF_VAR_DEF | PCF_VAR_1ST)
 #define PCF_VAR_INLINE         PCF_BIT(25)  /* type was an inline struct/enum/union */
-#define PCF_RIGHT_COMMENT      PCF_BIT(26)
-#define PCF_OLD_FCN_PARAMS     PCF_BIT(27)
-#define PCF_LVALUE             PCF_BIT(28) /* left of assignment */
-#define PCF_ONE_LINER          PCF_BIT(29)
+#define PCF_RIGHT_COMMENT      PCF_BIT(26)  /**<  */
+#define PCF_OLD_FCN_PARAMS     PCF_BIT(27)  /**<  */
+#define PCF_LVALUE             PCF_BIT(28)  /* left of assignment */
+#define PCF_ONE_LINER          PCF_BIT(29)  /**<  */
 #define PCF_ONE_CLASS          (PCF_ONE_LINER | PCF_IN_CLASS)
-#define PCF_EMPTY_BODY         PCF_BIT(30)
-#define PCF_ANCHOR             PCF_BIT(31)  /* aligning anchor */
-#define PCF_PUNCTUATOR         PCF_BIT(32)
-#define PCF_INSERTED           PCF_BIT(33)  /* chunk was inserted from another file */
-#define PCF_LONG_BLOCK         PCF_BIT(34)  /* the block is 'long' by some measure */
-#define PCF_OC_BOXED           PCF_BIT(35)  /* inside OC boxed expression */
-#define PCF_KEEP_BRACE         PCF_BIT(36)  /* do not remove brace */
-#define PCF_OC_RTYPE           PCF_BIT(37)  /* inside OC return type */
-#define PCF_OC_ATYPE           PCF_BIT(38)  /* inside OC arg type */
-#define PCF_WF_ENDIF           PCF_BIT(39)  /* #endif for whole file ifdef */
-#define PCF_IN_QT_MACRO        PCF_BIT(40)  /* in a QT-macro, i.e. SIGNAL, SLOT */
+#define PCF_EMPTY_BODY         PCF_BIT(30)  /**<  */
+#define PCF_ANCHOR             PCF_BIT(31)  /**< aligning anchor */
+#define PCF_PUNCTUATOR         PCF_BIT(32)  /**<  */
+#define PCF_INSERTED           PCF_BIT(33)  /**< chunk was inserted from another file */
+#define PCF_LONG_BLOCK         PCF_BIT(34)  /**< the block is 'long' by some measure */
+#define PCF_OC_BOXED           PCF_BIT(35)  /**< inside OC boxed expression */
+#define PCF_KEEP_BRACE         PCF_BIT(36)  /**< do not remove brace */
+#define PCF_OC_RTYPE           PCF_BIT(37)  /**< inside OC return type */
+#define PCF_OC_ATYPE           PCF_BIT(38)  /**< inside OC arg type */
+#define PCF_WF_ENDIF           PCF_BIT(39)  /**< #endif for whole file ifdef */
+#define PCF_IN_QT_MACRO        PCF_BIT(40)  /**< in a QT-macro, i.e. SIGNAL, SLOT */
 
 
 typedef enum StarStyle_e
 {
-   SS_IGNORE,  /**< don't look for prev stars */
-   SS_INCLUDE, /**< include prev * before add */
-   SS_DANGLE   /**< include prev * after  add */
+   SS_IGNORE,   /**< don't look for prev stars */
+   SS_INCLUDE,  /**< include prev * before add */
+   SS_DANGLE    /**< include prev * after  add */
 }StarStyle_t;
 
 
@@ -206,11 +206,10 @@ typedef struct align_ptr_s
 
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
-    * A right-aligned word would be a positive value.
-    */
-   int     col_adj;
-   chunk_t *ref;
-   chunk_t *start;
+    * A right-aligned word would be a positive value. */
+   int     col_adj;          /**<  */
+   chunk_t *ref;             /**<  */
+   chunk_t *start;           /**<  */
 }align_ptr_t;
 
 
@@ -270,15 +269,15 @@ struct chunk_t
       return(str.c_str());
    }
 
-   chunk_t      *next;
-   chunk_t      *prev;
-   align_ptr_t  align;
-   indent_ptr_t indent;
-   c_token_t    type;
-   c_token_t    parent_type;      /**< usually CT_NONE */
-   size_t       orig_line;
-   size_t       orig_col;         /**< is always > 0 */
-   UINT32       orig_col_end;     /**< is always > 1 */
+   chunk_t      *next;            /**< pointer to next chunk in list */
+   chunk_t      *prev;            /**< pointer to previous chunk in list */
+   align_ptr_t  align;            /**<  */
+   indent_ptr_t indent;           /**<  */
+   c_token_t    type;             /**< type of the chunk */
+   c_token_t    parent_type;      /**< type of the parent chunk usually CT_NONE */
+   size_t       orig_line;        /**< line number of chunk in input file */
+   size_t       orig_col;         /**< column where chunk started in input file, is always > 0 */
+   UINT32       orig_col_end;     /**< column where chunk ended in input file, is always > 1 */
    UINT32       orig_prev_sp;     /**< whitespace before this token */
    UINT64       flags;            /**< see PCF_xxx */
    size_t       column;           /**< column of chunk */
@@ -288,7 +287,7 @@ struct chunk_t
    size_t       nl_count;         /**< number of newlines in CT_NEWLINE */
    size_t       level;            /**< nest level in {, (, or [ */
    size_t       brace_level;      /**< nest level in braces only */
-   size_t       pp_level;         /**< nest level in #if stuff */
+   size_t       pp_level;         /**< nest level in preprocessor */
    bool         after_tab;        /**< whether this token was after a tab */
    unc_text     str;              /**< the token text */
 };
@@ -339,26 +338,26 @@ enum class pattern_class_e : unsigned int
 
 struct chunk_tag_t
 {
-   const char *tag;
-   c_token_t  type;
-   size_t     lang_flags;
+   const char *tag;         /**<  */
+   c_token_t  type;         /**<  */
+   size_t     lang_flags;   /**<  */
 };
 
 
 struct lookup_entry_t
 {
-   char              ch;
-   char              left_in_group;
-   UINT16            next_idx;
-   const chunk_tag_t *tag;
+   char              ch;              /**<  */
+   char              left_in_group;   /**<  */
+   UINT16            next_idx;        /**<  */
+   const chunk_tag_t *tag;            /**<  */
 };
 
 
 struct align_t
 {
-   size_t    col;
-   c_token_t type;
-   size_t    len;    // of the token + space
+   size_t    col;    /**<  */
+   c_token_t type;   /**<  */
+   size_t    len;    /**< of the token + space */
 };
 
 
@@ -392,71 +391,71 @@ enum class unc_stage_e : unsigned int
 
 struct cp_data_t
 {
-   deque<UINT8>    *bout;
-   FILE            *fout;
-   int             last_char;
-   bool            do_check;
-   unc_stage_e     unc_stage;
-   int             check_fail_cnt;    // total failures
-   bool            if_changed;
+   deque<UINT8>    *bout;          /**<  */
+   FILE            *fout;          /**<  */
+   int             last_char;      /**<  */
+   bool            do_check;       /**<  */
+   unc_stage_e     unc_stage;      /**<  */
+   int             check_fail_cnt; /**< total failures */
+   bool            if_changed;     /**<  */
 
-   UINT32          error_count;     /**< counts how many errors occurred so far */
-   const char      *filename;
+   UINT32          error_count;    /**< counts how many errors occurred so far */
+   const char      *filename;      /**<  */
 
-   file_mem_t      file_hdr;       // for cmt_insert_file_header
-   file_mem_t      file_ftr;       // for cmt_insert_file_footer
-   file_mem_t      func_hdr;       // for cmt_insert_func_header
-   file_mem_t      oc_msg_hdr;     // for cmt_insert_oc_msg_header
-   file_mem_t      class_hdr;      // for cmt_insert_class_header
+   file_mem_t      file_hdr;       /**< for cmt_insert_file_header */
+   file_mem_t      file_ftr;       /**< for cmt_insert_file_footer */
+   file_mem_t      func_hdr;       /**< for cmt_insert_func_header */
+   file_mem_t      oc_msg_hdr;     /**< for cmt_insert_oc_msg_header */
+   file_mem_t      class_hdr;      /**< for cmt_insert_class_header */
 
    size_t          lang_flags;     /**< defines the language of the source input LANG_xxx */
-   bool            lang_forced;
+   bool            lang_forced;    /**<  */
 
-   bool            unc_off;
-   bool            unc_off_used;    // to check if "unc_off" is used
-   UINT32          line_number;
-   UINT32          column;          // column for parsing
-   UINT32          spaces;          // space count on output
+   bool            unc_off;        /**<  */
+   bool            unc_off_used;   /**< to check if "unc_off" is used */
+   UINT32          line_number;    /**<  */
+   UINT32          column;         /**< column for parsing */
+   UINT32          spaces;         /**< space count on output */
 
    int             ifdef_over_whole_file;
 
-   bool            frag;           /* activates code fragment option */
-   UINT32          frag_cols;
+   bool            frag;           /**< activates code fragment option */
+   UINT32          frag_cols;      /**<  */
 
    // stuff to auto-detect line endings
-   UINT32          le_counts[LE_AUTO];
-   unc_text        newline;
+   UINT32          le_counts[LE_AUTO];  /**<  */
+   unc_text        newline;             /**<  */
 
-   bool            consumed;
+   bool            consumed;            /**<  */
 
-   bool            did_newline;      /* flag indicates if a newline was added or converted */
-   c_token_t       is_preproc;
-   int             preproc_ncnl_count;
-   bool            output_trailspace;
-   bool            output_tab_as_space;
+   bool            did_newline;         /**< flag indicates if a newline was added or converted */
+   c_token_t       is_preproc;          /**<  */
+   int             preproc_ncnl_count;  /**<  */
+   bool            output_trailspace;   /**<  */
+   bool            output_tab_as_space; /**<  */
 
-   bool            bom;
-   char_encoding_e enc;
+   bool            bom;                 /**<  */
+   char_encoding_e enc;                 /**<  */
 
    // bumped up when a line is split or indented
-   int             changes;
-   int             pass_count;
+   int             changes;             /**<  */
+   int             pass_count;          /**<  */
 
-   align_t         al[80];
-   size_t          al_cnt;
-   bool            al_c99_array;
+   align_t         al[80];              /**<  */
+   size_t          al_cnt;              /**<  */
+   bool            al_c99_array;        /**<  */
 
-   bool            warned_unable_string_replace_tab_chars;
+   bool            warned_unable_string_replace_tab_chars;    /**<  */
 
    // Here are all the settings
-   op_val_t        settings[UO_option_count];
+   op_val_t        settings[UO_option_count];   /**<  */
 
-   parse_frame_t   frames[16];
-   int             frame_count;
-   size_t          pp_level;   /* \todo can this ever be -1 */
+   parse_frame_t   frames[16];                  /**<  */
+   int             frame_count;                 /**<  */
+   size_t          pp_level;                    /**< \todo can this ever be -1 */
 
    // the default values for settings
-   op_val_t        defaults[UO_option_count];
+   op_val_t        defaults[UO_option_count];   /**<  */
 };
 
 

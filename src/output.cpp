@@ -36,7 +36,7 @@ struct cmt_reflow
 struct kw_subst_t
 {
    const char *tag;
-   bool      (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
+   bool  (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
 };
 
 
@@ -1951,7 +1951,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
       assert(tmp != nullptr);
       tmp = chunk_get_prev_type(tmp, CT_CLASS, (int)tmp->level);
       tmp = chunk_get_next_ncnl(tmp);
-      while (chunk_is_token(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
+      while (chunk_is_type(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
       {
          tmp = chunk_get_next_ncnl(tmp);
          tmp = chunk_get_next_ncnl(tmp);

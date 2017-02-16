@@ -1945,7 +1945,7 @@ void space_text(void)
       if (cpd.settings[UO_sp_skip_vbrace_tokens].b)
       {
          next = chunk_get_next(pc);
-         while ( (chunk_is_blank   (next)) &&
+         while ( (chunk_is_empty   (next)) &&
                  (!chunk_is_newline(next)) &&
                  (next != nullptr           ) &&
                 (next->type == CT_VBRACE_OPEN ||

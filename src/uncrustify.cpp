@@ -1158,6 +1158,7 @@ bool char_is_path_separation(
    const char* character   /**< {in] single character to check */
 );
 
+
 bool char_is_path_separation(const char character)
 {
    return ((character == UNIX_PATH_SEP) ||

@@ -167,7 +167,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
             ali  = prev;
             prev = chunk_get_prev(ali);
          }
-         if (chunk_is_token(prev, CT_TPAREN_OPEN))
+         if (chunk_is_type(prev, CT_TPAREN_OPEN))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -220,7 +220,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          gap = ali->column - (ref->column + ref->len());
       }
       tmp = ali;
-      if (chunk_is_token(tmp, CT_TPAREN_OPEN))
+      if (chunk_is_type(tmp, CT_TPAREN_OPEN))
       {
          tmp = chunk_get_next(tmp);
       }

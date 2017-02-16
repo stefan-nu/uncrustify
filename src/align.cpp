@@ -998,11 +998,14 @@ static void align_same_func_call_params(void)
 
       /* Only align function calls that are right after a newline */
       chunk_t *prev = chunk_get_prev(pc);
-      while (chunk_is_token(prev, CT_MEMBER   ) ||
-             chunk_is_token(prev, CT_DC_MEMBER) )
+      while(chunk_is_type(prev, 2, CT_MEMBER, CT_DC_MEMBER))
+#if 0
+      while (chunk_is_type(prev, CT_MEMBER   ) ||
+             chunk_is_type(prev, CT_DC_MEMBER) )
+#endif
       {
          chunk_t *tprev = chunk_get_prev(prev);
-         if (!chunk_is_token(tprev, CT_TYPE))
+         if (!chunk_is_type(tprev, CT_TYPE))
          {
             prev = tprev;
             break;
@@ -1575,10 +1578,10 @@ static void ib_shift_out(size_t idx, size_t num)
 
 static chunk_t *skip_c99_array(chunk_t *sq_open)
 {
-   if (chunk_is_token(sq_open, CT_SQUARE_OPEN))
+   if (chunk_is_type(sq_open, CT_SQUARE_OPEN))
    {
       chunk_t *tmp = chunk_get_next_nc(chunk_skip_to_match(sq_open));
-      if (chunk_is_token(tmp, CT_ASSIGN))
+      if (chunk_is_type(tmp, CT_ASSIGN))
       {
          return(chunk_get_next_nc(tmp));
       }

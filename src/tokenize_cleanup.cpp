@@ -104,7 +104,7 @@ void tokenize_cleanup(void)
       {
          chunk_t *next = chunk_get_next_ncnl(pc);
          assert(next != nullptr);
-         if (chunk_is_token(next, CT_SQUARE_CLOSE))
+         if (chunk_is_type(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
             set_chunk_type(pc, CT_TSQUARE);
@@ -545,13 +545,13 @@ void tokenize_cleanup(void)
          if (((pc->type == CT_IF   ) ||
               (pc->type == CT_FOR  ) ||
               (pc->type == CT_WHILE) ) &&
-              (chunk_is_token(next, CT_PAREN_OPEN) == false) )
+              (chunk_is_type(next, CT_PAREN_OPEN) == false) )
          {
             set_chunk_type(pc, CT_WORD);
          }
-         if ((pc->type == CT_DO                   )   &&
-             (chunk_is_token(prev, CT_MINUS       ) ||
-              chunk_is_token(next, CT_SQUARE_CLOSE) ) )
+         if ((pc->type == CT_DO                  )   &&
+             (chunk_is_type(prev, CT_MINUS       ) ||
+              chunk_is_type(next, CT_SQUARE_CLOSE) ) )
          {
             set_chunk_type(pc, CT_WORD);
          }
@@ -559,16 +559,19 @@ void tokenize_cleanup(void)
 
       /* Another hack to clean up more keyword abuse */
       if ((pc->type == CT_CLASS       )   &&
-          (chunk_is_token(prev, CT_DOT) ||
-           chunk_is_token(next, CT_DOT) ) )
+          (chunk_is_type(prev, CT_DOT) ||
+           chunk_is_type(next, CT_DOT) ) )
       {
          set_chunk_type(pc, CT_WORD);
       }
 
       /* Detect Objective C class name */
+      if(chunk_is_type(pc, 3, CT_OC_IMPL, CT_OC_INTF, CT_OC_PROTOCOL))
+#if 0
       if ((pc->type == CT_OC_IMPL    ) ||
           (pc->type == CT_OC_INTF    ) ||
           (pc->type == CT_OC_PROTOCOL) )
+#endif
       {
          assert(next != nullptr);
          if (next->type != CT_PAREN_OPEN)

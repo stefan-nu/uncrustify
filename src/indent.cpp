@@ -1815,7 +1815,7 @@ void indent_text(void)
            (pc->type        != CT_COMMENT_MULTI) &&
            (pc->type        != CT_BRACE_OPEN   ) &&
            (pc->level       > 0                ) &&
-           (!chunk_is_blank(pc)                ) )
+           (!chunk_is_empty(pc)                ) )
       {
          bool in_shift    = false;
          bool is_operator = false;
@@ -1944,7 +1944,7 @@ void indent_text(void)
             vardefcol = pc->column;
             /* need to skip backward over any '*' */
             chunk_t *tmp = chunk_get_prev_nc(pc);
-            while (chunk_is_token(tmp, CT_PTR_TYPE))
+            while (chunk_is_type(tmp, CT_PTR_TYPE))
             {
                assert(tmp != nullptr);
                vardefcol = tmp->column;
@@ -1991,7 +1991,7 @@ void indent_text(void)
               (prev->type == CT_WORD    ) ) )
          {
             chunk_t *tmp = pc;
-            while (chunk_is_token(tmp, CT_PTR_TYPE))
+            while (chunk_is_type(tmp, CT_PTR_TYPE))
             {
                tmp = chunk_get_next_ncnl(tmp);
             }
