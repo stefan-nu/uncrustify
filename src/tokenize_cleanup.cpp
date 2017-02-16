@@ -103,7 +103,7 @@ void tokenize_cleanup(void)
       if (pc->type == CT_SQUARE_OPEN)
       {
          chunk_t *next = chunk_get_next_ncnl(pc);
-         assert(next != nullptr);
+//       assert(next != nullptr);
          if (chunk_is_type(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
@@ -172,34 +172,35 @@ void tokenize_cleanup(void)
        * Change CT_WORD before CT_WORD to CT_TYPE */
       if (next->type == CT_WORD)
       {
-         if ((pc->type == CT_ENUM      ) ||
-             (pc->type == CT_ENUM_CLASS) ||
-             (pc->type == CT_UNION     ) ||
-             (pc->type == CT_STRUCT    ) )
+         if(chunk_is_type(pc, 4, CT_ENUM, CT_ENUM_CLASS, CT_UNION, CT_STRUCT))
          {
             set_chunk_type(next, CT_TYPE);
          }
-         if (pc->type == CT_WORD) { set_chunk_type(pc, CT_TYPE); }
+         if (chunk_is_type(pc, CT_WORD)) { set_chunk_type(pc, CT_TYPE); }
       }
 
       /* change extern to qualifier if extern isn't followed by a string or
        * an open paren */
-      if (pc->type == CT_EXTERN)
+      if (chunk_is_type(pc, CT_EXTERN))
       {
-         if (next->type == CT_STRING)
+         if (chunk_is_type(next, CT_STRING))
          {
             /* Probably 'extern "C"' */
          }
-         else if (next->type == CT_PAREN_OPEN)
+         else if (chunk_is_type(next, CT_PAREN_OPEN))
          {
             /* Probably 'extern (C)' */
          }
          else
          {
             /* Something else followed by a open brace */
-            const chunk_t *tmp = chunk_get_next_ncnl(next);
+            chunk_t *tmp = chunk_get_next_ncnl(next);
+#if 0
+            if(chunk_is_not_type(tmp, CT_BRACE_OPEN))
+#else
             if ((tmp       == nullptr      ) ||
                 (tmp->type != CT_BRACE_OPEN) )
+#endif
             {
                set_chunk_type(pc, CT_QUALIFIER);
             }
@@ -209,9 +210,7 @@ void tokenize_cleanup(void)
       /* Change CT_STAR to CT_PTR_TYPE if preceded by CT_TYPE,
        * CT_QUALIFIER, or CT_PTR_TYPE. */
       if ((next->type == CT_STAR     )   &&
-          ((pc->type  == CT_TYPE     ) ||
-           (pc->type  == CT_QUALIFIER) ||
-           (pc->type  == CT_PTR_TYPE ) ) )
+          (chunk_is_type(pc, 3, CT_TYPE, CT_QUALIFIER, CT_PTR_TYPE)))
       {
          set_chunk_type(next, CT_PTR_TYPE);
       }
@@ -262,27 +261,37 @@ void tokenize_cleanup(void)
       {
          /* Check for the D string concat symbol '~' */
          if ( (pc->type    == CT_INV   )   &&
+#if 0
+ ???          (chunk_is_type(prev, 2, CT_STRING, CT_WORD)) ||
+              (chunk_is_type(next,    CT_STRING         )) )
+
+#else
               (prev        != nullptr  )   &&
               ((prev->type == CT_STRING) ||
                (prev->type == CT_WORD  ) ||
-               (next->type == CT_STRING) ) )
+               (next->type == CT_STRING)) )
+#endif
+
          {
             set_chunk_type(pc, CT_CONCAT);
          }
 
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
          if ( (pc->type   == CT_NOT       ) &&
-              (prev       != nullptr      ) &&
-              (prev->type == CT_WORD      ) &&
-              ((next->type == CT_PAREN_OPEN) || (next->type == CT_WORD) || (next->type == CT_TYPE)))
+              (chunk_is_type(prev, CT_WORD)) &&
+              (chunk_is_type(next, 3, CT_WORD, CT_PAREN_OPEN, CT_TYPE)))
          {
             set_chunk_type(pc, CT_D_TEMPLATE);
          }
 
          /* handle "version(unittest) { }" vs "unittest { }" */
          if ((pc->type   == CT_UNITTEST  ) &&
+#if 0
+             (chunk_is_type(prev, CT_PAREN_OPEN)))
+#else
              (prev       != nullptr      ) &&
              (prev->type == CT_PAREN_OPEN) )
+#endif
          {
             set_chunk_type(pc, CT_WORD);
          }
@@ -318,14 +327,18 @@ void tokenize_cleanup(void)
           (next->type != CT_BRACE_OPEN) )
       {
          assert(prev != nullptr);
-
+#if 0
+         if((chunk_is_type(next,    CT_SEMICOLON                               )) &&
+            (chunk_is_type(prev, 3, CT_SEMICOLON, CT_BRACE_CLOSE, CT_BRACE_OPEN)) )
+#else
          if ( (next->type == CT_SEMICOLON  )   &&
              ((prev->type == CT_BRACE_CLOSE) ||
               (prev->type == CT_BRACE_OPEN ) ||
               (prev->type == CT_SEMICOLON  ) ) )
+#endif
          {
-            set_chunk_type(pc, CT_GETSET_EMPTY);
-            set_chunk_parent(next, CT_GETSET);
+            set_chunk_type  (pc,   CT_GETSET_EMPTY);
+            set_chunk_parent(next, CT_GETSET      );
          }
          else
          {
@@ -397,6 +410,10 @@ void tokenize_cleanup(void)
             chunk_t *tmp;
             while ((tmp = chunk_get_next(tmp2)) != nullptr)
             {
+#if 0
+               if(chunk_is_not_type(tmp, 7, CT_WORD, CT_AMP, CT_TSQUARE,
+                     CT_TYPE, CT_QUALIFIER, CT_STAR, CT_CARET))
+#else
                if ((tmp->type != CT_WORD     ) &&
                    (tmp->type != CT_TYPE     ) &&
                    (tmp->type != CT_QUALIFIER) &&
@@ -404,6 +421,7 @@ void tokenize_cleanup(void)
                    (tmp->type != CT_CARET    ) &&
                    (tmp->type != CT_AMP      ) &&
                    (tmp->type != CT_TSQUARE  ) )
+#endif
                {
                   break;
                }
@@ -499,10 +517,11 @@ void tokenize_cleanup(void)
             /* Change words into CT_SQL_WORD until CT_SEMICOLON */
             while (tmp != nullptr)
             {
-               if (tmp->type == CT_SEMICOLON) { break; }
+               if (chunk_is_type(tmp, CT_SEMICOLON)) { break; }
 
-               if ((tmp->len() > 0) &&
-                   (unc_isalpha(*tmp->str.c_str()) || (*tmp->str.c_str() == '$')))
+               if ((tmp->len() > 0                      )   &&
+                   (unc_isalpha(*tmp->str.c_str()       ) ||
+                               (*tmp->str.c_str() == '$') ) )
                {
                   set_chunk_type(tmp, CT_SQL_WORD);
                }
@@ -512,7 +531,8 @@ void tokenize_cleanup(void)
       }
 
       /* handle MS abomination 'for each' */
-      if ((pc->type == CT_FOR) && chunk_is_str(next, "each", 4) &&
+      if ((chunk_is_type(pc,   CT_FOR)  ) &&
+           chunk_is_str (next, "each", 4) &&
           (next == chunk_get_next(pc)))
       {
          assert(next != nullptr);
@@ -523,10 +543,11 @@ void tokenize_cleanup(void)
          chunk_del(next);
          next = chunk_get_next_ncnl(pc);
          /* label the 'in' */
-         if (next && (next->type == CT_PAREN_OPEN))
+         if (next       != nullptr       &&
+            (next->type == CT_PAREN_OPEN))
          {
             chunk_t *tmp = chunk_get_next_ncnl(next);
-            while (tmp && (tmp->type != CT_PAREN_CLOSE))
+            while (tmp != nullptr && (tmp->type != CT_PAREN_CLOSE))
             {
                if (chunk_is_str(tmp, "in", 2))
                {
@@ -542,10 +563,8 @@ void tokenize_cleanup(void)
        * This is a dirty hack to allow some of the more common situations. */
       if (cpd.lang_flags & LANG_OC)
       {
-         if (((pc->type == CT_IF   ) ||
-              (pc->type == CT_FOR  ) ||
-              (pc->type == CT_WHILE) ) &&
-              (chunk_is_type(next, CT_PAREN_OPEN) == false) )
+         if( chunk_is_type(pc, 3, CT_IF, CT_FOR, CT_WHILE) &&
+            (chunk_is_type(next, CT_PAREN_OPEN) == false ) )
          {
             set_chunk_type(pc, CT_WORD);
          }
@@ -567,11 +586,6 @@ void tokenize_cleanup(void)
 
       /* Detect Objective C class name */
       if(chunk_is_type(pc, 3, CT_OC_IMPL, CT_OC_INTF, CT_OC_PROTOCOL))
-#if 0
-      if ((pc->type == CT_OC_IMPL    ) ||
-          (pc->type == CT_OC_INTF    ) ||
-          (pc->type == CT_OC_PROTOCOL) )
-#endif
       {
          assert(next != nullptr);
          if (next->type != CT_PAREN_OPEN)
@@ -661,16 +675,16 @@ void tokenize_cleanup(void)
             set_chunk_parent(next, pc->type);
 
             chunk_t *tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
-            if (tmp != nullptr)
+            if (chunk_is_valid(tmp))
             {
                set_chunk_parent(tmp, pc->type);
                tmp = chunk_get_next_ncnl(tmp);
-               if (tmp != nullptr)
+               if (chunk_is_valid(tmp))
                {
                   chunk_flags_set(tmp, PCF_STMT_START | PCF_EXPR_START);
 
                   tmp = chunk_get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
-                  if (tmp != nullptr)
+                  if (chunk_is_valid(tmp))
                   {
                      set_chunk_parent(tmp, pc->type);
                   }
@@ -690,7 +704,7 @@ void tokenize_cleanup(void)
          set_chunk_parent(next, pc->type);
 
          chunk_t *tmp = chunk_get_next(next);
-         if (tmp != nullptr)
+         if (chunk_is_valid(tmp))
          {
             set_chunk_type(tmp, CT_OC_SEL_NAME);
             set_chunk_parent(tmp, pc->type);
@@ -739,7 +753,7 @@ void tokenize_cleanup(void)
           (next->orig_col == (pc->orig_col + pc->len())))
       {
          chunk_t *tmp = chunk_get_next_ncnl(next);
-         if (tmp != nullptr)
+         if (chunk_is_valid(tmp))
          {
             bool doit = ((tmp->type == CT_PAREN_CLOSE) ||
                          (tmp->type == CT_ANGLE_CLOSE) );
@@ -847,8 +861,8 @@ static void check_template(chunk_t *start)
 {
    LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:", __func__, start->orig_line, start->orig_col);
 
-   const chunk_t *prev = chunk_get_prev_ncnl(start, scope_e::PREPROC);
-   if (prev == nullptr) { return; }
+   chunk_t *prev = chunk_get_prev_ncnl(start, scope_e::PREPROC);
+   if (!chunk_is_valid(prev)) { return; }
 
    chunk_t *end;
    chunk_t *pc;
@@ -859,7 +873,7 @@ static void check_template(chunk_t *start)
       /* We have: "template< ... >", which is a template declaration */
       size_t level = 1;
       for (pc = chunk_get_next_ncnl(start, scope_e::PREPROC);
-           pc != nullptr;
+           chunk_is_valid(pc);
            pc = chunk_get_next_ncnl(pc, scope_e::PREPROC))
       {
          LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), level);

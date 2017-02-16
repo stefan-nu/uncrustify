@@ -1960,8 +1960,8 @@ void indent_text(void)
       }
 
       /* Indent the line if needed */
-      if ((my_did_newline == true) &&
-          (!chunk_is_newline(pc) ) &&
+      if ((my_did_newline       == true ) &&
+          (chunk_is_newline(pc) == false) &&
           (pc->len()      != 0   ) )
       {
          pc->column_indent = frm.pse[frm.pse_tos].indent_tab;
@@ -1984,21 +1984,15 @@ void indent_text(void)
          bool do_vardefcol = false;
          if ((vardefcol  > 0              ) &&
              (pc->level == pc->brace_level) &&
-             (prev      != nullptr        ) &&
-             ((prev->type == CT_COMMA   ) ||
-              (prev->type == CT_TYPE    ) ||
-              (prev->type == CT_PTR_TYPE) ||
-              (prev->type == CT_WORD    ) ) )
+             chunk_is_type(prev, 4, CT_COMMA, CT_TYPE, CT_PTR_TYPE, CT_WORD))
          {
             chunk_t *tmp = pc;
             while (chunk_is_type(tmp, CT_PTR_TYPE))
             {
                tmp = chunk_get_next_ncnl(tmp);
             }
-            if (( tmp       != nullptr         )   &&
-                ( tmp->flags & PCF_VAR_DEF     )   &&
-                ((tmp->type == CT_WORD         ) ||
-                 (tmp->type == CT_FUNC_CTOR_VAR) ) )
+            if(chunk_is_type(tmp, 2, CT_WORD, CT_FUNC_CTOR_VAR) &&
+               (tmp->flags & PCF_VAR_DEF                      ) )
             {
                do_vardefcol = true;
             }

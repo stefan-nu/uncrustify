@@ -1629,12 +1629,12 @@ static void add_file_footer(void)
    chunk_t *pc = chunk_get_tail();
 
    /* Back up if the file ends with a newline */
-   if ((pc != nullptr      ) &&
+   if (/*(pc != nullptr      ) && */
         chunk_is_newline(pc) )
    {
       pc = chunk_get_prev(pc);
    }
-   if (( pc                                   != nullptr)   &&
+   if (/*( pc                                   != nullptr) ???   &&*/
        ((chunk_is_comment(pc)                 == false  ) ||
         (chunk_is_newline(chunk_get_prev(pc)) == false  ) ) )
    {
@@ -1656,8 +1656,7 @@ static void perform_insert(chunk_t *ref, const file_mem_t &fm)
    tokenize(fm.data, after);
    for (chunk_t *tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
    {
-      assert(tmp   != nullptr);
-      assert(after != nullptr);
+      assert(chunks_are_valid(tmp, after));
       tmp->level = after->level;
    }
 }
@@ -1710,7 +1709,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          while (ref->type != CT_NEWLINE)
          {
             ref = ref->next;
-            if (ref->type == CT_BRACE_CLOSE)
+            if (chunk_is_type(ref, CT_BRACE_CLOSE))
             {
                found_brace = 1;
                break;
@@ -1735,7 +1734,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          }
 
          /* If we hit an angle close, back up to the angle open */
-         if (ref->type == CT_ANGLE_CLOSE)
+         if (chunk_is_type(ref, CT_ANGLE_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
@@ -1745,8 +1744,12 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
+#if 0
+            if (chunk_is_parent_type(tmp, CT_PP_IF))
+#else
             if ((tmp              != nullptr ) &&
                 (tmp->parent_type == CT_PP_IF) )
+#endif
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&

@@ -17,7 +17,7 @@
 
 
 static void remove_semicolon(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -27,8 +27,8 @@ static void remove_semicolon(
  * Do not remove if it is a square close, word, type, or paren close.
  */
 static void check_unknown_brace_close(
-   chunk_t *semi,
-   chunk_t *brace_close
+   chunk_t *semi,       /**< [in]  */
+   chunk_t *brace_close /**< [in]  */
 );
 
 
@@ -116,7 +116,7 @@ void remove_extra_semicolons(void)
 
       pc = next;
    }
-} // remove_extra_semicolons
+}
 
 
 static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)

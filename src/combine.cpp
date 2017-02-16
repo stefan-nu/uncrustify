@@ -1971,10 +1971,6 @@ static bool mark_function_type(chunk_t *pc)
       pt = CT_FUNC_DEF;
    }
    else if (chunk_is_type(aft, 2, CT_SEMICOLON, CT_ASSIGN))
-#if 0
-   else if (chunk_is_type(aft, CT_SEMICOLON) ||
-            chunk_is_type(aft, CT_ASSIGN   ) )
-#endif
    {
       pt = CT_FUNC_PROTO;
    }
@@ -1992,23 +1988,15 @@ static bool mark_function_type(chunk_t *pc)
               get_token_name(tmp->type), tmp->text(),
               tmp->orig_line, tmp->orig_col);
 
-      if (chunk_is_star(tmp             ) ||
-          chunk_is_type(tmp, 2, CT_PTR_TYPE, CT_CARET))
-#if 0
-          chunk_is_type(tmp, CT_PTR_TYPE) ||
-          chunk_is_type(tmp, CT_CARET   ) )
-#endif
+      if (chunk_is_star(tmp                          ) ||
+          chunk_is_type(tmp, 2, CT_PTR_TYPE, CT_CARET) )
       {
          star_count++;
          ptrcnk = tmp;
          LOG_FMT(LFTYPE, " -- PTR_TYPE\n");
       }
-      else if (chunk_is_word(tmp    ) ||
-               chunk_is_type(tmp, 2, CT_WORD, CT_TYPE))
-#if 0
-               (tmp->type == CT_WORD) ||
-               (tmp->type == CT_TYPE) )
-#endif
+      else if (chunk_is_word(tmp                     ) ||
+               chunk_is_type(tmp, 2, CT_WORD, CT_TYPE) )
       {
          word_count++;
          LOG_FMT(LFTYPE, " -- TYPE(%s)\n", tmp->text());
@@ -5356,9 +5344,6 @@ static void handle_oc_block_type(chunk_t *pc)
             pt = CT_FUNC_TYPE;
          }
          else if (chunk_is_type(aft, 2, CT_ASSIGN, CT_SEMICOLON))
-#if 0
-         else if (chunk_is_type(aft, CT_ASSIGN) || chunk_is_type(aft, CT_SEMICOLON))
-#endif
          {
             set_chunk_type(nam, CT_FUNC_VAR);
             pt = CT_FUNC_VAR;
@@ -5480,9 +5465,6 @@ static void handle_oc_message_decl(chunk_t *pc)
       {
          /* skip optional label */
          if (chunk_is_type(pc, 2, CT_WORD, pt))
-#if 0
-         if (chunk_is_type(pc, CT_WORD) || chunk_is_type(pc, pt))
-#endif
          {
             set_chunk_parent(pc, pt);
             pc = chunk_get_next_ncnl(pc);

@@ -136,7 +136,8 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
        * The '*' and '&' can float between the two.
        *
        * If align_on_tabstop=true, then SS_DANGLE is changed to SS_INCLUDE. */
-      if (cpd.settings[UO_align_on_tabstop].b && (m_star_style == SS_DANGLE))
+      if (cpd.settings[UO_align_on_tabstop].b &&
+          (m_star_style == SS_DANGLE))
       {
          m_star_style = SS_INCLUDE;
       }
@@ -257,8 +258,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
               ali->text(), ali->orig_line, ali->column, ali->align.col_adj,
               ref->text(), endcol);
 
-      if (m_min_col > endcol) { m_min_col = endcol; }
-
+      m_min_col = min(m_min_col, endcol);
       if (endcol > m_max_col)
       {
          LOG_FMT(LAS, "Add-aligned [%zu/%zu/%zu]: line %zu, col %zu : max_col old %zu, new %zu - min_col %zu\n",

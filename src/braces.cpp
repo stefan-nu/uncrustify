@@ -170,7 +170,8 @@ void do_braces(void)
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
 #if 0
-      if(!chunk_is_opening_brace(pc))
+      chunk is no opening brace
+      if(chunk_is_not_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN))
 #else
       if ((pc->type != CT_BRACE_OPEN ) &&
           (pc->type != CT_VBRACE_OPEN) )

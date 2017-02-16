@@ -49,6 +49,7 @@ typedef chunk_t * (*search_t)(chunk_t *cur, const scope_e scope);
 typedef ListManager<chunk_t> ChunkList_t;
 
 
+
 /***************************************************************************//**
  * \brief search for a chunk that satisfies a condition in a chunk list
  *
@@ -201,6 +202,41 @@ static bool is_expected_string_and_level(
 );
 
 
+bool chunk_is_valid(chunk_t *pc)
+{
+   return (pc != nullptr);
+}
+
+
+bool chunks_are_valid(chunk_t *pc1, chunk_t *pc2)
+{
+   return ((pc1 != nullptr) &&
+           (pc2 != nullptr) );
+}
+
+
+bool chunks_are_valid(chunk_t *pc1, chunk_t *pc2, chunk_t *pc3)
+{
+   return ((pc1 != nullptr) &&
+           (pc2 != nullptr) &&
+           (pc3 != nullptr) );
+}
+
+
+bool chunk_and_next_are_valid(chunk_t *pc)
+{
+   return((pc       != nullptr) &&
+          (pc->next != nullptr) );
+}
+
+
+bool chunk_and_prev_are_valid(chunk_t *pc)
+{
+   return((pc       != nullptr) &&
+          (pc->prev != nullptr) );
+}
+
+
 static search_t select_search_fct(const dir_e dir)
 {
    return((dir == dir_e::AFTER) ? chunk_get_next : chunk_get_prev);
@@ -222,7 +258,7 @@ chunk_t *chunk_search_next_cat(chunk_t *pc, const c_token_t cat)
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str);
 
 
-ChunkList_t g_cl; /** global chunk list */
+ChunkList_t g_cl; /** global chunk list */ /*\todo should become a local variable */
 
 
 static chunk_t *chunk_search_type(chunk_t *cur, const c_token_t type,
@@ -234,7 +270,7 @@ static chunk_t *chunk_search_type(chunk_t *cur, const c_token_t type,
    do                                /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
+   } while ((chunk_is_valid(pc)) &&    /* the end of the list was not reached yet */
             (pc->type != type));       /* and the demanded chunk was not found either */
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -249,7 +285,7 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, scope_e scope,
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != nullptr) &&       /* the end of the list was not reached yet */
+   } while ((chunk_is_valid(pc)) &&    /* the end of the list was not reached yet */
             (is_expected_type_and_level(pc, type, level) == false));
    return(pc);                       /* the latest chunk is the searched one */
 }
@@ -263,7 +299,7 @@ chunk_t *chunk_search_str(chunk_t *cur, const char *str, size_t len, scope_e sco
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
+   } while ((chunk_is_valid(pc)) &&    /* the end of the list was not reached yet */
             (is_expected_string_and_level(pc, str, level, len) == false));
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -278,7 +314,7 @@ static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct,
    do                                  /* loop over the chunk list */
    {
       pc = search_function(pc, scope); /* in either direction while */
-   } while ((pc != nullptr) &&         /* the end of the list was not reached yet */
+   } while ((chunk_is_valid(pc)) &&    /* the end of the list was not reached yet */
             (check_fct(pc) != cond));  /* and the demanded chunk was not found either */
    return(pc);                         /* the latest chunk is the searched one */
 }
@@ -321,7 +357,7 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
  * while loop of the calling function */
 chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 {
-   if (cur == nullptr) { return(cur); }
+   if (!chunk_is_valid(cur)) { return(cur); }
 
    chunk_t *pc = g_cl.GetNext(cur);
    if ((pc    == nullptr     ) ||
@@ -339,7 +375,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while ((pc != nullptr             ) &&
+   while ((chunk_is_valid(pc)        ) &&
           (pc->flags & PCF_IN_PREPROC) )
    {
       pc = g_cl.GetNext(pc);
@@ -353,7 +389,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
    if (cur == nullptr) { return(cur); }
 
    chunk_t *pc = g_cl.GetPrev(cur);
-   if ((pc    == nullptr     ) ||
+   if ((!chunk_is_valid(pc)  ) ||
        (scope == scope_e::ALL) )
    {
       return(pc);
@@ -368,7 +404,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while ((pc != nullptr             ) &&
+   while ((chunk_is_valid(pc)        ) &&
           (pc->flags & PCF_IN_PREPROC) )
    {
       pc = g_cl.GetPrev(pc);
@@ -393,7 +429,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
 {
    chunk_t *const pc = new chunk_t; /* Allocate a new chunk */
 
-   if (pc == nullptr)
+   if (!chunk_is_valid(pc))
    {
       /* @todo clean up properly before crashing */
       LOG_FMT(LERR, "Failed to allocate memory\n");
@@ -418,7 +454,7 @@ static void chunk_log_msg(chunk_t *chunk, const log_sev_t log, const char *str)
 
 static void chunk_log(chunk_t *pc, const char *text)
 {
-   if ((pc            != nullptr              ) &&
+   if ((chunk_is_valid(pc)                    ) &&
        (cpd.unc_stage != unc_stage_e::TOKENIZE) &&
        (cpd.unc_stage != unc_stage_e::CLEANUP ) )
    {
@@ -428,11 +464,10 @@ static void chunk_log(chunk_t *pc, const char *text)
 
       chunk_log_msg(pc, log, text);
 
-      if     ((prev != nullptr)&&
-              (next != nullptr)) { chunk_log_msg(prev, log, " @ between");
-                                   chunk_log_msg(next, log, " and"      ); }
-      else if (next != nullptr)  { chunk_log_msg(next, log, " @ before" ); }
-      else if (prev != nullptr)  { chunk_log_msg(prev, log, " @ after"  ); }
+      if      (chunks_are_valid(prev, next)) { chunk_log_msg(prev, log, " @ between");
+                                               chunk_log_msg(next, log, " and"      ); }
+      else if (chunk_is_valid(next))         { chunk_log_msg(next, log, " @ before" ); }
+      else if (chunk_is_valid(prev))         { chunk_log_msg(prev, log, " @ after"  ); }
 
       LOG_FMT(log, " stage=%d", cpd.unc_stage);
       log_func_stack_inline(log);
@@ -443,13 +478,13 @@ static void chunk_log(chunk_t *pc, const char *text)
 static chunk_t *chunk_add(const chunk_t *pc_in, chunk_t *ref, const dir_e pos)
 {
    chunk_t *pc = chunk_dup(pc_in);
-   if (pc != nullptr)
+   if (chunk_is_valid(pc))
    {
       switch(pos)
       {
-         case(dir_e::AFTER ): (ref != nullptr) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
-         case(dir_e::BEFORE): (ref != nullptr) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
-         default:              /* invalid position indication */                             break;
+         case(dir_e::AFTER ): (chunk_is_valid(ref)) ? g_cl.AddAfter (pc, ref) : g_cl.AddTail(pc); break;
+         case(dir_e::BEFORE): (chunk_is_valid(ref)) ? g_cl.AddBefore(pc, ref) : g_cl.AddTail(pc); break; // \todo should be AddHead but tests fail
+         default:              /* invalid position indication */                                  break;
       }
       chunk_log(pc, "chunk_add");
    }
@@ -481,7 +516,8 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 {
    LOG_FUNC_ENTRY();
 
-   if ((pc_in != nullptr) && (ref != nullptr))
+   if (chunk_is_valid(pc_in) &&
+       chunk_is_valid(ref  ) )
    {
       g_cl.Pop(pc_in);
       g_cl.AddAfter(pc_in, ref);
@@ -667,15 +703,15 @@ void chunk_swap(chunk_t *pc1, chunk_t *pc2)
 }
 
 
-/* \todo this function needs some cleanup */
 void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 {
+   /* to swap lines we need to find the first chunk of the lines */
    pc1 = chunk_first_on_line(pc1);
    pc2 = chunk_first_on_line(pc2);
 
-   if ((pc1 == nullptr) ||
-       (pc2 == nullptr) ||
-       (pc1 == pc2    ) )
+   if (!chunk_is_valid(pc1) ||
+       !chunk_is_valid(pc2) ||
+       (pc1 == pc2        ) )
    {
       return;
    }
@@ -686,8 +722,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    /* Move the line started at pc2 before pc1 */
-   while ((pc2                   != nullptr) &&
-          (chunk_is_newline(pc2) == false  ) )
+   while (( chunk_is_valid  (pc2)) &&
+          (!chunk_is_newline(pc2)) )
    {
       chunk_t *tmp = chunk_get_next(pc2);
       g_cl.Pop(pc2);
@@ -700,13 +736,13 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
     *                         ^- pc1                              ^- pc2 */
 
    /* Now move the line started at pc1 after ref2 */
-   while ((pc1                   != nullptr) &&
-          (chunk_is_newline(pc1) == false  ) )
+   while (( chunk_is_valid  (pc1)) &&
+          (!chunk_is_newline(pc1)) )
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
-      if (ref2 != nullptr) { g_cl.AddAfter(pc1, ref2); }
-      else                 { g_cl.AddHead (pc1);       }
+      if (chunk_is_valid(ref2)){ g_cl.AddAfter(pc1, ref2); }
+      else                     { g_cl.AddHead (pc1);       }
       ref2 = pc1;
       pc1  = tmp;
    }
@@ -717,10 +753,9 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 
    /* pc1 and pc2 should be the newlines for their lines.
     * swap the chunks and the nl_count so that the spacing remains the same. */
-   if ((pc1 != nullptr) &&
-       (pc2 != nullptr) )
+   if (chunks_are_valid(pc1, pc2))
    {
-      SWAP(pc1->nl_count, pc2->nl_count); /* \todo check this */
+      SWAP(pc1->nl_count, pc2->nl_count);
       chunk_swap(pc1, pc2);
    }
 }
@@ -730,7 +765,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 {
    LOG_FUNC_ENTRY();
 
-   assert(pc != nullptr);
+   if(!chunk_is_valid(pc)) { return; }
 
    c_token_t       *where;
    const c_token_t *type;
@@ -752,7 +787,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
       return;
    }
 
-   if ((pc != nullptr) && (*where != token))
+   if (*where != token)
    {
       LOG_FMT(what, "%s: %zu:%zu '%s' %s:%s => %s:%s",
               str, pc->orig_line, pc->orig_col, pc->text(),
@@ -796,7 +831,7 @@ void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
 {
    LOG_FUNC_ENTRY();
 
-   if (pc != nullptr)
+   if (chunk_is_valid(pc))
    {
       const UINT64 nflags = (pc->flags & ~clr_bits) | set_bits;
       if (pc->flags != nflags)
@@ -814,7 +849,6 @@ void chunk_flags_update(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
 static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const scope_e scope, const dir_e dir)
 {
    chunk_t *pc = cur;
-
    pc = (chunk_is_preproc(pc) == true) ?
         chunk_search(pc, chunk_is_comment_or_newline_in_preproc, scope, dir, false) :
         chunk_search(pc, chunk_is_comment_newline_or_preproc,    scope, dir, false);
@@ -824,22 +858,33 @@ static chunk_t *chunk_get_ncnlnp(chunk_t *cur, const scope_e scope, const dir_e 
 
 bool chunk_is_forin(chunk_t *pc)
 {
-   if ((cpd.lang_flags & LANG_OC  ) &&
-       (pc       != nullptr          ) &&
-       (pc->type == CT_SPAREN_OPEN) )
+   if ((cpd.lang_flags & LANG_OC         ) &&
+       (chunk_is_type(pc, CT_SPAREN_OPEN)) )
    {
-      const chunk_t *prev = chunk_get_prev_ncnl(pc);
+      chunk_t *prev = chunk_get_prev_ncnl(pc);
+#if 0
+      if(chunk_is_type(prev, CT_FOR))
+#else
       assert(prev != nullptr);
       if (prev->type == CT_FOR)
+#endif
       {
          chunk_t *next = pc;
+#if 0
+         while(chunk_is_not_type(next, 2, CT_IN, CT_SPAREN_CLOSE))
+#else
          while ( (next       != nullptr        ) &&
                  (next->type != CT_SPAREN_CLOSE) &&
                  (next->type != CT_IN          ) )
+#endif
          {
             next = chunk_get_next_ncnl(next);
+#if 0
+            if(chunk_is_type(next, CT_IN))
+#else
             assert(next != nullptr);
             if (next->type == CT_IN)
+#endif
             {
                return(true);
             }
@@ -852,9 +897,25 @@ bool chunk_is_forin(chunk_t *pc)
 
 bool chunk_is_type(chunk_t *pc, c_token_t c_token)
 {
-   return((pc       != nullptr) &&
+   return((chunk_is_valid(pc) ) &&
           (pc->type == c_token) );
 }
+
+
+bool chunk_is_parent_type(chunk_t *pc, c_token_t c_token)
+{
+   return((chunk_is_valid(pc) ) &&
+          (pc->parent_type == c_token) );
+}
+
+
+
+bool chunk_is_not_type(chunk_t *pc, c_token_t c_token)
+{
+   return((chunk_is_valid(pc) ) &&
+          (pc->type != c_token) );
+}
+
 
 /* \todo check if using a variadic function has a large performance
  * penalty. If so use several overloaded functions, with varying
@@ -865,12 +926,40 @@ bool chunk_is_type(chunk_t *pc, int count, ... )
    va_start(args, count);  /* initialize argument list */
 
    bool result = false;
-   if(pc != nullptr)
+   if(chunk_is_valid(pc))
    {
       for( ; count > 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int);
-         result |= (pc->type == type);
+
+         if(pc->type == type)
+         {
+            result = true;
+            break;
+         }
+      }
+   }
+   va_end(args);
+   return result;
+}
+
+/* todo combine with chunk_is_type */
+bool chunk_is_parent_type(chunk_t *pc, int count, ... )
+{
+   va_list args;           /* define  argument list */
+   va_start(args, count);  /* initialize argument list */
+
+   bool result = false;
+   if(chunk_is_valid(pc))
+   {
+      for( ; count > 0; --count)
+      {
+         c_token_t type = (c_token_t)va_arg(args, int);
+         if(pc->parent_type == type)
+         {
+            result = true;
+            break;
+         }
       }
    }
    va_end(args);
@@ -878,13 +967,13 @@ bool chunk_is_type(chunk_t *pc, int count, ... )
 }
 
 
-bool chunk_is_no_type(chunk_t *pc, int count, ... )
+bool chunk_is_not_type(chunk_t *pc, int count, ... )
 {
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
 
    bool result = false;
-   if(pc != nullptr)
+   if(chunk_is_valid(pc))
    {
       for( ; count > 0; --count)
       {
@@ -979,7 +1068,8 @@ bool chunk_is_balanced_square(chunk_t *pc)
 
 bool chunk_is_preproc(chunk_t *pc)
 {
-   return((pc != nullptr) && (pc->flags & PCF_IN_PREPROC));
+   return((chunk_is_valid(pc)        ) &&
+          (pc->flags & PCF_IN_PREPROC) );
 }
 
 
@@ -1085,7 +1175,7 @@ bool chunk_is_paren_close(chunk_t *pc)
 
 bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 {
-   return((pc                     != nullptr) && /* valid pc pointer */
+   return((chunk_is_valid(pc)               ) && /* valid pc pointer */
           (pc->len()              == len    ) && /* token size equals size parameter */
           (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
@@ -1093,7 +1183,7 @@ bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 
 bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 {
-   return((pc        != nullptr) &&  /* valid pc pointer */
+   return((chunk_is_valid(pc)  ) &&  /* valid pc pointer */
           (pc->len() == len    ) && /* token size equals size parameter */
           (strncasecmp(pc->text(), str, len) == 0)); /* strings are equal ignoring case */
 }
@@ -1101,7 +1191,7 @@ bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 
 bool chunk_is_word(chunk_t *pc)
 {
-   return((pc        != nullptr                      ) &&
+   return((chunk_is_valid(pc)                        ) &&
           (pc->len() >= 1u                           ) &&
           (CharTable::IsKeyword1((size_t)pc->str[0]) ) );
 }
@@ -1109,7 +1199,7 @@ bool chunk_is_word(chunk_t *pc)
 
 bool chunk_is_star(chunk_t *pc)
 {
-   return((pc         != nullptr        ) &&
+   return((chunk_is_valid(pc)           ) &&
           (pc->len()  == 1              ) &&
           (pc->str[0] == '*'            ) &&
           (pc->type   != CT_OPERATOR_VAL) );
@@ -1127,8 +1217,12 @@ bool chunk_is_addr(chunk_t *pc)
       chunk_t *prev = chunk_get_prev(pc);
 
       if ((pc->flags & PCF_IN_TEMPLATE) &&
+#if 0
+          (chunk_is_type(prev, 2, CT_COMMA, CT_ANGLE_OPEN))
+#else
           ((prev != nullptr) &&
            ((prev->type == CT_COMMA) || (prev->type == CT_ANGLE_OPEN))))
+#endif
       {
 //      (pos == dir_e::AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);
          return(false);
@@ -1143,7 +1237,7 @@ bool chunk_is_addr(chunk_t *pc)
 bool chunk_is_msref(chunk_t *pc)
 {
    return((cpd.lang_flags & LANG_CPP    ) &&
-          (pc         != nullptr        ) &&
+          (chunk_is_valid(pc)           ) &&
           (pc->len()  == 1              ) &&
           (pc->str[0] == '^'            ) &&
           (pc->type   != CT_OPERATOR_VAL) );
@@ -1160,8 +1254,8 @@ bool chunk_is_ptr_operator(chunk_t *pc)
 
 bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 {
-   return((pc1 == nullptr) ||
-          (pc2 == nullptr) ||
+   return( !chunk_is_valid(pc1) ||
+           !chunk_is_valid(pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
 }
 
@@ -1170,8 +1264,12 @@ bool chunk_safe_to_del_nl(chunk_t *nl)
 {
    chunk_t *tmp = chunk_get_prev(nl);
 
+#if 0
+   if (chunk_is_type(tmp, CT_COMMENT_CPP))
+#else
    if ((tmp       != nullptr       ) &&
        (tmp->type == CT_COMMENT_CPP) )
+#endif
    {
       return(false);
    }

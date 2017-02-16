@@ -47,10 +47,10 @@ void pawn_scrub_vsemi(void);
 
 
 /**
- * tbd
+ * add a semicolon after ...
  */
 chunk_t *pawn_add_vsemi_after(
-   chunk_t *pc
+   chunk_t *pc /**< [in] chunk to add after */
 );
 
 

@@ -999,10 +999,6 @@ static void align_same_func_call_params(void)
       /* Only align function calls that are right after a newline */
       chunk_t *prev = chunk_get_prev(pc);
       while(chunk_is_type(prev, 2, CT_MEMBER, CT_DC_MEMBER))
-#if 0
-      while (chunk_is_type(prev, CT_MEMBER   ) ||
-             chunk_is_type(prev, CT_DC_MEMBER) )
-#endif
       {
          chunk_t *tprev = chunk_get_prev(prev);
          if (!chunk_is_type(tprev, CT_TYPE))
@@ -1012,7 +1008,7 @@ static void align_same_func_call_params(void)
          }
          prev = chunk_get_prev(tprev);
       }
-      if (!chunk_is_newline(prev))
+      if (chunk_is_newline(prev) == false)
       {
          continue;
       }

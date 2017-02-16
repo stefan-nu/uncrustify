@@ -39,6 +39,49 @@ enum class scope_e : unsigned int
 
 
 /**
+ * check if a chunk is valid
+ */
+bool chunk_is_valid(
+   chunk_t *pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if two chunks are valid
+ */
+bool chunks_are_valid(
+   chunk_t *pc1,
+   chunk_t *pc2
+);
+
+
+/**
+ * check if three chunks are valid
+ */
+bool chunks_are_valid(
+   chunk_t *pc1,
+   chunk_t *pc2,
+   chunk_t *pc3
+);
+
+
+/**
+ * check if a chunk and its following chunk is valid
+ */
+bool chunk_and_next_are_valid(
+   chunk_t *pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk and its preceding chunk is valid
+ */
+bool chunk_and_prev_are_valid(
+   chunk_t *pc /**< [in] chunk to check */
+);
+
+
+/**
  *  duplicate a chunk in a chunk list
  */
 chunk_t *chunk_dup(
@@ -655,6 +698,25 @@ bool chunk_is_type(
 
 
 /**
+ * check if the given chunk is valid and holds a given parent token type
+ */
+bool chunk_is_parent_type(
+   chunk_t *pc,       /**< [in] chunk to check */
+   c_token_t c_token  /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and has a token type different
+ * than a given one
+ */
+bool chunk_is_not_type(
+   chunk_t *pc,       /**< [in] chunk to check */
+   c_token_t c_token  /**< [in] token type to check for */
+);
+
+
+/**
  * check if the given chunk is valid and holds a token type which is
  * part of a given list
  */
@@ -666,10 +728,21 @@ bool chunk_is_type(
 
 
 /**
+ * check if the given chunk is valid and holds a parent token type which is
+ * part of a given list
+ */
+bool chunk_is_parent_type(
+   chunk_t *pc,   /**< [in] chunk to check */
+   int count,     /**< [in] number of token types to check */
+   ...            /**< [in] list of token types to check for */
+);
+
+
+/**
  * check if the given chunk is valid and holds a token type which is
  * different from all types in a given list
  */
-bool chunk_is_no_type(
+bool chunk_is_not_type(
    chunk_t *pc,   /**< [in] chunk to check */
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of token types to check for */

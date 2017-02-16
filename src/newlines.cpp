@@ -377,14 +377,13 @@ static bool can_increase_nl(chunk_t *nl)
    LOG_FUNC_ENTRY();
    if(nl == nullptr) { return false; }
 
-   const chunk_t *prev = chunk_get_prev_nc(nl);
+   chunk_t *prev = chunk_get_prev_nc(nl);
    const chunk_t *pcmt = chunk_get_prev   (nl);
-   const chunk_t *next = chunk_get_next   (nl);
+   chunk_t *next = chunk_get_next   (nl);
 
    if (cpd.settings[UO_nl_squeeze_ifdef].b)
    {
-      if ((prev       != nullptr           ) &&
-          (prev->type == CT_PREPROC        ) &&
+      if ( chunk_is_type(prev, CT_PREPROC) &&
           (prev->parent_type == CT_PP_ENDIF) &&
           (prev->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
       {
@@ -392,8 +391,8 @@ static bool can_increase_nl(chunk_t *nl)
                  __func__, nl->orig_line, nl->pp_level);
          return(false);
       }
-      if ((next       != nullptr           ) &&
-          (next->type == CT_PREPROC        ) &&
+
+      if (chunk_is_type(next, CT_PREPROC) &&
           (next->parent_type == CT_PP_ENDIF) &&
           (next->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
       {
@@ -406,8 +405,7 @@ static bool can_increase_nl(chunk_t *nl)
 
    if (cpd.settings[UO_eat_blanks_before_close_brace].b)
    {
-      if ( (next       != nullptr       ) &&
-           (next->type == CT_BRACE_CLOSE) )
+      if (chunk_is_type(next, CT_BRACE_CLOSE))
       {
          LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %zu\n", __func__, nl->orig_line);
          return(false);
@@ -416,8 +414,7 @@ static bool can_increase_nl(chunk_t *nl)
 
    if (cpd.settings[UO_eat_blanks_after_open_brace].b)
    {
-      if ( (prev       != nullptr      ) &&
-           (prev->type == CT_BRACE_OPEN) )
+      if(chunk_is_type(prev, CT_BRACE_OPEN))
       {
          LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %zu\n", __func__, nl->orig_line);
          return(false);
@@ -543,7 +540,7 @@ chunk_t *newline_add_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if (pc == nullptr) { return(nullptr); }
+   if (!chunk_is_valid(pc)) { return(pc); }
 
    chunk_t *next = chunk_get_next_nvb(pc);
    if (chunk_is_newline(next))
@@ -567,7 +564,8 @@ chunk_t *newline_force_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
    chunk_t *nl = newline_add_after(pc);
-   if (nl && (nl->nl_count > 1))
+   if (chunk_is_valid(nl) &&
+       (nl->nl_count > 1))
    {
       nl->nl_count = 1;
       MARK_CHANGE();
@@ -589,7 +587,8 @@ static void newline_end_newline(chunk_t *br_close)
       nl.nl_count  = 1;
       nl.flags     = (br_close->flags & PCF_COPY_FLAGS) & ~PCF_IN_PREPROC;
       if ((br_close->flags & PCF_IN_PREPROC) &&
-          (next != nullptr) && (next->flags & PCF_IN_PREPROC))
+          (chunk_is_valid(next)            ) &&
+          (next->flags & PCF_IN_PREPROC)   )
       {
          nl.flags |= PCF_IN_PREPROC;
       }

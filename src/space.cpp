@@ -2126,12 +2126,6 @@ void space_text(void)
                   size_t col_min = pc->column + pc->len() + ((next->orig_prev_sp > 0) ? 1 : 0);
                   column = next->orig_col;
                   column = max(column, col_min);
-#if 0
-                  if (column < col_min)
-                  {
-                     column = col_min;
-                  }
-#endif
                   LOG_FMT(LSPACE, " <relative set>");
                }
             }

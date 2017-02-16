@@ -364,7 +364,7 @@ int unc_text::rfind(const char *text, size_t sidx) const
    size_t len  = strlen(text);
    size_t midx = size() - len;
 
-#if 1
+#if 0
    if (sidx > midx)
    {
       sidx = midx;
