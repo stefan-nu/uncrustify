@@ -76,7 +76,7 @@ static void push_fmr_pse(
  */
 static chunk_t *insert_vbrace(
    chunk_t       *pc,    /**< [in]  */
-   bool          after,  /**< [in]  */
+   bool          after,  /**< [in] true=close_after, false=open_before */
    parse_frame_t *frm    /**< [in]  */
 );
 

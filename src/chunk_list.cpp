@@ -1217,12 +1217,7 @@ bool chunk_is_addr(chunk_t *pc)
       chunk_t *prev = chunk_get_prev(pc);
 
       if ((pc->flags & PCF_IN_TEMPLATE) &&
-#if 0
-          (chunk_is_type(prev, 2, CT_COMMA, CT_ANGLE_OPEN))
-#else
-          ((prev != nullptr) &&
-           ((prev->type == CT_COMMA) || (prev->type == CT_ANGLE_OPEN))))
-#endif
+          (chunk_is_type(prev, 2, CT_COMMA, CT_ANGLE_OPEN)) )
       {
 //      (pos == dir_e::AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);
          return(false);
@@ -1263,13 +1258,7 @@ bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 bool chunk_safe_to_del_nl(chunk_t *nl)
 {
    chunk_t *tmp = chunk_get_prev(nl);
-
-#if 0
    if (chunk_is_type(tmp, CT_COMMENT_CPP))
-#else
-   if ((tmp       != nullptr       ) &&
-       (tmp->type == CT_COMMENT_CPP) )
-#endif
    {
       return(false);
    }

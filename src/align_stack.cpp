@@ -61,7 +61,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
 
-   if (start == nullptr) { return; }
+   if (!chunk_is_valid(start)) { return; }
 
    /* Assign a seqnum if needed */
    if (seqnum == 0) { seqnum = m_seqnum; }
@@ -71,14 +71,9 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
    /* Check threshold limits */
    if ( (m_max_col == 0) ||
         (m_thresh  == 0) ||
-#if 1
-        (((start->column + m_gap) <= (m_max_col + m_thresh)) &&
-#else
-        why does this fail some tests?
-        (((start->column + m_gap - m_thresh) <= (m_max_col)) &&
-#endif
-        (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
-          (start->column >= m_min_col))))
+        (( (start->column + m_gap) <= (m_thresh + m_max_col)) && /* don't use subtraction here to prevent underflow */
+         (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
+           (start->column                     >= m_min_col )) ) )
    {
       /* we are adding it, so update the newline seqnum */
       if (seqnum > m_nl_seqnum) { m_nl_seqnum = seqnum; }
@@ -188,11 +183,12 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
-      if((ali == nullptr) ||
+      if(!chunks_are_valid(ali, ref))
+#if 0
+         if((ali == nullptr) ||
          (ref == nullptr) )
-      {
-         return;  /* \todo if pointer is nullptr print some error log message */
-      }
+#endif
+      { return; }
 
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */
@@ -203,7 +199,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          while (tmp != start)
          {
             chunk_t *next = chunk_get_next(tmp);
-            assert(next != nullptr);
+            assert(chunk_is_valid(next));
             tmp_col += (size_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
             {
@@ -321,8 +317,8 @@ void AlignStack::Flush()
       // check if we have *one* typedef in the line
       assert(m_aligned.Get(0) != nullptr);
       pc = m_aligned.Get(0)->m_pc;
-      const chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
-      if (temp != nullptr)
+      chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
+      if (chunk_is_valid(temp))
       {
          if (pc->orig_line == temp->orig_line)
          {
@@ -366,8 +362,7 @@ void AlignStack::Flush()
          if (pc->align.start->type == CT_NEG)
          {
             tmp = chunk_get_next(pc->align.start);
-            if ((tmp       != nullptr  ) &&
-                (tmp->type == CT_NUMBER) )
+            if(chunk_is_type(tmp, CT_NUMBER))
             {
                start_len += tmp->len();
             }

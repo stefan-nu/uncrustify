@@ -148,14 +148,9 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
 
       /* If we hit a newline or nullptr, we are done */
-#if 1
       if (!chunks_are_valid(pc1, pc2) ||
-#else
-      if ((pc1 == nullptr       ) ||
-          (pc2 == nullptr       ) ||
-#endif
-          (chunk_is_newline(pc1)) ||
-          (chunk_is_newline(pc2)) )
+           chunk_is_newline(pc1     ) ||
+           chunk_is_newline(     pc2) )
       {
          break;
       }
@@ -210,7 +205,7 @@ void sort_imports(void)
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
    size_t  num_chunks      = 0;
-   const   chunk_t *p_last = nullptr;
+   chunk_t *p_last = nullptr;
    chunk_t *p_imp          = nullptr;
 
    prepare_categories();
@@ -242,9 +237,9 @@ void sort_imports(void)
             }
             did_import = true;
          }
-         if ((did_import == false) ||
-             (pc->nl_count > 1   ) ||
-             (next == nullptr    ) )
+         if ((did_import == false  ) ||
+             (pc->nl_count > 1     ) ||
+             (!chunk_is_valid(next)) )
          {
             if (num_chunks > 1)
             {
@@ -265,7 +260,7 @@ void sort_imports(void)
          p_imp  = chunk_get_next(pc);
          p_last = pc;
       }
-      else if (chunk_is_comment(pc) == false)
+      else if (!chunk_is_comment(pc))
       {
          p_last = pc;
       }

@@ -1918,23 +1918,14 @@ void process_option_line(char *configLine, const char *filename)
 
    char *ptr;
    /* Chop off trailing comments */
-   if ((ptr = strchr(configLine, '#')) != nullptr)
-   {
-      *ptr = 0;
-   }
+   if ((ptr = strchr(configLine, '#')) != nullptr) { *ptr = 0; }
 
    /* Blow away the '=' to make things simple */
-   if ((ptr = strchr(configLine, '=')) != nullptr)
-   {
-      *ptr = ' ';
-   }
+   if ((ptr = strchr(configLine, '=')) != nullptr) { *ptr = ' '; }
 
    /* Blow away all commas */
    ptr = configLine;
-   while ((ptr = strchr(ptr, ',')) != nullptr)
-   {
-      *ptr = ' ';
-   }
+   while ((ptr = strchr(ptr, ',')) != nullptr)     { *ptr = ' '; }
 
    /* Split the line */
    char   *args[32];

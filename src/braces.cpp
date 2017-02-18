@@ -28,7 +28,7 @@
  * Converts a single brace into a virtual brace
  */
 static void convert_brace(
-   chunk_t *br
+   chunk_t *br /**< [in]  */
 );
 
 
@@ -36,7 +36,7 @@ static void convert_brace(
  * Converts a single virtual brace into a brace
  */
 static void convert_vbrace(
-   chunk_t *br
+   chunk_t *br /**< [in]  */
 );
 
 
@@ -57,7 +57,7 @@ static void examine_braces(void);
  * Abort if more than 1 or if we enter a preprocessor
  */
 static void examine_brace(
-   chunk_t *bopen
+   chunk_t *bopen /**< [in]  */
 );
 
 
@@ -85,7 +85,7 @@ static void mod_full_brace_if_chain(void);
  *  - doesn't mess up if/else stuff
  */
 static bool can_remove_braces(
-   chunk_t *bopen
+   chunk_t *bopen /**< [in]  */
 );
 
 
@@ -97,7 +97,7 @@ static bool can_remove_braces(
  * @return true (convert to real braces) or false (leave alone)
  */
 static bool should_add_braces(
-   chunk_t *vbopen
+   chunk_t *vbopen /**< [in]  */
 );
 
 
@@ -106,8 +106,8 @@ static bool should_add_braces(
  * Mainly for collecting namespace 'a.b.c' or function 'foo::bar()' names.
  */
 static void append_tag_name(
-   unc_text &txt,
-   chunk_t *pc
+   unc_text &txt, /**< [in]  */
+   chunk_t *pc    /**< [in]  */
 );
 
 
@@ -115,7 +115,7 @@ static void append_tag_name(
  * Remove the case brace, if allowable.
  */
 static chunk_t *mod_case_brace_remove(
-   chunk_t *br_open
+   chunk_t *br_open /**< [in]  */
 );
 
 
@@ -123,7 +123,7 @@ static chunk_t *mod_case_brace_remove(
  * Add the case brace, if allowable.
  */
 static chunk_t *mod_case_brace_add(
-   chunk_t *cl_colon
+   chunk_t *cl_colon /**< [in]  */
 );
 
 
@@ -131,7 +131,7 @@ static chunk_t *mod_case_brace_add(
  * Traverse the if chain and see if all can be removed
  */
 static void process_if_chain(
-   chunk_t *br_start
+   chunk_t *br_start /**< [in]  */
 );
 
 
@@ -184,11 +184,10 @@ void do_braces(void)
 
       /* Detect empty bodies */
       chunk_t *tmp = chunk_get_next_ncnl(pc);
-      if ((tmp       != nullptr ) &&
-          (tmp->type == brc_type) )
+      if (chunk_is_type(tmp, brc_type))
       {
          chunk_flags_set(br_open, PCF_EMPTY_BODY);
-         chunk_flags_set(tmp, PCF_EMPTY_BODY);
+         chunk_flags_set(tmp,     PCF_EMPTY_BODY);
       }
 
       /* Scan for the brace close or a newline */
@@ -199,7 +198,7 @@ void do_braces(void)
          {
             break;
          }
-         if ((tmp->type      == brc_type  ) &&
+         if ((chunk_is_type(tmp, brc_type)) &&
              (br_open->level == tmp->level) )
          {
             flag_series(br_open, tmp, PCF_ONE_LINER);
@@ -208,14 +207,8 @@ void do_braces(void)
       }
    }
 
-   if (cpd.settings[UO_mod_case_brace].a != AV_IGNORE)
-   {
-      mod_case_brace();
-   }
-   if (cpd.settings[UO_mod_move_case_break].b)
-   {
-      move_case_break();
-   }
+   if (cpd.settings[UO_mod_case_brace].a != AV_IGNORE) { mod_case_brace();  }
+   if (cpd.settings[UO_mod_move_case_break].b        ) { move_case_break(); }
 }
 
 
@@ -250,10 +243,7 @@ static bool should_add_braces(chunk_t *vbopen)
 {
    LOG_FUNC_ENTRY();
    const size_t nl_max = cpd.settings[UO_mod_full_brace_nl].u;
-   if (nl_max == 0)
-   {
-      return(false);
-   }
+   if (nl_max == 0) { return(false); }
 
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, vbopen->orig_line);
 
@@ -335,23 +325,12 @@ static bool can_remove_braces(chunk_t *bopen)
       }
       else
       {
-         if (pc->type == CT_BRACE_OPEN)
-         {
-            br_count++;
-         }
-         else if (pc->type == CT_BRACE_CLOSE)
-         {
-            br_count--;
-         }
+         if      (pc->type == CT_BRACE_OPEN )   { br_count++; }
+         else if (pc->type == CT_BRACE_CLOSE)   { br_count--; }
 
-         else if ((pc->type == CT_IF    ) ||
-                  (pc->type == CT_ELSEIF) )
-         {
-            if (br_count == 0)
-            {
-               if_count++;
-            }
-         }
+         else if (((pc->type == CT_IF    ) ||
+                   (pc->type == CT_ELSEIF) ) &&
+                   (br_count == 0        )   )  { if_count++; }
 
          if (pc->level == level)
          {

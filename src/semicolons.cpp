@@ -60,24 +60,16 @@ void remove_extra_semicolons(void)
                  prev->text(),
                  get_token_name(prev->type), get_token_name(prev->parent_type));
 
-         if (pc->parent_type == CT_TYPEDEF)
+         if (chunk_is_parent_type(pc, CT_TYPEDEF))
          {
             /* keep it */
          }
          /* \todo move if conditions to separate function and combine the
           * same action */
-         else if ( (prev->type        == CT_BRACE_CLOSE   )   &&
-                  ((prev->parent_type == CT_IF            ) ||
-                   (prev->parent_type == CT_ELSEIF        ) ||
-                   (prev->parent_type == CT_ELSE          ) ||
-                   (prev->parent_type == CT_SWITCH        ) ||
-                   (prev->parent_type == CT_WHILE         ) ||
-                   (prev->parent_type == CT_USING_STMT    ) ||
-                   (prev->parent_type == CT_FOR           ) ||
-                   (prev->parent_type == CT_FUNC_DEF      ) ||
-                   (prev->parent_type == CT_OC_MSG_DECL   ) ||
-                   (prev->parent_type == CT_FUNC_CLASS_DEF) ||
-                   (prev->parent_type == CT_NAMESPACE     ) ) )
+         else if ( chunk_is_type(prev, CT_BRACE_CLOSE)      &&
+                  (chunk_is_parent_type(prev, 11, CT_IF, CT_ELSEIF, CT_ELSE,
+                        CT_SWITCH, CT_WHILE, CT_USING_STMT, CT_FOR, CT_FUNC_DEF,
+                        CT_OC_MSG_DECL, CT_FUNC_CLASS_DEF, CT_NAMESPACE)))
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
@@ -94,9 +86,7 @@ void remove_extra_semicolons(void)
             remove_semicolon(pc);
          }
          else if ((cpd.lang_flags & LANG_D        )   &&
-                  ((prev->parent_type == CT_ENUM  ) ||
-                   (prev->parent_type == CT_UNION ) ||
-                   (prev->parent_type == CT_STRUCT) ) )
+                  chunk_is_parent_type(prev, 3, CT_ENUM, CT_UNION, CT_STRUCT))
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);

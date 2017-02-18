@@ -596,12 +596,12 @@ static bool chunkstack_match(
 void make_type(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   if (pc != nullptr)
+   if (chunk_is_valid(pc))
    {
-      if      (pc->type == CT_WORD) { set_chunk_type(pc, CT_TYPE    ); }
+      if      (chunk_is_type (pc, CT_WORD)) { set_chunk_type(pc, CT_TYPE    ); }
       else if (chunk_is_star (pc) ||
-               chunk_is_msref(pc))  { set_chunk_type(pc, CT_PTR_TYPE); }
-      else if (chunk_is_addr (pc))  { set_chunk_type(pc, CT_BYREF   ); }
+               chunk_is_msref(pc))          { set_chunk_type(pc, CT_PTR_TYPE); }
+      else if (chunk_is_addr (pc))          { set_chunk_type(pc, CT_BYREF   ); }
    }
 }
 
