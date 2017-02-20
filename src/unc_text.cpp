@@ -364,14 +364,7 @@ int unc_text::rfind(const char *text, size_t sidx) const
    size_t len  = strlen(text);
    size_t midx = size() - len;
 
-#if 0
-   if (sidx > midx)
-   {
-      sidx = midx;
-   }
-#else
    sidx = min(sidx, midx);
-#endif
    for (size_t idx = sidx; idx != 0; idx--)
    {
       bool match = true;

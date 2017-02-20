@@ -55,16 +55,6 @@ void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
          pos += snprintf(&md5_str[pos], MD5_CHAR_SIZE, "%02X", dig[i]);
       }
    }
-
-#if 0
-   remove only after new code was checked
-   snprintf(md5_str, str_len,
-            "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
-            dig[ 0], dig[ 1], dig[ 2], dig[ 3],
-            dig[ 4], dig[ 5], dig[ 6], dig[ 7],
-            dig[ 8], dig[ 9], dig[10], dig[11],
-            dig[12], dig[13], dig[14], dig[15]);
-#endif
 }
 
 
@@ -75,18 +65,9 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
 
    UINT8 md5_bin   [MD5_CHAR_COUNT];
    MD5::Calc(&data[0], data.size(), md5_bin);
-#if 1
+
    char  md5_str   [MD5_STR_SIZE];
    md5_to_string(md5_str, sizeof(md5_str), md5_bin);
-#else
-   remove only after new code was checked
-   snprintf(md5_str, sizeof(md5_str),
-            "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n",
-            md5_bin[ 0], md5_bin[ 1], md5_bin[ 2], md5_bin[ 3],
-            md5_bin[ 4], md5_bin[ 5], md5_bin[ 6], md5_bin[ 7],
-            md5_bin[ 8], md5_bin[ 9], md5_bin[10], md5_bin[11],
-            md5_bin[12], md5_bin[13], md5_bin[14], md5_bin[15]);
-#endif
 
    /* Create the backup-md5 filename, open it and read the md5 */
    char  newpath   [1024];
@@ -179,19 +160,9 @@ void backup_create_md5_file(const char *filename)
    thefile = fopen(newpath, "wb");
    if (thefile != nullptr)
    {
-#if 1
       char  md5_str[MD5_STR_SIZE];
       md5_to_string(md5_str, sizeof(md5_str), md5_bin);
       fprintf(thefile, "%s  %s\n", md5_str, path_basename(filename));
-#else
-      fprintf(thefile,
-              "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x  %s\n",
-              md5_bin[ 0], md5_bin[ 1], md5_bin[ 2], md5_bin[ 3],
-              md5_bin[ 4], md5_bin[ 5], md5_bin[ 6], md5_bin[ 7],
-              md5_bin[ 8], md5_bin[ 9], md5_bin[10], md5_bin[11],
-              md5_bin[12], md5_bin[13], md5_bin[14], md5_bin[15],
-              path_basename(filename));
-#endif
       fclose(thefile);
    }
 }

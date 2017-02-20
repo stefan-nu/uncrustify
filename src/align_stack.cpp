@@ -183,12 +183,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
-      if(!chunks_are_valid(ali, ref))
-#if 0
-         if((ali == nullptr) ||
-         (ref == nullptr) )
-#endif
-      { return; }
+      if(!chunks_are_valid(ali, ref)) { return; }
 
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */

@@ -187,13 +187,6 @@ static void chunk_log(
 );
 
 
-static bool is_expected_type_and_level(
-   chunk_t   *pc,
-   c_token_t type,
-   int       level
-);
-
-
 static bool is_expected_string_and_level(
    chunk_t    *pc,
    const char *str,
@@ -202,7 +195,7 @@ static bool is_expected_string_and_level(
 );
 
 
-bool chunk_is_valid(chunk_t *pc)
+bool chunk_is_valid(const chunk_t *pc)
 {
    return (pc != nullptr);
 }
@@ -286,7 +279,7 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, c_token_t type, scope_e scope,
    {
       pc = search_function(pc, scope); /* in either direction while */
    } while ((chunk_is_valid(pc)) &&    /* the end of the list was not reached yet */
-            (is_expected_type_and_level(pc, type, level) == false));
+            (chunk_is_type_and_level(pc, type, level) == false));
    return(pc);                       /* the latest chunk is the searched one */
 }
 
@@ -320,7 +313,7 @@ static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct,
 }
 
 
-static bool is_expected_type_and_level(chunk_t *pc, c_token_t type, int level)
+bool chunk_is_type_and_level(const chunk_t *pc, const c_token_t type, const int level)
 {
    return (( pc->type  ==         type ) && /* the type is as expected and */
            ((pc->level == (size_t)level) || /* the level is as expected or */
@@ -969,16 +962,37 @@ bool chunk_is_parent_type(chunk_t *pc, int count, ... )
 
 bool chunk_is_not_type(chunk_t *pc, int count, ... )
 {
+   va_list args;           /* define     argument list */
+   va_start(args, count);  /* initialize argument list */
+
+   bool result = false;
+   if(chunk_is_valid(pc))
+   {
+      result = true;
+      for( ; count > 0; --count)
+      {
+         c_token_t type = (c_token_t)va_arg(args, int);
+         (pc->type == type) ? result = false : 0;
+      }
+   }
+   va_end(args);
+   return result;
+}
+
+
+bool chunk_is_not_parent_type(chunk_t *pc, int count, ... )
+{
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
 
    bool result = false;
    if(chunk_is_valid(pc))
    {
+      result = true;
       for( ; count > 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int);
-         (pc->type == type) ? result = 0 : 0;
+         (pc->parent_type == type) ? result = false : 0;
       }
    }
    va_end(args);

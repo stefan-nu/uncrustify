@@ -503,8 +503,6 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
 
 
 #if 0
-
-
 /**
  * A string-in-string search.  Like strstr() with a haystack length.
  */

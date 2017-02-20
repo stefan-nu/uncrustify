@@ -2150,7 +2150,8 @@ void add_long_preprocessor_conditional_block_comment(void)
          pp_start = pc;
       }
 
-      if(chunk_is_not_type(pc, CT_PP_IF) || (pp_start == nullptr))
+      if(chunk_is_not_type(pc, CT_PP_IF) ||
+        (pp_start == nullptr))
       {
          continue;
       }

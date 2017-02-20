@@ -195,12 +195,7 @@ void tokenize_cleanup(void)
          {
             /* Something else followed by a open brace */
             chunk_t *tmp = chunk_get_next_ncnl(next);
-#if 0
             if(chunk_is_not_type(tmp, CT_BRACE_OPEN))
-#else
-            if ((tmp       == nullptr      ) ||
-                (tmp->type != CT_BRACE_OPEN) )
-#endif
             {
                set_chunk_type(pc, CT_QUALIFIER);
             }

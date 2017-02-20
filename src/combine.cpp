@@ -609,14 +609,14 @@ void make_type(chunk_t *pc)
 void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags, UINT64 clr_flags, scope_e nav)
 {
    LOG_FUNC_ENTRY();
-   while ((start != nullptr) &&
+   while ((chunk_is_valid(start)) &&
           (start != end ) )
    {
       chunk_flags_update(start, clr_flags, set_flags);
       start = chunk_get_next(start, nav);
    }
 
-   if (end != nullptr)
+   if (chunk_is_valid(end))
    {
       chunk_flags_update(end, clr_flags, set_flags);
    }
@@ -627,12 +627,10 @@ static chunk_t *flag_parens(chunk_t *po, UINT64 flags, c_token_t opentype,
                             c_token_t parenttype, bool parent_all)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *paren_close;
-
-   paren_close = chunk_skip_to_match(po, scope_e::PREPROC);
-   if (paren_close == nullptr)
+   chunk_t *paren_close = chunk_skip_to_match(po, scope_e::PREPROC);
+   if (!chunk_is_valid(paren_close))
    {
-      assert(po != nullptr);
+      assert(chunk_is_valid(po));
       LOG_FMT(LERR, "flag_parens: no match for [%s] at [%zu:%zu]",
               po->text(), po->orig_line, po->orig_col);
       log_func_stack_inline(LERR);
@@ -640,7 +638,7 @@ static chunk_t *flag_parens(chunk_t *po, UINT64 flags, c_token_t opentype,
       return(nullptr);
    }
 
-   assert(po != nullptr);
+   assert(chunk_is_valid(po));
    LOG_FMT(LFLPAREN, "flag_parens: %zu:%zu [%s] and %zu:%zu [%s] type=%s ptype=%s",
            po->orig_line, po->orig_col, po->text(),
            paren_close->orig_line, paren_close->orig_col, paren_close->text(),
@@ -688,9 +686,9 @@ chunk_t *set_paren_parent(chunk_t *start, c_token_t parent)
    chunk_t *end;
 
    end = chunk_skip_to_match(start, scope_e::PREPROC);
-   if (end != nullptr)
+   if (chunk_is_valid(end))
    {
-      assert(start != nullptr);
+      assert(chunk_is_valid(start));
       LOG_FMT(LFLPAREN, "set_paren_parent: %zu:%zu [%s] and %zu:%zu [%s] type=%s ptype=%s",
               start->orig_line, start->orig_col, start->text(),
               end->orig_line, end->orig_col, end->text(),
@@ -722,7 +720,7 @@ static void flag_asm(chunk_t *pc)
         tmp != end;
         tmp = chunk_get_next_ncnl(tmp, scope_e::PREPROC))
    {
-      assert(tmp != nullptr);
+      assert(chunk_is_valid(tmp));
       if (tmp->type == CT_COLON)
       {
          set_chunk_type(tmp, CT_ASM_COLON);
@@ -761,7 +759,7 @@ static bool chunk_ends_type(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
 
-   if(start == nullptr) { return false; }
+   if(!chunk_is_valid(start)) { return false; }
 
    bool    ret       = false;
    size_t  cnt       = 0;
@@ -774,12 +772,17 @@ static bool chunk_ends_type(chunk_t *start)
               __func__, get_token_name(pc->type), pc->text(),
               pc->flags, pc->orig_line, pc->orig_col);
 
+#if 1
+      if(chunk_is_type(pc, 6, CT_QUALIFIER, CT_WORD, CT_STRUCT,
+                              CT_DC_MEMBER, CT_TYPE, CT_PTR_TYPE))
+#else
       if ((pc->type == CT_WORD     ) ||
           (pc->type == CT_TYPE     ) ||
           (pc->type == CT_PTR_TYPE ) ||
           (pc->type == CT_STRUCT   ) ||
           (pc->type == CT_DC_MEMBER) ||
           (pc->type == CT_QUALIFIER) )
+#endif
       {
          cnt++;
          last_lval = (pc->flags & PCF_LVALUE) != 0;   // forcing value to bool
@@ -800,7 +803,7 @@ static bool chunk_ends_type(chunk_t *start)
       break;
    }
 
-   if (pc == nullptr) { ret = true; } /* first token */
+   if (!chunk_is_valid(pc)) { ret = true; } /* first token */
    LOG_FMT(LFTYPE, "%s verdict: %s\n", __func__, ret ? "yes" : "no");
    return(ret);
 }
@@ -809,12 +812,16 @@ static bool chunk_ends_type(chunk_t *start)
 static chunk_t *skip_dc_member(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   if (start == nullptr) { return(nullptr); }
+   if (!chunk_is_valid(start)) { return(nullptr); }
 
    chunk_t *pc   = start;
    chunk_t *next = (pc->type == CT_DC_MEMBER) ? pc : chunk_get_next_ncnl(pc);
+#if 1
+   while (chunk_is_type(next, CT_DC_MEMBER) )
+#else
    while ((next       != nullptr        ) &&
           (next->type == CT_DC_MEMBER) )
+#endif
    {
       pc   = chunk_get_next_ncnl(next);
       next = chunk_get_next_ncnl(pc);

@@ -1744,12 +1744,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
-#if 0
             if (chunk_is_parent_type(tmp, CT_PP_IF))
-#else
-            if ((tmp              != nullptr ) &&
-                (tmp->parent_type == CT_PP_IF) )
-#endif
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&

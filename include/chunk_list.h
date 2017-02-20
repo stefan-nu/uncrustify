@@ -42,7 +42,7 @@ enum class scope_e : unsigned int
  * check if a chunk is valid
  */
 bool chunk_is_valid(
-   chunk_t *pc /**< [in] chunk to check */
+   const chunk_t *pc /**< [in] chunk to check */
 );
 
 
@@ -496,48 +496,48 @@ chunk_t *chunk_search_next_cat(
 
 
 /**
- * tbd
+ * defines the type of a chunk
  */
 void set_chunk_type(
-   chunk_t   *pc,
-   c_token_t tt
+   chunk_t   *pc,  /**< [in] chunk to operate on */
+   c_token_t tt    /**< [in] value to set as chunk type */
 );
 
 
 /**
- * tbd
+ * defines the parent type of a chunk
  */
 void set_chunk_parent(
-   chunk_t   *pc,
-   c_token_t tt
+   chunk_t   *pc,  /**< [in] chunk to operate on */
+   c_token_t tt    /**< [in] value to set as parent type */
 );
 
 
 /**
- * tbd
+ * defines the flags of a chunk
  */
 void chunk_flags_set(
-   chunk_t *pc,
+   chunk_t *pc,      /**< [in] chunk to operate on */
    UINT64  set_bits
 );
 
 
 /**
- * tbd
+ * clears flags of a chunk
  */
 void chunk_flags_clr(
-   chunk_t *pc,
+   chunk_t *pc,      /**< [in] chunk to operate on */
    UINT64  clr_bits
 );
 
 
 /**
- * tbd
+ * updates the flags in a chunk
  */
 void chunk_flags_update(
-   chunk_t *pc,
-   UINT64  clr_bits,
-   UINT64  set_bits
+   chunk_t *pc,      /**< [in] chunk to update */
+   UINT64  clr_bits, /**< [in] flag bits to remove */
+   UINT64  set_bits  /**< [in] flag bits to add */
 );
 
 
@@ -550,12 +550,19 @@ chunk_t *chunk_skip_to_match(
 );
 
 
+bool chunk_is_type_and_level(
+   const chunk_t   *pc,  /**< [in] chunk to check */
+   const c_token_t type,
+   const int       level
+);
+
+
 /**
  * Check to see if there is a newline between the two chunks
  */
 bool chunk_is_newline_between(
-   chunk_t *start,
-   chunk_t *end
+   chunk_t *start,  /**< [in] chunk where check starts */
+   chunk_t *end     /**< [in] chunk where check ends */
 );
 
 
@@ -747,6 +754,20 @@ bool chunk_is_not_type(
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of token types to check for */
 );
+
+
+
+
+/**
+ * check if the given chunk is valid and holds a parent token type which is
+ * different from all types in a given list
+ */
+bool chunk_is_not_parent_type(
+   chunk_t *pc,   /**< [in] chunk to check */
+   int count,     /**< [in] number of token types to check */
+   ...            /**< [in] list of parent token types to check for */
+);
+
 
 
 /**

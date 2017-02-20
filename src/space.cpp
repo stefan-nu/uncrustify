@@ -114,8 +114,8 @@ const no_space_table_t no_space_table[] =
 static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *second, bool complete)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != nullptr);
-   assert(second != nullptr);
+   assert(chunks_are_valid(first, second));
+
    if (second->type != CT_NEWLINE)
    {
       LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
@@ -134,8 +134,7 @@ static void log_rule2(size_t line, const char *rule, chunk_t *first, chunk_t *se
 static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != nullptr);
-   assert(second != nullptr);
+   assert(chunks_are_valid(first, second));
 
 #ifdef DEBUG
    LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -1914,12 +1913,12 @@ void space_text(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *pc = chunk_get_head();
-   if (pc == nullptr) { return; }
+   if (!chunk_is_valid(pc)) { return; }
 
    chunk_t *next;
    size_t  prev_column;
    size_t  column = pc->column;
-   while (pc != nullptr)
+   while (chunk_is_valid(pc))
    {
 #ifdef DEBUG
       LOG_FMT(LSPACE, "(%d) ", __LINE__);
@@ -1960,7 +1959,7 @@ void space_text(void)
          }
       }
       else { next = pc->next; }
-      if (next == nullptr) { break; }
+      if (!chunk_is_valid(next)) { break; }
 
       // Issue # 481
       if ((QT_SIGNAL_SLOT_found) &&
@@ -2010,7 +2009,7 @@ void space_text(void)
             {
                tmp = chunk_get_next(tmp);
             }
-            if ((tmp != nullptr) && (tmp->len() > 0))
+            if ((chunk_is_valid(tmp)) && (tmp->len() > 0))
             {
                bool kw1 = CharTable::IsKeyword2((size_t)(pc->str[pc->len()-1]));
                bool kw2 = CharTable::IsKeyword1((size_t)(next->str[0]));
