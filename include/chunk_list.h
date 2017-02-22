@@ -514,6 +514,16 @@ void set_chunk_parent(
 
 
 /**
+ * defines the type and parent type of a chunk
+ */
+void set_chunk_and_parent_type(
+   chunk_t   *pc,   /**< [in] chunk to operate on */
+   c_token_t type,  /**< [in] value to set as chunk  type */
+   c_token_t parent /**< [in] value to set as parnet type */
+);
+
+
+/**
  * defines the flags of a chunk
  */
 void chunk_flags_set(

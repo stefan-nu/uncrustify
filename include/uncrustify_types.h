@@ -262,7 +262,7 @@ struct chunk_t
 
 
    /**
-    * provides the content of a string a zero terminated character pointer
+    * provides the content of a string as zero terminated character pointer
     */
    const char *text()
    {

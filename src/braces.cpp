@@ -1077,26 +1077,14 @@ static void mod_case_brace(void)
       if (!chunk_is_valid(next)) { return; }
 
       if ((cpd.settings[UO_mod_case_brace].a == AV_REMOVE) &&
-#if 1
           chunk_is_type(pc, CT_BRACE_OPEN) &&
           chunk_is_parent_type(pc, CT_CASE))
-#else
-          (pc->type == CT_BRACE_OPEN) &&
-          (pc->parent_type == CT_CASE))
-#endif
       {
          pc = mod_case_brace_remove(pc);
       }
       else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD)) &&
-#if 1
                 chunk_is_type(pc, CT_CASE_COLON) &&
                 chunk_is_not_type(next, 3, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE))
-#else
-               (pc->type   == CT_CASE_COLON ) &&
-               (next->type != CT_BRACE_OPEN ) &&
-               (next->type != CT_BRACE_CLOSE) &&
-               (next->type != CT_CASE       ) )
-#endif
       {
          pc = mod_case_brace_add(pc);
       }
@@ -1161,36 +1149,16 @@ static void process_if_chain(chunk_t *br_start)
       }
 
       pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
-#if 1
       if(chunk_is_type(pc, CT_ELSEIF))
-#else
-      if ((pc      !=  nullptr  ) &&
-          (pc->type == CT_ELSEIF) )
-#endif
       {
-
-#if 1
          while(chunk_is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN))
-#else
-         while ((pc       != nullptr       ) &&
-                (pc->type != CT_VBRACE_OPEN) &&
-                (pc->type != CT_BRACE_OPEN ) )
-#endif
          {
             pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
          }
       }
       if (!chunk_is_valid(pc)) { break; }
 
-#if 1
-      if (chunk_is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN))
-#else
-      if ((pc->type != CT_BRACE_OPEN ) &&
-          (pc->type != CT_VBRACE_OPEN) )
-#endif
-      {
-         break;
-      }
+      if (chunk_is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN)) { break; }
    }
 
    if (must_have_braces)
@@ -1244,14 +1212,8 @@ static void mod_full_brace_if_chain(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-#if 1
       if(chunk_is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
          chunk_is_parent_type(pc, CT_IF))
-#else
-      if (((pc->type        == CT_BRACE_OPEN ) ||
-           (pc->type        == CT_VBRACE_OPEN) ) &&
-           (pc->parent_type == CT_IF           ) )
-#endif
       {
          process_if_chain(pc);
       }

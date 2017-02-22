@@ -792,6 +792,13 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 }
 
 
+void set_chunk_and_parent_type(chunk_t *pc, c_token_t type, c_token_t parent)
+{
+   set_chunk_type  (pc, type  );
+   set_chunk_parent(pc, parent);
+}
+
+
 void set_chunk_type(chunk_t *pc, c_token_t tt)
 {
    LOG_FUNC_CALL();
