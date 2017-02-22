@@ -12,6 +12,7 @@
 #include "prototypes.h"
 #include "uncrustify_version.h"
 #include "uncrustify.h"
+#include "error_types.h"
 #include "keywords.h"
 #include "defines.h"
 #include <cstring>
@@ -122,7 +123,7 @@ void unc_add_option(const char *name, uncrustify_options id, argtype_e type,
    {
       fprintf(stderr, "FATAL: length of the option name (%s) is too big (%d)\n", name, lengthOfTheOption);
       fprintf(stderr, "FATAL: the maximal length of an option name is %d characters\n", OptionMaxLength);
-      exit(EXIT_FAILURE);
+      exit(EX_SOFTWARE);
    }
    group_map[current_group].options.push_back(id);
 
@@ -152,6 +153,11 @@ void unc_add_option(const char *name, uncrustify_options id, argtype_e type,
       value.max_val = max_val;
       break;
 
+   case AT_UNUM:
+      value.min_val = min_val;
+      value.max_val = max_val;
+      break;
+
    case AT_LINE:
       value.max_val = 3;
       break;
@@ -164,14 +170,9 @@ void unc_add_option(const char *name, uncrustify_options id, argtype_e type,
       value.max_val = 0;
       break;
 
-   case AT_UNUM:
-      value.min_val = min_val;
-      value.max_val = max_val;
-      break;
-
    default:
       fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
-      exit(EXIT_FAILURE);
+      exit(EX_SOFTWARE);
    }
 
    option_name_map[id] = value;
@@ -208,13 +209,11 @@ static bool match_text(const char *str1, const char *str2)
 
 const option_map_value *unc_find_option(const char *name)
 {
-   const option_name_map_it itE = option_name_map.end();
-
-   for (option_name_map_it it = option_name_map.begin(); it != itE; it++)
+   for (const auto &it : option_name_map)
    {
-      if (match_text(it->second.name, name))
+      if (match_text(it.second.name, name))
       {
-         return(&it->second);
+         return(&it.second);
       }
    }
    return(nullptr);
@@ -277,6 +276,8 @@ void register_options(void)
                   "Add or remove space before assignment '=' in enum. Overrides sp_enum_assign.");
    unc_add_option("sp_enum_after_assign", UO_sp_enum_after_assign, AT_IARF,
                   "Add or remove space after assignment '=' in enum. Overrides sp_enum_assign.");
+   unc_add_option("sp_enum_colon", UO_sp_enum_colon, AT_IARF,
+                  "Add or remove space around assignment ':' in enum");
    unc_add_option("sp_pp_concat", UO_sp_pp_concat, AT_IARF,
                   "Add or remove space around preprocessor '##' concatenation operator. Default=Add");
    unc_add_option("sp_pp_stringify", UO_sp_pp_stringify, AT_IARF,
@@ -893,6 +894,14 @@ void register_options(void)
                   "list_for_each(item, &list) { }");
    unc_add_option("nl_enum_brace", UO_nl_enum_brace, AT_IARF,
                   "Add or remove newline between 'enum' and '{'");
+   unc_add_option("nl_enum_class", UO_nl_enum_class, AT_IARF,
+                  "Add or remove newline between 'enum' and 'class'");
+   unc_add_option("nl_enum_class_identifier", UO_nl_enum_class_identifier, AT_IARF,
+                  "Add or remove newline between 'enum class' and the identifier");
+   unc_add_option("nl_enum_identifier_colon", UO_nl_enum_identifier_colon, AT_IARF,
+                  "Add or remove newline between 'enum class' type and ':'");
+   unc_add_option("nl_enum_colon_type", UO_nl_enum_colon_type, AT_IARF,
+                  "Add or remove newline between 'enum class identifier :' and 'type' and/or 'type'");
    unc_add_option("nl_struct_brace", UO_nl_struct_brace, AT_IARF,
                   "Add or remove newline between 'struct and '{'");
    unc_add_option("nl_union_brace", UO_nl_union_brace, AT_IARF,
@@ -1301,7 +1310,8 @@ void register_options(void)
    unc_add_option("align_assign_thresh", UO_align_assign_thresh, AT_UNUM,
                   "The threshold for aligning on '=' in assignments (0=no limit)", "", 0, 5000);
    unc_add_option("align_enum_equ_span", UO_align_enum_equ_span, AT_UNUM,
-                  "The span for aligning on '=' in enums (0=don't align)", "", 0, 5000);
+                  "The span for aligning on '=' in enums (0=don't align)\n"
+                  "Note: align_assign_span must be set also.", "", 0, 5000);
    unc_add_option("align_enum_equ_thresh", UO_align_enum_equ_thresh, AT_UNUM,
                   "The threshold for aligning on '=' in enums (0=no limit)", "", 0, 5000);
    unc_add_option("align_var_class_span", UO_align_var_class_span, AT_UNUM,
@@ -1559,6 +1569,8 @@ void register_options(void)
                   "Control whether to indent the code between #if, #else and #endif.");
    unc_add_option("pp_define_at_level", UO_pp_define_at_level, AT_BOOL,
                   "Whether to indent '#define' at the brace level (True) or from column 1 (false)");
+   unc_add_option("pp_ignore_define_body", UO_pp_ignore_define_body, AT_BOOL,
+                  "Whether to ignore the '#define' body while formatting.");
 
    unc_begin_group(UG_sort_includes, "Sort includes options");
    unc_add_option("include_category_0", UO_include_category_0, AT_STRING,
@@ -1594,13 +1606,11 @@ void register_options(void)
 
 const group_map_value *get_group_name(size_t ug)
 {
-   for (group_map_it it = group_map.begin();
-        it != group_map.end();
-        it++)
+   for (const auto &it : group_map)
    {
-      if (it->second.id == ug)
+      if (it.second.id == ug)
       {
-         return(&it->second);
+         return(&it.second);
       }
    }
    return(nullptr);
@@ -1693,14 +1703,12 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
    }
 
    const option_map_value *tmp;
-   if ((entry->type == AT_NUM) ||
-       (entry->type == AT_UNUM))
+   if ((entry->type == AT_NUM) || (entry->type == AT_UNUM))
    {
-      if (unc_isdigit(*val) ||
-          (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
+      if (unc_isdigit(*val)
+          || (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
       {
-         if ((entry->type == AT_UNUM) &&
-             (*val == '-'))
+         if ((entry->type == AT_UNUM) && (*val == '-'))
          {
             fprintf(stderr, "%s:%d\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
@@ -1710,50 +1718,42 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
          // is the same as dest->u
          return;
       }
-      else
-      {
-         /* Try to see if it is a variable */
-         int mult = 1;
-         if (*val == '-')
-         {
-            mult = -1;
-            val++;
-         }
 
-         tmp = unc_find_option(val);
-         if (tmp == nullptr)
-         {
-            fprintf(stderr, "%s:%d\n  for the assigment: unknown option '%s':",
-                    cpd.filename, cpd.line_number, val);
-            exit(EX_CONFIG);
-         }
-         // indent_case_brace = -indent_columns
-         LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
-                 cpd.line_number,
-                 get_argtype_name(entry->type), entry->name,
-                 get_argtype_name(tmp->type), tmp->name);
-         if ((tmp->type == entry->type) ||
-             ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
-             ((tmp->type == AT_NUM) && (entry->type == AT_UNUM) && (cpd.settings[tmp->id].n * mult) > 0))
-         {
-            dest->n = cpd.settings[tmp->id].n * mult;
-            // is the same as dest->u
-            return;
-         }
-         else
-         {
-            fprintf(stderr, "%s:%d\n  for the assigment: expected type for %s is %s, got %s\n",
-                    cpd.filename, cpd.line_number,
-                    entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
-            exit(EX_CONFIG);
-         }
+      /* Try to see if it is a variable */
+      int mult = 1;
+      if (*val == '-')
+      {
+         mult = -1;
+         val++;
       }
-      fprintf(stderr, "%s:%d Expected a number for %s, got %s\n",
-              cpd.filename, cpd.line_number, entry->name, val);
-      cpd.error_count++;
-      dest->n = 0;
-      // is the same as dest->u
-      return;
+
+      tmp = unc_find_option(val);
+      if (tmp == nullptr)
+      {
+         fprintf(stderr, "%s:%d\n  for the assigment: unknown option '%s':",
+                 cpd.filename, cpd.line_number, val);
+         exit(EX_CONFIG);
+      }
+
+      // indent_case_brace = -indent_columns
+      LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
+              cpd.line_number, get_argtype_name(entry->type),
+              entry->name, get_argtype_name(tmp->type), tmp->name);
+
+      if ((tmp->type == entry->type)
+          || ((tmp->type == AT_UNUM) && (entry->type == AT_NUM))
+          || ((tmp->type == AT_NUM) && (entry->type == AT_UNUM)
+              && (cpd.settings[tmp->id].n * mult) > 0))
+      {
+         dest->n = cpd.settings[tmp->id].n * mult;
+         // is the same as dest->u
+         return;
+      }
+
+      fprintf(stderr, "%s:%d\n  for the assigment: expected type for %s is %s, got %s\n",
+              cpd.filename, cpd.line_number,
+              entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
+      exit(EX_CONFIG);
    }
 
    if (entry->type == AT_BOOL)
@@ -1786,6 +1786,7 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
          dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
          return;
       }
+
       fprintf(stderr, "%s:%d Expected 'True' or 'False' for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
       cpd.error_count++;
@@ -2064,20 +2065,20 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the options by group */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (auto &jt : group_map)
    {
       if (withDoc)
       {
          fputs("\n#\n", pfile);
-         fprintf(pfile, "# %s\n", jt->second.short_desc);
+         fprintf(pfile, "# %s\n", jt.second.short_desc);
          fputs("#\n\n", pfile);
       }
 
       bool first = true;
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (auto option_id : jt.second.options)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value *option = get_option_name(option_id);
 
          if (withDoc && (option->short_desc != nullptr) && (*option->short_desc != 0))
          {
@@ -2185,13 +2186,13 @@ void print_options(FILE *pfile)
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the all out */
-   for (group_map_it jt = group_map.begin(); jt != group_map.end(); jt++)
+   for (auto &jt : group_map)
    {
-      fprintf(pfile, "#\n# %s\n#\n\n", jt->second.short_desc);
+      fprintf(pfile, "#\n# %s\n#\n\n", jt.second.short_desc);
 
-      for (option_list_it it = jt->second.options.begin(); it != jt->second.options.end(); it++)
+      for (auto option_id : jt.second.options)
       {
-         const option_map_value *option = get_option_name(*it);
+         const option_map_value *option = get_option_name(option_id);
          int                    cur     = strlen(option->name);
          int                    pad     = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n",
@@ -2229,9 +2230,9 @@ void print_options(FILE *pfile)
 void set_option_defaults(void)
 {
    /* set all the default values to zero */
-   for (int count = 0; count < UO_option_count; count++)
+   for (auto &count : cpd.defaults)
    {
-      cpd.defaults[count].n = 0;
+      count.n = 0;
    }
 
    /* the options with non-zero default values */
@@ -2315,7 +2316,7 @@ string argtype_to_string(argtype_e argtype)
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      exit(EX_SOFTWARE);
    }
 }
 
@@ -2347,7 +2348,7 @@ const char *get_argtype_name(argtype_e argtype)
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      exit(EX_SOFTWARE);
    }
 }
 
@@ -2358,10 +2359,8 @@ string bool_to_string(bool val)
    {
       return("true");
    }
-   else
-   {
-      return("false");
-   }
+
+   return("false");
 }
 
 
@@ -2486,6 +2485,6 @@ string op_val_to_string(argtype_e argtype, op_val_t op_val)
 
    default:
       fprintf(stderr, "Unknown argtype '%d'\n", argtype);
-      return("");
+      exit(EX_SOFTWARE);
    }
 }

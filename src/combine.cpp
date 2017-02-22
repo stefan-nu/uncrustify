@@ -2526,41 +2526,55 @@ static void fix_enum_struct_union(chunk_t *pc)
       return;
    }
 
-   /* the next item is either a type or open brace */
    next = chunk_get_next_ncnl(pc);
+   // the enum-key might be enum, enum class or enum struct (TODO)
    if (next && (next->type == CT_ENUM_CLASS))
    {
+      // get the next one
       next = chunk_get_next_ncnl(next);
    }
+   /* the next item is either a type, an attribut (TODO), an identifier, a colon or open brace */
    if (next && (next->type == CT_TYPE))
    {
+      // i.e. "enum xyz : unsigned int { ... };"
+      // i.e. "enum class xyz : unsigned int { ... };"
+      // xyz is a type
       set_chunk_parent(next, pc->type);
-      prev = next;
+      prev = next;  // save xyz
       next = chunk_get_next_ncnl(next);
+      set_chunk_parent(next, pc->type);
 
       /* next up is either a colon, open brace, or open paren (pawn) */
       if (!next)
       {
          return;
       }
-      else if ((cpd.lang_flags & LANG_PAWN) &&
-               (next->type == CT_PAREN_OPEN))
+
+      if ((cpd.lang_flags & LANG_PAWN) &&
+          (next->type == CT_PAREN_OPEN))
       {
          next = set_paren_parent(next, CT_ENUM);
       }
       else if ((pc->type == CT_ENUM) && (next->type == CT_COLON))
       {
-         /* enum TYPE : INT_TYPE { */
+         // enum TYPE : INT_TYPE { ... };
          next = chunk_get_next_ncnl(next);
          if (next)
          {
             make_type(next);
             next = chunk_get_next_ncnl(next);
+            // enum TYPE : unsigned int { ... };
+            if (next && (next->type == CT_TYPE))
+            {
+               // get the next part of the type
+               next = chunk_get_next_ncnl(next);
+            }
          }
       }
    }
    if (next && (next->type == CT_BRACE_OPEN))
    {
+      flag_series(pc, next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT);
       flag_parens(next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT,
                   CT_NONE, CT_NONE, false);
 
@@ -3017,6 +3031,10 @@ void combine_labels(void)
             {
                set_chunk_type(next, CT_BIT_COLON);
             }
+            else if (nextprev->type == CT_TYPE)
+            {
+               set_chunk_type(next, CT_BIT_COLON);
+            }
             else if ((cur->type == CT_ENUM) ||
                      (cur->type == CT_PRIVATE) ||
                      (cur->type == CT_QUALIFIER) ||
@@ -3338,19 +3356,17 @@ static chunk_t *skip_expression(chunk_t *start)
  */
 bool go_on(chunk_t *pc, chunk_t *start)
 {
-   if ((pc == nullptr) ||
-       (pc->level != start->level))
+   if ((pc == nullptr) || (pc->level != start->level))
    {
       return(false);
    }
+
    if (pc->flags & PCF_IN_FOR)
    {
       return((!chunk_is_semicolon(pc)) && (!(pc->type == CT_COLON)));
    }
-   else
-   {
-      return(!chunk_is_semicolon(pc));
-   }
+
+   return(!chunk_is_semicolon(pc));
 } // go_on
 
 
@@ -3677,6 +3693,7 @@ static void mark_function(chunk_t *pc)
    {
       return;
    }
+
    next = skip_attribute_next(next);
    if (next == nullptr)
    {
@@ -3856,11 +3873,9 @@ static void mark_function(chunk_t *pc)
                mark_cpp_constructor(pc);
                return;
             }
-            else
-            {
-               /* Point to the item previous to the class name */
-               prev = chunk_get_prev_ncnlnp(prev);
-            }
+
+            /* Point to the item previous to the class name */
+            prev = chunk_get_prev_ncnlnp(prev);
          }
       }
    }
@@ -5912,12 +5927,10 @@ static void handle_oc_property_decl(chunk_t *os)
          for (multimap<int, std::vector<ChunkGroup> >::reverse_iterator it = sorted_chunk_map.rbegin(); it != sorted_chunk_map.rend(); ++it)
          {
             std::vector<ChunkGroup> chunk_groups = (*it).second;
-            for (std::vector<int>::size_type i = 0; i < chunk_groups.size(); i++)
+            for (auto chunk_group : chunk_groups)
             {
-               ChunkGroup chunk_group = chunk_groups[i];
-               for (std::vector<int>::size_type j = 0; j < chunk_group.size(); j++)
+               for (auto chunk : chunk_group)
                {
-                  chunk_t *chunk = chunk_group[j];
                   chunk->orig_prev_sp = 0;
                   if (chunk != curr_chunk)
                   {

@@ -93,7 +93,8 @@ static void add_char(UINT32 ch)
          }
          return;
       }
-      else if ((ch == ' ') && !cpd.output_trailspace)
+
+      if ((ch == ' ') && !cpd.output_trailspace)
       {
          cpd.spaces++;
          cpd.column++;
@@ -249,7 +250,7 @@ void output_parsed(FILE *pfile)
    fprintf(pfile, "# Line              Tag           Parent          Columns Br/Lvl/pp     Flag   Nl  Text");
    for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
    {
-      fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3d/%3d][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
+      fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3zu/%3d][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
               pc->orig_line, get_token_name(pc->type),
               get_token_name(pc->parent_type),
               pc->column, pc->orig_col, pc->orig_col_end, pc->orig_prev_sp,
@@ -328,23 +329,36 @@ void output_text(FILE *pfile)
             }
             else
             {
-               /* Try to keep the same relative spacing */
                chunk_t *prev = chunk_get_prev(pc);
-               while ((prev != nullptr) && (prev->orig_col == 0) && (prev->nl_count == 0))
-               {
-                  prev = chunk_get_prev(prev);
-               }
 
-               if ((prev != nullptr) && (prev->nl_count == 0))
+               if (prev && prev->type == CT_PP_IGNORE)
                {
-                  int orig_sp = (pc->orig_col - prev->orig_col_end);
-                  pc->column = cpd.column + orig_sp;
-                  // the value might be negative --> use an int
-                  int columnDiff = cpd.column + orig_sp;
-                  if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
-                      (columnDiff < (cpd.column + 1)))
+                  /* Want to completely leave alone PP_IGNORE'd blocks because they likely have special column aligned newline continuations (common in multiline macros) */
+                  pc->column = pc->orig_col;
+               }
+               else
+               {
+                  /* Try to keep the same relative spacing */
+                  while ((prev != NULL) && (prev->orig_col == 0) && (prev->nl_count == 0))
                   {
-                     pc->column = cpd.column + 1;
+                     prev = chunk_get_prev(prev);
+                  }
+
+                  if ((prev != NULL) && (prev->nl_count == 0))
+                  {
+                     int orig_sp = (pc->orig_col - prev->orig_col_end);
+                     if ((int)(cpd.column + orig_sp) < 0)
+                     {
+                        fprintf(stderr, "FATAL: negative value.\n   pc->orig_col=%zu prev->orig_col_end=%zu\n",
+                                pc->orig_col, prev->orig_col_end);
+                        exit(EX_SOFTWARE);
+                     }
+                     pc->column = cpd.column + orig_sp;
+                     if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
+                         (pc->column < (cpd.column + 1)))
+                     {
+                        pc->column = cpd.column + 1;
+                     }
                   }
                }
             }
@@ -430,7 +444,7 @@ void output_text(FILE *pfile)
                          (chunk_is_comment(pc) &&
                           (cpd.settings[UO_indent_with_tabs].n != 0));
 
-            LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%d - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
+            LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%zu - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
          }
          else
          {
@@ -1812,35 +1826,35 @@ static const kw_subst_t kw_subst_table[] =
  */
 static void do_kw_subst(chunk_t *pc)
 {
-   for (size_t kw_idx = 0; kw_idx < ARRAY_SIZE(kw_subst_table); kw_idx++)
+   for (const auto &kw : kw_subst_table)
    {
-      const kw_subst_t *kw = &kw_subst_table[kw_idx];
-      int              idx = pc->str.find(kw->tag);
-
-      if (idx >= 0)
+      int idx = pc->str.find(kw.tag);
+      if (idx < 0)
       {
-         unc_text tmp_txt;
-         tmp_txt.clear();
-         if (kw->func(pc, tmp_txt))
+         continue;
+      }
+
+      unc_text tmp_txt;
+      tmp_txt.clear();
+      if (kw.func(pc, tmp_txt))
+      {
+         /* if the replacement contains '\n' we need to fix the lead */
+         if (tmp_txt.find("\n") >= 0)
          {
-            /* if the replacement contains '\n' we need to fix the lead */
-            if (tmp_txt.find("\n") >= 0)
+            size_t nl_idx = pc->str.rfind("\n", idx);
+            if (nl_idx > 0)
             {
-               size_t nl_idx = pc->str.rfind("\n", idx);
-               if (nl_idx > 0)
+               unc_text nl_txt;
+               nl_txt.append("\n");
+               nl_idx++;
+               while ((nl_idx < (size_t)idx) && !unc_isalnum(pc->str[nl_idx]))
                {
-                  unc_text nl_txt;
-                  nl_txt.append("\n");
-                  nl_idx++;
-                  while ((nl_idx < (size_t)idx) && !unc_isalnum(pc->str[nl_idx]))
-                  {
-                     nl_txt.append(pc->str[nl_idx++]);
-                  }
-                  tmp_txt.replace("\n", nl_txt);
+                  nl_txt.append(pc->str[nl_idx++]);
                }
+               tmp_txt.replace("\n", nl_txt);
             }
-            pc->str.replace(kw->tag, tmp_txt);
          }
+         pc->str.replace(kw.tag, tmp_txt);
       }
    }
 } // do_kw_subst

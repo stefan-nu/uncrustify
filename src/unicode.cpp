@@ -74,13 +74,13 @@ static bool is_ascii(const vector<UINT8> &data, size_t &non_ascii_cnt, size_t &z
 {
    non_ascii_cnt = 0;
    zero_cnt      = 0;
-   for (size_t idx = 0; idx < data.size(); idx++)
+   for (unsigned char value : data)
    {
-      if (data[idx] & 0x80)
+      if (value & 0x80)
       {
          non_ascii_cnt++;
       }
-      if (!data[idx])
+      if (!value)
       {
          zero_cnt++;
       }
@@ -344,15 +344,15 @@ static bool decode_bom(const vector<UINT8> &in_data, char_encoding_e &enc)
          enc = char_encoding_e::UTF16_BE;
          return(true);
       }
-      else if ((in_data[0] == 0xff) && (in_data[1] == 0xfe))
+
+      if ((in_data[0] == 0xff) && (in_data[1] == 0xfe))
       {
          enc = char_encoding_e::UTF16_LE;
          return(true);
       }
-      else if ((in_data.size() >= 3) &&
-               (in_data[0] == 0xef) &&
-               (in_data[1] == 0xbb) &&
-               (in_data[2] == 0xbf))
+
+      if ((in_data.size() >= 3) && (in_data[0] == 0xef) && (in_data[1] == 0xbb)
+          && (in_data[2] == 0xbf))
       {
          enc = char_encoding_e::UTF8;
          return(true);
@@ -372,10 +372,8 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, char_enc
       {
          return(decode_utf8(in_data, out_data));
       }
-      else
-      {
-         return(decode_utf16(in_data, out_data, enc));
-      }
+
+      return(decode_utf16(in_data, out_data, enc));
    }
    has_bom = false;
 
@@ -437,9 +435,9 @@ static void write_utf8(int ch)
    vv.reserve(6);
 
    encode_utf8(ch, vv);
-   for (size_t idx = 0; idx < vv.size(); idx++)
+   for (unsigned char char_val : vv)
    {
-      write_byte(vv[idx]);
+      write_byte(char_val);
    }
 }
 

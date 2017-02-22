@@ -304,7 +304,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
             min_col = pc->column;
          }
       }
-      LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu multi:%s prev->col=%d prev->len()=%zu %s\n",
+      LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu multi:%s prev->col=%zu prev->len()=%zu %s\n",
               __func__, pc->orig_line, pc->column, max_col, min_pad, min_col, (prev->type == CT_COMMENT_MULTI) ? "Y" : "N",
               (prev->type == CT_COMMENT_MULTI) ? prev->orig_col_end : (UINT32)prev->column, prev->len(), get_token_name(prev->type));
    }
@@ -512,7 +512,7 @@ void align_right_comments(void)
                // comments which are stuck to the previous token (gap=0) into alignment with the
                // others. Not the major feature, but a nice find. (min_val/max_val in
                // options.cpp isn't validated against, it seems; well, I don't mind! :-) )
-               LOG_FMT(LALTC, "NOT changing END comment on line %zu (%zu <= %d + %d)\n",
+               LOG_FMT(LALTC, "NOT changing END comment on line %zu (%zu <= %zu + %d)\n",
                        pc->orig_line,
                        pc->orig_col, prev->orig_col_end, cpd.settings[UO_align_right_cmt_gap].n);
                skip = true;
@@ -923,9 +923,9 @@ static void align_same_func_call_params(void)
       {
          if (chunk_is_newline(pc))
          {
-            for (size_t idx = 0; idx < as.size(); idx++)
+            for (auto &as_v : as)
             {
-               as[idx].NewLines(pc->nl_count);
+               as_v.NewLines(pc->nl_count);
             }
             fcn_as.NewLines(pc->nl_count);
          }
@@ -938,9 +938,9 @@ static void align_same_func_call_params(void)
 
                /* Flush it all! */
                fcn_as.Flush();
-               for (size_t idx = 0; idx < as.size(); idx++)
+               for (auto &as_v : as)
                {
-                  as[idx].Flush();
+                  as_v.Flush();
                }
                align_root = nullptr;
             }
@@ -1002,9 +1002,9 @@ static void align_same_func_call_params(void)
 
             /* Flush it all! */
             fcn_as.Flush();
-            for (size_t idx = 0; idx < as.size(); idx++)
+            for (auto &as_v : as)
             {
-               as[idx].Flush();
+               as_v.Flush();
             }
             align_root = nullptr;
          }
@@ -1055,9 +1055,9 @@ static void align_same_func_call_params(void)
    {
       LOG_FMT(LASFCP, "  ++ Ended with %zu fcns\n", align_len);
       fcn_as.End();
-      for (size_t idx = 0; idx < as.size(); idx++)
+      for (auto &as_v : as)
       {
-         as[idx].End();
+         as_v.End();
       }
    }
 } // align_same_func_call_params
