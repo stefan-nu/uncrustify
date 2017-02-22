@@ -599,7 +599,8 @@ static void convert_brace(chunk_t *br)
    {
       return;
    }
-   else if (br->type == CT_BRACE_OPEN)
+
+   if (br->type == CT_BRACE_OPEN)
    {
       set_chunk_type(br, CT_VBRACE_OPEN);
       br->str.clear();
@@ -628,7 +629,7 @@ static void convert_brace(chunk_t *br)
          }
       }
    }
-}
+} // convert_brace
 
 
 static void convert_vbrace(chunk_t *vbr)

@@ -363,6 +363,8 @@ void register_options(void)
                   "Add or remove space before assignment '=' in enum. Overrides sp_enum_assign.");
    unc_add_option("sp_enum_after_assign", UO_sp_enum_after_assign, AT_IARF,
                   "Add or remove space after assignment '=' in enum. Overrides sp_enum_assign.");
+   unc_add_option("sp_enum_colon", UO_sp_enum_colon, AT_IARF,
+                  "Add or remove space around assignment ':' in enum");
    unc_add_option("sp_pp_concat", UO_sp_pp_concat, AT_IARF,
                   "Add or remove space around preprocessor '##' concatenation operator. Default=Add");
    unc_add_option("sp_pp_stringify", UO_sp_pp_stringify, AT_IARF,
@@ -979,6 +981,14 @@ void register_options(void)
                   "list_for_each(item, &list) { }");
    unc_add_option("nl_enum_brace", UO_nl_enum_brace, AT_IARF,
                   "Add or remove newline between 'enum' and '{'");
+   unc_add_option("nl_enum_class", UO_nl_enum_class, AT_IARF,
+                  "Add or remove newline between 'enum' and 'class'");
+   unc_add_option("nl_enum_class_identifier", UO_nl_enum_class_identifier, AT_IARF,
+                  "Add or remove newline between 'enum class' and the identifier");
+   unc_add_option("nl_enum_identifier_colon", UO_nl_enum_identifier_colon, AT_IARF,
+                  "Add or remove newline between 'enum class' type and ':'");
+   unc_add_option("nl_enum_colon_type", UO_nl_enum_colon_type, AT_IARF,
+                  "Add or remove newline between 'enum class identifier :' and 'type' and/or 'type'");
    unc_add_option("nl_struct_brace", UO_nl_struct_brace, AT_IARF,
                   "Add or remove newline between 'struct and '{'");
    unc_add_option("nl_union_brace", UO_nl_union_brace, AT_IARF,
@@ -1387,7 +1397,8 @@ void register_options(void)
    unc_add_option("align_assign_thresh", UO_align_assign_thresh, AT_UNUM,
                   "The threshold for aligning on '=' in assignments (0=no limit)", "", 0, 5000);
    unc_add_option("align_enum_equ_span", UO_align_enum_equ_span, AT_UNUM,
-                  "The span for aligning on '=' in enums (0=don't align)", "", 0, 5000);
+                  "The span for aligning on '=' in enums (0=don't align)\n"
+                  "Note: align_assign_span must be set also.", "", 0, 5000);
    unc_add_option("align_enum_equ_thresh", UO_align_enum_equ_thresh, AT_UNUM,
                   "The threshold for aligning on '=' in enums (0=no limit)", "", 0, 5000);
    unc_add_option("align_var_class_span", UO_align_var_class_span, AT_UNUM,
@@ -1645,6 +1656,8 @@ void register_options(void)
                   "Control whether to indent the code between #if, #else and #endif.");
    unc_add_option("pp_define_at_level", UO_pp_define_at_level, AT_BOOL,
                   "Whether to indent '#define' at the brace level (True) or from column 1 (false)");
+   unc_add_option("pp_ignore_define_body", UO_pp_ignore_define_body, AT_BOOL,
+                  "Whether to ignore the '#define' body while formatting.");
 
    unc_begin_group(UG_sort_includes, "Sort includes options");
    unc_add_option("include_category_0", UO_include_category_0, AT_STRING,
@@ -1738,14 +1751,12 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
    }
 
    const option_map_value_t *tmp;
-   if ((entry->type == AT_NUM) ||
-       (entry->type == AT_UNUM))
+   if ((entry->type == AT_NUM) || (entry->type == AT_UNUM))
    {
-      if (unc_isdigit(*val) ||
-          (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
+      if (unc_isdigit(*val)
+          || (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
       {
-         if ((entry->type == AT_UNUM) &&
-             (*val == '-'))
+         if ((entry->type == AT_UNUM) && (*val == '-'))
          {
             fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);

@@ -430,7 +430,8 @@ static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
    {
       return(parse_string(ctx, pc, 0, true));
    }
-   else if (ch == '\\')
+
+   if (ch == '\\')
    {
       ctx.save();
       pc.str.clear();
@@ -1354,7 +1355,16 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
        (cpd.preproc_ncnl_count == 1))
    {
       if (ctx.peek() == '(') { pc.type = CT_MACRO_FUNC; }
-      else                   { pc.type = CT_MACRO;      }
+      else
+      {
+         pc.type = CT_MACRO;
+         if (cpd.settings[UO_pp_ignore_define_body].b)
+         {
+            // We are setting the PP_IGNORE preproc state because the following
+            // chunks are part of the macro body and will have to be ignored.
+            cpd.is_preproc = CT_PP_IGNORE;
+         }
+      }
    }
    else
    {
@@ -1369,6 +1379,16 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
       {
          /* Turn it into a keyword now */
          pc.type = find_keyword_type(pc.text(), pc.str.size());
+
+         /* Special pattern: if we're trying to redirect a preprocessor directive to PP_IGNORE,
+          * then ensure we're actually part of a preprocessor before doing the swap, or we'll
+          * end up with a function named 'define' as PP_IGNORE. This is necessary because with
+          * the config 'set' feature, there's no way to do a pair of tokens as a word
+          * substitution. */
+         if (pc.type == CT_PP_IGNORE && !cpd.is_preproc)
+         {
+            pc.type = find_keyword_type(pc.text(), pc.str.size());
+         }
       }
    }
 
@@ -1992,6 +2012,21 @@ void tokenize(const deque<int> &data, chunk_t *ref)
             }
             cpd.is_preproc = pc->type;
          }
+         else if (cpd.is_preproc == CT_PP_IGNORE)
+         {
+            // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
+            if (pc->type != CT_NL_CONT && pc->type != CT_COMMENT_CPP)
+            {
+               set_chunk_type(pc, CT_PP_IGNORE);
+            }
+         }
+         else if (cpd.is_preproc == CT_PP_DEFINE && pc->type == CT_PAREN_CLOSE
+                  && cpd.settings[UO_pp_ignore_define_body].b)
+         {
+            // When we have a PAREN_CLOSE in a PP_DEFINE we should be terminating a MACRO_FUNC
+            // arguments list. Therefore we can enter the PP_IGNORE state and ignore next chunks.
+            cpd.is_preproc = CT_PP_IGNORE;
+         }
       }
       else
       {
@@ -2011,7 +2046,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       }
       else
       {
-         LOG_FMT(LGUY, "%s(%d): text():%s, type:%s, orig_col=%zu, orig_col_end=%d\n",
+         LOG_FMT(LGUY, "%s(%d): text():%s, type:%s, orig_col=%zu, orig_col_end=%zu\n",
                  __func__, __LINE__, pc->text(), get_token_name(pc->type), pc->orig_col, pc->orig_col_end);
       }
    }

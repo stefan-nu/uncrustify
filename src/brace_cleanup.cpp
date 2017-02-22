@@ -917,11 +917,9 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::CATCH_WHEN;
          return(true);
       }
-      else
-      {
-         /* PAREN1 always => BRACE2 */
-         frm->pse[frm->pse_tos].stage = brace_stage_e::BRACE2;
-      }
+
+      /* PAREN1 always => BRACE2 */
+      frm->pse[frm->pse_tos].stage = brace_stage_e::BRACE2;
    }
    else if (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2)
    {

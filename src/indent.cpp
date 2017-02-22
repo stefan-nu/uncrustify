@@ -2149,7 +2149,8 @@ void indent_text(void)
             }
             if (pc->column != indent_column)
             {
-               if (use_ident)
+               if (use_ident &&
+                   pc->type != CT_PP_IGNORE) // Leave indentation alone for PP_IGNORE tokens
                {
                   log_and_reindent(pc, indent_column, "indent");
                }
