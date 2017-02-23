@@ -188,10 +188,8 @@ void do_braces(void)
       tmp = br_open;
       while ((tmp = chunk_get_next_nc(tmp)) != nullptr)
       {
-         if (chunk_is_newline(tmp))
-         {
-            break;
-         }
+         if (chunk_is_newline(tmp)) { break; }
+// error break_if(chunk_is_newline(tmp));
          if ((chunk_is_type(tmp, brc_type)) &&
              (br_open->level == tmp->level) )
          {
@@ -211,7 +209,7 @@ static void examine_braces(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *pc = chunk_get_tail();
-   while (pc != nullptr)
+   while (chunk_is_valid(pc))
    {
       chunk_t *prev = chunk_get_prev_type(pc, CT_BRACE_OPEN, -1);
       if ( (pc->type == CT_BRACE_OPEN                ) &&
@@ -285,7 +283,7 @@ static bool can_remove_braces(chunk_t *bopen)
    // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
-   const chunk_t *prev = nullptr;
+   chunk_t *prev = nullptr;
    size_t        semi_count = 0;
    const size_t  level      = bopen->level + 1;
    bool          hit_semi   = false;
@@ -342,16 +340,12 @@ static bool can_remove_braces(chunk_t *bopen)
                return(false);
             }
 
-            was_fcn = (prev != nullptr) && (prev->type == CT_FPAREN_CLOSE);
+            was_fcn = chunk_is_type(prev, CT_FPAREN_CLOSE);
 
             if (( chunk_is_semicolon(pc)   ) ||
-                ( pc->type == CT_IF        ) ||
-                ( pc->type == CT_ELSEIF    ) ||
-                ( pc->type == CT_FOR       ) ||
-                ( pc->type == CT_DO        ) ||
-                ( pc->type == CT_WHILE     ) ||
-                ( pc->type == CT_USING_STMT) ||
-                ((pc->type == CT_BRACE_OPEN) && was_fcn))
+                ( chunk_is_type(pc, 7, CT_IF, CT_ELSEIF, CT_BRACE_OPEN,
+                               CT_FOR, CT_DO, CT_WHILE,  CT_USING_STMT) &&
+                   was_fcn == true))
             {
                hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
                if (++semi_count > 1)
@@ -367,7 +361,7 @@ static bool can_remove_braces(chunk_t *bopen)
       pc   = chunk_get_next_nc(pc);
    }
 
-   if (pc == nullptr)
+   if (chunk_is_invalid(pc))
    {
       LOG_FMT(LBRDEL, " nullptr\n");
       return(false);
@@ -380,7 +374,7 @@ static bool can_remove_braces(chunk_t *bopen)
       const chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
 
       prev = chunk_get_prev_ncnl(pc, scope_e::PREPROC);
-      assert(prev != nullptr);
+      assert(chunk_is_valid(prev));
       if ((next               != nullptr        )   &&
           (next->type         == CT_ELSE        )   &&
           ((prev->type        == CT_BRACE_CLOSE ) ||
@@ -405,8 +399,7 @@ static bool can_remove_braces(chunk_t *bopen)
 static void examine_brace(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
-
-   if(bopen == nullptr) { return; }
+   return_if_invalid(bopen);
 
    // DRY7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
@@ -422,7 +415,8 @@ static void examine_brace(chunk_t *bopen)
    int           br_count   = 0;
 
    chunk_t *pc = chunk_get_next_nc(bopen);
-   while ((pc != nullptr) && (pc->level >= level))
+   while ( chunk_is_valid(pc) &&
+          (pc->level >= level))
    {
       if (pc->flags & PCF_IN_PREPROC)
       {
@@ -454,7 +448,7 @@ static void examine_brace(chunk_t *bopen)
             if (br_count == 0)
             {
                next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
-               if ((next == nullptr) || (next->type != CT_BRACE_CLOSE))
+               if (chunk_is_invalid(next) || (next->type != CT_BRACE_CLOSE))
                {
                   LOG_FMT(LBRDEL, " junk after close brace\n");
                   return;
@@ -491,8 +485,7 @@ static void examine_brace(chunk_t *bopen)
                return;
             }
 
-            was_fcn = (prev       != nullptr        ) &&
-                      (prev->type == CT_FPAREN_CLOSE);
+            was_fcn = chunk_is_type(prev, CT_FPAREN_CLOSE);
 
             if ( (chunk_is_semicolon(pc)   ) ||
                  (pc->type == CT_IF        ) ||
@@ -518,7 +511,7 @@ static void examine_brace(chunk_t *bopen)
       pc   = chunk_get_next_nc(pc);
    }
 
-   if (pc == nullptr)
+   if (chunk_is_invalid(pc))
    {
       LOG_FMT(LBRDEL, " nullptr\n");
       return;
@@ -531,13 +524,12 @@ static void examine_brace(chunk_t *bopen)
    if (pc->type == CT_BRACE_CLOSE)
    {
       chunk_t *next = chunk_get_next_ncnl(pc);
-      while ((next       != nullptr        ) &&
-             (next->type == CT_VBRACE_CLOSE) )
+      while (chunk_is_type(next, CT_VBRACE_CLOSE) )
       {
          next = chunk_get_next_ncnl(next);
       }
 
-      assert(next != nullptr);
+      assert(chunk_is_valid(next));
       LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
       if ( (if_count    > 0        )   &&
           ((next->type == CT_ELSE  ) ||
@@ -594,7 +586,7 @@ static void convert_brace(chunk_t *br)
    LOG_FUNC_ENTRY();
    chunk_t *tmp;
 
-   if ((br == nullptr             ) ||
+   if (chunk_is_invalid(br) ||
        (br->flags & PCF_KEEP_BRACE) )
    {
       return;
@@ -619,7 +611,7 @@ static void convert_brace(chunk_t *br)
 
    if (chunk_is_newline(tmp))
    {
-      assert(tmp != nullptr);
+      assert(chunk_is_valid(tmp));
       if (tmp->nl_count > 1) { tmp->nl_count--; }
       else
       {
@@ -775,7 +767,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
       if (!chunk_is_word(tmp)) { break; }
    }
 
-   assert(pc != nullptr);
+   assert(chunk_is_valid(pc));
    txt += pc->str;
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
@@ -905,7 +897,7 @@ void add_long_closebrace_comment(void)
 
                if ((nl_min   >  0      ) &&
                    (nl_count >= nl_min ) &&
-                   (tag_pc   != nullptr) )
+                   chunk_is_valid(tag_pc) )
                {
                   /* determine the added comment style */
                   const c_token_t style = (cpd.lang_flags & (LANG_CPP | LANG_CS)) ?
@@ -927,7 +919,7 @@ static void move_case_break(void)
    LOG_FUNC_ENTRY();
    chunk_t *prev = nullptr;
 
-   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next_ncnl(pc))
+   for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
       if ( chunk_is_type       (pc,   CT_BREAK      ) &&
            chunk_is_type       (prev, CT_BRACE_CLOSE) &&

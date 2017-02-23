@@ -1882,7 +1882,8 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
          val++;
       }
 
-      if (((tmp = unc_find_option(val)) != nullptr) && (tmp->type == entry->type))
+      if (((tmp = unc_find_option(val)) != nullptr) &&
+           (tmp->type == entry->type))
       {
          dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
          return;
@@ -1922,7 +1923,8 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       dest->a = AV_IGNORE;
       return;
    }
-   if (((tmp = unc_find_option(val)) != nullptr) && (tmp->type == entry->type))
+   if (((tmp = unc_find_option(val)) != nullptr) &&
+        (tmp->type == entry->type))
    {
       dest->a = cpd.settings[tmp->id].a;
       return;
@@ -2149,7 +2151,9 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
       {
          const option_map_value_t *option = get_option_name(option_id);
 
-         if (withDoc && (option->short_desc != nullptr) && (*option->short_desc != 0))
+         if (withDoc &&
+            ( option->short_desc != nullptr) &&
+            (*option->short_desc != 0))
          {
             fprintf(pfile, "%s# ", first ? "" : "\n");
             int idx;

@@ -1719,7 +1719,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       tmp = get_prev_oc_class(cmt);
    }
 
-   if (tmp == nullptr) { tmp = get_next_class(cmt); }
+   if (chunk_is_invalid(tmp)) { tmp = get_next_class(cmt); }
 
    if (tmp != nullptr)
    {
@@ -1746,7 +1746,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == nullptr) { return(false); }
+   if (chunk_is_invalid(fcn)) { return(false); }
 
    out_txt.append(fcn->str);
 
@@ -1820,7 +1820,7 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == nullptr) { return(false); }
+   if (chunk_is_invalid(fcn)) { return(false); }
 
    chunk_t *fpo;
    chunk_t *fpc;
@@ -1854,10 +1854,10 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    else
    {
       fpo = chunk_get_next_type(fcn, CT_FPAREN_OPEN, (int)fcn->level);
-      if (fpo == nullptr) { return(true); }
+      if (chunk_is_invalid(fpo)) { return(true); }
 
       fpc = chunk_get_next_type(fpo, CT_FPAREN_CLOSE,(int)fcn->level);
-      if (fpc == nullptr) { return(true); }
+      if (chunk_is_invalid(fpc)) { return(true); }
    }
 
    chunk_t *tmp;
@@ -1925,13 +1925,13 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (fcn == nullptr) { return(false); }
+   if (chunk_is_invalid(fcn)) { return(false); }
 
    if (fcn->flags & PCF_IN_CLASS)
    {
       /* if inside a class, we need to find to the class name */
       chunk_t *tmp = chunk_get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));
-      assert(tmp != nullptr);
+      assert(chunk_is_valid(tmp));
       tmp = chunk_get_prev_type(tmp, CT_CLASS, (int)tmp->level);
       tmp = chunk_get_next_ncnl(tmp);
       while (chunk_is_type(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
@@ -1940,7 +1940,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
          tmp = chunk_get_next_ncnl(tmp);
       }
 
-      if (tmp)
+      if (chunk_is_valid(tmp))
       {
          out_txt.append(tmp->str);
          return(true);
@@ -1972,10 +1972,7 @@ static void do_keyword_substitution(chunk_t *pc)
    for (const auto &kw : kw_subst_table)
    {
       int idx = pc->str.find(kw.tag);
-      if (idx < 0)
-      {
-         continue;
-      }
+      if (idx < 0) { continue; }
 
       unc_text tmp_txt;
       tmp_txt.clear();
@@ -2063,7 +2060,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       line.append(ch);
 
       /* If we just hit an end of line OR we just hit end-of-comment... */
-      if ((ch      == LINEFEED     ) ||
+      if ((ch      == LINEFEED ) ||
           (cmt_idx == pc->len()) )
       {
          line_count++;
@@ -2151,10 +2148,7 @@ void add_long_preprocessor_conditional_block_comment(void)
       }
 
       if(chunk_is_not_type(pc, CT_PP_IF) ||
-        (pp_start == nullptr))
-      {
-         continue;
-      }
+         chunk_is_invalid (pp_start    ) ) { continue; }
 #if 0
       if (pc->flags & PCF_IN_PREPROC)
       {

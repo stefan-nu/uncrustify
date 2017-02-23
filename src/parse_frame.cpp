@@ -169,7 +169,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 
    if (pc->type != CT_PREPROC) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
-   if (next == nullptr) { return(pp_level); }
+   if (chunk_is_invalid(next)) { return(pp_level); }
 
    if (pc->parent_type != next->type)
    {

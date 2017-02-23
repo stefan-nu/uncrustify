@@ -149,7 +149,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("IGNORED");
       return(AV_REMOVE);
    }
-   if ((first->type  == CT_PP_IGNORE) && 
+   if ((first->type  == CT_PP_IGNORE) &&
        (second->type == CT_PP_IGNORE) )
    {
       // Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD).
@@ -1975,7 +1975,7 @@ void space_text(void)
                 (next->type == CT_VBRACE_OPEN ||
                  next->type == CT_VBRACE_CLOSE))
          {
-            assert(next != nullptr);
+            assert(chunk_is_valid(next));
             LOG_FMT(LSPACE, "%s: %zu:%zu Skip %s (%zu+%zu)\n",
                     __func__, next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
@@ -2030,11 +2030,14 @@ void space_text(void)
          {
             /* Find the next non-empty chunk on this line */
             chunk_t *tmp = next;
-            while ((tmp != nullptr) && (tmp->len() == 0) && !chunk_is_newline(tmp))
+            while (chunk_is_valid(tmp) &&
+                  (tmp->len() == 0) &&
+                  !chunk_is_newline(tmp))
             {
                tmp = chunk_get_next(tmp);
             }
-            if ((chunk_is_valid(tmp)) && (tmp->len() > 0))
+            if ((chunk_is_valid(tmp)) &&
+                (tmp->len() > 0))
             {
                bool kw1 = CharTable::IsKeyword2((size_t)(pc->str[pc->len()-1]));
                bool kw2 = CharTable::IsKeyword1((size_t)(next->str[0]));
@@ -2056,7 +2059,8 @@ void space_text(void)
                   buf[pc->len() + next->len()] = 0;
 
                   const chunk_tag_t *ct = find_punctuator(buf, cpd.lang_flags);
-                  if ((ct != nullptr) && (strlen(ct->tag) != pc->len()))
+                  if ((ct              != nullptr  ) &&
+                      (strlen(ct->tag) != pc->len()) )
                   {
                      /* punctuator parsed to a different size.. */
 
@@ -2182,10 +2186,10 @@ void space_text_balance_nested_parens(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *first = chunk_get_head();
-   while (first != nullptr)
+   while (chunk_is_valid(first))
    {
       chunk_t *next = chunk_get_next(first);
-      if (next == nullptr) { break; }
+      break_if_invalid(next);
 
       if (chunk_is_str(first, "(", 1) && chunk_is_str(next, "(", 1))
       {
@@ -2253,8 +2257,7 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 size_t space_col_align(chunk_t *first, chunk_t *second)
 {
    LOG_FUNC_ENTRY();
-   assert(first  != nullptr);
-   assert(second != nullptr);
+   assert(chunks_are_valid(first, second));
 
    LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,
@@ -2316,10 +2319,8 @@ void space_add_after(chunk_t *pc, size_t count)
    chunk_t *next = chunk_get_next(pc);
 
    /* don't add at the end of the file or before a newline */
-   if ((next == nullptr) || chunk_is_newline(next))
-   {
-      return;
-   }
+   if (chunk_is_invalid(next) ||
+       chunk_is_newline(next) ) { return; }
 
    /* Limit to 16 spaces */
    if (count > 16) { count = 16; }

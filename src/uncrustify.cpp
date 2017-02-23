@@ -419,8 +419,6 @@ static const lang_name_t language_names[] =
 };
 
 
-
-
 const char *path_basename(const char *path)
 {
    if (path == nullptr) { return(""); }

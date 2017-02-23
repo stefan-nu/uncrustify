@@ -21,6 +21,17 @@
 
 #define ANY_LEVEL    -1
 
+/* some useful defines that check if a pointer is invalid
+ * and perform a typical reaction */
+#define return_if_invalid(chunk)         do { if ((chunk) == nullptr) return;        } while(0)
+#define retval_if_invalid(chunk, retval) do { if ((chunk) == nullptr) return(retval);} while(0)
+#define break_if_invalid(chunk)          do { if ((chunk) == nullptr) break;         } while(0)
+#define continue_if_invalid(chunk)       do { if ((chunk) == nullptr) continue;      } while(0)
+// \todo check if these defines work correctly
+#define return_if(cond)                  do { if (cond)  return;         } while(0)
+#define retval_if(cond, retval)          do { if (cond)  return(retval); } while(0)
+#define break_if(cond)                   do { if (cond)  break;          } while(0)
+#define continue_if(cond)                do { if (cond)  continue;       } while(0)
 
 /**
  * Specifies which chunks should/should not be found.
@@ -39,11 +50,45 @@ enum class scope_e : unsigned int
 
 
 /**
+ * check if a pointer is valid thus no nullptr
+ */
+bool ptr_is_valid(
+   const void *ptr /**< [in] pointer to check */
+);
+
+
+/**
+ * check if a pointer is invalid thus a nullptr
+ */
+bool ptr_is_invalid(
+   const void *ptr /**< [in] pointer to check */
+);
+
+
+/**
  * check if a chunk is valid
  */
 bool chunk_is_valid(
    const chunk_t *pc /**< [in] chunk to check */
 );
+
+
+/**
+ * checks if two chunks are valid
+ */
+bool chunks_are_valid(
+   const chunk_t *pc1, /**< [in] chunk1 to check */
+   const chunk_t *pc2  /**< [in] chunk2 to check */
+);
+
+
+/**
+ * check if a chunk is not valid
+ */
+bool chunk_is_invalid(
+   const chunk_t *pc /**< [in] chunk to check */
+);
+
 
 
 /**
