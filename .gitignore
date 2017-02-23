@@ -96,3 +96,5 @@ build/
 /GCov_win/
 /Gcov_linux/
 /Debug_win/
+/Debug_linux/
+/Debug_linux/

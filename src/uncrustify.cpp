@@ -1472,7 +1472,7 @@ void rename_file(const char *old_name, const char *new_name)
     * it calls MoveFileExW without MOVEFILE_REPLACE_EXISTING. */
    if (!MoveFileEx(old_name, new_name, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
 #else
-   if (rename(filename_tmp.c_str(), filename_out) != 0)
+   if (rename(old_name, new_name) != 0)
 #endif
    {
       LOG_FMT(LERR, "%s: Unable to rename '%s' to '%s'\n", __func__, old_name, new_name);

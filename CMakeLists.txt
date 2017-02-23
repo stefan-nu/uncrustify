@@ -192,6 +192,7 @@ add_executable(uncrustify
   src/sorting.cpp
   src/space.cpp
   src/tabulator.cpp
+  src/token.cpp
   src/token_enum.h
   src/tokenize.cpp
   src/tokenize_cleanup.cpp
@@ -244,7 +245,7 @@ add_executable(uncrustify
   include/unicode.h
   include/universalindentgui.h
   include/width.h
-  include/windows_compat.h
+  win32/windows_compat.h
 )
 
 if(CMAKE_VERSION VERSION_LESS 2.8.10)

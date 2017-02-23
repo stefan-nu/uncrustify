@@ -468,7 +468,7 @@ static void indent_pse_pop(parse_frame_t &frm, chunk_t *pc)
    {
       if (pc != nullptr)
       {
-         LOG_FMT(LINDPSE, "%4zu] (pp=%d) CLOSE [%zu,%s] on %s, started on line %zu, level=%zu/%zu\n",
+         LOG_FMT(LINDPSE, "%4zu] (pp=%zu) CLOSE [%zu,%s] on %s, started on line %zu, level=%zu/%zu\n",
                  pc->orig_line, cpd.pp_level, frm.pse_tos,
                  get_token_name(frm.pse[frm.pse_tos].type), get_token_name(pc->type),
                  frm.pse[frm.pse_tos].open_line, frm.pse[frm.pse_tos].level, pc->level);
@@ -1019,7 +1019,7 @@ void indent_text(void)
                  pc->orig_line, pc->orig_col, pc->text());
          for (size_t ttidx = frm.pse_tos; ttidx > 0; ttidx--)
          {
-            LOG_FMT(LINDPC, "     [%d %zu:%zu %s %s/%s tmp=%zu ind=%zu bri=%d tab=%zu cont=%d lvl=%zu blvl=%zu]\n",
+            LOG_FMT(LINDPC, "     [%zu %zu:%zu %s %s/%s tmp=%zu ind=%zu bri=%d tab=%zu cont=%d lvl=%zu blvl=%zu]\n",
                     ttidx,
                     frm.pse[ttidx].pc->orig_line,
                     frm.pse[ttidx].pc->orig_col,
@@ -1030,7 +1030,7 @@ void indent_text(void)
                     frm.pse[ttidx].indent,
                     frm.pse[ttidx].brace_indent,
                     frm.pse[ttidx].indent_tab,
-                    frm.pse[ttidx].indent_cont,
+                    (int)frm.pse[ttidx].indent_cont,
                     frm.pse[ttidx].level,
                     frm.pse[ttidx].pc->brace_level);
          }
@@ -2275,7 +2275,7 @@ null_pc:
 void log_and_reindent(chunk_t *pc, const size_t val, const char* str)
 {
    LOG_FMT(LINDENT, "%s(%d): %zu] %s => %zu\n",
-           __func__, __LINE__, str, pc->orig_line, val);
+           __func__, __LINE__, pc->orig_line, str, val);
    reindent_line(pc, val);
 }
 
@@ -2283,7 +2283,7 @@ void log_and_reindent(chunk_t *pc, const size_t val, const char* str)
 void log_and_indent_comment(chunk_t *pc, const size_t val, const char* str)
 {
    LOG_FMT(LINDENT, "%s(%d): %zu] %s => %zu\n",
-           __func__, __LINE__, str, pc->orig_line, val);
+           __func__, __LINE__, pc->orig_line, str, val);
    indent_comment(pc, val);
 }
 

@@ -2272,7 +2272,7 @@ size_t space_col_align(chunk_t *first, chunk_t *second)
    size_t coldiff;
    if (first->nl_count > 0)
    {
-      LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%zu", first->nl_count, first->orig_col_end);
+      LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%u", first->nl_count, first->orig_col_end);
       coldiff = first->orig_col_end - 1u;
    }
    else

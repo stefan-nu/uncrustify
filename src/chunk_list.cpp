@@ -9,6 +9,7 @@
 #include "char_table.h"
 #include <cstring>
 #include <cstdlib>
+#include <stdarg.h>
 
 #include "uncrustify_types.h"
 #include "ListManager.h"

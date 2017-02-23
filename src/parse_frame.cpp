@@ -41,7 +41,7 @@ static void pf_copy_2nd_tos(
  */
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
 {
-   LOG_FMT(logsev, "[%s] BrLevel=%d Level=%d PseTos=%zu\n",
+   LOG_FMT(logsev, "[%s] BrLevel=%zu Level=%zu PseTos=%zu\n",
          get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
