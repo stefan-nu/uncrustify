@@ -590,7 +590,9 @@ int main(int argc, char *argv[])
    if (argc == 1) { usage_exit(nullptr, argv[0], EXIT_SUCCESS); }
 
    /* make sure we have token_names.h in sync with token_enum.h */
-   assert(ARRAY_SIZE(token_names) == (int)CT_TOKEN_COUNT_);
+   const size_t token_name_count = ARRAY_SIZE(token_names);
+   const size_t ct_token_count   = CT_TOKEN_COUNT_;
+   assert(token_name_count == ct_token_count);
 
    /* Build options map */
    register_options();

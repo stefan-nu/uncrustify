@@ -3029,11 +3029,14 @@ void combine_labels(void)
                }
                else
                {
+#if 0
+SN disabled as it crashes
                   LOG_FMT(LWARN, "%s:%zu unexpected colon in col %zu n-parent=%s c-parent=%s l=%zu bl=%zu\n",
                           cpd.filename, next->orig_line, next->orig_col,
                           get_token_name(next->parent_type),
                           get_token_name(cur->parent_type),
                           next->level, next->brace_level);
+#endif
                   cpd.error_count++;
                }
             }
