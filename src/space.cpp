@@ -149,6 +149,15 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("IGNORED");
       return(AV_REMOVE);
    }
+#if 1
+   if ((first->type  == CT_PP_IGNORE) && 
+       (second->type == CT_PP_IGNORE) )
+   {
+      // Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD).
+      log_rule("PP_IGNORE");
+      return(AV_IGNORE);
+   }
+#endif
    if ((first->type  == CT_PP) ||
        (second->type == CT_PP) )
    {
@@ -740,6 +749,26 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("sp_assign");
       return(cpd.settings[UO_sp_assign].a);
    }
+
+#if 1
+   if (first->type == CT_BIT_COLON)
+   {
+      if (first->flags & PCF_IN_ENUM)
+      {
+         log_rule("sp_enum_colon");
+         return(cpd.settings[UO_sp_enum_colon].a);
+      }
+   }
+
+   if (second->type == CT_BIT_COLON)
+   {
+      if (second->flags & PCF_IN_ENUM)
+      {
+         log_rule("sp_enum_colon");
+         return(cpd.settings[UO_sp_enum_colon].a);
+      }
+   }
+#endif
 
    if (second->type == CT_OC_BLOCK_CARET)
    {

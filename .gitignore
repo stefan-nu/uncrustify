@@ -1,6 +1,5 @@
 # Generated uncrustify files
 src/config.h
-src/token_names.h
 src/uncrustify_version.h
 
 # Testing framework
