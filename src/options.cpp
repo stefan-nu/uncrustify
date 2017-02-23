@@ -78,6 +78,10 @@ static const char * const DOC_TEXT_END =
 map<uo_t, option_map_value_t> option_name_map;
 map<ug_t,  group_map_value_t>  group_map;
 static ug_t                    current_group;
+#ifdef DEBUG
+static int                                checkGroupNumber  = -1;
+static int                                checkOptionNumber = -1;
+#endif // DEBUG
 
 
 const char *get_argtype_name(
@@ -114,10 +118,49 @@ static void unc_add_option(
    int        max_val     = 16
 );
 
+#if 0
+#ifdef DEBUG
+   // The order of the calls of 'unc_add_option' in the function 'register_options'
+   // is the master over all.
+   // This order must be the same in the declaration of the enum uncrustify_options
+   // This will be checked here
+   checkOptionNumber++;
+   if (checkOptionNumber != id)
+   {
+      fprintf(stderr, "FATAL: The order of 'options' is not the same:\n");
+      fprintf(stderr,
+              "   Number in the options.cpp file = %d\n"
+              "   Number in the options.h   file = %d\n"
+              "   for the group '%s'\n", id, checkOptionNumber, name);
+      exit(EX_SOFTWARE);
+   }
+#endif // DEBUG
+#define OptionMaxLength    60
+   int lengthOfTheOption = strlen(name);
+   if (lengthOfTheOption > OptionMaxLength)
+   {
+#endif
+
 
 void unc_begin_group(ug_t id, const char *short_desc,
                      const char *long_desc)
 {
+#ifdef DEBUG
+   // The order of the calls of 'unc_begin_group' in the function 'register_options'
+   // is the master over all.
+   // This order must be the same in the declaration of the enum uncrustify_groups
+   // This will be checked here
+   checkGroupNumber++;
+   if (checkGroupNumber != id)
+   {
+      fprintf(stderr, "FATAL: The order of 'groups for options' is not the same:\n");
+      fprintf(stderr,
+              "   Number in the options.cpp file = %d\n"
+              "   Number in the options.h   file = %d\n"
+              "   for the group '%s'\n", id, checkGroupNumber, short_desc);
+      exit(EX_SOFTWARE);
+   }
+#endif // DEBUG
    current_group = id;
 
    group_map_value_t value;
@@ -188,7 +231,6 @@ bool is_not_option(argval_t var, argval_t opt)
 }
 
 
-
 bool is_token_set(tokenpos_t var, tokenpos_t opt)
 {
    return ((var & opt) == opt); /*lint !e655 */
@@ -222,6 +264,7 @@ bool is_bit_unset(UINT64 var, UINT64 flag)
 {
    return ((var & flag) == 0);
 }
+
 
 static void unc_add_option(const char *name, uo_t id, argtype_t type,
       const char *short_desc, const char *long_desc, int min_val, int max_val)
@@ -1388,6 +1431,8 @@ void register_options(void)
                   "The gap for aligning variable definitions");
    unc_add_option("align_var_def_colon", UO_align_var_def_colon, AT_BOOL,
                   "Whether to align the colon in struct bit fields");
+   unc_add_option("align_var_def_colon_gap", UO_align_var_def_colon_gap, AT_UNUM,
+                  "align variable defs gap for bit colons");
    unc_add_option("align_var_def_attribute", UO_align_var_def_attribute, AT_BOOL,
                   "Whether to align any attribute after the variable name");
    unc_add_option("align_var_def_inline", UO_align_var_def_inline, AT_BOOL,

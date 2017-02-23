@@ -1505,7 +1505,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (first->orig_line != second->orig_line) &&
           (arg != AV_REMOVE))
       {
-         arg = (argval_t)(arg | AV_ADD); /*lint !e655 */
+         arg = static_cast<argval_t>(arg | AV_ADD);
       }
       log_rule("sp_bool");
       return(arg);

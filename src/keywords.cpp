@@ -317,15 +317,16 @@ void init_keywords(void)
 
 static int kw_compare(const void *p1, const void *p2)
 {
-   const chunk_tag_t *t1 = reinterpret_cast<const chunk_tag_t*>(p1);
-   const chunk_tag_t *t2 = reinterpret_cast<const chunk_tag_t*>(p2);
+   const chunk_tag_t *t1 = static_cast<const chunk_tag_t *>(p1);
+   const chunk_tag_t *t2 = static_cast<const chunk_tag_t *>(p2);
+
    return(strcmp(t1->tag, t2->tag));
 }
 
 
 bool keywords_are_sorted(void)
 {
-   for (int idx = 1; idx < (int)ARRAY_SIZE(keywords); idx++)
+   for (int idx = 1; idx < static_cast<int> ARRAY_SIZE(keywords); idx++)
    {
       if (kw_compare(&keywords[idx - 1], &keywords[idx]) > 0)
       {
@@ -413,7 +414,7 @@ c_token_t find_keyword_type(const char *word, size_t len)
 
    /* check the static word list */
    const void* pos = bsearch(&key, keywords, ARRAY_SIZE(keywords), sizeof(keywords[0]), kw_compare);
-   const chunk_tag_t *p_ret = reinterpret_cast<const chunk_tag_t*>(pos);
+   const chunk_tag_t *p_ret = static_cast<const chunk_tag_t*>(pos);
 
    if (p_ret != nullptr)
    {

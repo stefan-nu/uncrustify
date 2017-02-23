@@ -410,7 +410,7 @@ static void write_byte(UINT32 ch)
    if ((ch & 0xff) == ch)
    {
       if (cpd.fout) { fputc(ch, cpd.fout);            }
-      if (cpd.bout) { cpd.bout->push_back((UINT8)ch); }
+      if (cpd.bout) { cpd.bout->push_back(static_cast<UINT8>(ch)); }
    }
    else
    {

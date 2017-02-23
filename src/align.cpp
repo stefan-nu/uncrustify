@@ -420,8 +420,8 @@ void quick_align_again(void)
          AlignStack as;
          as.Start(100, 0);
          as.m_right_align = pc->align.right_align;
-         as.m_star_style  = pc->align.star_style;
-         as.m_amp_style   = pc->align.amp_style;
+         as.m_star_style  = static_cast<StarStyle_t>(pc->align.star_style);
+         as.m_amp_style   = static_cast<StarStyle_t>(pc->align.amp_style );
          as.m_gap         = pc->align.gap;
 
          LOG_FMT(LALAGAIN, "   [%s:%zu]", pc->text(), pc->orig_line);
@@ -815,8 +815,8 @@ static chunk_t *align_func_param(chunk_t *start)
 
    AlignStack as;
    as.Start(2, 0);
-   as.m_star_style = (StarStyle_t)cpd.settings[UO_align_var_def_star_style].u;
-   as.m_amp_style  = (StarStyle_t)cpd.settings[UO_align_var_def_amp_style ].u;
+   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
+   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style].u);
 
    bool    did_this_line = false;
    size_t  comma_count   = 0;
@@ -1097,8 +1097,8 @@ static void align_func_proto(size_t span)
    AlignStack as;
    as.Start(span, 0);
    as.m_gap        = cpd.settings[UO_align_func_proto_gap].u;
-   as.m_star_style = (StarStyle_t)cpd.settings[UO_align_var_def_star_style].u;
-   as.m_amp_style  = (StarStyle_t)cpd.settings[UO_align_var_def_amp_style ].u;
+   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
+   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style ].u);
 
    AlignStack as_br;
    as_br.Start(span, 0);
@@ -1199,13 +1199,13 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    AlignStack as;
    as.Start(myspan, mythresh);
    as.m_gap        = mygap;
-   as.m_star_style = (StarStyle_t)cpd.settings[UO_align_var_def_star_style].u;
-   as.m_amp_style  = (StarStyle_t)cpd.settings[UO_align_var_def_amp_style ].u;
+   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
+   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style].u);
 
    /* Set up the bit colon aligner */
    AlignStack as_bc;
    as_bc.Start(myspan, 0);
-   as_bc.m_gap = (size_t)cpd.settings[UO_align_var_def_colon_gap].n;
+   as_bc.m_gap = cpd.settings[UO_align_var_def_colon_gap].u;
 
    AlignStack as_at; /* attribute */
    as_at.Start(myspan, 0);
@@ -1822,8 +1822,8 @@ static void align_typedefs(size_t span)
    AlignStack as;
    as.Start(span);
    as.m_gap        = cpd.settings[UO_align_typedef_gap].u;
-   as.m_star_style = (StarStyle_t)cpd.settings[UO_align_typedef_star_style].u;
-   as.m_amp_style  = (StarStyle_t)cpd.settings[UO_align_typedef_amp_style ].u;
+   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_typedef_star_style].u);
+   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_typedef_amp_style ].u);
 
    const chunk_t *c_typedef = nullptr;
    chunk_t *pc        = chunk_get_head();

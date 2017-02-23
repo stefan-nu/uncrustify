@@ -939,7 +939,7 @@ static void _blank_line_set(chunk_t *pc, const char *text, uo_t uo)
    assert(option != nullptr);
    if (option->type != AT_UNUM)
    {
-      fprintf(stderr, "Program error for UO_=%d\n", (int)uo);
+      fprintf(stderr, "Program error for UO_=%d\n", static_cast<int>(uo));
       fprintf(stderr, "Please make a report\n");
       exit(2);
    }
@@ -3630,6 +3630,29 @@ void newlines_class_colon_pos(c_token_t tok)
             }
          }
       }
+   }
+}
+
+
+static void _blank_line_max(chunk_t *pc, const char *text, uo_t uo)
+{
+   LOG_FUNC_ENTRY();
+   if (pc == nullptr)
+   {
+      return;
+   }
+   const option_map_value_t *option = get_option_name(uo);
+   if (option->type != AT_UNUM)
+   {
+      fprintf(stderr, "Program error for UO_=%d\n", static_cast<int>(uo));
+      fprintf(stderr, "Please make a report\n");
+      exit(2);
+   }
+   if ((cpd.settings[uo].u > 0) && (pc->nl_count > cpd.settings[uo].u))
+   {
+      LOG_FMT(LBLANKD, "do_blank_lines: %s max line %zu\n", text + 3, pc->orig_line);
+      pc->nl_count = cpd.settings[uo].u;
+      MARK_CHANGE();
    }
 }
 

@@ -625,7 +625,7 @@ static void split_fcn_params(chunk_t *start)
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
-            if (((last_col - 1) > (int)cpd.settings[UO_code_width].u) ||
+            if (((last_col - 1) > static_cast<int>(cpd.settings[UO_code_width].u)) ||
                 (pc->type == CT_FPAREN_CLOSE))
             {
                break;

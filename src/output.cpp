@@ -1990,7 +1990,7 @@ static void do_keyword_substitution(chunk_t *pc)
                unc_text nl_txt;
                nl_txt.append("\n");
                nl_idx++;
-               while ((nl_idx < (size_t)idx) && !unc_isalnum(pc->str[nl_idx]))
+               while ((nl_idx < static_cast<size_t>(idx)) && !unc_isalnum(pc->str[nl_idx]))
                {
                   nl_txt.append(pc->str[nl_idx++]);
                }
