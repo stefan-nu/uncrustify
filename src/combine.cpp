@@ -23,13 +23,13 @@
 
 
 /**
- * Flags everything from the open paren to the close paren.
+ * Flags all chunks from the open parenthesis to the close parenthesis.
  *
- * @return     The token after the close paren
+ * @return     The token after the close parenthesis
  */
 static chunk_t *flag_parens(
    chunk_t   *po,       /**< [in] Pointer to the open parenthesis */
-   UINT64    flags,     /**< [in]  */
+   UINT64    flags,     /**< [in] flags to add */
    c_token_t opentype,  /**< [in]  */
    c_token_t parenttype,/**< [in]  */
    bool      parent_all /**< [in]  */
@@ -37,7 +37,7 @@ static chunk_t *flag_parens(
 
 
 /**
- * Mark the parens and colons in:
+ * Mark the parenthesis and colons in:
  *   asm volatile ( "xx" : "xx" (l), "yy"(h) : ...  );
  */
 static void flag_asm(
@@ -72,7 +72,7 @@ static chunk_t *skip_to_next_statement(
 
 /**
  * Skips everything until a comma or semicolon at the same level.
- * Returns the semicolon, comma, or close brace/paren or nullptr.
+ * Returns the semicolon, comma, or close brace/parenthesis or nullptr.
  */
 static chunk_t *skip_expression(
    chunk_t *start  /**< [in]  */
@@ -90,7 +90,7 @@ static chunk_t *skip_align(
 );
 
 /**
- * Combines two tokens into {{ and }} if inside parens and nothing is between
+ * Combines two tokens into {{ and }} if inside parenthesis and nothing is between
  * either pair.
  */
 static void check_double_brace_init(
@@ -143,7 +143,7 @@ static void fix_enum_struct_union(
 
 
 /**
- * Checks to see if the current paren is part of a cast.
+ * Checks to see if the current parenthesis is part of a cast.
  * We already verified that this doesn't follow function, TYPE, IF, FOR,
  * SWITCH, or WHILE and is followed by WORD, TYPE, STRUCT, ENUM, or UNION.
  */
@@ -185,13 +185,13 @@ static chunk_t *fix_var_def(
  * This whole function is a mess.
  * It needs to be reworked to eliminate duplicate logic and determine the
  * function type more directly.
- *  1. Skip to the close paren and see what is after.
- *     a. semicolon - function call or function proto
- *     b. open brace - function call (ie, list_for_each) or function def
+ *  1. Skip to the close parenthesis and see what is after.
+ *     a. semicolon - function call or function prototype
+ *     b. open brace - function call (i.e., list_for_each) or function def
  *     c. open paren - function type or chained function call
- *     d. qualifier - function def or proto, continue to semicolon or open brace
- *  2. Examine the 'parameters' to see if it can be a proto/def
- *  3. Examine what is before the function name to see if it is a proto or call
+ *     d. qualifier - function def or prototype, continue to semicolon or open brace
+ *  2. Examine the 'parameters' to see if it can be a prototype/definition
+ *  3. Examine what is before the function name to see if it is a prototype or call
  * Constructor/destructor detection should have already been done when the
  * 'class' token was encountered (see mark_class_ctor).
  */
@@ -236,7 +236,7 @@ static void mark_function_return_type(
 
 /**
  * Process a function type that is not in a typedef.
- * pc points to the first close paren.
+ * pc points to the first close parenthesis.
  *
  * void (*func)(params);
  * const char * (*func)(params);
@@ -245,7 +245,7 @@ static void mark_function_return_type(
  * @return whether a function type was processed
  */
 static bool mark_function_type(
-   chunk_t *pc  /**< [in] Points to the first closing paren */
+   chunk_t *pc  /**< [in] Points to the first closing parenthesis */
 );
 
 
@@ -290,7 +290,7 @@ static void process_returns(void);
 
 
 /**
- * Processes a return statement, labeling the parens and marking the parent.
+ * Processes a return statement, labeling the parenthesis and marking the parent.
  * May remove or add parens around the return statement
  */
 static chunk_t *process_return(
@@ -324,7 +324,7 @@ static void mark_cpp_constructor(
 
 
 /**
- *  Just hit an assign. Go backwards until we hit an open brace/paren/square or
+ *  Just hit an assign. Go backwards until we hit an open brace/parenthesis/square or
  * semicolon (TODO: other limiter?) and mark as a LValue.
  */
 static void mark_lvalue(
@@ -441,10 +441,10 @@ static void handle_oc_property_decl(
 
 
 /**
- * Process a type that is enclosed in parens in message declarations.
+ * Process a type that is enclosed in parenthesis in message declarations.
  * TODO: handle block types, which get special formatting
  *
- * @param pc points to the open paren
+ * @param pc points to the open parenthesis
  * @return the chunk after the type
  */
 static chunk_t *handle_oc_md_type(
@@ -544,7 +544,7 @@ static void handle_wrap(
 
 
 /**
- * A proto wrap chunk and what follows should be treated as a function proto.
+ * A prototype wrap chunk and what follows should be treated as a function prototype.
  *
  * RETTYPE PROTO_WRAP( NAME, PARAMS ); or RETTYPE PROTO_WRAP( NAME, (PARAMS) );
  * RETTYPE gets changed with make_type().
@@ -575,7 +575,7 @@ static void handle_java_assert(
 
 
 /**
- * Parse off the types in the D template args, adds to cs
+ * Parse off the types in the D template args, adds to C-sharp
  * returns the close_paren
  */
 static chunk_t *get_d_template_types(
@@ -2546,23 +2546,17 @@ static void fix_enum_struct_union(chunk_t *pc)
 
    /* the next item is either a type or open brace */
    chunk_t *next = chunk_get_next_ncnl(pc);
-   // the enum-key might be enum, enum class or enum struct (TODO)
    if (next && (next->type == CT_ENUM_CLASS))
    {
-      // get the next one
       next = chunk_get_next_ncnl(next);
    }
-   /* the next item is either a type, an attribut (TODO), an identifier, a colon or open brace */
    if ((next      != nullptr ) &&
        (next->type == CT_TYPE) )
    {
-      // i.e. "enum xyz : unsigned int { ... };"
-      // i.e. "enum class xyz : unsigned int { ... };"
-      // xyz is a type
       set_chunk_parent(next, pc->type);
-      prev = next;  // save xyz
+      prev = next;
       next = chunk_get_next_ncnl(next);
-//    set_chunk_parent(next, pc->type);
+      set_chunk_parent(next, pc->type);
 
       /* next up is either a colon, open brace, or open paren (pawn) */
       if (!next) { return; }
@@ -2575,7 +2569,7 @@ static void fix_enum_struct_union(chunk_t *pc)
       else if ((pc->type   == CT_ENUM ) &&
                (next->type == CT_COLON) )
       {
-         /* enum TYPE : INT_TYPE { ... }; */
+         /* enum TYPE : INT_TYPE { */
          next = chunk_get_next_ncnl(next);
          if (next)
          {
@@ -2586,8 +2580,8 @@ static void fix_enum_struct_union(chunk_t *pc)
    }
    if (next && (next->type == CT_BRACE_OPEN))
    {
-//    flag_series(pc, next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT);
-      flag_parens(    next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT,
+      flag_series(pc, next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT);
+      flag_parens(next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT,
                   CT_NONE, CT_NONE, false);
 
       if ((pc->type == CT_UNION ) ||
@@ -3029,14 +3023,11 @@ void combine_labels(void)
                }
                else
                {
-#if 0
-SN disabled as it crashes
                   LOG_FMT(LWARN, "%s:%zu unexpected colon in col %zu n-parent=%s c-parent=%s l=%zu bl=%zu\n",
                           cpd.filename, next->orig_line, next->orig_col,
                           get_token_name(next->parent_type),
                           get_token_name(cur->parent_type),
                           next->level, next->brace_level);
-#endif
                   cpd.error_count++;
                }
             }

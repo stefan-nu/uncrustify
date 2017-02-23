@@ -157,8 +157,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       return(AV_IGNORE);
    }
 
-  if ((first->type  == CT_PP) ||
-      (second->type == CT_PP) )
+   if ((first->type  == CT_PP) ||
+       (second->type == CT_PP) )
    {
       log_rule("sp_pp_concat");
       return(cpd.settings[UO_sp_pp_concat].a);
@@ -531,9 +531,11 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
             log_rule("sp_between_mdatype_commas");
             return(cpd.settings[UO_sp_between_mdatype_commas].a);
          }
-
-         log_rule("sp_after_mdatype_commas");
-         return(cpd.settings[UO_sp_after_mdatype_commas].a);
+         else
+         {
+            log_rule("sp_after_mdatype_commas");
+            return(cpd.settings[UO_sp_after_mdatype_commas].a);
+         }
       }
       else
       {

@@ -29,8 +29,8 @@ typedef enum
 
    CT_WHITESPACE,    /* whitespace without any newlines */
    CT_SPACE,         /* a fixed number of spaces to support weird spacing rules */
-   CT_NEWLINE,       /* CRA, one or more newlines */
-   CT_NL_CONT,       /* CRA, backslash-newline */
+   CT_NEWLINE,       /* one or more newlines */
+   CT_NL_CONT,       /* backslash-newline */
    CT_COMMENT_CPP,   /* C++ comment (always followed by CT_NEWLINE) */
    CT_COMMENT,       /* C-comment, single line */
    CT_COMMENT_MULTI, /* Multi-lined comment */
@@ -42,7 +42,7 @@ typedef enum
 
    CT_IGNORED,       /* a chunk of ignored text */
 
-   CT_WORD,          /* variable, type, function name, etc */
+   CT_WORD,          /* any kind of word e.g. a variable, type, function name, etc */
    CT_NUMBER,
    CT_NUMBER_FP,
    CT_STRING,        /* quoted string "hi" or 'a' or <in> for include */
@@ -60,8 +60,8 @@ typedef enum
    CT_VOLATILE,
    CT_TYPEDEF,
    CT_STRUCT,
-   CT_ENUM,
-   CT_ENUM_CLASS,
+   CT_ENUM,                /**< "enum" identifier in a declaration or definition */
+   CT_ENUM_CLASS,          /**< "class" identifier in a enum class */
    CT_SIZEOF,
    CT_RETURN,
    CT_BREAK,
@@ -128,7 +128,7 @@ typedef enum
    CT_D_ARRAY_COLON,       /* D named array initializer colon */
    CT_COND_COLON,          /* conditional colon in  'b ? t : f' */
    CT_QUESTION,
-   CT_COMMA,
+   CT_COMMA,               /**< a single comma */
 
    CT_ASM,
    CT_ATTRIBUTE,

@@ -647,11 +647,10 @@ static void newline_min_after(chunk_t *ref, size_t count, UINT64 flag)
       newline_min_after(next, count, flag);
       return;
    }
-
-   chunk_flags_set(pc, flag);
-   if (chunk_is_newline(pc) && can_increase_nl(pc))
+   else
    {
-      if (pc->nl_count < count)
+      chunk_flags_set(pc, flag);
+      if (chunk_is_newline(pc) && can_increase_nl(pc))
       {
          assert(pc != nullptr);
          if (pc->nl_count < count)
@@ -1257,7 +1256,6 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
 } /*lint !e438 */
 
 
-//static void newlines_struct_union(chunk_t *start, argval_t nl_opt, bool leave_trailing)
 static void newlines_struct_enum_union(chunk_t *start, argval_t nl_opt, bool leave_trailing)
 {
    LOG_FUNC_ENTRY();

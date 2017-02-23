@@ -1751,12 +1751,14 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
    }
 
    const option_map_value_t *tmp;
-   if ((entry->type == AT_NUM) || (entry->type == AT_UNUM))
+   if ((entry->type == AT_NUM) || 
+       (entry->type == AT_UNUM) )
    {
       if (unc_isdigit(*val)
           || (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
       {
-         if ((entry->type == AT_UNUM) && (*val == '-'))
+         if ((entry->type == AT_UNUM) &&
+             (*val == '-'))
          {
             fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
