@@ -1538,6 +1538,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_deref");
          return(cpd.settings[UO_sp_deref].a);
       }
+
       if ((second->type == CT_QUALIFIER) &&
           (is_not_option(cpd.settings[UO_sp_after_ptr_star_qualifier].a, AV_IGNORE)))
       {
@@ -1672,6 +1673,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_inside_braces_struct");
          return(cpd.settings[UO_sp_inside_braces_struct].a);
       }
+
       log_rule("sp_inside_braces");
       return(cpd.settings[UO_sp_inside_braces].a);
    }
