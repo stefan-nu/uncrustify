@@ -1354,7 +1354,16 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
        (cpd.preproc_ncnl_count == 1))
    {
       if (ctx.peek() == '(') { pc.type = CT_MACRO_FUNC; }
-      else                   { pc.type = CT_MACRO;      }
+      else
+      {
+         pc.type = CT_MACRO;
+         if (cpd.settings[UO_pp_ignore_define_body].b)
+         {
+            // We are setting the PP_IGNORE preproc state because the following
+            // chunks are part of the macro body and will have to be ignored.
+            cpd.is_preproc = CT_PP_IGNORE;
+         }
+      }
    }
    else
    {
@@ -1369,6 +1378,16 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
       {
          /* Turn it into a keyword now */
          pc.type = find_keyword_type(pc.text(), pc.str.size());
+
+         /* Special pattern: if we're trying to redirect a preprocessor directive to PP_IGNORE,
+          * then ensure we're actually part of a preprocessor before doing the swap, or we'll
+          * end up with a function named 'define' as PP_IGNORE. This is necessary because with
+          * the config 'set' feature, there's no way to do a pair of tokens as a word
+          * substitution. */
+         if (pc.type == CT_PP_IGNORE && !cpd.is_preproc)
+         {
+            pc.type = find_keyword_type(pc.text(), pc.str.size());
+         }
       }
    }
 

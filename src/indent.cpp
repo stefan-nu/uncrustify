@@ -1779,15 +1779,8 @@ void indent_text(void)
       if ( (cpd.settings[UO_indent_shift].b    ) &&
            (!(pc->flags     & PCF_IN_ENUM)     ) &&
            (pc->parent_type != CT_OPERATOR     ) &&
-#if 1
-           chunk_is_not_type(pc, 4, CT_COMMENT, CT_COMMENT_CPP,
-                 CT_COMMENT_MULTI, CT_BRACE_OPEN) &&
-#else
-           (pc->type        != CT_COMMENT      ) &&
-           (pc->type        != CT_COMMENT_CPP  ) &&
-           (pc->type        != CT_COMMENT_MULTI) &&
-           (pc->type        != CT_BRACE_OPEN   ) &&
-#endif
+           chunk_is_not_type(pc, 4, CT_COMMENT,       CT_COMMENT_CPP,
+                                    CT_COMMENT_MULTI, CT_BRACE_OPEN) &&
            (pc->level       > 0                ) &&
            (!chunk_is_empty(pc)                ) )
       {
@@ -2149,7 +2142,8 @@ void indent_text(void)
             }
             if (pc->column != indent_column)
             {
-               if (use_ident)
+               if (use_ident &&
+                   pc->type != CT_PP_IGNORE) // Leave indentation alone for PP_IGNORE tokens
                {
                   log_and_reindent(pc, indent_column, "indent");
                }
