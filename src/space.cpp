@@ -149,7 +149,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("IGNORED");
       return(AV_REMOVE);
    }
-   if ((first->type  == CT_PP_IGNORE) && 
+   if ((first->type  == CT_PP_IGNORE) &&
        (second->type == CT_PP_IGNORE) )
    {
       // Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD).
@@ -1654,14 +1654,12 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_brace_else");
          return(cpd.settings[UO_sp_brace_else].a);
       }
-
-      if (second->type == CT_CATCH)
+      else if (second->type == CT_CATCH)
       {
          log_rule("sp_brace_catch");
          return(cpd.settings[UO_sp_brace_catch].a);
       }
-
-      if (second->type == CT_FINALLY)
+      else if (second->type == CT_FINALLY)
       {
          log_rule("sp_brace_finally");
          return(cpd.settings[UO_sp_brace_finally].a);
@@ -1681,8 +1679,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_inside_braces_struct");
          return(cpd.settings[UO_sp_inside_braces_struct].a);
       }
-
-      if (!chunk_is_comment(second))
+      else if (!chunk_is_comment(second))
       {
          log_rule("sp_inside_braces");
          return(cpd.settings[UO_sp_inside_braces].a);
@@ -1824,9 +1821,11 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_after_send_oc_colon");
          return(cpd.settings[UO_sp_after_send_oc_colon].a);
       }
-
-      log_rule("sp_after_oc_colon");
-      return(cpd.settings[UO_sp_after_oc_colon].a);
+      else
+      {
+         log_rule("sp_after_oc_colon");
+         return(cpd.settings[UO_sp_after_oc_colon].a);
+      }
    }
    if (second->type == CT_OC_COLON)
    {
@@ -1837,9 +1836,11 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_before_send_oc_colon");
          return(cpd.settings[UO_sp_before_send_oc_colon].a);
       }
-
-      log_rule("sp_before_oc_colon");
-      return(cpd.settings[UO_sp_before_oc_colon].a);
+      else
+      {
+         log_rule("sp_before_oc_colon");
+         return(cpd.settings[UO_sp_before_oc_colon].a);
+      }
    }
 
    if ((second->type        == CT_COMMENT      ) &&

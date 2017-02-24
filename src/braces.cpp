@@ -628,7 +628,7 @@ static void convert_brace(chunk_t *br)
          }
       }
    }
-} // convert_brace
+}
 
 
 static void convert_vbrace(chunk_t *vbr)

@@ -2014,8 +2014,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
             // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
-            if (pc->type != CT_NL_CONT     && 
-                pc->type != CT_COMMENT_CPP ) 
+            if (pc->type != CT_NL_CONT     &&
+                pc->type != CT_COMMENT_CPP )
             {
                set_chunk_type(pc, CT_PP_IGNORE);
             }
@@ -2046,7 +2046,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       }
       else
       {
-         LOG_FMT(LGUY, "%s(%d): text():%s, type:%s, orig_col=%zu, orig_col_end=%d\n",
+         LOG_FMT(LGUY, "%s(%d): text():%s, type:%s, orig_col=%zu, orig_col_end=%u\n",
                  __func__, __LINE__, pc->text(), get_token_name(pc->type), pc->orig_col, pc->orig_col_end);
       }
    }
