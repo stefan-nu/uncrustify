@@ -90,23 +90,31 @@ bool chunk_is_invalid(
 );
 
 
-
 /**
- * check if two chunks are valid
+ * check if any of two chunks is invalid
  */
-bool chunks_are_valid(
-   chunk_t *pc1,
-   chunk_t *pc2
+bool chunks_are_invalid(
+   chunk_t *pc1,  /**< [in] chunk1 to check */
+   chunk_t *pc2   /**< [in] chunk2 to check */
 );
 
 
 /**
- * check if three chunks are valid
+ * check if both chunks are valid
  */
 bool chunks_are_valid(
-   chunk_t *pc1,
-   chunk_t *pc2,
-   chunk_t *pc3
+   chunk_t *pc1,  /**< [in] chunk1 to check */
+   chunk_t *pc2   /**< [in] chunk2 to check */
+);
+
+
+/**
+ * check if all three chunks are valid
+ */
+bool chunks_are_valid(
+   chunk_t *pc1,  /**< [in] chunk1 to check */
+   chunk_t *pc2,  /**< [in] chunk2 to check */
+   chunk_t *pc3   /**< [in] chunk3 to check */
 );
 
 

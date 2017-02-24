@@ -226,6 +226,12 @@ bool chunk_is_invalid(const chunk_t *pc)
    return (pc == nullptr);
 }
 
+bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2)
+{
+   return ((pc1 == nullptr) ||
+           (pc2 == nullptr) );
+}
+
 
 bool chunks_are_valid(chunk_t *pc1, chunk_t *pc2)
 {

@@ -1,6 +1,5 @@
 # Generated uncrustify files
 src/config.h
-src/token_names.h
 src/uncrustify_version.h
 
 # Testing framework
@@ -82,19 +81,16 @@ build*
 
 
 # Eclipse Build Directories
-Debug/
 Release/
-GCov/
-GProf/
 build/
+/GCov_win/
+/Gcov_linux/
+/GProf_win/
+/GProf_linux/
+/Debug_win/
+/Debug_linux/
 
 # Eclipse Configuration
 #.cproject
 #.project
 #.settings
-/debug_linux/
-/GCov_win/
-/Gcov_linux/
-/Debug_win/
-/Debug_linux/
-/Debug_linux/

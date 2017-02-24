@@ -457,8 +457,7 @@ static void examine_brace(chunk_t *bopen)
 #endif
          }
 
-         else if ((pc->type == CT_IF    ) ||
-                  (pc->type == CT_ELSEIF) )
+         else if (chunk_is_type(pc, 2, CT_IF, CT_ELSEIF))
          {
             if (br_count == 0)
             {
@@ -478,7 +477,7 @@ static void examine_brace(chunk_t *bopen)
 
             LOG_FMT(LBRDEL, " [%s %zu-%zu]", pc->text(), pc->orig_line, semi_count);
 
-            if (pc->type == CT_ELSE)
+            if (chunk_is_type(pc, CT_ELSE))
             {
                LOG_FMT(LBRDEL, " bailed on %s on line %zu\n",
                        pc->text(), pc->orig_line);
@@ -487,15 +486,9 @@ static void examine_brace(chunk_t *bopen)
 
             was_fcn = chunk_is_type(prev, CT_FPAREN_CLOSE);
 
-            if ( (chunk_is_semicolon(pc)   ) ||
-                 (pc->type == CT_IF        ) ||
-                 (pc->type == CT_ELSEIF    ) ||
-                 (pc->type == CT_FOR       ) ||
-                 (pc->type == CT_DO        ) ||
-                 (pc->type == CT_WHILE     ) ||
-                 (pc->type == CT_SWITCH    ) ||
-                 (pc->type == CT_USING_STMT) ||
-                ((pc->type == CT_BRACE_OPEN) &&  was_fcn))
+            if ( chunk_is_type(pc, 9, CT_IF, CT_FOR,   CT_SEMICOLON,  CT_ELSEIF,
+                       CT_USING_STMT, CT_DO, CT_WHILE, CT_VSEMICOLON, CT_SWITCH) ||
+                 (chunk_is_type(pc, CT_BRACE_OPEN) && (was_fcn == true)) )
             {
                hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
                if (++semi_count > 1)
