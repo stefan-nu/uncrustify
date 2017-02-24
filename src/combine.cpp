@@ -2546,13 +2546,19 @@ static void fix_enum_struct_union(chunk_t *pc)
 
    /* the next item is either a type or open brace */
    chunk_t *next = chunk_get_next_ncnl(pc);
+   // the enum-key might be enum, enum class or enum struct (TODO)
    if (next && (next->type == CT_ENUM_CLASS))
    {
+      // get the next one
       next = chunk_get_next_ncnl(next);
    }
+   /* the next item is either a type, an attribut (TODO), an identifier, a colon or open brace */
    if ((next      != nullptr ) &&
        (next->type == CT_TYPE) )
    {
+      // i.e. "enum xyz : unsigned int { ... };"
+      // i.e. "enum class xyz : unsigned int { ... };"
+      // xyz is a type
       set_chunk_parent(next, pc->type);
       prev = next;
       next = chunk_get_next_ncnl(next);
@@ -2569,7 +2575,7 @@ static void fix_enum_struct_union(chunk_t *pc)
       else if ((pc->type   == CT_ENUM ) &&
                (next->type == CT_COLON) )
       {
-         /* enum TYPE : INT_TYPE { */
+         /* enum TYPE : INT_TYPE { ... }; */
          next = chunk_get_next_ncnl(next);
          if (next)
          {
