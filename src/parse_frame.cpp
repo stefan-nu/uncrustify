@@ -249,7 +249,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       }
    }
 
-   if (txt != nullptr)
+   if (ptr_is_valid(txt))
    {
       LOG_FMT(LPF, "%s(%d): %zu> %s: %s in_ifdef=%d/%d counts=%d/%d\n", __func__, __LINE__,
               pc->orig_line, get_token_name(pc->parent_type), txt,

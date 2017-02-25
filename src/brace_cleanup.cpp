@@ -291,7 +291,7 @@ static bool maybe_while_of_do(chunk_t *pc)
 #if 0
    prev = chunk_get_prev_ncnlnp(prev); // fails test 02300, 02301 why?
 #else
-   while ((prev != nullptr             ) &&
+   while ((chunk_is_valid(prev)        ) &&
           (prev->flags & PCF_IN_PREPROC) )
    {
       prev = chunk_get_prev_ncnl(prev);

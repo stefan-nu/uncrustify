@@ -10,6 +10,8 @@
 #ifndef LIST_MANAGER_H_INCLUDED
 #define LIST_MANAGER_H_INCLUDED
 
+#include "chunk_list.h"
+
 /**
  * A simple list manager for a double-linked list.
  * Class T must define 'next' and 'prev', which must be pointers to type T.
@@ -70,7 +72,7 @@ public:
     */
    T *GetNext(T *ref)
    {
-      return((ref != nullptr) ? ref->next : nullptr);
+      return(ptr_is_valid(ref) ? ref->next : nullptr);
    }
 
 
@@ -82,7 +84,7 @@ public:
     */
    T *GetPrev(T *ref)
    {
-      return((ref != nullptr) ? ref->prev : nullptr);
+      return(ptr_is_valid(ref) ? ref->prev : nullptr);
    }
 
 
@@ -91,7 +93,7 @@ public:
     */
    void InitEntry(T *obj) const
    {
-      if (obj != nullptr)
+      if (ptr_is_valid(obj))
       {
          obj->next = nullptr;
          obj->prev = nullptr;
@@ -106,12 +108,12 @@ public:
     */
    void Pop(T *obj)
    {
-      if (obj != nullptr)
+      if (ptr_is_valid(obj))
       {
          if (first == obj)         { first = obj->next; }
          if (last  == obj)         { last  = obj->prev; }
-         if (obj->next != nullptr) { obj->next->prev = obj->prev; }
-         if (obj->prev != nullptr) { obj->prev->next = obj->next; }
+         if (ptr_is_valid(obj->next)) { obj->next->prev = obj->prev; }
+         if (ptr_is_valid(obj->prev)) { obj->prev->next = obj->next; }
          obj->next = nullptr;
          obj->prev = nullptr;
       }
@@ -123,18 +125,11 @@ public:
     */
    void Swap(T *obj1, T *obj2)
    {
-      if ((obj1 != nullptr) && (obj2 != nullptr))
+      if (ptr_is_valid(obj1) &&
+          ptr_is_valid(obj2) )
       {
-         if (obj1->prev == obj2)
-         {
-            Pop(obj1);
-            AddBefore(obj1, obj2);
-         }
-         else if (obj2->prev == obj1)
-         {
-            Pop(obj2);
-            AddBefore(obj2, obj1);
-         }
+         if      (obj1->prev == obj2) { Pop(obj1); AddBefore(obj1, obj2); }
+         else if (obj2->prev == obj1) { Pop(obj2); AddBefore(obj2, obj1); }
          else
          {
             T *prev1 = obj1->prev;
@@ -153,21 +148,17 @@ public:
    /**
     * tbd
     */
+   // \todo combine with AddBefore
    void AddAfter(T *obj, T *ref)
    {
-      if ((obj != nullptr) && (ref != nullptr))
+      if (ptr_is_valid(obj) &&
+          ptr_is_valid(ref) )
       {
          Pop(obj);
          obj->next = ref->next;
          obj->prev = ref;
-         if (ref->next != nullptr)
-         {
-            ref->next->prev = obj;
-         }
-         else
-         {
-            last = obj;
-         }
+         if (ptr_is_valid(ref->next)) { ref->next->prev = obj; }
+         else                         { last = obj;            }
          ref->next = obj;
       }
    }
@@ -178,19 +169,14 @@ public:
     */
    void AddBefore(T *obj, T *ref)
    {
-      if ((obj != nullptr) && (ref != nullptr))
+      if (ptr_is_valid(obj) &&
+          ptr_is_valid(ref) )
       {
          Pop(obj);
          obj->next = ref;
          obj->prev = ref->prev;
-         if (ref->prev != nullptr)
-         {
-            ref->prev->next = obj;
-         }
-         else
-         {
-            first = obj;
-         }
+         if (ptr_is_valid(ref->prev)) { ref->prev->next = obj; }
+         else                         { first = obj;           }
          ref->prev = obj;
       }
    }

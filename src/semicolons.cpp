@@ -128,17 +128,8 @@ static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
    chunk_t *pc = chunk_get_prev_type(brace_close, CT_BRACE_OPEN, (int)brace_close->level);
    pc = chunk_get_prev_ncnl(pc);
 
-#if 0
    if (chunk_is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
                                 CT_SQUARE_CLOSE, CT_TSQUARE) &&
-#else
-   if ((pc       != nullptr              ) &&
-       (pc->type != CT_RETURN            ) &&
-       (pc->type != CT_WORD              ) &&
-       (pc->type != CT_TYPE              ) &&
-       (pc->type != CT_SQUARE_CLOSE      ) &&
-       (pc->type != CT_TSQUARE           ) &&
-#endif
        (chunk_is_paren_close(pc) == false) )
    {
       remove_semicolon(semi);
