@@ -574,7 +574,7 @@ void output_parsed(FILE *pfile)
 
    fprintf(pfile, "# -=====-\n");
    fprintf(pfile, "# Line              Tag           Parent          Columns Br/Lvl/pp     Flag   Nl  Text");
-   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next(pc))
+   for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
       fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3u/%3u][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
               pc->orig_line, get_token_name(pc->type),
@@ -764,7 +764,7 @@ void output_text(FILE *pfile)
 
             /* not the first item on a line */
             chunk_t *prev = chunk_get_prev(pc);
-            assert(prev != nullptr);
+            assert(chunk_is_valid(prev));
             allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
                           (pc->flags & PCF_WAS_ALIGNED) &&
                           ((prev->column + prev->len() + 1) != pc->column));
@@ -1117,7 +1117,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
    /* We can't combine if ... */
-   if ((!chunk_is_valid(pc)                ) || /* chunk is invalid or */
+   if ((chunk_is_invalid(pc)                ) || /* chunk is invalid or */
        (pc->parent_type == CT_COMMENT_START) )  /* there is something other than a newline next */
    {
       return(false);
@@ -1130,8 +1130,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
    {
       /* Make sure the comment is the same type at the same column */
       next = chunk_get_next(next);
-      if (  (next         != nullptr     ) &&
-            (next->type   == pc->type    ) &&
+      if (  chunk_is_type(next, pc->type ) &&
           (((next->column ==            1) && (pc->column      ==            1  )) ||
            ((next->column == cmt.base_col) && (pc->column      == cmt.base_col  )) ||
            ((next->column  > cmt.base_col) && (pc->parent_type == CT_COMMENT_END)) ) )
@@ -1167,7 +1166,7 @@ void combine_comment(unc_text &tmp, chunk_t *pc, cmt_reflow &cmt)
 
 static chunk_t *output_comment_c(chunk_t *first)
 {
-   if (!chunk_is_valid(first)) { return(first); }
+   if (chunk_is_invalid(first)) { return(first); }
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1225,7 +1224,7 @@ void do_something(
 
 static chunk_t *output_comment_cpp(chunk_t *first)
 {
-   if (!chunk_is_valid(first)) { return(first); }
+   if (chunk_is_invalid(first)) { return(first); }
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1721,7 +1720,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 
    if (chunk_is_invalid(tmp)) { tmp = get_next_class(cmt); }
 
-   if (tmp != nullptr)
+   if (chunk_is_valid(tmp))
    {
       out_txt.append(tmp->str);
       if (cpd.lang_flags)
@@ -1752,7 +1751,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 
    chunk_t *tmp  = chunk_get_next_ncnl(fcn);
    const chunk_t *word = nullptr;
-   while (tmp != nullptr)
+   while (chunk_is_valid(tmp))
    {
       if(chunk_is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON))
       {
@@ -1760,7 +1759,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
       }
       if (tmp->type == CT_OC_COLON)
       {
-         if (word != nullptr)
+         if (chunk_is_valid(word))
          {
             out_txt.append(word->str);
             word = nullptr;
@@ -1777,7 +1776,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_category(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *category = get_prev_category(cmt);
-   if (category != nullptr)
+   if (chunk_is_valid(category))
    {
       out_txt.append('(');
       out_txt.append(category->str);
@@ -1790,7 +1789,7 @@ static bool kw_fcn_category(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_scope(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *scope = get_next_scope(cmt);
-   if (scope != nullptr)
+   if (chunk_is_valid(scope))
    {
       out_txt.append(scope->str);
       return(true);
@@ -1802,7 +1801,7 @@ static bool kw_fcn_scope(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
 {
    const chunk_t *fcn = get_next_function(cmt);
-   if (fcn != nullptr)
+   if (chunk_is_valid(fcn))
    {
       out_txt.append_cond(fcn->parent_type == CT_OPERATOR, "operator ");
 
@@ -1888,7 +1887,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
             out_txt.append_cond(need_nl, "\n");
             need_nl = true;
             out_txt.append("@param");
-            if (prev != nullptr)
+            if (chunk_is_valid(prev))
             {
                out_txt.append(" %s TODO", prev->str.c_str() );
             }
@@ -1902,7 +1901,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    /* Do the return stuff */
    tmp = chunk_get_prev_ncnl(fcn);
-   assert(tmp != nullptr);
+   assert(chunk_is_valid(tmp));
 
    /* For Objective-C we need to go to the previous chunk */
    if ((tmp->parent_type == CT_OC_MSG_DECL) &&
@@ -1911,8 +1910,8 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       tmp = chunk_get_prev_ncnl(tmp);
    }
 
-   if ( (tmp != nullptr               ) &&
-        (!chunk_is_str(tmp, "void", 4)) )
+   if ( chunk_is_valid(tmp)            &&
+       !chunk_is_str  (tmp, "void", 4) )
    {
       out_txt.append_cond(need_nl, "\n");
       out_txt.append("@return TODO");
@@ -1958,7 +1957,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
       if(chunk_is_member(tmp))
       {
          tmp = chunk_get_prev_ncnl(tmp);
-         assert(tmp != nullptr);
+         assert(chunk_is_valid(tmp));
          out_txt.append(tmp->str);
          return(true);
       }
@@ -2100,7 +2099,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
    int column = -1; /* \todo better use size_t avoid negative values for column */
 
    dst.clear();
-   for (chunk_t *pc = ifdef; pc != nullptr; pc = chunk_get_next(pc))
+   for (chunk_t *pc = ifdef; chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
       if (column == -1)
       {
@@ -2138,7 +2137,7 @@ void add_long_preprocessor_conditional_block_comment(void)
    const chunk_t *pp_start = nullptr;
    const chunk_t *pp_end   = nullptr;
 
-   for (chunk_t *pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next_ncnl(pc))
+   for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
       /* just track the preproc level: */
       if (pc->type == CT_PREPROC)
@@ -2162,11 +2161,11 @@ void add_long_preprocessor_conditional_block_comment(void)
       chunk_t *tmp     = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         assert(tmp != nullptr);
+         assert(chunk_is_valid(tmp));
          /* just track the preproc level: */
          if (tmp->type == CT_PREPROC) { pp_end = tmp; }
 
-         assert(pp_end != nullptr);
+         assert(chunk_is_valid(pp_end));
          if (chunk_is_newline(tmp))
          {
             nl_count += tmp->nl_count;
@@ -2185,13 +2184,12 @@ void add_long_preprocessor_conditional_block_comment(void)
             tmp = chunk_get_next(tmp);
 
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
-                    ((tmp != nullptr) ? (int)tmp->type : -1),
-                    ((tmp != nullptr) ?
-                      chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
+                    (chunk_is_valid(tmp) ? (int)tmp->type : -1),
+                    (chunk_is_valid(tmp) ?
+                     chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
                      "comment" : "other" : "---"));
 
-            if ((tmp       == nullptr   ) ||
-                (tmp->type == CT_NEWLINE) )  /* chunk_is_newline(tmp) */
+            if (chunk_is_type(tmp, CT_NEWLINE))  /* chunk_is_newline(tmp) */
             {
                size_t nl_min = (br_close->type == CT_PP_ENDIF) ?
                     cpd.settings[UO_mod_add_long_ifdef_endif_comment].u :

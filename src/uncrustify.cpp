@@ -455,7 +455,7 @@ size_t path_dirname_len(const char *full_name)
 
 void usage_exit(const char *msg, const char *argv0, int code)
 {
-   if (msg != nullptr)
+   if (ptr_is_valid(msg))
    {
       fprintf(stderr, "%s\n", msg);
    }
@@ -561,7 +561,7 @@ static void redir_stdout(const char *output_file)
    /* Reopen stdout */
    const FILE *my_stdout = stdout;
 
-   if (output_file != nullptr)
+   if (ptr_is_valid(output_file))
    {
       my_stdout = freopen(output_file, "wb", stdout);
       if (my_stdout == nullptr)
@@ -782,16 +782,16 @@ int main(int argc, char *argv[])
    LOG_FMT(LDATA, "if_changed  = %d\n", cpd.if_changed);
 
    if ((cpd.do_check     == true   )   &&
-      ((output_file      != nullptr) ||
+      ((ptr_is_valid(output_file)  ) ||
        (replace          == true   ) ||
        (no_backup        == true   ) ||
        (keep_mtime       == true   ) ||
        (update_config    == true   ) ||
        (update_config_wd == true   ) ||
        (detect           == true   ) ||
-       (prefix           != nullptr) ||
-       (suffix           != nullptr) ||
-        cpd.if_changed               ) )
+       (ptr_is_valid(prefix)       ) ||
+       (ptr_is_valid(suffix)       ) ||
+        cpd.if_changed             ) )
    {
       usage_exit("Cannot use --check with output options.", argv[0], EX_NOUSER);
    }
@@ -801,21 +801,21 @@ int main(int argc, char *argv[])
       if (replace   == true ||
           no_backup == true )
       {
-         if ((prefix != nullptr) ||
-             (suffix != nullptr) )
+         if (ptr_is_valid(prefix) ||
+             ptr_is_valid(suffix) )
          {
             usage_exit("Cannot use --replace with --prefix or --suffix", argv[0], EX_NOINPUT);
          }
-         if ((source_file != nullptr) ||
-             (output_file != nullptr) )
+         if (ptr_is_valid(source_file) ||
+             ptr_is_valid(output_file) )
          {
             usage_exit("Cannot use --replace or --no-backup with -f or -o", argv[0], EX_NOINPUT);
          }
       }
       else
       {
-         if ((prefix == nullptr) &&
-             (suffix == nullptr) )
+         if (ptr_is_valid(prefix) &&
+             ptr_is_valid(suffix) )
          {
             suffix = ".uncrustify";
          }
@@ -865,9 +865,8 @@ int main(int argc, char *argv[])
       token = strtok(nullptr, "=");
       const char * const value = token;
 
-      if (option != nullptr &&
-          value  != nullptr &&
-          strtok(nullptr, "=") == nullptr)
+      if (ptrs_are_valid(option, value)    &&
+          (strtok(nullptr, "=") == nullptr) )
       {
          if (set_option_value(option, value) == -1)
          {
@@ -885,10 +884,10 @@ int main(int argc, char *argv[])
    {
       FILE *pfile = stdout;
 
-      if (output_file != nullptr)
+      if (ptr_is_valid(output_file))
       {
          pfile = fopen(output_file, "w");
-         if (pfile == nullptr)
+         if (ptr_is_invalid(pfile))
          {
             fprintf(stderr, "Unable to open %s for write: %s (%d)\n",
                     output_file, strerror(errno), errno);
@@ -906,8 +905,8 @@ int main(int argc, char *argv[])
    {
       file_mem_t fm;
 
-      if ((source_file == nullptr) ||
-          (source_list != nullptr) )
+      if (ptr_is_invalid(source_file) ||
+          ptr_is_valid  (source_list) )
       {
          fprintf(stderr, "The --detect option requires a single input file\n");
          return(EXIT_FAILURE);
@@ -961,16 +960,16 @@ int main(int argc, char *argv[])
 
    /* Check args - for multi file options */
 #if 0 // SN allow debugging with eclipse
-   if ((source_list != nullptr) ||
-       (p_arg       != nullptr) )
+   if (ptr_is_valid(source_list) ||
+       ptr_is_valid(p_arg      ) )
    {
-      if (source_file != nullptr)
+      if (ptr_is_valid(source_file))
       {
          usage_exit("Cannot specify both the single file option and a multi-file option.",
                     argv[0], EX_NOUSER);
       }
 
-      if (output_file != nullptr)
+      if (ptr_is_valid(output_file))
       {
          usage_exit("Cannot specify -o with a multi-file option.",
                     argv[0], EX_NOHOST);
@@ -987,27 +986,16 @@ int main(int argc, char *argv[])
       cpd.bout = new deque<UINT8>();
    }
 
-   if ((source_file == nullptr) &&
-       (source_list == nullptr) &&
-       (p_arg       == nullptr) )
+   if (ptrs_are_valid(source_file, source_list, p_arg))
    {
       /* no input specified, so use stdin */
       if (cpd.lang_flags == 0)
       {
-         if (assume != nullptr)
-         {
-            cpd.lang_flags = language_flags_from_filename(assume);
-         }
-         else
-         {
-            cpd.lang_flags = LANG_C;
-         }
+         cpd.lang_flags = (ptr_is_valid(assume)) ?
+           language_flags_from_filename(assume) : LANG_C;
       }
 
-      if (!cpd.do_check)
-      {
-         redir_stdout(output_file);
-      }
+      if (!cpd.do_check) { redir_stdout(output_file); }
 
       file_mem_t fm;
       if (!read_stdin(fm))
@@ -1035,8 +1023,8 @@ int main(int argc, char *argv[])
    {
       /* Doing multiple files */
       /* \todo start multiple threads to process several files in parallel */
-      if (prefix != nullptr) { LOG_FMT(LSYS, "Output prefix: %s/\n", prefix); }
-      if (suffix != nullptr) { LOG_FMT(LSYS, "Output suffix: %s\n",  suffix); }
+      if (ptr_is_valid(prefix)) { LOG_FMT(LSYS, "Output prefix: %s/\n", prefix); }
+      if (ptr_is_valid(suffix)) { LOG_FMT(LSYS, "Output suffix: %s\n",  suffix); }
 
       /* Do the files on the command line first */
       idx = 1;
@@ -1048,7 +1036,7 @@ int main(int argc, char *argv[])
                nullptr, no_backup, keep_mtime);
       }
 
-      if (source_list != nullptr)
+      if (ptr_is_valid(source_list))
       {
          process_source_list(source_list, prefix, suffix, no_backup, keep_mtime);
       }
@@ -1073,7 +1061,7 @@ static void process_source_list(const char * const source_list, const char *pref
    int  from_stdin = strcmp(source_list, "-") == 0;
    FILE *p_file    = from_stdin ? stdin : fopen(source_list, "r");
 
-   if (p_file == nullptr)
+   if (ptr_is_invalid(p_file))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, source_list, strerror(errno), errno);
@@ -1232,10 +1220,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 
    /* Try to read in the file */
    FILE *p_file = fopen(filename, "rb");
-   if (p_file == nullptr)
-   {
-      return(false);
-   }
+   if (ptr_is_invalid(p_file)) { return(false); }
 
    bool success = false;
    fm.raw.resize((size_t)my_stat.st_size);
@@ -1322,14 +1307,14 @@ static const char *make_output_filename(char *buf, const size_t buf_size,
    int len = 0;
 
    /* if we got a prefix add it before the filename with a slash */
-   if (prefix != nullptr)
+   if (ptr_is_valid(prefix))
    {
       len = snprintf(&buf[len], buf_size, "%s/", prefix);
    }
 
 
    snprintf(&buf[len], buf_size - (size_t)len, "%s%s", filename,
-            (suffix != nullptr) ? suffix : "");
+            (ptr_is_valid(suffix)) ? suffix : "");
 
    return(buf);
 }

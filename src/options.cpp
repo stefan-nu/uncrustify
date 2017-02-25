@@ -9,6 +9,7 @@
  */
 #include "uncrustify_types.h"
 #include "args.h"
+#include "chunk_list.h"
 #include "uncrustify_version.h"
 #include "uncrustify.h"
 #include "error_types.h"
@@ -2155,7 +2156,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          const option_map_value_t *option = get_option_name(option_id);
 
          if (withDoc &&
-            ( option->short_desc != nullptr) &&
+            ( ptr_is_valid(option->short_desc)) &&
             (*option->short_desc != 0))
          {
             fprintf(pfile, "%s# ", first ? "" : "\n");
@@ -2264,14 +2265,14 @@ void print_options(FILE *pfile)
       for (auto option_id : jt.second.options)
       {
          const option_map_value_t *option = get_option_name(option_id);
-         assert(option != nullptr);
+         assert(ptr_is_valid(option));
          size_t cur = strlen(option->name);
          size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
          fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;
 
-         if (text != nullptr)
+         if (ptr_is_valid(text))
          {
             fputs("  ", pfile);
             while (*text != 0)
@@ -2474,7 +2475,7 @@ string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
       case AT_UNUM:   return(number_to_string((int)op_val.u ));
       case AT_LINE:   return(lineends_to_string   (op_val.le));
       case AT_POS:    return(tokenpos_to_string   (op_val.tp));
-      case AT_STRING: return(op_val.str != nullptr ? op_val.str : "");
+      case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
                       return("");
    }

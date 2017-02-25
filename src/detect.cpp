@@ -152,7 +152,7 @@ static void detect_space_options(void)
    while (chunk_is_valid(pc))
    {
       next = chunk_get_next(pc);
-      if (!chunk_is_valid(next)) { break; }
+      if (chunk_is_invalid(next)) { break; }
 
       if (chunk_is_type(pc, CT_ARITH))
       {

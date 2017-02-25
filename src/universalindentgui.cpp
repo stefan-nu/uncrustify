@@ -12,6 +12,7 @@
 #include "unc_ctype.h"
 #include "uncrustify.h"
 #include "error_types.h"
+#include "chunk_list.h"
 #include <stdio.h>
 
 
@@ -31,7 +32,7 @@ void print_universal_indent_cfg(FILE *pfile)
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
-      if (p_grp != nullptr)
+      if (ptr_is_valid(p_grp))
       {
          fprintf(pfile, "%c%s", ch, p_grp->short_desc);
          ch = '|';

@@ -25,7 +25,6 @@ enum
 };
 
 
-
 /**
  * Compare two series of chunks, starting with the given ones.
  *
@@ -152,7 +151,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
    }
 
-   if ( (!chunk_is_valid  (pc1)) ||
+   if ( (chunk_is_invalid  (pc1)) ||
         (!chunk_is_newline(pc2)) )   { return(-1); }
 
    if   (!chunk_is_newline(pc1))     { return( 1); }
@@ -235,7 +234,7 @@ void sort_imports(void)
          }
          if ((did_import == false  ) ||
              (pc->nl_count > 1     ) ||
-             (!chunk_is_valid(next)) )
+             (chunk_is_invalid(next)) )
          {
             if (num_chunks > 1)
             {

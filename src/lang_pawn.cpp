@@ -74,7 +74,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if(!chunk_is_valid(pc))      { return(pc); }
+   if(chunk_is_invalid(pc))      { return(pc); }
    if(chunk_is_semicolon(pc))   { return(pc); }
    chunk_t *next = chunk_get_next_nc(pc);
    if(chunk_is_semicolon(next)) { return(pc); }
@@ -117,7 +117,7 @@ void pawn_scrub_vsemi(void)
 static bool pawn_continued(chunk_t *pc, size_t br_level)
 {
    LOG_FUNC_ENTRY();
-   if (!chunk_is_valid(pc)) { return(false); }
+   if (chunk_is_invalid(pc)) { return(false); }
 
    if ((pc->level       > br_level       ) ||
          chunk_is_type(pc, 15, CT_ARITH,   CT_CARET,  CT_QUESTION,
@@ -262,7 +262,7 @@ void pawn_add_virtual_semicolons(void)
             prev = pc;
          }
 
-         if( (!chunk_is_valid(prev))   ||
+         if( (chunk_is_invalid(prev))   ||
               chunk_is_not_type(pc, 3, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE))
          {
             continue;
@@ -363,7 +363,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       last = chunk_get_next_ncnl(last);
    }
 
-   if (!chunk_is_valid(last)) { return(last); }
+   if (chunk_is_invalid(last)) { return(last); }
 
    if (chunk_is_type(last, CT_BRACE_OPEN))
    {
@@ -446,7 +446,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *  - it is something that needs a continuation
     *    + arith, assign, bool, comma, compare */
    chunk_t *prev = chunk_get_prev_ncnl(pc);
-   if ((!chunk_is_valid(prev)       ) ||
+   if ((chunk_is_invalid(prev)       ) ||
        (prev == vb_open             ) ||
        (prev->flags & PCF_IN_PREPROC) ||
        pawn_continued(prev, (int)vb_open->level + 1))

@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <algorithm>
+#include "chunk_list.h"
 #include "unc_ctype.h"
 #include "unc_tools.h"
 #include "uncrustify.h"
@@ -550,7 +551,7 @@ chunk_t *newline_add_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if (!chunk_is_valid(pc)) { return(pc); }
+   if (chunk_is_invalid(pc)) { return(pc); }
 
    chunk_t *next = chunk_get_next_nvb(pc);
    if (chunk_is_newline(next))
@@ -973,11 +974,11 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
     *  a destructor
     *  something else (don't remove) */
 
-   chunk_t       *last_nl      = nullptr;
-   const chunk_t *last_comment = nullptr;
-   bool          do_it         = false;
-   chunk_t       *pc;
-   for (pc = chunk_get_prev(start); pc != nullptr; pc = chunk_get_prev(pc))
+   chunk_t *last_nl      = nullptr;
+   chunk_t *last_comment = nullptr;
+   bool    do_it         = false;
+   chunk_t *pc;
+   for (pc = chunk_get_prev(start); chunk_is_valid(pc); pc = chunk_get_prev(pc))
    {
       if (chunk_is_newline(pc))
       {
@@ -988,6 +989,7 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
       else if (chunk_is_comment(pc))
       {
          LOG_FMT(LNLFUNCT, "   <chunk_is_comment> found at line=%zu column=%zu\n", pc->orig_line, pc->orig_col);
+#if 0
          if ((pc->orig_line < start->orig_line
               && (((start->orig_line - pc->orig_line) - (pc->type == CT_COMMENT_MULTI ? pc->nl_count : 0))) < 2) ||
              (last_comment != nullptr
@@ -995,6 +997,14 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
               && last_comment->type == pc->type // don't mix comment types
               && last_comment->orig_line > pc->orig_line
               && (last_comment->orig_line - pc->orig_line) < 2))
+#else
+         if ((pc->orig_line < start->orig_line &&
+              (((start->orig_line - pc->orig_line) - (pc->type == CT_COMMENT_MULTI ? pc->nl_count : 0))) < 2) ||
+             (chunk_is_type(last_comment, pc->type) && // don't mix comment types
+              pc->type == CT_COMMENT_CPP &&           // combine only cpp comments
+              last_comment->orig_line > pc->orig_line &&
+              (last_comment->orig_line - pc->orig_line) < 2))
+#endif
          {
             last_comment = pc;
             continue;
@@ -1072,7 +1082,8 @@ static chunk_t *get_closing_brace(chunk_t *start)
 
    for (pc = start; (pc = chunk_get_next(pc)) != nullptr; )
    {
-      if (((pc->type == CT_BRACE_CLOSE) || (pc->type == CT_VBRACE_CLOSE)) && (pc->level == level))
+      if (chunk_is_type(pc, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+          (pc->level == level))
       {
          return(pc);
       }
@@ -1133,7 +1144,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
       while (true)
       {
          next = chunk_get_next_ncnl(pc);
-         if ((next != nullptr) && ((next->type == CT_ELSE) || (next->type == CT_ELSEIF)))
+         if (chunk_is_type(next, 2, CT_ELSE, CT_ELSEIF))
          {
             /* point to the closing brace of the else */
             if ((pc = get_closing_brace(next)) == nullptr)
@@ -1165,7 +1176,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
    if (is_option_set(nl_opt, AV_REMOVE))
    {
       /* if vbrace, have to check before and after */
-      /* if chunk before vbrace, remove any nls after vbrace */
+      /* if chunk before vbrace, remove any newlines after vbrace */
       if (have_pre_vbrace_nl)
       {
          if (prev->nl_count != 1)
@@ -1180,7 +1191,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
                !(next->flags & PCF_VAR_DEF) )
       {
          assert(chunk_is_valid(next));
-         /* otherwise just deal with nls after brace */
+         /* otherwise just deal with newlines after brace */
          if (next->nl_count != 1)
          {
             next->nl_count = 1;
@@ -1240,9 +1251,8 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
 
                pc = chunk_get_next(pc);
                //LOG_FMT(LSYS, "  -- pc2=%s [%s]\n", pc->text(), get_token_name(pc->type));
-               if ((pc != nullptr) &&
-                   (pc->type == CT_PREPROC) &&
-                   (pc->parent_type == CT_PP_ENDIF) &&
+               if (chunk_is_type       (pc, CT_PREPROC ) &&
+                   chunk_is_parent_type(pc, CT_PP_ENDIF) &&
                    cpd.settings[UO_nl_squeeze_ifdef].b)
                {
                   assert(chunk_is_valid(prev));
@@ -1280,9 +1290,14 @@ static void newlines_struct_enum_union(chunk_t *start, argval_t nl_opt, bool lea
            (pc->level >= level))
    {
       if ((pc->level == level) &&
-          ((pc->type == CT_BRACE_OPEN) ||
-           chunk_is_semicolon(pc) ||
-           (pc->type == CT_ASSIGN)))
+#if 0
+            ((pc->type == CT_BRACE_OPEN) ||
+             chunk_is_semicolon(pc) ||
+             (pc->type == CT_ASSIGN)))
+#else
+          chunk_is_type(pc, 4, CT_VSEMICOLON, CT_BRACE_OPEN,
+                               CT_SEMICOLON,  CT_ASSIGN))
+#endif
       {
          break;
       }
@@ -1807,11 +1822,8 @@ static void newline_case(chunk_t *start)
       {
          return;
       }
-   } while ((prev       != nullptr       ) &&
-            (prev->type != CT_BRACE_OPEN ) &&
-            (prev->type != CT_BRACE_CLOSE) &&
-            (prev->type != CT_SEMICOLON  ) &&
-            (prev->type != CT_CASE_COLON ) );
+   } while (chunk_is_not_type(prev, 4, CT_BRACE_OPEN, CT_BRACE_CLOSE,
+                                       CT_SEMICOLON,  CT_CASE_COLON ));
 
    return_if_invalid(prev);
 
@@ -2457,26 +2469,25 @@ void newlines_cleanup_braces(bool first)
    chunk_t *tmp;
    for ( ; chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
-      if (pc->type == CT_IF)
+      if (chunk_is_type(pc, CT_IF))
       {
          newlines_if_for_while_switch(pc, cpd.settings[UO_nl_if_brace].a);
       }
-      else if (pc->type == CT_ELSEIF)
+      else if (chunk_is_type(pc, CT_ELSEIF))
       {
          argval_t arg = cpd.settings[UO_nl_elseif_brace].a;
          newlines_if_for_while_switch(
             pc, (arg != AV_IGNORE) ? arg : cpd.settings[UO_nl_if_brace].a);
       }
-      else if (pc->type == CT_FOR)
+      else if (chunk_is_type(pc, CT_FOR))
       {
          newlines_if_for_while_switch(pc, cpd.settings[UO_nl_for_brace].a);
       }
-      else if (pc->type == CT_CATCH)
+      else if (chunk_is_type(pc, CT_CATCH))
       {
          newlines_cuddle_uncuddle(pc, cpd.settings[UO_nl_brace_catch].a);
          next = chunk_get_next_ncnl(pc);
-         if ((next != nullptr) &&
-             (next->type == CT_BRACE_OPEN))
+         if (chunk_is_type(next, CT_BRACE_OPEN))
          {
             newlines_do_else(pc, cpd.settings[UO_nl_catch_brace].a);
          }
@@ -2499,21 +2510,20 @@ void newlines_cleanup_braces(bool first)
       {
          newlines_cuddle_uncuddle(pc, cpd.settings[UO_nl_brace_else].a);
          next = chunk_get_next_ncnl(pc);
-         if ((next != nullptr) &&
-             (next->type == CT_ELSEIF))
+         if (chunk_is_type(next, CT_ELSEIF))
          {
             newline_iarf_pair(pc, next, cpd.settings[UO_nl_else_if].a);
          }
          newlines_do_else(pc, cpd.settings[UO_nl_else_brace].a);
       }
 
-      else if (pc->type == CT_FINALLY)
+      else if (chunk_is_type(pc, CT_FINALLY))
       {
          newlines_cuddle_uncuddle(pc, cpd.settings[UO_nl_brace_finally].a);
          newlines_do_else(pc, cpd.settings[UO_nl_finally_brace].a);
       }
-      else if (pc->type == CT_WHILE_OF_DO) { newlines_cuddle_uncuddle(pc, cpd.settings[UO_nl_brace_while].a); }
-      else if (pc->type == CT_BRACE_OPEN)
+      else if (chunk_is_type(pc, CT_WHILE_OF_DO)) { newlines_cuddle_uncuddle(pc, cpd.settings[UO_nl_brace_while].a); }
+      else if (chunk_is_type(pc, CT_BRACE_OPEN))
       {
          if ((pc->parent_type == CT_DOUBLE_BRACE) &&
              (cpd.settings[UO_nl_paren_dbrace_open].a != AV_IGNORE))
@@ -2528,8 +2538,7 @@ void newlines_cleanup_braces(bool first)
          if (cpd.settings[UO_nl_brace_brace].a != AV_IGNORE)
          {
             next = chunk_get_next_nc(pc, scope_e::PREPROC);
-            if ((next != nullptr) &&
-                (next->type == CT_BRACE_OPEN))
+            if (chunk_is_type(next, CT_BRACE_OPEN))
             {
                newline_iarf_pair(pc, next, cpd.settings[UO_nl_brace_brace].a);
             }
@@ -2542,14 +2551,13 @@ void newlines_cleanup_braces(bool first)
          }
 
          if (cpd.settings[UO_nl_ds_struct_enum_cmt].b &&
-             ((pc->parent_type == CT_ENUM  ) ||
-              (pc->parent_type == CT_STRUCT) ||
-              (pc->parent_type == CT_UNION ) ) )
+             (chunk_is_parent_type(pc, 3, CT_ENUM, CT_STRUCT, CT_UNION ) ) )
          {
             newlines_double_space_struct_enum_union(pc);
          }
 
-         if ((pc->parent_type == CT_CLASS) && (pc->level == pc->brace_level))
+         if ((pc->parent_type == CT_CLASS) &&
+             (pc->level == pc->brace_level))
          {
             newlines_do_else(chunk_get_prev_nnl(pc), cpd.settings[UO_nl_class_brace].a);
          }
@@ -2564,11 +2572,11 @@ void newlines_cleanup_braces(bool first)
          {
             // do nothing
          }
-         else if (next->type == CT_BRACE_CLOSE)
+         else if (chunk_is_type(next, CT_BRACE_CLOSE))
          {
             //TODO: add an option to split open empty statements? { };
          }
-         else if (next->type == CT_BRACE_OPEN)
+         else if (chunk_is_type(next, CT_BRACE_OPEN))
          {
             // already handled
          }

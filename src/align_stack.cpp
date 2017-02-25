@@ -61,7 +61,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
 
-   if (!chunk_is_valid(start)) { return; }
+   if (chunk_is_invalid(start)) { return; }
 
    /* Assign a seqnum if needed */
    if (seqnum == 0) { seqnum = m_seqnum; }

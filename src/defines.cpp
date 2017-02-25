@@ -31,7 +31,7 @@ void add_define(const char *tag, const char *value)
    {
       return;
    }
-   value = (value != nullptr) ? value : "";
+   value = (ptr_is_valid(value)) ? value : "";
 
    /* Try to update an existing entry first */
    defmap::iterator it = defines.find(tag);

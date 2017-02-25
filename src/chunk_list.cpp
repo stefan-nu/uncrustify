@@ -202,6 +202,21 @@ bool ptr_is_valid(const void *ptr)
 }
 
 
+bool ptrs_are_valid(const void *ptr1, const void *ptr2)
+{
+   return ((ptr1 != nullptr) &&
+           (ptr2 != nullptr) );
+}
+
+
+bool ptrs_are_valid(const void *ptr1, const void *ptr2, const void *ptr3)
+{
+   return ((ptr1 != nullptr) &&
+           (ptr2 != nullptr) &&
+           (ptr3 != nullptr) );
+}
+
+
 bool ptr_is_invalid(const void *ptr)
 {
    return (ptr == nullptr);
@@ -382,7 +397,7 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
  * while loop of the calling function */
 chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 {
-   if (!chunk_is_valid(cur)) { return(cur); }
+   if (chunk_is_invalid(cur)) { return(cur); }
 
    chunk_t *pc = g_cl.GetNext(cur);
    if (chunk_is_invalid(pc) ||
@@ -414,7 +429,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
    retval_if_invalid(cur, cur);
 
    chunk_t *pc = g_cl.GetPrev(cur);
-   if ((!chunk_is_valid(pc)  ) ||
+   if ((chunk_is_invalid(pc)  ) ||
        (scope == scope_e::ALL) )
    {
       return(pc);
@@ -454,7 +469,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
 {
    chunk_t *const pc = new chunk_t; /* Allocate a new chunk */
 
-   if (!chunk_is_valid(pc))
+   if (chunk_is_invalid(pc))
    {
       /* @todo clean up properly before crashing */
       LOG_FMT(LERR, "Failed to allocate memory\n");
@@ -734,8 +749,8 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    pc1 = chunk_first_on_line(pc1);
    pc2 = chunk_first_on_line(pc2);
 
-   if (!chunk_is_valid(pc1) ||
-       !chunk_is_valid(pc2) ||
+   if (chunk_is_invalid(pc1) ||
+       chunk_is_invalid(pc2) ||
        (pc1 == pc2        ) )
    {
       return;
@@ -790,7 +805,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 {
    LOG_FUNC_ENTRY();
 
-   if(!chunk_is_valid(pc)) { return; }
+   if(chunk_is_invalid(pc)) { return; }
 
    c_token_t       *where;
    const c_token_t *type;
@@ -894,15 +909,10 @@ bool chunk_is_forin(chunk_t *pc)
        (chunk_is_type(pc, CT_SPAREN_OPEN)) )
    {
       chunk_t *prev = chunk_get_prev_ncnl(pc);
-#if 0
       if(chunk_is_type(prev, CT_FOR))
-#else
-      assert(prev != nullptr);
-      if (prev->type == CT_FOR)
-#endif
       {
          chunk_t *next = pc;
-#if 0
+#if 1
          while(chunk_is_not_type(next, 2, CT_IN, CT_SPAREN_CLOSE))
 #else
          while ( (next       != nullptr        ) &&
@@ -911,12 +921,7 @@ bool chunk_is_forin(chunk_t *pc)
 #endif
          {
             next = chunk_get_next_ncnl(next);
-#if 0
             if(chunk_is_type(next, CT_IN))
-#else
-            assert(next != nullptr);
-            if (next->type == CT_IN)
-#endif
             {
                return(true);
             }
@@ -999,6 +1004,7 @@ bool chunk_is_parent_type(chunk_t *pc, int count, ... )
 }
 
 
+/* \todo combine with chunk_is_not_parent_type */
 bool chunk_is_not_type(chunk_t *pc, int count, ... )
 {
    va_list args;           /* define     argument list */
@@ -1011,7 +1017,11 @@ bool chunk_is_not_type(chunk_t *pc, int count, ... )
       for( ; count > 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int);
-         (pc->type == type) ? result = false : 0;
+         if(pc->type == type)
+         {
+           result = false;
+           break;
+         }
       }
    }
    va_end(args);
@@ -1031,7 +1041,11 @@ bool chunk_is_not_parent_type(chunk_t *pc, int count, ... )
       for( ; count > 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int);
-         (pc->parent_type == type) ? result = false : 0;
+         if(pc->parent_type == type)
+         {
+            result = false;
+            break;
+         }
       }
    }
    va_end(args);
@@ -1100,7 +1114,8 @@ bool chunk_is_newline(chunk_t *pc)
 
 bool chunk_is_empty(chunk_t *pc)
 {
-   return((pc != nullptr) && (pc->len() == 0));
+   return(chunk_is_valid(pc) &&
+          (pc->len() == 0));
 }
 
 
@@ -1261,7 +1276,7 @@ bool chunk_is_star(chunk_t *pc)
 
 bool chunk_is_addr(chunk_t *pc)
 {
-   if (  (pc         != nullptr        ) &&
+   if (  (chunk_is_valid(pc)           ) &&
        ( (pc->type   == CT_BYREF       ) ||
         ((pc->len()  ==  1             ) &&
          (pc->str[0] == '&'            ) &&
@@ -1302,8 +1317,8 @@ bool chunk_is_ptr_operator(chunk_t *pc)
 
 bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 {
-   return( !chunk_is_valid(pc1) ||
-           !chunk_is_valid(pc2) ||
+   return( chunk_is_invalid(pc1) ||
+           chunk_is_invalid(pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
 }
 

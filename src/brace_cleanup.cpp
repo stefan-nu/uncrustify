@@ -281,7 +281,7 @@ static bool maybe_while_of_do(chunk_t *pc)
    chunk_t *prev;
 
    prev = chunk_get_prev_ncnl(pc);
-   if ((!chunk_is_valid(prev)           ) ||
+   if ((chunk_is_invalid(prev)           ) ||
        (!(prev->flags & PCF_IN_PREPROC) ) )
    {
       return(false);
@@ -1000,7 +1000,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 {
    LOG_FUNC_ENTRY();
 
-   if(!chunk_is_valid(pc)) { return(pc); }
+   if(chunk_is_invalid(pc)) { return(pc); }
 
    chunk_t chunk;
    chunk.orig_line   = pc->orig_line;

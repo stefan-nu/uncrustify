@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <deque>
 #include <stdarg.h>
+#include "chunk_list.h"
 #include "unc_ctype.h"
 #include "log_levels.h"
 
@@ -90,7 +91,7 @@ void log_init(FILE *log_file)
    log_set_sev(LERR,  true);
    log_set_sev(LWARN, true);
 
-   g_log.log_file = (log_file != nullptr) ? log_file : stderr;
+   g_log.log_file = (ptr_is_valid(log_file)) ? log_file : stderr;
 }
 
 

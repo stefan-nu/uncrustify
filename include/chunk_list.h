@@ -58,6 +58,25 @@ bool ptr_is_valid(
 
 
 /**
+ * check if two pointers are valid thus no nullptr
+ */
+bool ptrs_are_valid(
+   const void *ptr1,
+   const void *ptr2
+);
+
+
+/**
+ * check if three pointers are valid thus no nullptr
+ */
+bool ptrs_are_valid(
+   const void *ptr1,
+   const void *ptr2,
+   const void *ptr3
+);
+
+
+/**
  * check if a pointer is invalid thus a nullptr
  */
 bool ptr_is_invalid(

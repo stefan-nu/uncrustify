@@ -237,14 +237,11 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    LOG_FUNC_ENTRY();
 
    size_t pc_pri = get_split_pri(pc->type);
-   if (pc_pri == 0)
-   {
-      return;
-   }
+   if (pc_pri == 0) { return; }
 
    /* Can't split after a newline */
    chunk_t *prev = chunk_get_prev(pc);
-   if ((!chunk_is_valid (prev)                           ) ||
+   if ((chunk_is_invalid(prev)                           ) ||
        (chunk_is_newline(prev) && (pc->type != CT_STRING)) )
    {
       return;
@@ -274,10 +271,9 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    /* don't break after last term of a qualified type */
    if (pc_pri == 25)
    {
-      const chunk_t *next = chunk_get_next(pc);
-      if ((next                      != nullptr) &&
-          (next->type                != CT_WORD) &&
-          (get_split_pri(next->type) != 25     ) )
+      chunk_t *next = chunk_get_next(pc);
+      if ( chunk_is_not_type(next, CT_WORD) &&
+          (get_split_pri(next->type) != 25) )
       {
          return;
       }
@@ -362,7 +358,7 @@ static bool split_line(chunk_t *start)
    chunk_t *prev;
 
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
-           (chunk_is_newline(pc)      == false  ) )
+           (chunk_is_newline(pc)     == false  ) )
    {
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
       if (pc->type != CT_SPACE)
@@ -432,8 +428,8 @@ static bool split_line(chunk_t *start)
 
    /* add a newline before pc */
    prev = chunk_get_prev(pc);
-   if (chunk_is_newline(pc)   == false &&
-       chunk_is_newline(prev) == false )
+   if (!chunk_is_newline(pc  ) &&
+       !chunk_is_newline(prev) )
    {
       //int plen = (pc->len() < 5) ? pc->len() : 5;
       //int slen = (start->len() < 5) ? start->len() : 5;
@@ -466,7 +462,7 @@ static void split_for_statement(chunk_t *start)
    chunk_t *pc = start;
    while ((pc = chunk_get_prev(pc)) != nullptr)
    {
-      if (pc->type == CT_SPAREN_OPEN)
+      if (chunk_is_type(pc, CT_SPAREN_OPEN))
       {
          open_paren = pc;
          break;
@@ -521,7 +517,7 @@ static void split_for_statement(chunk_t *start)
 
    while (--count >= 0)
    {
-      assert(st[count] != nullptr);
+      assert(chunk_is_valid(st[count]));
       LOG_FMT(LSPLIT, "%s: split before %s\n", __func__, st[count]->text());
       split_before_chunk(chunk_get_next(st[count]));
    }
@@ -535,8 +531,7 @@ static void split_for_statement(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      assert(chunk_is_valid(pc));
-      if ((pc->type  == CT_COMMA               ) &&
+      if ( chunk_is_type(pc, CT_COMMA          ) &&
           (pc->level == (open_paren->level + 1)) )
       {
          split_before_chunk(chunk_get_next(pc));
@@ -551,8 +546,7 @@ static void split_for_statement(chunk_t *start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      assert(chunk_is_valid(pc));
-      if ((pc->type  == CT_ASSIGN              ) &&
+      if ( chunk_is_type(pc, CT_ASSIGN         ) &&
           (pc->level == (open_paren->level + 1)) )
       {
          split_before_chunk(chunk_get_next(pc));
@@ -581,7 +575,7 @@ static void split_fcn_params_full(chunk_t *start)
       if ( pc->level <= fpopen->level) { break; }
 
       if ((pc->level == (fpopen->level + 1)) &&
-          (pc->type  == CT_COMMA           ) )
+          chunk_is_type(pc, CT_COMMA       ) )
       {
          split_before_chunk(chunk_get_next(pc));
       }
@@ -639,11 +633,8 @@ static void split_fcn_params(chunk_t *start)
    chunk_t *prev = pc;
    while ((prev = chunk_get_prev(prev)) != nullptr)
    {
-      if (chunk_is_newline(prev ) ||
-         (prev->type == CT_COMMA) )
-      {
-         break;
-      }
+      if (chunk_is_type(prev, 3, CT_COMMA, CT_NEWLINE, CT_NL_CONT)) { break; }
+
       assert(chunk_is_valid(pc));
       last_col -= (int)pc->len();
       if (prev->type == CT_FPAREN_OPEN)

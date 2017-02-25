@@ -380,7 +380,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
    size_t  min_col;
    chunk_t *prev = chunk_get_prev(pc);
-   if (!chunk_is_valid  (prev) ||
+   if (chunk_is_invalid  (prev) ||
         chunk_is_newline(prev) )
    {
       min_col = squeeze ? 1 : pc->column;
@@ -1014,7 +1014,7 @@ static void align_same_func_call_params(void)
          }
       }
 
-      if (!chunk_is_valid(align_root))
+      if (chunk_is_invalid(align_root))
       {
          fcn_as.Add(pc);
          align_root      = align_fcn;
@@ -1140,7 +1140,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 {
    LOG_FUNC_ENTRY();
 
-   if (!chunk_is_valid(start)) { return(start); }
+   if (chunk_is_invalid(start)) { return(start); }
 
    chunk_t *next;
    size_t  myspan   = span;

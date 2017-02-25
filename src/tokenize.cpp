@@ -1970,18 +1970,18 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
       /* Add the chunk to the list */
       rprev = pc;
-      if (rprev != nullptr)
+      if (chunk_is_valid(rprev))
       {
          chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
-         assert(pc != nullptr);
+         assert(chunk_is_valid(pc));
          if (pc->type == CT_NEWLINE)
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);
          }
       }
-      if (ref != nullptr)
+      if (chunk_is_valid(ref))
       {
          chunk.flags |= PCF_INSERTED;
       }
@@ -1990,7 +1990,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk.flags &= ~PCF_INSERTED;
       }
       pc = chunk_add_before(&chunk, ref);
-      assert(pc != nullptr);
+      assert(chunk_is_valid(pc));
 
       /* A newline marks the end of a preprocessor */
       if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))

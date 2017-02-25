@@ -5,9 +5,11 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
-#include "ChunkStack.h"
+
 #include <cstdio>
 #include <cstdlib>
+#include "chunk_list.h"
+#include "ChunkStack.h"
 
 
 void ChunkStack::Set(const ChunkStack &cs)
@@ -91,7 +93,7 @@ void ChunkStack::Collapse()
 
    for (size_t rd_idx = 0; rd_idx < m_cse.size(); rd_idx++)
    {
-      if (m_cse[rd_idx].m_pc != nullptr)
+      if (chunk_is_valid(m_cse[rd_idx].m_pc))
       {
          if (rd_idx != wr_idx)
          {

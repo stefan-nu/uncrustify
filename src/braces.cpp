@@ -242,7 +242,7 @@ static bool should_add_braces(chunk_t *vbopen)
    size_t  nl_count = 0;
    chunk_t *pc = chunk_get_next_nc(vbopen, scope_e::PREPROC);
 
-   while( (pc        != nullptr      ) && /* chunk is valid */
+   while( (chunk_is_valid(pc)        ) && /* chunk is valid */
           (pc->level >  vbopen->level) )  /* tbd */
    {
       if (chunk_is_newline(pc))
@@ -682,7 +682,7 @@ static void convert_vbrace_to_brace(void)
                break;
             }
          }
-         if (!chunk_is_valid(vbc)) { continue; }
+         if (chunk_is_invalid(vbc)) { continue; }
 
          convert_vbrace(pc);
          convert_vbrace(vbc);
@@ -730,7 +730,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if (!chunk_is_valid(pc)) { return; }
+   if (chunk_is_invalid(pc)) { return; }
 
    chunk_t *tmp = pc;
 
@@ -828,7 +828,7 @@ void add_long_closebrace_comment(void)
                   cl_semi_pc = nullptr;
                }
             }
-            if (!chunk_is_valid  (tmp) ||
+            if (chunk_is_invalid  (tmp) ||
                  chunk_is_newline(tmp) )
             {
                size_t  nl_min  = 0;
@@ -924,7 +924,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
 
    /* Find the matching brace close */
    chunk_t *br_close = chunk_get_next_type(br_open, CT_BRACE_CLOSE, (int)br_open->level, scope_e::PREPROC);
-   if (!chunk_is_valid(br_close))
+   if (chunk_is_invalid(br_close))
    {
       LOG_FMT(LMCB, " - no close\n");
       return(next);
@@ -935,7 +935,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
    if (chunk_is_not_type(pc, 5, CT_BREAK, CT_RETURN, CT_CASE,
                                 CT_BRACE_CLOSE, CT_GOTO))
    {
-      LOG_FMT(LMCB, " - after '%s'\n", (!chunk_is_valid(pc)) ? "<null>" : get_token_name(pc->type));
+      LOG_FMT(LMCB, " - after '%s'\n", (chunk_is_invalid(pc)) ? "<null>" : get_token_name(pc->type));
       return(next);
    }
 
@@ -968,7 +968,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
 {
    LOG_FUNC_ENTRY();
 
-   if(!chunk_is_valid(cl_colon)) { return cl_colon; }
+   if(chunk_is_invalid(cl_colon)) { return cl_colon; }
 
    chunk_t *pc   = cl_colon;
    LOG_FMT(LMCB, "%s: line %zu", __func__, pc->orig_line);
@@ -997,7 +997,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
       }
    }
 
-   if (!chunk_is_valid(last))
+   if (chunk_is_invalid(last))
    {
       LOG_FMT(LMCB, " - nullptr last\n");
       return(next);
@@ -1046,7 +1046,7 @@ static void mod_case_brace(void)
    while (chunk_is_valid(pc))
    {
       chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
-      if (!chunk_is_valid(next)) { return; }
+      if (chunk_is_invalid(next)) { return; }
 
       if ((cpd.settings[UO_mod_case_brace].a == AV_REMOVE) &&
           chunk_is_type(pc, CT_BRACE_OPEN) &&
@@ -1072,7 +1072,7 @@ static void process_if_chain(chunk_t *br_start)
 {
    LOG_FUNC_ENTRY();
 
-   if (!chunk_is_valid(br_start)) { return; }
+   if (chunk_is_invalid(br_start)) { return; }
 
    chunk_t *braces[256];
    int     br_cnt           = 0;
@@ -1103,12 +1103,12 @@ static void process_if_chain(chunk_t *br_start)
 
       braces[br_cnt++] = pc;
       chunk_t *br_close = chunk_skip_to_match(pc, scope_e::PREPROC);
-      if (!chunk_is_valid(br_close)) { break; }
+      if (chunk_is_invalid(br_close)) { break; }
 
       braces[br_cnt++] = br_close;
 
       pc = chunk_get_next_ncnl(br_close, scope_e::PREPROC);
-      if ((!chunk_is_valid(pc)           ) ||
+      if ((chunk_is_invalid(pc)           ) ||
           (chunk_is_not_type(pc, CT_ELSE)) )
       {
          break;
@@ -1128,7 +1128,7 @@ static void process_if_chain(chunk_t *br_start)
             pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
          }
       }
-      if (!chunk_is_valid(pc)) { break; }
+      if (chunk_is_invalid(pc)) { break; }
 
       if (chunk_is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN)) { break; }
    }
