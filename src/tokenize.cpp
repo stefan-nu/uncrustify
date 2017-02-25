@@ -1543,6 +1543,16 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Note that we aren't actually making sure this is in a comment, yet */
+   if ((((pc.str.find("#pragma ") >= 0) || (pc.str.find("#pragma	") >= 0)) &&
+        ((pc.str.find(" endasm") >= 0) || (pc.str.find("	endasm") >= 0))) ||
+       (pc.str.find("#endasm") >= 0))
+   {
+      cpd.unc_off = false;
+      ctx.restore();
+      pc.str.clear();
+      return(false);
+   }
+   /* Note that we aren't actually making sure this is in a comment, yet */
    const char *ontext = cpd.settings[UO_enable_processing_cmt].str;
    if (ontext == nullptr)
    {
@@ -1990,6 +2000,13 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       }
 
       /* Special handling for preprocessor stuff */
+      if (pc->type == CT_PP_ASM)
+      {
+         LOG_FMT(LBCTRL, "Found a directive %s on line %d\n", "#asm", pc->orig_line);
+         cpd.unc_off = true;
+      }
+
+      /* Special handling for preprocessor stuff */
       if (cpd.is_preproc != CT_NONE)
       {
          chunk_flags_set(pc, PCF_IN_PREPROC);
@@ -1999,6 +2016,16 @@ void tokenize(const deque<int> &data, chunk_t *ref)
              !chunk_is_newline(pc) )
          {
             cpd.preproc_ncnl_count++;
+         }
+
+         /* Figure out the type of preprocessor for #include parsing */
+         if (cpd.is_preproc == CT_PP_PRAGMA)
+         {
+            if (memcmp(pc->text(), "asm", 3) == 0)
+            {
+               LOG_FMT(LBCTRL, "Found a pragma %s on line %d\n", "asm", pc->orig_line);
+               cpd.unc_off = true;
+            }
          }
 
          /* Figure out the type of preprocessor for #include parsing */

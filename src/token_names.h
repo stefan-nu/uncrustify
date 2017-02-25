@@ -230,6 +230,7 @@ const char *const token_names[] =
    "PP_FILE",
    "PP_LINE",
    "PP_SECTION",
+   "PP_ASM",
    "PP_UNDEF",
    "PP_PROPERTY",
    "PP_BODYCHUNK",
