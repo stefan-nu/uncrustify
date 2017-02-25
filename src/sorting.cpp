@@ -71,11 +71,7 @@ static void cleanup_categories()
 {
    for (auto &include_category : include_categories)
    {
-      if (include_category == nullptr)
-      {
-         continue;
-      }
-
+      if (include_category == nullptr) { continue; }
       delete include_category;
       include_category = NULL;
    }

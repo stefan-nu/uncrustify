@@ -26,6 +26,7 @@
 #include "md5.h"
 #include "logger.h"
 #include <cstdio>
+#include "chunk_list.h"
 #include "unc_ctype.h"
 #include <cstring>
 #include "uncrustify.h"
@@ -74,7 +75,7 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    FILE *thefile = fopen(newpath, "rb");
-   if (thefile != nullptr)
+   if (ptr_is_valid(thefile))
    {
       char buffer[128];
       if (fgets(buffer, sizeof(buffer), thefile) != nullptr)
@@ -108,7 +109,7 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_SUFFIX);
 
    thefile = fopen(newpath, "wb");
-   if (thefile != nullptr)
+   if (ptr_is_valid(thefile))
    {
       const size_t retval   = fwrite(&data[0], data.size(), 1, thefile);
       const int    my_errno = errno;
@@ -158,7 +159,7 @@ void backup_create_md5_file(const char *filename)
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    thefile = fopen(newpath, "wb");
-   if (thefile != nullptr)
+   if (ptr_is_valid(thefile))
    {
       char  md5_str[MD5_STR_SIZE];
       md5_to_string(md5_str, sizeof(md5_str), md5_bin);

@@ -86,7 +86,7 @@ void pf_copy(parse_frame_t *dst, const parse_frame_t *src)
 
 void pf_push(parse_frame_t *pf)
 {
-   if (cpd.frame_count < (int)ARRAY_SIZE(cpd.frames))
+   if (cpd.frame_count < static_cast<int> ARRAY_SIZE(cpd.frames))
    {
       static int ref_no = 1;
       pf_copy(&cpd.frames[cpd.frame_count], pf);
@@ -102,7 +102,7 @@ void pf_push_under(parse_frame_t *pf)
 {
    LOG_FMT(LPF, "%s(%d): before count = %d\n", __func__, __LINE__, cpd.frame_count);
 
-   if ((cpd.frame_count < (int)ARRAY_SIZE(cpd.frames)) &&
+   if ((cpd.frame_count < static_cast<int> ARRAY_SIZE(cpd.frames)) &&
        (cpd.frame_count >= 1))
    {
       parse_frame_t *npf1 = &cpd.frames[cpd.frame_count-1];
@@ -169,7 +169,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 
    if (pc->type != CT_PREPROC) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
-   if (next == nullptr) { return(pp_level); }
+   if (chunk_is_invalid(next)) { return(pp_level); }
 
    if (pc->parent_type != next->type)
    {

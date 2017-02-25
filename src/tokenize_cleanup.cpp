@@ -74,8 +74,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
 void split_off_angle_close(chunk_t *pc)
 {
    const chunk_tag_t *ct = find_punctuator(pc->text() + 1, cpd.lang_flags);
-
-   if (ct == nullptr) { return; }
+   return_if_invalid(ct);
 
    chunk_t nc = *pc;
    pc->str.resize(1);

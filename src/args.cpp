@@ -6,6 +6,7 @@
  * @license GPL v2+
  */
 #include "args.h"
+#include "chunk_list.h"
 #include "char_table.h"
 #include <cstring>
 #include "unc_ctype.h"
@@ -17,7 +18,7 @@ Args::Args(int argc, char **argv)
    m_values = argv;
    const size_t len = NumberOfBits(argc);
    m_used = new UINT8[len];
-   if (m_used != nullptr)
+   if (ptr_is_valid(m_used))
    {
       memset(m_used, 0, len);
    }
@@ -48,7 +49,7 @@ Args::~Args()
 
 bool Args::Present(const char *token)
 {
-   if (token != nullptr)
+   if (ptr_is_valid(token))
    {
       for (size_t idx = 0; idx < m_count; idx++)
       {
@@ -110,7 +111,7 @@ const char *Args::Params(const char *token, size_t &index)
 
 bool Args::GetUsed(size_t idx) const
 {
-   if ((m_used != nullptr) && (idx > 0) && (idx < m_count))
+   if (ptr_is_valid(m_used) && (idx > 0) && (idx < m_count))   // DRY
    {
       return((m_used[idx >> 3] & (1 << (idx & 0x07))) != 0);   // DRY
    }
@@ -120,7 +121,7 @@ bool Args::GetUsed(size_t idx) const
 
 void Args::SetUsed(size_t idx)
 {
-   if ((m_used != nullptr) && (idx > 0) && (idx < m_count))
+   if (ptr_is_valid(m_used) && (idx > 0) && (idx < m_count))   // DRY
    {
       m_used[idx >> 3] |= (1 << (idx & 0x07));  // DRY
    }
@@ -129,7 +130,7 @@ void Args::SetUsed(size_t idx)
 
 const char *Args::Unused(size_t &index) const
 {
-   if (m_used == nullptr) { return(nullptr); }
+   if (ptr_is_invalid(m_used)) { return(nullptr); }
 
    for (size_t idx = index; idx < m_count; idx++)
    {
@@ -190,10 +191,7 @@ size_t Args::SplitLine(char *text, char *args[], size_t num_args)
             *dest = 0;
             dest++;
             in_arg = false;
-            if (argc == num_args)
-            {
-               break; /* all arguments found, we can stop */
-            }
+            break_if(argc == num_args); /* all arguments found, we can stop */
          }
          else
          {

@@ -196,9 +196,40 @@ static bool is_expected_string_and_level(
 );
 
 
+bool ptr_is_valid(const void *ptr)
+{
+   return (ptr != nullptr);
+}
+
+
+bool ptr_is_invalid(const void *ptr)
+{
+   return (ptr == nullptr);
+}
+
+
 bool chunk_is_valid(const chunk_t *pc)
 {
    return (pc != nullptr);
+}
+
+
+bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2)
+{
+   return ((pc1 != nullptr) &&
+           (pc2 != nullptr) );
+}
+
+
+bool chunk_is_invalid(const chunk_t *pc)
+{
+   return (pc == nullptr);
+}
+
+bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2)
+{
+   return ((pc1 == nullptr) ||
+           (pc2 == nullptr) );
 }
 
 
@@ -354,7 +385,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
    if (!chunk_is_valid(cur)) { return(cur); }
 
    chunk_t *pc = g_cl.GetNext(cur);
-   if ((pc    == nullptr     ) ||
+   if (chunk_is_invalid(pc) ||
        (scope == scope_e::ALL) )
    {
       return(pc);
@@ -380,7 +411,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 
 chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
 {
-   if (cur == nullptr) { return(cur); }
+   retval_if_invalid(cur, cur);
 
    chunk_t *pc = g_cl.GetPrev(cur);
    if ((!chunk_is_valid(pc)  ) ||
@@ -431,7 +462,7 @@ chunk_t *chunk_dup(const chunk_t *pc_in)
    }
 
    /* Copy all fields and then init the entry */
-   *pc = *pc_in;  /* \todo what happens if pc_in == nullptr? */
+   *pc = *pc_in;  /* \todo what happens if pc_in is invalid? */
    g_cl.InitEntry(pc);
 
    return(pc);
@@ -518,7 +549,7 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 
       /* HACK: Adjust the original column */
       pc_in->column       = ref->column + (size_t)space_col_align(ref, pc_in);
-      pc_in->orig_col     = (UINT32)pc_in->column;
+      pc_in->orig_col     = static_cast<UINT32>(pc_in->column);
       pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
    }
 }

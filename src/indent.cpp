@@ -277,7 +277,7 @@ void indent_to_column(chunk_t *pc, size_t column)
 void align_to_column(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   if ((pc     == nullptr   ) ||
+   if ((chunk_is_invalid(pc)) ||
        (column == pc->column) ) { return; }
 
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on %s [%s] => %zu\n",
@@ -292,7 +292,7 @@ void align_to_column(chunk_t *pc, size_t column)
       align_mode_e almod = align_mode_e::SHIFT;
 
       chunk_t *next = chunk_get_next(pc);
-      if (next == nullptr) { break; }
+      if (chunk_is_invalid(next)) { break; }
 
       int min_delta = (int)space_col_align(pc, next);
       min_col  = (size_t)((int)min_col + min_delta);
@@ -381,7 +381,7 @@ void reindent_line(chunk_t *pc, size_t column)
          }
       }
       chunk_t *next = chunk_get_next(pc);
-      if (next == nullptr) { break; }
+      if (chunk_is_invalid(next)) { break; }
 
       if (pc->nl_count > 0)
       {
@@ -719,10 +719,8 @@ void indent_text(void)
              (pc->parent_type == CT_PP_REGION))
          {
             next = chunk_get_next(pc);
-            if (next == nullptr)
-            {
-               break;
-            }
+            if (chunk_is_invalid(next)) { break; }
+
             /* Hack to get the logs to look right */
             set_chunk_type(next, CT_PP_REGION_INDENT);
             indent_pse_push(frm, next);
@@ -741,10 +739,7 @@ void indent_text(void)
               (pc->parent_type == CT_PP_ELSE)))
          {
             next = chunk_get_next(pc);
-            if (next == nullptr)
-            {
-               break;
-            }
+            if (chunk_is_invalid(next)) { break; }
             /* Hack to get the logs to look right */
             memtype = next->type;
             set_chunk_type(next, CT_PP_IF_INDENT);
@@ -1315,10 +1310,8 @@ void indent_text(void)
              * { a++;
              *   b--; }; */
             next = chunk_get_next_ncnl(pc);
-            if (next == nullptr)
-            {
-               break;
-            }
+            if (chunk_is_invalid(next)) { break; }
+
             if (!chunk_is_newline_between(pc, next))
             {
                if (cpd.settings[UO_indent_token_after_brace].b)
@@ -1425,7 +1418,7 @@ void indent_text(void)
 
                if ((next != nullptr) && !chunk_is_newline(next) &&
                    /* label (+ 2, because there is colon and space after it) must fit into indent */
-                   (cpd.settings[UO_indent_label].n + (int)pc->len() + 2 <= (int)frm.pse[frm.pse_tos].indent))
+                   (cpd.settings[UO_indent_label].n + static_cast<int>(pc->len()) + 2 <= static_cast<int>(frm.pse[frm.pse_tos].indent)))
                {
                   reindent_line(next, frm.pse[frm.pse_tos].indent);
                }

@@ -419,8 +419,6 @@ static const lang_name_t language_names[] =
 };
 
 
-
-
 const char *path_basename(const char *path)
 {
    if (path == nullptr) { return(""); }
@@ -2151,11 +2149,11 @@ c_token_t find_token_name(const char *text)
 {
    if ((text != nullptr) && (*text != 0))
    {
-      for (int idx = 1; idx < (int)ARRAY_SIZE(token_names); idx++)
+      for (int idx = 1; idx < static_cast<int> ARRAY_SIZE(token_names); idx++)
       {
          if (strcasecmp(text, token_names[idx]) == 0)
          {
-            return((c_token_t)idx);
+            return(static_cast<c_token_t>(idx));
          }
       }
    }

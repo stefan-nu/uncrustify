@@ -44,8 +44,7 @@ public:
 
 void sp_votes::vote(chunk_t *first, chunk_t *second)
 {
-   if (!chunk_is_valid  (first ) ||
-       !chunk_is_valid  (second) ||
+   if (!chunks_are_valid(first, second) ||
         chunk_is_newline(first ) ||
         chunk_is_newline(second) )
    {
@@ -150,10 +149,10 @@ static void detect_space_options(void)
    chunk_t *pc   = chunk_get_next(prev);
    chunk_t *next;
 
-   while (pc != nullptr)
+   while (chunk_is_valid(pc))
    {
       next = chunk_get_next(pc);
-      if (next == nullptr) { break; }
+      if (!chunk_is_valid(next)) { break; }
 
       if (chunk_is_type(pc, CT_ARITH))
       {
@@ -179,7 +178,7 @@ static void detect_space_options(void)
          vote_sp_paren_paren.vote(pc, next);
       }
       if (chunk_is_paren_close(pc) &&
-          (next->type == CT_BRACE_OPEN))
+          chunk_is_type(next, CT_BRACE_OPEN))
       {
          vote_sp_paren_brace.vote(pc, next);
       }
