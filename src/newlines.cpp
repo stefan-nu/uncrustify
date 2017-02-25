@@ -482,9 +482,14 @@ static void setup_newline_add(chunk_t *prev, chunk_t *nl, chunk_t *next)
    nl->pp_level    = prev->pp_level;
    nl->nl_count    = 1;
    nl->flags       = (prev->flags & PCF_COPY_FLAGS) & ~PCF_IN_PREPROC;
+#if 0
+   // makes test 30064 fail
    nl->orig_col    = prev->orig_col_end;
+#endif
    nl->column      = prev->orig_col;
-   if ((prev->flags & PCF_IN_PREPROC) && (next->flags & PCF_IN_PREPROC))
+
+   if ((prev->flags & PCF_IN_PREPROC) &&
+       (next->flags & PCF_IN_PREPROC))
    {
       chunk_flags_set(nl, PCF_IN_PREPROC);
    }
@@ -1371,7 +1376,8 @@ static void newlines_enum(chunk_t *start)
     */
    size_t level = start->level;
    pc = start;
-   while (((pc = chunk_get_next_ncnl(pc)) != nullptr) && (pc->level >= level))
+   while (((pc = chunk_get_next_ncnl(pc)) != nullptr) &&
+           (pc->level >= level))
    {
       if ((pc->level == level) &&
           ((pc->type == CT_BRACE_OPEN) ||

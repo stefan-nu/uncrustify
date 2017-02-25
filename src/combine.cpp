@@ -865,15 +865,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       set_paren_parent(next, pc->type);
    }
 
-#if 1
    if ( chunk_is_type(next,  CT_PAREN_OPEN                   ) &&
         chunk_is_type(pc, 3, CT_D_CAST, CT_DELEGATE, CT_ALIGN) )
-#else
-   if ( (next->type == CT_PAREN_OPEN)   &&
-       ((pc->type   == CT_D_CAST    ) ||
-        (pc->type   == CT_DELEGATE  ) ||
-        (pc->type   == CT_ALIGN     ) ) )
-#endif
    {
       /* mark the parenthesis parent */
       tmp = set_paren_parent(next, pc->type);
