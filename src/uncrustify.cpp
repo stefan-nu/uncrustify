@@ -991,8 +991,19 @@ int main(int argc, char *argv[])
       /* no input specified, so use stdin */
       if (cpd.lang_flags == 0)
       {
+#if 1
+         if (assume != nullptr)
+         {
+            cpd.lang_flags = language_flags_from_filename(assume);
+         }
+         else
+         {
+            cpd.lang_flags = LANG_C;
+         }
+#else
          cpd.lang_flags = (ptr_is_valid(assume)) ?
            language_flags_from_filename(assume) : LANG_C;
+#endif
       }
 
       if (!cpd.do_check) { redir_stdout(output_file); }
@@ -1729,7 +1740,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
-            if (chunk_is_parent_type(tmp, CT_PP_IF))
+            if (chunk_is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&

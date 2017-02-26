@@ -658,7 +658,7 @@ void indent_text(void)
             next = chunk_get_next_ncnl(pc);
             if ((pc->parent_type == CT_FUNC_DEF) ||
                 ((pc->type == CT_COMMENT) &&
-                 chunk_is_parent_type(next, CT_FUNC_DEF)))
+                 chunk_is_ptype(next, CT_FUNC_DEF)))
             {
                in_func_def = true;
                indent_pse_push(frm, pc);
@@ -1390,7 +1390,7 @@ void indent_text(void)
       {
          prev = chunk_get_prev_ncnl(pc);
          if (chunk_is_type(prev, CT_BRACE_CLOSE) &&
-             chunk_is_parent_type(prev, CT_CASE) )
+             chunk_is_ptype(prev, CT_CASE) )
          {
             // issue #663
             const chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, (int)pc->level);
@@ -1541,12 +1541,12 @@ void indent_text(void)
          }
 
          if ((chunk_is_type(pc, 2, CT_FPAREN_OPEN, CT_ANGLE_OPEN)) &&
-             ((cpd.settings[UO_indent_func_call_param    ].b && (chunk_is_parent_type(pc, 2, CT_FUNC_CALL,      CT_FUNC_CALL_USER  ))) ||
-              (cpd.settings[UO_indent_func_proto_param   ].b && (chunk_is_parent_type(pc, 2, CT_FUNC_PROTO,     CT_FUNC_CLASS_PROTO))) ||
-              (cpd.settings[UO_indent_func_class_param   ].b && (chunk_is_parent_type(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))) ||
-              (cpd.settings[UO_indent_template_param     ].b && (chunk_is_parent_type(pc,    CT_TEMPLATE                           ))) ||
-              (cpd.settings[UO_indent_func_ctor_var_param].b && (chunk_is_parent_type(pc,    CT_FUNC_CTOR_VAR                      ))) ||
-              (cpd.settings[UO_indent_func_def_param     ].b && (chunk_is_parent_type(pc,    CT_FUNC_DEF)                          ))) )
+             ((cpd.settings[UO_indent_func_call_param    ].b && (chunk_is_ptype(pc, 2, CT_FUNC_CALL,      CT_FUNC_CALL_USER  ))) ||
+              (cpd.settings[UO_indent_func_proto_param   ].b && (chunk_is_ptype(pc, 2, CT_FUNC_PROTO,     CT_FUNC_CLASS_PROTO))) ||
+              (cpd.settings[UO_indent_func_class_param   ].b && (chunk_is_ptype(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))) ||
+              (cpd.settings[UO_indent_template_param     ].b && (chunk_is_ptype(pc,    CT_TEMPLATE                           ))) ||
+              (cpd.settings[UO_indent_func_ctor_var_param].b && (chunk_is_ptype(pc,    CT_FUNC_CTOR_VAR                      ))) ||
+              (cpd.settings[UO_indent_func_def_param     ].b && (chunk_is_ptype(pc,    CT_FUNC_DEF)                          ))) )
          {
             /* Skip any continuation indents */
             idx = (int)frm.pse_tos - 1;
@@ -1722,7 +1722,7 @@ void indent_text(void)
          }
       }
       else if (chunk_is_type       (pc, 2, CT_RETURN, CT_THROW ) &&
-               chunk_is_parent_type(pc,    CT_NONE             ) )
+               chunk_is_ptype(pc,    CT_NONE             ) )
       {
          /* don't count returns inside a () or [] */
          if (pc->level == pc->brace_level)

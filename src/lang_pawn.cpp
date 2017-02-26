@@ -104,7 +104,7 @@ void pawn_scrub_vsemi(void)
 
       if (chunk_is_type(prev, CT_BRACE_CLOSE))
       {
-         if(chunk_is_parent_type(prev, 5, CT_IF, CT_ELSE, CT_SWITCH,
+         if(chunk_is_ptype(prev, 5, CT_IF, CT_ELSE, CT_SWITCH,
                                           CT_CASE, CT_WHILE_OF_DO))
          {
             pc->str.clear();
@@ -124,7 +124,7 @@ static bool pawn_continued(chunk_t *pc, size_t br_level)
                CT_BRACE_OPEN,  CT_BOOL,    CT_ASSIGN, CT_COMMA,
                CT_VBRACE_OPEN, CT_COMPARE, CT_IF,     CT_ELSE,
                CT_FPAREN_OPEN, CT_DO,      CT_SWITCH, CT_WHILE) ||
-       chunk_is_parent_type(pc, 9, CT_IF, CT_ELSE, CT_ELSEIF, CT_DO,
+       chunk_is_ptype(pc, 9, CT_IF, CT_ELSE, CT_ELSEIF, CT_DO,
              CT_FOR, CT_SWITCH, CT_WHILE, CT_FUNC_DEF, CT_ENUM) ||
        (pc->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) ||
        chunk_is_str(pc, ":", 1) ||

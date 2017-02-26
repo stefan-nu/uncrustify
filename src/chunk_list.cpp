@@ -912,13 +912,7 @@ bool chunk_is_forin(chunk_t *pc)
       if(chunk_is_type(prev, CT_FOR))
       {
          chunk_t *next = pc;
-#if 1
          while(chunk_is_not_type(next, 2, CT_IN, CT_SPAREN_CLOSE))
-#else
-         while ( (next       != nullptr        ) &&
-                 (next->type != CT_SPAREN_CLOSE) &&
-                 (next->type != CT_IN          ) )
-#endif
          {
             next = chunk_get_next_ncnl(next);
             if(chunk_is_type(next, CT_IN))
@@ -932,19 +926,26 @@ bool chunk_is_forin(chunk_t *pc)
 }
 
 
-bool chunk_is_type(chunk_t *pc, c_token_t c_token)
+bool chunk_is_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 {
-   return((chunk_is_valid(pc) ) &&
-          (pc->type == c_token) );
+   return((chunk_is_valid(pc)       ) &&
+          (pc->type        == type  ) &&
+          (pc->parent_type == parent) );
 }
 
 
-bool chunk_is_parent_type(chunk_t *pc, c_token_t c_token)
+bool chunk_is_type(chunk_t *pc, c_token_t type)
 {
    return((chunk_is_valid(pc) ) &&
-          (pc->parent_type == c_token) );
+          (pc->type == type   ) );
 }
 
+
+bool chunk_is_ptype(chunk_t *pc, c_token_t parent)
+{
+   return((chunk_is_valid(pc)       ) &&
+          (pc->parent_type == parent) );
+}
 
 
 bool chunk_is_not_type(chunk_t *pc, c_token_t c_token)
@@ -981,7 +982,7 @@ bool chunk_is_type(chunk_t *pc, int count, ... )
 }
 
 /* todo combine with chunk_is_type */
-bool chunk_is_parent_type(chunk_t *pc, int count, ... )
+bool chunk_is_ptype(chunk_t *pc, int count, ... )
 {
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
@@ -1029,7 +1030,7 @@ bool chunk_is_not_type(chunk_t *pc, int count, ... )
 }
 
 
-bool chunk_is_not_parent_type(chunk_t *pc, int count, ... )
+bool chunk_is_not_ptype(chunk_t *pc, int count, ... )
 {
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
@@ -1330,5 +1331,8 @@ bool chunk_safe_to_del_nl(chunk_t *nl)
    {
       return(false);
    }
-   return(chunk_same_preproc(chunk_get_prev(nl), chunk_get_next(nl)));
+   else
+   {
+      return(chunk_same_preproc(chunk_get_prev(nl), chunk_get_next(nl)));
+   }
 }

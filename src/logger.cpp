@@ -217,7 +217,7 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
 
    if (len > 0)
    {
-      len = min(len, cap); // if (len > cap) { len = cap; }
+      len = min(len, cap);
       g_log.buf_len           += len;
       g_log.buf[g_log.buf_len] = 0;
    }

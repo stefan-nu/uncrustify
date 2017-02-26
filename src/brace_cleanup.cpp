@@ -298,7 +298,7 @@ static bool maybe_while_of_do(chunk_t *pc)
    }
 #endif
 
-   if (chunk_is_parent_type(prev, CT_DO) &&
+   if (chunk_is_ptype(prev, CT_DO) &&
        chunk_is_type(prev, 2, CT_VBRACE_CLOSE, CT_BRACE_CLOSE))
    {
       return(true);
@@ -622,7 +622,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
             /*  Carry through CT_ENUM parent in NS_ENUM (type, name) { */
             else if ((chunk_is_type(prev, CT_FPAREN_CLOSE)) &&
                      (cpd.lang_flags & LANG_OC            ) &&
-                     (chunk_is_parent_type(prev, CT_ENUM) ) )
+                     (chunk_is_ptype(prev, CT_ENUM) ) )
             {
                parent = CT_ENUM;
             }

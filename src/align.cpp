@@ -548,7 +548,7 @@ void align_right_comments(void)
    {
       if(chunk_is_type(pc, 3, CT_COMMENT, CT_COMMENT_CPP, CT_COMMENT_MULTI))
       {
-         if(chunk_is_parent_type(pc, CT_COMMENT_END))
+         if(chunk_is_ptype(pc, CT_COMMENT_END))
          {
             bool          skip  = false;
             chunk_t *prev = chunk_get_prev(pc);
@@ -573,7 +573,7 @@ void align_right_comments(void)
          }
 
          /* Change certain WHOLE comments into RIGHT-alignable comments */
-         if (chunk_is_parent_type(pc, CT_COMMENT_WHOLE))
+         if (chunk_is_ptype(pc, CT_COMMENT_WHOLE))
          {
             const size_t max_col = pc->column_indent + cpd.settings[UO_input_tab_size].u;
 
@@ -859,7 +859,7 @@ static void align_func_params(void)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       if(chunk_is_not_type       (pc,    CT_FPAREN_OPEN) ||
-         chunk_is_not_parent_type(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
+         chunk_is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
            CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF))
       {
          continue;
@@ -1148,7 +1148,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    size_t  mygap    = 0;
 
    /* Override the span, if this is a struct/union */
-   if (chunk_is_parent_type(start, 2, CT_STRUCT, CT_UNION))
+   if (chunk_is_ptype(start, 2, CT_STRUCT, CT_UNION))
    {
       myspan   = cpd.settings[UO_align_var_struct_span  ].u;
       mythresh = cpd.settings[UO_align_var_struct_thresh].u;
@@ -1311,7 +1311,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       {
          if (!did_this_line)
          {
-            if (chunk_is_parent_type(start, CT_STRUCT) &&
+            if (chunk_is_ptype(start, CT_STRUCT) &&
                 (as.m_star_style    == SS_INCLUDE) )
             {
                // we must look after the previous token
@@ -1659,7 +1659,7 @@ static void align_init_brace(chunk_t *start)
    chunk_t *pc = chunk_get_next_ncnl(start);
    pc = scan_ib_line(pc, true);
    if(chunk_is_type       (pc, CT_BRACE_CLOSE) &&
-      chunk_is_parent_type(pc, CT_ASSIGN     ) )
+      chunk_is_ptype(pc, CT_ASSIGN     ) )
    {
       return;  /* single line - nothing to do */
    }
@@ -1883,7 +1883,7 @@ static void align_left_shift(void)
       }
       else if (!(pc->flags & PCF_IN_ENUM) && chunk_is_str(pc, "<<", 2))
       {
-         if (chunk_is_parent_type(pc, CT_OPERATOR))
+         if (chunk_is_ptype(pc, CT_OPERATOR))
          {
             /* Ignore operator<< */
          }
@@ -2058,7 +2058,7 @@ static void align_oc_msg_colons(void)
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
       if (chunk_is_type       (pc, CT_SQUARE_OPEN) &&
-          chunk_is_parent_type(pc, CT_OC_MSG     ) )
+          chunk_is_ptype(pc, CT_OC_MSG     ) )
       {
          align_oc_msg_colon(pc);
       }

@@ -369,7 +369,7 @@ static bool can_remove_braces(chunk_t *bopen)
    // DRY 7 end
 
    if (chunk_is_type       (pc, CT_BRACE_CLOSE) &&
-       chunk_is_parent_type(pc, CT_IF         ) )
+       chunk_is_ptype(pc, CT_IF         ) )
    {
       chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
 
@@ -377,7 +377,7 @@ static bool can_remove_braces(chunk_t *bopen)
       assert(chunk_is_valid(prev));
       if ( chunk_is_type       (next,    CT_ELSE                        ) &&
            chunk_is_type       (prev, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-           chunk_is_parent_type(prev,    CT_IF                          ) )
+           chunk_is_ptype(prev,    CT_IF                          ) )
       {
          LOG_FMT(LBRDEL, " - bailed on '%s'[%s] on line %zu due to 'if' and 'else' sequence\n",
                  get_token_name(pc->type), get_token_name(pc->parent_type),
@@ -529,7 +529,7 @@ static void examine_brace(chunk_t *bopen)
 
       if (semi_count > 0)
       {
-         if (chunk_is_parent_type(bopen, CT_ELSE))
+         if (chunk_is_ptype(bopen, CT_ELSE))
          {
             next = chunk_get_next_ncnl(bopen);
             if (chunk_is_type(next, CT_IF))
@@ -654,7 +654,7 @@ static void convert_vbrace_to_brace(void)
 
       bool in_preproc = is_bit_set(pc->flags, PCF_IN_PREPROC);
 
-      if ((chunk_is_parent_type(pc, 3, CT_IF,
+      if ((chunk_is_ptype(pc, 3, CT_IF,
                           CT_ELSE, CT_ELSEIF ) && (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) &&  !cpd.settings[UO_mod_full_brace_if_chain].b) ||
            ((pc->parent_type == CT_FOR       ) && (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD))) ||
            ((pc->parent_type == CT_DO        ) && (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD))) ||
@@ -817,7 +817,7 @@ void add_long_closebrace_comment(void)
 
             // Check for end of class
             if(chunk_is_type       (tmp, CT_SEMICOLON) &&
-               chunk_is_parent_type(tmp, CT_CLASS    ) )
+               chunk_is_ptype(tmp, CT_CLASS    ) )
             {
                cl_semi_pc = tmp;
                tmp        = chunk_get_next(tmp);
@@ -834,13 +834,13 @@ void add_long_closebrace_comment(void)
                size_t  nl_min  = 0;
                chunk_t *tag_pc = nullptr;
 
-               if(chunk_is_parent_type(br_open, CT_SWITCH))
+               if(chunk_is_ptype(br_open, CT_SWITCH))
                {
                   nl_min = cpd.settings[UO_mod_add_long_switch_closebrace_comment].u;
                   tag_pc = sw_pc;
                   xstr   = (chunk_is_valid(sw_pc)) ? sw_pc->str : "";
                }
-               else if(chunk_is_parent_type(br_open, 2, CT_FUNC_DEF, CT_OC_MSG_DECL))
+               else if(chunk_is_ptype(br_open, 2, CT_FUNC_DEF, CT_OC_MSG_DECL))
                {
                   nl_min = cpd.settings[UO_mod_add_long_function_closebrace_comment].u;
                   // 76006 Explicit null dereferenced, 2016-03-17
@@ -902,7 +902,7 @@ static void move_case_break(void)
    {
       if ( chunk_is_type       (pc,   CT_BREAK      ) &&
            chunk_is_type       (prev, CT_BRACE_CLOSE) &&
-           chunk_is_parent_type(prev, CT_CASE       ) )
+           chunk_is_ptype(prev, CT_CASE       ) )
       {
          if (chunk_is_newline(chunk_get_prev(pc  )) &&
              chunk_is_newline(chunk_get_prev(prev)) )
@@ -1050,7 +1050,7 @@ static void mod_case_brace(void)
 
       if ((cpd.settings[UO_mod_case_brace].a == AV_REMOVE) &&
           chunk_is_type(pc, CT_BRACE_OPEN) &&
-          chunk_is_parent_type(pc, CT_CASE))
+          chunk_is_ptype(pc, CT_CASE))
       {
          pc = mod_case_brace_remove(pc);
       }
@@ -1185,7 +1185,7 @@ static void mod_full_brace_if_chain(void)
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
       if(chunk_is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
-         chunk_is_parent_type(pc, CT_IF))
+         chunk_is_ptype(pc, CT_IF))
       {
          process_if_chain(pc);
       }

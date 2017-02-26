@@ -1220,7 +1220,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          }
          else
          {
-            if (chunk_is_parent_type(pc, CT_NONE) &&
+            if (chunk_is_ptype(pc, CT_NONE) &&
                 ((pc->flags & PCF_IN_TYPEDEF) == 0))
             {
                tmp = chunk_get_next_ncnl(next);
@@ -2189,7 +2189,7 @@ static bool is_ucase_str(const char *str, size_t len)
 
 static bool is_oc_block(chunk_t *pc)
 {
-   return(chunk_is_parent_type(pc, 4, CT_OC_BLOCK_TYPE, CT_OC_BLOCK_EXPR,
+   return(chunk_is_ptype(pc, 4, CT_OC_BLOCK_TYPE, CT_OC_BLOCK_EXPR,
                                       CT_OC_BLOCK_ARG,  CT_OC_BLOCK   ) ||
            chunk_is_type(pc,       CT_OC_BLOCK_CARET) ||
            chunk_is_type(pc->next, CT_OC_BLOCK_CARET) ||
@@ -4916,7 +4916,7 @@ chunk_t *skip_attribute_next(chunk_t *attr)
 chunk_t *skip_attribute_prev(chunk_t *fp_close)
 {
    if (chunk_is_type       (fp_close, CT_FPAREN_CLOSE) &&
-       chunk_is_parent_type(fp_close, CT_ATTRIBUTE   ) )
+       chunk_is_ptype(fp_close, CT_ATTRIBUTE   ) )
    {
       chunk_t *pc = chunk_get_prev_type(fp_close, CT_ATTRIBUTE, (int)fp_close->level);
       return(chunk_get_prev_ncnl(pc));
@@ -5870,7 +5870,7 @@ void remove_extra_returns(void)
 
          if (chunk_is_type       (semi,     CT_SEMICOLON                  ) &&
              chunk_is_type       (cl_br,    CT_BRACE_CLOSE                ) &&
-             chunk_is_parent_type(cl_br, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF) )
+             chunk_is_ptype(cl_br, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF) )
          {
             LOG_FMT(LRMRETURN, "Removed 'return;' on line %zu\n", pc->orig_line);
             chunk_del(pc);

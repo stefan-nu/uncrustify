@@ -57,17 +57,22 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
+#if 0
          if ( (pc->type        != CT_SPAREN_OPEN)   ||
              ((pc->parent_type != CT_IF         ) &&
               (pc->parent_type != CT_ELSEIF     ) &&
               (pc->parent_type != CT_SWITCH     ) ) )
+#else
+         if (chunk_is_not_type       (pc,    CT_SPAREN_OPEN             ) ||
+             chunk_is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) )
+#endif
          {
             continue;
          }
 
          /* Grab the close sparen */
          chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
-         if (pclose != nullptr)
+         if (chunk_is_valid(pclose))
          {
             check_bool_parens(pc, pclose, 0);
             pc = pclose;
