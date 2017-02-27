@@ -926,8 +926,7 @@ void indent_text(void)
 
             /* a case is ended with another case or a close brace */
             if ((frm.pse[frm.pse_tos].type == CT_CASE) &&
-                ((pc->type == CT_BRACE_CLOSE) ||
-                 (pc->type == CT_CASE)))
+                (chunk_is_type(pc, CT_BRACE_CLOSE, CT_CASE)))
             {
                indent_pse_pop(frm, pc);
             }
@@ -935,8 +934,7 @@ void indent_text(void)
             /* a class scope is ended with another class scope or a close brace */
             if (cpd.settings[UO_indent_access_spec_body].b &&
                 (frm.pse[frm.pse_tos].type == CT_PRIVATE) &&
-                ((pc->type == CT_BRACE_CLOSE) ||
-                 (pc->type == CT_PRIVATE)))
+                (chunk_is_type(pc, CT_BRACE_CLOSE, CT_PRIVATE)))
             {
                indent_pse_pop(frm, pc);
             }
@@ -952,7 +950,7 @@ void indent_text(void)
             /* an OC SCOPE ('-' or '+') ends with a semicolon or brace open */
             if ((frm.pse[frm.pse_tos].type == CT_OC_SCOPE) &&
                 (chunk_is_semicolon(pc) ||
-                 (pc->type == CT_BRACE_OPEN)))
+                 chunk_is_type(pc, CT_BRACE_OPEN)))
             {
                indent_pse_pop(frm, pc);
             }
@@ -962,7 +960,7 @@ void indent_text(void)
             if ((frm.pse[frm.pse_tos].type == CT_TYPEDEF) &&
                 (chunk_is_semicolon (pc) ||
                  chunk_is_paren_open(pc) ||
-                 (pc->type == CT_BRACE_OPEN)))
+                 chunk_is_type(pc, CT_BRACE_OPEN)))
             {
                indent_pse_pop(frm, pc);
             }
@@ -976,20 +974,16 @@ void indent_text(void)
 
             /* an CLASS is ended with a semicolon or brace open */
             if ((frm.pse[frm.pse_tos].type == CT_CLASS) &&
-                ((pc->type == CT_CLASS_COLON) ||
-                 (pc->type == CT_BRACE_OPEN ) ||
+                (chunk_is_type(pc, 2, CT_CLASS_COLON, CT_BRACE_OPEN) ||
                  chunk_is_semicolon(pc)))
             {
                indent_pse_pop(frm, pc);
             }
 
-            /* Close out parens and squares */
+            /* Close out parenthesis and squares */
             if ((frm.pse[frm.pse_tos].type == get_inverse_type(pc->type) ) &&
-                ((pc->type == CT_PAREN_CLOSE ) ||
-                 (pc->type == CT_SPAREN_CLOSE) ||
-                 (pc->type == CT_FPAREN_CLOSE) ||
-                 (pc->type == CT_SQUARE_CLOSE) ||
-                 (pc->type == CT_ANGLE_CLOSE ) ) )
+                (chunk_is_type(pc, 5, CT_PAREN_CLOSE,  CT_SPAREN_CLOSE,
+                     CT_FPAREN_CLOSE, CT_SQUARE_CLOSE, CT_ANGLE_CLOSE) ) )
             {
                indent_pse_pop(frm, pc);
                frm.paren_count--;
@@ -1040,8 +1034,7 @@ void indent_text(void)
        *  - return */
 
       bool brace_indent = false;
-      if ((pc->type == CT_BRACE_CLOSE) ||
-          (pc->type == CT_BRACE_OPEN ) )
+      if (chunk_is_type(pc, 2, CT_BRACE_CLOSE, CT_BRACE_OPEN ) )
       {
          brace_indent = (( cpd.settings[UO_indent_braces          ].b                                          ) &&
                          (!cpd.settings[UO_indent_braces_no_func  ].b || (pc->parent_type != CT_FUNC_DEF      )) &&
@@ -1050,7 +1043,7 @@ void indent_text(void)
                          (!cpd.settings[UO_indent_braces_no_struct].b || (pc->parent_type != CT_STRUCT        )) );
       }
 
-      if (pc->type == CT_BRACE_CLOSE)
+      if (chunk_is_type(pc, CT_BRACE_CLOSE))
       {
          if (frm.pse[frm.pse_tos].type == CT_BRACE_OPEN)
          {
@@ -1067,7 +1060,7 @@ void indent_text(void)
             frm.level--;
          }
       }
-      else if (pc->type == CT_VBRACE_OPEN)
+      else if (chunk_is_type(pc, CT_VBRACE_OPEN))
       {
          frm.level++;
          indent_pse_push(frm, pc);
@@ -1089,14 +1082,14 @@ void indent_text(void)
          /* Always indent on virtual braces */
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
       }
-      else if ( (pc->type       == CT_BRACE_OPEN ) &&
-                chunk_is_not_type(pc->next, CT_NAMESPACE  ) )
+      else if (chunk_is_type    (pc,       CT_BRACE_OPEN) &&
+               chunk_is_not_type(pc->next, CT_NAMESPACE ) )
       {
          frm.level++;
          indent_pse_push(frm, pc);
 
          if (cpd.settings[UO_indent_cpp_lambda_body].b &&
-             pc->parent_type == CT_CPP_LAMBDA)
+             chunk_is_ptype(pc, CT_CPP_LAMBDA))
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int)frm.pse[frm.pse_tos-1].indent;
@@ -1108,8 +1101,7 @@ void indent_text(void)
          }
          else if ((cpd.lang_flags & LANG_CS) &&
                    cpd.settings[UO_indent_cs_delegate_brace].b &&
-                  (pc->parent_type == CT_LAMBDA ||
-                   pc->parent_type == CT_DELEGATE))
+                   chunk_is_ptype(pc, 2, CT_LAMBDA, CT_DELEGATE))
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int)(1 + ((pc->brace_level+1) * indent_size));
