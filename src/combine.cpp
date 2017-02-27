@@ -784,7 +784,7 @@ static bool chunk_ends_type(chunk_t *start)
          ((pc->flags & PCF_IN_FOR) == 0)) ||
           chunk_is_type(pc, 3, CT_TYPEDEF, CT_BRACE_OPEN, CT_BRACE_CLOSE) ||
           (chunk_is_forin(pc)          ) ||
-          ((pc->type  == CT_SPAREN_OPEN) &&
+          (chunk_is_type(pc, CT_SPAREN_OPEN) &&
            (last_lval == true)         ) )
       {
          ret = cnt > 0;
@@ -870,8 +870,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       tmp = set_paren_parent(next, pc->type);
 
       /* For a D cast - convert the next item */
-      if ((pc->type == CT_D_CAST) &&
-           chunk_is_valid(tmp)    )
+      if (chunk_is_type (pc, CT_D_CAST) &&
+          chunk_is_valid(tmp          ) )
       {
          switch(tmp->type)
          {
@@ -983,9 +983,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          handle_cs_square_stmt(pc);
       }
 
-      if ((next->type        == CT_BRACE_OPEN  ) &&
-          (next->parent_type == CT_NONE        ) &&
-          (chunk_is_type(pc, 3, CT_SQUARE_CLOSE, CT_ANGLE_CLOSE, CT_WORD)))
+      if (chunk_is_type_and_ptype(next,  CT_BRACE_OPEN,   CT_NONE                ) &&
+          chunk_is_type          (pc, 3, CT_SQUARE_CLOSE, CT_ANGLE_CLOSE, CT_WORD) )
       {
          handle_cs_property(next);
       }
@@ -996,15 +995,14 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          handle_cs_array_type(pc);
       }
 
-      if (((chunk_is_type(pc, CT_LAMBDA ) ||
-            (pc->type   == CT_DELEGATE  ) ) ) &&
-            (chunk_is_type(next, CT_BRACE_OPEN) ))
+      if (chunk_is_type(pc, 2, CT_LAMBDA, CT_DELEGATE) && /* SN \todo check this */
+          chunk_is_type(next,  CT_BRACE_OPEN         ) )
       {
          set_paren_parent(next, pc->type);
       }
 
-      if (chunk_is_type(pc, CT_WHEN        ) &&
-          (pc->next->type != CT_SPAREN_OPEN) )
+      if (chunk_is_type    (pc,       CT_WHEN       ) &&
+          chunk_is_not_type(pc->next, CT_SPAREN_OPEN) )
       {
          set_chunk_type(pc, CT_WORD);
       }
@@ -1072,7 +1070,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
    }
 
    /* A [] in C# and D only follows a type */
-   if ((pc->type == CT_TSQUARE) &&
+   if ( chunk_is_type(pc, CT_TSQUARE) &&
        (cpd.lang_flags & (LANG_D | LANG_CS | LANG_VALA)))
    {
       if (chunk_is_type(prev, CT_WORD)) { set_chunk_type(prev, CT_TYPE);          }
@@ -1107,7 +1105,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       if (chunk_is_paren_open(next))
       {
          tmp = flag_parens(next, 0, CT_NONE, CT_EXTERN, true);
-         if (tmp && (tmp->type == CT_BRACE_OPEN))
+         if (chunk_is_type(tmp, CT_BRACE_OPEN))
          {
             set_paren_parent(tmp, CT_EXTERN);
          }
@@ -1117,7 +1115,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          /* next likely is a string (see tokenize_cleanup.cpp) */
          set_chunk_parent(next, CT_EXTERN);
          tmp = chunk_get_next_ncnl(next);
-         if (tmp && (tmp->type == CT_BRACE_OPEN))
+         if (chunk_is_type(tmp, CT_BRACE_OPEN))
          {
             set_paren_parent(tmp, CT_EXTERN);
          }
@@ -1259,7 +1257,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       set_chunk_parent(next, CT_C99_MEMBER);
    }
 
-   /* Mark function parens and braces */
+   /* Mark function parenthesis and braces */
    if (chunk_is_type(pc, 4, CT_FUNC_CALL, CT_FUNC_CALL_USER,
                             CT_FUNC_DEF,  CT_FUNC_PROTO) )
    {
@@ -1316,11 +1314,10 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
    }
 
    /* Mark the braces in: "for_each_entry(xxx) { }" */
-   if (chunk_is_type(pc, CT_BRACE_OPEN          ) &&
-       (pc->parent_type    != CT_DOUBLE_BRACE   ) &&
-       chunk_is_type(prev, CT_FPAREN_CLOSE      ) &&
-       ((prev->parent_type == CT_FUNC_CALL      ) ||
-        (prev->parent_type == CT_FUNC_CALL_USER)) &&
+   if (chunk_is_type (pc,      CT_BRACE_OPEN                  ) &&
+       (pc->parent_type    !=  CT_DOUBLE_BRACE                ) &&
+       chunk_is_type (prev,    CT_FPAREN_CLOSE                ) &&
+       chunk_is_ptype(prev, 2, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
        ((pc->flags & PCF_IN_CONST_ARGS) == 0))
    {
       set_paren_parent(pc, CT_FUNC_CALL);
@@ -1369,12 +1366,12 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
    {
       /* Check a paren pair to see if it is a cast.
        * Note that SPAREN and FPAREN have already been marked. */
-      if (chunk_is_type(pc, CT_PAREN_OPEN) &&
-          (chunk_is_ptype(pc,   3, CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR)) &&
-          (chunk_is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
-                                   CT_MEMBER, CT_ENUM, CT_DC_MEMBER, CT_UNION)) &&
-           (prev->type != CT_SIZEOF) &&
-           (prev->parent_type != CT_OPERATOR) &&
+      if (chunk_is_type (pc,      CT_PAREN_OPEN                              ) &&
+          chunk_is_ptype(pc,   3, CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR       ) &&
+          chunk_is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
+                                  CT_MEMBER, CT_ENUM, CT_DC_MEMBER, CT_UNION ) &&
+          chunk_is_not_type(prev, CT_SIZEOF                                  ) &&
+          (prev->parent_type != CT_OPERATOR                                  ) &&
           ((pc->flags & PCF_IN_TYPEDEF) == 0))
       {
          fix_casts(pc);
@@ -1395,13 +1392,13 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          else if (prev->type == CT_COLON      ) { set_chunk_type(pc, CT_DEREF);    }
          else                                   { set_chunk_type(pc, CT_DEREF);    }
       }
-      if ((cpd.lang_flags & LANG_CPP       )&&
-         chunk_is_type(pc,   CT_CARET      )&&
-         chunk_is_type(prev, CT_ANGLE_CLOSE)) { set_chunk_type(pc, CT_PTR_TYPE);      }
-      if (chunk_is_type(pc, CT_MINUS       )) { set_chunk_type(pc, CT_NEG);           }
-      if (chunk_is_type(pc, CT_PLUS        )) { set_chunk_type(pc, CT_POS);           }
-      if (chunk_is_type(pc, CT_INCDEC_AFTER)) { set_chunk_type(pc, CT_INCDEC_BEFORE); }
-      if (chunk_is_type(pc, CT_AMP         )) { set_chunk_type(pc, CT_ADDR);          }
+      if ((cpd.lang_flags & LANG_CPP          )&&
+          chunk_is_type(pc,   CT_CARET        )&&
+          chunk_is_type(prev, CT_ANGLE_CLOSE )) { set_chunk_type(pc, CT_PTR_TYPE);      }
+      if (chunk_is_type(pc,   CT_MINUS       )) { set_chunk_type(pc, CT_NEG);           }
+      if (chunk_is_type(pc,   CT_PLUS        )) { set_chunk_type(pc, CT_POS);           }
+      if (chunk_is_type(pc,   CT_INCDEC_AFTER)) { set_chunk_type(pc, CT_INCDEC_BEFORE); }
+      if (chunk_is_type(pc,   CT_AMP         )) { set_chunk_type(pc, CT_ADDR);          }
 
       if (chunk_is_type(pc, CT_CARET))
       {
@@ -1439,10 +1436,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       }
    }
 
-   /**
-    * Change the paren pair after a function/macro-function
-    * CT_PAREN_OPEN => CT_FPAREN_OPEN
-    */
+   /* Change the parenthesis pair after a function/macro-function
+    * CT_PAREN_OPEN => CT_FPAREN_OPEN */
    if (chunk_is_type(pc, CT_MACRO_FUNC))
    {
       flag_parens(next, PCF_IN_FCN_CALL, CT_FPAREN_OPEN, CT_MACRO_FUNC, false);
@@ -1463,8 +1458,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
    }
 
    /* Change CT_STAR to CT_PTR_TYPE or CT_ARITH or CT_DEREF */
-   if (chunk_is_type(pc, CT_STAR                             ) ||
-       ((pc->type == CT_CARET) && (cpd.lang_flags & LANG_CPP)) )
+   if ( chunk_is_type(pc, CT_STAR                                 ) ||
+       (chunk_is_type(pc, CT_CARET) && (cpd.lang_flags & LANG_CPP)) )
    {
       if (chunk_is_paren_close(next) ||
          (chunk_is_type(next, CT_COMMA)))
@@ -1476,13 +1471,13 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       {
          /* Change pointer-to-pointer types in OC_MSG_DECLs
           * from ARITH <===> DEREF to PTR_TYPE <===> PTR_TYPE */
-         set_chunk_type  (pc, CT_PTR_TYPE);
-         set_chunk_parent(pc, prev->parent_type);
-
+         set_chunk_type  (pc,   CT_PTR_TYPE);
          set_chunk_type  (next, CT_PTR_TYPE);
-         set_chunk_parent(next, pc->parent_type);
+         set_chunk_parent(pc,   prev->parent_type);
+         set_chunk_parent(next, pc->parent_type  );
       }
-      else if ((pc->type == CT_STAR) && ((prev->type == CT_SIZEOF) || (prev->type == CT_DELETE)))
+      else if (chunk_is_type(pc,      CT_STAR             ) &&
+               chunk_is_type(prev, 2, CT_SIZEOF, CT_DELETE) )
       {
          set_chunk_type(pc, CT_DEREF);
       }
@@ -1492,7 +1487,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          set_chunk_type(pc, CT_PTR_TYPE);
       }
       else if (chunk_is_type(next, CT_SQUARE_OPEN) &&
-               !(cpd.lang_flags & LANG_OC))                // issue # 408
+               !(cpd.lang_flags & LANG_OC))
       {
          set_chunk_type(pc, CT_PTR_TYPE);
       }
@@ -1659,14 +1654,12 @@ static void check_double_brace_init(chunk_t *bo1)
 void fix_symbols(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *pc;
-   chunk_t dummy;
 
    cpd.unc_stage = unc_stage_e::FIX_SYMBOLS;
-
    mark_define_expressions();
 
-   bool is_java = (cpd.lang_flags & LANG_JAVA) != 0;   // forcing value to bool
+   bool is_java = (cpd.lang_flags & LANG_JAVA) != 0;
+   chunk_t *pc;
    for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
       if (chunk_is_type(pc, 2, CT_FUNC_WRAP, CT_TYPE_WRAP))
@@ -1674,10 +1667,8 @@ void fix_symbols(void)
          handle_wrap(pc);
       }
 
-      if (chunk_is_type(pc, CT_ASSIGN)) { mark_lvalue(pc); }
-
-      if ((is_java == true) &&
-          chunk_is_type(pc, CT_BRACE_OPEN)) { check_double_brace_init(pc); }
+      if (             chunk_is_type(pc, CT_ASSIGN    )) { mark_lvalue            (pc); }
+      if ((is_java) && chunk_is_type(pc, CT_BRACE_OPEN)) { check_double_brace_init(pc); }
    }
 
    pc = chunk_get_head();
@@ -1685,6 +1676,7 @@ void fix_symbols(void)
    {
       pc = chunk_get_next_ncnl(pc);
    }
+   chunk_t dummy;
    while (chunk_is_valid(pc))
    {
       chunk_t *prev = chunk_get_prev_ncnl(pc, scope_e::PREPROC);

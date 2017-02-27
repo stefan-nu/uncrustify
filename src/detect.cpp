@@ -247,21 +247,29 @@ static void detect_space_options(void)
 
       if (chunk_is_type(pc, CT_BRACE_OPEN))
       {
-         if      (prev->type == CT_ELSE)    { vote_sp_else_brace.vote (prev, pc); }
-         else if (prev->type == CT_CATCH)   { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_FINALLY) { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_TRY)     { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_GETSET)  { vote_sp_catch_brace.vote(prev, pc); }
+         switch(prev->type)
+         {
+            case(CT_ELSE   ): { vote_sp_else_brace.vote (prev, pc); break; }
+            case(CT_CATCH  ):   /* fall through */
+            case(CT_FINALLY):   /* fall through */
+            case(CT_TRY    ):   /* fall through */
+            case(CT_GETSET ): { vote_sp_catch_brace.vote(prev, pc); break; }
+            default:          { /* do nothing */                    break; }
+         }
 
-         if (next->type == CT_BRACE_CLOSE)  { vote_sp_inside_braces_empty.vote(pc, next); }
-         else                               { vote_sp_inside_braces.vote      (pc, next); }
+         if (chunk_is_type(next, CT_BRACE_CLOSE)) { vote_sp_inside_braces_empty.vote(pc, next); }
+         else                                     { vote_sp_inside_braces.vote      (pc, next); }
       }
       if (chunk_is_type(pc, CT_BRACE_CLOSE))
       {
          vote_sp_inside_braces.vote(prev, pc);
-         if      (next->type == CT_ELSE   ) { vote_sp_brace_else.vote   (pc, next); }
-         else if (next->type == CT_CATCH  ) { vote_sp_brace_catch.vote  (pc, next); }
-         else if (next->type == CT_FINALLY) { vote_sp_brace_finally.vote(pc, next); }
+         switch(next->type)
+         {
+            case(CT_ELSE   ): { vote_sp_brace_else.vote   (pc, next); break; }
+            case(CT_CATCH  ): { vote_sp_brace_catch.vote  (pc, next); break; }
+            case(CT_FINALLY): { vote_sp_brace_finally.vote(pc, next); break; }
+            default:          { /* do nothing */                      break; }
+         }
       }
 
       prev = pc;

@@ -313,12 +313,10 @@ static bool can_remove_braces(chunk_t *bopen)
       }
       else
       {
-         if      (pc->type == CT_BRACE_OPEN )   { br_count++; }
-         else if (pc->type == CT_BRACE_CLOSE)   { br_count--; }
-
-         else if (((pc->type == CT_IF    ) ||
-                   (pc->type == CT_ELSEIF) ) &&
-                   (br_count == 0        )   )  { if_count++; }
+         if      (chunk_is_type(pc, CT_BRACE_OPEN )) { br_count++; }
+         else if (chunk_is_type(pc, CT_BRACE_CLOSE)) { br_count--; }
+         else if (chunk_is_type(pc, 2, CT_IF, CT_ELSEIF) &&
+                   (br_count == 0)   )  { if_count++; }
 
          if (pc->level == level)
          {
@@ -388,7 +386,7 @@ static bool can_remove_braces(chunk_t *bopen)
    LOG_FMT(LBRDEL, " - end on '%s' on line %zu. if_count=%zu semi_count=%zu\n",
            get_token_name(pc->type), pc->orig_line, if_count, semi_count);
 
-   return((pc->type     == CT_BRACE_CLOSE ) &&
+   return(chunk_is_type(pc, CT_BRACE_CLOSE) &&
           (pc->pp_level == bopen->pp_level) );
 }
 

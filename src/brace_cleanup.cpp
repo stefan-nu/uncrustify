@@ -847,12 +847,12 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Insert a CT_VBRACE_OPEN, if needed */
-   if ( (pc->type                     != CT_BRACE_OPEN            )   &&
-       ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2    ) ||
-        (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO  ) ) )
+   if ( chunk_is_not_type(pc, CT_BRACE_OPEN                     )   &&
+       ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
+        (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
-      if ((cpd.lang_flags & LANG_CS ) &&
-          (pc->type == CT_USING_STMT) &&
+      if ((cpd.lang_flags & LANG_CS       ) &&
+           chunk_is_type(pc, CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {
          // don't indent the using block
@@ -885,9 +885,9 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Verify open paren in complex statement */
-   if ( (pc->type                     != CT_PAREN_OPEN            )   &&
-       ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1    ) ||
-        (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN ) ) )
+   if ( chunk_is_not_type(pc, CT_PAREN_OPEN                      )   &&
+       ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
+        (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )
    {
       LOG_FMT(LWARN, "%s:%zu Error: Expected '(', got '%s' for '%s'\n",
               cpd.filename, pc->orig_line, pc->text(),
