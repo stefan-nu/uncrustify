@@ -1367,10 +1367,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 
    if ((cpd.lang_flags & LANG_D) == 0)
    {
-      /**
-       * Check a paren pair to see if it is a cast.
-       * Note that SPAREN and FPAREN have already been marked.
-       */
+      /* Check a paren pair to see if it is a cast.
+       * Note that SPAREN and FPAREN have already been marked. */
       if (chunk_is_type(pc, CT_PAREN_OPEN) &&
           (chunk_is_ptype(pc,   3, CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR)) &&
           (chunk_is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
@@ -2775,8 +2773,8 @@ void combine_labels(void)
             hit_case = true;
          }
       }
-      else if ( chunk_is_type(next, 2, CT_COLON, CT_OC_COLON) &&
-                cs_top_is_question(cs, next->level)           )
+      else if ( chunk_is_type(next, CT_COLON                                           ) ||
+               (chunk_is_type(next, CT_OC_COLON) && cs_top_is_question(cs, next->level)) )
       {
          if (chunk_is_type(cur, CT_DEFAULT))
          {
