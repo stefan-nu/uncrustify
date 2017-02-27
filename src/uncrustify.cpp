@@ -353,6 +353,22 @@ static void redir_stdout(
 );
 
 
+/**
+ * check if a token reference is valid and holds a valid name
+ */
+bool is_valid_token_name(
+   c_token_t token   /**< [in] token to check */
+);
+
+
+/**
+ * check if a string pointer is valid and holds a non empty string
+ */
+bool is_nonempty_string(
+  const char *str   /**< [in] string to check */
+);
+
+
 cp_data_t cpd;
 
 
@@ -991,19 +1007,8 @@ int main(int argc, char *argv[])
       /* no input specified, so use stdin */
       if (cpd.lang_flags == 0)
       {
-#if 1
-         if (assume != nullptr)
-         {
-            cpd.lang_flags = language_flags_from_filename(assume);
-         }
-         else
-         {
-            cpd.lang_flags = LANG_C;
-         }
-#else
          cpd.lang_flags = (ptr_is_valid(assume)) ?
-           language_flags_from_filename(assume) : LANG_C;
-#endif
+           language_flags_from_filename(assume) : (size_t)LANG_C;
       }
 
       if (!cpd.do_check) { redir_stdout(output_file); }
@@ -1025,7 +1030,7 @@ int main(int argc, char *argv[])
 
       uncrustify_file(fm, stdout, parsed_file);
    }
-   else if (source_file != nullptr)
+   else if (ptr_is_valid(source_file))
    {
       /* Doing a single file */
       do_source_file(source_file, output_file, parsed_file, no_backup, keep_mtime);
@@ -1560,7 +1565,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
       }
    }
 
-   if (pfout != nullptr)
+   if (ptr_is_valid(pfout))
    {
       if (cpd.if_changed == true)
       {
@@ -1630,12 +1635,11 @@ static void add_file_footer(void)
    {
       pc = chunk_get_prev(pc);
    }
-   if (/*( pc                                   != nullptr) ???   &&*/
-       ((chunk_is_comment(pc)                 == false  ) ||
-        (chunk_is_newline(chunk_get_prev(pc)) == false  ) ) )
+   if (((!chunk_is_comment(pc)                ) ||
+        (!chunk_is_newline(chunk_get_prev(pc))) ) )
    {
       pc = chunk_get_tail();
-      if (chunk_is_newline(pc) == false)
+      if (!chunk_is_newline(pc))
       {
          LOG_FMT(LSYS, "Adding a newline at the end of the file\n");
          newline_add_after(pc);
@@ -1658,12 +1662,12 @@ static void perform_insert(chunk_t *ref, const file_mem_t &fm)
 }
 
 
+/* \todo move to chunk_list.h */
 bool check_chunk_and_parent_type(chunk_t *chunk, c_token_t chunk_type, c_token_t parent_type)
 {
-   return ((chunk              != nullptr    ) &&
-           (chunk->next        != nullptr    ) &&
-           (chunk->type        == chunk_type ) &&
-           (chunk->parent_type == parent_type) );
+   return (chunk_is_type (chunk, chunk_type ) &&
+           chunk_is_valid(chunk->next       ) &&
+           chunk_is_ptype(chunk, parent_type) );
 }
 
 
@@ -1672,9 +1676,9 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (pc->type != type) { continue; }
+      if (chunk_is_not_type(pc, type)) { continue; }
 
       if ((pc->flags & PCF_IN_CLASS                             ) &&
           (cpd.settings[UO_cmt_insert_before_inlines].b == false) )
@@ -1722,8 +1726,8 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          /* Bail if we change level or find an access specifier colon */
-         if ((ref->level != pc->level       ) ||
-             (ref->type  == CT_PRIVATE_COLON) )
+         if ((ref->level != pc->level           ) ||
+             chunk_is_type(ref, CT_PRIVATE_COLON) )
          {
             do_insert = true;
             break;
@@ -1760,8 +1764,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
          if ( (ref->level == pc->level     )   &&
              ((ref->flags  & PCF_IN_PREPROC) ||
-              (ref->type  == CT_SEMICOLON  ) ||
-              (ref->type  == CT_BRACE_CLOSE) ) )
+              chunk_is_type(ref, 2, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
          {
             do_insert = true;
             break;
@@ -1778,9 +1781,9 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); pc != nullptr; pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (pc->type != type) { continue; }
+      if (chunk_is_not_type(pc, type)) { continue; }
 
       do_insert = false;
 
@@ -1791,14 +1794,13 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       {
          /* ignore the CT_TYPE token that is the result type */
          if ((ref->level != pc->level  )   &&
-             ((ref->type == CT_TYPE    ) ||
-              (ref->type == CT_PTR_TYPE) ) )
+             chunk_is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) )
          {
             continue;
          }
 
          /* If we hit a parentheses around return type, back up to the open parentheses */
-         if (ref->type == CT_PAREN_CLOSE)
+         if (chunk_is_type(ref, CT_PAREN_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
@@ -1808,8 +1810,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
-            if ((tmp              != nullptr ) &&
-                (tmp->parent_type == CT_PP_IF) )
+            if (chunk_is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&
@@ -1819,12 +1820,11 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
                }
             }
          }
-         if ((ref->level == pc->level     )   &&
-             ((ref->flags & PCF_IN_PREPROC) ||
-              (ref->type == CT_OC_SCOPE   ) ) )
+         if (( ref->level == pc->level                                        ) &&
+             ((ref->flags & PCF_IN_PREPROC) || chunk_is_type(ref, CT_OC_SCOPE)) )
          {
             ref = chunk_get_prev(ref);
-            if (ref != nullptr)
+            if (chunk_is_valid(ref))
             {
                /* Ignore 'right' comments */
                if ((chunk_is_newline(ref)                ) &&
@@ -1854,7 +1854,7 @@ static void uncrustify_start(const deque<int> &data)
    if (cpd.frag)
    {
       const chunk_t *pc = chunk_get_head();
-      cpd.frag_cols = (UINT16)((pc != nullptr) ? pc->orig_col : 0);
+      cpd.frag_cols = (UINT16)((chunk_is_valid(pc)) ? pc->orig_col : 0);
    }
 
    if (cpd.file_hdr.data.size() > 0) { add_file_header(); } /* Add the file header */
@@ -2079,10 +2079,10 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    }
 
    /* Special hook for dumping parsed data for debugging */
-   if (parsed_file != nullptr)
+   if (ptr_is_valid(parsed_file))
    {
       FILE *p_file = fopen(parsed_file, "w");
-      if (p_file != nullptr)
+      if (ptr_is_valid(p_file))
       {
          output_parsed(p_file);
          fclose(p_file);
@@ -2130,20 +2130,29 @@ static void uncrustify_end(void)
 }
 
 
+bool is_valid_token_name(c_token_t token)
+{
+   return ( ((size_t)token < ARRAY_SIZE(token_names)) &&
+             ptr_is_valid(token_names[token]        ) );
+}
+
+
 const char *get_token_name(c_token_t token)
 {
-   if (((int)token < ARRAY_SIZE(token_names)) &&
-       (token_names[token] != nullptr))
-   {
-      return(token_names[token]);
-   }
-   return("unknown");
+   return (is_valid_token_name(token) ? token_names[token] : "unknown");
+}
+
+
+bool is_nonempty_string(const char *str)
+{
+   return (ptr_is_valid(str) &&  /* pointer is not null */
+          (*str != 0       ) );  /* first character is no termination character */
 }
 
 
 c_token_t find_token_name(const char *text)
 {
-   if ((text != nullptr) && (*text != 0))
+   if (is_nonempty_string(text))
    {
       for (int idx = 1; idx < static_cast<int> ARRAY_SIZE(token_names); idx++)
       {
@@ -2226,13 +2235,16 @@ static extension_map_t g_ext_map;
 const char *extension_add(const char *ext_text, const char *lang_text)
 {
    size_t lang_flags = language_flags_from_name(lang_text);
-   if (lang_flags)
+   if (lang_flags != 0)
    {
       const char *lang_name = language_name_from_flags(lang_flags);
       g_ext_map[string(ext_text)] = lang_name;
       return(lang_name);
    }
-   return(nullptr);
+   else
+   {
+      return(nullptr);
+   }
 }
 
 
@@ -2309,7 +2321,7 @@ void log_pcf_flags(log_sev_t sev, UINT64 flags)
    {
       if (flags & (1ULL << i))
       {
-         if (tolog != nullptr)
+         if (ptr_is_valid(tolog))
          {
             log_str(sev, tolog, strlen(tolog));
             log_str(sev, ",", 1);
@@ -2318,6 +2330,6 @@ void log_pcf_flags(log_sev_t sev, UINT64 flags)
       }
    }
 
-   if (tolog != nullptr) { log_str(sev, tolog, strlen(tolog)); }
+   if (ptr_is_valid(tolog)) { log_str(sev, tolog, strlen(tolog)); }
    log_str(sev, "]\n", 2);
 }

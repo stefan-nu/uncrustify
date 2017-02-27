@@ -243,7 +243,7 @@ void brace_cleanup(void)
       if (cpd.lang_flags & LANG_PAWN)
       {
          if ((frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN) &&
-             (pc->type                  == CT_NEWLINE    ) )
+              chunk_is_type(pc,  CT_NEWLINE) )
          {
             pc = pawn_check_vsemicolon(pc);
          }
@@ -267,8 +267,8 @@ void brace_cleanup(void)
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);
-         print_stack(LBCSAFTER, (pc->type == CT_VBRACE_CLOSE) ? "Virt-}" :
-                                      pc->str.c_str(), &frm, pc);
+         const char* str = (chunk_is_type(pc, CT_VBRACE_CLOSE)) ? "Virt-}" : pc->str.c_str();
+         print_stack(LBCSAFTER, str, &frm, pc);
       }
       pc = chunk_get_next(pc);
    }
@@ -475,7 +475,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
            chunk_is_type(&frm->pse[frm->pse_tos], 2, CT_FPAREN_OPEN, CT_SPAREN_OPEN) )
 #else
-      if ( (pc->type                    == CT_PAREN_CLOSE)   &&
+      if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
           ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
            (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN) ) )
 #endif
@@ -492,12 +492,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       if (pc->type != (c_token_t)((int)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
 //    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type )) fails
       {
-#if 0
-         if (chunk_is_not_type(&frm->pse[frm->pse_tos], 2, CT_NONE, CT_PP_DEFINE) )
-#else
          if ((frm->pse[frm->pse_tos].type != CT_NONE     ) &&
              (frm->pse[frm->pse_tos].type != CT_PP_DEFINE) )
-#endif
          {
             LOG_FMT(LWARN, "%s: %s:%zu Error: Unexpected '%s' for '%s', which was on line %zu\n",
                     __func__, cpd.filename, pc->orig_line, pc->text(),
@@ -661,7 +657,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    if (patcls == pattern_class_e::BRACED)
    {
       push_fmr_pse(frm, pc,
-                   (pc->type == CT_DO) ? brace_stage_e::BRACE_DO : brace_stage_e::BRACE2,
+                   (chunk_is_type(pc, CT_DO)) ? brace_stage_e::BRACE_DO : brace_stage_e::BRACE2,
                    "+ComplexBraced");
    }
    else if (patcls == pattern_class_e::PBRACED)

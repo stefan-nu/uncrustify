@@ -557,25 +557,24 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    {
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
-   if (!tmp ||
-       (tmp->type != CT_OC_BLOCK_CARET))
+   if (chunk_is_invalid (tmp                   ) ||
+       chunk_is_not_type(tmp, CT_OC_BLOCK_CARET) )
    {
       return(nullptr);
    }
    if (from_caret) { return(tmp); }
 
    tmp = chunk_get_prev_nc(tmp);
-   if (!tmp ||
-       (tmp->type != CT_OC_COLON))
+   if (chunk_is_invalid (tmp             ) ||
+       chunk_is_not_type(tmp, CT_OC_COLON) )
    {
       return(nullptr);
    }
    if (from_colon) { return(tmp); }
 
    tmp = chunk_get_prev_nc(tmp);
-   if (!tmp ||
-      ((tmp->type != CT_OC_MSG_NAME) &&
-       (tmp->type != CT_OC_MSG_FUNC)))
+   if (chunk_is_invalid (tmp                                   ) ||
+       chunk_is_not_type(tmp, 2, CT_OC_MSG_NAME, CT_OC_MSG_FUNC) )
    {
       return(nullptr);
    }
@@ -624,7 +623,7 @@ void indent_text(void)
    pc = chunk_get_head();
    while (chunk_is_valid(pc))
    {
-      if (pc->type == CT_NEWLINE)
+      if (chunk_is_type(pc, CT_NEWLINE))
       {
          LOG_FMT(LINDLINE, "%s(%d): %zu NEWLINE\n",
                  __func__, __LINE__, pc->orig_line);
@@ -656,9 +655,8 @@ void indent_text(void)
          if (!in_func_def)
          {
             next = chunk_get_next_ncnl(pc);
-            if ((pc->parent_type == CT_FUNC_DEF) ||
-                ((pc->type == CT_COMMENT) &&
-                 chunk_is_ptype(next, CT_FUNC_DEF)))
+            if ( chunk_is_ptype(pc, CT_FUNC_DEF) ||
+                (chunk_is_type (pc, CT_COMMENT ) && chunk_is_ptype(next, CT_FUNC_DEF)))
             {
                in_func_def = true;
                indent_pse_push(frm, pc);
@@ -671,8 +669,8 @@ void indent_text(void)
          {
             prev = chunk_get_prev(pc);
             assert(chunk_is_valid(prev));
-            if ((prev->type == CT_BRACE_CLOSE) &&
-                (prev->parent_type == CT_FUNC_DEF))
+            if (chunk_is_type (prev, CT_BRACE_CLOSE) &&
+                chunk_is_ptype(prev, CT_FUNC_DEF   ) )
             {
                in_func_def = false;
                indent_pse_pop(frm, pc);
@@ -821,7 +819,7 @@ void indent_text(void)
       /* Check for close XML tags "</..." */
       if (cpd.settings[UO_indent_xml_string].u > 0)
       {
-         if (pc->type == CT_STRING)
+         if (chunk_is_type(pc, CT_STRING))
          {
             if ((pc->len()   >  4 ) &&
                 (xml_indent  >  0 ) &&
@@ -863,7 +861,7 @@ void indent_text(void)
          if (frm.pse[frm.pse_tos].level >= pc->level)
          {
             /* process virtual braces closes (no text output) */
-            if ((pc->type == CT_VBRACE_CLOSE) &&
+            if (chunk_is_type(pc, CT_VBRACE_CLOSE) &&
                 (frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN))
             {
                indent_pse_pop(frm, pc);
@@ -1411,7 +1409,8 @@ void indent_text(void)
             {
                next = chunk_get_next(next); /* possible statement */
 
-               if ((next != nullptr) && !chunk_is_newline(next) &&
+               if ( chunk_is_valid  (next) &&
+                   !chunk_is_newline(next) &&
                    /* label (+ 2, because there is colon and space after it) must fit into indent */
                    (cpd.settings[UO_indent_label].n + static_cast<int>(pc->len()) + 2 <= static_cast<int>(frm.pse[frm.pse_tos].indent)))
                {

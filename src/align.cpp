@@ -389,16 +389,18 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
    }
    else
    {
-      if (prev->type == CT_COMMENT_MULTI) { min_col = prev->orig_col_end +               min_pad; }
-      else                                { min_col = prev->column       + prev->len() + min_pad; }
+      if (chunk_is_type(prev, CT_COMMENT_MULTI)) { min_col = prev->orig_col_end +               min_pad; }
+      else                                       { min_col = prev->column       + prev->len() + min_pad; }
 
-      if (!squeeze)
-      {
-         min_col = max(min_col, pc->column);
-      }
-      LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu multi:%s prev->col=%u prev->len()=%zu %s\n",
-              __func__, pc->orig_line, pc->column, max_col, min_pad, min_col, (prev->type == CT_COMMENT_MULTI) ? "Y" : "N",
-              (prev->type == CT_COMMENT_MULTI) ? prev->orig_col_end : (UINT32)prev->column, prev->len(), get_token_name(prev->type));
+      if (squeeze == false) { min_col = max(min_col, pc->column); }
+
+      const char *type = (chunk_is_type(prev, CT_COMMENT_MULTI)) ? "Y" : "N";
+      size_t col = (chunk_is_type(prev, CT_COMMENT_MULTI)) ? prev->orig_col_end : (UINT32)prev->column;
+
+      LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu \
+            min_col=%zu multi:%s prev->col=%u prev->len()=%zu %s\n",
+              __func__, pc->orig_line, pc->column, max_col, min_pad, min_col,
+              type, col, prev->len(), get_token_name(prev->type));
    }
 
    if (cs.Empty()) { max_col = 0; }
@@ -605,10 +607,9 @@ void align_struct_initializers(void)
    while (chunk_is_valid(pc))
    {
       chunk_t *prev = chunk_get_prev_ncnl(pc);
-      if (chunk_is_type(prev, CT_ASSIGN) &&
-          ((pc->type  == CT_BRACE_OPEN) ||
-           ((cpd.lang_flags & LANG_D) &&
-            (pc->type == CT_SQUARE_OPEN))))
+      if ( chunk_is_type(prev, CT_ASSIGN     ) &&
+          (chunk_is_type(pc,   CT_BRACE_OPEN ) ||
+          (chunk_is_type(pc,   CT_SQUARE_OPEN) && (cpd.lang_flags & LANG_D) )))
       {
          align_init_brace(pc);
       }
@@ -781,7 +782,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          vdas.Reset();
       }
       else if ((equ_count == 0        ) &&
-               (pc->type  == CT_ASSIGN) &&
+               chunk_is_type(pc, CT_ASSIGN) &&
                ((pc->flags & PCF_IN_TEMPLATE) == 0)) // Issue #999
       {
          //fprintf(stderr, "%s:  ** %s level=%d line=%zu col=%d prev=%d count=%d\n",
@@ -844,7 +845,7 @@ static chunk_t *align_func_param(chunk_t *start)
             break;
          }
       }
-      else if (pc->type == CT_COMMA) { comma_count++; }
+      else if (chunk_is_type(pc, CT_COMMA)) { comma_count++; }
    }
 
    if (comma_count <= 1) { as.End(); }
@@ -859,7 +860,7 @@ static void align_func_params(void)
    chunk_t *pc = chunk_get_head();
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
-      if(chunk_is_not_type       (pc,    CT_FPAREN_OPEN) ||
+      if(chunk_is_not_type (pc,    CT_FPAREN_OPEN) ||
          chunk_is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
            CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF))
       {
@@ -1121,11 +1122,11 @@ static void align_func_proto(size_t span)
             toadd = pc;
          }
          as.Add(step_back_over_member(toadd));
-         look_bro = (pc->type == CT_FUNC_DEF) &&
-                    cpd.settings[UO_align_single_line_brace].b;
+         look_bro = (chunk_is_type(pc, CT_FUNC_DEF) &&
+                    cpd.settings[UO_align_single_line_brace].b);
       }
-      else if (look_bro &&
-               (pc->type == CT_BRACE_OPEN) &&
+      else if ((look_bro == true) &&
+               (chunk_is_type(pc, CT_BRACE_OPEN)) &&
                (pc->flags & PCF_ONE_LINER))
       {
          as_br.Add(pc);
@@ -1239,11 +1240,11 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                     pc->text(), pc->orig_line, pc->orig_col, pc->level);
 
             as.Add(pc);
-            fp_look_bro = (pc->type == CT_FUNC_DEF) &&
+            fp_look_bro = (chunk_is_type(pc, CT_FUNC_DEF)) &&
                           cpd.settings[UO_align_single_line_brace].b;
          }
          else if ((fp_look_bro == true      ) &&
-                  (pc->type == CT_BRACE_OPEN) &&
+                  (chunk_is_type(pc, CT_BRACE_OPEN)) &&
                   (pc->flags & PCF_ONE_LINER) )
          {
             as_br.Add(pc);
@@ -1252,7 +1253,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       }
 
       /* process nested braces */
-      if (pc->type == CT_BRACE_OPEN)
+      if (chunk_is_type(pc, CT_BRACE_OPEN))
       {
          size_t sub_nl_count = 0;
 
@@ -1274,7 +1275,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       }
 
       /* Done with this brace set? */
-      if (pc->type == CT_BRACE_CLOSE)
+      if (chunk_is_type(pc, CT_BRACE_CLOSE))
       {
          pc = chunk_get_next(pc);
          break;
@@ -1303,8 +1304,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
       /* If this is a variable def, update the max_col */
       if (!(pc->flags & PCF_IN_CLASS_BASE) &&
-          (pc->type != CT_FUNC_CLASS_DEF  ) &&
-          (pc->type != CT_FUNC_CLASS_PROTO) &&
+          chunk_is_not_type(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
           ((pc->flags & align_mask) == PCF_VAR_1ST) &&
           ((pc->level == (start->level + 1)) ||
            (pc->level == 0)) &&
@@ -1713,7 +1713,7 @@ static void align_init_brace(chunk_t *start)
       {
          LOG_FMT(LALBR, " (%zu) check %s vs %s -- ",
                  idx, get_token_name(pc->type), get_token_name(cpd.al[idx].type));
-         if (pc->type == cpd.al[idx].type)
+         if (chunk_is_type(pc, cpd.al[idx].type))
          {
             if ((idx == 0) && cpd.al_c99_array)
             {
@@ -1876,7 +1876,7 @@ static void align_left_shift(void)
       {
          /* Ignore any deeper levels when aligning */
       }
-      else if (pc->type == CT_SEMICOLON)
+      else if (chunk_is_type(pc, CT_SEMICOLON))
       {
          /* A semicolon at the same level flushes */
          as.Flush();
@@ -2112,7 +2112,7 @@ static void align_oc_decl_colon(void)
             did_line = false;
          }
          else if ((did_line == false      ) &&
-                  (pc->type == CT_OC_COLON) )
+                  chunk_is_type(pc, CT_OC_COLON) )
          {
             cas.Add(pc);
 

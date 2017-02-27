@@ -81,7 +81,7 @@ static int get_chunk_priority(chunk_t *pc)
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
-      if (include_categories[i] != nullptr)
+      if (ptr_is_valid(include_categories[i]))
       {
          if (std::regex_match(pc->text(), include_categories[i]->regex))
          {
@@ -121,7 +121,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       if (chunk_is_valid(pc1))
       {
          LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
-         if (pc1->type == CT_MEMBER)
+         if (chunk_is_type(pc1, CT_MEMBER))
          {
             pc1 = chunk_get_next(pc1);
             if(chunk_is_valid(pc1))
@@ -134,7 +134,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       if(chunk_is_valid(pc2))
       {
          LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-         if (pc2->type == CT_MEMBER)
+         if (chunk_is_type(pc2, CT_MEMBER))
          {
             pc2 = chunk_get_next(pc2);
             assert(chunk_is_valid(pc2));
@@ -214,9 +214,9 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ( (chunks_are_valid(p_imp, p_last)) &&
-             ((p_last->type == CT_SEMICOLON ) ||
-              (p_imp->flags & PCF_IN_PREPROC) ) )
+         if ( chunks_are_valid(p_imp, p_last    )   &&
+             (chunk_is_type(p_last, CT_SEMICOLON) ||
+             (p_imp->flags & PCF_IN_PREPROC     ) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {
@@ -245,12 +245,12 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if(((pc->type == CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
-              ((pc->type == CT_USING)  && (cpd.settings[UO_mod_sort_using  ].b == true)) )
+      else if( (chunk_is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
+               (chunk_is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using  ].b == true)) )
       {
          p_imp = chunk_get_next(pc);
       }
-      else if ((pc->type == CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
+      else if (chunk_is_type(pc, CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
       {
          p_imp  = chunk_get_next(pc);
          p_last = pc;

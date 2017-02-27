@@ -57,15 +57,8 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
-#if 0
-         if ( (pc->type        != CT_SPAREN_OPEN)   ||
-             ((pc->parent_type != CT_IF         ) &&
-              (pc->parent_type != CT_ELSEIF     ) &&
-              (pc->parent_type != CT_SWITCH     ) ) )
-#else
-         if (chunk_is_not_type       (pc,    CT_SPAREN_OPEN             ) ||
+         if (chunk_is_not_type (pc,    CT_SPAREN_OPEN             ) ||
              chunk_is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) )
-#endif
          {
             continue;
          }
@@ -169,7 +162,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
          }
          ref = pc;
       }
-      else if (pc->type == CT_COMPARE)
+      else if (chunk_is_type(pc, CT_COMPARE))
       {
          LOG_FMT(LPARADD2, " -- compare [%s] at line %zu col %zu, level %zu\n",
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
@@ -184,9 +177,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
             pc = next;
          }
       }
-      else if ((pc->type == CT_BRACE_OPEN ) ||
-               (pc->type == CT_SQUARE_OPEN) ||
-               (pc->type == CT_ANGLE_OPEN ) )
+      else if (chunk_is_type(pc, 3, CT_BRACE_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
       {
          /* Skip [], {}, and <> */
          pc = chunk_skip_to_match(pc);
