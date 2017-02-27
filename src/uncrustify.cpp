@@ -1706,7 +1706,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       if(check_chunk_and_parent_type(ref, CT_FUNC_DEF, CT_NONE))
       {
          int found_brace = 0; // Set if a close brace is found before a newline
-         while (ref->type != CT_NEWLINE)
+         while (chunk_is_not_type(ref, CT_NEWLINE))
          {
             ref = ref->next;
             if (chunk_is_type(ref, CT_BRACE_CLOSE))

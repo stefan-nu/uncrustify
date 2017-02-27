@@ -801,6 +801,17 @@ bool chunk_is_type_and_ptype(
 
 /**
  * check if the given chunk is valid and holds a given token type
+ * and is not a given parent token type
+ */
+bool chunk_is_type_and_not_ptype(
+   chunk_t   *pc,   /**< [in] chunk to check */
+   c_token_t type,  /**< [in] token type to check for */
+   c_token_t parent /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given token type
  */
 bool chunk_is_type(
    chunk_t *pc,    /**< [in] chunk to check */

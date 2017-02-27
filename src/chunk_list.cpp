@@ -934,6 +934,14 @@ bool chunk_is_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 }
 
 
+bool chunk_is_type_and_not_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
+{
+   return((chunk_is_valid(pc)       ) &&
+          (pc->type        == type  ) &&
+          (pc->parent_type != parent) );
+}
+
+
 bool chunk_is_type(chunk_t *pc, c_token_t type)
 {
    return((chunk_is_valid(pc) ) &&

@@ -1360,8 +1360,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       }
    }
 
-   if (pc->type == CT_OC_CLASS ) { handle_oc_class(pc); }
-   if (pc->type == CT_NAMESPACE) { mark_namespace (pc); }
+   if (chunk_is_type(pc, CT_OC_CLASS )) { handle_oc_class(pc); }
+   if (chunk_is_type(pc, CT_NAMESPACE)) { mark_namespace (pc); }
 
    /*TODO: Check for stuff that can only occur at the start of an statement */
 
@@ -1372,17 +1372,9 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
        * Note that SPAREN and FPAREN have already been marked.
        */
       if (chunk_is_type(pc, CT_PAREN_OPEN) &&
-          ((pc->parent_type == CT_NONE) ||
-           (pc->parent_type == CT_OC_MSG) ||
-           (pc->parent_type == CT_OC_BLOCK_EXPR)) &&
-          ((next->type == CT_WORD) ||
-           (next->type == CT_TYPE) ||
-           (next->type == CT_STRUCT) ||
-           (next->type == CT_QUALIFIER) ||
-           (next->type == CT_MEMBER) ||
-           (next->type == CT_DC_MEMBER) ||
-           (next->type == CT_ENUM) ||
-           (next->type == CT_UNION)) &&
+          (chunk_is_ptype(pc,   3, CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR)) &&
+          (chunk_is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
+                                   CT_MEMBER, CT_ENUM, CT_DC_MEMBER, CT_UNION)) &&
            (prev->type != CT_SIZEOF) &&
            (prev->parent_type != CT_OPERATOR) &&
           ((pc->flags & PCF_IN_TYPEDEF) == 0))
@@ -1405,13 +1397,13 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          else if (prev->type == CT_COLON      ) { set_chunk_type(pc, CT_DEREF);    }
          else                                   { set_chunk_type(pc, CT_DEREF);    }
       }
-      if ((cpd.lang_flags & LANG_CPP   ) &&
-          (pc->type   == CT_CARET      ) &&
-          (prev->type == CT_ANGLE_CLOSE) ) { set_chunk_type(pc, CT_PTR_TYPE);      }
-      if (pc->type == CT_MINUS)            { set_chunk_type(pc, CT_NEG);           }
-      if (pc->type == CT_PLUS)             { set_chunk_type(pc, CT_POS);           }
-      if (pc->type == CT_INCDEC_AFTER)     { set_chunk_type(pc, CT_INCDEC_BEFORE); }
-      if (pc->type == CT_AMP)              { set_chunk_type(pc, CT_ADDR);          }
+      if ((cpd.lang_flags & LANG_CPP       )&&
+         chunk_is_type(pc,   CT_CARET      )&&
+         chunk_is_type(prev, CT_ANGLE_CLOSE)) { set_chunk_type(pc, CT_PTR_TYPE);      }
+      if (chunk_is_type(pc, CT_MINUS       )) { set_chunk_type(pc, CT_NEG);           }
+      if (chunk_is_type(pc, CT_PLUS        )) { set_chunk_type(pc, CT_POS);           }
+      if (chunk_is_type(pc, CT_INCDEC_AFTER)) { set_chunk_type(pc, CT_INCDEC_BEFORE); }
+      if (chunk_is_type(pc, CT_AMP         )) { set_chunk_type(pc, CT_ADDR);          }
 
       if (chunk_is_type(pc, CT_CARET))
       {
@@ -1529,8 +1521,8 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 
    if (chunk_is_type(pc, CT_AMP))
    {
-      if      (prev->type == CT_DELETE) { set_chunk_type(pc, CT_ADDR ); }
-      else if (prev->type == CT_TYPE  ) { set_chunk_type(pc, CT_BYREF); }
+      if      (chunk_is_type(prev, CT_DELETE)) { set_chunk_type(pc, CT_ADDR ); }
+      else if (chunk_is_type(prev, CT_TYPE  )) { set_chunk_type(pc, CT_BYREF); }
       else if (chunk_is_type(next, 2, CT_FPAREN_CLOSE, CT_COMMA))
       {
          // fix the bug #654
@@ -1556,18 +1548,9 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 
    if (chunk_is_type(pc, 2, CT_MINUS, CT_PLUS ) )
    {
-      if (chunk_is_type(prev, 2, CT_POS, CT_NEG) )
-      {
-         set_chunk_type(pc, (pc->type == CT_MINUS) ? CT_NEG : CT_POS);
-      }
-      else if (chunk_is_type(prev, CT_OC_CLASS))
-      {
-         set_chunk_type(pc, (pc->type == CT_MINUS) ? CT_NEG : CT_POS);
-      }
-      else
-      {
-         set_chunk_type(pc, CT_ARITH);
-      }
+      if      (chunk_is_type(prev, 2, CT_POS, CT_NEG)) { set_chunk_type(pc, (chunk_is_type(pc, CT_MINUS)) ? CT_NEG : CT_POS); }
+      else if (chunk_is_type(prev,    CT_OC_CLASS   )) { set_chunk_type(pc, (chunk_is_type(pc, CT_MINUS)) ? CT_NEG : CT_POS); }
+      else                                             { set_chunk_type(pc, CT_ARITH); }
    }
 
    /* Bug # 634
@@ -1805,9 +1788,7 @@ static void mark_function_return_type(chunk_t *fname, chunk_t *start, c_token_t 
       while (chunk_is_valid(pc))
       {
          if ((!chunk_is_var_type(pc) &&
-              (pc->type != CT_OPERATOR) &&
-              (pc->type != CT_WORD) &&
-              (pc->type != CT_ADDR)) ||
+               chunk_is_not_type(pc, 3, CT_OPERATOR, CT_WORD, CT_ADDR)) ||
              (pc->flags & PCF_IN_PREPROC))
          {
             break;
@@ -2210,20 +2191,9 @@ static void fix_casts(chunk_t *start)
    /* Make sure there is only WORD, TYPE, and '*' or '^' before the close paren */
    chunk_t *pc = chunk_get_next_ncnl(start);
    first = pc;
-#if 0
-   while ((pc != nullptr) && (chunk_is_var_type(pc         ) ||
-                              (pc->type == CT_WORD     ) ||
-                              (pc->type == CT_QUALIFIER) ||
-                              (pc->type == CT_DC_MEMBER) ||
-                              (pc->type == CT_STAR     ) ||
-                              (pc->type == CT_CARET    ) ||
-                              (pc->type == CT_TSQUARE  ) ||
-                              (pc->type == CT_AMP      ) ) )
-#else
-      while (chunk_is_var_type(pc) ||
-             chunk_is_type(pc, 7, CT_WORD, CT_QUALIFIER, CT_DC_MEMBER,
-                    CT_STAR, CT_CARET, CT_TSQUARE, CT_AMP))
-#endif
+   while (chunk_is_var_type(pc) ||
+          chunk_is_type(pc, 7, CT_WORD, CT_QUALIFIER, CT_DC_MEMBER,
+                 CT_STAR, CT_CARET, CT_TSQUARE, CT_AMP))
    {
       LOG_FMT(LCASTS, " [%s]", get_token_name(pc->type));
 
@@ -2236,14 +2206,8 @@ static void fix_casts(chunk_t *start)
    }
 
    assert(chunk_is_valid(prev));
-#if 0
-   if ((pc         == nullptr       ) ||
-       (pc->type   != CT_PAREN_CLOSE) ||
-        chunk_is_type(prev, CT_OC_CLASS) )
-#else
-      if (chunk_is_not_type(pc,   CT_PAREN_CLOSE) ||
-          chunk_is_type    (prev, CT_OC_CLASS   ) )
-#endif
+   if (chunk_is_not_type(pc,   CT_PAREN_CLOSE) ||
+       chunk_is_type    (prev, CT_OC_CLASS   ) )
    {
       LOG_FMT(LCASTS, " -- not a cast, hit [%s]\n",
               (chunk_is_invalid(pc)) ? "nullptr"  : get_token_name(pc->type));
@@ -2770,9 +2734,7 @@ void combine_labels(void)
       else                                   { LOG_FMT(LGUY, "%s: %zu:%zu %s\n",              __func__, cur->orig_line, cur->orig_col, cur->text()); }
 
       if (!(next->flags & PCF_IN_OC_MSG) && /* filter OC case of [self class] msg send */
-          ((next->type == CT_CLASS   ) ||
-           (next->type == CT_OC_CLASS) ||
-           (next->type == CT_TEMPLATE) ) )
+          (chunk_is_type(next, 3, CT_CLASS, CT_OC_CLASS, CT_TEMPLATE) ) )
       {
          hit_class = true;
       }
@@ -2782,13 +2744,11 @@ void combine_labels(void)
          hit_class = false;
       }
 
-      if (prev->type        == CT_SQUARE_OPEN &&
-          prev->parent_type == CT_OC_MSG      )
+      if (chunk_is_type_and_ptype(prev, CT_SQUARE_OPEN, CT_OC_MSG))
       {
          cs.Push_Back(prev);
       }
-      else if (next->type        == CT_SQUARE_CLOSE &&
-               next->parent_type == CT_OC_MSG       )
+      else if (chunk_is_type_and_ptype(next, CT_SQUARE_CLOSE, CT_OC_MSG))
       {
          /* pop until we hit '[' */
          while (!cs.Empty())
@@ -2815,9 +2775,8 @@ void combine_labels(void)
             hit_case = true;
          }
       }
-      else if ( (next->type == CT_COLON   ) ||
-               ((next->type == CT_OC_COLON) &&
-                cs_top_is_question(cs, next->level)))
+      else if ( chunk_is_type(next, 2, CT_COLON, CT_OC_COLON) &&
+                cs_top_is_question(cs, next->level)           )
       {
          if (chunk_is_type(cur, CT_DEFAULT))
          {
@@ -2994,7 +2953,6 @@ static void mark_variable_stack(ChunkStack &cs, log_sev_t sev)
 static void fix_fcn_def_params(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-
    if (chunk_is_invalid(start)) { return; }
 
    LOG_FMT(LFCNP, "%s: %s [%s] on line %zu, level %zu\n",

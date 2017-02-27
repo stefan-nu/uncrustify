@@ -77,7 +77,7 @@ void remove_extra_semicolons(void)
          }
 #if 0
 //         errors ?
-         else if (chunk_is_type       (prev, CT_BRACE_CLOSE) &&
+         else if (chunk_is_type (prev, CT_BRACE_CLOSE) &&
                   chunk_is_ptype(prev, CT_NONE       ) )
 #else
          else if ((prev->type        == CT_BRACE_CLOSE) &&
@@ -88,8 +88,8 @@ void remove_extra_semicolons(void)
          }
 #if 0
 //         errors ?
-         else if (chunk_is_type           (prev, CT_SEMICOLON) &&
-                  chunk_is_not_parent_type(prev, CT_FOR      ) )
+         else if (chunk_is_type     (prev, CT_SEMICOLON) &&
+                  chunk_is_not_ptype(prev, CT_FOR      ) )
 #else
          else if ((prev->type        == CT_SEMICOLON) &&
                   (prev->parent_type != CT_FOR      ) )

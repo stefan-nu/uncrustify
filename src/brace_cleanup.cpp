@@ -687,8 +687,10 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
     *  - after '(' that has a parent type of CT_FOR */
    if ( chunk_is_type(pc, 5, CT_SQUARE_OPEN, CT_COLON, CT_OC_END,
                              CT_BRACE_CLOSE, CT_VBRACE_CLOSE) ||
-       ((pc->type == CT_BRACE_OPEN  ) && (pc->parent_type != CT_ASSIGN)) ||
-       ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR   )) ||
+//       chunk_is_type_and_not_ptype(pc, CT_BRACE_OPEN, CT_ASSIGN) ||
+     ((pc->type == CT_BRACE_OPEN  ) && (pc->parent_type != CT_ASSIGN)) ||
+//       chunk_is_type_and_ptype    (pc, CT_BRACE_OPEN, CT_FOR   ) ||
+     ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR   )) ||
        (chunk_is_semicolon(pc) &&
         (frm->pse[frm->pse_tos].type != CT_PAREN_OPEN ) &&
         (frm->pse[frm->pse_tos].type != CT_FPAREN_OPEN) &&
@@ -741,7 +743,8 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    /* Turn an optional paren into either a real paren or a brace */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
-      frm->pse[frm->pse_tos].stage = (pc->type != CT_PAREN_OPEN) ? brace_stage_e::BRACE2 : brace_stage_e::PAREN1;
+      frm->pse[frm->pse_tos].stage = (pc->type != CT_PAREN_OPEN) ?
+            brace_stage_e::BRACE2 : brace_stage_e::PAREN1;
    }
 
    /* Check for CT_ELSE after CT_IF */
@@ -789,7 +792,8 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       {
          /* Replace CT_TRY with CT_CATCH on the stack & we are done */
          frm->pse[frm->pse_tos].type  = pc->type;
-         frm->pse[frm->pse_tos].stage = (pc->type == CT_CATCH) ? brace_stage_e::CATCH_WHEN : brace_stage_e::BRACE2;
+         frm->pse[frm->pse_tos].stage = (pc->type == CT_CATCH) ?
+               brace_stage_e::CATCH_WHEN : brace_stage_e::BRACE2;
          print_stack(LBCSSWAP, "=Swap   ", frm, pc);
          return(true);
       }
@@ -876,7 +880,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
          pc->flags      |= PCF_STMT_START | PCF_EXPR_START;
          frm->stmt_count = 1;
          frm->expr_count = 1;
-         LOG_FMT(LSTMT, "%zu] 2.marked %s as stmt start\n", pc->orig_line, pc->text());
+         LOG_FMT(LSTMT, "%zu] 2.marked %s as statement start\n", pc->orig_line, pc->text());
       }
    }
 
