@@ -274,8 +274,8 @@ static bool can_remove_braces(chunk_t *bopen)
    }
 
    chunk_t *pc = chunk_get_next_ncnl(bopen, scope_e::PREPROC);
-   if(chunk_is_invalid(pc)        ||
-     (pc->type == CT_BRACE_CLOSE) ) /* Can't remove empty statement */
+   if(chunk_is_invalid(pc                ) ||
+      chunk_is_type   (pc, CT_BRACE_CLOSE) ) /* Can't remove empty statement */
    {
       return(false);
    }
@@ -296,8 +296,7 @@ static bool can_remove_braces(chunk_t *bopen)
    while ((chunk_is_valid(pc)) && (pc->level >= level))
    {
       if (pc->flags & PCF_IN_PREPROC)
-      {
-         /* Cannot remove braces that contain a preprocessor */
+      {  /* Cannot remove braces that contain a preprocessor */
          LOG_FMT(LBRDEL, " PREPROC\n");
          return(false);
       }
@@ -329,7 +328,6 @@ static bool can_remove_braces(chunk_t *bopen)
             }
 
             LOG_FMT(LBRDEL, " [%s %zu-%zu]", pc->text(), pc->orig_line, semi_count);
-
             if (chunk_is_type(pc, CT_ELSE))
             {
                LOG_FMT(LBRDEL, " bailed on %s on line %zu\n",
@@ -364,16 +362,15 @@ static bool can_remove_braces(chunk_t *bopen)
       return(false);
    }
    // DRY 7 end
-
-   if (chunk_is_type       (pc, CT_BRACE_CLOSE) &&
+   if (chunk_is_type (pc, CT_BRACE_CLOSE) &&
        chunk_is_ptype(pc, CT_IF         ) )
    {
       chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
 
       prev = chunk_get_prev_ncnl(pc, scope_e::PREPROC);
       assert(chunk_is_valid(prev));
-      if ( chunk_is_type       (next,    CT_ELSE                        ) &&
-           chunk_is_type       (prev, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+      if ( chunk_is_type (next,    CT_ELSE                        ) &&
+           chunk_is_type (prev, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
            chunk_is_ptype(prev,    CT_IF                          ) )
       {
          LOG_FMT(LBRDEL, " - bailed on '%s'[%s] on line %zu due to 'if' and 'else' sequence\n",
@@ -840,7 +837,6 @@ void add_long_closebrace_comment(void)
                else if(chunk_is_ptype(br_open, 2, CT_FUNC_DEF, CT_OC_MSG_DECL))
                {
                   nl_min = cpd.settings[UO_mod_add_long_function_closebrace_comment].u;
-                  // 76006 Explicit null dereferenced, 2016-03-17
                   tag_pc = fcn_pc;
                   xstr.clear();
                   append_tag_name(xstr, tag_pc);
@@ -848,7 +844,6 @@ void add_long_closebrace_comment(void)
                else if (br_open->parent_type == CT_NAMESPACE)
                {
                   nl_min = cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u;
-                  // 76007 Explicit null dereferenced, 2016-03-17
                   tag_pc = ns_pc;
 
                   /* obtain the next chunk, normally this is the name of the namespace

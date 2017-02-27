@@ -1954,8 +1954,7 @@ static void align_oc_msg_colon(chunk_t *so)
    bool    has_colon = false;
    size_t  lcnt      = 0; /* line count with no colon for span */
 
-   while (chunk_is_valid(pc) &&
-          (pc->level > level))
+   while (chunk_is_valid(pc) && (pc->level > level))
    {
       if (pc->level > (level + 1))
       {
@@ -2005,15 +2004,9 @@ static void align_oc_msg_colon(chunk_t *so)
       if (tlen > mlen)
       {
          mlen = tlen;
-         if (idx != 0)
-         {
-            longest = tmp;
-         }
+         if (idx != 0) { longest = tmp; }
       }
-      if (idx == 0)
-      {
-         first_len = tlen + 1;
-      }
+      if (idx == 0) { first_len = tlen + 1; }
    }
 
    /* add spaces before the longest arg */
@@ -2021,7 +2014,7 @@ static void align_oc_msg_colon(chunk_t *so)
    const size_t len_diff    = mlen - first_len;
    const size_t indent_size = cpd.settings[UO_indent_columns].u;
    /* Align with first colon if possible by removing spaces */
-   if (longest &&
+   if (chunk_is_valid(longest) &&
        cpd.settings[UO_indent_oc_msg_prioritize_first_colon].b &&
        (len_diff > 0) &&
        ((longest->column - len_diff) > (longest->brace_level * indent_size)))
@@ -2031,7 +2024,6 @@ static void align_oc_msg_colon(chunk_t *so)
    else if (longest && (len > 0))
    {
       chunk_t chunk;
-
       chunk.type        = CT_SPACE;
       chunk.orig_line   = longest->orig_line;
       chunk.parent_type = CT_NONE;

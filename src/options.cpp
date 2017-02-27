@@ -2030,7 +2030,6 @@ void process_option_line(char *configLine, const char *filename)
    else if (strcasecmp(args[0], "include") == 0)
    {
       size_t save_line_no = cpd.line_number;
-
       if (is_path_relative(args[1]))
       {
          /* include is a relative path to the current config file */
@@ -2040,11 +2039,9 @@ void process_option_line(char *configLine, const char *filename)
          UNUSED(load_option_file(ut.c_str()));
       }
       else
-      {
-         /* include is an absolute Unix path */
+      {  /* include is an absolute Unix path */
          UNUSED(load_option_file(args[1]));
       }
-
       cpd.line_number = save_line_no;
    }
 #endif
