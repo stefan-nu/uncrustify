@@ -75,7 +75,7 @@ void print_universal_indent_cfg(FILE *pfile)
 
 #ifdef DEBUG
    size_t optionNumber = 0;
-#endif // DEBUG
+#endif
    /* Now add each option */
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
@@ -114,9 +114,9 @@ void print_universal_indent_cfg(FILE *pfile)
 #ifdef DEBUG
          fprintf(pfile, "Description=\"<html>(%zu)", optionNumber);
          optionNumber++;
-#else    // DEBUG
+#else
          fprintf(pfile, "Description=\"<html>");
-#endif // DEBUG
+#endif
 
          const char *tmp = option->short_desc;
          ch = 0;

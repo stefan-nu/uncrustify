@@ -136,9 +136,6 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    LOG_FUNC_ENTRY();
    assert(chunks_are_valid(first, second));
 
-#ifdef DEBUG
-   LOG_FMT(LSPACE, "(%d) ", __LINE__);
-#endif
    LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n",
            __func__, first->orig_line, first->orig_col, first->text(), get_token_name(first->type));
 
@@ -1891,18 +1888,12 @@ void space_text(void)
    size_t  column = pc->column;
    while (chunk_is_valid(pc))
    {
-#ifdef DEBUG
-      LOG_FMT(LSPACE, "(%d) ", __LINE__);
-#endif
       LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n",
               __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
       if ((cpd.settings[UO_use_options_overriding_for_qt_macros].b) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
       {
-#ifdef DEBUG
-         LOG_FMT(LSPACE, "(%d) ", __LINE__);
-#endif
          LOG_FMT(LSPACE, "%zu: [%d] type %s SIGNAL/SLOT found\n",
                  pc->orig_line, __LINE__, get_token_name(pc->type));
          // flag the chunk for a second processing

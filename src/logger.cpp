@@ -204,6 +204,10 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
       return;
    }
 
+#ifdef DEBUG
+// \todo add this to log message LOG_FMT(LFCN, "(%d) ", __LINE__);
+#endif
+
    /* Some implementation of vsnprintf() return the number of characters
     * that would have been stored if the buffer was large enough instead of
     * the number of characters actually stored. */

@@ -14,24 +14,25 @@
 
 /* \todo better use a class for all chunk related operations,
  *  then the following functions can be changed into member
- *  functions. The function  "chunk_is_comment" would for instance
- *  become "is_comment". This makes the usage of the chunks easier
- * and more intuitive like chunk.is_comment() */
+ *  functions. The function  "chunk_is_comment(chunk)" would for instance
+ *  become "chunk.is_comment()". This makes the usage of the chunks easier
+ * and more intuitive. */
 
 
 #define ANY_LEVEL    -1
 
-/* some useful defines that check if a pointer is invalid
- * and perform a typical reaction */
-#define return_if_invalid(chunk)         do { if ((chunk) == nullptr) return;        } while(0)
-#define retval_if_invalid(chunk, retval) do { if ((chunk) == nullptr) return(retval);} while(0)
-#define break_if_invalid(chunk)          do { if ((chunk) == nullptr) break;         } while(0)
-#define continue_if_invalid(chunk)       do { if ((chunk) == nullptr) continue;      } while(0)
-// \todo check if these defines work correctly
-#define return_if(cond)                  do { if (cond)  return;         } while(0)
-#define retval_if(cond, retval)          do { if (cond)  return(retval); } while(0)
-#define break_if(cond)                   do { if (cond)  break;          } while(0)
-#define continue_if(cond)                do { if (cond)  continue;       } while(0)
+/* some useful defines that perform typical checks and corresponding
+ * reactions. The do ... while(0) ensures the define is treated as a
+ * single instructions and thus also works also in conditions */
+#define return_if_invalid(ptr)         do { if ((ptr) == nullptr) {return;        }} while(0)
+#define retval_if_invalid(ptr, retval) do { if ((ptr) == nullptr) {return(retval);}} while(0)
+#define break_if_invalid(ptr)          do { if ((ptr) == nullptr) {break;         }} while(0)
+#define continue_if_invalid(ptr)       do { if ((ptr) == nullptr) {continue;      }} while(0)
+
+#define return_if(cond)                do { if (cond)             {return;        }} while(0)
+#define retval_if(cond, retval)        do { if (cond)             {return(retval);}} while(0)
+#define break_if(cond)                 do { if (cond)             {break;         }} while(0)
+#define continue_if(cond)              do { if (cond)             {continue;      }} while(0)
 
 /**
  * Specifies which chunks should/should not be found.
@@ -61,8 +62,8 @@ bool ptr_is_valid(
  * check if two pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
-   const void *ptr1,
-   const void *ptr2
+   const void *ptr1, /**< [in] pointer1 to check */
+   const void *ptr2  /**< [in] pointer2 to check */
 );
 
 
@@ -70,9 +71,9 @@ bool ptrs_are_valid(
  * check if three pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
-   const void *ptr1,
-   const void *ptr2,
-   const void *ptr3
+   const void *ptr1, /**< [in] pointer1 to check */
+   const void *ptr2, /**< [in] pointer2 to check */
+   const void *ptr3  /**< [in] pointer3 to check */
 );
 
 
@@ -193,7 +194,6 @@ chunk_t *chunk_add_after(
  *
  * @retval pointer to the added chunk
  */
-
 chunk_t *chunk_add_before(
    const chunk_t *pc_in,   /**< [in] pointer to chunk to add to list */
    chunk_t       *ref      /**< [in] position where insertion takes place */
@@ -212,8 +212,8 @@ void chunk_del(
  * move a chunk to after the reference position in a chunk list
  */
 void chunk_move_after(
-   chunk_t *pc_in,
-   chunk_t *ref
+   chunk_t *pc_in,  /**< [in] chunk to move */
+   chunk_t *ref     /**< [in] chunk after which to move */
 );
 
 
@@ -239,7 +239,7 @@ chunk_t *chunk_get_tail(void);
  * @return pointer to next chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_next(
-   chunk_t *cur,           /**< [in] chunk to start with */
+   chunk_t *cur,                       /**< [in] chunk to start with */
    const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
@@ -250,20 +250,17 @@ chunk_t *chunk_get_next(
  * @return pointer to previous chunk or nullptr if no chunk was found
  */
 chunk_t *chunk_get_prev(
-   chunk_t    *cur,	   /**< [in] chunk to use as start point */
+   chunk_t    *cur,                   /**< [in] chunk to use as start point */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
 /**
  * Swaps two chunks
- * tbd
- * @param pc1  The first chunk
- * @param pc2  The second chunk
  */
 void chunk_swap(
-   chunk_t *pc1,
-   chunk_t *pc2
+   chunk_t *pc1, /**< [in] the first  chunk */
+   chunk_t *pc2  /**< [in] the second chunk */
 );
 
 

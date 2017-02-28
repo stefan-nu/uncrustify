@@ -45,6 +45,7 @@ void AlignStack::ReAddSkipped()
       for (size_t idx = 0; idx < m_scratch.Len(); idx++)
       {
          const ChunkStack::Entry *ce = m_scratch.Get(idx);
+//       return_if_invalid(ce);
          if(ptr_is_invalid(ce)) return;
 
          LOG_FMT(LAS, "ReAddSkipped [%zu] - ", ce->m_seqnum);
@@ -60,7 +61,7 @@ void AlignStack::ReAddSkipped()
 void AlignStack::Add(chunk_t *start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
-
+// return_if_invalid(start);
    if (chunk_is_invalid(start)) { return; }
 
    /* Assign a seqnum if needed */
@@ -183,6 +184,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
+//    return_if(chunks_are_invalid(ali, ref));
       if(!chunks_are_valid(ali, ref)) { return; }
 
       chunk_t *tmp;
@@ -301,10 +303,7 @@ void AlignStack::NewLines(size_t cnt)
 
 void AlignStack::Flush()
 {
-   size_t                  last_seqnum = 0;
-   const ChunkStack::Entry *ce         = nullptr;
-   chunk_t                 *pc;
-
+   chunk_t *pc;
    LOG_FMT(LAS, "%s: m_aligned.Len()=%zu\n", __func__, m_aligned.Len());
    LOG_FMT(LAS, "Flush (min=%zu, max=%zu)\n", m_min_col, m_max_col);
    if (m_aligned.Len() == 1)
@@ -379,6 +378,7 @@ void AlignStack::Flush()
       m_max_col = align_tab_column(m_max_col);
    }
 
+   const ChunkStack::Entry *ce = nullptr;
    LOG_FMT(LAS, "%s: m_aligned.Len()=%zu\n", __func__, m_aligned.Len());
    for (size_t idx = 0; idx < m_aligned.Len(); idx++)
    {
@@ -415,6 +415,7 @@ void AlignStack::Flush()
       align_to_column(pc, tmp_col);
    }
 
+   size_t last_seqnum = 0;
    if (ptr_is_valid(ce))
    {
       last_seqnum = ce->m_seqnum;

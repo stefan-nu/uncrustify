@@ -696,13 +696,11 @@ void align_preprocessor(void)
 chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
 {
    LOG_FUNC_ENTRY();
-
-   if (chunk_is_invalid(first)) { return(first); }
+   retval_if_invalid(first, first);
    const size_t my_level = first->level;
+   retval_if(span == 0, chunk_get_next(first));
 
-   if (span == 0) { return(chunk_get_next(first)); }
-
-   LOG_FMT(LALASS, "%s[%zu]: checking %s on line %zu - span=%zu thresh=%zu\n",
+   LOG_FMT(LALASS, "%s[%zu]: checking %s on line %zu - span=%zu threshold=%zu\n",
            __func__, my_level, first->text(), first->orig_line, span, thresh);
 
    /* If we are aligning on a tabstop, we shouldn't right-align */
@@ -738,22 +736,13 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
       /* Recurse if a brace set is found */
       if(chunk_is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN))
       {
-         size_t myspan;
-         size_t mythresh;
+         bool is_enum = chunk_is_ptype(pc, CT_ENUM);
+         const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
+         const uo_t thresh_type = is_enum ? UO_align_enum_equ_thresh : UO_align_assign_thresh;
+         size_t myspan   = cpd.settings[span_type  ].u;
+         size_t mythresh = cpd.settings[thresh_type].u;
 
          tmp = pc->orig_line;
-
-         if (pc->parent_type == CT_ENUM)
-         {
-            myspan   = cpd.settings[UO_align_enum_equ_span  ].u;
-            mythresh = cpd.settings[UO_align_enum_equ_thresh].u;
-         }
-         else
-         {
-            myspan   = cpd.settings[UO_align_assign_span  ].u;
-            mythresh = cpd.settings[UO_align_assign_thresh].u;
-         }
-
          pc = align_assign(chunk_get_next_ncnl(pc), myspan, mythresh);
          if (chunk_is_valid(pc))
          {
@@ -798,9 +787,10 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
    as.End();
    vdas.End();
 
-   if (chunk_is_valid(pc))
-        { LOG_FMT(LALASS, "%s: done on %s on line %zu\n", __func__, pc->text(), pc->orig_line); }
-   else { LOG_FMT(LALASS, "%s: done on nullptr\n",        __func__); }
+   const bool   valid = chunk_is_valid(pc);
+   const char*  str   = valid ? pc->text()    : "nullptr";
+   const size_t line  = valid ? pc->orig_line : 0;
+   LOG_FMT(LALASS, "%s: done on %s on line %zu\n", __func__, str, line);
 
    return(pc);
 }
@@ -813,7 +803,7 @@ static chunk_t *align_func_param(chunk_t *start)
    AlignStack as;
    as.Start(2, 0);
    as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
-   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style].u);
+   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style ].u);
 
    bool    did_this_line = false;
    size_t  comma_count   = 0;
@@ -860,13 +850,18 @@ static void align_func_params(void)
    chunk_t *pc = chunk_get_head();
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
+#if 0
+      continue_if(chunk_is_not_type (pc,    CT_FPAREN_OPEN) ||
+                  chunk_is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
+                    CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF));
+#else
       if(chunk_is_not_type (pc,    CT_FPAREN_OPEN) ||
          chunk_is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
            CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF))
       {
          continue;
       }
-
+#endif
       /* We're on a open paren of a prototype */
       pc = align_func_param(pc);
    }
@@ -883,11 +878,16 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
    chunk_t *pc       = chunk_get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
+#if 0
+      break_if(chunk_is_type(pc, 3, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
+               chunk_is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) );
+#else
       if(chunk_is_type(pc, 3, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
          chunk_is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) )
       {
          break;
       }
+#endif
 
       if (pc->level == (start->level + 1))
       {
@@ -906,10 +906,10 @@ static void align_same_func_call_params(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t           *pc;
-   chunk_t     *align_root = nullptr;
+   chunk_t           *align_root = nullptr;
    chunk_t           *align_cur  = nullptr;
    size_t            align_len   = 0;
-   chunk_t     *align_fcn;
+   chunk_t           *align_fcn;
    unc_text          align_fcn_name;
    unc_text          align_root_name;
    deque<chunk_t *>  chunks;
@@ -937,7 +937,7 @@ static void align_same_func_call_params(void)
             if (chunk_is_valid(align_root) &&
                 (align_root->brace_level > pc->brace_level))
             {
-               LOG_FMT(LASFCP, "  ++ (drop) Ended with %zu fcns\n", align_len);
+               LOG_FMT(LASFCP, "  ++ (drop) Ended with %zu functions\n", align_len);
 
                /* Flush it all! */
                fcn_as.Flush();
@@ -963,10 +963,14 @@ static void align_same_func_call_params(void)
          }
          prev = chunk_get_prev(tprev);
       }
+#if 0
+      continue_if(!chunk_is_newline(prev));
+#else
       if (chunk_is_newline(prev) == false)
       {
          continue;
       }
+#endif
       prev      = chunk_get_next(prev);
       align_fcn = prev;
       align_fcn_name.clear();
@@ -983,10 +987,8 @@ static void align_same_func_call_params(void)
       align_fcn_name += pc->str;
       LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
       assert(chunk_is_valid(align_fcn));
-      LOG_FMT(LASFCP, "Func Call @ %zu:%zu [%s]\n",
-              align_fcn->orig_line,
-              align_fcn->orig_col,
-              align_fcn_name.c_str());
+      LOG_FMT(LASFCP, "Func Call @ %zu:%zu [%s]\n", align_fcn->orig_line,
+            align_fcn->orig_col, align_fcn_name.c_str());
 
       add_str = nullptr;
       if (chunk_is_valid(align_root))
@@ -1141,7 +1143,7 @@ static void align_func_proto(size_t span)
 static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
 {
    LOG_FUNC_ENTRY();
-
+//   retval_if_invalid(start, start);
    if (chunk_is_invalid(start)) { return(start); }
 
    chunk_t *next;
