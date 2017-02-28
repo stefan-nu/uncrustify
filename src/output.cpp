@@ -583,7 +583,7 @@ void output_parsed(FILE *pfile)
               pc->brace_level, pc->level, pc->pp_level,
               pc->flags, pc->nl_count, pc->after_tab);
 
-      if ((pc->type  != CT_NEWLINE) &&
+      if (chunk_is_not_type(pc, CT_NEWLINE) &&
           (pc->len() != 0         ) )
       {
          for (size_t cnt = 0; cnt < pc->column; cnt++)
@@ -591,8 +591,8 @@ void output_parsed(FILE *pfile)
             fprintf(pfile, " ");
          }
 
-         if (pc->type != CT_NL_CONT) { fprintf(pfile, "%s", pc->text()); }
-         else                        { fprintf(pfile, "\\");             }
+         if (chunk_is_not_type(pc, CT_NL_CONT)) { fprintf(pfile, "%s", pc->text()); }
+         else                                   { fprintf(pfile, "\\");             }
       }
    }
    fprintf(pfile, "\n# -=====-\n");
@@ -627,7 +627,7 @@ void output_text(FILE *pfile)
               pc->text(), get_token_name(pc->type), pc->orig_col);
       cpd.output_tab_as_space = (cpd.settings[UO_cmt_convert_tab_to_spaces].b &&
                                  chunk_is_comment(pc));
-      if (pc->type == CT_NEWLINE)
+      if (chunk_is_type(pc, CT_NEWLINE))
       {
          for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
          {
@@ -637,7 +637,7 @@ void output_text(FILE *pfile)
          cpd.column      = 1;
          LOG_FMT(LOUTIND, " xx\n");
       }
-      else if (pc->type == CT_NL_CONT)
+      else if (chunk_is_type(pc, CT_NL_CONT))
       {
          /* FIXME: this really shouldn't be done here! */
          if ((pc->flags & PCF_WAS_ALIGNED) == 0)
@@ -683,7 +683,7 @@ void output_text(FILE *pfile)
          cpd.column      = 1;
          LOG_FMT(LOUTIND, " \\xx\n");
       }
-      else if (pc->type == CT_COMMENT_MULTI)
+      else if (chunk_is_type(pc, CT_COMMENT_MULTI))
       {
          if (cpd.settings[UO_cmt_indent_multi].b)
          {
@@ -694,7 +694,7 @@ void output_text(FILE *pfile)
             output_comment_multi_simple(pc, (pc->flags & PCF_INSERTED) != 0);  // forcing value to bool
          }
       }
-      else if (pc->type == CT_COMMENT_CPP)
+      else if (chunk_is_type(pc, CT_COMMENT_CPP))
       {
          bool tmp = cpd.output_trailspace;
          // keep trailing spaces if they are still present in a chunk;
@@ -703,7 +703,7 @@ void output_text(FILE *pfile)
          pc                    = output_comment_cpp(pc);
          cpd.output_trailspace = tmp;
       }
-      else if (pc->type == CT_COMMENT)
+      else if (chunk_is_type(pc, CT_COMMENT))
       {
          pc = output_comment_c(pc);
       }
@@ -720,7 +720,7 @@ void output_text(FILE *pfile)
       else
       {
          bool allow_tabs;
-         cpd.output_trailspace = (pc->type == CT_STRING_MULTI);
+         cpd.output_trailspace = chunk_is_type(pc, CT_STRING_MULTI);
          /* indent to the 'level' first */
          if (cpd.did_newline == true)
          {
@@ -777,7 +777,7 @@ void output_text(FILE *pfile)
 
          fill_line(pc->column, allow_tabs);
          add_text(pc->str);
-         if (pc->type == CT_PP_DEFINE)  // Issue #876
+         if (chunk_is_type(pc, CT_PP_DEFINE))
          {
             if (cpd.settings[UO_force_tab_after_define].b)
             {
@@ -1727,7 +1727,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       {
          while ((tmp = chunk_get_next(tmp)) != nullptr)
          {
-            if (tmp->type != CT_DC_MEMBER) { break; }
+            if (chunk_is_not_type(tmp, CT_DC_MEMBER)) { break; }
             tmp = chunk_get_next(tmp);
             if (tmp)
             {
@@ -1757,7 +1757,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
       {
          break;
       }
-      if (tmp->type == CT_OC_COLON)
+      if (chunk_is_type(tmp, CT_OC_COLON))
       {
          if (chunk_is_valid(word))
          {
@@ -1766,7 +1766,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
          }
          out_txt.append(":");
       }
-      if (tmp->type == CT_WORD) { word = tmp; }
+      if (chunk_is_type(tmp, CT_WORD)) { word = tmp; }
       tmp = chunk_get_next_ncnl(tmp);
    }
    return(true);
@@ -1826,7 +1826,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    bool    has_param = true;
    bool    need_nl   = false;
 
-   if (fcn->type == CT_OC_MSG_DECL)
+   if (chunk_is_type(fcn, CT_OC_MSG_DECL))
    {
       chunk_t *tmp = chunk_get_next_ncnl(fcn);
       has_param = false;
@@ -1845,7 +1845,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
          }
 
          has_param = false;
-         if (tmp->type == CT_PAREN_CLOSE) { has_param = true; }
+         if (chunk_is_type(tmp, CT_PAREN_CLOSE)) { has_param = true; }
          tmp = chunk_get_next_ncnl(tmp);
       }
       fpo = fpc = nullptr;
@@ -1881,7 +1881,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       tmp = fpo;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         if ((tmp->type == CT_COMMA) ||
+         if (chunk_is_type(tmp, CT_COMMA) ||
              (tmp       == fpc     ) )
          {
             out_txt.append_cond(need_nl, "\n");
@@ -1895,7 +1895,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
             if (tmp == fpc) { break; }
          }
 
-         if (tmp->type == CT_WORD) { prev = tmp; }
+         if (chunk_is_type(tmp, CT_WORD)) { prev = tmp; }
       }
    }
 
@@ -1904,8 +1904,8 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    assert(chunk_is_valid(tmp));
 
    /* For Objective-C we need to go to the previous chunk */
-   if ((tmp->parent_type == CT_OC_MSG_DECL) &&
-       (tmp->type        == CT_PAREN_CLOSE) )
+   if (chunk_is_ptype(tmp, CT_OC_MSG_DECL) &&
+       chunk_is_type (tmp, CT_PAREN_CLOSE) )
    {
       tmp = chunk_get_prev_ncnl(tmp);
    }
@@ -2118,7 +2118,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       {
          /* do nothing */
       }
-      else // if (pc->type == CT_JUNK) || else
+      else // if chunk_is_type(pc, CT_JUNK) || else
       {
          for (int spacing = (int)pc->column - column; spacing > 0; spacing--)
          {
@@ -2140,7 +2140,7 @@ void add_long_preprocessor_conditional_block_comment(void)
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
       /* just track the preproc level: */
-      if (pc->type == CT_PREPROC)
+      if (chunk_is_type(pc, CT_PREPROC))
       {
          pp_end   = pc;
          pp_start = pc;
@@ -2163,7 +2163,7 @@ void add_long_preprocessor_conditional_block_comment(void)
       {
          assert(chunk_is_valid(tmp));
          /* just track the preproc level: */
-         if (tmp->type == CT_PREPROC) { pp_end = tmp; }
+         if (chunk_is_type(tmp, CT_PREPROC)) { pp_end = tmp; }
 
          assert(chunk_is_valid(pp_end));
          if (chunk_is_newline(tmp))
@@ -2171,31 +2171,34 @@ void add_long_preprocessor_conditional_block_comment(void)
             nl_count += tmp->nl_count;
          }
          else if ((pp_end->pp_level == pp_start->pp_level) &&
-                  ((tmp->type == CT_PP_ENDIF) ||
-                   ((br_open->type == CT_PP_IF) ? (tmp->type == CT_PP_ELSE) : 0)))
+                   (chunk_is_type(tmp,     CT_PP_ENDIF) ||
+                   (chunk_is_type(br_open, CT_PP_IF   ) ?
+                    chunk_is_type(tmp,     CT_PP_ELSE ) : 0)))
          {
             br_close = tmp;
-
+            const char* str = chunk_is_type(tmp, CT_PP_ENDIF) ? "#endif" : "#else";
             LOG_FMT(LPPIF, "found #if / %s section on lines %zu and %zu, nl_count=%zu\n",
-                    (tmp->type == CT_PP_ENDIF ? "#endif" : "#else"),
-                    br_open->orig_line, br_close->orig_line, nl_count);
+                    str, br_open->orig_line, br_close->orig_line, nl_count);
 
             /* Found the matching #else or #endif - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
-                    (chunk_is_valid(tmp) ? (int)tmp->type : -1),
-                    (chunk_is_valid(tmp) ?
+                    (chunk_is_valid  (tmp) ? (int)tmp->type : -1),
+                    (chunk_is_valid  (tmp) ?
                      chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
                      "comment" : "other" : "---"));
 
             if (chunk_is_type(tmp, CT_NEWLINE))  /* chunk_is_newline(tmp) */
             {
-               size_t nl_min = (br_close->type == CT_PP_ENDIF) ?
+               size_t nl_min = (chunk_is_type(br_close, CT_PP_ENDIF)) ?
                     cpd.settings[UO_mod_add_long_ifdef_endif_comment].u :
                     cpd.settings[UO_mod_add_long_ifdef_else_comment ].u;
 
-               const char *txt = !tmp ? "EOF" : ((tmp->type == CT_PP_ENDIF) ? "#endif" : "#else");
+               const char *txt = chunk_is_invalid(tmp)              ? "EOF" :
+                                 chunk_is_type   (tmp, CT_PP_ENDIF) ? "#endif" :
+                                                                      "#else";
+
                LOG_FMT(LPPIF, "#if / %s section candidate for augmenting when over NL threshold %zu != 0 (nl_count=%zu)\n",
                        txt, nl_min, nl_count);
 
@@ -2216,7 +2219,7 @@ void add_long_preprocessor_conditional_block_comment(void)
             }
 
             /* checks both the #else and #endif for a given level, only then look further in the main loop */
-            if (br_close->type == CT_PP_ENDIF) { break; }
+            if (chunk_is_type(br_close, CT_PP_ENDIF)) { break; }
          }
       }
    }

@@ -1837,9 +1837,9 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
                  cpd.line_number,
                  get_argtype_name(entry->type), entry->name,
                  get_argtype_name(tmp->type), tmp->name);
-         if ((tmp->type == entry->type) ||
+         if (( tmp->type == entry->type) ||
              ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
-             ((tmp->type == AT_NUM) && (entry->type == AT_UNUM) && (cpd.settings[tmp->id].n * mult) > 0))
+             ((tmp->type == AT_NUM ) && (entry->type == AT_UNUM) && (cpd.settings[tmp->id].n * mult) > 0))
          {
             dest->n = cpd.settings[tmp->id].n * mult;
             // is the same as dest->u
@@ -1864,7 +1864,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
    if (entry->type == AT_BOOL)
    {
       if ((strcasecmp(val, "true") == 0) ||
-          (strcasecmp(val, "t") == 0) ||
+          (strcasecmp(val, "t"   ) == 0) ||
           (strcmp(val, "1") == 0))
       {
          dest->b = true;
@@ -1872,7 +1872,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       }
 
       if ((strcasecmp(val, "false") == 0) ||
-          (strcasecmp(val, "f") == 0) ||
+          (strcasecmp(val, "f"    ) == 0) ||
           (strcmp(val, "0") == 0))
       {
          dest->b = false;
@@ -1906,33 +1906,18 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
    }
 
    /* Must be AT_IARF */
+   if ((strcasecmp(val, "add"   ) == 0) || (strcasecmp(val, "a") == 0)) { dest->a = AV_ADD;    return; }
+   if ((strcasecmp(val, "remove") == 0) || (strcasecmp(val, "r") == 0)) { dest->a = AV_REMOVE; return; }
+   if ((strcasecmp(val, "force" ) == 0) || (strcasecmp(val, "f") == 0)) { dest->a = AV_FORCE;  return; }
+   if ((strcasecmp(val, "ignore") == 0) || (strcasecmp(val, "i") == 0)) { dest->a = AV_IGNORE; return; }
 
-   if ((strcasecmp(val, "add") == 0) || (strcasecmp(val, "a") == 0))
-   {
-      dest->a = AV_ADD;
-      return;
-   }
-   if ((strcasecmp(val, "remove") == 0) || (strcasecmp(val, "r") == 0))
-   {
-      dest->a = AV_REMOVE;
-      return;
-   }
-   if ((strcasecmp(val, "force") == 0) || (strcasecmp(val, "f") == 0))
-   {
-      dest->a = AV_FORCE;
-      return;
-   }
-   if ((strcasecmp(val, "ignore") == 0) || (strcasecmp(val, "i") == 0))
-   {
-      dest->a = AV_IGNORE;
-      return;
-   }
    if (((tmp = unc_find_option(val)) != nullptr) &&
         (tmp->type == entry->type))
    {
       dest->a = cpd.settings[tmp->id].a;
       return;
    }
+
    fprintf(stderr, "%s:%u Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
            cpd.filename, cpd.line_number, entry->name, val);
    cpd.error_count++;
@@ -2045,7 +2030,6 @@ void process_option_line(char *configLine, const char *filename)
    else if (strcasecmp(args[0], "include") == 0)
    {
       size_t save_line_no = cpd.line_number;
-
       if (is_path_relative(args[1]))
       {
          /* include is a relative path to the current config file */
@@ -2055,11 +2039,9 @@ void process_option_line(char *configLine, const char *filename)
          UNUSED(load_option_file(ut.c_str()));
       }
       else
-      {
-         /* include is an absolute Unix path */
+      {  /* include is an absolute Unix path */
          UNUSED(load_option_file(args[1]));
       }
-
       cpd.line_number = save_line_no;
    }
 #endif

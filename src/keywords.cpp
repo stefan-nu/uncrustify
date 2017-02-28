@@ -7,15 +7,16 @@
  *          October 2015, 2016
  * @license GPL v2+
  */
-#include "keywords.h"
-#include "uncrustify_types.h"
-#include "char_table.h"
-#include "args.h"
 #include <cstring>
 #include <cstdlib>
 #include <map>
+#include "args.h"
+#include "char_table.h"
+#include "chunk_list.h"
+#include "keywords.h"
 #include "unc_ctype.h"
 #include "uncrustify.h"
+#include "uncrustify_types.h"
 
 using namespace std;
 
@@ -417,11 +418,11 @@ c_token_t find_keyword_type(const char *word, size_t len)
    const void* pos = bsearch(&key, keywords, ARRAY_SIZE(keywords), sizeof(keywords[0]), kw_compare);
    const chunk_tag_t *p_ret = static_cast<const chunk_tag_t*>(pos);
 
-   if (p_ret != nullptr)
+   if (ptr_is_valid(p_ret))
    {
         p_ret = kw_static_match(p_ret);
    }
-   return((p_ret != nullptr) ? p_ret->type : CT_WORD);
+   return(ptr_is_valid(p_ret) ? p_ret->type : CT_WORD);
 }
 
 
@@ -449,7 +450,7 @@ int load_keyword_file(const char *filename)
 
       /* remove comments after '#' sign */
       char *ptr = strchr(buf, '#');
-      if (ptr != nullptr)
+      if (ptr_is_valid(ptr))
       {
          *ptr = 0; /* set string end where comment begins */
       }

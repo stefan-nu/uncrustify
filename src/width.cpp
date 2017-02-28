@@ -255,7 +255,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    }
 
    /* Only split concatenated strings */
-   if (pc->type == CT_STRING)
+   if (chunk_is_type(pc, CT_STRING))
    {
       chunk_t *next = chunk_get_next(pc);
       if(chunk_is_not_type(next, CT_STRING)) { return; }
@@ -361,7 +361,7 @@ static bool split_line(chunk_t *start)
            (chunk_is_newline(pc)     == false  ) )
    {
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
-      if (pc->type != CT_SPACE)
+      if (chunk_is_not_type(pc, CT_SPACE))
       {
          try_split_here(ent, pc);
          /*  break at maximum line length */
@@ -486,8 +486,8 @@ static void split_for_statement(chunk_t *start)
    do
    {
       // \todo DRY2 start
-      if ((pc->type        == CT_SEMICOLON) &&
-          (pc->parent_type == CT_FOR      ) )
+      if (chunk_is_type (pc, CT_SEMICOLON) &&
+          chunk_is_ptype(pc, CT_FOR      ) )
       {
          st[count] = pc;
          count++;
@@ -506,8 +506,8 @@ static void split_for_statement(chunk_t *start)
           ( pc->flags & PCF_IN_SPAREN          ) )
    {
       // \todo DRY2 start
-      if ((pc->type        == CT_SEMICOLON) &&
-          (pc->parent_type == CT_FOR      ) )
+      if (chunk_is_type (pc, CT_SEMICOLON) &&
+          chunk_is_ptype(pc, CT_FOR      ) )
       {
          st[count] = pc;
          count++;
@@ -620,7 +620,7 @@ static void split_fcn_params(chunk_t *start)
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
             if (((last_col - 1) > static_cast<int>(cpd.settings[UO_code_width].u)) ||
-                (pc->type == CT_FPAREN_CLOSE))
+                  chunk_is_type(pc, CT_FPAREN_CLOSE))
             {
                break;
             }
@@ -637,7 +637,7 @@ static void split_fcn_params(chunk_t *start)
 
       assert(chunk_is_valid(pc));
       last_col -= (int)pc->len();
-      if (prev->type == CT_FPAREN_OPEN)
+      if (chunk_is_type(prev, CT_FPAREN_OPEN))
       {
          pc = chunk_get_next(prev);
          assert(chunk_is_valid(pc));

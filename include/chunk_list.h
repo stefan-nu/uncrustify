@@ -113,8 +113,19 @@ bool chunk_is_invalid(
  * check if any of two chunks is invalid
  */
 bool chunks_are_invalid(
-   chunk_t *pc1,  /**< [in] chunk1 to check */
-   chunk_t *pc2   /**< [in] chunk2 to check */
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2   /**< [in] chunk2 to check */
+);
+
+
+
+/**
+ * check if any of three chunks is invalid
+ */
+bool chunks_are_invalid(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   const chunk_t *pc3   /**< [in] chunk3 to check */
 );
 
 
@@ -122,8 +133,8 @@ bool chunks_are_invalid(
  * check if both chunks are valid
  */
 bool chunks_are_valid(
-   chunk_t *pc1,  /**< [in] chunk1 to check */
-   chunk_t *pc2   /**< [in] chunk2 to check */
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2   /**< [in] chunk2 to check */
 );
 
 
@@ -131,9 +142,9 @@ bool chunks_are_valid(
  * check if all three chunks are valid
  */
 bool chunks_are_valid(
-   chunk_t *pc1,  /**< [in] chunk1 to check */
-   chunk_t *pc2,  /**< [in] chunk2 to check */
-   chunk_t *pc3   /**< [in] chunk3 to check */
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   const chunk_t *pc3   /**< [in] chunk3 to check */
 );
 
 
@@ -782,6 +793,17 @@ bool chunk_is_var_type(
  * and  a given parent token type
  */
 bool chunk_is_type_and_ptype(
+   chunk_t   *pc,   /**< [in] chunk to check */
+   c_token_t type,  /**< [in] token type to check for */
+   c_token_t parent /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given token type
+ * and is not a given parent token type
+ */
+bool chunk_is_type_and_not_ptype(
    chunk_t   *pc,   /**< [in] chunk to check */
    c_token_t type,  /**< [in] token type to check for */
    c_token_t parent /**< [in] token type to check for */

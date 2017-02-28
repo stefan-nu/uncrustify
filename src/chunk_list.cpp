@@ -68,7 +68,7 @@ typedef ListManager<chunk_t> ChunkList_t;
  *
  * @retval nullptr    - no requested chunk was found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
- */
+ ******************************************************************************/
 static chunk_t *chunk_search(
    chunk_t       *cur,                 /**< [in] chunk to start search at */
    const check_t check_fct,            /**< [in] compare function */
@@ -88,7 +88,7 @@ static chunk_t *chunk_search(
  *
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
- */
+ ******************************************************************************/
 static chunk_t *chunk_search_type(
    chunk_t         *cur,                 /**< [in] chunk to start search at */
    const c_token_t type,                 /**< [in] category to search for */
@@ -107,7 +107,7 @@ static chunk_t *chunk_search_type(
  *
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
- */
+ ******************************************************************************/
 chunk_t *chunk_search_typelevel(
    chunk_t   *cur,                 /**< [in] chunk to start search at */
    c_token_t type,                 /**< [in] category to search for */
@@ -125,7 +125,7 @@ chunk_t *chunk_search_typelevel(
  *
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
- */
+ ******************************************************************************/
 static chunk_t *chunk_get_ncnlnp(
    chunk_t       *cur,                 /**< [in] chunk to start search at */
    const scope_e scope = scope_e::ALL, /**< [in] code parts to consider for search */
@@ -141,7 +141,7 @@ static chunk_t *chunk_get_ncnlnp(
  *
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
- */
+ ******************************************************************************/
 chunk_t *chunk_search_str(
    chunk_t    *cur,  /**< [in] chunk to start search at */
    const char *str,  /**< [in] string to search for */
@@ -149,7 +149,6 @@ chunk_t *chunk_search_str(
    scope_e    scope, /**< [in] code parts to consider for search */
    dir_e      dir,   /**< [in] search direction */
    int        level  /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-
 );
 
 
@@ -161,7 +160,7 @@ chunk_t *chunk_search_str(
  *       add at the tail of the chunk list if position is AFTER
  *
  * @return pointer to the added chunk
- */
+ ******************************************************************************/
 static chunk_t *chunk_add(
    const chunk_t *pc_in,     /**< {in] chunk to add to list */
    chunk_t       *ref,       /**< [in] insert position in list */
@@ -176,7 +175,7 @@ static chunk_t *chunk_add(
  * to the corresponding chunk search function.
  *
  * @return pointer to chunk search function
- */
+ ******************************************************************************/
 static search_t select_search_fct(
    const dir_e dir = dir_e::AFTER /**< [in] search direction */
 );
@@ -228,18 +227,17 @@ bool chunk_is_valid(const chunk_t *pc)
    return (pc != nullptr);
 }
 
-
 bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) );
 }
 
-
 bool chunk_is_invalid(const chunk_t *pc)
 {
    return (pc == nullptr);
 }
+
 
 bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2)
 {
@@ -248,14 +246,15 @@ bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2)
 }
 
 
-bool chunks_are_valid(chunk_t *pc1, chunk_t *pc2)
+bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *pc3)
 {
-   return ((pc1 != nullptr) &&
-           (pc2 != nullptr) );
+   return ((pc1 == nullptr) ||
+           (pc2 == nullptr) ||
+           (pc3 == nullptr) );
 }
 
 
-bool chunks_are_valid(chunk_t *pc1, chunk_t *pc2, chunk_t *pc3)
+bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *pc3)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) &&
@@ -813,18 +812,19 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 
    switch (what)
    {
-   case (LSETTYP): where = &pc->type;
-      type               = &token;
-      parent_type        = &pc->parent_type;
-      break;
+      case (LSETTYP):
+         where       = &pc->type;
+         type        = &token;
+         parent_type = &pc->parent_type;
+         break;
 
-   case (LSETPAR): where = &pc->parent_type;
-      type               = &pc->type;
-      parent_type        = &token;
-      break;
+      case (LSETPAR):
+         where       = &pc->parent_type;
+         type        = &pc->type;
+         parent_type = &token;
+         break;
 
-   default:
-      return;
+      default:  /* unexpected type */ return;
    }
 
    if (*where != token)
@@ -931,6 +931,14 @@ bool chunk_is_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
    return((chunk_is_valid(pc)       ) &&
           (pc->type        == type  ) &&
           (pc->parent_type == parent) );
+}
+
+
+bool chunk_is_type_and_not_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
+{
+   return((chunk_is_valid(pc)       ) &&
+          (pc->type        == type  ) &&
+          (pc->parent_type != parent) );
 }
 
 

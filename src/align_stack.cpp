@@ -141,7 +141,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       chunk_t *prev = start;
       while (((prev = chunk_get_prev(prev)) != nullptr) &&
              (chunk_is_ptr_operator(prev) ||
-             (prev->type == CT_TPAREN_OPEN)))
+              chunk_is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
@@ -340,7 +340,7 @@ void AlignStack::Flush()
          gap = pc->column - (pc->align.ref->column + pc->align.ref->len());
       }
       chunk_t *tmp = pc;
-      if (tmp->type == CT_TPAREN_OPEN)
+      if (chunk_is_type(tmp, CT_TPAREN_OPEN))
       {
          tmp = chunk_get_next(tmp);
       }
@@ -354,7 +354,7 @@ void AlignStack::Flush()
       {
          /* Adjust the width for signed numbers */
          size_t start_len = pc->align.start->len();
-         if (pc->align.start->type == CT_NEG)
+         if (chunk_is_type(pc->align.start, CT_NEG))
          {
             tmp = chunk_get_next(pc->align.start);
             if(chunk_is_type(tmp, CT_NUMBER))

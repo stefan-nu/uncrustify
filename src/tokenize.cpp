@@ -1830,7 +1830,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
       if ((ch == '<') && (cpd.is_preproc == CT_PP_DEFINE))
       {
-         if (chunk_get_tail()->type == CT_MACRO)
+         if (chunk_is_type(chunk_get_tail(), CT_MACRO))
          {
             /* We have "#define XXX <", assume '<' starts an include string */
             parse_string(ctx, pc, 0, false);
@@ -1903,7 +1903,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
    tok_ctx       ctx(data);
    chunk_t       chunk;
    chunk_t       *pc          = nullptr;
-   const chunk_t *rprev       = nullptr;
+   chunk_t *rprev       = nullptr;
    bool          last_was_tab = false;
    size_t        prev_sp      = 0;
 
@@ -1976,7 +1976,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
          /* a newline can't be in a preprocessor */
          assert(chunk_is_valid(pc));
-         if (pc->type == CT_NEWLINE)
+         if (chunk_is_type(pc, CT_NEWLINE))
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);
          }
@@ -1993,16 +1993,16 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       assert(chunk_is_valid(pc));
 
       /* A newline marks the end of a preprocessor */
-      if (pc->type == CT_NEWLINE) // || (pc->type == CT_COMMENT_MULTI))
+      if (chunk_is_type(pc, CT_NEWLINE)) // || (pc->type == CT_COMMENT_MULTI))
       {
          cpd.is_preproc         = CT_NONE;
          cpd.preproc_ncnl_count = 0;
       }
 
       /* Special handling for preprocessor stuff */
-      if (pc->type == CT_PP_ASM)
+      if (chunk_is_type(pc, CT_PP_ASM))
       {
-         LOG_FMT(LBCTRL, "Found a directive %s on line %d\n", "#asm", pc->orig_line);
+         LOG_FMT(LBCTRL, "Found a directive %s on line %zu\n", "#asm", pc->orig_line);
          cpd.unc_off = true;
       }
 
@@ -2023,7 +2023,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          {
             if (memcmp(pc->text(), "asm", 3) == 0)
             {
-               LOG_FMT(LBCTRL, "Found a pragma %s on line %d\n", "asm", pc->orig_line);
+               LOG_FMT(LBCTRL, "Found a pragma %s on line %zu\n", "asm", pc->orig_line);
                cpd.unc_off = true;
             }
          }
@@ -2041,14 +2041,14 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
             // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
-            if (pc->type != CT_NL_CONT     &&
-                pc->type != CT_COMMENT_CPP )
+            if (chunk_is_not_type(pc, 2, CT_NL_CONT, CT_COMMENT_CPP))
             {
                set_chunk_type(pc, CT_PP_IGNORE);
             }
          }
-         else if (cpd.is_preproc == CT_PP_DEFINE && pc->type == CT_PAREN_CLOSE
-                  && cpd.settings[UO_pp_ignore_define_body].b)
+         else if (cpd.is_preproc == CT_PP_DEFINE    &&
+                  chunk_is_type(pc, CT_PAREN_CLOSE) &&
+                  cpd.settings[UO_pp_ignore_define_body].b)
          {
             // When we have a PAREN_CLOSE in a PP_DEFINE we should be terminating a MACRO_FUNC
             // arguments list. Therefore we can enter the PP_IGNORE state and ignore next chunks.
@@ -2058,15 +2058,15 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       else
       {
          /* Check for a preprocessor start */
-         if ((pc->type == CT_POUND) &&
-             ((rprev == nullptr) || (rprev->type == CT_NEWLINE)))
+         if ( chunk_is_type(pc, CT_POUND) &&
+             (chunk_is_invalid(rprev) || chunk_is_type(rprev, CT_NEWLINE)))
          {
             set_chunk_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;
             cpd.is_preproc = CT_PREPROC;
          }
       }
-      if (pc->type == CT_NEWLINE)
+      if (chunk_is_type(pc, CT_NEWLINE))
       {
          LOG_FMT(LGUY, "%s(%d): (%zu)<NL> col=%zu\n",
                  __func__, __LINE__, pc->orig_line, pc->orig_col);

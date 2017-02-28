@@ -185,37 +185,36 @@ static void detect_space_options(void)
 
       if (chunk_is_type(pc, CT_PTR_TYPE))
       {
-         if      (prev->type == CT_PTR_TYPE) { vote_sp_between_ptr_star.vote       (prev, pc); }
-         else if (next->type != CT_WORD    ) { vote_sp_before_unnamed_ptr_star.vote(prev, pc); }
+         if      (chunk_is_type    (prev, CT_PTR_TYPE)) { vote_sp_between_ptr_star.vote       (prev, pc); }
+         else if (chunk_is_not_type(next, CT_WORD    )) { vote_sp_before_unnamed_ptr_star.vote(prev, pc); }
          else                                { vote_sp_before_ptr_star.vote        (prev, pc); }
          if (CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_after_ptr_star.vote  (pc, next); }
       }
 
       if (chunk_is_type(pc, CT_BYREF))
       {
-         if (next->type != CT_WORD) { vote_sp_before_unnamed_byref.vote(prev, pc); }
-         else                       { vote_sp_before_byref.vote        (prev, pc); }
+         if (chunk_is_not_type(next, CT_WORD)) { vote_sp_before_unnamed_byref.vote(prev, pc); }
+         else                                  { vote_sp_before_byref.vote        (prev, pc); }
          vote_sp_after_byref.vote(pc, next);
       }
 
-      if ( (pc->type   != CT_PTR_TYPE )   &&
-          ((prev->type == CT_QUALIFIER) ||
-           (prev->type == CT_TYPE     ) ) )
+      if (chunk_is_not_type(pc,      CT_PTR_TYPE          ) &&
+          chunk_is_type    (prev, 2, CT_QUALIFIER, CT_TYPE) )
       {
          vote_sp_after_type.vote(prev, pc);
       }
       if (chunk_is_type(pc, CT_ANGLE_OPEN))
       {
          vote_sp_inside_angle.vote(pc, next);
-         if (prev->type == CT_TEMPLATE) { vote_sp_template_angle.vote(prev, pc); }
-         else                           { vote_sp_before_angle.vote  (prev, pc); }
+         if (chunk_is_type(prev, CT_TEMPLATE)) { vote_sp_template_angle.vote(prev, pc); }
+         else                                  { vote_sp_before_angle.vote  (prev, pc); }
       }
 
       if (chunk_is_type(pc, CT_ANGLE_CLOSE))
       {
                                                               vote_sp_inside_angle.vote(prev, pc);
          if      (chunk_is_paren_open(next))                { vote_sp_angle_paren.vote (prev, pc); }
-         else if ((next->type == CT_WORD) ||
+         else if (chunk_is_type(next, CT_WORD) ||
                CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_angle_word.vote  (prev, pc); }
          else                                               { vote_sp_after_angle.vote (pc, next); }
       }
@@ -228,18 +227,18 @@ static void detect_space_options(void)
       if (chunk_is_type(pc, CT_SPAREN_CLOSE))
       {
          vote_sp_inside_sparen.vote(prev, pc);
-         if (next->type == CT_BRACE_OPEN) { vote_sp_sparen_brace.vote(pc, next); }
-         else                             { vote_sp_after_sparen.vote(pc, next); }
+         if (chunk_is_type(next, CT_BRACE_OPEN)) { vote_sp_sparen_brace.vote(pc, next); }
+         else                                    { vote_sp_after_sparen.vote(pc, next); }
       }
       if (chunk_is_type(pc, CT_SEMICOLON))
       {
          if (chunk_is_type(pc, CT_FOR))
          {
-            if      (prev->type == CT_SPAREN_OPEN ) { vote_sp_before_semi_for_empty.vote(prev, pc); } /* empty, ie for (;;) */
-            else if (next->type == CT_SPAREN_CLOSE) { vote_sp_after_semi_for_empty.vote (pc, next); } /* empty, ie for (;;) */
-            else if (prev->type != CT_SEMICOLON   ) { vote_sp_before_semi_for.vote      (prev, pc); }
+            if      (chunk_is_type(prev, CT_SPAREN_OPEN  )) { vote_sp_before_semi_for_empty.vote(prev, pc); } /* empty, ie for (;;) */
+            else if (chunk_is_type(next, CT_SPAREN_CLOSE )) { vote_sp_after_semi_for_empty.vote (pc, next); } /* empty, ie for (;;) */
+            else if (chunk_is_not_type(prev, CT_SEMICOLON)) { vote_sp_before_semi_for.vote      (prev, pc); }
          }
-         else if (prev->type == CT_VBRACE_OPEN) { vote_sp_special_semi.vote(chunk_get_prev(prev), pc); }
+         else if (chunk_is_type(prev, CT_VBRACE_OPEN)) { vote_sp_special_semi.vote(chunk_get_prev(prev), pc); }
          else                                   { vote_sp_before_semi.vote (               prev,  pc); }
       }
 
@@ -248,21 +247,29 @@ static void detect_space_options(void)
 
       if (chunk_is_type(pc, CT_BRACE_OPEN))
       {
-         if      (prev->type == CT_ELSE)    { vote_sp_else_brace.vote (prev, pc); }
-         else if (prev->type == CT_CATCH)   { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_FINALLY) { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_TRY)     { vote_sp_catch_brace.vote(prev, pc); }
-         else if (prev->type == CT_GETSET)  { vote_sp_catch_brace.vote(prev, pc); }
+         switch(prev->type)
+         {
+            case(CT_ELSE   ): { vote_sp_else_brace.vote (prev, pc); break; }
+            case(CT_CATCH  ):   /* fall through */
+            case(CT_FINALLY):   /* fall through */
+            case(CT_TRY    ):   /* fall through */
+            case(CT_GETSET ): { vote_sp_catch_brace.vote(prev, pc); break; }
+            default:          { /* do nothing */                    break; }
+         }
 
-         if (next->type == CT_BRACE_CLOSE)  { vote_sp_inside_braces_empty.vote(pc, next); }
-         else                               { vote_sp_inside_braces.vote      (pc, next); }
+         if (chunk_is_type(next, CT_BRACE_CLOSE)) { vote_sp_inside_braces_empty.vote(pc, next); }
+         else                                     { vote_sp_inside_braces.vote      (pc, next); }
       }
       if (chunk_is_type(pc, CT_BRACE_CLOSE))
       {
          vote_sp_inside_braces.vote(prev, pc);
-         if      (next->type == CT_ELSE   ) { vote_sp_brace_else.vote   (pc, next); }
-         else if (next->type == CT_CATCH  ) { vote_sp_brace_catch.vote  (pc, next); }
-         else if (next->type == CT_FINALLY) { vote_sp_brace_finally.vote(pc, next); }
+         switch(next->type)
+         {
+            case(CT_ELSE   ): { vote_sp_brace_else.vote   (pc, next); break; }
+            case(CT_CATCH  ): { vote_sp_brace_catch.vote  (pc, next); break; }
+            case(CT_FINALLY): { vote_sp_brace_finally.vote(pc, next); break; }
+            default:          { /* do nothing */                      break; }
+         }
       }
 
       prev = pc;

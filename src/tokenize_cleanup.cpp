@@ -47,15 +47,8 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
 
    if (chunk_is_valid(next))
    {
-#if 1
       if (chunk_is_type_and_ptype(pc,   CT_ANGLE_CLOSE, CT_NONE) &&
           chunk_is_type_and_ptype(next, CT_ANGLE_CLOSE, CT_NONE) &&
-#else
-      if (chunk_is_type (pc,   CT_ANGLE_CLOSE) &&
-          chunk_is_type (next, CT_ANGLE_CLOSE) &&
-          chunk_is_ptype(pc,   CT_NONE       ) &&
-          chunk_is_ptype(next, CT_NONE       ) &&
-#endif
           ((pc->orig_col_end + 1) == next->orig_col) )
       {
          pc->str.append('>');
@@ -68,7 +61,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
       }
       else
       {
-         set_chunk_type(pc, CT_COMPARE); // bug #663
+         set_chunk_type(pc, CT_COMPARE);
       }
    }
    return(next);
@@ -111,7 +104,7 @@ void tokenize_cleanup(void)
             /* Change '[' + ']' into '[]' */
             set_chunk_type(pc, CT_TSQUARE);
             pc->str = "[]";
-            // bug # 664
+
             // The original orig_col_end of CT_SQUARE_CLOSE is stored at orig_col_end of CT_TSQUARE.
             // pc->orig_col_end += 1;
             pc->orig_col_end = next->orig_col_end;
@@ -139,7 +132,7 @@ void tokenize_cleanup(void)
       }
 
       /* Determine the version stuff (D only) */
-      if (pc->type == CT_D_VERSION)
+      if (chunk_is_type(pc, CT_D_VERSION))
       {
          if (chunk_is_type(next, CT_PAREN_OPEN))
          {
@@ -147,7 +140,7 @@ void tokenize_cleanup(void)
          }
          else
          {
-            if (next->type != CT_ASSIGN)
+            if (chunk_is_not_type(next, CT_ASSIGN))
             {
                LOG_FMT(LERR, "%s:%zu %s: version: Unexpected token %s\n",
                        cpd.filename, pc->orig_line, __func__, get_token_name(next->type));
@@ -166,8 +159,8 @@ void tokenize_cleanup(void)
 
       /* Change CT_BASE before CT_PAREN_OPEN to CT_WORD.
        * public myclass() : base() { } */
-      if ((pc->type == CT_BASE) && (next->type == CT_PAREN_OPEN)) { set_chunk_type(pc,   CT_WORD      ); }
-      if ((pc->type == CT_ENUM) && (next->type == CT_CLASS     )) { set_chunk_type(next, CT_ENUM_CLASS); }
+      if (chunk_is_type(pc, CT_BASE) && chunk_is_type(next, CT_PAREN_OPEN)) { set_chunk_type(pc,   CT_WORD      ); }
+      if (chunk_is_type(pc, CT_ENUM) && chunk_is_type(next, CT_CLASS     )) { set_chunk_type(next, CT_ENUM_CLASS); }
 
       /* Change CT_WORD after CT_ENUM, CT_UNION, or CT_STRUCT to CT_TYPE
        * Change CT_WORD before CT_WORD to CT_TYPE */
@@ -181,7 +174,7 @@ void tokenize_cleanup(void)
       }
 
       /* change extern to qualifier if extern isn't followed by a string or
-       * an open paren */
+       * an open parenthesis */
       if (chunk_is_type(pc, CT_EXTERN))
       {
          if (chunk_is_type(next, CT_STRING))
@@ -220,14 +213,13 @@ void tokenize_cleanup(void)
       }
 
       /* Change angle open/close to CT_COMPARE, if not a template thingy */
-      if ((pc->type        == CT_ANGLE_OPEN) &&
+      if (chunk_is_type(pc, CT_ANGLE_OPEN) &&
           (pc->parent_type != CT_TYPE_CAST ) )
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
          if (cpd.lang_flags & (LANG_CPP | LANG_CS | LANG_JAVA | LANG_VALA | LANG_OC))
          {
-            // bug #663
             check_template(pc);
          }
          else
@@ -236,8 +228,15 @@ void tokenize_cleanup(void)
             set_chunk_type(pc, CT_COMPARE);
          }
       }
+
+#if 1
       if ((pc->type        == CT_ANGLE_CLOSE) &&
           (pc->parent_type != CT_TEMPLATE   ) )
+#else
+         // many Cpp and some other tests fail
+      if (chunk_is_type     (pc, CT_ANGLE_CLOSE) &&
+          chunk_is_not_ptype(pc, CT_TEMPLATE   ) )
+#endif
       {
          if (in_type_cast)
          {
@@ -308,15 +307,8 @@ void tokenize_cleanup(void)
           chunk_is_not_type(next, CT_BRACE_OPEN) )
       {
          assert(chunk_is_valid(prev));
-#if 1
          if(chunk_is_type(next,    CT_SEMICOLON                               ) &&
             chunk_is_type(prev, 3, CT_SEMICOLON, CT_BRACE_CLOSE, CT_BRACE_OPEN) )
-#else
-         if ( (next->type == CT_SEMICOLON  )   &&
-             ((prev->type == CT_BRACE_CLOSE) ||
-              (prev->type == CT_BRACE_OPEN ) ||
-              (prev->type == CT_SEMICOLON  ) ) )
-#endif
          {
             set_chunk_type  (pc,   CT_GETSET_EMPTY);
             set_chunk_parent(next, CT_GETSET      );
@@ -329,7 +321,7 @@ void tokenize_cleanup(void)
 
       /* Interface is only a keyword in MS land if followed by 'class' or 'struct'
        * likewise, 'class' may be a member name in Java. */
-      if ((pc->type == CT_CLASS) &&
+      if (chunk_is_type(pc, CT_CLASS) &&
           !CharTable::IsKeyword1(next->str[0]) &&
           pc->next->type != CT_DC_MEMBER)
       {
@@ -421,7 +413,7 @@ void tokenize_cleanup(void)
       }
 
       /* Change private, public, protected into either a qualifier or label */
-      if (pc->type == CT_PRIVATE)
+      if (chunk_is_type(pc, CT_PRIVATE))
       {
          /* Handle Qt slots - maybe should just check for a CT_WORD? */
          if (chunk_is_str(next, "slots",   5) ||
@@ -531,22 +523,20 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_OC)
       {
          if( chunk_is_type(pc, 3, CT_IF, CT_FOR, CT_WHILE) &&
-            (chunk_is_type(next, CT_PAREN_OPEN) == false ) )
+            !chunk_is_type(next,  CT_PAREN_OPEN          ) )
          {
             set_chunk_type(pc, CT_WORD);
          }
-         if ( chunk_is_type(pc,   CT_DO          )   &&
-             (chunk_is_type(prev, CT_MINUS       ) ||
-              chunk_is_type(next, CT_SQUARE_CLOSE) ) )
+         if ( chunk_is_type(pc,   CT_DO   )   &&
+             (chunk_is_type(prev, CT_MINUS) || chunk_is_type(next, CT_SQUARE_CLOSE)))
          {
             set_chunk_type(pc, CT_WORD);
          }
       }
 
       /* Another hack to clean up more keyword abuse */
-      if ( chunk_is_type(pc,   CT_CLASS)   &&
-          (chunk_is_type(prev, CT_DOT  ) ||
-           chunk_is_type(next, CT_DOT  ) ) )
+      if ( chunk_is_type(pc,   CT_CLASS) &&
+          (chunk_is_type(prev, CT_DOT  ) || chunk_is_type(next, CT_DOT)))
       {
          set_chunk_type(pc, CT_WORD);
       }
@@ -574,7 +564,7 @@ void tokenize_cleanup(void)
          }
       }
 
-      if (pc->type == CT_OC_INTF)
+      if (chunk_is_type(pc, CT_OC_INTF))
       {
          chunk_t *tmp = chunk_get_next_ncnl(pc, scope_e::PREPROC);
          while (chunk_is_not_type(tmp, CT_OC_END) )
@@ -623,7 +613,7 @@ void tokenize_cleanup(void)
       /* Detect Objective C @property
        *  @property NSString *stringProperty;
        *  @property(nonatomic, retain) NSMutableDictionary *shareWith; */
-      if (pc->type == CT_OC_PROPERTY)
+      if (chunk_is_type(pc, CT_OC_PROPERTY))
       {
          assert(chunk_is_valid(next));
          if (chunk_is_not_type(next, CT_PAREN_OPEN))
@@ -682,7 +672,7 @@ void tokenize_cleanup(void)
       }
 
       /* Handle special preprocessor junk */
-      if (pc->type == CT_PREPROC)
+      if (chunk_is_type(pc, CT_PREPROC))
       {
          assert(chunk_is_valid(next));
          set_chunk_parent(pc, next->type);
@@ -714,7 +704,7 @@ void tokenize_cleanup(void)
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (chunk_is_valid(tmp))
          {
-            bool doit = (chunk_is_type(tmp, 2, CT_PAREN_CLOSE, CT_ANGLE_CLOSE));
+            bool do_it = (chunk_is_type(tmp, 2, CT_PAREN_CLOSE, CT_ANGLE_CLOSE));
 
             if (chunk_is_type(tmp, CT_WORD))
             {
@@ -722,11 +712,11 @@ void tokenize_cleanup(void)
                if (chunk_is_type(tmp2, 4, CT_SEMICOLON,  CT_ASSIGN,
                                           CT_BRACE_OPEN, CT_COMMA) )
                {
-                  doit = true;
+                  do_it = true;
                }
             }
 
-            if (doit == true)
+            if (do_it == true)
             {
                assert(chunk_is_valid(next));
                pc->str         += next->str;
@@ -752,7 +742,7 @@ void tokenize_cleanup(void)
       }
 
 #if 1
-      if (((pc->type  == CT_USING      ) ||
+      if ((chunk_is_type(pc, CT_USING ) ||
            ((pc->type == CT_TRY        ) &&
             (cpd.lang_flags & LANG_JAVA))) &&
             chunk_is_type(next, CT_PAREN_OPEN ) )
@@ -795,7 +785,6 @@ void tokenize_cleanup(void)
          set_chunk_type(pc, CT_QUALIFIER);
       }
 
-      // guy 2015-11-05
       // change CT_DC_MEMBER + CT_FOR into CT_DC_MEMBER + CT_FUNC_CALL
       if (chunk_is_type(pc,       CT_FOR      ) &&
           chunk_is_type(pc->prev, CT_DC_MEMBER) )

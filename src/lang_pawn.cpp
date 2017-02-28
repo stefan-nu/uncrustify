@@ -74,8 +74,9 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if(chunk_is_invalid(pc))      { return(pc); }
-   if(chunk_is_semicolon(pc))   { return(pc); }
+   if(chunk_is_invalid  (pc) ||
+      chunk_is_semicolon(pc) )  { return(pc); }
+
    chunk_t *next = chunk_get_next_nc(pc);
    if(chunk_is_semicolon(next)) { return(pc); }
 
@@ -99,16 +100,14 @@ void pawn_scrub_vsemi(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (pc->type != CT_VSEMICOLON) { continue; }
+      if (chunk_is_not_type(pc, CT_VSEMICOLON)) { continue; }
       chunk_t *prev = chunk_get_prev_ncnl(pc);
 
-      if (chunk_is_type(prev, CT_BRACE_CLOSE))
+      if (chunk_is_type (prev,    CT_BRACE_CLOSE) &&
+          chunk_is_ptype(prev, 5, CT_IF, CT_ELSE, CT_SWITCH,
+                                  CT_CASE, CT_WHILE_OF_DO))
       {
-         if(chunk_is_ptype(prev, 5, CT_IF, CT_ELSE, CT_SWITCH,
-                                          CT_CASE, CT_WHILE_OF_DO))
-         {
-            pc->str.clear();
-         }
+         pc->str.clear();
       }
    }
 }
@@ -148,12 +147,7 @@ void pawn_prescan(void)
    while (chunk_is_valid(pc))
    {
       if( (did_nl   == true      ) &&
-#if 0
           chunk_is_not_type(pc, 3, CT_PREPROC, CT_NEWLINE, CT_NL_CONT) &&
-#else
-          (pc->type != CT_PREPROC) &&
-          (!chunk_is_newline(pc) ) &&
-#endif
           (pc->level == 0        ) )
       {
          /* pc now points to the start of a line */
@@ -162,7 +156,7 @@ void pawn_prescan(void)
       /* note that continued lines are ignored */
       if (chunk_is_valid(pc))
       {
-         did_nl = (pc->type == CT_NEWLINE);
+         did_nl = (chunk_is_type(pc, CT_NEWLINE));
       }
 
       pc = chunk_get_next_nc(pc);
@@ -209,7 +203,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
       return(pawn_mark_function0(start, fcn));
    }
 
-   if (start->type == CT_ENUM)
+   if (chunk_is_type(start, CT_ENUM))
    {
       pc = chunk_get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
       return(pc);
@@ -229,7 +223,7 @@ static chunk_t *pawn_process_variable(chunk_t *start)
 
    while ((pc = chunk_get_next_nc(pc)) != nullptr)
    {
-      if ( (pc->type == CT_NEWLINE                          ) &&
+      if (  chunk_is_type (pc, CT_NEWLINE                   ) &&
            (pawn_continued(prev, (int)start->level) == false) )
       {
          if(chunk_is_not_type(prev, 2, CT_SEMICOLON, CT_VSEMICOLON))
@@ -397,8 +391,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       {
          LOG_FMT(LPFUNC, "%s:%zu] check %s, level %zu\n",
                  __func__, prev->orig_line, get_token_name(prev->type), prev->level);
-         if ((prev->type  == CT_NEWLINE) &&
-             (prev->level == 0         ) )
+         if (chunk_is_type(prev, CT_NEWLINE) &&
+             (prev->level == 0             ) )
          {
             chunk_t *next = chunk_get_next_ncnl(prev);
             if(chunk_is_not_type(next, 2, CT_ELSE, CT_WHILE_OF_DO))

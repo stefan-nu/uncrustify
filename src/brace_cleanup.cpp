@@ -243,7 +243,7 @@ void brace_cleanup(void)
       if (cpd.lang_flags & LANG_PAWN)
       {
          if ((frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN) &&
-             (pc->type                  == CT_NEWLINE    ) )
+              chunk_is_type(pc,  CT_NEWLINE) )
          {
             pc = pawn_check_vsemicolon(pc);
          }
@@ -267,8 +267,8 @@ void brace_cleanup(void)
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);
-         print_stack(LBCSAFTER, (pc->type == CT_VBRACE_CLOSE) ? "Virt-}" :
-                                      pc->str.c_str(), &frm, pc);
+         const char* str = (chunk_is_type(pc, CT_VBRACE_CLOSE)) ? "Virt-}" : pc->str.c_str();
+         print_stack(LBCSAFTER, str, &frm, pc);
       }
       pc = chunk_get_next(pc);
    }
@@ -475,7 +475,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
            chunk_is_type(&frm->pse[frm->pse_tos], 2, CT_FPAREN_OPEN, CT_SPAREN_OPEN) )
 #else
-      if ( (pc->type                    == CT_PAREN_CLOSE)   &&
+      if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
           ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
            (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN) ) )
 #endif
@@ -492,12 +492,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       if (pc->type != (c_token_t)((int)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
 //    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type )) fails
       {
-#if 0
-         if (chunk_is_not_type(&frm->pse[frm->pse_tos], 2, CT_NONE, CT_PP_DEFINE) )
-#else
          if ((frm->pse[frm->pse_tos].type != CT_NONE     ) &&
              (frm->pse[frm->pse_tos].type != CT_PP_DEFINE) )
-#endif
          {
             LOG_FMT(LWARN, "%s: %s:%zu Error: Unexpected '%s' for '%s', which was on line %zu\n",
                     __func__, cpd.filename, pc->orig_line, pc->text(),
@@ -661,7 +657,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    if (patcls == pattern_class_e::BRACED)
    {
       push_fmr_pse(frm, pc,
-                   (pc->type == CT_DO) ? brace_stage_e::BRACE_DO : brace_stage_e::BRACE2,
+                   (chunk_is_type(pc, CT_DO)) ? brace_stage_e::BRACE_DO : brace_stage_e::BRACE2,
                    "+ComplexBraced");
    }
    else if (patcls == pattern_class_e::PBRACED)
@@ -691,8 +687,10 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
     *  - after '(' that has a parent type of CT_FOR */
    if ( chunk_is_type(pc, 5, CT_SQUARE_OPEN, CT_COLON, CT_OC_END,
                              CT_BRACE_CLOSE, CT_VBRACE_CLOSE) ||
-       ((pc->type == CT_BRACE_OPEN  ) && (pc->parent_type != CT_ASSIGN)) ||
-       ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR   )) ||
+//       chunk_is_type_and_not_ptype(pc, CT_BRACE_OPEN, CT_ASSIGN) ||
+     ((pc->type == CT_BRACE_OPEN  ) && (pc->parent_type != CT_ASSIGN)) ||
+//       chunk_is_type_and_ptype    (pc, CT_BRACE_OPEN, CT_FOR   ) ||
+     ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR   )) ||
        (chunk_is_semicolon(pc) &&
         (frm->pse[frm->pse_tos].type != CT_PAREN_OPEN ) &&
         (frm->pse[frm->pse_tos].type != CT_FPAREN_OPEN) &&
@@ -745,7 +743,8 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    /* Turn an optional paren into either a real paren or a brace */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
-      frm->pse[frm->pse_tos].stage = (pc->type != CT_PAREN_OPEN) ? brace_stage_e::BRACE2 : brace_stage_e::PAREN1;
+      frm->pse[frm->pse_tos].stage = (pc->type != CT_PAREN_OPEN) ?
+            brace_stage_e::BRACE2 : brace_stage_e::PAREN1;
    }
 
    /* Check for CT_ELSE after CT_IF */
@@ -793,7 +792,8 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       {
          /* Replace CT_TRY with CT_CATCH on the stack & we are done */
          frm->pse[frm->pse_tos].type  = pc->type;
-         frm->pse[frm->pse_tos].stage = (pc->type == CT_CATCH) ? brace_stage_e::CATCH_WHEN : brace_stage_e::BRACE2;
+         frm->pse[frm->pse_tos].stage = (pc->type == CT_CATCH) ?
+               brace_stage_e::CATCH_WHEN : brace_stage_e::BRACE2;
          print_stack(LBCSSWAP, "=Swap   ", frm, pc);
          return(true);
       }
@@ -847,12 +847,12 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Insert a CT_VBRACE_OPEN, if needed */
-   if ( (pc->type                     != CT_BRACE_OPEN            )   &&
-       ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2    ) ||
-        (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO  ) ) )
+   if ( chunk_is_not_type(pc, CT_BRACE_OPEN                     )   &&
+       ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
+        (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
-      if ((cpd.lang_flags & LANG_CS ) &&
-          (pc->type == CT_USING_STMT) &&
+      if ((cpd.lang_flags & LANG_CS       ) &&
+           chunk_is_type(pc, CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {
          // don't indent the using block
@@ -880,14 +880,14 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
          pc->flags      |= PCF_STMT_START | PCF_EXPR_START;
          frm->stmt_count = 1;
          frm->expr_count = 1;
-         LOG_FMT(LSTMT, "%zu] 2.marked %s as stmt start\n", pc->orig_line, pc->text());
+         LOG_FMT(LSTMT, "%zu] 2.marked %s as statement start\n", pc->orig_line, pc->text());
       }
    }
 
    /* Verify open paren in complex statement */
-   if ( (pc->type                     != CT_PAREN_OPEN            )   &&
-       ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1    ) ||
-        (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN ) ) )
+   if ( chunk_is_not_type(pc, CT_PAREN_OPEN                      )   &&
+       ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
+        (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )
    {
       LOG_FMT(LWARN, "%s:%zu Error: Expected '(', got '%s' for '%s'\n",
               cpd.filename, pc->orig_line, pc->text(),

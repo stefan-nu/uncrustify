@@ -24,14 +24,18 @@ void prot_the_line(int theLine, unsigned int actual_line)
       if (pc->orig_line == actual_line)
       {
          LOG_FMT(LGUY, "(%d) orig_line=%d, ", theLine, actual_line);
-         if      (pc->type == CT_VBRACE_OPEN ) { LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           }
-         else if (pc->type == CT_NEWLINE     ) { LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); }
-         else if (pc->type == CT_VBRACE_CLOSE) { LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       }
-         else if (pc->type == CT_SPACE       ) { LOG_FMT(LGUY, "<CT_SPACE>\n");              }
-         else
+         switch(pc->type)
          {
-            LOG_FMT(LGUY, "text() %s, type %s, orig_col=%zu, column=%zu\n",
-                    pc->text(), get_token_name(pc->type), pc->orig_col, pc->column);
+            case(CT_VBRACE_OPEN ): { LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break; }
+            case(CT_NEWLINE     ): { LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); break; }
+            case(CT_VBRACE_CLOSE): { LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break; }
+            case(CT_SPACE       ): { LOG_FMT(LGUY, "<CT_SPACE>\n");              break; }
+            default:
+            {
+               LOG_FMT(LGUY, "text() %s, type %s, orig_col=%zu, column=%zu\n",
+                       pc->text(), get_token_name(pc->type), pc->orig_col, pc->column);
+               break;
+            }
          }
       }
    }
@@ -41,7 +45,7 @@ void prot_the_line(int theLine, unsigned int actual_line)
 
 static void log_newline(chunk_t *pc)
 {
-   if (pc->type == CT_NEWLINE)
+   if (chunk_is_type(pc, CT_NEWLINE))
    {
       LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
    }
@@ -64,8 +68,7 @@ void examine_Data(const char *func_name, int theLine, int what)
    case 1:
       for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
       {
-         if ((pc->type == CT_SQUARE_CLOSE) ||
-             (pc->type == CT_TSQUARE     ) )
+         if (chunk_is_type(pc, 2, CT_SQUARE_CLOSE, CT_TSQUARE))
          {
             LOG_FMT(LGUY, "\n");
             LOG_FMT(LGUY, "1:(%d),", theLine);
@@ -78,10 +81,7 @@ void examine_Data(const char *func_name, int theLine, int what)
       LOG_FMT(LGUY, "2:(%d)\n", theLine);
       for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
       {
-         if (pc->orig_line == 7)
-         {
-            log_newline(pc);
-         }
+         if (pc->orig_line == 7) { log_newline(pc); }
       }
       break;
 
