@@ -876,17 +876,6 @@ void indent_text(void)
             }
 
             /* End any assign operations with a semicolon on the same level */
-#if 0
-            if (((frm.pse[frm.pse_tos].type == CT_ASSIGN_NL) ||
-                 (frm.pse[frm.pse_tos].type == CT_ASSIGN   )) &&
-                 ((chunk_is_semicolon(pc)     ) ||
-                  (pc->type == CT_COMMA       ) ||
-                  (pc->type == CT_BRACE_OPEN  ) ||
-                  (pc->type == CT_SPAREN_CLOSE) ||
-                 ((pc->type == CT_SQUARE_OPEN ) && (pc->parent_type == CT_OC_AT)) ||
-                 ((pc->type == CT_SQUARE_OPEN ) && (pc->parent_type == CT_ASSIGN))) &&
-                (pc->parent_type != CT_CPP_LAMBDA))
-#else
             if (((frm.pse[frm.pse_tos].type == CT_ASSIGN_NL) ||
                  (frm.pse[frm.pse_tos].type == CT_ASSIGN   ) )                     &&
                  (chunk_is_semicolon(pc)                                         ||
@@ -894,7 +883,6 @@ void indent_text(void)
                   chunk_is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_AT         ) ||
                   chunk_is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_ASSIGN        ) ) &&
                   (pc->parent_type != CT_CPP_LAMBDA)                               )
-#endif
             {
                indent_pse_pop(frm, pc);
             }
@@ -1928,14 +1916,14 @@ void indent_text(void)
          {
             log_and_reindent(pc, shiftcontcol, "indent_shift");
          }
-         else if ((pc->type == CT_NAMESPACE) &&
+         else if (chunk_is_type(pc, CT_NAMESPACE)                   &&
                   cpd.settings[UO_indent_namespace              ].b &&
                   cpd.settings[UO_indent_namespace_single_indent].b &&
                   frm.pse[frm.pse_tos].ns_cnt)
          {
             log_and_reindent(pc, frm.pse[frm.pse_tos].brace_indent, "Namespace");
          }
-         else if ((pc->type == CT_STRING) &&
+         else if (chunk_is_type(pc,   CT_STRING) &&
                   chunk_is_type(prev, CT_STRING) &&
                   cpd.settings[UO_indent_align_string].b)
          {
@@ -1957,7 +1945,6 @@ void indent_text(void)
              * that we just removed a paren open */
             LOG_FMT(LINDLINE, "%s(%d): indent_column is %zu\n",
                     __func__, __LINE__, indent_column);
-//          if (frm.pse[frm.pse_tos + 1].type == (pc->type - 1))
             if (frm.pse[frm.pse_tos + 1].type == get_inverse_type(pc->type) )
             {
                // Issue # 405
@@ -2019,16 +2006,12 @@ void indent_text(void)
             }
             log_and_reindent(pc, indent_column, "comma");
          }
-         else if (cpd.settings[UO_indent_func_const].u &&
-                  (pc->type    == CT_QUALIFIER  ) &&
+         else if ( cpd.settings[UO_indent_func_const].u              &&
+                  (pc->type    == CT_QUALIFIER)                      &&
                   (strncasecmp(pc->text(), "const", pc->len()) == 0) &&
-                  (chunk_is_invalid(next      ) ||
-                   (next->type == CT_BRACED     ) ||
-                   (next->type == CT_BRACE_OPEN ) ||
-                   (next->type == CT_NEWLINE    ) ||
-                   (next->type == CT_SEMICOLON  ) ||
-                   (next->type == CT_THROW      ) ||
-                   (next->type == CT_VBRACE_OPEN) ) )
+                  (chunk_is_invalid(next) ||
+                   chunk_is_type(next, 6, CT_BRACED, CT_BRACE_OPEN, CT_THROW,
+                        CT_NEWLINE, CT_SEMICOLON, CT_VBRACE_OPEN))   )
          {
             // indent const - void GetFoo(void)\n const\n { return (m_Foo); }
             indent_column_set(cpd.settings[UO_indent_func_const].u);

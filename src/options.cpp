@@ -2386,13 +2386,19 @@ const char *get_argtype_name(argtype_t argtype)
 
 const char* bool2str(bool val)
 {
-   return ((val) ? "true" :"false");
+   return (bool2string(val).c_str());
 }
 
 
 string bool2string(bool val)
 {
    return ((val) ? "true" :"false");
+}
+
+
+const char* argval2str(argval_t argval)
+{
+   return (argval2string(argval).c_str());
 }
 
 

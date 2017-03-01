@@ -1384,7 +1384,8 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
           * end up with a function named 'define' as PP_IGNORE. This is necessary because with
           * the config 'set' feature, there's no way to do a pair of tokens as a word
           * substitution. */
-         if (pc.type == CT_PP_IGNORE && !cpd.is_preproc)
+         if (pc.type == CT_PP_IGNORE &&
+            !cpd.is_preproc)
          {
             pc.type = find_keyword_type(pc.text(), pc.str.size());
          }
@@ -1544,8 +1545,8 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
    /* Note that we aren't actually making sure this is in a comment, yet */
    if ((((pc.str.find("#pragma ") >= 0) || (pc.str.find("#pragma	") >= 0)) &&
-        ((pc.str.find(" endasm") >= 0) || (pc.str.find("	endasm") >= 0))) ||
-       (pc.str.find("#endasm") >= 0))
+        ((pc.str.find(" endasm" ) >= 0) || (pc.str.find("	endasm") >= 0))) ||
+         (pc.str.find("#endasm" ) >= 0))
    {
       cpd.unc_off = false;
       ctx.restore();
@@ -1554,7 +1555,7 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    }
    /* Note that we aren't actually making sure this is in a comment, yet */
    const char *ontext = cpd.settings[UO_enable_processing_cmt].str;
-   if (ontext == nullptr)
+   if (ptr_is_invalid(ontext))
    {
       ontext = UNCRUSTIFY_ON_TEXT;
    }
@@ -1600,7 +1601,6 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 {
    if (ctx.more() == false)
    {
-      //fprintf(stderr, "All done!\n");
       return(false);
    }
 
@@ -1615,7 +1615,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* If it is turned off, we put everything except newlines into CT_UNKNOWN */
    if (cpd.unc_off)
    {
-      if (parse_ignored(ctx, pc)) { return(true); }
+      if (parse_ignored(ctx, pc)){ return(true); }
    }
 
    /* Parse whitespace */
@@ -1737,10 +1737,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       {
          if (is_real)
          {
-            if (parse_cr_string(ctx, pc, idx))
-            {
-               return(true);
-            }
+            if (parse_cr_string(ctx, pc, idx)) { return(true); }
          }
          else
          {
@@ -1798,18 +1795,12 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
 //parse_word(ctx, pc_temp, true);
 //ctx.restore(ctx.c);
-   if (parse_number(ctx, pc))
-   {
-      return(true);
-   }
+   if (parse_number(ctx, pc)) { return(true); }
 
    if (cpd.lang_flags & LANG_D)
    {
       /* D specific stuff */
-      if (d_parse_string(ctx, pc))
-      {
-         return(true);
-      }
+      if (d_parse_string(ctx, pc)) { return(true); }
    }
    else
    {
@@ -1877,7 +1868,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    const chunk_tag_t *punc;
    if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != nullptr)
    {
-      int cnt = (int)strlen(punc->tag);	// \todo can cnt be size_t?
+      int cnt = (int)strlen(punc->tag);
       while (cnt--)
       {
          pc.str.append(ctx.get());
@@ -1900,12 +1891,12 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
 void tokenize(const deque<int> &data, chunk_t *ref)
 {
-   tok_ctx       ctx(data);
-   chunk_t       chunk;
-   chunk_t       *pc          = nullptr;
+   tok_ctx ctx(data);
+   chunk_t chunk;
+   chunk_t *pc          = nullptr;
    chunk_t *rprev       = nullptr;
-   bool          last_was_tab = false;
-   size_t        prev_sp      = 0;
+   bool    last_was_tab = false;
+   size_t  prev_sp      = 0;
 
    cpd.unc_stage = unc_stage_e::TOKENIZE;
 
@@ -1933,22 +1924,11 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       chunk.orig_prev_sp = prev_sp;
       prev_sp            = 0;
 
-      if (chunk.type == CT_NEWLINE)
+      switch(chunk.type)
       {
-         last_was_tab    = chunk.after_tab;
-         chunk.after_tab = false;
-         chunk.str.clear();
-      }
-      else if (chunk.type == CT_NL_CONT)
-      {
-         last_was_tab    = chunk.after_tab;
-         chunk.after_tab = false;
-         chunk.str       = "\\\n";
-      }
-      else
-      {
-         chunk.after_tab = last_was_tab;
-         last_was_tab    = false;
+      case(CT_NEWLINE): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str.clear();  break; }
+      case(CT_NL_CONT): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str = "\\\n"; break; }
+      default:          { chunk.after_tab = last_was_tab; last_was_tab    = false;                     break; }
       }
 
       /* Strip trailing whitespace (for CPP comments and PP blocks) */
@@ -1981,14 +1961,9 @@ void tokenize(const deque<int> &data, chunk_t *ref)
             chunk_flags_clr(pc, PCF_IN_PREPROC);
          }
       }
-      if (chunk_is_valid(ref))
-      {
-         chunk.flags |= PCF_INSERTED;
-      }
-      else
-      {
-         chunk.flags &= ~PCF_INSERTED;
-      }
+      if (chunk_is_valid(ref)) { chunk.flags |=  PCF_INSERTED; }
+      else                     { chunk.flags &= ~PCF_INSERTED; }
+
       pc = chunk_add_before(&chunk, ref);
       assert(chunk_is_valid(pc));
 
@@ -2012,8 +1987,9 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-         if (!chunk_is_comment(pc) &&
-             !chunk_is_newline(pc) )
+//         if (!chunk_is_comment(pc) &&
+//             !chunk_is_newline(pc) )
+         if(!chunk_is_comment_or_newline(pc))
          {
             cpd.preproc_ncnl_count++;
          }
@@ -2031,8 +2007,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          /* Figure out the type of preprocessor for #include parsing */
          if (cpd.is_preproc == CT_PREPROC)
          {
-            if ((pc->type < CT_PP_DEFINE) ||
-                (pc->type > CT_PP_OTHER ) )
+            if(chunk_is_no_preproc_type(pc))
             {
                set_chunk_type(pc, CT_PP_OTHER);
             }
@@ -2058,8 +2033,9 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       else
       {
          /* Check for a preprocessor start */
-         if ( chunk_is_type(pc, CT_POUND) &&
-             (chunk_is_invalid(rprev) || chunk_is_type(rprev, CT_NEWLINE)))
+         if ( chunk_is_type   (pc,    CT_POUND  )   &&
+             (chunk_is_invalid(rprev            ) ||
+              chunk_is_type   (rprev, CT_NEWLINE) ) )
          {
             set_chunk_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;
@@ -2089,7 +2065,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       LOG_FMT(LLINEENDS, "Using LF line endings\n");
    }
    else if ( (cpd.settings[UO_newlines].le == LE_CRLF) ||
-            ((cpd.settings[UO_newlines].le == LE_AUTO) &&
+            ((cpd.settings[UO_newlines].le == LE_AUTO)        &&
              (cpd.le_counts[LE_CRLF] >= cpd.le_counts[LE_LF]) &&
              (cpd.le_counts[LE_CRLF] >= cpd.le_counts[LE_CR]) ) )
    {

@@ -1287,8 +1287,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
    }
 
    /* "foo(...)" vs "foo( ... )" */
-   if ((first->type  == CT_FPAREN_OPEN ) ||
-       (chunk_is_type(second, CT_FPAREN_CLOSE) ))
+   if (chunk_is_type(first,  CT_FPAREN_OPEN ) ||
+       chunk_is_type(second, CT_FPAREN_CLOSE) )
    {
       if (chunk_is_type(first,  CT_FPAREN_OPEN ) &&
           chunk_is_type(second, CT_FPAREN_CLOSE) )
@@ -1321,8 +1321,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          log_rule("sp_after_oc_type");
          return(cpd.settings[UO_sp_after_oc_type].a);
       }
-      else if ((first->parent_type == CT_OC_SEL) &&
-               (second->type != CT_SQUARE_CLOSE) )
+      else if (chunk_is_ptype   (first,  CT_OC_SEL      ) &&
+               chunk_is_not_type(second, CT_SQUARE_CLOSE) )
       {
          log_rule("sp_after_oc_at_sel_parens");
          return(cpd.settings[UO_sp_after_oc_at_sel_parens].a);
@@ -1331,10 +1331,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
    if (cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE)
    {
-      if (( (first->type        == CT_PAREN_OPEN ) &&
-           (chunk_is_ptype(first, 2, CT_OC_SEL, CT_OC_PROTOCOL) ) ) ||
-          ( (second->type        == CT_PAREN_CLOSE) &&
-           (chunk_is_ptype(second, 2, CT_OC_SEL, CT_OC_PROTOCOL) ) ) )
+      if ((chunk_is_type (first,  CT_PAREN_OPEN ) && chunk_is_ptype(first,  2, CT_OC_SEL, CT_OC_PROTOCOL)) ||
+          (chunk_is_type (second, CT_PAREN_CLOSE) && chunk_is_ptype(second, 2, CT_OC_SEL, CT_OC_PROTOCOL)) )
       {
          log_rule("sp_inside_oc_at_sel_parens");
          return(cpd.settings[UO_sp_inside_oc_at_sel_parens].a);
@@ -1350,8 +1348,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
 
    /* C cast:   "(int)"      vs "( int )"
     * D cast:   "cast(int)"  vs "cast( int )"
-    * CPP cast: "int(a + 3)" vs "int( a + 3 )"
-    */
+    * CPP cast: "int(a + 3)" vs "int( a + 3 )" */
    if (chunk_is_type(first, CT_PAREN_OPEN))
    {
       if (chunk_is_ptype(first, 3, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
@@ -1995,12 +1992,11 @@ void space_text(void)
                      /* punctuator parsed to a different size.. */
 
                      /* C++11 allows '>>' to mean '> >' in templates:
-                      *   some_func<vector<string>>();
-                      */
+                      *   some_func<vector<string>>();*/
                      if ((((cpd.lang_flags & LANG_CPP ) && cpd.settings[UO_sp_permit_cpp11_shift].b) ||
                           ((cpd.lang_flags & LANG_JAVA) || (cpd.lang_flags & LANG_CS))) &&
-                         (pc->type   == CT_ANGLE_CLOSE) &&
-                         (chunk_is_type(next, CT_ANGLE_CLOSE) ))
+                          chunk_is_type(pc,   CT_ANGLE_CLOSE) &&
+                          chunk_is_type(next, CT_ANGLE_CLOSE) )
                      {
                         /* allow '>' and '>' to become '>>' */
                      }
@@ -2090,15 +2086,17 @@ void space_text(void)
          }
          next->column = column;
 
+#if 1
+         LOG_FMT(LSPACE, " = %s @ %zu => %zu\n", argval2str(av),
+                 column - prev_column, next->column);
+#else
          LOG_FMT(LSPACE, " = %s @ %zu => %zu\n",
                  (av == AV_IGNORE) ? "IGNORE" :
                  (av == AV_ADD   ) ? "ADD" :
                  (av == AV_REMOVE) ? "REMOVE" : "FORCE",
                  column - prev_column, next->column);
-         if (restoreValues)    // guy 2015-09-22
-         {
-            restore_options_for_QT();
-         }
+#endif
+         if (restoreValues) { restore_options_for_QT(); }
       }
 
       pc = next;
@@ -2177,8 +2175,7 @@ size_t space_col_align(chunk_t *first, chunk_t *second)
    LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,
            get_token_name(first->type), get_token_name(first->parent_type),
-           first->text(),
-           second->orig_line, second->orig_col,
+           first->text(), second->orig_line, second->orig_col,
            get_token_name(second->type), get_token_name(second->parent_type),
            second->text());
    log_func_stack_inline(LSPACE);
@@ -2200,7 +2197,7 @@ size_t space_col_align(chunk_t *first, chunk_t *second)
    }
    switch (av)
    {
-      case AV_ADD:
+      case AV_ADD:        /* fallthrough */
       case AV_FORCE:
          coldiff++;
          break;

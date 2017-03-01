@@ -727,10 +727,18 @@ bool chunk_is_balanced_square(
 
 
 /**
- * check if a chunk is valid and holds part of a preprocessor region
+ * check if a chunk is valid and holds a part of a preprocessor region
  */
 bool chunk_is_preproc(
    chunk_t * pc  /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is valid and has a type that is not part of a preprocessor region
+ */
+bool chunk_is_no_preproc_type(
+   chunk_t *pc  /**< [in] chunk to check */
 );
 
 

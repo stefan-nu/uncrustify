@@ -668,7 +668,7 @@ static void convert_vbrace_to_brace(void)
                break;
             }
             if ((pc->brace_level == tmp->brace_level) &&
-                (tmp->type       == CT_VBRACE_CLOSE ) &&
+                (chunk_is_type(tmp, CT_VBRACE_CLOSE)) &&
                 (pc->parent_type == tmp->parent_type) &&
                 ((tmp->flags & PCF_IN_PREPROC) == (pc->flags & PCF_IN_PREPROC)))
             {

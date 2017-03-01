@@ -1183,10 +1183,18 @@ string bool2string(
 
 
 /**
- * convert an argument value to a string
+ * convert an argument value to a zero terminated string
+ */
+const char* argval2str
+   (argval_t argval/**< [in] argument value to convert */
+);
+
+
+/**
+ * convert an argument value to a C++ string
  */
 string argval2string(
-   argval_t argval   /**< [in] argument value to convert */
+   argval_t argval  /**< [in] argument value to convert */
 );
 
 

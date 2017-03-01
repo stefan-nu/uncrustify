@@ -1149,6 +1149,13 @@ bool chunk_is_preproc(chunk_t * pc)
 }
 
 
+bool chunk_is_no_preproc_type(chunk_t *pc)
+{
+   return ((pc->type < CT_PP_DEFINE) ||
+           (pc->type > CT_PP_OTHER ) );
+}
+
+
 bool chunk_is_comment_or_newline_in_preproc(chunk_t * pc)
 {
    return( chunk_is_preproc(pc) &&

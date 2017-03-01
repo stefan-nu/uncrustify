@@ -241,8 +241,8 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 
    /* Can't split after a newline */
    chunk_t *prev = chunk_get_prev(pc);
-   if ((chunk_is_invalid(prev)                           ) ||
-       (chunk_is_newline(prev) && (pc->type != CT_STRING)) )
+   if ((chunk_is_invalid(prev)                                    ) ||
+       (chunk_is_newline(prev) && chunk_is_not_type(pc, CT_STRING)) )
    {
       return;
    }
