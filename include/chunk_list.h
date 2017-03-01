@@ -54,7 +54,7 @@ enum class scope_e : unsigned int
  * check if a pointer is valid thus no nullptr
  */
 bool ptr_is_valid(
-   const void *ptr /**< [in] pointer to check */
+   const void * const ptr /**< [in] pointer to check */
 );
 
 
@@ -62,8 +62,8 @@ bool ptr_is_valid(
  * check if two pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
-   const void *ptr1, /**< [in] pointer1 to check */
-   const void *ptr2  /**< [in] pointer2 to check */
+   const void * const ptr1, /**< [in] pointer1 to check */
+   const void * const ptr2  /**< [in] pointer2 to check */
 );
 
 
@@ -71,9 +71,9 @@ bool ptrs_are_valid(
  * check if three pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
-   const void *ptr1, /**< [in] pointer1 to check */
-   const void *ptr2, /**< [in] pointer2 to check */
-   const void *ptr3  /**< [in] pointer3 to check */
+   const void * const ptr1, /**< [in] pointer1 to check */
+   const void * const ptr2, /**< [in] pointer2 to check */
+   const void * const ptr3  /**< [in] pointer3 to check */
 );
 
 
@@ -81,7 +81,7 @@ bool ptrs_are_valid(
  * check if a pointer is invalid thus a nullptr
  */
 bool ptr_is_invalid(
-   const void *ptr /**< [in] pointer to check */
+   const void * const ptr /**< [in] pointer to check */
 );
 
 
@@ -89,7 +89,7 @@ bool ptr_is_invalid(
  * check if a chunk is valid
  */
 bool chunk_is_valid(
-   const chunk_t *pc /**< [in] chunk to check */
+   const chunk_t * const pc /**< [in] chunk to check */
 );
 
 
@@ -97,8 +97,8 @@ bool chunk_is_valid(
  * checks if two chunks are valid
  */
 bool chunks_are_valid(
-   const chunk_t *pc1, /**< [in] chunk1 to check */
-   const chunk_t *pc2  /**< [in] chunk2 to check */
+   const chunk_t * const pc1, /**< [in] chunk1 to check */
+   const chunk_t * const pc2  /**< [in] chunk2 to check */
 );
 
 
@@ -106,7 +106,7 @@ bool chunks_are_valid(
  * check if a chunk is not valid
  */
 bool chunk_is_invalid(
-   const chunk_t *pc /**< [in] chunk to check */
+   const chunk_t * const pc /**< [in] chunk to check */
 );
 
 
@@ -114,19 +114,18 @@ bool chunk_is_invalid(
  * check if any of two chunks is invalid
  */
 bool chunks_are_invalid(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2   /**< [in] chunk2 to check */
+   const chunk_t * const pc1, /**< [in] chunk1 to check */
+   const chunk_t * const pc2  /**< [in] chunk2 to check */
 );
-
 
 
 /**
  * check if any of three chunks is invalid
  */
 bool chunks_are_invalid(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   const chunk_t *pc3   /**< [in] chunk3 to check */
+   const chunk_t * const pc1,  /**< [in] chunk1 to check */
+   const chunk_t * const pc2,  /**< [in] chunk2 to check */
+   const chunk_t * const pc3   /**< [in] chunk3 to check */
 );
 
 
@@ -134,8 +133,8 @@ bool chunks_are_invalid(
  * check if both chunks are valid
  */
 bool chunks_are_valid(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2   /**< [in] chunk2 to check */
+   const chunk_t * const pc1,  /**< [in] chunk1 to check */
+   const chunk_t * const pc2   /**< [in] chunk2 to check */
 );
 
 
@@ -143,9 +142,9 @@ bool chunks_are_valid(
  * check if all three chunks are valid
  */
 bool chunks_are_valid(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   const chunk_t *pc3   /**< [in] chunk3 to check */
+   const chunk_t * const pc1,  /**< [in] chunk1 to check */
+   const chunk_t * const pc2,  /**< [in] chunk2 to check */
+   const chunk_t * const pc3   /**< [in] chunk3 to check */
 );
 
 
@@ -153,7 +152,7 @@ bool chunks_are_valid(
  * check if a chunk and its following chunk is valid
  */
 bool chunk_and_next_are_valid(
-   chunk_t *pc /**< [in] chunk to check */
+   const chunk_t * const pc /**< [in] chunk to check */
 );
 
 
@@ -161,7 +160,7 @@ bool chunk_and_next_are_valid(
  * check if a chunk and its preceding chunk is valid
  */
 bool chunk_and_prev_are_valid(
-   chunk_t *pc /**< [in] chunk to check */
+   const chunk_t * const pc /**< [in] chunk to check */
 );
 
 
@@ -811,8 +810,8 @@ bool chunk_is_type_and_not_ptype(
  * check if the given chunk is valid and holds a given token type
  */
 bool chunk_is_type(
-   chunk_t *pc,    /**< [in] chunk to check */
-   c_token_t type  /**< [in] token type to check for */
+   const chunk_t *pc,  /**< [in] chunk to check */
+   c_token_t     type  /**< [in] token type to check for */
 );
 
 
@@ -840,9 +839,9 @@ bool chunk_is_not_type(
  * part of a given list
  */
 bool chunk_is_type(
-   chunk_t *pc,   /**< [in] chunk to check */
-   int count,     /**< [in] number of token types to check */
-   ...            /**< [in] list of token types to check for */
+   const chunk_t *pc,     /**< [in] chunk to check */
+   int            count,  /**< [in] number of token types to check */
+   ...                    /**< [in] list of token types to check for */
 );
 
 

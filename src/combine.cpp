@@ -765,7 +765,7 @@ static bool chunk_ends_type(chunk_t *start)
    size_t  cnt       = 0;
    bool    last_lval = false;
 
-   chunk_t *pc       = start;
+   chunk_t *pc = start;
    for ( ; chunk_is_valid(pc); pc = chunk_get_prev_ncnl(pc))
    {
       LOG_FMT(LFTYPE, "%s: [%s] %s flags %" PRIx64 " on line %zu, col %zu\n",
@@ -776,7 +776,7 @@ static bool chunk_ends_type(chunk_t *start)
                               CT_DC_MEMBER, CT_TYPE, CT_PTR_TYPE))
       {
          cnt++;
-         last_lval = (pc->flags & PCF_LVALUE) != 0;   // forcing value to bool
+         last_lval = (pc->flags & PCF_LVALUE) != 0;
          continue;
       }
 

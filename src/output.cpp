@@ -691,7 +691,7 @@ void output_text(FILE *pfile)
          }
          else
          {
-            output_comment_multi_simple(pc, (pc->flags & PCF_INSERTED) != 0);  // forcing value to bool
+            output_comment_multi_simple(pc, (pc->flags & PCF_INSERTED) != 0);
          }
       }
       else if (chunk_is_type(pc, CT_COMMENT_CPP))

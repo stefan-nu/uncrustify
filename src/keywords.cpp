@@ -389,7 +389,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
    for (; (size_t)iter < (size_t)end_adr; iter++)
    {
       //fprintf(stderr, " check:%s", iter->tag);
-      bool pp_iter = (iter->lang_flags & FLAG_PP) != 0; // forcing value to bool
+      bool pp_iter = (iter->lang_flags & FLAG_PP) != 0;
       if ((strcmp(iter->tag, tag->tag) == 0 ) &&
           (cpd.lang_flags & iter->lang_flags) &&
           (in_preproc == pp_iter))

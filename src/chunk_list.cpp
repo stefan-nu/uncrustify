@@ -195,20 +195,20 @@ static bool is_expected_string_and_level(
 );
 
 
-bool ptr_is_valid(const void *ptr)
+bool ptr_is_valid(const void * const ptr)
 {
    return (ptr != nullptr);
 }
 
 
-bool ptrs_are_valid(const void *ptr1, const void *ptr2)
+bool ptrs_are_valid(const void * const ptr1, const void * const ptr2)
 {
    return ((ptr1 != nullptr) &&
            (ptr2 != nullptr) );
 }
 
 
-bool ptrs_are_valid(const void *ptr1, const void *ptr2, const void *ptr3)
+bool ptrs_are_valid(const void * const ptr1, const void * const ptr2, const void * const ptr3)
 {
    return ((ptr1 != nullptr) &&
            (ptr2 != nullptr) &&
@@ -216,18 +216,18 @@ bool ptrs_are_valid(const void *ptr1, const void *ptr2, const void *ptr3)
 }
 
 
-bool ptr_is_invalid(const void *ptr)
+bool ptr_is_invalid(const void * const ptr)
 {
    return (ptr == nullptr);
 }
 
 
-bool chunk_is_valid(const chunk_t *pc)
+bool chunk_is_valid(const chunk_t * const pc)
 {
    return (pc != nullptr);
 }
 
-bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2)
+bool chunks_are_valid(const chunk_t * const pc1, const chunk_t * const pc2)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) );
@@ -239,14 +239,14 @@ bool chunk_is_invalid(const chunk_t *pc)
 }
 
 
-bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2)
+bool chunks_are_invalid(const chunk_t * const pc1, const chunk_t * const pc2)
 {
    return ((pc1 == nullptr) ||
            (pc2 == nullptr) );
 }
 
 
-bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *pc3)
+bool chunks_are_invalid(const chunk_t * const pc1, const chunk_t * const pc2, const chunk_t * const pc3)
 {
    return ((pc1 == nullptr) ||
            (pc2 == nullptr) ||
@@ -254,7 +254,7 @@ bool chunks_are_invalid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *p
 }
 
 
-bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *pc3)
+bool chunks_are_valid(const chunk_t * const pc1, const chunk_t * const pc2, const chunk_t * const pc3)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) &&
@@ -262,14 +262,14 @@ bool chunks_are_valid(const chunk_t *pc1, const chunk_t *pc2, const chunk_t *pc3
 }
 
 
-bool chunk_and_next_are_valid(chunk_t *pc)
+bool chunk_and_next_are_valid(const chunk_t * const pc)
 {
    return((pc       != nullptr) &&
           (pc->next != nullptr) );
 }
 
 
-bool chunk_and_prev_are_valid(chunk_t *pc)
+bool chunk_and_prev_are_valid(const chunk_t * const pc)
 {
    return((pc       != nullptr) &&
           (pc->prev != nullptr) );
@@ -942,7 +942,7 @@ bool chunk_is_type_and_not_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 }
 
 
-bool chunk_is_type(chunk_t *pc, c_token_t type)
+bool chunk_is_type(const chunk_t *pc, c_token_t type)
 {
    return((chunk_is_valid(pc) ) &&
           (pc->type == type   ) );
@@ -966,7 +966,7 @@ bool chunk_is_not_type(chunk_t *pc, c_token_t c_token)
 /* \todo check if using a variadic function has a large performance
  * penalty. If so use several overloaded functions, with varying
  * number of parameters */
-bool chunk_is_type(chunk_t *pc, int count, ... )
+bool chunk_is_type(const chunk_t *pc, int count, ... )
 {
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
