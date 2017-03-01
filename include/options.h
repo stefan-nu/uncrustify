@@ -1161,7 +1161,7 @@ void print_options(
 /**
  * convert a argument type to a string
  */
-string argtype_to_string(
+string argtype2string(
    argtype_t argtype /**> [in] argument type to convert */
 );
 
@@ -1169,7 +1169,15 @@ string argtype_to_string(
 /**
  * convert a boolean to a string
  */
-string bool_to_string(
+const char* bool2str(
+   bool val /**< [in] boolean to convert*/
+);
+
+
+/**
+ * convert a boolean to a string
+ */
+string bool2string(
    bool val /**< [in] boolean to convert*/
 );
 
@@ -1177,7 +1185,7 @@ string bool_to_string(
 /**
  * convert an argument value to a string
  */
-string argval_to_string(
+string argval2string(
    argval_t argval   /**< [in] argument value to convert */
 );
 
@@ -1185,7 +1193,7 @@ string argval_to_string(
 /**
  * convert an integer number to a string
  */
-string number_to_string(
+string number2string(
    int number  /**< [integer number to convert */
 );
 
@@ -1193,7 +1201,7 @@ string number_to_string(
 /**
  * convert a line ending type to a string
  */
-string lineends_to_string(
+string lineends2string(
    lineends_t linends   /**< [in] line ending type to convert */
 );
 
@@ -1201,7 +1209,7 @@ string lineends_to_string(
 /**
  * convert a token to a string
  */
-string tokenpos_to_string(
+string tokenpos2string(
    tokenpos_t tokenpos  /**< [in] token to convert */
 );
 
@@ -1209,7 +1217,7 @@ string tokenpos_to_string(
 /**
  * convert an argument of a given type to a string
  */
-string op_val_to_string(
+string op_val2string(
    const argtype_t argtype,   /**< [in] type of argument */
    const op_val_t  &op_val    /**< [in] value of argument */
 );

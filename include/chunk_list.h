@@ -321,8 +321,8 @@ chunk_t *get_prev_oc_class(
  * Gets the previous function open brace
  */
 chunk_t *get_prev_fparen_open(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t     *pc,              /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -330,8 +330,8 @@ chunk_t *get_prev_fparen_open(
  * Gets the previous chunk that is not a preprocessor
  */
 chunk_t *get_prev_non_pp(
-   chunk_t     *pc,            /**< [in] chunk to start with */
-   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t *pc,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
 
 
@@ -730,7 +730,7 @@ bool chunk_is_balanced_square(
  * check if a chunk is valid and holds part of a preprocessor region
  */
 bool chunk_is_preproc(
-   chunk_t *pc  /**< [in] chunk to check */
+   chunk_t * pc  /**< [in] chunk to check */
 );
 
 
@@ -764,7 +764,7 @@ bool chunk_is_comment_newline_or_preproc(
  * check if a chunk is valid and holds a single line comment
  */
 bool chunk_is_single_line_comment(
-   chunk_t *pc  /**< [in] chunk to check */
+   const chunk_t * const pc  /**< [in] chunk to check */
 );
 
 
@@ -772,7 +772,7 @@ bool chunk_is_single_line_comment(
  * check if a chunk is valid and holds a semicolon
  */
 bool chunk_is_semicolon(
-   chunk_t *pc  /**< [in] chunk to check */
+   const chunk_t * const pc  /**< [in] chunk to check */
 );
 
 
@@ -780,7 +780,7 @@ bool chunk_is_semicolon(
  * check if a chunk is valid and holds a variable type
  */
 bool chunk_is_var_type(
-   chunk_t *pc  /**< [in] chunk to check */
+   const chunk_t * const pc  /**< [in] chunk to check */
 );
 
 
@@ -819,7 +819,7 @@ bool chunk_is_type(
  * check if the given chunk is valid and holds a given parent token type
  */
 bool chunk_is_ptype(
-   chunk_t *pc,      /**< [in] chunk to check */
+   const chunk_t * const pc,      /**< [in] chunk to check */
    c_token_t parent  /**< [in] token type to check for */
 );
 
@@ -829,7 +829,7 @@ bool chunk_is_ptype(
  * than a given one
  */
 bool chunk_is_not_type(
-   chunk_t *pc,       /**< [in] chunk to check */
+   const chunk_t * const pc,       /**< [in] chunk to check */
    c_token_t c_token  /**< [in] token type to check for */
 );
 
@@ -850,7 +850,7 @@ bool chunk_is_type(
  * part of a given list
  */
 bool chunk_is_ptype(
-   chunk_t *pc,   /**< [in] chunk to check */
+   const chunk_t * const pc,   /**< [in] chunk to check */
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of token types to check for */
 );
@@ -861,9 +861,9 @@ bool chunk_is_ptype(
  * different from all types in a given list
  */
 bool chunk_is_not_type(
-   chunk_t *pc,   /**< [in] chunk to check */
-   int count,     /**< [in] number of token types to check */
-   ...            /**< [in] list of token types to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   int count,                /**< [in] number of token types to check */
+   ...                       /**< [in] list of token types to check for */
 );
 
 

@@ -262,7 +262,7 @@ void print_universal_indent_cfg(FILE *pfile)
                fprintf(pfile, "EditorType=string\n");
                string     val_string;
                const char *val_str;
-               val_string = op_val_to_string(option->type, cpd.settings[option->id]);
+               val_string = op_val2string(option->type, cpd.settings[option->id]);
                val_str    = val_string.c_str();
                fprintf(pfile, "ValueDefault=%s\n", val_str);
                break;

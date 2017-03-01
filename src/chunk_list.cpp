@@ -575,14 +575,13 @@ chunk_t *get_prev_non_pp(chunk_t *pc, const scope_e scope)
 }
 
 
-
 chunk_t *get_prev_fparen_open(chunk_t *pc, const scope_e scope)
 {
    return (chunk_search(pc, chunk_is_fparen_open, scope, dir_e::BEFORE, true));
 }
 
 
-chunk_t *get_next_function(chunk_t *pc, const scope_e scope)
+chunk_t *get_next_function(chunk_t *pc, scope_e scope)
 {
    return (chunk_search(pc, chunk_is_function, scope, dir_e::AFTER, true));
 }
@@ -949,14 +948,14 @@ bool chunk_is_type(const chunk_t *pc, c_token_t type)
 }
 
 
-bool chunk_is_ptype(chunk_t *pc, c_token_t parent)
+bool chunk_is_ptype(const chunk_t * const pc, c_token_t parent)
 {
    return((chunk_is_valid(pc)       ) &&
           (pc->parent_type == parent) );
 }
 
 
-bool chunk_is_not_type(chunk_t *pc, c_token_t c_token)
+bool chunk_is_not_type(const chunk_t * const pc, c_token_t c_token)
 {
    return((chunk_is_valid(pc) ) &&
           (pc->type != c_token) );
@@ -990,7 +989,7 @@ bool chunk_is_type(const chunk_t *pc, int count, ... )
 }
 
 /* todo combine with chunk_is_type */
-bool chunk_is_ptype(chunk_t *pc, int count, ... )
+bool chunk_is_ptype(const chunk_t * const pc, int count, ... )
 {
    va_list args;           /* define  argument list */
    va_start(args, count);  /* initialize argument list */
@@ -1014,7 +1013,7 @@ bool chunk_is_ptype(chunk_t *pc, int count, ... )
 
 
 /* \todo combine with chunk_is_not_parent_type */
-bool chunk_is_not_type(chunk_t *pc, int count, ... )
+bool chunk_is_not_type(const chunk_t * const pc, int count, ... )
 {
    va_list args;           /* define     argument list */
    va_start(args, count);  /* initialize argument list */
@@ -1143,14 +1142,14 @@ bool chunk_is_balanced_square(chunk_t *pc)
 }
 
 
-bool chunk_is_preproc(chunk_t *pc)
+bool chunk_is_preproc(chunk_t * pc)
 {
    return((chunk_is_valid(pc)        ) &&
           (pc->flags & PCF_IN_PREPROC) );
 }
 
 
-bool chunk_is_comment_or_newline_in_preproc(chunk_t *pc)
+bool chunk_is_comment_or_newline_in_preproc(chunk_t * pc)
 {
    return( chunk_is_preproc(pc) &&
           (chunk_is_comment(pc) || chunk_is_newline(pc) ) );
@@ -1165,28 +1164,28 @@ bool chunk_is_comment_newline_or_preproc(chunk_t *pc)
 }
 
 
-bool chunk_is_comment_newline_or_blank(chunk_t *pc)
+bool chunk_is_comment_newline_or_blank(chunk_t * pc)
 {
    return(chunk_is_comment_or_newline(pc) ||
           chunk_is_empty             (pc) );
 }
 
 
-bool chunk_is_single_line_comment(chunk_t *pc)
+bool chunk_is_single_line_comment(const chunk_t * const pc)
 {
    return(chunk_is_type(pc, 2, CT_COMMENT,
                                CT_COMMENT_CPP));
 }
 
 
-bool chunk_is_semicolon(chunk_t *pc)
+bool chunk_is_semicolon(const chunk_t * const pc)
 {
    return(chunk_is_type(pc, 2, CT_SEMICOLON,
                                CT_VSEMICOLON));
 }
 
 
-bool chunk_is_var_type(chunk_t *pc)
+bool chunk_is_var_type(const chunk_t * const pc)
 {
    return(chunk_is_type(pc, 8, CT_TYPE,
                                CT_PTR_TYPE,

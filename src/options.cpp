@@ -2158,7 +2158,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             }
          }
          first = false;
-         string     val_string = op_val_to_string(option->type, cpd.settings[option->id]);
+         string     val_string = op_val2string(option->type, cpd.settings[option->id]);
          const char *val_str   = val_string.c_str();
          size_t     val_len    = strlen(val_str);
          size_t     name_len   = strlen(option->name);
@@ -2169,7 +2169,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          {
             string     val_string_D;
             const char *val_default;
-            val_string_D = op_val_to_string(option->type, cpd.defaults[option->id]);
+            val_string_D = op_val2string(option->type, cpd.defaults[option->id]);
             val_default  = val_string_D.c_str();
             if ((strcmp(val_default, val_str) == 0))
             {
@@ -2197,7 +2197,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             {
                fprintf(pfile, "%*.s # %s",
                        (int)(8 - val_len), " ",
-                       argtype_to_string(option->type).c_str());
+                       argtype2string(option->type).c_str());
             }
             fputs("\n", pfile);
          }
@@ -2337,7 +2337,7 @@ void set_option_defaults(void)
 }
 
 
-string argtype_to_string(argtype_t argtype)
+string argtype2string(argtype_t argtype)
 {
    switch (argtype)
    {
@@ -2384,13 +2384,19 @@ const char *get_argtype_name(argtype_t argtype)
 }
 
 
-string bool_to_string(bool val)
+const char* bool2str(bool val)
 {
    return ((val) ? "true" :"false");
 }
 
 
-string argval_to_string(argval_t argval)
+string bool2string(bool val)
+{
+   return ((val) ? "true" :"false");
+}
+
+
+string argval2string(argval_t argval)
 {
    switch (argval)
    {
@@ -2404,7 +2410,7 @@ string argval_to_string(argval_t argval)
 }
 
 
-string number_to_string(int number)
+string number2string(int number)
 {
    char buffer[12]; // 11 + 1
    sprintf(buffer, "%d", number);
@@ -2415,7 +2421,7 @@ string number_to_string(int number)
 }
 
 
-string lineends_to_string(lineends_t linends)
+string lineends2string(lineends_t linends)
 {
    switch (linends)
    {
@@ -2429,7 +2435,7 @@ string lineends_to_string(lineends_t linends)
 }
 
 
-string tokenpos_to_string(tokenpos_t tokenpos)
+string tokenpos2string(tokenpos_t tokenpos)
 {
    switch (tokenpos)
    {
@@ -2447,16 +2453,16 @@ string tokenpos_to_string(tokenpos_t tokenpos)
 }
 
 
-string op_val_to_string(const argtype_t argtype, const op_val_t &op_val)
+string op_val2string(const argtype_t argtype, const op_val_t &op_val)
 {
    switch (argtype)
    {
-      case AT_BOOL:   return(bool_to_string       (op_val.b ));
-      case AT_IARF:   return(argval_to_string     (op_val.a ));
-      case AT_NUM:    return(number_to_string     (op_val.n ));
-      case AT_UNUM:   return(number_to_string((int)op_val.u ));
-      case AT_LINE:   return(lineends_to_string   (op_val.le));
-      case AT_POS:    return(tokenpos_to_string   (op_val.tp));
+      case AT_BOOL:   return(bool2string       (op_val.b ));
+      case AT_IARF:   return(argval2string     (op_val.a ));
+      case AT_NUM:    return(number2string     (op_val.n ));
+      case AT_UNUM:   return(number2string((int)op_val.u ));
+      case AT_LINE:   return(lineends2string   (op_val.le));
+      case AT_POS:    return(tokenpos2string   (op_val.tp));
       case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
                       return("");
