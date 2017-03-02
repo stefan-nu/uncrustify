@@ -40,8 +40,7 @@ void print_universal_indent_cfg(FILE *pfile)
    }
    fprintf(pfile, "\n");
 
-   fprintf(pfile,
-           "cfgFileParameterEnding=cr\n"
+   fprintf(pfile, "cfgFileParameterEnding=cr\n"
            "configFilename=uncrustify.cfg\n");
 
 

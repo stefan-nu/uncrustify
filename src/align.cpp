@@ -380,7 +380,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
    size_t  min_col;
    chunk_t *prev = chunk_get_prev(pc);
-   if (chunk_is_invalid  (prev) ||
+   if (chunk_is_invalid (prev) ||
         chunk_is_newline(prev) )
    {
       min_col = squeeze ? 1 : pc->column;
@@ -394,8 +394,9 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
       if (squeeze == false) { min_col = max(min_col, pc->column); }
 
-      const char *type = (chunk_is_type(prev, CT_COMMENT_MULTI)) ? "Y" : "N";
-      size_t col = (chunk_is_type(prev, CT_COMMENT_MULTI)) ? prev->orig_col_end : (UINT32)prev->column;
+      const bool is_multi = chunk_is_type(prev, CT_COMMENT_MULTI);
+      const char *type = (is_multi) ? "Y" : "N";
+      const size_t col = (is_multi) ? prev->orig_col_end : (UINT32)prev->column;
 
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu \
             min_col=%zu multi:%s prev->col=%u prev->len()=%zu %s\n",
@@ -673,8 +674,12 @@ void align_preprocessor(void)
 
       /* step to the value past the close parenthesis or the macro name */
       pc = chunk_get_next(pc);
-//      break_if_invalid(pc);
+
+#if 0
+      break_if_invalid(pc);
+#else
       if (chunk_is_invalid(pc)) { break; }
+#endif
 
       /* don't align anything if the first line ends with a newline before
        * a value is given */
@@ -696,6 +701,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
 {
    LOG_FUNC_ENTRY();
    retval_if_invalid(first, first);
+
    const size_t my_level = first->level;
    retval_if(span == 0, chunk_get_next(first));
 
@@ -735,7 +741,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
       /* Recurse if a brace set is found */
       if(chunk_is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN))
       {
-         bool is_enum = chunk_is_ptype(pc, CT_ENUM);
+         const bool is_enum     = chunk_is_ptype(pc, CT_ENUM);
          const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
          const uo_t thresh_type = is_enum ? UO_align_enum_equ_thresh : UO_align_assign_thresh;
          size_t myspan   = cpd.settings[span_type  ].u;
@@ -756,7 +762,6 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
       {
          as.NewLines  (pc->nl_count);
          vdas.NewLines(pc->nl_count);
-
          var_def_cnt = 0;
          equ_count   = 0;
       }
@@ -769,13 +774,10 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          /* we hit the second variable def - don't look for assigns, don't align */
          vdas.Reset();
       }
-      else if ((equ_count == 0        ) &&
+      else if ((equ_count == 0            ) &&
                chunk_is_type(pc, CT_ASSIGN) &&
-               ((pc->flags & PCF_IN_TEMPLATE) == 0)) // Issue #999
+               ((pc->flags & PCF_IN_TEMPLATE) == 0))
       {
-         //fprintf(stderr, "%s:  ** %s level=%d line=%zu col=%d prev=%d count=%d\n",
-         //        __func__, pc->str, pc->level, pc->orig_line, pc->orig_col, prev_equ_type,
-         //        equ_count);
          equ_count++;
          if (var_def_cnt != 0) { vdas.Add(pc); }
          else                  { as.Add  (pc); }
@@ -956,7 +958,7 @@ static void align_same_func_call_params(void)
       while(chunk_is_type(prev, 2, CT_MEMBER, CT_DC_MEMBER))
       {
          chunk_t *tprev = chunk_get_prev(prev);
-         if (!chunk_is_type(tprev, CT_TYPE))
+         if (chunk_is_not_type(tprev, CT_TYPE))
          {
             prev = tprev;
             break;
@@ -1071,9 +1073,8 @@ static void align_same_func_call_params(void)
 
 static chunk_t *step_back_over_member(chunk_t *pc)
 {
-   chunk_t *tmp;
-
    /* Skip over any class stuff: bool CFoo::bar() */
+   chunk_t *tmp;
    while (((tmp = chunk_get_prev_ncnl(pc)) != nullptr) &&
            chunk_is_type(tmp, CT_DC_MEMBER))
    {
@@ -1087,7 +1088,6 @@ static chunk_t *step_back_over_member(chunk_t *pc)
 static void align_func_proto(size_t span)
 {
    LOG_FUNC_ENTRY();
-
    LOG_FMT(LALIGN, "%s\n", __func__);
 
    AlignStack as;
@@ -1114,8 +1114,13 @@ static void align_func_proto(size_t span)
       else if ( chunk_is_type(pc, CT_FUNC_PROTO) ||
                (chunk_is_type(pc, CT_FUNC_DEF  ) && cpd.settings[UO_align_single_line_func].b))
       {
+#if 0
          if ((pc->parent_type == CT_OPERATOR) &&
              cpd.settings[UO_align_on_operator].b)
+#else
+         if (chunk_is_ptype(pc, CT_OPERATOR) &&
+             cpd.settings[UO_align_on_operator].b)
+#endif
          {
             toadd = chunk_get_prev_ncnl(pc);
          }
@@ -1128,7 +1133,7 @@ static void align_func_proto(size_t span)
                     cpd.settings[UO_align_single_line_brace].b);
       }
       else if ((look_bro == true) &&
-               (chunk_is_type(pc, CT_BRACE_OPEN)) &&
+               chunk_is_type(pc, CT_BRACE_OPEN) &&
                (pc->flags & PCF_ONE_LINER))
       {
          as_br.Add(pc);
@@ -1143,8 +1148,11 @@ static void align_func_proto(size_t span)
 static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
 {
    LOG_FUNC_ENTRY();
-//   retval_if_invalid(start, start);
+#if 0
+   retval_if_invalid(start, start);
+#else
    if (chunk_is_invalid(start)) { return(start); }
+#endif
 
    chunk_t *next;
    size_t  myspan   = span;
@@ -1246,7 +1254,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                           cpd.settings[UO_align_single_line_brace].b;
          }
          else if ((fp_look_bro == true      ) &&
-                  (chunk_is_type(pc, CT_BRACE_OPEN)) &&
+                  chunk_is_type(pc, CT_BRACE_OPEN) &&
                   (pc->flags & PCF_ONE_LINER) )
          {
             as_br.Add(pc);
@@ -1315,7 +1323,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
          if (!did_this_line)
          {
             if (chunk_is_ptype(start, CT_STRUCT) &&
-                (as.m_star_style    == SS_INCLUDE) )
+                (as.m_star_style  == SS_INCLUDE) )
             {
                // we must look after the previous token
                chunk_t *prev_local = pc->prev;
@@ -1653,19 +1661,16 @@ static void align_init_brace(chunk_t *start)
    LOG_FUNC_ENTRY();
 
    chunk_t *num_token = nullptr;
-
-   cpd.al_cnt       = 0;
-   cpd.al_c99_array = false;
+   cpd.al_cnt         = 0;
+   cpd.al_c99_array   = false;
 
    LOG_FMT(LALBR, "%s: start @ %zu:%zu\n", __func__, start->orig_line, start->orig_col);
 
    chunk_t *pc = chunk_get_next_ncnl(start);
    pc = scan_ib_line(pc, true);
-   if(chunk_is_type       (pc, CT_BRACE_CLOSE) &&
-      chunk_is_ptype(pc, CT_ASSIGN     ) )
-   {
-      return;  /* single line - nothing to do */
-   }
+
+   /* single line - nothing to do */
+   if(chunk_is_type_and_ptype(pc, CT_BRACE_CLOSE, CT_ASSIGN)) { return; }
 
    do
    {
@@ -1785,10 +1790,7 @@ static void align_init_brace(chunk_t *start)
             }
             idx++;
          }
-         else
-         {
-            LOG_FMT(LALBR, " no match\n");
-         }
+         else { LOG_FMT(LALBR, " no match\n"); }
       }
       if (chunk_is_newline(pc  ) ||
           chunk_is_newline(next) )
@@ -1833,10 +1835,7 @@ static void align_typedefs(size_t span)
       }
       else
       {
-         if (chunk_is_type(pc, CT_TYPEDEF))
-         {
-            c_typedef = pc;
-         }
+         if (chunk_is_type(pc, CT_TYPEDEF)) { c_typedef = pc; }
       }
 
       pc = chunk_get_next(pc);
@@ -1958,10 +1957,7 @@ static void align_oc_msg_colon(chunk_t *so)
 
    while (chunk_is_valid(pc) && (pc->level > level))
    {
-      if (pc->level > (level + 1))
-      {
-         /* do nothing */
-      }
+      if (pc->level > (level + 1)) { /* do nothing */ }
       else if (chunk_is_newline(pc))
       {
          if (has_colon == false)
@@ -2038,7 +2034,6 @@ static void align_oc_msg_colon(chunk_t *so)
       {
          chunk.str.append(' ');
       }
-
       chunk_add_before(&chunk, longest);
    }
    nas.End();
@@ -2052,7 +2047,7 @@ static void align_oc_msg_colons(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (chunk_is_type       (pc, CT_SQUARE_OPEN) &&
+      if (chunk_is_type (pc, CT_SQUARE_OPEN) &&
           chunk_is_ptype(pc, CT_OC_MSG     ) )
       {
          align_oc_msg_colon(pc);

@@ -1275,7 +1275,7 @@ bool chunk_is_paren_close(chunk_t *pc)
 bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 {
    return((chunk_is_valid(pc)               ) && /* valid pc pointer */
-          (pc->len()              == len    ) && /* token size equals size parameter */
+          (pc->len() == len                 ) && /* token size equals size parameter */
           (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
 

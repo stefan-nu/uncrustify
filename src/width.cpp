@@ -203,8 +203,9 @@ void do_code_width(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if ((chunk_is_newline (pc) == false  ) &&
-          (chunk_is_comment (pc) == false  ) &&
+//      if ((chunk_is_newline (pc) == false  ) &&
+//          (chunk_is_comment (pc) == false  ) &&
+      if ((!chunk_is_comment_or_newline(pc)) &&
           (chunk_is_not_type(pc, CT_SPACE) ) &&
           (is_past_width    (pc) == true   ) )
       {
@@ -387,14 +388,10 @@ static bool split_line(chunk_t *start)
    }
 
    /* Break before the token instead of after it according to the pos_xxx rules */
-   if (chunk_is_invalid(ent.pc))
-   {
-      pc = nullptr;
-   }
+   if (chunk_is_invalid(ent.pc)) { pc = nullptr; }
    else
    {
-      if(
-         ( (chunk_is_type(ent.pc, 2, CT_ARITH, CT_CARET        ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
+      if(( (chunk_is_type(ent.pc, 2, CT_ARITH, CT_CARET        ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
          ( (chunk_is_type(ent.pc,    CT_ASSIGN                 ) ) && is_token_set(cpd.settings[UO_pos_assign     ].tp, TP_LEAD) ) ||
          ( (chunk_is_type(ent.pc,    CT_COMPARE                ) ) && is_token_set(cpd.settings[UO_pos_compare    ].tp, TP_LEAD) ) ||
          ( (chunk_is_type(ent.pc, 2, CT_COND_COLON, CT_QUESTION) ) && is_token_set(cpd.settings[UO_pos_conditional].tp, TP_LEAD) ) ||
@@ -402,10 +399,8 @@ static bool split_line(chunk_t *start)
       {
          pc = ent.pc;
       }
-      else
-      {
-         pc = chunk_get_next(ent.pc);
-      }
+      else { pc = chunk_get_next(ent.pc); }
+
       assert(chunk_is_valid(pc));
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
    }
@@ -414,9 +409,9 @@ static bool split_line(chunk_t *start)
    {
       pc = start;
       /* Don't break before a close, comma, or colon */
-      if(chunk_is_type(start, 11, CT_PAREN_CLOSE, CT_PAREN_OPEN, CT_FPAREN_CLOSE,
-         CT_FPAREN_OPEN, CT_SPAREN_CLOSE, CT_SPAREN_OPEN, CT_ANGLE_CLOSE,
-         CT_BRACE_CLOSE, CT_COMMA, CT_SEMICOLON, CT_VSEMICOLON) ||
+      if(chunk_is_type(start, 11, CT_COMMA,CT_PAREN_CLOSE, CT_PAREN_OPEN,
+         CT_FPAREN_OPEN, CT_SPAREN_CLOSE,  CT_VSEMICOLON,  CT_FPAREN_CLOSE,
+         CT_BRACE_CLOSE, CT_SPAREN_OPEN,   CT_SEMICOLON,   CT_ANGLE_CLOSE) ||
           (start->len() == 0) )
       {
          LOG_FMT(LSPLIT, " ** NO GO **\n");
@@ -486,8 +481,7 @@ static void split_for_statement(chunk_t *start)
    do
    {
       // \todo DRY2 start
-      if (chunk_is_type (pc, CT_SEMICOLON) &&
-          chunk_is_ptype(pc, CT_FOR      ) )
+      if (chunk_is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
       {
          st[count] = pc;
          count++;
@@ -506,8 +500,7 @@ static void split_for_statement(chunk_t *start)
           ( pc->flags & PCF_IN_SPAREN          ) )
    {
       // \todo DRY2 start
-      if (chunk_is_type (pc, CT_SEMICOLON) &&
-          chunk_is_ptype(pc, CT_FOR      ) )
+      if (chunk_is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
       {
          st[count] = pc;
          count++;
@@ -557,6 +550,30 @@ static void split_for_statement(chunk_t *start)
       }
    }
 }
+
+
+#if 0
+/*
+ * scan through the chunk list and count the number
+ * of chunks of a given type
+ */
+void scan_for_type(chunk_t* pc, int* count, size_t  max_cnt, dir_e dir)
+{
+   const search_t search_function = select_search_fct(dir);
+
+   do
+   {
+      if (chunk_is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
+      {
+         st[count] = pc;
+         count++;
+      }
+   }
+   while ( (count < (int)max_cnt                ) &&
+           ((pc = chunk_get_prev(pc)) != nullptr) &&
+           (pc->flags & PCF_IN_SPAREN           ) );
+}
+#endif
 
 
 static void split_fcn_params_full(chunk_t *start)

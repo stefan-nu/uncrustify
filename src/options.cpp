@@ -1962,7 +1962,6 @@ bool is_path_relative(const char *path)
 void process_option_line(char *configLine, const char *filename)
 {
    cpd.line_number++;
-
    char *ptr;
    /* Chop off trailing comments */
    if ((ptr = strchr(configLine, '#')) != nullptr) { *ptr = 0; }

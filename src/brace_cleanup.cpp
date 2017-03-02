@@ -281,7 +281,7 @@ static bool maybe_while_of_do(chunk_t *pc)
    chunk_t *prev;
 
    prev = chunk_get_prev_ncnl(pc);
-   if ((chunk_is_invalid(prev)           ) ||
+   if ((chunk_is_invalid(prev)          ) ||
        (!(prev->flags & PCF_IN_PREPROC) ) )
    {
       return(false);
@@ -299,7 +299,7 @@ static bool maybe_while_of_do(chunk_t *pc)
 #endif
 
    if (chunk_is_ptype(prev, CT_DO) &&
-       chunk_is_type(prev, 2, CT_VBRACE_CLOSE, CT_BRACE_CLOSE))
+       chunk_is_type (prev, 2, CT_VBRACE_CLOSE, CT_BRACE_CLOSE))
    {
       return(true);
    }
@@ -607,9 +607,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
                parent = CT_ASSIGN;
             }
             /*  Carry through CT_ENUM parent in NS_ENUM (type, name) { */
-            else if ((chunk_is_type(prev, CT_FPAREN_CLOSE)) &&
-                     (cpd.lang_flags & LANG_OC            ) &&
-                     (chunk_is_ptype(prev, CT_ENUM) ) )
+            else if (chunk_is_type_and_ptype(prev, CT_FPAREN_CLOSE, CT_ENUM) &&
+                     (cpd.lang_flags & LANG_OC) )
             {
                parent = CT_ENUM;
             }
@@ -628,7 +627,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    /** Adjust the level for opens & create a stack entry
     * Note that CT_VBRACE_OPEN has already been handled. */
    if (chunk_is_type(pc, 7, CT_BRACE_OPEN, CT_PAREN_OPEN, CT_FPAREN_OPEN,
-            CT_SPAREN_OPEN, CT_ANGLE_OPEN, CT_MACRO_OPEN, CT_SQUARE_OPEN) )
+            CT_SPAREN_OPEN, CT_ANGLE_OPEN, CT_MACRO_OPEN, CT_SQUARE_OPEN))
    {
       frm->level++;
 
@@ -679,7 +678,6 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
                              CT_BRACE_CLOSE, CT_VBRACE_CLOSE) ||
        chunk_is_type_and_not_ptype(pc, CT_BRACE_OPEN,  CT_ASSIGN) ||
        chunk_is_type_and_ptype    (pc, CT_SPAREN_OPEN, CT_FOR   ) ||
-//     ((pc->type == CT_SPAREN_OPEN ) && (pc->parent_type == CT_FOR)) ||
        (chunk_is_semicolon(pc) &&
         (frm->pse[frm->pse_tos].type != CT_PAREN_OPEN ) &&
         (frm->pse[frm->pse_tos].type != CT_FPAREN_OPEN) &&
@@ -694,30 +692,26 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    /* Mark expression starts */
    const chunk_t *tmp = chunk_get_next_ncnl(pc);
    if (chunk_is_type(pc, 23, CT_PAREN_OPEN,  CT_ARITH,  CT_CASE, CT_COMPARE,
-                             CT_ANGLE_CLOSE, CT_MINUS,  CT_PLUS, CT_RETURN,
+                             CT_ANGLE_CLOSE, CT_MINUS,  CT_PLUS, CT_QUESTION,
                              CT_ANGLE_OPEN,  CT_ASSIGN, CT_BOOL, CT_CONTINUE,
                              CT_FPAREN_OPEN, CT_CARET,  CT_GOTO, CT_THROW,
                              CT_SPAREN_OPEN, CT_COMMA,  CT_NOT,  CT_COLON,
-                             CT_BRACE_OPEN,  CT_INV,    CT_QUESTION)       ||
-        chunk_is_semicolon(pc)                                             ||
-       (chunk_is_type(pc, CT_STAR) && chunk_is_not_type(tmp, CT_STAR))     )
+                             CT_BRACE_OPEN,  CT_INV,    CT_RETURN)    ||
+        chunk_is_semicolon(pc)                                        ||
+       (chunk_is_type(pc, CT_STAR) && chunk_is_not_type(tmp, CT_STAR)))
    {
       frm->expr_count = 0;
       LOG_FMT(LSTMT, "%s: %zu> reset expr on %s\n", __func__, pc->orig_line, pc->text());
    }
 
-   else if (chunk_is_type(pc, CT_BRACE_CLOSE))
+   else if (chunk_is_type(pc, CT_BRACE_CLOSE) &&
+            cpd.consumed     == false         &&
+            cpd.unc_off_used == false         )
    {
-      if (!cpd.consumed)
-      {
-         if (!cpd.unc_off_used)
-         {
-            /* fatal error */
-            fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%zu, column=%zu\n",
-                    pc->orig_line, pc->orig_col);
-            exit(EXIT_FAILURE);
-         }
-      }
+      /* fatal error */
+      fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%zu, column=%zu\n",
+              pc->orig_line, pc->orig_col);
+      exit(EXIT_FAILURE);
    }
 }
 
@@ -1024,8 +1018,8 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       if (((pc->flags  & PCF_IN_PREPROC) == 0) &&
            (ref->flags & PCF_IN_PREPROC      ) )
       {
-         if (chunk_is_type(ref, CT_PREPROC_BODY)) { ref = get_prev_non_pp(ref); }
-         else                                     { ref = chunk_get_next (ref); }
+         const bool is_pp_body = chunk_is_type(ref, CT_PREPROC_BODY);
+         ref = (is_pp_body) ? get_prev_non_pp(ref): chunk_get_next (ref);
       }
 
       assert(chunk_is_valid(ref));

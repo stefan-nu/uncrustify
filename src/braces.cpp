@@ -274,11 +274,13 @@ static bool can_remove_braces(chunk_t *bopen)
    }
 
    chunk_t *pc = chunk_get_next_ncnl(bopen, scope_e::PREPROC);
+   /* Can't remove empty statement */
    if(chunk_is_invalid(pc                ) ||
       chunk_is_type   (pc, CT_BRACE_CLOSE) ) /* Can't remove empty statement */
    {
       return(false);
    }
+
    // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
 
@@ -312,10 +314,14 @@ static bool can_remove_braces(chunk_t *bopen)
       }
       else
       {
-         if      (chunk_is_type(pc, CT_BRACE_OPEN )) { br_count++; }
-         else if (chunk_is_type(pc, CT_BRACE_CLOSE)) { br_count--; }
-         else if (chunk_is_type(pc, 2, CT_IF, CT_ELSEIF) &&
-                   (br_count == 0)   )  { if_count++; }
+         switch(pc->type)
+         {
+            case(CT_BRACE_OPEN ): br_count++; break;
+            case(CT_BRACE_CLOSE): br_count--; break;
+            case(CT_IF         ): /* fallthrough */
+            case(CT_ELSEIF     ): if(br_count == 0)  { if_count++; }  break;
+            default:              /* do nothing */ break;
+         }
 
          if (pc->level == level)
          {
@@ -342,7 +348,9 @@ static bool can_remove_braces(chunk_t *bopen)
                                CT_FOR, CT_DO, CT_WHILE,  CT_USING_STMT) &&
                    was_fcn == true))
             {
-               hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
+               // DRY with line 485
+               const bool is_semi = chunk_is_semicolon(pc);
+               hit_semi = (is_semi) ? true : hit_semi;
                if (++semi_count > 1)
                {
                   LOG_FMT(LBRDEL, " bailed on %zu because of %s on line %zu\n",
@@ -362,8 +370,7 @@ static bool can_remove_braces(chunk_t *bopen)
       return(false);
    }
    // DRY 7 end
-   if (chunk_is_type (pc, CT_BRACE_CLOSE) &&
-       chunk_is_ptype(pc, CT_IF         ) )
+   if (chunk_is_type_and_ptype(pc, CT_BRACE_CLOSE, CT_IF))
    {
       chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
 
@@ -480,7 +487,9 @@ static void examine_brace(chunk_t *bopen)
                        CT_USING_STMT, CT_DO, CT_WHILE, CT_VSEMICOLON, CT_SWITCH) ||
                  (chunk_is_type(pc, CT_BRACE_OPEN) && (was_fcn == true)) )
             {
-               hit_semi = (chunk_is_semicolon(pc) == true) ? true : hit_semi;
+               // DRY with line 345
+               const bool is_semi = chunk_is_semicolon(pc);
+               hit_semi = (is_semi) ? true : hit_semi;
                if (++semi_count > 1)
                {
                   LOG_FMT(LBRDEL, " bailed on %zu because of %s on line %zu\n",
@@ -667,10 +676,17 @@ static void convert_vbrace_to_brace(void)
                /* Can't leave a preprocessor */
                break;
             }
+#if 0
             if ((pc->brace_level == tmp->brace_level) &&
                 (chunk_is_type(tmp, CT_VBRACE_CLOSE)) &&
                 (pc->parent_type == tmp->parent_type) &&
                 ((tmp->flags & PCF_IN_PREPROC) == (pc->flags & PCF_IN_PREPROC)))
+#else
+            if ((pc->brace_level == tmp->brace_level) &&
+                 chunk_is_type (tmp, CT_VBRACE_CLOSE) &&
+                 chunk_is_ptype(pc, tmp->parent_type) &&
+                ((tmp->flags & PCF_IN_PREPROC) == (pc->flags & PCF_IN_PREPROC)))
+#endif
             {
                vbc = tmp;
                break;
@@ -789,8 +805,7 @@ void add_long_closebrace_comment(void)
       }
 
       chunk_t *br_open = pc;
-      size_t   nl_count = 0;
-
+      size_t  nl_count = 0;
       chunk_t *tmp = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
@@ -810,8 +825,7 @@ void add_long_closebrace_comment(void)
             tmp = chunk_get_next(tmp);
 
             // Check for end of class
-            if(chunk_is_type       (tmp, CT_SEMICOLON) &&
-               chunk_is_ptype(tmp, CT_CLASS    ) )
+            if(chunk_is_type_and_ptype(tmp, CT_SEMICOLON, CT_CLASS))
             {
                cl_semi_pc = tmp;
                tmp        = chunk_get_next(tmp);
@@ -822,8 +836,8 @@ void add_long_closebrace_comment(void)
                   cl_semi_pc = nullptr;
                }
             }
-            if (chunk_is_invalid  (tmp) ||
-                 chunk_is_newline(tmp) )
+            if (chunk_is_invalid(tmp) ||
+                chunk_is_newline(tmp) )
             {
                size_t  nl_min  = 0;
                chunk_t *tag_pc = nullptr;
@@ -841,7 +855,7 @@ void add_long_closebrace_comment(void)
                   xstr.clear();
                   append_tag_name(xstr, tag_pc);
                }
-               else if (br_open->parent_type == CT_NAMESPACE)
+               else if (chunk_is_ptype(br_open, CT_NAMESPACE))
                {
                   nl_min = cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u;
                   tag_pc = ns_pc;
@@ -853,8 +867,8 @@ void add_long_closebrace_comment(void)
                   xstr.append(" ");
                   append_tag_name(xstr, chunk_get_next(ns_pc));
                }
-               else if ( (br_open->parent_type == CT_CLASS   ) &&
-                         (chunks_are_valid(cl_pc, cl_semi_pc)) )
+               else if ( chunk_is_ptype  (br_open, CT_CLASS) &&
+                         chunks_are_valid(cl_pc, cl_semi_pc) )
                {
                   nl_min = cpd.settings[UO_mod_add_long_class_closebrace_comment].u;
                   tag_pc = cl_pc;

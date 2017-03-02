@@ -61,8 +61,11 @@ void AlignStack::ReAddSkipped()
 void AlignStack::Add(chunk_t *start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
-// return_if_invalid(start);
+#if 0
+   return_if_invalid(start);
+#else
    if (chunk_is_invalid(start)) { return; }
+#endif
 
    /* Assign a seqnum if needed */
    if (seqnum == 0) { seqnum = m_seqnum; }

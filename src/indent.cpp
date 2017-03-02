@@ -670,8 +670,7 @@ void indent_text(void)
          {
             prev = chunk_get_prev(pc);
             assert(chunk_is_valid(prev));
-            if (chunk_is_type (prev, CT_BRACE_CLOSE) &&
-                chunk_is_ptype(prev, CT_FUNC_DEF   ) )
+            if (chunk_is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_FUNC_DEF))
             {
                in_func_def = false;
                indent_pse_pop(frm, pc);
@@ -1352,8 +1351,7 @@ void indent_text(void)
       else if (chunk_is_type(pc, CT_BREAK))
       {
          prev = chunk_get_prev_ncnl(pc);
-         if (chunk_is_type (prev, CT_BRACE_CLOSE) &&
-             chunk_is_ptype(prev, CT_CASE       ) )
+         if (chunk_is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_CASE))
          {
             // issue #663
             const chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, (int)pc->level);
