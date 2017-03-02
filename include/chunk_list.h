@@ -12,6 +12,11 @@
 #include "char_table.h"
 
 
+/* for backward compatibility
+ * \todo remove later */
+#define set_chunk_parent set_chunk_ptype
+
+
 /* \todo better use a class for all chunk related operations,
  *  then the following functions can be changed into member
  *  functions. The function  "chunk_is_comment(chunk)" would for instance

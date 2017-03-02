@@ -1,6 +1,6 @@
 /**
  * @file brace_cleanup.cpp
- * Determines the brace level and paren level.
+ * Determines the brace level and parenthesis level.
  * Inserts virtual braces as needed.
  * Handles all that preprocessor stuff.
  *
@@ -114,8 +114,8 @@ static bool close_statement(
  * - checks for else after if
  * - checks for if after else
  * - checks for while after do
- * - checks for open brace in BRACE2 and BRACE_DO stages, inserts open VBRACE
- * - checks for open paren in PAREN1 and PAREN2 stages, complains
+ * - checks for open brace       in BRACE2 and BRACE_DO stages, inserts open VBRACE
+ * - checks for open parenthesis in PAREN1 and PAREN2 stages, complains
  *
  * @return true  - done with this chunk
  * @retval false - keep processing
@@ -127,7 +127,7 @@ static bool check_complex_statements(
 
 
 /**
- * Handles a close paren or brace - just progress the stage, if the end
+ * Handles a close parenthesis or brace - just progress the stage, if the end
  * of the statement is hit, call close_statement()
  *
  * @return true  - done with this chunk
@@ -334,9 +334,9 @@ static void push_fmr_pse(parse_frame_t *frm, chunk_t *pc,
 
 /**
  * At the heart of this algorithm are two stacks.
- * There is the Paren Stack (PS) and the Frame stack.
+ * There is the Parenthesis Stack (PS) and the Frame stack.
  *
- * The PS (pse in the code) keeps track of braces, parens,
+ * The PS (pse in the code) keeps track of braces, parenthesis,
  * if/else/switch/do/while/etc items -- anything that is nestable.
  * Complex statements go through stages.
  * Take this simple if statement as an example:
@@ -400,7 +400,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    if (((frm->stmt_count == 0) ||
         (frm->expr_count == 0)     ) &&
        (!chunk_is_semicolon(pc)    ) &&
-       chunk_is_not_type(pc, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+         chunk_is_not_type(pc, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
        (!chunk_is_str(pc, ")", 1)  ) &&
        (!chunk_is_str(pc, "]", 1)  ) )
    {
@@ -445,11 +445,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
     * The virtual brace will get handled the next time through.
     * The semicolon isn't handled at all.
     * TODO: may need to float VBRACE past comments until newline? */
-#if 0
-   if (chunk_is_type(&frm->pse[frm->pse_tos], CT_VBRACE_OPEN))
-#else
    if (frm->pse[frm->pse_tos].type == CT_VBRACE_OPEN)
-#endif
    {
       if (chunk_is_semicolon(pc))
       {
@@ -465,20 +461,15 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       }
    }
 
-   /* Handle close paren, vbrace, brace, and square */
+   /* Handle close parenthesis, vbrace, brace, and square */
 
    if (chunk_is_type(pc, 6, CT_PAREN_CLOSE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE,
                             CT_ANGLE_CLOSE, CT_MACRO_CLOSE, CT_SQUARE_CLOSE) )
    {
       /* Change CT_PAREN_CLOSE into CT_SPAREN_CLOSE or CT_FPAREN_CLOSE */
-#if 0
-      if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
-           chunk_is_type(&frm->pse[frm->pse_tos], 2, CT_FPAREN_OPEN, CT_SPAREN_OPEN) )
-#else
       if ( chunk_is_type(pc, CT_PAREN_CLOSE)   &&
           ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
            (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN) ) )
-#endif
       {
          set_chunk_type(pc, get_inverse_type(frm->pse[frm->pse_tos].type) );
          if (chunk_is_type(pc, CT_SPAREN_CLOSE))
@@ -507,7 +498,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       {
          cpd.consumed = true;
 
-         /* Copy the parent, update the paren/brace levels */
+         /* Copy the parent, update the parenthesis/brace levels */
          set_chunk_ptype(pc, frm->pse[frm->pse_tos].parent);
          frm->level--;
          if (chunk_is_type(pc, 3, CT_BRACE_CLOSE, CT_VBRACE_CLOSE, CT_MACRO_CLOSE ) )
@@ -569,7 +560,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       }
    }
 
-   /* Get the parent type for brace and paren open */
+   /* Get the parent type for brace and parenthesis open */
    c_token_t parent = pc->parent_type;
    if (chunk_is_type(pc, 4, CT_PAREN_OPEN, CT_FPAREN_OPEN, CT_SPAREN_OPEN, CT_BRACE_OPEN ) )
    {
@@ -578,7 +569,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       {
          if (chunk_is_type(pc, 3, CT_PAREN_OPEN, CT_FPAREN_OPEN, CT_SPAREN_OPEN) )
          {
-            /* Set the parent for parens and change paren type */
+            /* Set the parent for parenthesis and change parenthesis type */
             if (frm->pse[frm->pse_tos].stage != brace_stage_e::NONE)
             {
                set_chunk_type(pc, CT_SPAREN_OPEN);
@@ -682,7 +673,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    /* Mark simple statement/expression starts
     *  - after { or }
-    *  - after ';', but not if the paren stack top is a paren
+    *  - after ';', but not if the parenthesis stack top is a parenthesis
     *  - after '(' that has a parent type of CT_FOR */
    if ( chunk_is_type(pc, 5, CT_SQUARE_OPEN, CT_COLON, CT_OC_END,
                              CT_BRACE_CLOSE, CT_VBRACE_CLOSE) ||
@@ -737,7 +728,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    c_token_t parent;
 
    assert(chunk_is_valid(pc));
-   /* Turn an optional paren into either a real paren or a brace */
+   /* Turn an optional parenthesis into either a real parenthesis or a brace */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
       frm->pse[frm->pse_tos].stage = (chunk_is_not_type(pc, CT_PAREN_OPEN)) ?
@@ -801,7 +792,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       if (close_statement(frm, pc)) { return(true); }
    }
 
-   /* Check for optional paren and optional CT_WHEN after CT_CATCH */
+   /* Check for optional parenthesis and optional CT_WHEN after CT_CATCH */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::CATCH_WHEN)
    {
       if (chunk_is_type(pc, CT_PAREN_OPEN))
@@ -881,7 +872,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       }
    }
 
-   /* Verify open paren in complex statement */
+   /* Verify open parenthesis in complex statement */
    if ( chunk_is_not_type(pc, CT_PAREN_OPEN                      )   &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )

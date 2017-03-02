@@ -500,7 +500,7 @@ void align_all(void)
    if (cpd.settings[UO_align_oc_decl_colon        ].b) { align_oc_decl_colon(); }
    if (cpd.settings[UO_align_asm_colon            ].b) { align_asm_colon(); }
 
-   /* Align variable defs in function prototypes */
+   /* Align variable definitions in function prototypes */
    if (cpd.settings[UO_align_func_params          ].b) { align_func_params(); }
    if (cpd.settings[UO_align_same_func_call_params].b) { align_same_func_call_params(); }
 
@@ -552,7 +552,7 @@ void align_right_comments(void)
       {
          if(chunk_is_ptype(pc, CT_COMMENT_END))
          {
-            bool          skip  = false;
+            bool    skip  = false;
             chunk_t *prev = chunk_get_prev(pc);
             assert(chunk_is_valid(prev));
             if (pc->orig_col < (size_t)((int)prev->orig_col_end + cpd.settings[UO_align_right_cmt_gap].n))
@@ -562,8 +562,7 @@ void align_right_comments(void)
                // others. Not the major feature, but a nice find. (min_val/max_val in
                // options.cpp isn't validated against, it seems; well, I don't mind! :-) )
                LOG_FMT(LALTC, "NOT changing END comment on line %zu (%zu <= %u + %d)\n",
-                       pc->orig_line,
-                       pc->orig_col, prev->orig_col_end, cpd.settings[UO_align_right_cmt_gap].n);
+                pc->orig_line, pc->orig_col, prev->orig_col_end, cpd.settings[UO_align_right_cmt_gap].n);
                skip = true;
             }
             if (skip == false)
@@ -663,7 +662,7 @@ void align_preprocessor(void)
             cur_as = &asf;
          }
 
-         /* Skip to the close paren */
+         /* Skip to the close parenthesis */
          pc = chunk_get_next_nc  (pc); // point to open (
          pc = chunk_get_next_type(pc, CT_FPAREN_CLOSE, (int)pc->level);
          assert(chunk_is_valid(pc));
@@ -672,7 +671,7 @@ void align_preprocessor(void)
                  __func__, pc->text(), pc->orig_line, pc->orig_col);
       }
 
-      /* step to the value past the close paren or the macro name */
+      /* step to the value past the close parenthesis or the macro name */
       pc = chunk_get_next(pc);
 //      break_if_invalid(pc);
       if (chunk_is_invalid(pc)) { break; }
@@ -716,10 +715,10 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
    size_t  equ_count   = 0;
    size_t  tmp;
    chunk_t *pc = first;
-   while ((chunk_is_valid(pc)) &&
+   while (  chunk_is_valid(pc) &&
           ((pc->level >= my_level) || (pc->level == 0)))
    {
-      /* Don't check inside PAREN or SQUARE groups */
+      /* Don't check inside parenthesis or SQUARE groups */
       if (chunk_is_type(pc, 4, CT_SPAREN_OPEN, CT_FPAREN_OPEN,
                                CT_SQUARE_OPEN, CT_PAREN_OPEN))
       {
@@ -851,6 +850,7 @@ static void align_func_params(void)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
 #if 0
+      // many tests fail
       continue_if(chunk_is_not_type (pc,    CT_FPAREN_OPEN) ||
                   chunk_is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
                     CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF));
@@ -862,7 +862,7 @@ static void align_func_params(void)
          continue;
       }
 #endif
-      /* We're on a open paren of a prototype */
+      /* We're on a open parenthesis of a prototype */
       pc = align_func_param(pc);
    }
 }

@@ -697,12 +697,11 @@ void indent_text(void)
             }
          }
       }
-      else if (pc->type == CT_PREPROC)
+      else if (chunk_is_type(pc, CT_PREPROC))
       {
          /* Close out PP_IF_INDENT before playing with the parse frames */
-         if ((frm.pse[frm.pse_tos].type == CT_PP_IF_INDENT) &&
-             ((pc->parent_type == CT_PP_ENDIF) ||
-              (pc->parent_type == CT_PP_ELSE ) ))
+         if ((frm.pse[frm.pse_tos].type == CT_PP_IF_INDENT  ) &&
+             (chunk_is_ptype(pc, 2, CT_PP_ENDIF, CT_PP_ELSE)) )
          {
             indent_pse_pop(frm, pc);
          }
@@ -2077,7 +2076,7 @@ void indent_text(void)
             if (pc->column != indent_column)
             {
                if (use_ident &&
-                   pc->type != CT_PP_IGNORE) // Leave indentation alone for PP_IGNORE tokens
+                   chunk_is_not_type(pc, CT_PP_IGNORE)) // Leave indentation alone for PP_IGNORE tokens
                {
                   log_and_reindent(pc, indent_column, "indent");
                }
@@ -2445,6 +2444,7 @@ void indent_preproc(void)
 #if 1
              (pc->parent_type != CT_PP_DEFINE))
 #else
+//           error
              chunk_is_not_ptype(pc, CT_PP_DEFINE))
 #endif
          {

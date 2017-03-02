@@ -976,6 +976,7 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
    chunk_t *pc;
    for (pc = chunk_get_prev(start); chunk_is_valid(pc); pc = chunk_get_prev(pc))
    {
+      /* \todo use switch here */
       if (chunk_is_newline(pc))
       {
          last_nl = pc;
@@ -2546,7 +2547,7 @@ void newlines_cleanup_braces(bool first)
                      if (chunk_is_comment(tmp))
                      {
                         if (!cpd.settings[UO_nl_after_brace_open_cmt].b &&
-                            (tmp->type != CT_COMMENT_MULTI))
+                             chunk_is_not_type(tmp, CT_COMMENT_MULTI)   )
                         {
                            break;
                         }
@@ -2669,10 +2670,7 @@ void newlines_cleanup_braces(bool first)
                          !chunk_is_comment(next) &&
                          !chunk_is_newline(next));
             }
-            if (add_it)
-            {
-               newline_iarf(pc, AV_ADD);
-            }
+            if (add_it) { newline_iarf(pc, AV_ADD); }
          }
 
          if ((((pc->parent_type == CT_IF    ) ||
@@ -2711,18 +2709,12 @@ void newlines_cleanup_braces(bool first)
       {
          if (cpd.settings[UO_nl_after_vbrace_close].b)
          {
-            if (!chunk_is_newline(chunk_get_next_nc(pc)))
-            {
-               newline_iarf(pc, AV_ADD);
-            }
+            if (!chunk_is_newline(chunk_get_next_nc(pc))) { newline_iarf(pc, AV_ADD); }
          }
       }
       else if (chunk_is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_MSG))
       {
-         if (cpd.settings[UO_nl_oc_msg_args].b)
-         {
-            newline_oc_msg(pc);
-         }
+         if (cpd.settings[UO_nl_oc_msg_args].b) { newline_oc_msg(pc); }
       }
       else if (pc->type == CT_STRUCT) { newlines_struct_enum_union(pc, cpd.settings[UO_nl_struct_brace].a, true); }
       else if (pc->type == CT_UNION ) { newlines_struct_enum_union(pc, cpd.settings[UO_nl_union_brace ].a, true); }
@@ -2730,12 +2722,9 @@ void newlines_cleanup_braces(bool first)
       else if (pc->type == CT_CASE)
       {
          /* Note: 'default' also maps to CT_CASE */
-         if (cpd.settings[UO_nl_before_case].b)
-         {
-            newline_case(pc);
-         }
+         if (cpd.settings[UO_nl_before_case].b) { newline_case(pc); }
       }
-      else if (pc->type == CT_THROW)
+      else if (chunk_is_type(pc, CT_THROW))
       {
          prev = chunk_get_prev(pc);
          if (chunk_is_type(prev, CT_PAREN_CLOSE) )
@@ -2743,7 +2732,7 @@ void newlines_cleanup_braces(bool first)
             newline_iarf(chunk_get_prev_ncnl(pc), cpd.settings[UO_nl_before_throw].a);
          }
       }
-      else if (pc->type == CT_CASE_COLON)
+      else if (chunk_is_type(pc, CT_CASE_COLON))
       {
          next = chunk_get_next_nnl(pc);
          if (chunk_is_type(next, CT_BRACE_OPEN) &&
@@ -2762,15 +2751,14 @@ void newlines_cleanup_braces(bool first)
          if (chunk_is_type(next, CT_BRACE_OPEN))
          {
             /* \TODO: this could be used to control newlines between the
-             * the if/while/for/switch close paren and the open brace, but
-             * that is currently handled elsewhere.
-             */
+             * the if/while/for/switch close parenthesis and the open brace, but
+             * that is currently handled elsewhere. */
          }
       }
       else if (chunk_is_type(pc, CT_RETURN))
       {
          if (cpd.settings[UO_nl_before_return].b) { newline_before_return(pc); }
-         if (cpd.settings[UO_nl_after_return].b)  { newline_after_return (pc); }
+         if (cpd.settings[UO_nl_after_return ].b) { newline_after_return (pc); }
       }
       else if (chunk_is_type(pc, CT_SEMICOLON))
       {
@@ -2782,7 +2770,9 @@ void newlines_cleanup_braces(bool first)
             {
                next = chunk_get_next(next);
             }
-            if (!chunk_is_comment_or_newline(next))
+
+            if ( chunk_is_valid             (next) &&
+                !chunk_is_comment_or_newline(next) )
             {
                if (one_liner_nl_ok(next))
                {

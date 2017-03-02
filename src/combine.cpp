@@ -817,20 +817,8 @@ static chunk_t *skip_dc_member(chunk_t *start)
 void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *tmp;
-
-#if 1
    LOG_FMT(LGUY, "%s: %zu:%zu %s:%s\n", __func__, pc->orig_line, pc->orig_col,
                                         pc->text(), get_token_name(pc->type));
-#else
-   switch(pc->type)
-   {  /* \todo why can the default case not handle all cases? */
-      case(CT_NEWLINE     ): { LOG_FMT(LGUY, "%s: %zu:%zu CT_NEWLINE\n",      __func__, pc->orig_line, pc->orig_col);  break;}
-      case(CT_VBRACE_OPEN ): { LOG_FMT(LGUY, "%s: %zu:%zu CT_VBRACE_OPEN\n",  __func__, pc->orig_line, pc->orig_col);  break;}
-      case(CT_VBRACE_CLOSE): { LOG_FMT(LGUY, "%s: %zu:%zu CT_VBRACE_CLOSE\n", __func__, pc->orig_line, pc->orig_col);  break;}
-      default:               { LOG_FMT(LGUY, "%s: %zu:%zu %s:%s\n",           __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type)); break;}
-   }
-#endif
    // LOG_FMT(LSYS, " %3d > ['%s' %s] ['%s' %s] ['%s' %s]\n",
    //         pc->orig_line,
    //         prev->text(), get_token_name(prev->type),
@@ -859,6 +847,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       set_paren_parent(next, pc->type);
    }
 
+   chunk_t *tmp;
    if ( chunk_is_type(next,  CT_PAREN_OPEN                   ) &&
         chunk_is_type(pc, 3, CT_D_CAST, CT_DELEGATE, CT_ALIGN) )
    {
@@ -1382,7 +1371,6 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       /* Change STAR, MINUS, and PLUS in the easy cases */
       if (chunk_is_type(pc, CT_STAR))
       {
-         // issue #596
          // [0x100062020:IN_SPAREN,IN_FOR,STMT_START,EXPR_START,PUNCTUATOR]
          // prev->type is CT_COLON ==> CT_DEREF
          if      (chunk_is_type(prev, CT_ANGLE_CLOSE)) { set_chunk_type(pc, CT_PTR_TYPE); }
@@ -1537,7 +1525,6 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 
    if (chunk_is_type(pc, 2, CT_MINUS, CT_PLUS ) )
    {
-#if 1
       const bool pc_is_minus = chunk_is_type(pc, CT_MINUS);
       const c_token_t pc_new_type = (pc_is_minus) ? CT_NEG : CT_POS;
       switch(prev->type)
@@ -1547,10 +1534,6 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          case(CT_OC_CLASS): { set_chunk_type(pc, pc_new_type); break; }
          default:           { set_chunk_type(pc, CT_ARITH   ); break; }
       }
-#else
-      if      (chunk_is_type(prev, 2, CT_POS, CT_NEG)) { set_chunk_type(pc, (chunk_is_type(pc, CT_MINUS)) ? CT_NEG : CT_POS); }
-      else if (chunk_is_type(prev,    CT_OC_CLASS   )) { set_chunk_type(pc, (chunk_is_type(pc, CT_MINUS)) ? CT_NEG : CT_POS); }
-      else                                             { set_chunk_type(pc, CT_ARITH); }
 #endif
    }
 
@@ -1858,7 +1841,6 @@ static bool mark_function_type(chunk_t *pc)
    }
    aft = chunk_get_next_ncnl(apc);
 
-#if 1
    switch(aft->type)
    {
       case(CT_BRACE_OPEN): pt = CT_FUNC_DEF;   break;
@@ -1867,20 +1849,6 @@ static bool mark_function_type(chunk_t *pc)
       default:
          LOG_FMT(LFTYPE, "%s: not followed by '{' or ';'\n", __func__);
          goto nogo_exit;
-   }
-#else
-   if (chunk_is_type(aft, CT_BRACE_OPEN))
-   {
-      pt = CT_FUNC_DEF;
-   }
-   else if (chunk_is_type(aft, 2, CT_SEMICOLON, CT_ASSIGN))
-   {
-      pt = CT_FUNC_PROTO;
-   }
-   else
-   {
-      LOG_FMT(LFTYPE, "%s: not followed by '{' or ';'\n", __func__);
-      goto nogo_exit;
    }
 #endif
    ptp = (pc->flags & PCF_IN_TYPEDEF) ? CT_FUNC_TYPE : CT_FUNC_VAR;
@@ -2320,7 +2288,7 @@ static void fix_casts(chunk_t *start)
       else if (chunk_is_not_type(pc, 12, CT_NUMBER_FP, CT_WORD, CT_NUMBER,
             CT_BRACE_OPEN, CT_STRING,    CT_FUNC_CALL, CT_THIS, CT_SIZEOF,
             CT_PAREN_OPEN, CT_FUNCTION,  CT_FUNC_CALL_USER,     CT_TYPE) &&
-               (!((pc->type == CT_SQUARE_OPEN) && (cpd.lang_flags & LANG_OC))))
+               (!(chunk_is_type(pc, CT_SQUARE_OPEN) && (cpd.lang_flags & LANG_OC))))
       {
          LOG_FMT(LCASTS, " -- not a cast - followed by '%s' %s\n",
                  pc->text(), get_token_name(pc->type));
@@ -2459,7 +2427,7 @@ static void fix_enum_struct_union(chunk_t *pc)
    if (chunk_is_type(next, CT_BRACE_OPEN))
    {
       /* \todo which function is the right one? */
-//      flag_series(pc, next, (pc->type == CT_ENUM) ? PCF_IN_ENUM : PCF_IN_STRUCT);
+//    flag_series(pc, next, (chunk_is_type(pc, CT_ENUM)) ? PCF_IN_ENUM : PCF_IN_STRUCT);
       flag_parens(next, (chunk_is_type(pc, CT_ENUM)) ? PCF_IN_ENUM : PCF_IN_STRUCT,
                   CT_NONE, CT_NONE, false);
 
@@ -2520,9 +2488,8 @@ static void fix_enum_struct_union(chunk_t *pc)
          }
 
          /* If we hit a comma in a function param, we are done */
-#if 1
-         if ( ((next->type == CT_COMMA) || (next->type == CT_FPAREN_CLOSE) ) &&
-              ( next->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)           ) )
+         if ( chunk_is_type(next, 2, CT_COMMA, CT_FPAREN_CLOSE ) &&
+              (next->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)) )
 #else
          if ( chunk_is_type(next, 2, CT_COMMA, CT_FPAREN_CLOSE ) &&
               (next->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)) )
@@ -2586,13 +2553,8 @@ static void fix_typedef(chunk_t *start)
    }
 
    /* avoid interpreting typedef NS_ENUM (NSInteger, MyEnum) as a function def */
-#if 1
-   if (last_op && !((cpd.lang_flags & LANG_OC) &&
-                    (last_op->parent_type == CT_ENUM)))
-#else
-   if (!(cpd.lang_flags & LANG_OC       ) &&
-         chunk_is_ptype(last_op, CT_ENUM) )
-#endif
+   if ( chunk_is_valid(last_op)                                          &&
+       !((cpd.lang_flags & LANG_OC) && chunk_is_ptype(last_op, CT_ENUM)) )
    {
       flag_parens(last_op, 0, CT_FPAREN_OPEN, CT_TYPEDEF, false);
       fix_fcn_def_params(last_op);
@@ -3146,9 +3108,8 @@ bool go_on(chunk_t *pc, chunk_t *start)
    }
    if (pc->flags & PCF_IN_FOR)
    {
-#if 1
-      return((!chunk_is_semicolon(pc)) &&
-             (!(pc->type == CT_COLON)));
+      return(!chunk_is_semicolon(pc          ) &&
+              chunk_is_not_type (pc, CT_COLON) );
 #else
       return(!chunk_is_semicolon(pc          ) &&
               chunk_is_not_type (pc, CT_COLON) );
@@ -3504,22 +3465,12 @@ exit_loop:
          tmp3 = chunk_get_next_ncnl(tmp2);
       }
 
-#if 1
-      if (chunk_is_str(tmp3, ")", 1) &&
+      if ( chunk_is_str  (tmp3, ")", 1) &&
           (chunk_is_star (tmp1) ||
            chunk_is_msref(tmp1) ||
-           ((cpd.lang_flags & LANG_OC) && chunk_is_type(tmp1, CT_CARET)))
-          &&
+           ((cpd.lang_flags & LANG_OC) && chunk_is_type(tmp1, CT_CARET))) &&
           (chunk_is_invalid(tmp2) ||
            chunk_is_type   (tmp2, CT_WORD) ) )
-#else
-         error
-      if (  chunk_is_str  (tmp3, ")", 1) &&
-          ( chunk_is_star (tmp1) ||
-            chunk_is_msref(tmp1) ||
-           ((cpd.lang_flags & LANG_OC) && chunk_is_type(tmp1, CT_CARET)) ) &&
-            chunk_is_type (tmp2, CT_WORD) )
-#endif
       {
          if (tmp2)
          {
@@ -4305,24 +4256,12 @@ static void mark_define_expressions(void)
          }
          else
          {
-#if 1
-            if ((pc->type != CT_MACRO) &&
-                (first ||
-                 (prev->type == CT_PAREN_OPEN) ||
-                 (prev->type == CT_ARITH) ||
-                 (prev->type == CT_CARET) ||
-                 (prev->type == CT_ASSIGN) ||
-                 (prev->type == CT_COMPARE) ||
-                 (prev->type == CT_RETURN) ||
-                 (prev->type == CT_GOTO) ||
-                 (prev->type == CT_CONTINUE) ||
-                 (prev->type == CT_FPAREN_OPEN) ||
-                 (prev->type == CT_SPAREN_OPEN) ||
-                 (prev->type == CT_BRACE_OPEN) ||
-                 chunk_is_semicolon(prev) ||
-                 (prev->type == CT_COMMA) ||
-                 (prev->type == CT_COLON) ||
-                 (prev->type == CT_QUESTION)))
+            if ( chunk_is_not_type(pc, CT_MACRO) &&
+                 ((first == true) ||
+                  chunk_is_type(prev, 16,     CT_CONTINUE,   CT_CARET,  CT_ARITH,
+                   CT_SPAREN_OPEN, CT_ASSIGN, CT_SEMICOLON,  CT_RETURN, CT_GOTO,
+                   CT_FPAREN_OPEN, CT_COMMA,  CT_BRACE_OPEN, CT_COMPARE,
+                   CT_PAREN_OPEN,  CT_COLON,  CT_VSEMICOLON, CT_QUESTION)) )
 #else
             if ( (chunk_is_not_type(pc, CT_MACRO) && (first == true)) ||
                  (chunk_is_type(prev, 14, CT_ARITH, CT_CARET, CT_CONTINUE,
@@ -4361,7 +4300,7 @@ static void handle_cpp_template(chunk_t *pc)
       {
          set_chunk_type(tmp, CT_TYPE);
       }
-      else if (chunk_is_type(tmp, CT_ANGLE_CLOSE) && 
+      else if (chunk_is_type(tmp, CT_ANGLE_CLOSE) &&
                (tmp->level == level))
       {
          set_chunk_ptype(tmp, CT_TEMPLATE);
@@ -4531,12 +4470,8 @@ static void handle_d_template(chunk_t *pc)
       /* TODO: log an error, expected NAME */
       return;
    }
-#if 1
+
    if(chunk_is_invalid_or_not_type(po, CT_PAREN_OPEN))
-#else
-   if (chunk_is_invalid (po               ) ||
-       chunk_is_not_type(po, CT_PAREN_OPEN) )
-#endif
    {
       /* TODO: log an error, expected '(' */
       return;
