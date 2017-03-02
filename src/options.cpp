@@ -2095,7 +2095,7 @@ int load_option_file(const char *filename)
 #endif
 
    FILE *pfile = fopen(filename, "r");
-   if (pfile == nullptr)
+   if (ptr_is_invalid(pfile))
    {
       fprintf(stderr, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, filename, strerror(errno), errno);

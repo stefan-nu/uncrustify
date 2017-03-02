@@ -176,7 +176,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %zu: got %s expected %s\n",
               __func__, __LINE__, pc->orig_line, get_token_name(pc->parent_type),
               get_token_name(next->type));
-      set_chunk_parent(pc, next->type);
+      set_chunk_ptype(pc, next->type);
    }
 
    LOG_FMT(LPFCHK, "%s(%d): %zu] %s\n",

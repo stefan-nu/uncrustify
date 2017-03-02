@@ -1438,8 +1438,8 @@ void indent_text(void)
 
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
 
-         if ((cpd.settings[UO_indent_class_colon ].b && (pc->type == CT_CLASS_COLON)) ||
-             (cpd.settings[UO_indent_constr_colon].b && (pc->type == CT_CONSTR_COLON)))
+         if ((cpd.settings[UO_indent_class_colon ].b && chunk_is_type(pc, CT_CLASS_COLON )) ||
+             (cpd.settings[UO_indent_constr_colon].b && chunk_is_type(pc, CT_CONSTR_COLON)) )
          {
             prev = chunk_get_prev(pc);
             if (chunk_is_newline(prev))
@@ -1456,7 +1456,7 @@ void indent_text(void)
             }
             else
             {
-               if (cpd.settings[UO_indent_class_on_colon].b && (pc->type == CT_CLASS_COLON))
+               if (cpd.settings[UO_indent_class_on_colon].b && chunk_is_type(pc, CT_CLASS_COLON))
                {
                   frm.pse[frm.pse_tos].indent = pc->column;
                }
@@ -1498,7 +1498,7 @@ void indent_text(void)
          }
          frm.pse[frm.pse_tos].indent = pc->column + pc->len();
 
-         if ((pc->type == CT_SQUARE_OPEN) &&
+         if (chunk_is_type(pc, CT_SQUARE_OPEN) &&
              (cpd.lang_flags & LANG_D   ) )
          {
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
@@ -1631,7 +1631,8 @@ void indent_text(void)
          /* if there is a newline after the '=' or the line starts with a '=',
           * just indent one level,
           * otherwise align on the '='. */
-         if ((pc->type == CT_ASSIGN) && chunk_is_newline(chunk_get_prev(pc)))
+         if (chunk_is_type(pc, CT_ASSIGN) &&
+             chunk_is_newline(chunk_get_prev(pc)))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent + indent_size;
             indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
@@ -1723,8 +1724,8 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent + indent_size;
          }
       }
-      else if (pc->type == CT_C99_MEMBER) { /* nothing to do  */ }
-      else                                { /* anything else? */ }
+      else if (chunk_is_type(pc, CT_C99_MEMBER)) { /* nothing to do  */ }
+      else                                       { /* anything else? */ }
 
       /* Handle shift expression continuation indenting */
       shiftcontcol = 0;
@@ -1997,7 +1998,7 @@ void indent_text(void)
 
             log_and_reindent(pc, indent_column, "cl_paren");
          }
-         else if (pc->type == CT_COMMA)
+         else if (chunk_is_type(pc, CT_COMMA))
          {
             if (cpd.settings[UO_indent_comma_paren].b &&
                 chunk_is_paren_open(frm.pse[frm.pse_tos].pc))
@@ -2007,7 +2008,7 @@ void indent_text(void)
             log_and_reindent(pc, indent_column, "comma");
          }
          else if ( cpd.settings[UO_indent_func_const].u              &&
-                  (pc->type    == CT_QUALIFIER)                      &&
+                  chunk_is_type(pc, CT_QUALIFIER)                    &&
                   (strncasecmp(pc->text(), "const", pc->len()) == 0) &&
                   (chunk_is_invalid(next) ||
                    chunk_is_type(next, 6, CT_BRACED, CT_BRACE_OPEN, CT_THROW,
@@ -2019,15 +2020,14 @@ void indent_text(void)
             log_and_reindent(pc, indent_column, "const");
          }
          else if (cpd.settings[UO_indent_func_throw].u &&
-                  (pc->type == CT_THROW) &&
-                  (pc->parent_type != CT_NONE))
+                  chunk_is_type_and_not_ptype(pc, CT_THROW, CT_NONE))
          {
             // indent throw - void GetFoo(void)\n throw()\n { return (m_Foo); }
             indent_column_set(cpd.settings[UO_indent_func_throw].u);
 
             log_and_reindent(pc, indent_column, "throw");
          }
-         else if (pc->type == CT_BOOL)
+         else if (chunk_is_type(pc, CT_BOOL))
          {
             if (cpd.settings[UO_indent_bool_paren].b &&
                 chunk_is_paren_open(frm.pse[frm.pse_tos].pc))
@@ -2126,14 +2126,14 @@ void indent_text(void)
       }
 
       /* if we hit a newline, reset indent_tmp */
-      if ((chunk_is_newline(pc)        ) ||
+      if (chunk_is_newline(pc)         ||
           chunk_is_type(pc, 2, CT_COMMENT_MULTI, CT_COMMENT_CPP))
       {
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
 
          /* Handle the case of a multi-line #define w/o anything on the
           * first line (indent_tmp will be 1 or 0) */
-         if ((pc->type == CT_NL_CONT) &&
+         if (chunk_is_type(pc, CT_NL_CONT) &&
              (frm.pse[frm.pse_tos].indent_tmp <= indent_size))
          {
             frm.pse[frm.pse_tos].indent_tmp = indent_size + 1;
@@ -2146,7 +2146,7 @@ void indent_text(void)
       /* Check for open XML tags "</..." */
       if (cpd.settings[UO_indent_xml_string].u > 0)
       {
-         if (pc->type == CT_STRING)
+         if (chunk_is_type(pc, CT_STRING))
          {
             if ((pc->len()               >  4 ) &&
                 (pc->str[1]             == '<') &&
@@ -2340,7 +2340,7 @@ bool ifdef_over_whole_file(void)
       if (stage == 0)
       {
          /* Check the first PP, make sure it is an #if type */
-         if (pc->type != CT_PREPROC)
+         if (chunk_is_not_type(pc, CT_PREPROC))
          {
             break;
          }
@@ -2355,7 +2355,7 @@ bool ifdef_over_whole_file(void)
       else if (stage == 1)
       {
          /* Scan until a PP at level 0 is found - the close to the #if */
-         if ((pc->type == CT_PREPROC) &&
+         if (chunk_is_type(pc, CT_PREPROC) &&
              (pc->pp_level == 0))
          {
             stage  = 2;
@@ -2366,7 +2366,7 @@ bool ifdef_over_whole_file(void)
       else if (stage == 2)
       {
          /* We should only see the rest of the preprocessor */
-         if ( (pc->type == CT_PREPROC          ) ||
+         if ( chunk_is_type(pc, CT_PREPROC     ) ||
              ((pc->flags & PCF_IN_PREPROC) == 0) )
          {
             stage = 0;
@@ -2442,7 +2442,11 @@ void indent_preproc(void)
            (pc->parent_type != CT_PP_ENDREGION) )
       {
          if (!cpd.settings[UO_pp_define_at_level].b ||
+#if 1
              (pc->parent_type != CT_PP_DEFINE))
+#else
+             chunk_is_not_ptype(pc, CT_PP_DEFINE))
+#endif
          {
             chunk_flags_set(pc, PCF_DONT_INDENT);
          }

@@ -227,15 +227,24 @@ bool chunk_is_valid(const chunk_t * const pc)
    return (pc != nullptr);
 }
 
+
 bool chunks_are_valid(const chunk_t * const pc1, const chunk_t * const pc2)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) );
 }
 
+
 bool chunk_is_invalid(const chunk_t *pc)
 {
    return (pc == nullptr);
+}
+
+
+bool chunk_is_invalid_or_not_type(const chunk_t* const pc, const c_token_t type)
+{
+   return (chunk_is_invalid (pc      ) ||
+           chunk_is_not_type(pc, type) );
 }
 
 
@@ -363,7 +372,7 @@ bool chunk_is_type_and_level(const chunk_t *pc, const c_token_t type, const int 
 {
    return (( pc->type  ==         type ) && /* the type is as expected and */
            ((pc->level == (size_t)level) || /* the level is as expected or */
-            (level     <              0)) );                 /* we don't care about the level */
+            (level     <             0)) ); /* we don't care about the level */
 }
 
 
@@ -838,10 +847,17 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 }
 
 
-void set_chunk_and_parent_type(chunk_t *pc, c_token_t type, c_token_t parent)
+void set_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 {
-   set_chunk_type  (pc, type  );
-   set_chunk_parent(pc, parent);
+   set_chunk_type (pc, type  );
+   set_chunk_ptype(pc, parent);
+}
+
+
+void set_chunk_ptype_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
+{
+   set_chunk_ptype(pc, type);
+   chunk_flags_set(pc, flag);
 }
 
 
@@ -852,7 +868,7 @@ void set_chunk_type(chunk_t *pc, c_token_t tt)
 }
 
 
-void set_chunk_parent(chunk_t *pc, c_token_t pt)
+void set_chunk_ptype(chunk_t *pc, c_token_t pt)
 {
    LOG_FUNC_CALL();
    set_chunk(pc, pt, LSETPAR, "set_chunk_parent");
@@ -1264,6 +1280,7 @@ bool chunk_is_str(chunk_t *pc, const char *str, size_t len)
 }
 
 
+/* \todo determine string size and remove len parameter */
 bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 {
    return((chunk_is_valid(pc)  ) &&  /* valid pc pointer */

@@ -431,7 +431,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
           (frm->pse_tos > 1        ) &&
           (frm->pse[frm->pse_tos - 1].type == CT_FOR))
       {
-         set_chunk_parent(pc, CT_FOR);
+         set_chunk_ptype(pc, CT_FOR);
       }
    }
 
@@ -508,7 +508,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          cpd.consumed = true;
 
          /* Copy the parent, update the paren/brace levels */
-         set_chunk_parent(pc, frm->pse[frm->pse_tos].parent);
+         set_chunk_ptype(pc, frm->pse[frm->pse_tos].parent);
          frm->level--;
          if (chunk_is_type(pc, 3, CT_BRACE_CLOSE, CT_VBRACE_CLOSE, CT_MACRO_CLOSE ) )
          {
@@ -557,7 +557,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          if (chunk_is_type(pc, 2, CT_SEMICOLON, CT_VSEMICOLON) )
          {
             cpd.consumed = true;
-            set_chunk_parent(pc, CT_WHILE_OF_DO);
+            set_chunk_ptype(pc, CT_WHILE_OF_DO);
          }
          else
          {
@@ -647,7 +647,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       }
       push_fmr_pse(frm, pc, brace_stage_e::NONE, "+Open   ");
       frm->pse[frm->pse_tos].parent = parent;
-      set_chunk_parent(pc, parent);
+      set_chunk_ptype(pc, parent);
    }
 
    const pattern_class_e patcls = get_token_pattern_class(pc->type);
@@ -859,7 +859,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
          parent = frm->pse[frm->pse_tos].type;
 
          chunk_t *vbrace = insert_vbrace_open_before(pc, frm);
-         set_chunk_parent(vbrace, parent);
+         set_chunk_ptype(vbrace, parent);
 
          frm->level++;
          frm->brace_level++;
@@ -1080,7 +1080,7 @@ static bool close_statement(parse_frame_t *frm, chunk_t *pc)
          /* otherwise, add before it and consume the vbrace */
          vbc = chunk_get_prev_ncnl(pc);
          vbc = insert_vbrace_close_after(vbc, frm);
-         set_chunk_parent(vbc, frm->pse[frm->pse_tos].parent);
+         set_chunk_ptype(vbc, frm->pse[frm->pse_tos].parent);
 
          frm->level--;
          frm->brace_level--;

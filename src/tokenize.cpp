@@ -1987,8 +1987,6 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-//         if (!chunk_is_comment(pc) &&
-//             !chunk_is_newline(pc) )
          if(!chunk_is_comment_or_newline(pc))
          {
             cpd.preproc_ncnl_count++;
