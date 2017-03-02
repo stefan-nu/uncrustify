@@ -12,6 +12,11 @@
 #include "char_table.h"
 
 
+/* for backward compatibility
+ * \todo remove later */
+#define set_chunk_parent set_chunk_ptype
+
+
 /* \todo better use a class for all chunk related operations,
  *  then the following functions can be changed into member
  *  functions. The function  "chunk_is_comment(chunk)" would for instance
@@ -107,6 +112,15 @@ bool chunks_are_valid(
  */
 bool chunk_is_invalid(
    const chunk_t * const pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is invalid or has not a given type
+ */
+bool chunk_is_invalid_or_not_type(
+   const chunk_t* const pc,  /**< [in] chunk to check */
+   const c_token_t type      /**< [in] type to check for */
 );
 
 
@@ -586,7 +600,7 @@ void set_chunk_type(
 /**
  * defines the parent type of a chunk
  */
-void set_chunk_parent(
+void set_chunk_ptype(
    chunk_t   *pc,  /**< [in] chunk to operate on */
    c_token_t tt    /**< [in] value to set as parent type */
 );
@@ -595,10 +609,17 @@ void set_chunk_parent(
 /**
  * defines the type and parent type of a chunk
  */
-void set_chunk_and_parent_type(
+void set_type_and_ptype(
    chunk_t   *pc,   /**< [in] chunk to operate on */
    c_token_t type,  /**< [in] value to set as chunk  type */
-   c_token_t parent /**< [in] value to set as parnet type */
+   c_token_t parent /**< [in] value to set as parent type */
+);
+
+
+void set_chunk_ptype_and_flag(
+   chunk_t   *pc,   /**< [in] chunk to operate on */
+   c_token_t type,  /**< [in] value to set as chunk  type */
+   UINT64    flag   /**< [in] flag bits to add */
 );
 
 
@@ -607,7 +628,7 @@ void set_chunk_and_parent_type(
  */
 void chunk_flags_set(
    chunk_t *pc,      /**< [in] chunk to operate on */
-   UINT64  set_bits
+   UINT64  set_bits  /**< [in] flag bits to add */
 );
 
 
@@ -616,7 +637,7 @@ void chunk_flags_set(
  */
 void chunk_flags_clr(
    chunk_t *pc,      /**< [in] chunk to operate on */
-   UINT64  clr_bits
+   UINT64  clr_bits  /**< [in] flag bits to remove */
 );
 
 

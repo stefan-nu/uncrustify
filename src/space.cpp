@@ -915,7 +915,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (chunk_is_type(second, CT_FPAREN_OPEN)))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if (next && (next->type == CT_FPAREN_CLOSE))
+         if (chunk_is_type(next, CT_FPAREN_CLOSE))
          {
             log_rule("sp_after_operator_sym_empty");
             return(cpd.settings[UO_sp_after_operator_sym_empty].a);
@@ -965,7 +965,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (chunk_is_type(second, CT_FPAREN_OPEN)))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if (next && (next->type == CT_FPAREN_CLOSE))
+         if (chunk_is_type(next, CT_FPAREN_CLOSE))
          {
             log_rule("sp_func_def_paren_empty");
             return(cpd.settings[UO_sp_func_def_paren_empty].a);
@@ -989,12 +989,11 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       return(AV_FORCE); /* TODO: make this configurable? */
    }
 
-   if ((first->type  == CT_PAREN_CLOSE)   &&
-       chunk_is_type(second, 2, CT_PAREN_OPEN, CT_FPAREN_OPEN))
+   if (chunk_is_type(first,     CT_PAREN_CLOSE               ) &&
+       chunk_is_type(second, 2, CT_PAREN_OPEN, CT_FPAREN_OPEN) )
    {
       /* "(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
-      if ((first->parent_type == CT_C_CAST) ||
-          (first->parent_type == CT_D_CAST) )
+      if (chunk_is_ptype(first, 2, CT_C_CAST, CT_D_CAST))
       {
          log_rule("sp_after_cast");
          return(cpd.settings[UO_sp_after_cast].a);
@@ -1019,14 +1018,9 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       log_rule("sp_cparen_oparen");
       return(cpd.settings[UO_sp_cparen_oparen].a);
    }
-#if 0
-   if ((first->type          == CT_FUNC_PROTO )   ||
-       ((second->type        == CT_FPAREN_OPEN) &&
-        (second->parent_type == CT_FUNC_PROTO ) ) )
-#else
+
    if (chunk_is_type          (first,                  CT_FUNC_PROTO ) ||
        chunk_is_type_and_ptype(second, CT_FPAREN_OPEN, CT_FUNC_PROTO ) )
-#endif
    {
 
       // \todo DRY1 start
@@ -1034,7 +1028,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           (chunk_is_type(second, CT_FPAREN_OPEN)))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if (next && (next->type == CT_FPAREN_CLOSE))
+         if (chunk_is_type(next, CT_FPAREN_CLOSE))
          {
             log_rule("sp_func_proto_paren_empty");
             return(cpd.settings[UO_sp_func_proto_paren_empty].a);
@@ -1052,7 +1046,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
           chunk_is_type(second, CT_FPAREN_OPEN))
       {
          const chunk_t *next = chunk_get_next_ncnl(second);
-         if (next && (next->type == CT_FPAREN_CLOSE))
+         if (chunk_is_type(next, CT_FPAREN_CLOSE))
          {
             log_rule("sp_func_class_paren_empty");
             return(cpd.settings[UO_sp_func_class_paren_empty].a);
@@ -1063,7 +1057,7 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       // DRY1 end
 
    }
-   if (  (first->type == CT_CLASS     ) &&
+   if (  chunk_is_type(first, CT_CLASS) &&
         !(first->flags & PCF_IN_OC_MSG) )
    {
       log_rule("FORCE");
@@ -1806,8 +1800,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       return(AV_FORCE);
    }
 
-   if ((first->type  == CT_NEW       ) &&
-       (chunk_is_type(second, CT_PAREN_OPEN) ))
+   if (chunk_is_type(first,  CT_NEW       ) &&
+       chunk_is_type(second, CT_PAREN_OPEN) )
    {
       log_rule("sp_between_new_paren");
       return(cpd.settings[UO_sp_between_new_paren].a);
@@ -1832,8 +1826,8 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
       return(cpd.settings[UO_sp_after_oc_property].a);
    }
 
-   if ((first->type  == CT_EXTERN    ) &&
-       (chunk_is_type(second, CT_PAREN_OPEN) ))
+   if (chunk_is_type(first,  CT_EXTERN    ) &&
+       chunk_is_type(second, CT_PAREN_OPEN) )
    {
       log_rule("sp_extern_paren");
       return(cpd.settings[UO_sp_extern_paren].a);
@@ -2086,16 +2080,8 @@ void space_text(void)
          }
          next->column = column;
 
-#if 1
          LOG_FMT(LSPACE, " = %s @ %zu => %zu\n", argval2str(av),
                  column - prev_column, next->column);
-#else
-         LOG_FMT(LSPACE, " = %s @ %zu => %zu\n",
-                 (av == AV_IGNORE) ? "IGNORE" :
-                 (av == AV_ADD   ) ? "ADD" :
-                 (av == AV_REMOVE) ? "REMOVE" : "FORCE",
-                 column - prev_column, next->column);
-#endif
          if (restoreValues) { restore_options_for_QT(); }
       }
 

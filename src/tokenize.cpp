@@ -1968,7 +1968,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       assert(chunk_is_valid(pc));
 
       /* A newline marks the end of a preprocessor */
-      if (chunk_is_type(pc, CT_NEWLINE)) // || (pc->type == CT_COMMENT_MULTI))
+      if (chunk_is_type(pc, CT_NEWLINE)) // || chunk_is_type(pc, CT_COMMENT_MULTI))
       {
          cpd.is_preproc         = CT_NONE;
          cpd.preproc_ncnl_count = 0;
@@ -1987,8 +1987,6 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-//         if (!chunk_is_comment(pc) &&
-//             !chunk_is_newline(pc) )
          if(!chunk_is_comment_or_newline(pc))
          {
             cpd.preproc_ncnl_count++;

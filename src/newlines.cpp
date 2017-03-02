@@ -976,6 +976,7 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
    chunk_t *pc;
    for (pc = chunk_get_prev(start); chunk_is_valid(pc); pc = chunk_get_prev(pc))
    {
+      /* \todo use switch here */
       if (chunk_is_newline(pc))
       {
          last_nl = pc;
@@ -1518,8 +1519,7 @@ static chunk_t *newline_def_blk(chunk_t *start, bool fn_top)
 
       /* Determine if this is a variable def or code */
       if ( (did_this_line == false          ) &&
-           (pc->type  != CT_FUNC_CLASS_DEF  ) &&
-           (pc->type  != CT_FUNC_CLASS_PROTO) &&
+           chunk_is_not_type(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
           ((pc->level == (start->level + 1) ) ||
            (pc->level == 0)))
       {
@@ -1571,10 +1571,10 @@ static chunk_t *newline_def_blk(chunk_t *start, bool fn_top)
                     chunk_is_type(next, 2, CT_WORD, CT_FUNC_CTOR_VAR))) &&
                    !(next->type == CT_DC_MEMBER    ))   // DbConfig::configuredDatabase()->apply(db);
                                                         // is NOT a declaration of a variable
-                                                        // guy 2015-09-22
          {
             /* set newlines before var def block */
-            if (!var_blk && !first_var_blk &&
+            if (var_blk       == false &&
+                first_var_blk == false &&
                 (cpd.settings[UO_nl_var_def_blk_start].u > 0))
             {
                newline_min_after(prev, cpd.settings[UO_nl_var_def_blk_start].u, PCF_VAR_DEF);
@@ -2184,7 +2184,7 @@ static void newline_oc_msg(chunk_t *start)
    {
 // error      break_if(pc->level <= start->level);
       if (pc->level <= start->level)  { break; }
-      if (pc->type == CT_OC_MSG_NAME) { newline_add_before(pc); }
+      if (chunk_is_type(pc, CT_OC_MSG_NAME)) { newline_add_before(pc); }
    }
 }
 
@@ -2434,6 +2434,7 @@ void newlines_cleanup_braces(bool first)
             newlines_if_for_while_switch(pc, cpd.settings[UO_nl_catch_brace].a);
          }
       }
+      /* \todo better use a switch here */
       else if (pc->type == CT_WHILE       ) { newlines_if_for_while_switch(pc, cpd.settings[UO_nl_while_brace       ].a ); }
       else if (pc->type == CT_USING_STMT  ) { newlines_if_for_while_switch(pc, cpd.settings[UO_nl_using_brace       ].a ); }
       else if (pc->type == CT_D_SCOPE_IF  ) { newlines_if_for_while_switch(pc, cpd.settings[UO_nl_scope_brace       ].a ); }
@@ -2546,7 +2547,7 @@ void newlines_cleanup_braces(bool first)
                      if (chunk_is_comment(tmp))
                      {
                         if (!cpd.settings[UO_nl_after_brace_open_cmt].b &&
-                            (tmp->type != CT_COMMENT_MULTI))
+                             chunk_is_not_type(tmp, CT_COMMENT_MULTI)   )
                         {
                            break;
                         }
@@ -2669,10 +2670,7 @@ void newlines_cleanup_braces(bool first)
                          !chunk_is_comment(next) &&
                          !chunk_is_newline(next));
             }
-            if (add_it)
-            {
-               newline_iarf(pc, AV_ADD);
-            }
+            if (add_it) { newline_iarf(pc, AV_ADD); }
          }
 
          if ((((pc->parent_type == CT_IF    ) ||
@@ -2711,18 +2709,12 @@ void newlines_cleanup_braces(bool first)
       {
          if (cpd.settings[UO_nl_after_vbrace_close].b)
          {
-            if (!chunk_is_newline(chunk_get_next_nc(pc)))
-            {
-               newline_iarf(pc, AV_ADD);
-            }
+            if (!chunk_is_newline(chunk_get_next_nc(pc))) { newline_iarf(pc, AV_ADD); }
          }
       }
       else if (chunk_is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_MSG))
       {
-         if (cpd.settings[UO_nl_oc_msg_args].b)
-         {
-            newline_oc_msg(pc);
-         }
+         if (cpd.settings[UO_nl_oc_msg_args].b) { newline_oc_msg(pc); }
       }
       else if (pc->type == CT_STRUCT) { newlines_struct_enum_union(pc, cpd.settings[UO_nl_struct_brace].a, true); }
       else if (pc->type == CT_UNION ) { newlines_struct_enum_union(pc, cpd.settings[UO_nl_union_brace ].a, true); }
@@ -2730,12 +2722,9 @@ void newlines_cleanup_braces(bool first)
       else if (pc->type == CT_CASE)
       {
          /* Note: 'default' also maps to CT_CASE */
-         if (cpd.settings[UO_nl_before_case].b)
-         {
-            newline_case(pc);
-         }
+         if (cpd.settings[UO_nl_before_case].b) { newline_case(pc); }
       }
-      else if (pc->type == CT_THROW)
+      else if (chunk_is_type(pc, CT_THROW))
       {
          prev = chunk_get_prev(pc);
          if (chunk_is_type(prev, CT_PAREN_CLOSE) )
@@ -2743,7 +2732,7 @@ void newlines_cleanup_braces(bool first)
             newline_iarf(chunk_get_prev_ncnl(pc), cpd.settings[UO_nl_before_throw].a);
          }
       }
-      else if (pc->type == CT_CASE_COLON)
+      else if (chunk_is_type(pc, CT_CASE_COLON))
       {
          next = chunk_get_next_nnl(pc);
          if (chunk_is_type(next, CT_BRACE_OPEN) &&
@@ -2762,15 +2751,14 @@ void newlines_cleanup_braces(bool first)
          if (chunk_is_type(next, CT_BRACE_OPEN))
          {
             /* \TODO: this could be used to control newlines between the
-             * the if/while/for/switch close paren and the open brace, but
-             * that is currently handled elsewhere.
-             */
+             * the if/while/for/switch close parenthesis and the open brace, but
+             * that is currently handled elsewhere. */
          }
       }
       else if (chunk_is_type(pc, CT_RETURN))
       {
          if (cpd.settings[UO_nl_before_return].b) { newline_before_return(pc); }
-         if (cpd.settings[UO_nl_after_return].b)  { newline_after_return (pc); }
+         if (cpd.settings[UO_nl_after_return ].b) { newline_after_return (pc); }
       }
       else if (chunk_is_type(pc, CT_SEMICOLON))
       {
@@ -2782,9 +2770,9 @@ void newlines_cleanup_braces(bool first)
             {
                next = chunk_get_next(next);
             }
-            if ((next != nullptr) &&
-                !chunk_is_comment(next) &&
-                !chunk_is_newline(next))
+
+            if ( chunk_is_valid             (next) &&
+                !chunk_is_comment_or_newline(next) )
             {
                if (one_liner_nl_ok(next))
                {
@@ -2871,7 +2859,7 @@ void newlines_cleanup_braces(bool first)
       }
       else if (chunk_is_type(pc, CT_SQUARE_OPEN))
       {
-         if ((pc->parent_type == CT_ASSIGN) &&
+         if (chunk_is_ptype(pc, CT_ASSIGN) &&
              ((pc->flags & PCF_ONE_LINER) == 0))
          {
             tmp = chunk_get_prev_ncnl(pc);
@@ -2898,7 +2886,7 @@ void newlines_cleanup_braces(bool first)
             }
          }
       }
-      else if (pc->type == CT_PRIVATE)
+      else if (chunk_is_type(pc, CT_PRIVATE))
       {
          /** Make sure there is a newline before an access spec */
          if (cpd.settings[UO_nl_before_access_spec].u > 0)
@@ -2910,7 +2898,7 @@ void newlines_cleanup_braces(bool first)
             }
          }
       }
-      else if (pc->type == CT_PRIVATE_COLON)
+      else if (chunk_is_type(pc, CT_PRIVATE_COLON))
       {
          /** Make sure there is a newline after an access spec */
          if (cpd.settings[UO_nl_after_access_spec].u > 0)
@@ -2922,7 +2910,7 @@ void newlines_cleanup_braces(bool first)
             }
          }
       }
-      else if (pc->type == CT_PP_DEFINE)
+      else if (chunk_is_type(pc, CT_PP_DEFINE))
       {
          if (cpd.settings[UO_nl_multi_line_define].b)
          {
@@ -2952,17 +2940,16 @@ static void nl_handle_define(chunk_t *pc)
 
    while ((nl = chunk_get_next(nl)) != nullptr)
    {
-      if   (nl->type == CT_NEWLINE) { return; }
+      if (chunk_is_type(nl, CT_NEWLINE)) { return; }
 
-      if (( nl->type == CT_MACRO       ) ||
-          ((nl->type == CT_FPAREN_CLOSE) &&
-           (nl->parent_type == CT_MACRO_FUNC)) )
+      if (chunk_is_type          (nl, CT_MACRO                      ) ||
+          chunk_is_type_and_ptype(nl, CT_FPAREN_CLOSE, CT_MACRO_FUNC) )
       {
          ref = nl;
       }
-      if (nl->type == CT_NL_CONT)
+      if (chunk_is_type(nl, CT_NL_CONT))
       {
-         if (ref != nullptr) { newline_add_after(ref); }
+         newline_add_after(ref);
          return;
       }
    }
@@ -2975,7 +2962,7 @@ void newline_after_multiline_comment(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (pc->type != CT_COMMENT_MULTI) { continue; }
+      if (chunk_is_not_type(pc, CT_COMMENT_MULTI)) { continue; }
 
       chunk_t *tmp = pc;
       while (((tmp = chunk_get_next  (tmp)) != nullptr) &&
@@ -2997,7 +2984,7 @@ void newline_after_label_colon(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (pc->type != CT_LABEL_COLON) { continue; }
+      if (chunk_is_not_type(pc, CT_LABEL_COLON)) { continue; }
       newline_add_after(pc);
    }
 }
@@ -3054,9 +3041,8 @@ void newlines_functions_remove_extra_blank_lines(void)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next(pc))
    {
-      if ( pc->type        != CT_BRACE_OPEN ||
-          (pc->parent_type != CT_FUNC_DEF &&
-           pc->parent_type != CT_CPP_LAMBDA))
+      if (chunk_is_not_type (pc,    CT_BRACE_OPEN             ) ||
+          chunk_is_not_ptype(pc, 2, CT_FUNC_DEF, CT_CPP_LAMBDA) )
       {
          continue;
       }
@@ -3065,7 +3051,7 @@ void newlines_functions_remove_extra_blank_lines(void)
 
       while (chunk_is_valid(pc))
       {
-         if (pc->type  == CT_BRACE_CLOSE &&
+         if (chunk_is_type(pc, CT_BRACE_CLOSE) &&
              pc->level == startMoveLevel)
          {
             break;
@@ -3094,21 +3080,18 @@ void newlines_squeeze_ifdef(void)
    chunk_t *pc;
    for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
-      if ((pc->type == CT_PREPROC) &&
+      if (chunk_is_type(pc, CT_PREPROC) &&
           (pc->level > 0 ||
           cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
       {
          chunk_t *ppr = chunk_get_next(pc);
          assert(chunk_is_valid(ppr));
 
-         if ((ppr->type == CT_PP_IF   ) ||
-             (ppr->type == CT_PP_ELSE ) ||
-             (ppr->type == CT_PP_ENDIF) )
+         if (chunk_is_type(ppr, 3, CT_PP_IF, CT_PP_ELSE, CT_PP_ENDIF) )
          {
             chunk_t *pnl = nullptr;
             chunk_t *nnl = chunk_get_next_nl(ppr);
-            if (ppr->type == CT_PP_ELSE ||
-                ppr->type == CT_PP_ENDIF)
+            if (chunk_is_type(ppr, 2, CT_PP_ELSE, CT_PP_ENDIF))
             {
                pnl = chunk_get_prev_nl(pc);
             }
@@ -3132,8 +3115,7 @@ void newlines_squeeze_ifdef(void)
                   }
                }
 
-               if (ppr->type == CT_PP_IF  ||
-                   ppr->type == CT_PP_ELSE)
+               if (chunk_is_type(ppr, 2, CT_PP_IF, CT_PP_ELSE))
                {
                   if (nnl->nl_count > 1)
                   {
@@ -3166,7 +3148,7 @@ void newlines_eat_start_end(void)
       pc = chunk_get_head();
       if (chunk_is_valid(pc))
       {
-         if (pc->type == CT_NEWLINE)
+         if (chunk_is_type(pc, CT_NEWLINE))
          {
             if (cpd.settings[UO_nl_start_of_file].a == AV_REMOVE)
             {
@@ -3254,12 +3236,11 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
 
    for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnl(pc))
    {
-      if (pc->type == chunk_type)
+      if (chunk_is_type(pc, chunk_type))
       {
          tokenpos_t mode_local;
          if (chunk_type == CT_COMMA)
          {
-            // 12 february 2016, guy
             // for chunk_type == CT_COMMA
             // we get 'mode' from cpd.settings[UO_pos_comma].tp
             // BUT we must take care of cpd.settings[UO_pos_class_comma].tp
@@ -3361,10 +3342,9 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          if (is_token_set(mode_local, TP_LEAD))
          {
             const chunk_t *next2 = chunk_get_next(next);
-            if (  (next2 != nullptr) &&
-                 ((next2->type == CT_PREPROC) ||
-                 ((chunk_type  == CT_ASSIGN) &&
-                  (next2->type == CT_BRACE_OPEN))))
+            if ( chunk_is_type(next2, CT_PREPROC) ||
+                 ((chunk_type  == CT_ASSIGN    ) &&
+                  (next2->type == CT_BRACE_OPEN)) )
             {
                continue;
             }
@@ -3897,7 +3877,7 @@ static void newlines_enum_entries(chunk_t *open_brace, argval_t av)
           (pc->level > open_brace->level))
    {
       if ((pc->level != (open_brace->level + 1)) ||
-          (pc->type  != CT_COMMA               ) )
+           chunk_is_not_type(pc, CT_COMMA      ) )
       {
          continue;
       }
@@ -3918,7 +3898,7 @@ static void newlines_double_space_struct_enum_union(chunk_t *open_brace)
            (pc->level > open_brace->level      ) )
    {
       if ((pc->level != (open_brace->level + 1)) ||
-          (pc->type  != CT_NEWLINE             ) )
+           chunk_is_not_type(pc, CT_NEWLINE    ) )
       {
          continue;
       }
@@ -3929,9 +3909,9 @@ static void newlines_double_space_struct_enum_union(chunk_t *open_brace)
        */
       chunk_t *prev = chunk_get_prev(pc);
       assert(chunk_is_valid(prev));
-      if ((!chunk_is_comment(prev)           ) &&
-          (prev->type != CT_BRACE_OPEN       ) &&
-          chunk_is_comment(chunk_get_next(pc)) )
+      if ((!chunk_is_comment(prev)              ) &&
+           chunk_is_not_type(prev, CT_BRACE_OPEN) &&
+           chunk_is_comment (chunk_get_next(pc) ) )
       {
          if (pc->nl_count < 2)
          {

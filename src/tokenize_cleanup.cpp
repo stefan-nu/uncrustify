@@ -208,7 +208,7 @@ void tokenize_cleanup(void)
       if (chunk_is_type(pc,   CT_TYPE_CAST ) &&
           chunk_is_type(next, CT_ANGLE_OPEN) )
       {
-         set_chunk_parent(next, CT_TYPE_CAST);
+         set_chunk_ptype(next, CT_TYPE_CAST);
          in_type_cast = true;
       }
 
@@ -241,7 +241,7 @@ void tokenize_cleanup(void)
          if (in_type_cast)
          {
             in_type_cast = false;
-            set_chunk_parent(pc, CT_TYPE_CAST);
+            set_chunk_ptype(pc, CT_TYPE_CAST);
          }
          else
          {
@@ -310,8 +310,8 @@ void tokenize_cleanup(void)
          if(chunk_is_type(next,    CT_SEMICOLON                               ) &&
             chunk_is_type(prev, 3, CT_SEMICOLON, CT_BRACE_CLOSE, CT_BRACE_OPEN) )
          {
-            set_chunk_type  (pc,   CT_GETSET_EMPTY);
-            set_chunk_parent(next, CT_GETSET      );
+            set_chunk_type (pc,   CT_GETSET_EMPTY);
+            set_chunk_ptype(next, CT_GETSET      );
          }
          else
          {
@@ -406,7 +406,7 @@ void tokenize_cleanup(void)
 
             next->orig_col_end = next->orig_col + next->len();
          }
-         set_chunk_parent(next, CT_OPERATOR);
+         set_chunk_ptype(next, CT_OPERATOR);
 
          LOG_FMT(LOPERATOR, "%s: %zu:%zu operator '%s'\n",
                  __func__, pc->orig_line, pc->orig_col, next->text());
@@ -445,7 +445,7 @@ void tokenize_cleanup(void)
       if ((chunk_is_str_case(pc,   "EXEC", 4) &&
            chunk_is_str_case(next, "SQL",  3) ) ||
           ((*pc->str.c_str() == '$')        &&
-           (pc->type != CT_SQL_WORD)        ) )
+           chunk_is_not_type(pc, CT_SQL_WORD) ) )
       {
          chunk_t *tmp = chunk_get_prev(pc);
          if (chunk_is_newline(tmp))
@@ -549,7 +549,7 @@ void tokenize_cleanup(void)
          {
             set_chunk_type(next, CT_OC_CLASS);
          }
-         set_chunk_parent(next, pc->type);
+         set_chunk_ptype(next, pc->type);
 
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (chunk_is_valid(tmp))
@@ -560,7 +560,7 @@ void tokenize_cleanup(void)
          tmp = chunk_get_next_type(pc, CT_OC_END, (int)pc->level);
          if (chunk_is_valid(tmp))
          {
-            set_chunk_parent(tmp, pc->type);
+            set_chunk_ptype(tmp, pc->type);
          }
       }
 
@@ -589,7 +589,7 @@ void tokenize_cleanup(void)
            chunk_is_type (pc,    CT_OC_CLASS           ) ) &&
            chunk_is_type (next,  CT_PAREN_OPEN           ) )
       {
-         set_chunk_parent(next, pc->parent_type);
+         set_chunk_ptype(next, pc->parent_type);
 
          chunk_t *tmp = chunk_get_next(next);
          if (chunks_are_valid(tmp ,tmp->next))
@@ -597,17 +597,17 @@ void tokenize_cleanup(void)
             if (chunk_is_type(tmp, CT_PAREN_CLOSE))
             {
                //set_chunk_type(tmp, CT_OC_CLASS_EXT);
-               set_chunk_parent(tmp, pc->parent_type);
+               set_chunk_ptype(tmp, pc->parent_type);
             }
             else
             {
                set_chunk_type  (tmp, CT_OC_CATEGORY);
-               set_chunk_parent(tmp, pc->parent_type);
+               set_chunk_ptype(tmp, pc->parent_type);
             }
          }
 
          tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
-         set_chunk_parent(tmp, pc->parent_type);
+         set_chunk_ptype(tmp, pc->parent_type);
       }
 
       /* Detect Objective C @property
@@ -622,12 +622,12 @@ void tokenize_cleanup(void)
          }
          else
          {
-            set_chunk_parent(next, pc->type);
+            set_chunk_ptype(next, pc->type);
 
             chunk_t *tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
             if (chunk_is_valid(tmp))
             {
-               set_chunk_parent(tmp, pc->type);
+               set_chunk_ptype(tmp, pc->type);
                tmp = chunk_get_next_ncnl(tmp);
                if (chunk_is_valid(tmp))
                {
@@ -636,7 +636,7 @@ void tokenize_cleanup(void)
                   tmp = chunk_get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
                   if (chunk_is_valid(tmp))
                   {
-                     set_chunk_parent(tmp, pc->type);
+                     set_chunk_ptype(tmp, pc->type);
                   }
                }
             }
@@ -650,23 +650,23 @@ void tokenize_cleanup(void)
       if ( chunk_is_type(pc,   CT_OC_SEL    ) &&
            chunk_is_type(next, CT_PAREN_OPEN) )
       {
-         set_chunk_parent(next, pc->type);
+         set_chunk_ptype(next, pc->type);
 
          chunk_t *tmp = chunk_get_next(next);
          if (chunk_is_valid(tmp))
          {
             set_chunk_type  (tmp, CT_OC_SEL_NAME);
-            set_chunk_parent(tmp, pc->type      );
+            set_chunk_ptype(tmp, pc->type      );
 
             while ((tmp = chunk_get_next_ncnl(tmp)) != nullptr)
             {
                if (chunk_is_type(tmp, CT_PAREN_CLOSE))
                {
-                  set_chunk_parent(tmp, CT_OC_SEL);
+                  set_chunk_ptype(tmp, CT_OC_SEL);
                   break;
                }
                set_chunk_type  (tmp, CT_OC_SEL_NAME);
-               set_chunk_parent(tmp, pc->type      );
+               set_chunk_ptype(tmp, pc->type      );
             }
          }
       }
@@ -675,7 +675,7 @@ void tokenize_cleanup(void)
       if (chunk_is_type(pc, CT_PREPROC))
       {
          assert(chunk_is_valid(next));
-         set_chunk_parent(pc, next->type);
+         set_chunk_ptype(pc, next->type);
       }
 
       /* Detect "pragma region" and "pragma endregion" */
@@ -691,7 +691,7 @@ void tokenize_cleanup(void)
                set_chunk_type(pc, (*next->str.c_str() == 'r') ?
                      CT_PP_REGION : CT_PP_ENDREGION);
 
-               set_chunk_parent(prev, pc->type);
+               set_chunk_ptype(prev, pc->type);
             }
          }
       }
@@ -980,7 +980,7 @@ static void check_template(chunk_t *start)
       {
          LOG_FMT(LTEMPL, " - Template Detected\n");
 
-         set_chunk_parent(start, CT_TEMPLATE);
+         set_chunk_ptype(start, CT_TEMPLATE);
 
          pc = start;
          while (pc != end)
@@ -993,7 +993,7 @@ static void check_template(chunk_t *start)
             }
             pc = next;
          }
-         set_chunk_parent(end, CT_TEMPLATE);
+         set_chunk_ptype(end, CT_TEMPLATE);
          chunk_flags_set(end, PCF_IN_TEMPLATE);
          return;
       }
