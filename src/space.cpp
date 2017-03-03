@@ -106,13 +106,21 @@ const no_space_table_t no_space_table[] =
 };
 
 
-#define log_rule_and_return(uo)                                    \
+
+#define log_argval_and_return(argval)                              \
    do {                                                            \
-      const option_map_value_t* my_option = get_option_name(uo);   \
-      log_rule(my_option->name);                                   \
-      return(cpd.settings[uo].a);                                  \
+      if (log_sev_on(LSPACE))                                      \
+      { log_rule2(__LINE__, (argval2str(argval)), first, second, complete); } \
+      return(argval);                                              \
    } while(0)
 
+#define log_option_and_return(uo)                                  \
+   do {                                                            \
+      const option_map_value_t* my_option = get_option_name(uo);   \
+      if (log_sev_on(LSPACE))                                      \
+      { log_rule2(__LINE__, (my_option->name), first, second, complete); } \
+      return(cpd.settings[uo].a);                                  \
+   } while(0)
 
 #define log_rule(rule)                                             \
    do {                                                            \
@@ -149,40 +157,24 @@ static argval_t do_space(chunk_t *first, chunk_t *second, int &min_sp, bool comp
          first->orig_col, first->text(), get_token_name(first->type));
 
    min_sp = 1;
-   if(any_is_type(first, second, CT_IGNORED))
-   {
-      //log_rule_and_return(AV_REMOVE);
-      log_rule("IGNORED");
-      return(AV_REMOVE);
-   }
-   if (are_types(first, second, CT_PP_IGNORE))
-   {
-      /* Leave spacing alone between PP_IGNORE tokens as we don't want the
-       * default behavior (which is ADD) */
-      log_rule("PP_IGNORE");
-      return(AV_IGNORE);
-   }
-   if(any_is_type(first, second, CT_PP))
-   {
-      log_rule("sp_pp_concat");
-      return(cpd.settings[UO_sp_pp_concat].a);
-   }
-   if (is_type(first, CT_POUND))
-   {
-      log_rule("sp_pp_stringify");
-      return(cpd.settings[UO_sp_pp_stringify].a);
-   }
-   if (is_type(second, CT_POUND         ) &&
-       (second->flags & PCF_IN_PREPROC  ) &&
-       is_not_ptype(first, CT_MACRO_FUNC) )
+   if(any_is_type(first, second, CT_IGNORED  )) { log_argval_and_return(AV_REMOVE         ); }
+
+   /* Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD) */
+   if(are_types  (first, second, CT_PP_IGNORE)) { log_argval_and_return(AV_IGNORE         ); }
+   if(any_is_type(first, second, CT_PP       )) { log_option_and_return(UO_sp_pp_concat   ); }
+   if(is_type    (first,         CT_POUND    )) { log_option_and_return(UO_sp_pp_stringify); }
+   if(is_type(second, CT_POUND         ) &&
+      (second->flags & PCF_IN_PREPROC  ) &&
+      is_not_ptype(first, CT_MACRO_FUNC) )
    {
       log_rule("sp_before_pp_stringify");
       return(cpd.settings[UO_sp_before_pp_stringify].a);
    }
    if (any_is_type(first, second, CT_SPACE))
    {
-      log_rule("REMOVE");
-      return(AV_REMOVE);
+      log_argval_and_return(AV_REMOVE);
+//      log_rule("REMOVE");
+//      return(AV_REMOVE);
    }
    if (is_type(second, 2, CT_NEWLINE, CT_VBRACE_OPEN))
    {
