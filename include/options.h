@@ -890,6 +890,8 @@ uo_t get_inverse_uo(
 
 /**
  * \brief check if a given option is set in a variable
+ * In contrast to is_option it is sufficient if the required
+ * option flag is set. The remaining flags are ignored.
  *
  * The check can be done with one or several options
  *
@@ -929,6 +931,8 @@ bool is_option_unset(
 
 /**
  * \brief check if a option variable is equal to a given value
+ * In contrast to is_option_set all flags have to correspond
+ * to the parameter 'opt'.
  *
  * The check can be done with one or several options
  *
@@ -1185,8 +1189,8 @@ string bool2string(
 /**
  * convert an argument value to a zero terminated string
  */
-const char* argval2str
-   (argval_t argval/**< [in] argument value to convert */
+const char* argval2str(
+   argval_t argval/**< [in] argument value to convert */
 );
 
 

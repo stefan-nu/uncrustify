@@ -1821,7 +1821,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
       if ((ch == '<') && (cpd.is_preproc == CT_PP_DEFINE))
       {
-         if (chunk_is_type(chunk_get_tail(), CT_MACRO))
+         if (is_type(chunk_get_tail(), CT_MACRO))
          {
             /* We have "#define XXX <", assume '<' starts an include string */
             parse_string(ctx, pc, 0, false);
@@ -1926,9 +1926,9 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
       switch(chunk.type)
       {
-      case(CT_NEWLINE): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str.clear();  break; }
-      case(CT_NL_CONT): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str = "\\\n"; break; }
-      default:          { chunk.after_tab = last_was_tab; last_was_tab    = false;                     break; }
+         case(CT_NEWLINE): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str.clear();  break; }
+         case(CT_NL_CONT): { last_was_tab = chunk.after_tab; chunk.after_tab = false; chunk.str = "\\\n"; break; }
+         default:          { chunk.after_tab = last_was_tab; last_was_tab    = false;                     break; }
       }
 
       /* Strip trailing whitespace (for CPP comments and PP blocks) */
@@ -1950,32 +1950,32 @@ void tokenize(const deque<int> &data, chunk_t *ref)
 
       /* Add the chunk to the list */
       rprev = pc;
-      if (chunk_is_valid(rprev))
+      if (is_valid(rprev))
       {
          chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
-         assert(chunk_is_valid(pc));
-         if (chunk_is_type(pc, CT_NEWLINE))
+         assert(is_valid(pc));
+         if (is_type(pc, CT_NEWLINE))
          {
             chunk_flags_clr(pc, PCF_IN_PREPROC);
          }
       }
-      if (chunk_is_valid(ref)) { chunk.flags |=  PCF_INSERTED; }
+      if (is_valid(ref)) { chunk.flags |=  PCF_INSERTED; }
       else                     { chunk.flags &= ~PCF_INSERTED; }
 
       pc = chunk_add_before(&chunk, ref);
-      assert(chunk_is_valid(pc));
+      assert(is_valid(pc));
 
       /* A newline marks the end of a preprocessor */
-      if (chunk_is_type(pc, CT_NEWLINE)) // || chunk_is_type(pc, CT_COMMENT_MULTI))
+      if (is_type(pc, CT_NEWLINE)) // || is_type(pc, CT_COMMENT_MULTI))
       {
          cpd.is_preproc         = CT_NONE;
          cpd.preproc_ncnl_count = 0;
       }
 
       /* Special handling for preprocessor stuff */
-      if (chunk_is_type(pc, CT_PP_ASM))
+      if (is_type(pc, CT_PP_ASM))
       {
          LOG_FMT(LBCTRL, "Found a directive %s on line %zu\n", "#asm", pc->orig_line);
          cpd.unc_off = true;
@@ -2007,20 +2007,20 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          {
             if(chunk_is_no_preproc_type(pc))
             {
-               set_chunk_type(pc, CT_PP_OTHER);
+               set_type(pc, CT_PP_OTHER);
             }
             cpd.is_preproc = pc->type;
          }
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
             // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
-            if (chunk_is_not_type(pc, 2, CT_NL_CONT, CT_COMMENT_CPP))
+            if (is_not_type(pc, 2, CT_NL_CONT, CT_COMMENT_CPP))
             {
-               set_chunk_type(pc, CT_PP_IGNORE);
+               set_type(pc, CT_PP_IGNORE);
             }
          }
          else if (cpd.is_preproc == CT_PP_DEFINE    &&
-                  chunk_is_type(pc, CT_PAREN_CLOSE) &&
+                  is_type(pc, CT_PAREN_CLOSE) &&
                   cpd.settings[UO_pp_ignore_define_body].b)
          {
             // When we have a PAREN_CLOSE in a PP_DEFINE we should be terminating a MACRO_FUNC
@@ -2031,16 +2031,16 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       else
       {
          /* Check for a preprocessor start */
-         if ( chunk_is_type   (pc,    CT_POUND  )   &&
-             (chunk_is_invalid(rprev            ) ||
-              chunk_is_type   (rprev, CT_NEWLINE) ) )
+         if ( is_type   (pc,    CT_POUND  )   &&
+             (is_invalid(rprev            ) ||
+              is_type   (rprev, CT_NEWLINE) ) )
          {
-            set_chunk_type(pc, CT_PREPROC);
+            set_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;
             cpd.is_preproc = CT_PREPROC;
          }
       }
-      if (chunk_is_type(pc, CT_NEWLINE))
+      if (is_type(pc, CT_NEWLINE))
       {
          LOG_FMT(LGUY, "%s(%d): (%zu)<NL> col=%zu\n",
                  __func__, __LINE__, pc->orig_line, pc->orig_col);

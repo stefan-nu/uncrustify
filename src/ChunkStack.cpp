@@ -93,7 +93,7 @@ void ChunkStack::Collapse()
 
    for (size_t rd_idx = 0; rd_idx < m_cse.size(); rd_idx++)
    {
-      if (chunk_is_valid(m_cse[rd_idx].m_pc))
+      if (is_valid(m_cse[rd_idx].m_pc))
       {
          if (rd_idx != wr_idx)
          {

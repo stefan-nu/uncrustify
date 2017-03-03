@@ -1656,18 +1656,9 @@ static void perform_insert(chunk_t *ref, const file_mem_t &fm)
    tokenize(fm.data, after);
    for (chunk_t *tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
    {
-      assert(chunks_are_valid(tmp, after));
+      assert(are_valid(tmp, after));
       tmp->level = after->level;
    }
-}
-
-
-/* \todo move to chunk_list.h */
-bool check_chunk_and_parent_type(chunk_t *chunk, c_token_t chunk_type, c_token_t parent_type)
-{
-   return (chunk_is_type (chunk, chunk_type ) &&
-           chunk_is_valid(chunk->next       ) &&
-           chunk_is_ptype(chunk, parent_type) );
 }
 
 
@@ -1676,9 +1667,9 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (chunk_is_not_type(pc, type)) { continue; }
+      if (is_not_type(pc, type)) { continue; }
 
       if ((pc->flags & PCF_IN_CLASS                             ) &&
           (cpd.settings[UO_cmt_insert_before_inlines].b == false) )
@@ -1688,13 +1679,13 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
       // Check for one liners for classes. Declarations only. Walk down the chunks.
       chunk_t *ref = pc;
-      if(check_chunk_and_parent_type(ref, CT_CLASS, CT_NONE))
+      if(is_type_and_ptype(ref, CT_CLASS, CT_NONE))
       {
          ref = ref->next;
-         if(check_chunk_and_parent_type(ref, CT_TYPE, type))
+         if(is_type_and_ptype(ref, CT_TYPE, type))
          {
             ref = ref->next;
-            if(check_chunk_and_parent_type(ref, CT_SEMICOLON, CT_NONE))
+            if(is_type_and_ptype(ref, CT_SEMICOLON, CT_NONE))
             {
                continue;
             }
@@ -1703,13 +1694,13 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
       // Check for one liners for functions. There'll be a closing brace w/o any newlines. Walk down the chunks.
       ref = pc;
-      if(check_chunk_and_parent_type(ref, CT_FUNC_DEF, CT_NONE))
+      if(is_type_and_ptype(ref, CT_FUNC_DEF, CT_NONE))
       {
          int found_brace = 0; // Set if a close brace is found before a newline
-         while (chunk_is_not_type(ref, CT_NEWLINE))
+         while (is_not_type(ref, CT_NEWLINE))
          {
             ref = ref->next;
-            if (chunk_is_type(ref, CT_BRACE_CLOSE))
+            if (is_type(ref, CT_BRACE_CLOSE))
             {
                found_brace = 1;
                break;
@@ -1727,14 +1718,14 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       {
          /* Bail if we change level or find an access specifier colon */
          if ((ref->level != pc->level           ) ||
-             chunk_is_type(ref, CT_PRIVATE_COLON) )
+             is_type(ref, CT_PRIVATE_COLON) )
          {
             do_insert = true;
             break;
          }
 
          /* If we hit an angle close, back up to the angle open */
-         if (chunk_is_type(ref, CT_ANGLE_CLOSE))
+         if (is_type(ref, CT_ANGLE_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
@@ -1744,7 +1735,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
-            if (chunk_is_ptype(tmp, CT_PP_IF))
+            if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&
@@ -1764,7 +1755,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
          if ( (ref->level == pc->level     )   &&
              ((ref->flags  & PCF_IN_PREPROC) ||
-              chunk_is_type(ref, 2, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
+              is_type(ref, 2, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
          {
             do_insert = true;
             break;
@@ -1781,9 +1772,9 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); chunk_is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (chunk_is_not_type(pc, type)) { continue; }
+      if (is_not_type(pc, type)) { continue; }
 
       do_insert = false;
 
@@ -1794,13 +1785,13 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       {
          /* ignore the CT_TYPE token that is the result type */
          if ((ref->level != pc->level  )   &&
-             chunk_is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) )
+             is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) )
          {
             continue;
          }
 
          /* If we hit a parentheses around return type, back up to the open parentheses */
-         if (chunk_is_type(ref, CT_PAREN_CLOSE))
+         if (is_type(ref, CT_PAREN_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
@@ -1810,7 +1801,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          if (ref->flags & PCF_IN_PREPROC)
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
-            if (chunk_is_ptype(tmp, CT_PP_IF))
+            if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
                if ((chunk_is_comment(tmp)                                ) &&
@@ -1821,10 +1812,10 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             }
          }
          if (( ref->level == pc->level                                        ) &&
-             ((ref->flags & PCF_IN_PREPROC) || chunk_is_type(ref, CT_OC_SCOPE)) )
+             ((ref->flags & PCF_IN_PREPROC) || is_type(ref, CT_OC_SCOPE)) )
          {
             ref = chunk_get_prev(ref);
-            if (chunk_is_valid(ref))
+            if (is_valid(ref))
             {
                /* Ignore 'right' comments */
                if ((chunk_is_newline(ref)                ) &&
@@ -1854,7 +1845,7 @@ static void uncrustify_start(const deque<int> &data)
    if (cpd.frag)
    {
       const chunk_t *pc = chunk_get_head();
-      cpd.frag_cols = (UINT16)((chunk_is_valid(pc)) ? pc->orig_col : 0);
+      cpd.frag_cols = (UINT16)((is_valid(pc)) ? pc->orig_col : 0);
    }
 
    if (cpd.file_hdr.data.size() > 0) { add_file_header(); } /* Add the file header */

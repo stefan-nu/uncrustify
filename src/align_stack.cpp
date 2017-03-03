@@ -64,7 +64,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 #if 0
    return_if_invalid(start);
 #else
-   if (chunk_is_invalid(start)) { return; }
+   if (is_invalid(start)) { return; }
 #endif
 
    /* Assign a seqnum if needed */
@@ -145,7 +145,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       chunk_t *prev = start;
       while (((prev = chunk_get_prev(prev)) != nullptr) &&
              (chunk_is_ptr_operator(prev) ||
-              chunk_is_type(prev, CT_TPAREN_OPEN)))
+              is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
@@ -167,7 +167,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
             ali  = prev;
             prev = chunk_get_prev(ali);
          }
-         if (chunk_is_type(prev, CT_TPAREN_OPEN))
+         if (is_type(prev, CT_TPAREN_OPEN))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -188,7 +188,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       }
 
 //    return_if(chunks_are_invalid(ali, ref));
-      if(!chunks_are_valid(ali, ref)) { return; }
+      if(!are_valid(ali, ref)) { return; }
 
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */
@@ -199,7 +199,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          while (tmp != start)
          {
             chunk_t *next = chunk_get_next(tmp);
-            assert(chunk_is_valid(next));
+            assert(is_valid(next));
             tmp_col += (size_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
             {
@@ -217,7 +217,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          gap = ali->column - (ref->column + ref->len());
       }
       tmp = ali;
-      if (chunk_is_type(tmp, CT_TPAREN_OPEN))
+      if (is_type(tmp, CT_TPAREN_OPEN))
       {
          tmp = chunk_get_next(tmp);
       }
@@ -315,7 +315,7 @@ void AlignStack::Flush()
       assert(ptr_is_valid(m_aligned.Get(0)));
       pc = m_aligned.Get(0)->m_pc;
       chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
-      if (chunk_is_valid(temp))
+      if (is_valid(temp))
       {
          if (pc->orig_line == temp->orig_line)
          {
@@ -342,7 +342,7 @@ void AlignStack::Flush()
          gap = pc->column - (pc->align.ref->column + pc->align.ref->len());
       }
       chunk_t *tmp = pc;
-      if (chunk_is_type(tmp, CT_TPAREN_OPEN))
+      if (is_type(tmp, CT_TPAREN_OPEN))
       {
          tmp = chunk_get_next(tmp);
       }
@@ -356,10 +356,10 @@ void AlignStack::Flush()
       {
          /* Adjust the width for signed numbers */
          size_t start_len = pc->align.start->len();
-         if (chunk_is_type(pc->align.start, CT_NEG))
+         if (is_type(pc->align.start, CT_NEG))
          {
             tmp = chunk_get_next(pc->align.start);
-            if(chunk_is_type(tmp, CT_NUMBER))
+            if(is_type(tmp, CT_NUMBER))
             {
                start_len += tmp->len();
             }

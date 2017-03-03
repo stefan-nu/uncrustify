@@ -167,16 +167,16 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    int    b4_cnt   = cpd.frame_count;
    size_t pp_level = cpd.pp_level;
 
-   if (chunk_is_not_type(pc, CT_PREPROC)) { return(pp_level); }
+   if (is_not_type(pc, CT_PREPROC)) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
-   if (chunk_is_invalid(next)) { return(pp_level); }
+   if (is_invalid(next)) { return(pp_level); }
 
-   if (chunk_is_not_ptype(pc, next->type))
+   if (is_not_ptype(pc, next->type))
    {
       LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %zu: got %s expected %s\n",
               __func__, __LINE__, pc->orig_line, get_token_name(pc->parent_type),
               get_token_name(next->type));
-      set_chunk_ptype(pc, next->type);
+      set_ptype(pc, next->type);
    }
 
    LOG_FMT(LPFCHK, "%s(%d): %zu] %s\n",

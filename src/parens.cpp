@@ -57,15 +57,15 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
-         if (chunk_is_not_type (pc,    CT_SPAREN_OPEN             ) ||
-             chunk_is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) )
+         if (is_not_type (pc,    CT_SPAREN_OPEN             ) ||
+             is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) )
          {
             continue;
          }
 
          /* Grab the close sparen */
          chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
-         if (chunk_is_valid(pclose))
+         if (is_valid(pclose))
          {
             check_bool_parens(pc, pclose, 0);
             pc = pclose;
@@ -79,8 +79,8 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 {
    LOG_FUNC_ENTRY();
 
-   if (chunk_is_invalid(first) ||
-       chunk_is_invalid(last ) ) { return; }
+   if (is_invalid(first) ||
+       is_invalid(last ) ) { return; }
 
    LOG_FMT(LPARADD, "%s: line %zu between %s [lvl=%zu] and %s [lvl=%zu]\n",
            __func__, first->orig_line,
@@ -89,7 +89,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
    chunk_t *first_n = chunk_get_next_ncnl(first);
-   assert(chunk_is_valid(first_n));
+   assert(is_valid(first_n));
    if (first_n == last)
    {
       return;
@@ -106,7 +106,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    chunk_add_before(&pc, first_n);
 
    chunk_t *last_p = chunk_get_prev_ncnl(last, scope_e::PREPROC);
-   assert(chunk_is_valid(last_p));
+   assert(is_valid(last_p));
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";
    pc.flags       = last_p->flags & PCF_COPY_FLAGS;
@@ -150,7 +150,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
          return;
       }
 
-      if (chunk_is_type(pc, 4, CT_BOOL, CT_QUESTION, CT_COND_COLON, CT_COMMA))
+      if (is_type(pc, 4, CT_BOOL, CT_QUESTION, CT_COND_COLON, CT_COMMA))
       {
          LOG_FMT(LPARADD2, " -- %s [%s] at line %zu col %zu, level %zu\n",
                  get_token_name(pc->type),
@@ -162,7 +162,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
          }
          ref = pc;
       }
-      else if (chunk_is_type(pc, CT_COMPARE))
+      else if (is_type(pc, CT_COMPARE))
       {
          LOG_FMT(LPARADD2, " -- compare [%s] at line %zu col %zu, level %zu\n",
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
@@ -171,13 +171,13 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
       else if (chunk_is_paren_open(pc))
       {
          chunk_t *next = chunk_skip_to_match(pc);
-         if (chunk_is_valid(next))
+         if (is_valid(next))
          {
             check_bool_parens(pc, next, nest + 1);
             pc = next;
          }
       }
-      else if (chunk_is_type(pc, 3, CT_BRACE_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
+      else if (is_type(pc, 3, CT_BRACE_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
       {
          /* Skip [], {}, and <> */
          pc = chunk_skip_to_match(pc);

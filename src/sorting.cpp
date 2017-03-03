@@ -100,7 +100,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
    LOG_FMT(LSORT, "\n@begin pc1->len=%zu, line=%zu, column=%zu\n", pc1->len(), pc1->orig_line, pc1->orig_col);
    LOG_FMT(LSORT,   "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
    if (pc1 == pc2) { return(0); }   /* \todo same chunk is always identical thus return 0 differences */
-   while (chunks_are_valid(pc1, pc2)) /* ensure there are two valid pointers */
+   while (are_valid(pc1, pc2)) /* ensure there are two valid pointers */
    {
       const int ppc1 = get_chunk_priority(pc1);
       const int ppc2 = get_chunk_priority(pc2);
@@ -118,32 +118,32 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* Same word, same length. Step to the next chunk. */
       pc1 = chunk_get_next(pc1);
-      if (chunk_is_valid(pc1))
+      if (is_valid(pc1))
       {
          LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
-         if (chunk_is_type(pc1, CT_MEMBER))
+         if (is_type(pc1, CT_MEMBER))
          {
             pc1 = chunk_get_next(pc1);
-            if(chunk_is_valid(pc1))
+            if(is_valid(pc1))
             {
                LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
             }
          }
       }
       pc2 = chunk_get_next(pc2);
-      if(chunk_is_valid(pc2))
+      if(is_valid(pc2))
       {
          LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-         if (chunk_is_type(pc2, CT_MEMBER))
+         if (is_type(pc2, CT_MEMBER))
          {
             pc2 = chunk_get_next(pc2);
-            assert(chunk_is_valid(pc2));
+            assert(is_valid(pc2));
             LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          }
       }
 
       /* If we hit a newline or nullptr, we are done */
-      if (!chunks_are_valid(pc1, pc2) ||
+      if (!are_valid(pc1, pc2) ||
            chunk_is_newline(pc1     ) ||
            chunk_is_newline(     pc2) )
       {
@@ -151,7 +151,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
    }
 
-   if ( (chunk_is_invalid  (pc1)) ||
+   if ( (is_invalid  (pc1)) ||
         (!chunk_is_newline(pc2)) )   { return(-1); }
 
    if   (!chunk_is_newline(pc1))     { return( 1); }
@@ -206,7 +206,7 @@ void sort_imports(void)
    prepare_categories();
 
    chunk_t *pc = chunk_get_head();
-   while (chunk_is_valid(pc))
+   while (is_valid(pc))
    {
       chunk_t *next = chunk_get_next(pc);
 
@@ -214,8 +214,8 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ( chunks_are_valid(p_imp, p_last    )   &&
-             (chunk_is_type(p_last, CT_SEMICOLON) ||
+         if ( are_valid(p_imp, p_last    )   &&
+             (is_type(p_last, CT_SEMICOLON) ||
              (p_imp->flags & PCF_IN_PREPROC     ) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
@@ -234,7 +234,7 @@ void sort_imports(void)
          }
          if ((did_import == false  ) ||
              (pc->nl_count > 1     ) ||
-             (chunk_is_invalid(next)) )
+             (is_invalid(next)) )
          {
             if (num_chunks > 1)
             {
@@ -245,12 +245,12 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if( (chunk_is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
-               (chunk_is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using  ].b == true)) )
+      else if( (is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
+               (is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using  ].b == true)) )
       {
          p_imp = chunk_get_next(pc);
       }
-      else if (chunk_is_type(pc, CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
+      else if (is_type(pc, CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
       {
          p_imp  = chunk_get_next(pc);
          p_last = pc;

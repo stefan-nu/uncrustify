@@ -14,7 +14,7 @@
 
 /* for backward compatibility
  * \todo remove later */
-#define set_chunk_parent set_chunk_ptype
+//#define set_chunk_parent set_chunk_ptype
 
 
 /* \todo better use a class for all chunk related operations,
@@ -93,7 +93,7 @@ bool ptr_is_invalid(
 /**
  * check if a chunk is valid
  */
-bool chunk_is_valid(
+bool is_valid(
    const chunk_t * const pc /**< [in] chunk to check */
 );
 
@@ -101,7 +101,7 @@ bool chunk_is_valid(
 /**
  * checks if two chunks are valid
  */
-bool chunks_are_valid(
+bool are_valid(
    const chunk_t * const pc1, /**< [in] chunk1 to check */
    const chunk_t * const pc2  /**< [in] chunk2 to check */
 );
@@ -110,15 +110,24 @@ bool chunks_are_valid(
 /**
  * check if a chunk is not valid
  */
-bool chunk_is_invalid(
+bool is_invalid(
    const chunk_t * const pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is invalid or has a given type
+ */
+bool is_invalid_or_type(
+   const chunk_t* const pc,  /**< [in] chunk to check */
+   const c_token_t type      /**< [in] type to check for */
 );
 
 
 /**
  * check if a chunk is invalid or has not a given type
  */
-bool chunk_is_invalid_or_not_type(
+bool is_invalid_or_not_type(
    const chunk_t* const pc,  /**< [in] chunk to check */
    const c_token_t type      /**< [in] type to check for */
 );
@@ -127,7 +136,7 @@ bool chunk_is_invalid_or_not_type(
 /**
  * check if any of two chunks is invalid
  */
-bool chunks_are_invalid(
+bool are_invalid(
    const chunk_t * const pc1, /**< [in] chunk1 to check */
    const chunk_t * const pc2  /**< [in] chunk2 to check */
 );
@@ -136,7 +145,7 @@ bool chunks_are_invalid(
 /**
  * check if any of three chunks is invalid
  */
-bool chunks_are_invalid(
+bool are_invalid(
    const chunk_t * const pc1,  /**< [in] chunk1 to check */
    const chunk_t * const pc2,  /**< [in] chunk2 to check */
    const chunk_t * const pc3   /**< [in] chunk3 to check */
@@ -146,7 +155,7 @@ bool chunks_are_invalid(
 /**
  * check if both chunks are valid
  */
-bool chunks_are_valid(
+bool are_valid(
    const chunk_t * const pc1,  /**< [in] chunk1 to check */
    const chunk_t * const pc2   /**< [in] chunk2 to check */
 );
@@ -155,7 +164,7 @@ bool chunks_are_valid(
 /**
  * check if all three chunks are valid
  */
-bool chunks_are_valid(
+bool are_valid(
    const chunk_t * const pc1,  /**< [in] chunk1 to check */
    const chunk_t * const pc2,  /**< [in] chunk2 to check */
    const chunk_t * const pc3   /**< [in] chunk3 to check */
@@ -194,8 +203,8 @@ chunk_t *chunk_dup(
  * @retval pointer to the added chunk
  */
 chunk_t *chunk_add_after(
-   const chunk_t *pc_in,   /**< [in] pointer to chunk to add to list */
-   chunk_t       *ref      /**< [in] position where insertion takes place */
+   const chunk_t *pc_in,   /**< [in] chunk to add to list */
+   chunk_t       *ref      /**< [in] chunk after which to insert */
 );
 
 
@@ -203,13 +212,13 @@ chunk_t *chunk_add_after(
  * \brief Add a copy of a chunk to a chunk list before the given position
  *
  * \note If ref is nullptr, add at the head of the chunk list
- * \bug currently chunks are added to the tail fix this
+ * \bug currently chunks are added to the tail
  *
  * @retval pointer to the added chunk
  */
 chunk_t *chunk_add_before(
-   const chunk_t *pc_in,   /**< [in] pointer to chunk to add to list */
-   chunk_t       *ref      /**< [in] position where insertion takes place */
+   const chunk_t *pc_in,   /**< [in] chunk to add to list */
+   chunk_t       *ref      /**< [in] chunk before which to insert */
 );
 
 
@@ -591,7 +600,7 @@ chunk_t *chunk_search_next_cat(
 /**
  * defines the type of a chunk
  */
-void set_chunk_type(
+void set_type(
    chunk_t   *pc,  /**< [in] chunk to operate on */
    c_token_t tt    /**< [in] value to set as chunk type */
 );
@@ -600,7 +609,7 @@ void set_chunk_type(
 /**
  * defines the parent type of a chunk
  */
-void set_chunk_ptype(
+void set_ptype(
    chunk_t   *pc,  /**< [in] chunk to operate on */
    c_token_t tt    /**< [in] value to set as parent type */
 );
@@ -616,7 +625,7 @@ void set_type_and_ptype(
 );
 
 
-void set_chunk_ptype_and_flag(
+void set_ptype_and_flag(
    chunk_t   *pc,   /**< [in] chunk to operate on */
    c_token_t type,  /**< [in] value to set as chunk  type */
    UINT64    flag   /**< [in] flag bits to add */
@@ -660,7 +669,7 @@ chunk_t *chunk_skip_to_match(
 );
 
 
-bool chunk_is_type_and_level(
+bool is_type_and_level(
    const chunk_t   *pc,  /**< [in] chunk to check */
    const c_token_t type,
    const int       level
@@ -817,7 +826,7 @@ bool chunk_is_var_type(
  * check if the given chunk is valid and holds a given token type
  * and  a given parent token type
  */
-bool chunk_is_type_and_ptype(
+bool is_type_and_ptype(
    chunk_t   *pc,   /**< [in] chunk to check */
    c_token_t type,  /**< [in] token type to check for */
    c_token_t parent /**< [in] token type to check for */
@@ -828,7 +837,7 @@ bool chunk_is_type_and_ptype(
  * check if the given chunk is valid and holds a given token type
  * and is not a given parent token type
  */
-bool chunk_is_type_and_not_ptype(
+bool is_type_and_not_ptype(
    chunk_t   *pc,   /**< [in] chunk to check */
    c_token_t type,  /**< [in] token type to check for */
    c_token_t parent /**< [in] token type to check for */
@@ -836,9 +845,85 @@ bool chunk_is_type_and_not_ptype(
 
 
 /**
+ * check if either of two given chunks is valid and holds the given token type
+ */
+bool any_is_type(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type   /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the either of two given chunks is valid and hold the respective given token type
+ */
+bool any_is_type(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   c_token_t     type1, /**< [in] token1 type to check for */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type2  /**< [in] token2 type to check for */
+);
+
+
+/**
+ * check if both chunks are valid but only the first has the given type the
+ * second chunk has to be different from its given type
+ */
+bool is_only_first_type(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   c_token_t     type1, /**< [in] token1 type to check for */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type2  /**< [in] token2 type to check for */
+);
+
+
+/**
+ * check if the two given chunks are valid and both hold the same given token type
+ */
+bool are_types(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type   /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the two given chunks are valid and both hold the same given parent token type
+ */
+bool are_ptypes(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type   /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the two given chunks are valid and hold a given token type
+ */
+bool are_types(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   c_token_t     type1,  /**< [in] token1 type to check for */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type2  /**< [in] token2 type to check for */
+);
+
+
+/**
+ * check if the two given chunks are valid and hold a given parent token type
+ */
+bool are_ptypes(
+   const chunk_t *pc1,  /**< [in] chunk1 to check */
+   c_token_t     type1,  /**< [in] token1 type to check for */
+   const chunk_t *pc2,  /**< [in] chunk2 to check */
+   c_token_t     type2  /**< [in] token2 type to check for */
+);
+
+
+
+/**
  * check if the given chunk is valid and holds a given token type
  */
-bool chunk_is_type(
+bool is_type(
    const chunk_t *pc,  /**< [in] chunk to check */
    c_token_t     type  /**< [in] token type to check for */
 );
@@ -847,9 +932,9 @@ bool chunk_is_type(
 /**
  * check if the given chunk is valid and holds a given parent token type
  */
-bool chunk_is_ptype(
-   const chunk_t * const pc,      /**< [in] chunk to check */
-   c_token_t parent  /**< [in] token type to check for */
+bool is_ptype(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   c_token_t parent          /**< [in] token type to check for */
 );
 
 
@@ -857,7 +942,7 @@ bool chunk_is_ptype(
  * check if the given chunk is valid and has a token type different
  * than a given one
  */
-bool chunk_is_not_type(
+bool is_not_type(
    const chunk_t * const pc,       /**< [in] chunk to check */
    c_token_t c_token  /**< [in] token type to check for */
 );
@@ -867,7 +952,7 @@ bool chunk_is_not_type(
  * check if the given chunk is valid and holds a token type which is
  * part of a given list
  */
-bool chunk_is_type(
+bool is_type(
    const chunk_t *pc,     /**< [in] chunk to check */
    int            count,  /**< [in] number of token types to check */
    ...                    /**< [in] list of token types to check for */
@@ -878,7 +963,7 @@ bool chunk_is_type(
  * check if the given chunk is valid and holds a parent token type which is
  * part of a given list
  */
-bool chunk_is_ptype(
+bool is_ptype(
    const chunk_t * const pc,   /**< [in] chunk to check */
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of token types to check for */
@@ -889,7 +974,7 @@ bool chunk_is_ptype(
  * check if the given chunk is valid and holds a token type which is
  * different from all types in a given list
  */
-bool chunk_is_not_type(
+bool is_not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
    int count,                /**< [in] number of token types to check */
    ...                       /**< [in] list of token types to check for */
@@ -900,7 +985,7 @@ bool chunk_is_not_type(
  * check if the given chunk is valid and holds a parent token type which is
  * different from all types in a given list
  */
-bool chunk_is_not_ptype(
+bool is_not_ptype(
    chunk_t *pc,   /**< [in] chunk to check */
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of parent token types to check for */
@@ -912,7 +997,7 @@ bool chunk_is_not_ptype(
  * check if the given chunk is valid and holds a given string
  * The case of the string is considered.
  */
-bool chunk_is_str(
+bool is_str(
    chunk_t *pc,     /**< [in] chunk to check */
    const char *str, /**< [in] string to compare with */
    size_t len       /**< [in] number of characters in string to compare */

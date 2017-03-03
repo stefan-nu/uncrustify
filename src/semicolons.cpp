@@ -48,11 +48,11 @@ void remove_extra_semicolons(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *pc = chunk_get_head();
-   while (chunk_is_valid(pc))
+   while (is_valid(pc))
    {
       chunk_t *next = chunk_get_next_ncnl(pc);
       chunk_t *prev;
-      if (chunk_is_type(pc, CT_SEMICOLON) &&
+      if (is_type(pc, CT_SEMICOLON) &&
           !(pc->flags & PCF_IN_PREPROC  ) &&
           ((prev = chunk_get_prev_ncnl(pc)) != nullptr))
       {
@@ -61,42 +61,42 @@ void remove_extra_semicolons(void)
                  prev->text(),
                  get_token_name(prev->type), get_token_name(prev->parent_type));
 
-         if (chunk_is_ptype(pc, CT_TYPEDEF))
+         if (is_ptype(pc, CT_TYPEDEF))
          {
             /* keep it */
          }
          /* \todo move if conditions to separate function and combine the
           * same action */
-         else if (chunk_is_type (prev,    CT_BRACE_CLOSE) &&
-                  chunk_is_ptype(prev, 11,CT_ELSEIF, CT_FUNC_DEF,   CT_IF,
-                       CT_FUNC_CLASS_DEF, CT_SWITCH, CT_USING_STMT, CT_FOR,
-                       CT_OC_MSG_DECL,    CT_WHILE,  CT_NAMESPACE,  CT_ELSE))
+         else if (is_type (prev,    CT_BRACE_CLOSE) &&
+                  is_ptype(prev, 11,CT_ELSEIF, CT_FUNC_DEF,   CT_IF,
+                 CT_FUNC_CLASS_DEF, CT_SWITCH, CT_USING_STMT, CT_FOR,
+                 CT_OC_MSG_DECL,    CT_WHILE,  CT_NAMESPACE,  CT_ELSE))
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
-         else if (chunk_is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_NONE) )
+         else if (is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_NONE))
          {
             check_unknown_brace_close(pc, prev);
          }
-         else if (chunk_is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR) )
+         else if (is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR))
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
-         else if ((cpd.lang_flags & LANG_D        )   &&
-                  chunk_is_ptype(prev, 3, CT_ENUM, CT_UNION, CT_STRUCT))
+         else if ((cpd.lang_flags & LANG_D                      ) &&
+                  is_ptype(prev, 3, CT_ENUM, CT_UNION, CT_STRUCT) )
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
-         else if ((cpd.lang_flags & LANG_JAVA           ) &&
-                  chunk_is_ptype(prev, CT_SYNCHRONIZED) )
+         else if ((cpd.lang_flags & LANG_JAVA   ) &&
+                  is_ptype(prev, CT_SYNCHRONIZED) )
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
-         else if (chunk_is_type(prev, CT_BRACE_OPEN))
+         else if (is_type(prev, CT_BRACE_OPEN))
          {
             LOG_FUNC_CALL();
             remove_semicolon(pc);
@@ -114,7 +114,7 @@ static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
    chunk_t *pc = chunk_get_prev_type(brace_close, CT_BRACE_OPEN, (int)brace_close->level);
    pc = chunk_get_prev_ncnl(pc);
 
-   if (chunk_is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
+   if (is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
                                 CT_SQUARE_CLOSE, CT_TSQUARE) &&
        !chunk_is_paren_close(pc) )
    {

@@ -2410,10 +2410,9 @@ string argval2string(argval_t argval)
       case AV_REMOVE: return("remove");
       case AV_FORCE:  return("force" );
       default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
-                      return("");
+                      return("undefined");
    }
 }
-
 
 string number2string(int number)
 {

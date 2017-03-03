@@ -19,7 +19,7 @@ static void log_newline(
 void prot_the_line(int theLine, unsigned int actual_line)
 {
    LOG_FMT(LGUY, "Prot_the_line:(%d) \n", theLine);
-   for (chunk_t *pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
+   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = pc->next)
    {
       if (pc->orig_line == actual_line)
       {
@@ -45,7 +45,7 @@ void prot_the_line(int theLine, unsigned int actual_line)
 
 static void log_newline(chunk_t *pc)
 {
-   if (chunk_is_type(pc, CT_NEWLINE))
+   if (is_type(pc, CT_NEWLINE))
    {
       LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
    }
@@ -66,9 +66,9 @@ void examine_Data(const char *func_name, int theLine, int what)
    switch (what)
    {
    case 1:
-      for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
+      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
       {
-         if (chunk_is_type(pc, 2, CT_SQUARE_CLOSE, CT_TSQUARE))
+         if (is_type(pc, 2, CT_SQUARE_CLOSE, CT_TSQUARE))
          {
             LOG_FMT(LGUY, "\n");
             LOG_FMT(LGUY, "1:(%d),", theLine);
@@ -79,7 +79,7 @@ void examine_Data(const char *func_name, int theLine, int what)
 
    case 2:
       LOG_FMT(LGUY, "2:(%d)\n", theLine);
-      for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
+      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
       {
          if (pc->orig_line == 7) { log_newline(pc); }
       }
@@ -87,7 +87,7 @@ void examine_Data(const char *func_name, int theLine, int what)
 
    case 3:
       LOG_FMT(LGUY, "3:(%d)\n", theLine);
-      for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
+      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
       {
          log_newline(pc);
       }
@@ -95,7 +95,7 @@ void examine_Data(const char *func_name, int theLine, int what)
 
    case 4:
       LOG_FMT(LGUY, "4:(%d)\n", theLine);
-      for (pc = chunk_get_head(); chunk_is_valid(pc); pc = pc->next)
+      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
       {
          if (pc->orig_line == 6)
          {
