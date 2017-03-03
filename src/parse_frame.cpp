@@ -174,13 +174,13 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    if (is_not_ptype(pc, next->type))
    {
       LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %zu: got %s expected %s\n",
-              __func__, __LINE__, pc->orig_line, get_token_name(pc->parent_type),
+              __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype),
               get_token_name(next->type));
       set_ptype(pc, next->type);
    }
 
    LOG_FMT(LPFCHK, "%s(%d): %zu] %s\n",
-           __func__, __LINE__, pc->orig_line, get_token_name(pc->parent_type));
+           __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype));
    pf_log_frms(LPFCHK, "TOP", frm);
 
    const char *txt = nullptr;
@@ -189,7 +189,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       LOG_FMT(LPF, " <In> ");
       pf_log(LPF, frm);
 
-      if (pc->parent_type == CT_PP_IF)
+      if (pc->ptype == CT_PP_IF)
       {
          /* An #if pushes a copy of the current frame on the stack */
          cpd.pp_level++;
@@ -197,7 +197,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          frm->in_ifdef = CT_PP_IF;
          txt           = "if-push";
       }
-      else if (pc->parent_type == CT_PP_ELSE)
+      else if (pc->ptype == CT_PP_ELSE)
       {
          pp_level--;
 
@@ -217,7 +217,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          frm->in_ifdef = CT_PP_ELSE;
          txt           = "else-push";
       }
-      else if (pc->parent_type == CT_PP_ENDIF)
+      else if (pc->ptype == CT_PP_ENDIF)
       {
          /* we may have [...] [base] [if]-[else] or [...] [base]-[if].
           * Throw out the [else]. */
@@ -252,7 +252,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    if (ptr_is_valid(txt))
    {
       LOG_FMT(LPF, "%s(%d): %zu> %s: %s in_ifdef=%d/%d counts=%d/%d\n", __func__, __LINE__,
-              pc->orig_line, get_token_name(pc->parent_type), txt,
+              pc->orig_line, get_token_name(pc->ptype), txt,
               in_ifdef, frm->in_ifdef, b4_cnt, cpd.frame_count);
       pf_log_all(LPF);
       LOG_FMT(LPF, " <Out>");

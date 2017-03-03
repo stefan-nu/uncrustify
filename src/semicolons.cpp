@@ -57,9 +57,9 @@ void remove_extra_semicolons(void)
           ((prev = chunk_get_prev_ncnl(pc)) != nullptr))
       {
          LOG_FMT(LSCANSEMI, "Semicolon on %zu:%zu parent=%s, prev = '%s' [%s/%s]\n",
-                 pc->orig_line, pc->orig_col, get_token_name(pc->parent_type),
+                 pc->orig_line, pc->orig_col, get_token_name(pc->ptype),
                  prev->text(),
-                 get_token_name(prev->type), get_token_name(prev->parent_type));
+                 get_token_name(prev->type), get_token_name(prev->ptype));
 
          if (is_ptype(pc, CT_TYPEDEF))
          {

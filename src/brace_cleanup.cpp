@@ -561,7 +561,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Get the parent type for brace and parenthesis open */
-   c_token_t parent = pc->parent_type;
+   c_token_t parent = pc->ptype;
    if (is_type(pc, 4, CT_PAREN_OPEN, CT_FPAREN_OPEN, CT_SPAREN_OPEN, CT_BRACE_OPEN ) )
    {
       chunk_t *prev = chunk_get_prev_ncnl(pc);
@@ -986,7 +986,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
 
    chunk_t chunk;
    chunk.orig_line   = pc->orig_line;
-   chunk.parent_type = frm->pse[frm->pse_tos].type;
+   chunk.ptype = frm->pse[frm->pse_tos].type;
    chunk.level       = frm->level;
    chunk.brace_level = frm->brace_level;
    chunk.flags       = pc->flags & PCF_COPY_FLAGS;

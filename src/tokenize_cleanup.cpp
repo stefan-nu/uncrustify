@@ -214,7 +214,7 @@ void tokenize_cleanup(void)
 
       /* Change angle open/close to CT_COMPARE, if not a template thingy */
       if (is_type(pc, CT_ANGLE_OPEN) &&
-          (pc->parent_type != CT_TYPE_CAST ) )
+          (pc->ptype != CT_TYPE_CAST ) )
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
@@ -231,7 +231,7 @@ void tokenize_cleanup(void)
 
 #if 1
       if ((pc->type        == CT_ANGLE_CLOSE) &&
-          (pc->parent_type != CT_TEMPLATE   ) )
+          (pc->ptype != CT_TEMPLATE   ) )
 #else
          // many Cpp and some other tests fail
       if (is_type     (pc, CT_ANGLE_CLOSE) &&
@@ -322,7 +322,7 @@ void tokenize_cleanup(void)
       /* Interface is only a keyword in MS land if followed by 'class' or 'struct'
        * likewise, 'class' may be a member name in Java. */
       if (is_type(pc, CT_CLASS) &&
-          !CharTable::IsKeyword1(next->str[0]) &&
+          !CharTable::IsKW1(next->str[0]) &&
           pc->next->type != CT_DC_MEMBER)
       {
          set_type(pc, CT_WORD);
@@ -591,7 +591,7 @@ void tokenize_cleanup(void)
            is_type (pc,    CT_OC_CLASS           ) ) &&
            is_type (next,  CT_PAREN_OPEN         ) )
       {
-         set_ptype(next, pc->parent_type);
+         set_ptype(next, pc->ptype);
 
          chunk_t *tmp = chunk_get_next(next);
          if (are_valid(tmp ,tmp->next))
@@ -599,16 +599,16 @@ void tokenize_cleanup(void)
             if (is_type(tmp, CT_PAREN_CLOSE))
             {
                //set_chunk_type(tmp, CT_OC_CLASS_EXT);
-               set_ptype(tmp, pc->parent_type);
+               set_ptype(tmp, pc->ptype);
             }
             else
             {
-               set_type_and_ptype(tmp, CT_OC_CATEGORY, pc->parent_type);
+               set_type_and_ptype(tmp, CT_OC_CATEGORY, pc->ptype);
             }
          }
 
          tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
-         set_ptype(tmp, pc->parent_type);
+         set_ptype(tmp, pc->ptype);
       }
 
       /* Detect Objective C @property
@@ -856,7 +856,7 @@ static void check_template(chunk_t *start)
           (prev->type        != CT_TYPE        ) &&
           (prev->type        != CT_COMMA       ) &&
           (prev->type        != CT_OPERATOR_VAL) &&
-          (prev->parent_type != CT_OPERATOR    ) )
+          (prev->ptype != CT_OPERATOR    ) )
 #else
         // test 31001 fails
       if (is_not_type (prev, 4, CT_WORD, CT_TYPE, CT_COMMA, CT_OPERATOR_VAL) &&

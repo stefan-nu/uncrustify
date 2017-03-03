@@ -463,7 +463,7 @@ int load_keyword_file(const char *filename)
       if (argc > 0)
       {
          if ((argc < arg_parts                         ) &&
-             (CharTable::IsKeyword1((size_t)(*args[0]))) )
+             (CharTable::IsKW1((size_t)(*args[0]))) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_keyword(args[0], CT_TYPE);

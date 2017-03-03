@@ -188,7 +188,7 @@ static void detect_space_options(void)
          if      (is_type    (prev, CT_PTR_TYPE)) { vote_sp_between_ptr_star.vote       (prev, pc); }
          else if (is_not_type(next, CT_WORD    )) { vote_sp_before_unnamed_ptr_star.vote(prev, pc); }
          else                                { vote_sp_before_ptr_star.vote        (prev, pc); }
-         if (CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_after_ptr_star.vote  (pc, next); }
+         if (CharTable::IsKW1((size_t)next->str[0])) { vote_sp_after_ptr_star.vote  (pc, next); }
       }
 
       if (is_type(pc, CT_BYREF))
@@ -215,7 +215,7 @@ static void detect_space_options(void)
                                                               vote_sp_inside_angle.vote(prev, pc);
          if      (chunk_is_paren_open(next))                { vote_sp_angle_paren.vote (prev, pc); }
          else if (is_type(next, CT_WORD) ||
-               CharTable::IsKeyword1((size_t)next->str[0])) { vote_sp_angle_word.vote  (prev, pc); }
+               CharTable::IsKW1((size_t)next->str[0])) { vote_sp_angle_word.vote  (prev, pc); }
          else                                               { vote_sp_after_angle.vote (pc, next); }
       }
 

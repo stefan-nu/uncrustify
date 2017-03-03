@@ -752,7 +752,7 @@ static bool parse_code_placeholder(tok_ctx &ctx, chunk_t &pc)
 
 static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
 {
-   if (CharTable::IsKeyword1(ctx.peek()))
+   if (CharTable::IsKW1(ctx.peek()))
    {
       size_t slen    = 0;
       size_t oldsize = pc.str.size();
@@ -770,7 +770,7 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
       tok_info ss;
       ctx.save(ss);
       while (ctx.more() &&
-             CharTable::IsKeyword2(ctx.peek()))
+             CharTable::IsKW2(ctx.peek()))
       {
          slen++;
          pc.str.append(ctx.get());
@@ -913,7 +913,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       pc_temp.str.append('0');
       // MS constant might have an "h" at the end. Look for it
       ctx.save();
-      while (ctx.more() && CharTable::IsKeyword2(ctx.peek()))
+      while (ctx.more() && CharTable::IsKW2(ctx.peek()))
       {
          ch = ctx.get();
          pc_temp.str.append(ch);
@@ -1325,7 +1325,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    while (ctx.more() == true)
    {
       size_t ch = ctx.peek();
-      if (CharTable::IsKeyword2(ch))
+      if (CharTable::IsKW2(ch))
       {
          pc.str.append(ctx.get());
       }
@@ -1682,7 +1682,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
          return(true);
       }
       /* check for non-keyword identifiers such as @if @switch, etc */
-      if (CharTable::IsKeyword1(ctx.peek(1)))
+      if (CharTable::IsKW1(ctx.peek(1)))
       {
          parse_word(ctx, pc, true);
          return(true);
@@ -1851,9 +1851,9 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for pawn/ObjectiveC/Java and normal identifiers */
-   if (CharTable::IsKeyword1(ctx.peek()) ||
+   if (CharTable::IsKW1(ctx.peek()) ||
        ((ctx.peek() == BACKSLASH) && (unc_tolower(ctx.peek(1)) == 'u')) ||
-       ((ctx.peek() == '@'      ) && CharTable::IsKeyword1(ctx.peek(1))))
+       ((ctx.peek() == '@'      ) && CharTable::IsKW1(ctx.peek(1))))
    {
       parse_word(ctx, pc, false);
       return(true);

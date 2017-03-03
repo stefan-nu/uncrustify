@@ -578,7 +578,7 @@ void output_parsed(FILE *pfile)
    {
       fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3u/%3u][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
               pc->orig_line, get_token_name(pc->type),
-              get_token_name(pc->parent_type),
+              get_token_name(pc->ptype),
               pc->column, pc->orig_col, pc->orig_col_end, pc->orig_prev_sp,
               pc->brace_level, pc->level, pc->pp_level,
               pc->flags, pc->nl_count, pc->after_tab);
@@ -1086,8 +1086,8 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
       cmt.brace_col = 1u + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
    }
 
-   if ((pc->parent_type == CT_COMMENT_START) ||
-       (pc->parent_type == CT_COMMENT_WHOLE) )
+   if ((pc->ptype == CT_COMMENT_START) ||
+       (pc->ptype == CT_COMMENT_WHOLE) )
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
@@ -1101,8 +1101,8 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
    /* tab aligning code */
    if ( (cpd.settings[UO_indent_cmt_with_tabs].b)   &&
-        ((pc->parent_type == CT_COMMENT_END     ) ||
-         (pc->parent_type == CT_COMMENT_WHOLE   ) ) )
+        ((pc->ptype == CT_COMMENT_END     ) ||
+         (pc->ptype == CT_COMMENT_WHOLE   ) ) )
    {
       cmt.column = align_tab_column(cmt.column - 1);
       pc->column = cmt.column;
@@ -1118,7 +1118,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
    /* We can't combine if ... */
    if ((is_invalid(pc)                ) || /* chunk is invalid or */
-       (pc->parent_type == CT_COMMENT_START) )  /* there is something other than a newline next */
+       (pc->ptype == CT_COMMENT_START) )  /* there is something other than a newline next */
    {
       return(false);
    }
@@ -1133,7 +1133,7 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
       if (  is_type(next, pc->type ) &&
           (((next->column ==            1) && (pc->column      ==            1  )) ||
            ((next->column == cmt.base_col) && (pc->column      == cmt.base_col  )) ||
-           ((next->column  > cmt.base_col) && (pc->parent_type == CT_COMMENT_END)) ) )
+           ((next->column  > cmt.base_col) && (pc->ptype == CT_COMMENT_END)) ) )
       {
          return(true);
       }
@@ -1803,7 +1803,7 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
    const chunk_t *fcn = get_next_function(cmt);
    if (is_valid(fcn))
    {
-      out_txt.append_cond(fcn->parent_type == CT_OPERATOR, "operator ");
+      out_txt.append_cond(fcn->ptype == CT_OPERATOR, "operator ");
 
       if(is_type(fcn->prev, CT_DESTRUCTOR))
       {

@@ -85,7 +85,7 @@ int load_define_file(const char *filename)
       if (argc > 0)
       {
          if ((argc < arg_parts                ) &&
-             (CharTable::IsKeyword1(*args[0]) ) )
+             (CharTable::IsKW1(*args[0]) ) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_define(args[0], args[1]);

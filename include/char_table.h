@@ -58,12 +58,12 @@ struct CharTable
    }
 
 
-   static inline bool IsKeyword1(size_t idx)
+   static inline bool IsKW1(size_t idx)
    {
       return((Get(idx) & KEYWORD1) != 0);
    }
 
-   static inline bool IsKeyword2(size_t idx)
+   static inline bool IsKW2(size_t idx)
    {
       return((Get(idx) & KEYWORD2) != 0);
    }

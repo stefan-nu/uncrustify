@@ -235,7 +235,7 @@ struct chunk_t
       next          = 0;
       prev          = 0;
       type          = CT_NONE;
-      parent_type   = CT_NONE;
+      ptype   = CT_NONE;
       orig_line     = 0;
       orig_col      = 0;
       orig_col_end  = 0;
@@ -269,27 +269,27 @@ struct chunk_t
       return(str.c_str());
    }
 
-   chunk_t      *next;            /**< pointer to next chunk in list */
-   chunk_t      *prev;            /**< pointer to previous chunk in list */
-   align_ptr_t  align;            /**<  */
-   indent_ptr_t indent;           /**<  */
-   c_token_t    type;             /**< type of the chunk */
-   c_token_t    parent_type;      /**< type of the parent chunk usually CT_NONE */
-   size_t       orig_line;        /**< line number of chunk in input file */
-   size_t       orig_col;         /**< column where chunk started in input file, is always > 0 */
-   UINT32       orig_col_end;     /**< column where chunk ended in input file, is always > 1 */
-   UINT32       orig_prev_sp;     /**< whitespace before this token */
-   UINT64       flags;            /**< see PCF_xxx */
-   size_t       column;           /**< column of chunk */
-   size_t       column_indent;    /**< if 1st on a line, set to the 'indent'
-                                   *   column, which may be less than the real column
-                                   *   used to indent with tabs */
-   size_t       nl_count;         /**< number of newlines in CT_NEWLINE */
-   size_t       level;            /**< nest level in {, (, or [ */
-   size_t       brace_level;      /**< nest level in braces only */
-   size_t       pp_level;         /**< nest level in preprocessor */
-   bool         after_tab;        /**< whether this token was after a tab */
-   unc_text     str;              /**< the token text */
+   chunk_t      *next;         /**< pointer to next chunk in list */
+   chunk_t      *prev;         /**< pointer to previous chunk in list */
+   align_ptr_t  align;         /**<  */
+   indent_ptr_t indent;        /**<  */
+   c_token_t    type;          /**< type of the chunk itself */
+   c_token_t    ptype;         /**< type of the parent chunk usually CT_NONE */
+   size_t       orig_line;     /**< line number of chunk in input file */
+   size_t       orig_col;      /**< column where chunk started in input file, is always > 0 */
+   UINT32       orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
+   UINT32       orig_prev_sp;  /**< whitespace before this token */
+   UINT64       flags;         /**< see PCF_xxx */
+   size_t       column;        /**< column of chunk */
+   size_t       column_indent; /**< if 1st on a line, set to the 'indent'
+                                *   column, which may be less than the real column
+                                *   used to indent with tabs */
+   size_t       nl_count;      /**< number of newlines in CT_NEWLINE */
+   size_t       level;         /**< nest level in {, (, or [ */
+   size_t       brace_level;   /**< nest level in braces only */
+   size_t       pp_level;      /**< nest level in preprocessor */
+   bool         after_tab;     /**< whether this token was after a tab */
+   unc_text     str;           /**< the token text */
 };
 
 

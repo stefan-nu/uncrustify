@@ -84,7 +84,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
    chunk.type        = CT_VSEMICOLON;
    chunk.str         = cpd.settings[UO_mod_pawn_semicolon].b ? ";" : "";
    chunk.column     += pc->len();
-   chunk.parent_type = CT_NONE;
+   chunk.ptype = CT_NONE;
 
    LOG_FMT(LPVSEMI, "%s: Added VSEMI on line %zu, prev='%s' [%s]\n",
            __func__, pc->orig_line, pc->text(), get_token_name(pc->type));
@@ -374,7 +374,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       chunk_t chunk = *last;
       chunk.str.clear();
       chunk.type        = CT_VBRACE_OPEN;
-      chunk.parent_type = CT_FUNC_DEF;
+      chunk.ptype = CT_FUNC_DEF;
 
       chunk_t *prev = chunk_add_before(&chunk, last);
       last = prev;
@@ -413,7 +413,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       chunk.type        = CT_VBRACE_CLOSE;
       chunk.level       = 0;
       chunk.brace_level = 0;
-      chunk.parent_type = CT_FUNC_DEF;
+      chunk.ptype = CT_FUNC_DEF;
       last              = chunk_add_after(&chunk, last);
    }
    return(last);

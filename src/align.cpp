@@ -1155,7 +1155,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    size_t  mygap    = 0;
 
    /* Override the span, if this is a struct/union */
-   switch(start->parent_type)
+   switch(start->ptype)
    {
       case(CT_STRUCT):  /* fallthrough */
       case(CT_UNION ):  myspan   = cpd.settings[UO_align_var_struct_span  ].u;
@@ -2014,7 +2014,7 @@ static void align_oc_msg_colon(chunk_t *so)
       chunk_t chunk;
       chunk.type        = CT_SPACE;
       chunk.orig_line   = longest->orig_line;
-      chunk.parent_type = CT_NONE;
+      chunk.ptype = CT_NONE;
       chunk.level       = longest->level;
       chunk.brace_level = longest->brace_level;
       chunk.flags       = longest->flags & PCF_COPY_FLAGS;
