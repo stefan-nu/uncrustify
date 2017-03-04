@@ -334,7 +334,7 @@ static bool decode_bom(const vector<UINT8> &in_data, char_encoding_e &enc)
    enc = char_encoding_e::ASCII;
    if (in_data.size() >= 2)
    {
-      if ((in_data[0] == 0xfe) && 
+      if ((in_data[0] == 0xfe) &&
           (in_data[1] == 0xff))
       {
          enc = char_encoding_e::UTF16_BE;
