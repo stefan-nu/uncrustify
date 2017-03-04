@@ -612,7 +612,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       {
          const chunk_t *next = chunk_get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_option_and_return(UO_sp_func_proto_paren_empty); }}
-                                         { log_option_and_return(UO_sp_func_proto_paren      ); }
+                                             { log_option_and_return(UO_sp_func_proto_paren      ); }
    }
    if (is_type(pc1, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))
    {  // \todo DRY1 start
