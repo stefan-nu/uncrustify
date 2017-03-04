@@ -550,7 +550,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          const chunk_t *next = chunk_get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_option_and_return(UO_sp_after_operator_sym_empty); }
       }
-      else { log_option_and_return(UO_sp_after_operator_sym); } // DRY1 end
+      log_option_and_return(UO_sp_after_operator_sym); // DRY1 end
    }
 
    /* spaces between function and open paren */
@@ -563,7 +563,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          chunk_t *next = chunk_get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE) ) { log_option_and_return(UO_sp_func_call_paren_empty); }
       }
-      else { log_option_and_return(UO_sp_func_call_paren); } // DRY1 end
+      log_option_and_return(UO_sp_func_call_paren); // DRY1 end
    }
    if (is_type(pc1, CT_FUNC_CALL_USER)) { log_option_and_return(UO_sp_func_call_user_paren); }
    if (is_type(pc1, CT_ATTRIBUTE     )) { log_option_and_return(UO_sp_attribute_paren); }
@@ -612,7 +612,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       {
          const chunk_t *next = chunk_get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_option_and_return(UO_sp_func_proto_paren_empty); }}
-      else                                   { log_option_and_return(UO_sp_func_proto_paren      ); }
+                                         { log_option_and_return(UO_sp_func_proto_paren      ); }
    }
    if (is_type(pc1, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))
    {  // \todo DRY1 start
@@ -620,7 +620,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
           is_type(pc2, CT_FPAREN_OPEN))
       {  const chunk_t *next = chunk_get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_option_and_return(UO_sp_func_class_paren_empty); }}
-      else                                   { log_option_and_return(UO_sp_func_class_paren      ); }}
+                                          log_option_and_return(UO_sp_func_class_paren      ); }
    if (  is_type(pc1, CT_CLASS) &&
         !(pc1->flags & PCF_IN_OC_MSG))       { log_argval_and_return(AV_FORCE                    ); }
    if (are_types(pc1, CT_BRACE_OPEN, pc2, CT_BRACE_CLOSE))
@@ -635,7 +635,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                  pc2, CT_PAREN_OPEN))        { log_option_and_return(UO_sp_defined_paren         ); }
    if (is_type(pc1, CT_THROW))
    {  if (is_type(pc2, CT_PAREN_OPEN))       { log_option_and_return(UO_sp_throw_paren           ); }
-      else                                   { log_option_and_return(UO_sp_after_throw           ); }
+                                               log_option_and_return(UO_sp_after_throw           );
    }
    if (are_types(pc1, CT_THIS,
                  pc2, CT_PAREN_OPEN) )       { log_option_and_return(UO_sp_this_paren            ); }
@@ -688,7 +688,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if    (any_is_type(pc1, CT_FPAREN_OPEN, pc2, CT_FPAREN_CLOSE)) { /* "foo(...)" vs "foo( ... )" */
       if (are_types(pc1, CT_FPAREN_OPEN, pc2, CT_FPAREN_CLOSE))
                                              { log_option_and_return(UO_sp_inside_fparens        ); }
-      else                                   { log_option_and_return(UO_sp_inside_fparen         ); }}
+                                               log_option_and_return(UO_sp_inside_fparen         ); }
    /* "foo(...)" vs "foo( ... )" */
    if (any_is_type(pc1, CT_TPAREN_OPEN, pc2, CT_TPAREN_CLOSE))
                                              { log_option_and_return(UO_sp_inside_tparen); }
@@ -715,11 +715,11 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    {
       if (is_ptype(pc1, 3, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
                                               { log_option_and_return(UO_sp_inside_paren_cast); }
-      else                                    { log_option_and_return(UO_sp_inside_paren); } }
+                                             { log_option_and_return(UO_sp_inside_paren); } }
    if (is_type(pc2, CT_PAREN_CLOSE))
    {  if (is_ptype(pc2, 3, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
                                               { log_option_and_return(UO_sp_inside_paren_cast); }
-      else                                    { log_option_and_return(UO_sp_inside_paren); } }
+                                                log_option_and_return(UO_sp_inside_paren); }
    /* "[3]" vs "[ 3 ]" */
    if (any_is_type(pc1, CT_SQUARE_OPEN, pc2, CT_SQUARE_CLOSE))
                                               { log_option_and_return(UO_sp_inside_square); }
@@ -839,7 +839,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (is_ptype(pc2, CT_ENUM))        { log_option_and_return(UO_sp_inside_braces_enum  ); }
       else if (is_ptype(pc2, 2, CT_UNION, CT_STRUCT))
                                          { log_option_and_return(UO_sp_inside_braces_struct); }
-      else                               { log_option_and_return(UO_sp_inside_braces       ); } }
+                                           log_option_and_return(UO_sp_inside_braces       ); } 
    if ( is_type(pc1, CT_BRACE_CLOSE) &&
        (pc1->flags & PCF_IN_TYPEDEF) &&
        (is_ptype(pc1, 3, CT_ENUM, CT_STRUCT, CT_UNION)))
@@ -857,7 +857,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
    if (is_type(pc1, 3, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE)) {
       if (is_type(pc2, CT_PAREN_OPEN))     { log_option_and_return(UO_sp_func_call_paren); }
-      else                                 { log_argval_and_return(AV_IGNORE   ); }}
+                                             log_argval_and_return(AV_IGNORE   ); }
    /* If nothing claimed the PTR_TYPE, then return ignore */
    if (any_is_type(pc1, pc2, CT_PTR_TYPE)) { log_argval_and_return(AV_IGNORE   ); }
    if (is_type(pc1, CT_NOT              )) { log_option_and_return(UO_sp_not   ); }
