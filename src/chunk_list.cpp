@@ -17,6 +17,15 @@
 #include "space.h"
 
 
+/** note
+ *  throughout the code it is important to correctly recognize and name
+ *  the found object. Here is some useful information.
+ *
+ *  parenthesis = ( )
+ *  brace       = { } aka "curly brace"
+ *  bracket     = [ ] aka "square bracket"
+ */
+
 /** use this enum to define in what direction or location an
  *  operation shall be performed. */
 enum class dir_e : unsigned int
