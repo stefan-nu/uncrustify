@@ -426,20 +426,20 @@ void register_options(void)
                   "Add or remove space between nested parens: '((' vs ') )'");
    unc_add_option("sp_cparen_oparen", UO_sp_cparen_oparen, AT_IARF,
                   "Add or remove space between back-to-back parens: ')(' vs ') ('");
-   unc_add_option("sp_balance_nested_parens", UO_sp_balance_nested_parens, AT_BOOL,
+   unc_add_option("sp_balance_nested_parens", UO_sp_bal_nested_parens, AT_BOOL,
                   "Whether to balance spaces inside nested parens");
    unc_add_option("sp_paren_brace", UO_sp_paren_brace, AT_IARF,
                   "Add or remove space between ')' and '{'");
    unc_add_option("sp_before_ptr_star", UO_sp_before_ptr_star, AT_IARF,
                   "Add or remove space before pointer star '*'");
-   unc_add_option("sp_before_unnamed_ptr_star", UO_sp_before_unnamed_ptr_star, AT_IARF,
+   unc_add_option("sp_before_unnamed_ptr_star", UO_sp_before_unnamed_pstar, AT_IARF,
                   "Add or remove space before pointer star '*' that isn't followed by a variable name\n"
                   "If set to 'ignore', sp_before_ptr_star is used instead.");
-   unc_add_option("sp_between_ptr_star", UO_sp_between_ptr_star, AT_IARF,
+   unc_add_option("sp_between_ptr_star", UO_sp_between_pstar, AT_IARF,
                   "Add or remove space between pointer stars '*'");
-   unc_add_option("sp_after_ptr_star", UO_sp_after_ptr_star, AT_IARF,
+   unc_add_option("sp_after_ptr_star", UO_sp_after_pstar, AT_IARF,
                   "Add or remove space after pointer star '*', if followed by a word.");
-   unc_add_option("sp_after_ptr_star_qualifier", UO_sp_after_ptr_star_qualifier, AT_IARF,
+   unc_add_option("sp_after_ptr_star_qualifier", UO_sp_after_pstar_qualifier, AT_IARF,
                   "Add or remove space after pointer star '*', if followed by a qualifier.");
    unc_add_option("sp_after_ptr_star_func", UO_sp_after_ptr_star_func, AT_IARF,
                   "Add or remove space after a pointer star '*', if followed by a func proto/def.");
@@ -872,7 +872,7 @@ void register_options(void)
                   "Usually set to 0, 1, or indent_columns.");
    unc_add_option("indent_sing_line_comments", UO_indent_sing_line_comments, AT_UNUM,
                   "Spaces to indent single line ('//') comments on lines before code");
-   unc_add_option("indent_relative_single_line_comments", UO_indent_relative_single_line_comments, AT_BOOL,
+   unc_add_option("indent_relative_single_line_comments", UO_indent_rel_single_line_comments, AT_BOOL,
                   "If set, will indent trailing single line ('//') comments relative\n"
                   "to the code instead of trying to keep the same absolute column");
    unc_add_option("indent_switch_case", UO_indent_switch_case, AT_UNUM,

@@ -105,9 +105,9 @@ static void detect_space_options(void)
    SP_VOTE_VAR(sp_paren_paren);
    SP_VOTE_VAR(sp_paren_brace);
    SP_VOTE_VAR(sp_before_ptr_star);
-   SP_VOTE_VAR(sp_before_unnamed_ptr_star);
-   SP_VOTE_VAR(sp_between_ptr_star);
-   SP_VOTE_VAR(sp_after_ptr_star);
+   SP_VOTE_VAR(sp_before_unnamed_pstar);
+   SP_VOTE_VAR(sp_between_pstar);
+   SP_VOTE_VAR(sp_after_pstar);
    SP_VOTE_VAR(sp_after_byref);
    SP_VOTE_VAR(sp_before_byref);
    SP_VOTE_VAR(sp_before_unnamed_byref);
@@ -185,10 +185,10 @@ static void detect_space_options(void)
 
       if (is_type(pc, CT_PTR_TYPE))
       {
-         if      (is_type    (prev, CT_PTR_TYPE)) { vote_sp_between_ptr_star.vote       (prev, pc); }
-         else if (is_not_type(next, CT_WORD    )) { vote_sp_before_unnamed_ptr_star.vote(prev, pc); }
-         else                                { vote_sp_before_ptr_star.vote        (prev, pc); }
-         if (CharTable::IsKW1((size_t)next->str[0])) { vote_sp_after_ptr_star.vote  (pc, next); }
+         if      (is_type    (prev, CT_PTR_TYPE))    { vote_sp_between_pstar.vote       (prev, pc); }
+         else if (is_not_type(next, CT_WORD    ))    { vote_sp_before_unnamed_pstar.vote(prev, pc); }
+         else                                        { vote_sp_before_ptr_star.vote     (prev, pc); }
+         if (CharTable::IsKW1((size_t)next->str[0])) { vote_sp_after_pstar.vote         (pc, next); }
       }
 
       if (is_type(pc, CT_BYREF))

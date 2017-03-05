@@ -34,10 +34,10 @@
 #define break_if_invalid(ptr)          do { if ((ptr) == nullptr) {break;         }} while(0)
 #define continue_if_invalid(ptr)       do { if ((ptr) == nullptr) {continue;      }} while(0)
 
-#define return_if(cond)                do { if (cond)             {return;        }} while(0)
-#define retval_if(cond, retval)        do { if (cond)             {return(retval);}} while(0)
-#define break_if(cond)                 do { if (cond)             {break;         }} while(0)
-#define continue_if(cond)              do { if (cond)             {continue;      }} while(0)
+#define return_if(cond)                     if (cond)             {return;        }
+#define retval_if(cond, retval)             if (cond)             {return(retval);}
+#define break_if(cond)                      if (cond)             {break;         }
+#define continue_if(cond)                   if (cond)             {continue;      }
 
 /**
  * Specifies which chunks should/should not be found.
@@ -121,6 +121,15 @@ bool is_invalid(
 bool is_invalid_or_type(
    const chunk_t* const pc,  /**< [in] chunk to check */
    const c_token_t type      /**< [in] type to check for */
+);
+
+
+/**
+ * check if a chunk is invalid or has a given flag combination set
+ */
+bool is_invalid_or_flag(
+   const chunk_t* const pc,
+   const UINT64 flags
 );
 
 
@@ -669,6 +678,18 @@ chunk_t *chunk_skip_to_match(
 );
 
 
+/**
+ * Check if a chunk is valid and has a given level
+ */
+bool is_level(
+   const chunk_t *pc,
+   const size_t level
+);
+
+
+/**
+ * Check if a chunk is valid and has a given type and level
+ */
 bool is_type_and_level(
    const chunk_t   *pc,  /**< [in] chunk to check */
    const c_token_t type,
@@ -991,6 +1012,25 @@ bool is_not_ptype(
    ...            /**< [in] list of parent token types to check for */
 );
 
+
+/**
+ * Check if the given chunk is valid and has a given flag combination set
+ * Other flags are ignored during the check.
+ */
+bool is_flag(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const UINT64 flags        /**< [in] expected flags */
+);
+
+
+/**
+ * Check if the given chunk is valid and has a given flag combination not set
+ * Other flags are ignored during the check.
+ */
+bool is_not_flag(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const UINT64 flags        /**< [in] expected flags */
+);
 
 
 /**

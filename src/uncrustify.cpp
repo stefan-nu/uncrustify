@@ -2000,7 +2000,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       mark_comments();
 
       /* Add balanced spaces around nested params */
-      if (cpd.settings[UO_sp_balance_nested_parens].b) { space_text_balance_nested_parens(); }
+      if (cpd.settings[UO_sp_bal_nested_parens].b) { space_text_balance_nested_parens(); }
 
       /* Scrub certain added semicolons */
       if ((cpd.lang_flags & LANG_PAWN           ) &&

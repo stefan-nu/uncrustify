@@ -262,6 +262,12 @@ bool is_invalid_or_type(const chunk_t* const pc, const c_token_t type)
 }
 
 
+bool is_invalid_or_flag(const chunk_t* const pc, const UINT64 flags)
+{
+   return (is_invalid(pc) || is_flag(pc, flags));
+}
+
+
 bool are_invalid(const chunk_t * const pc1, const chunk_t * const pc2)
 {
    return ((pc1 == nullptr) ||
@@ -379,6 +385,12 @@ static chunk_t *chunk_search(chunk_t *cur, const check_t check_fct,
    } while ((is_valid(pc)) &&    /* the end of the list was not reached yet */
             (check_fct(pc) != cond));  /* and the demanded chunk was not found either */
    return(pc);                         /* the latest chunk is the searched one */
+}
+
+
+bool is_level(const chunk_t *pc, const size_t level)
+{
+   return (is_valid(pc) && pc->level == level);
 }
 
 
@@ -1134,6 +1146,20 @@ bool is_not_ptype(chunk_t *pc, int count, ... )
 }
 
 
+bool is_flag(const chunk_t * const pc, const UINT64 flags)
+{
+   return (is_valid(pc) &&
+           (pc->flags & flags) == flags);
+}
+
+
+bool is_not_flag(const chunk_t * const pc, const UINT64 flags)
+{
+   return (is_valid(pc) &&
+           (pc->flags & flags) == 0);
+}
+
+
 chunk_t *chunk_skip_to_match(chunk_t *cur, scope_e scope)
 {
    if(is_type(cur, 8, CT_PAREN_OPEN,  CT_SPAREN_OPEN,
@@ -1319,9 +1345,17 @@ bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 
 bool chunk_is_word(chunk_t *pc)
 {
-   return((is_valid(pc)) && (pc->len() >= 1u         ) &&
-          (CharTable::IsKW1((size_t)pc->str[0]) ) );
+   return((is_valid(pc)) &&
+          (pc->len() >= 1u) &&
+          (CharTable::IsKW1((size_t)pc->str[0])) );
 }
+
+#if 0
+bool chunk_is_word(chunk_t *pc)
+{
+   return(is_valid(pc) && pc->type == CT_WORD);
+}
+#endif
 
 
 bool chunk_is_star(chunk_t *pc)

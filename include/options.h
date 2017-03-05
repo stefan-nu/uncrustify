@@ -18,16 +18,23 @@
 #include <string>
 #include "uncrustify_types.h"
 
+/**
+ * abbreviations used
+ *
+ * bal    = balance, balanced
+ * pstart = pointer star
+ * rel    = relative
+ */
 
 enum argtype_t
 {
-   AT_BOOL,    /**< true / false */
-   AT_IARF,    /**< Ignore / Add / Remove / Force */
-   AT_NUM,     /**< Number */
-   AT_LINE,    /**< Line Endings */
-   AT_POS,     /**< start/end or Trail/Lead */
-   AT_STRING,  /**< string value */
-   AT_UNUM     /**< unsigned Number */
+   AT_BOOL,    /**< true / false */                 //!< AT_BOOL
+   AT_IARF,    /**< Ignore / Add / Remove / Force *///!< AT_IARF
+   AT_NUM,     /**< Number */                       //!< AT_NUM
+   AT_LINE,    /**< Line Endings */                 //!< AT_LINE
+   AT_POS,     /**< start/end or Trail/Lead */      //!< AT_POS
+   AT_STRING,  /**< string value */                 //!< AT_STRING
+   AT_UNUM     /**< unsigned Number */              //!< AT_UNUM
 };
 
 
@@ -153,13 +160,13 @@ enum uo_t
    UO_sp_inside_paren,             // space inside '+ ( xxx )' vs '+ (xxx)'
    UO_sp_paren_paren,              // space between nested parens - '( (' vs '(('
    UO_sp_cparen_oparen,            // space between nested parens - ') (' vs ')('
-   UO_sp_balance_nested_parens,    // balance spaces inside nested parens
+   UO_sp_bal_nested_parens,        // balance spaces inside nested parens
    UO_sp_paren_brace,              // space between ')' and '{'
    UO_sp_before_ptr_star,          // space before a '*' that is part of a type
-   UO_sp_before_unnamed_ptr_star,  //
-   UO_sp_between_ptr_star,         // space between two '*' that are part of a type
-   UO_sp_after_ptr_star,           // space after a '*' that is part of a type
-   UO_sp_after_ptr_star_qualifier, // space after a '*' next to a qualifier
+   UO_sp_before_unnamed_pstar,     //
+   UO_sp_between_pstar,            // space between two '*' that are part of a type
+   UO_sp_after_pstar,              // space after a '*' that is part of a type
+   UO_sp_after_pstar_qualifier,    // space after a '*' next to a qualifier
    UO_sp_after_ptr_star_func,      // space between a '*' and a function proto/def
    UO_sp_ptr_star_paren,           //
    UO_sp_before_ptr_star_func,     //
@@ -365,7 +372,7 @@ enum uo_t
    UO_indent_func_throw,                    // indentation for standalone 'throw' qualifier
    UO_indent_member,                        // indent lines broken at a member '.' or '->'
    UO_indent_sing_line_comments,            // indent single line ('//') comments on lines before code
-   UO_indent_relative_single_line_comments, // indent single line ('//') comments after code
+   UO_indent_rel_single_line_comments,      // indent single line ('//') comments after code
    UO_indent_switch_case,                   // spaces to indent case from switch
    UO_indent_case_shift,                    // spaces to shift the line with the 'case'
    UO_indent_case_brace,                    // spaces to indent '{' from case (usually 0 or indent_columns)

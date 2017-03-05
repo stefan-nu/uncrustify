@@ -304,7 +304,7 @@ void align_to_column(chunk_t *pc, size_t column)
          (pc->ptype != CT_COMMENT_EMBED))
       {
          almod = (chunk_is_single_line_comment(pc) &&
-                  cpd.settings[UO_indent_relative_single_line_comments].b) ?
+                  cpd.settings[UO_indent_rel_single_line_comments].b) ?
                  align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
       }
 
@@ -394,7 +394,7 @@ void reindent_line(chunk_t *pc, size_t column)
 
       bool is_comment = chunk_is_comment(pc);
       bool keep       = is_comment && chunk_is_single_line_comment(pc) &&
-                        cpd.settings[UO_indent_relative_single_line_comments].b;
+                        cpd.settings[UO_indent_rel_single_line_comments].b;
 
       if ((is_comment      == true            ) &&
           (pc->ptype != CT_COMMENT_EMBED) &&

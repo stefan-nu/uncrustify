@@ -600,8 +600,8 @@ void make_type(chunk_t *pc)
    {
       if      (is_type (pc, CT_WORD)) { set_type(pc, CT_TYPE    ); }
       else if (chunk_is_star (pc) ||
-               chunk_is_msref(pc))          { set_type(pc, CT_PTR_TYPE); }
-      else if (chunk_is_addr (pc))          { set_type(pc, CT_BYREF   ); }
+               chunk_is_msref(pc))    { set_type(pc, CT_PTR_TYPE); }
+      else if (chunk_is_addr (pc))    { set_type(pc, CT_BYREF   ); }
    }
 }
 
@@ -1856,14 +1856,14 @@ static bool mark_function_type(chunk_t *pc)
               get_token_name(tmp->type), tmp->text(),
               tmp->orig_line, tmp->orig_col);
 
-      if (chunk_is_star(tmp                          ) ||
+      if (chunk_is_star(tmp                    ) ||
           is_type(tmp, 2, CT_PTR_TYPE, CT_CARET) )
       {
          star_count++;
          ptrcnk = tmp;
          LOG_FMT(LFTYPE, " -- PTR_TYPE\n");
       }
-      else if (chunk_is_word(tmp                     ) ||
+      else if (chunk_is_word(tmp               ) ||
                is_type(tmp, 2, CT_WORD, CT_TYPE) )
       {
          word_count++;
@@ -3323,8 +3323,7 @@ static void mark_function(chunk_t *pc)
    if (pc->ptype == CT_OPERATOR)
    {
       const chunk_t *pc_op = chunk_get_prev_type(pc, CT_OPERATOR, (int)pc->level);
-      if ((is_valid(pc_op)) &&
-          (pc_op->flags & PCF_EXPR_START))
+      if ((is_valid(pc_op)) && (pc_op->flags & PCF_EXPR_START))
       {
          set_type(pc, CT_FUNC_CALL);
       }
@@ -3336,7 +3335,7 @@ static void mark_function(chunk_t *pc)
             switch(tmp->type)
             {
                case(CT_BRACE_CLOSE):      /* fallthrough */
-               case(CT_SEMICOLON  ):    { /* do nothing */                  goto exit_loop; }
+               case(CT_SEMICOLON  ):    { /* do nothing */            goto exit_loop; }
                case(CT_PAREN_OPEN ):      /* fallthrough */
                case(CT_SPAREN_OPEN):      /* fallthrough */
                case(CT_TPAREN_OPEN):      /* fallthrough */
@@ -3350,11 +3349,11 @@ static void mark_function(chunk_t *pc)
                      case(CT_FUNC_DEF): { set_type(pc, CT_FUNC_CALL); goto exit_loop; }
                      case(CT_CLASS   ):  /* fallthrough */
                      case(CT_STRUCT  ): { set_type(pc, CT_FUNC_DEF ); goto exit_loop; }
-                     default:           {/*ignore unexpected parent type*/  goto exit_loop; }
+                     default:           {/*ignore unexpected ptype*/  goto exit_loop; }
                   }
                   break;
                }
-               default:                 { /* go on with loop */             break;          }
+               default:                 { /* go on with loop */       break;          }
             }
          }
 exit_loop:
@@ -3429,8 +3428,8 @@ exit_loop:
       while (tmp1)
       {
          tmp2 = chunk_get_next_ncnl(tmp1);
-         if (chunk_is_word(tmp1              ) == false ||
-             is_type(tmp2, CT_DC_MEMBER) == false )
+         if (!chunk_is_word(tmp1        ) ||
+             !is_type(tmp2, CT_DC_MEMBER) )
          {
             break;
          }
@@ -3452,8 +3451,7 @@ exit_loop:
           (chunk_is_star (tmp1) ||
            chunk_is_msref(tmp1) ||
            ((cpd.lang_flags & LANG_OC) && is_type(tmp1, CT_CARET))) &&
-          (is_invalid(tmp2) ||
-           is_type   (tmp2, CT_WORD) ) )
+           is_invalid_or_type(tmp2, CT_WORD) )
       {
          if (tmp2)
          {
@@ -3477,11 +3475,8 @@ exit_loop:
 
          set_type(pc,   CT_TYPE    );
          set_type(tmp1, CT_PTR_TYPE);
-         chunk_flags_clr(pc, PCF_VAR_1ST_DEF);
-         if (is_valid(tmp2))
-         {
-            chunk_flags_set(tmp2, PCF_VAR_1ST_DEF);
-         }
+         chunk_flags_clr(pc,   PCF_VAR_1ST_DEF);
+         chunk_flags_set(tmp2, PCF_VAR_1ST_DEF);
          flag_parens(tmp, 0, CT_FPAREN_OPEN, CT_FUNC_PROTO, false);
          fix_fcn_def_params(tmp);
          return;
@@ -3518,7 +3513,7 @@ exit_loop:
       if (is_type(prev, CT_INV))
       {
          /* TODO: do we care that this is the destructor? */
-         set_type (prev, CT_DESTRUCTOR);
+         set_type          (prev,                  CT_DESTRUCTOR);
          set_type_and_ptype(pc, CT_FUNC_CLASS_DEF, CT_DESTRUCTOR);
 
          destr = prev;
@@ -3562,7 +3557,11 @@ exit_loop:
     * wrapped in a macro: "MACRO(void foo(void));" */
    if (is_type(pc, CT_FUNC_CALL) &&
        ((pc->level == pc->brace_level) || (pc->level == 1)) &&
+#if 0
        ((pc->flags & PCF_IN_ARRAY_ASSIGN) == 0))
+#else
+        is_not_flag(pc, PCF_IN_ARRAY_ASSIGN))
+#endif
    {
       bool isa_def  = false;
       bool hit_star = false;

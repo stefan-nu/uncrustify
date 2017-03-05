@@ -250,7 +250,6 @@ void unc_text::append(const unc_text &ref)
 void unc_text::append(const string &ascii_text)
 {
    unc_text tmp(ascii_text);
-
    append(tmp);
 }
 
