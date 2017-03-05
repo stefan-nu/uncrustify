@@ -278,8 +278,7 @@ void indent_to_column(chunk_t *pc, size_t column)
 void align_to_column(chunk_t *pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   if ((is_invalid(pc)) ||
-       (column == pc->column) ) { return; }
+   return_if(is_invalid(pc) || (column == pc->column));
 
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on %s [%s] => %zu\n",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
@@ -293,7 +292,7 @@ void align_to_column(chunk_t *pc, size_t column)
       align_mode_e almod = align_mode_e::SHIFT;
 
       chunk_t *next = chunk_get_next(pc);
-      if (is_invalid(next)) { break; }
+      break_if(is_invalid(next));
 
       int min_delta = (int)space_col_align(pc, next);
       min_col  = (size_t)((int)min_col + min_delta);
@@ -353,7 +352,7 @@ void reindent_line(chunk_t *pc, size_t column)
            column);
    log_func_stack_inline(LINDLINE);
 
-   if (column == pc->column) { return; }
+   return_if(column == pc->column);
 
    size_t col_delta = column - pc->column;
    size_t min_col   = column;
@@ -363,7 +362,6 @@ void reindent_line(chunk_t *pc, size_t column)
    {
       if (QT_SIGNAL_SLOT_found)
       {
-         // fix the bug #654
          // connect(&mapper, SIGNAL(mapped(QString &)), this, SLOT(onSomeEvent(QString &)));
          // look for end of SIGNAL/SLOT block
          if (!(pc->flags & PCF_IN_QT_MACRO))
@@ -396,9 +394,9 @@ void reindent_line(chunk_t *pc, size_t column)
       bool keep       = is_comment && chunk_is_single_line_comment(pc) &&
                         cpd.settings[UO_indent_rel_single_line_comments].b;
 
-      if ((is_comment      == true            ) &&
+      if ((is_comment      == true      ) &&
           (pc->ptype != CT_COMMENT_EMBED) &&
-          (keep            == false           ) )
+          (keep            == false     ) )
       {
          pc->column = pc->orig_col;
          pc->column = max(min_col, pc->column);
@@ -414,7 +412,7 @@ void reindent_line(chunk_t *pc, size_t column)
          LOG_FMT(LINDLINED, "   set column of '%s' to %zu (orig %zu)\n",
          (is_type(pc, CT_NEWLINE)) ? "newline" : pc->text(), pc->column, pc->orig_col);
       }
-   } while ( is_valid(pc) && (pc->nl_count == 0) );
+   } while (is_valid(pc) && (pc->nl_count == 0));
 }
 
 
@@ -511,16 +509,16 @@ static size_t token_indent(c_token_t type)
 {
    switch (type)
    {
-      case CT_IF:             /* falltrough */
-      case CT_DO:             return(3);
-      case CT_FOR:            /* falltrough */
-      case CT_ELSE:           return(4);  /* wacky, but that's what is wanted */
-      case CT_WHILE:          /* falltrough */
-      case CT_USING_STMT:     return(6);
-      case CT_SWITCH:         return(7);
-      case CT_ELSEIF:         return(8);
-      case CT_SYNCHRONIZED:   return(13);
-      default:                return(0);
+      case CT_IF:           /* falltrough */
+      case CT_DO:           return(3);
+      case CT_FOR:          /* falltrough */
+      case CT_ELSE:         return(4);  /* wacky, but that's what is wanted */
+      case CT_WHILE:        /* falltrough */
+      case CT_USING_STMT:   return(6);
+      case CT_SWITCH:       return(7);
+      case CT_ELSEIF:       return(8);
+      case CT_SYNCHRONIZED: return(13);
+      default:              return(0);
    }
 }
 
@@ -552,26 +550,26 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    LOG_FUNC_ENTRY();
    chunk_t *tmp = chunk_get_prev_nc(pc);
 
-   if (from_brace) { return(pc); }
+   retval_if(from_brace, pc);
 
    if (chunk_is_paren_close(tmp))
    {
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
-   if (is_invalid (tmp                   ) ||
-       is_not_type(tmp, CT_OC_BLOCK_CARET) )
+   if (is_invalid_or_not_type(tmp, CT_OC_BLOCK_CARET))
    {
       return(nullptr);
    }
-   if (from_caret) { return(tmp); }
+
+   retval_if(from_caret, tmp);
 
    tmp = chunk_get_prev_nc(tmp);
-   if (is_invalid (tmp             ) ||
-       is_not_type(tmp, CT_OC_COLON) )
+   if (is_invalid_or_not_type(tmp, CT_OC_COLON))
    {
       return(nullptr);
    }
-   if (from_colon) { return(tmp); }
+
+   retval_if(from_colon, tmp);
 
    tmp = chunk_get_prev_nc(tmp);
    if (is_invalid (tmp                                   ) ||
@@ -1590,7 +1588,7 @@ void indent_text(void)
                   (is_str(pc, "[", 1) && !cpd.settings[UO_indent_square_nl].b) )
          {
             next = chunk_get_next_nc(pc);
-            if (is_invalid(next)) { break; }
+            break_if(is_invalid(next));
 
             if (chunk_is_newline(next))
             {
@@ -1606,7 +1604,7 @@ void indent_text(void)
             }
             else
             {
-               if ( is_valid  (next) &&
+               if ( is_valid(next) &&
                    !chunk_is_comment(next) )
                {
                   if (is_type(next, CT_SPACE))
@@ -1815,7 +1813,6 @@ void indent_text(void)
                in_shift = true;
                tmp = chunk_get_prev_ncnl(tmp);
                if (is_type(tmp, CT_OPERATOR)) { is_operator = true; }
-
                break;
             }
          } while ((in_shift == false) &&
@@ -1971,8 +1968,7 @@ void indent_text(void)
          {
             log_and_reindent(pc, frm.pse[frm.pse_tos].brace_indent, "Namespace");
          }
-         else if (is_type(pc,   CT_STRING) &&
-                  is_type(prev, CT_STRING) &&
+         else if (are_types(pc, prev, CT_STRING) &&
                   cpd.settings[UO_indent_align_string].b)
          {
             size_t tmp = (xml_indent != 0) ? (size_t)xml_indent : prev->column;

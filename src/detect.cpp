@@ -152,8 +152,9 @@ static void detect_space_options(void)
    while (is_valid(pc))
    {
       next = chunk_get_next(pc);
-      if (is_invalid(next)) { break; }
+      break_if(is_invalid(next));
 
+      // \todo use switch instead of ifs
       if (is_type(pc, CT_ARITH))
       {
          vote_sp_arith.vote(pc, next);
@@ -161,8 +162,8 @@ static void detect_space_options(void)
       }
       if (is_type(pc, CT_ASSIGN))
       {
-         if ((pc->flags & PCF_IN_ENUM) == 0) { vote_sp_before_assign.vote     (prev, pc); vote_sp_after_assign.vote     (pc, next); }
-         else                                { vote_sp_enum_before_assign.vote(prev, pc); vote_sp_enum_after_assign.vote(pc, next); }
+         if (is_not_flag(pc, PCF_IN_ENUM)) { vote_sp_before_assign.vote     (prev, pc); vote_sp_after_assign.vote     (pc, next); }
+         else                              { vote_sp_enum_before_assign.vote(prev, pc); vote_sp_enum_after_assign.vote(pc, next); }
       }
       if (is_type(pc, CT_SQUARE_OPEN )) { vote_sp_before_square.vote (prev, pc); vote_sp_inside_square.vote(pc, next); }
       if (is_type(pc, CT_SQUARE_CLOSE)) { vote_sp_inside_square.vote (prev, pc); }

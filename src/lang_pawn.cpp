@@ -74,11 +74,10 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if(is_invalid  (pc) ||
-      chunk_is_semicolon(pc) )  { return(pc); }
+   retval_if( (is_invalid(pc)||chunk_is_semicolon(pc)), pc);
 
    chunk_t *next = chunk_get_next_nc(pc);
-   if(chunk_is_semicolon(next)) { return(pc); }
+   retval_if(chunk_is_semicolon(next), pc);
 
    chunk_t chunk     = *pc;
    chunk.type        = CT_VSEMICOLON;
@@ -96,11 +95,11 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 void pawn_scrub_vsemi(void)
 {
    LOG_FUNC_ENTRY();
-   if (!cpd.settings[UO_mod_pawn_semicolon].b) { return; }
+   return_if(!cpd.settings[UO_mod_pawn_semicolon].b);
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (is_not_type(pc, CT_VSEMICOLON)) { continue; }
+      continue_if(is_not_type(pc, CT_VSEMICOLON));
       chunk_t *prev = chunk_get_prev_ncnl(pc);
 
       if (is_type (prev,    CT_BRACE_CLOSE) &&
@@ -116,7 +115,7 @@ void pawn_scrub_vsemi(void)
 static bool pawn_continued(chunk_t *pc, size_t br_level)
 {
    LOG_FUNC_ENTRY();
-   if (is_invalid(pc)) { return(false); }
+   retval_if(is_invalid(pc), false);
 
    if ((pc->level > br_level) ||
          is_type(pc, 15, CT_ARITH, CT_CARET,  CT_QUESTION, CT_BRACE_OPEN,

@@ -47,7 +47,7 @@ static const chunk_tag_t *kw_static_first(
 
 
 static const chunk_tag_t *kw_static_match(
-   const chunk_tag_t *tag
+   const chunk_tag_t *tag  /**< [in] tag/keyword to search for */
 );
 
 
@@ -374,7 +374,6 @@ static const chunk_tag_t *kw_static_first(const chunk_tag_t *tag)
       tag = prev;
       prev--;
    }
-   //fprintf(stderr, "first:%s -", tag->tag);
    return(tag);
 }
 
@@ -388,13 +387,11 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
    const chunk_tag_t *iter    = kw_static_first(tag);
    for (; (size_t)iter < (size_t)end_adr; iter++)
    {
-      //fprintf(stderr, " check:%s", iter->tag);
       bool pp_iter = (iter->lang_flags & FLAG_PP) != 0;
       if ((strcmp(iter->tag, tag->tag) == 0 ) &&
           (cpd.lang_flags & iter->lang_flags) &&
           (in_preproc == pp_iter))
       {
-         //fprintf(stderr, " match:%s", iter->tag);
          return(iter);
       }
    }
@@ -404,7 +401,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 
 c_token_t find_keyword_type(const char *word, size_t len)
 {
-   if (len == 0) { return(CT_NONE); }
+   retval_if((len == 0), CT_NONE);
 
    /* check the dynamic word list first */
    string           ss(word, len);
@@ -429,10 +426,10 @@ c_token_t find_keyword_type(const char *word, size_t len)
 /* \todo DRY with load_define_file */
 int load_keyword_file(const char *filename)
 {
-   if (filename == nullptr) { return(EX_CONFIG); }
+   retval_if(ptr_is_invalid(filename), EX_CONFIG);
 
    FILE *pf = fopen(filename, "r");
-   if (pf == nullptr)
+   if (ptr_is_invalid(pf))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
@@ -475,7 +472,7 @@ int load_keyword_file(const char *filename)
             cpd.error_count++;
          }
       }
-      else { continue; } // the line is empty
+      else { continue; } /* the line is empty */
    }
 
    fclose(pf);

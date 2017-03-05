@@ -27,17 +27,16 @@
 #define ANY_LEVEL    -1
 
 /* some useful defines that perform typical checks and corresponding
- * reactions. The do ... while(0) ensures the define is treated as a
- * single instructions and thus also works also in conditions */
+ * reactions. */
 #define return_if_invalid(ptr)         do { if ((ptr) == nullptr) {return;        }} while(0)
 #define retval_if_invalid(ptr, retval) do { if ((ptr) == nullptr) {return(retval);}} while(0)
 #define break_if_invalid(ptr)          do { if ((ptr) == nullptr) {break;         }} while(0)
 #define continue_if_invalid(ptr)       do { if ((ptr) == nullptr) {continue;      }} while(0)
 
-#define return_if(cond)                     if (cond)             {return;        }
-#define retval_if(cond, retval)             if (cond)             {return(retval);}
-#define break_if(cond)                      if (cond)             {break;         }
-#define continue_if(cond)                   if (cond)             {continue;      }
+#define return_if(cond)                if (cond) {return;        }
+#define retval_if(cond, retval)        if (cond) {return(retval);}
+#define break_if(cond)                 if (cond) {break;         }
+#define continue_if(cond)              if (cond) {continue;      }
 
 /**
  * Specifies which chunks should/should not be found.
@@ -682,8 +681,8 @@ chunk_t *chunk_skip_to_match(
  * Check if a chunk is valid and has a given level
  */
 bool is_level(
-   const chunk_t *pc,
-   const size_t level
+   const chunk_t *pc,  /**< [in] chunk to check */
+   const size_t  level /**< [in] expected level */
 );
 
 
@@ -692,8 +691,8 @@ bool is_level(
  */
 bool is_type_and_level(
    const chunk_t   *pc,  /**< [in] chunk to check */
-   const c_token_t type,
-   const int       level
+   const c_token_t type, /**< [in] expected type */
+   const int       level /**< [in] expected level or -1 to ignore level */
 );
 
 

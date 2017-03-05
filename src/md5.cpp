@@ -139,7 +139,7 @@ void MD5::Update(const void *data, UINT32 len)
 
 void MD5::Final(UINT8 digest[16])
 {
-   /* Compute number of bytes mod 64 */
+   /* Compute number of bytes modulo 64 */
    UINT32 count = (m_bits[0] >> 3) & 0x3F;
 
    /* Set the first char of padding to 0x80.  This is safe since there is
@@ -151,7 +151,7 @@ void MD5::Final(UINT8 digest[16])
    /* Bytes of padding needed to make 64 bytes */
    count = (M_IN_SIZE - 1) - count;
 
-   /* Pad out to 56 mod 64 */
+   /* Pad out to 56 modulo 64 */
    if (count < 8)
    {
       /* Two lots of padding:  Pad the first block to 64 bytes */

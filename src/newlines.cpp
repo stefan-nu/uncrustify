@@ -396,8 +396,7 @@ static bool can_increase_nl(chunk_t *nl)
          return(false);
       }
 
-      if (is_type(next, CT_PREPROC) &&
-          (next->ptype == CT_PP_ENDIF) &&
+      if (is_type_and_ptype(next, CT_PREPROC, CT_PP_ENDIF) &&
           (next->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
       {
          bool rv = ifdef_over_whole_file() && (next->flags & PCF_WF_ENDIF);

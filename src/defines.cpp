@@ -26,8 +26,7 @@ defmap defines;
 
 void add_define(const char *tag, const char *value)
 {
-   if ((tag  == nullptr) ||
-       (*tag == 0      ) )
+   if (ptr_is_invalid(tag) || (*tag == 0))
    {
       return;
    }
@@ -51,10 +50,10 @@ void add_define(const char *tag, const char *value)
 /* \todo DRY with load_keyword_file */
 int load_define_file(const char *filename)
 {
-   if (filename == nullptr) { return(EX_CONFIG); }
+   if (ptr_is_invalid(filename)) { return(EX_CONFIG); }
    FILE *pf = fopen(filename, "r");
 
-   if (pf == nullptr)
+   if (ptr_is_invalid(pf))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
       cpd.error_count++;
@@ -107,7 +106,6 @@ int load_define_file(const char *filename)
 void print_defines(FILE *pfile)
 {
    defmap::iterator it;
-
    for (it = defines.begin(); it != defines.end(); ++it)
    {
       fprintf(pfile, "define %*.s%s \"%s\"\n",

@@ -9,16 +9,13 @@
 #include "logmask.h"
 #include <cstdio>      /* snprintf() */
 #include <cstdlib>     /* strtoul() */
+#include "chunk_list.h"
 #include "unc_ctype.h"
 
 
 char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 {
-   if ((buf  == nullptr) ||
-       (size == 0   ) )
-   {
-      return(buf);
-   }
+   retval_if((ptr_is_invalid(buf) || (size == 0)), buf);
 
    int  last_sev = -1;
    bool is_range = false;
@@ -70,7 +67,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 
 void logmask_from_string(const char *str, log_mask_t &mask)
 {
-   if (str == nullptr) { return; }
+   return_if(ptr_is_invalid(str));
 
    /* Start with a clean mask */
    logmask_set_all(mask, false);

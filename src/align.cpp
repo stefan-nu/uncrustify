@@ -417,8 +417,8 @@ void quick_align_again(void)
    LOG_FMT(LALAGAIN, "%s:\n", __func__);
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if ((is_valid(pc->align.next)) &&
-          (pc->flags & PCF_ALIGN_START   ) )
+      if (is_valid(pc->align.next     ) &&
+          is_flag (pc, PCF_ALIGN_START) )
       {
          AlignStack as;
          as.Start(100, 0);
@@ -520,7 +520,7 @@ static void align_oc_msg_spec(size_t span)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if      (chunk_is_newline(pc)             ) { as.NewLines(pc->nl_count); }
+      if      (chunk_is_newline(pc)       ) { as.NewLines(pc->nl_count); }
       else if (is_type(pc, CT_OC_MSG_SPEC)) { as.Add(pc);                }
    }
    as.End();
@@ -594,8 +594,8 @@ void align_right_comments(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
-      if (pc->flags & PCF_RIGHT_COMMENT) { pc = align_trailing_comments(pc); }
-      else                               { pc = chunk_get_next         (pc); }
+      if (is_flag(pc, PCF_RIGHT_COMMENT)) { pc = align_trailing_comments(pc); }
+      else                                { pc = chunk_get_next         (pc); }
    }
 }
 
