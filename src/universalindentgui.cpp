@@ -19,16 +19,15 @@
 void print_universal_indent_cfg(FILE *pfile)
 {
    const group_map_value_t *p_grp;
-   const char            *p_name;
-
-   /* Dump the header and the categories */
-   fprintf(pfile, "[header]\n");
+   const char              *p_name;
 
    /* Add all the categories */
    char   ch = '=';
    size_t idx;
 
-   fprintf(pfile, "categories");
+   /* Dump the header and the categories */
+   fprintf(pfile, "[header]\ncategories");
+//   fprintf(pfile, "categories");
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
@@ -38,9 +37,8 @@ void print_universal_indent_cfg(FILE *pfile)
          ch = '|';
       }
    }
-   fprintf(pfile, "\n");
-
-   fprintf(pfile, "cfgFileParameterEnding=cr\n"
+//   fprintf(pfile, "\n");
+   fprintf(pfile, "\ncfgFileParameterEnding=cr\n"
            "configFilename=uncrustify.cfg\n");
 
 
@@ -79,7 +77,7 @@ void print_universal_indent_cfg(FILE *pfile)
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
-      if (p_grp == nullptr)
+      if (ptr_is_invalid(p_grp))
       {
          continue;
       }
@@ -133,9 +131,7 @@ void print_universal_indent_cfg(FILE *pfile)
             }
             tmp++;
          }
-
          fprintf(pfile, "</html>\"\n");
-
 
          // Handle some options independent of their type and most by their type.
          switch (option->id)

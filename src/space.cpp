@@ -909,7 +909,7 @@ void space_text(void)
    LOG_FUNC_ENTRY();
 
    chunk_t *pc = chunk_get_head();
-   if (is_invalid(pc)) { return; }
+   return_if(is_invalid(pc));
 
    chunk_t *next;
    size_t  prev_column;
@@ -1248,8 +1248,7 @@ void space_add_after(chunk_t *pc, size_t count)
    chunk_t *next = chunk_get_next(pc);
 
    /* don't add at the end of the file or before a newline */
-   if (is_invalid(next) ||
-       chunk_is_newline(next) ) { return; }
+   return_if(is_invalid(next) || chunk_is_newline(next));
 
    count = min(count, MAX_SPACE_COUNT);
 

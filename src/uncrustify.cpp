@@ -437,7 +437,7 @@ static const lang_name_t language_names[] =
 
 const char *path_basename(const char *path)
 {
-   if (path == nullptr) { return(""); }
+   if (ptr_is_invalid(path)) { return(""); }
 
    const char *last_path = path;
 
@@ -476,7 +476,7 @@ void usage_exit(const char *msg, const char *argv0, int code)
       fprintf(stderr, "%s\n", msg);
    }
    if ((code  != EXIT_SUCCESS) ||
-       (argv0 == nullptr     ) )
+       (ptr_is_invalid(argv0)) )
    {
       fprintf(stderr, "Try running with -h for usage information\n");
       exit(code);
@@ -580,7 +580,7 @@ static void redir_stdout(const char *output_file)
    if (ptr_is_valid(output_file))
    {
       my_stdout = freopen(output_file, "wb", stdout);
-      if (my_stdout == nullptr)
+      if (ptr_is_invalid(my_stdout))
       {
          LOG_FMT(LERR, "Unable to open %s for write: %s (%d)\n",
                  output_file, strerror(errno), errno);
@@ -728,10 +728,7 @@ int main(int argc, char *argv[])
    while ((p_arg = arg_list.Params("-d", idx)) != nullptr)
    {
       const int return_code = load_define_file(p_arg);
-      if (return_code != EX_OK)
-      {
-         return(return_code);
-      }
+      retval_if(return_code != EX_OK, return_code);
    }
 
    /* add defines */
@@ -1222,12 +1219,10 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
    fm.data.clear();
    fm.enc = char_encoding_e::ASCII;
 
-   /* Grab the stat info for the file */
+   /* Grab the stat info for the file, return if it cannot be read */
    struct stat my_stat;
-   if (stat(filename, &my_stat) < 0)
-   {
-      return(false); /* stat of file could not be read */
-   }
+   retval_if(stat(filename, &my_stat) < 0, false)
+
 
 #ifdef HAVE_UTIME_H
    /* Save off modification time */
@@ -1236,7 +1231,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 
    /* Try to read in the file */
    FILE *p_file = fopen(filename, "rb");
-   if (ptr_is_invalid(p_file)) { return(false); }
+   retval_if(ptr_is_invalid(p_file), false);
 
    bool success = false;
    fm.raw.resize((size_t)my_stat.st_size);
@@ -1318,7 +1313,7 @@ bool load_all_header_files(void)
 
 
 static const char *make_output_filename(char *buf, const size_t buf_size,
-      const char * const filename, const char * const prefix, const char * const suffix)
+       const char * const filename, const char * const prefix, const char * const suffix)
 {
    int len = 0;
 
@@ -1351,7 +1346,7 @@ static bool file_content_matches(const string &filename1, const string &filename
    }
 
    int fd1;
-   if ((fd1 = open(filename1.c_str(), O_RDONLY)) < 0)
+   if((fd1 = open(filename1.c_str(), O_RDONLY)) < 0)
    {
       return(false);
    }
@@ -1529,7 +1524,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    FILE   *pfout      = nullptr;
    if (cpd.do_check == false)
    {
-      if (filename_out == nullptr) { pfout = stdout; }
+      if (ptr_is_invalid(filename_out)) { pfout = stdout; }
       else
       {
          /* If the out file is the same as the in file, then use a temp file */
@@ -1553,7 +1548,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
          make_folders(filename_tmp);
 
          pfout = fopen(filename_tmp.c_str(), "wb");
-         if (pfout == nullptr)
+         if (ptr_is_invalid(pfout))
          {
             LOG_FMT(LERR, "%s: Unable to create %s: %s (%d)\n",
                     __func__, filename_tmp.c_str(), strerror(errno), errno);
@@ -1585,8 +1580,8 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
    if (did_open == true)
    {
-      if (pfout       != nullptr) { fclose(pfout);                       }
-      if (need_backup == true   ) { backup_create_md5_file(filename_in); }
+      if (ptr_is_valid(pfout)) { fclose(pfout);                       }
+      if (need_backup == true) { backup_create_md5_file(filename_in); }
 
       if (filename_tmp != filename_out)
       {
@@ -1669,13 +1664,9 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (is_not_type(pc, type)) { continue; }
-
-      if ((pc->flags & PCF_IN_CLASS                             ) &&
-          (cpd.settings[UO_cmt_insert_before_inlines].b == false) )
-      {
-         continue;
-      }
+      continue_if(is_not_type(pc, type));
+      continue_if(is_flag(pc, PCF_IN_CLASS                      ) &&
+          (cpd.settings[UO_cmt_insert_before_inlines].b == false) );
 
       // Check for one liners for classes. Declarations only. Walk down the chunks.
       chunk_t *ref = pc;
@@ -1685,10 +1676,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          if(is_type_and_ptype(ref, CT_TYPE, type))
          {
             ref = ref->next;
-            if(is_type_and_ptype(ref, CT_SEMICOLON, CT_NONE))
-            {
-               continue;
-            }
+            continue_if(is_type_and_ptype(ref, CT_SEMICOLON, CT_NONE));
          }
       }
 
@@ -1706,7 +1694,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
                break;
             }
          }
-         if (found_brace) { continue; }
+         continue_if(found_brace);
       }
 
       do_insert = false;
@@ -1738,20 +1726,14 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               if ((chunk_is_comment(tmp)                                ) &&
-                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) )
-               {
-                  break;
-               }
+               break_if((chunk_is_comment(tmp)                           ) &&
+                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
 
          /* Ignore 'right' comments */
-         if ((chunk_is_comment(ref)                ) &&
-             (chunk_is_newline(chunk_get_prev(ref))) )
-         {
-            break;
-         }
+         break_if((chunk_is_comment(ref)           ) &&
+             (chunk_is_newline(chunk_get_prev(ref))) );
 
          if ( (ref->level == pc->level     )   &&
              ((ref->flags  & PCF_IN_PREPROC) ||
@@ -1774,7 +1756,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      if (is_not_type(pc, type)) { continue; }
+      continue_if(is_not_type(pc, type));
 
       do_insert = false;
 
@@ -1784,11 +1766,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          /* ignore the CT_TYPE token that is the result type */
-         if ((ref->level != pc->level  )   &&
-             is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) )
-         {
-            continue;
-         }
+         continue_if((ref->level != pc->level  )   &&
+             is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) );
 
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (is_type(ref, CT_PAREN_CLOSE))
@@ -1804,11 +1783,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               if ((chunk_is_comment(tmp)                                ) &&
-                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) )
-               {
-                  break;
-               }
+               break_if((chunk_is_comment(tmp)                           ) &&
+                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
          if (( ref->level == pc->level                                        ) &&
@@ -1818,11 +1794,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_valid(ref))
             {
                /* Ignore 'right' comments */
-               if ((chunk_is_newline(ref)                ) &&
-                   (chunk_is_comment(chunk_get_prev(ref))) )
-               {
-                  break;
-               }
+               break_if ((chunk_is_newline(ref)          ) &&
+                   (chunk_is_comment(chunk_get_prev(ref))) );
                do_insert = true;
             }
             break;
@@ -2248,7 +2221,7 @@ void print_extensions(FILE *pfile)
       {
          if (strcmp(extension_val.second.c_str(), language.name) == 0)
          {
-            if (!did_one)
+            if (did_one == false)
             {
                fprintf(pfile, "file_ext %s", extension_val.second.c_str());
                did_one = true;
@@ -2303,7 +2276,7 @@ static size_t language_flags_from_filename(const char *filename)
 
 void log_pcf_flags(log_sev_t sev, UINT64 flags)
 {
-   if (log_sev_on(sev) == false) { return; }
+   return_if(log_sev_on(sev) == false);
 
    log_fmt(sev, "[0x%" PRIx64 ":", flags);
 

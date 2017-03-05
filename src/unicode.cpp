@@ -11,6 +11,7 @@
 #include "unc_ctype.h"
 #include <cstdlib>
 #include "base_types.h"
+#include "chunk_list.h"
 
 
 /**
@@ -210,18 +211,10 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
       while ((cnt-- > 0) && (idx < in_data.size()))
       {
          UINT32 tmp = in_data[idx++];
-         if ((tmp & 0xC0) != 0x80)
-         {
-            /* invalid UTF-8 sequence */
-            return(false);
-         }
+         retval_if((tmp & 0xC0) != 0x80, false); /* invalid UTF-8 sequence */
          ch = (ch << 6) | (tmp & 0x3f);
       }
-      if (cnt >= 0)
-      {
-         /* short UTF-8 sequence */
-         return(false);
-      }
+      retval_if(cnt >= 0, false); /* short UTF-8 sequence */
       out_data.push_back(ch);
    }
    return(true);
@@ -232,10 +225,7 @@ static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be)
 {
    int ch;
 
-   if ((idx + 2) > in_data.size())
-   {
-      ch = -1;
-   }
+   if ((idx + 2) > in_data.size()) { ch = -1; }
    else if (be) { ch = (in_data[idx] << 8) | (in_data[idx + 1] << 0); }
    else         { ch = (in_data[idx] << 0) | (in_data[idx + 1] << 8); }
    idx += 2;
@@ -247,17 +237,8 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, cha
 {
    out_data.clear();
 
-   if (in_data.size() & 1)
-   {
-      /* can't have and odd length */
-      return(false);
-   }
-
-   if (in_data.size() < 2)
-   {
-      /* we require the BOM or at least 1 char */
-      return(false);
-   }
+   retval_if(in_data.size() & 1, false); /* can't have and odd length */
+   retval_if(in_data.size() < 2, false); /* we require the BOM or at least 1 char */
 
    size_t idx = 2;
    if ((in_data[0] == 0xfe) &&
@@ -291,10 +272,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, cha
             enc = char_encoding_e::UTF16_LE;
          }
       }
-      if (enc == char_encoding_e::ASCII)
-      {
-         return(false);
-      }
+      retval_if(enc == char_encoding_e::ASCII, false);
    }
 
    bool be = (enc == char_encoding_e::UTF16_BE);
@@ -307,10 +285,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, cha
          ch  &= 0x3ff;
          ch <<= 10;
          int tmp = get_word(in_data, idx, be);
-         if ((tmp & 0xfc00) != 0xdc00)
-         {
-            return(false);
-         }
+         retval_if((tmp & 0xfc00) != 0xdc00, false);
          ch |= (tmp & 0x3ff);
          ch += 0x10000;
          out_data.push_back(ch);
@@ -364,14 +339,9 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, char_enc
    if (decode_bom(in_data, enc))
    {
       has_bom = true;
-      if (enc == char_encoding_e::UTF8)
-      {
-         return(decode_utf8(in_data, out_data));
-      }
-      else
-      {
-         return(decode_utf16(in_data, out_data, enc));
-      }
+      return (enc == char_encoding_e::UTF8) ?
+         decode_utf8 (in_data, out_data     ) :
+         decode_utf16(in_data, out_data, enc);
    }
    has_bom = false;
 
@@ -389,10 +359,7 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, char_enc
        (zero_cnt <= (in_data.size() / 2u)) )
    {
       /* likely is UTF-16 */
-      if (decode_utf16(in_data, out_data, enc))
-      {
-         return(true);
-      }
+      retval_if(decode_utf16(in_data, out_data, enc), true);
    }
 
    if (decode_utf8(in_data, out_data))
@@ -511,7 +478,7 @@ void write_char(UINT32 ch)
       case char_encoding_e::UTF16_LE: write_utf16(ch, false); break;
       case char_encoding_e::UTF16_BE: write_utf16(ch, true ); break;
       case char_encoding_e::ASCII:    /* fallthrough */
-      default:           write_byte(ch        ); break;
+      default:                        write_byte (ch       ); break;
    }
 }
 
