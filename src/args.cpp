@@ -73,7 +73,7 @@ const char *Args::Param(const char *token)
 
 const char *Args::Params(const char *token, size_t &index)
 {
-   if (ptr_is_invalid(token)) { return(token); }
+   retval_if(ptr_is_invalid(token), token);
 
    size_t token_len = strlen(token);
 

@@ -190,10 +190,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
          fcn = pc;
       }
    }
-   if(is_type(pc, CT_ASSIGN))
-   {
-      return(pawn_process_variable(pc));
-   }
+   retval_if(is_type(pc, CT_ASSIGN), pawn_process_variable(pc));
 
    if (is_valid(fcn))
    {
@@ -219,8 +216,8 @@ static chunk_t *pawn_process_variable(chunk_t *start)
    chunk_t *pc   = start;
    while ((pc = chunk_get_next_nc(pc)) != nullptr)
    {
-      if (  is_type (pc, CT_NEWLINE                   ) &&
-           (pawn_continued(prev, (int)start->level) == false) )
+      if (is_type (pc, CT_NEWLINE                          ) &&
+          (pawn_continued(prev, (int)start->level) == false) )
       {
          if(is_not_type(prev, 2, CT_SEMICOLON, CT_VSEMICOLON))
          {
@@ -245,8 +242,7 @@ void pawn_add_virtual_semicolons(void)
       chunk_t *pc   = chunk_get_head();
       while ((pc = chunk_get_next(pc)) != nullptr)
       {
-         if ((chunk_is_comment(pc) == false) &&
-             (chunk_is_newline(pc) == false) &&
+         if (!chunk_is_comment_or_newline(pc) &&
              (is_not_type(pc, 2, CT_VBRACE_CLOSE, CT_VBRACE_OPEN)))
          {
             prev = pc;
@@ -351,7 +347,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       last = chunk_get_next_ncnl(last);
    }
 
-   if (is_invalid(last)) { return(last); }
+   retval_if(is_invalid(last), last);
 
    if (is_type(last, CT_BRACE_OPEN))
    {
@@ -368,7 +364,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
               __func__, pc->orig_line, pc->text(), get_token_name(last->type));
 
       /* do not insert a vbrace before a preproc */
-      if (last->flags & PCF_IN_PREPROC) { return(last); }
+      retval_if(is_flag(last, PCF_IN_PREPROC), last);
 
       chunk_t chunk = *last;
       chunk.str.clear();
@@ -389,10 +385,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
              (prev->level == 0             ) )
          {
             chunk_t *next = chunk_get_next_ncnl(prev);
-            if(is_not_type(next, 2, CT_ELSE, CT_WHILE_OF_DO))
-            {
-               break;
-            }
+            break_if(is_not_type(next, 2, CT_ELSE, CT_WHILE_OF_DO));
          }
          prev->level++;
          prev->brace_level++;
@@ -435,8 +428,8 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *    + arith, assign, bool, comma, compare */
    chunk_t *prev = chunk_get_prev_ncnl(pc);
    if ((is_invalid(prev)       ) ||
-       (prev == vb_open             ) ||
-       (prev->flags & PCF_IN_PREPROC) ||
+       (prev == vb_open        ) ||
+       is_flag(prev, PCF_IN_PREPROC) ||
        pawn_continued(prev, (int)vb_open->level + 1))
    {
       if (is_valid(prev))

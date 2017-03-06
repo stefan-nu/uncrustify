@@ -143,18 +143,13 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       }
 
       /* If we hit a newline or nullptr, we are done */
-      if (!are_valid(pc1, pc2) ||
-           chunk_is_newline(pc1     ) ||
-           chunk_is_newline(     pc2) )
-      {
-         break;
-      }
+      break_if(are_invalid(pc1, pc2) ||
+               chunk_is_newline(pc1) ||
+               chunk_is_newline(pc2) );
    }
 
-   if ( (is_invalid  (pc1)) ||
-        (!chunk_is_newline(pc2)) )   { return(-1); }
-
-   if   (!chunk_is_newline(pc1))     { return( 1); }
+   retval_if((is_invalid(pc1) || !chunk_is_newline(pc2)), -1);
+   retval_if(!chunk_is_newline(pc1), 1);
    return(0); /* \todo explain the return values */
 }
 
@@ -199,9 +194,9 @@ void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
-   size_t  num_chunks      = 0;
-   chunk_t *p_last = nullptr;
-   chunk_t *p_imp          = nullptr;
+   size_t  num_chunks = 0;
+   chunk_t *p_last    = nullptr;
+   chunk_t *p_imp     = nullptr;
 
    prepare_categories();
 
@@ -214,9 +209,9 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ( are_valid(p_imp, p_last    )   &&
-             (is_type(p_last, CT_SEMICOLON) ||
-             (p_imp->flags & PCF_IN_PREPROC     ) ) )
+         if ( are_valid(p_imp, p_last      )   &&
+             (is_type(p_last, CT_SEMICOLON ) ||
+              is_flag(p_imp, PCF_IN_PREPROC) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {

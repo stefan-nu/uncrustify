@@ -1376,10 +1376,10 @@ static bool file_content_matches(const string &filename1, const string &filename
          * than the other, do we miss that ? */
       }
       const size_t minlen = min(len1, len2);
-      if (memcmp(buf1, buf2, minlen) != 0)
-      {
-         break; /* found a difference */
-      }
+
+      /* found a difference */
+      break_if(memcmp(buf1, buf2, minlen) != 0);
+
       len1 -= minlen;
       len2 -= minlen;
    }
@@ -1705,7 +1705,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          /* Bail if we change level or find an access specifier colon */
-         if ((ref->level != pc->level           ) ||
+         if ((ref->level != pc->level     ) ||
              is_type(ref, CT_PRIVATE_COLON) )
          {
             do_insert = true;
@@ -1720,7 +1720,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
-         if (ref->flags & PCF_IN_PREPROC)
+         if (is_flag(ref, PCF_IN_PREPROC))
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
@@ -1736,7 +1736,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
              (chunk_is_newline(chunk_get_prev(ref))) );
 
          if ( (ref->level == pc->level     )   &&
-             ((ref->flags  & PCF_IN_PREPROC) ||
+             (is_flag(ref, PCF_IN_PREPROC) ||
               is_type(ref, 2, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
          {
             do_insert = true;

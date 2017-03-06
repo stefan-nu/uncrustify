@@ -352,11 +352,8 @@ static bool split_line(chunk_t *start)
       {
          try_split_here(ent, pc);
          /*  break at maximum line length */
-         if (is_valid(ent.pc) &&
-            (cpd.settings[UO_ls_code_width].b))
-         {
-            break;
-         }
+         break_if(is_valid(ent.pc) &&
+                 (cpd.settings[UO_ls_code_width].b));
       }
    }
 
@@ -430,7 +427,7 @@ static bool split_line(chunk_t *start)
 static void split_for_statement(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   return_if_invalid(start);
+   return_if(is_invalid(start));
 
    LOG_FMT(LSPLIT, "%s: starting on %s, line %zu\n",
            __func__, start->text(), start->orig_line);
@@ -622,7 +619,7 @@ static void split_fcn_params(chunk_t *start)
    chunk_t *prev = pc;
    while ((prev = chunk_get_prev(prev)) != nullptr)
    {
-      if (is_type(prev, 3, CT_COMMA, CT_NEWLINE, CT_NL_CONT)) { break; }
+      break_if(is_type(prev, 3, CT_COMMA, CT_NEWLINE, CT_NL_CONT));
 
       assert(is_valid(pc));
       last_col -= (int)pc->len();

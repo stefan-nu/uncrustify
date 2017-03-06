@@ -26,10 +26,8 @@ defmap defines;
 
 void add_define(const char *tag, const char *value)
 {
-   if (ptr_is_invalid(tag) || (*tag == 0))
-   {
-      return;
-   }
+   return_if(ptr_is_invalid(tag) || (*tag == 0));
+
    value = (ptr_is_valid(value)) ? value : "";
 
    /* Try to update an existing entry first */
@@ -50,7 +48,7 @@ void add_define(const char *tag, const char *value)
 /* \todo DRY with load_keyword_file */
 int load_define_file(const char *filename)
 {
-   if (ptr_is_invalid(filename)) { return(EX_CONFIG); }
+   retval_if(ptr_is_invalid(filename), EX_CONFIG);
    FILE *pf = fopen(filename, "r");
 
    if (ptr_is_invalid(pf))

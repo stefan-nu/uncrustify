@@ -53,7 +53,7 @@ void remove_extra_semicolons(void)
       chunk_t *next = chunk_get_next_ncnl(pc);
       chunk_t *prev;
       if (is_type(pc, CT_SEMICOLON) &&
-          !(pc->flags & PCF_IN_PREPROC  ) &&
+          !(pc->flags & PCF_IN_PREPROC) &&
           ((prev = chunk_get_prev_ncnl(pc)) != nullptr))
       {
          LOG_FMT(LSCANSEMI, "Semicolon on %zu:%zu parent=%s, prev = '%s' [%s/%s]\n",

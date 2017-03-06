@@ -8,6 +8,7 @@
 #if defined (_WIN32) && !defined (__CYGWIN__)
 
 #include "windows_compat.h"
+#include "chunk_list.h"
 #include "compat.h"
 #include <string>
 #include <cstdio>
@@ -20,10 +21,7 @@ bool unc_getenv(const char *name, std::string &str)
 
    if (len == 0)
    {
-      if (GetLastError() == ERROR_ENVVAR_NOT_FOUND)
-      {
-         return(false);
-      }
+      retval_if(GetLastError() == ERROR_ENVVAR_NOT_FOUND, false);
    }
 
    buf = (char *)malloc(len);

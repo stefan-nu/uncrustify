@@ -808,11 +808,8 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
          {
             tmp++;
          }
-         if ((tmp < line.size()) &&
-             (line[tmp] == SLASH ) )
-         {
-            return(1);
-         }
+         retval_if((tmp < line.size()) &&
+                   (line[tmp] == SLASH), 1);
          break;
       }
       else if (strchr("*|\\#+", line[len]) == nullptr)
@@ -822,7 +819,7 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
       len++;
    }
 
-   if (len > 30) { return(1); }
+   retval_if(len > 30, 1);
 
    if(((len >  0) && ((len >= line.size()) || unc_isspace(line[len])) ) ||
       ((len >  0) && (is_last == true                               ) ) ||
@@ -857,7 +854,7 @@ bool is_space_or_tab(const int character)
 
 static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
 {
-   if (!cpd.settings[UO_cmt_indent_multi].b) { return; }
+   return_if(!cpd.settings[UO_cmt_indent_multi].b);
 
    cmt.xtra_indent = 0;
    size_t idx      = 0;
@@ -918,14 +915,12 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
       if ((str[idx] == SPACE  ) ||
           (str[idx] == TABSTOP) )
       {
-         if (width > 0) { break; }
+         break_if(width > 0);
          continue;
       }
 
-      if(is_part_of_newline(str[idx]))
-      {
-         break;  /* Done with second line */
-      }
+      /* Done with second line */
+      break_if(is_part_of_newline(str[idx]));
 
       /* Count the leading chars */
       if ((str[idx] == '*'      ) ||
@@ -952,12 +947,9 @@ static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
    // If the first and last line are the same length and don't contain any alnum
    // chars and (the first line len > cmt_multi_first_len_minimum or
    // the second leader is the same as the first line length), then the indent is 0.
-   if ( (first_len == last_len                                     )   &&
+   return_if ( (first_len == last_len                                     )   &&
        ((first_len > cpd.settings[UO_cmt_multi_first_len_minimum].u) ||
-        (first_len == width                                        ) ) )
-   {
-      return;
-   }
+        (first_len == width                                        ) ) );
 
    cmt.xtra_indent = ((width == 2) ? 0 : 1);
 }
@@ -973,10 +965,7 @@ static int next_up(const unc_text &text, size_t idx, const unc_text &tag)
       offs++;
    }
 
-   if (text.startswith(tag, idx))
-   {
-      return((int)offs);
-   }
+   retval_if (text.startswith(tag, idx), (int)offs);
    return(-1); // \todo is this a good solution to indicate an error?
 }
 
@@ -1166,7 +1155,7 @@ void combine_comment(unc_text &tmp, chunk_t *pc, cmt_reflow &cmt)
 
 static chunk_t *output_comment_c(chunk_t *first)
 {
-   if (is_invalid(first)) { return(first); }
+   retval_if(is_invalid(first), first);
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1224,7 +1213,7 @@ void do_something(
 
 static chunk_t *output_comment_cpp(chunk_t *first)
 {
-   if (is_invalid(first)) { return(first); }
+   retval_if(is_invalid(first), first);
 
    cmt_reflow cmt;
    output_cmt_start(cmt, first);
@@ -1234,7 +1223,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (cpd.settings[UO_sp_cmt_cpp_doxygen].b) // special treatment for doxygen style comments (treat as unity)
    {
       const char *sComment = first->text();
-      if (sComment == nullptr) { return(first); }
+      retval_if(ptr_is_invalid(sComment), first);
 
       bool grouping = (sComment[2] == '@');
       int  brace    = 3;
@@ -1727,7 +1716,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       {
          while ((tmp = chunk_get_next(tmp)) != nullptr)
          {
-            if (is_not_type(tmp, CT_DC_MEMBER)) { break; }
+            break_if(is_not_type(tmp, CT_DC_MEMBER));
             tmp = chunk_get_next(tmp);
             if (tmp)
             {
@@ -1745,7 +1734,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (is_invalid(fcn)) { return(false); }
+   retval_if(is_invalid(fcn), false);
 
    out_txt.append(fcn->str);
 
@@ -1753,10 +1742,8 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
    const chunk_t *word = nullptr;
    while (is_valid(tmp))
    {
-      if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON))
-      {
-         break;
-      }
+      break_if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON));
+
       if (is_type(tmp, CT_OC_COLON))
       {
          if (is_valid(word))
@@ -1819,7 +1806,7 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (is_invalid(fcn)) { return(false); }
+   retval_if(is_invalid(fcn), false);
 
    chunk_t *fpo;
    chunk_t *fpc;
@@ -1832,10 +1819,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       has_param = false;
       while (tmp)
       {
-         if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON))
-         {
-            break;
-         }
+         break_if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON));
 
          if (has_param)
          {
@@ -1853,10 +1837,10 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    else
    {
       fpo = chunk_get_next_type(fcn, CT_FPAREN_OPEN, (int)fcn->level);
-      if (is_invalid(fpo)) { return(true); }
+      retval_if(is_invalid(fpo), true);
 
       fpc = chunk_get_next_type(fpo, CT_FPAREN_CLOSE,(int)fcn->level);
-      if (is_invalid(fpc)) { return(true); }
+      retval_if(is_invalid(fpc), true);
    }
 
    chunk_t *tmp;
@@ -1892,7 +1876,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
                out_txt.append(" %s TODO", prev->str.c_str() );
             }
             prev = nullptr;
-            if (tmp == fpc) { break; }
+            break_if(tmp == fpc);
          }
 
          if (is_type(tmp, CT_WORD)) { prev = tmp; }
@@ -1923,7 +1907,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *fcn = get_next_function(cmt);
-   if (is_invalid(fcn)) { return(false); }
+   retval_if(is_invalid(fcn), false);
 
    if (fcn->flags & PCF_IN_CLASS)
    {
@@ -1970,7 +1954,7 @@ static void do_keyword_substitution(chunk_t *pc)
    for (const auto &kw : kw_subst_table)
    {
       int idx = pc->str.find(kw.tag);
-      if (idx < 0) { continue; }
+      continue_if(idx < 0);
 
       unc_text tmp_txt;
       tmp_txt.clear();
@@ -2104,11 +2088,11 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       {
          column = (int)pc->column;
       }
-      if(is_type(pc, 3, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP))
-      {
-         break;
-      }
-      else if (is_type(pc, CT_NL_CONT))
+
+      // \todo better use a switch here
+      break_if(is_type(pc, 3, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP));
+
+      if (is_type(pc, CT_NL_CONT))
       {
          dst   += SPACE;
          column = -1;
@@ -2145,8 +2129,8 @@ void add_long_preprocessor_conditional_block_comment(void)
          pp_start = pc;
       }
 
-      if(is_not_type(pc, CT_PP_IF) ||
-         is_invalid (pp_start    ) ) { continue; }
+      continue_if(is_not_type(pc, CT_PP_IF) ||
+                  is_invalid (pp_start    ) );
 #if 0
       if (pc->flags & PCF_IN_PREPROC)
       {
@@ -2196,7 +2180,7 @@ void add_long_preprocessor_conditional_block_comment(void)
 
                const char *txt = is_invalid(tmp)              ? "EOF" :
                                  is_type   (tmp, CT_PP_ENDIF) ? "#endif" :
-                                                                      "#else";
+                                                                "#else";
 
                LOG_FMT(LPPIF, "#if / %s section candidate for augmenting when over NL threshold %zu != 0 (nl_count=%zu)\n",
                        txt, nl_min, nl_count);
@@ -2218,7 +2202,7 @@ void add_long_preprocessor_conditional_block_comment(void)
             }
 
             /* checks both the #else and #endif for a given level, only then look further in the main loop */
-            if (is_type(br_close, CT_PP_ENDIF)) { break; }
+            break_if(is_type(br_close, CT_PP_ENDIF));
          }
       }
    }

@@ -184,7 +184,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    pf_log_frms(LPFCHK, "TOP", frm);
 
    const char *txt = nullptr;
-   if (pc->flags & PCF_IN_PREPROC)
+   if (is_flag(pc, PCF_IN_PREPROC))
    {
       LOG_FMT(LPF, " <In> ");
       pf_log(LPF, frm);

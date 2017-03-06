@@ -674,12 +674,7 @@ void align_preprocessor(void)
 
       /* step to the value past the close parenthesis or the macro name */
       pc = chunk_get_next(pc);
-
-#if 0
-      break_if_invalid(pc);
-#else
-      if (is_invalid(pc)) { break; }
-#endif
+      break_if(is_invalid(pc));
 
       /* don't align anything if the first line ends with a newline before
        * a value is given */
@@ -700,7 +695,7 @@ void align_preprocessor(void)
 chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
 {
    LOG_FUNC_ENTRY();
-   retval_if_invalid(first, first);
+   retval_if(is_invalid(first), first);
 
    const size_t my_level = first->level;
    retval_if(span == 0, chunk_get_next(first));
@@ -765,7 +760,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          var_def_cnt = 0;
          equ_count   = 0;
       }
-      else if (pc->flags & PCF_VAR_DEF)
+      else if (is_flag(pc, PCF_VAR_DEF))
       {
          var_def_cnt++;
       }
@@ -774,9 +769,9 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          /* we hit the second variable def - don't look for assigns, don't align */
          vdas.Reset();
       }
-      else if ((equ_count == 0            ) &&
-               is_type(pc, CT_ASSIGN) &&
-               ((pc->flags & PCF_IN_TEMPLATE) == 0))
+      else if ((equ_count == 0                ) &&
+               is_type    (pc, CT_ASSIGN      ) &&
+               is_not_flag(pc, PCF_IN_TEMPLATE) )
       {
          equ_count++;
          if (var_def_cnt != 0) { vdas.Add(pc); }
@@ -823,7 +818,7 @@ static chunk_t *align_func_param(chunk_t *start)
       else if (pc->level <= start->level) { break; }
 
       else if ((did_this_line == false ) &&
-               (pc->flags & PCF_VAR_DEF) )
+                is_flag(pc, PCF_VAR_DEF) )
       {
          if (chunk_count > 1) { as.Add(pc); }
          did_this_line = true;
@@ -851,19 +846,9 @@ static void align_func_params(void)
    chunk_t *pc = chunk_get_head();
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
-#if 0
-      // many tests fail
       continue_if(is_not_type (pc,    CT_FPAREN_OPEN) ||
                   is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
                     CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF));
-#else
-      if(is_not_type (pc,    CT_FPAREN_OPEN) ||
-         is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
-           CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF))
-      {
-         continue;
-      }
-#endif
       /* We're on a open parenthesis of a prototype */
       pc = align_func_param(pc);
    }
@@ -880,16 +865,8 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
    chunk_t *pc       = chunk_get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
-#if 0
       break_if(is_type(pc, 3, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
                is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) );
-#else
-      if(is_type(pc, 3, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
-         is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) )
-      {
-         break;
-      }
-#endif
 
       if (pc->level == (start->level + 1))
       {
@@ -965,14 +942,8 @@ static void align_same_func_call_params(void)
          }
          prev = chunk_get_prev(tprev);
       }
-#if 0
       continue_if(!chunk_is_newline(prev));
-#else
-      if (chunk_is_newline(prev) == false)
-      {
-         continue;
-      }
-#endif
+
       prev      = chunk_get_next(prev);
       align_fcn = prev;
       align_fcn_name.clear();
@@ -1129,7 +1100,7 @@ static void align_func_proto(size_t span)
       }
       else if ((look_bro == true) &&
                is_type(pc, CT_BRACE_OPEN) &&
-               (pc->flags & PCF_ONE_LINER))
+               is_flag(pc, PCF_ONE_LINER) )
       {
          as_br.Add(pc);
          look_bro = false;
@@ -1143,11 +1114,7 @@ static void align_func_proto(size_t span)
 static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
 {
    LOG_FUNC_ENTRY();
-#if 0
-   retval_if_invalid(start, start);
-#else
-   if (is_invalid(start)) { return(start); }
-#endif
+   retval_if(is_invalid(start), start);
 
    chunk_t *next;
    size_t  myspan   = span;
@@ -1243,9 +1210,9 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
             fp_look_bro = (is_type(pc, CT_FUNC_DEF)) &&
                           cpd.settings[UO_align_single_line_brace].b;
          }
-         else if ((fp_look_bro == true      ) &&
+         else if ((fp_look_bro == true     ) &&
                   is_type(pc, CT_BRACE_OPEN) &&
-                  (pc->flags & PCF_ONE_LINER) )
+                  is_flag(pc, PCF_ONE_LINER) )
          {
             as_br.Add(pc);
             fp_look_bro = false;
@@ -1453,7 +1420,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
    while ((is_valid(pc)) &&
            (nl_count < cpd.settings[UO_align_right_cmt_span].u))
    {
-      if ((pc->flags & PCF_RIGHT_COMMENT) && (pc->column > 1))
+      if (is_flag(pc, PCF_RIGHT_COMMENT) && (pc->column > 1))
       {
          cmt_type_cur = get_comment_align_type(pc);
 
@@ -1536,7 +1503,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
    UNUSED(first_pass);
    LOG_FUNC_ENTRY();
 
-   if(is_invalid(start)) { return(start); }
+   retval_if(is_invalid(start), start);
 
    const chunk_t *prev_match = nullptr;
    size_t        idx         = 0;
@@ -1814,7 +1781,7 @@ static void align_typedefs(size_t span)
       }
       else if (is_valid(c_typedef))
       {
-         if (pc->flags & PCF_ANCHOR)
+         if (is_flag(pc, PCF_ANCHOR))
          {
             as.Add(pc);
             LOG_FMT(LALTD, "%s: typedef @ %zu:%zu, tag '%s' @ %zu:%zu\n",
@@ -2076,12 +2043,9 @@ static void align_oc_decl_colon(void)
       while (is_valid(pc) &&
              (pc->level >= level))
       {
-         /* The decl ends with an open brace or semicolon */
-         if (is_type     (pc, CT_BRACE_OPEN) ||
-             chunk_is_semicolon(pc               ) )
-         {
-            break;
-         }
+         /* The declaration ends with an open brace or semicolon */
+         break_if (is_type     (pc, CT_BRACE_OPEN) ||
+             chunk_is_semicolon(pc               ) );
 
          if (chunk_is_newline(pc))
          {

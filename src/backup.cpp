@@ -114,7 +114,7 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
       const int    my_errno = errno;
 
       fclose(thefile);
-      if (retval == 1) { return(EX_OK); }
+      retval_if((retval == 1), EX_OK);
 
       LOG_FMT(LERR, "fwrite(%s) failed: %s (%d)\n", newpath, strerror(my_errno), my_errno);
       cpd.error_count++;

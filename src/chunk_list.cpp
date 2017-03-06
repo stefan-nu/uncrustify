@@ -448,7 +448,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while (is_valid(pc) && (pc->flags & PCF_IN_PREPROC))
+   while (is_flag(pc, PCF_IN_PREPROC))
    {
       pc = g_cl.GetNext(pc);
    }
@@ -475,7 +475,7 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
       return(pc);
    }
    /* Not in a preproc, skip any preproc */
-   while (is_valid(pc) && (pc->flags & PCF_IN_PREPROC) )
+   while (is_flag(pc, PCF_IN_PREPROC))
    {
       pc = g_cl.GetPrev(pc);
    }
@@ -760,7 +760,7 @@ bool chunk_is_newline_between(chunk_t *start, chunk_t *end)
 {
    for (chunk_t *pc = start; pc != end; pc = chunk_get_next(pc))
    {
-      if (chunk_is_newline(pc)) { return(true); }
+      retval_if(chunk_is_newline(pc), true);
    }
    return(false);
 }
@@ -778,10 +778,7 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
    pc1 = chunk_first_on_line(pc1);
    pc2 = chunk_first_on_line(pc2);
 
-   if (are_invalid(pc1, pc2) || (pc1 == pc2) )
-   {
-      return;
-   }
+   return_if(are_invalid(pc1, pc2) || (pc1 == pc2));
 
    /* Example start:
     * ? - start1 - a1 - b1 - nl1 - ? - ref2 - start2 - a2 - b2 - nl2 - ?
@@ -832,7 +829,7 @@ static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *
 {
    LOG_FUNC_ENTRY();
 
-   if(is_invalid(pc)) { return; }
+   return_if(is_invalid(pc));
 
    c_token_t       *where;
    const c_token_t *type;
@@ -950,10 +947,7 @@ bool chunk_is_forin(chunk_t *pc)
          while(is_not_type(next, 2, CT_IN, CT_SPAREN_CLOSE))
          {
             next = chunk_get_next_ncnl(next);
-            if(is_type(next, CT_IN))
-            {
-               return(true);
-            }
+            retval_if(is_type(next, CT_IN), true);
          }
       }
    }
@@ -1229,9 +1223,9 @@ bool chunk_is_balanced_square(chunk_t *pc)
 }
 
 
-bool chunk_is_preproc(chunk_t * pc)
+bool chunk_is_preproc(chunk_t *pc)
 {
-   return((is_valid(pc)) && (pc->flags & PCF_IN_PREPROC) );
+   return((is_valid(pc)) && (pc->flags & PCF_IN_PREPROC));
 }
 
 
@@ -1410,6 +1404,13 @@ bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 {
    return( are_invalid(pc1, pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
+}
+
+
+bool chunk_different_preproc(chunk_t *pc1, chunk_t *pc2)
+{
+   return( are_invalid(pc1, pc2) ||
+          ((pc1->flags & PCF_IN_PREPROC) != (pc2->flags & PCF_IN_PREPROC)));
 }
 
 

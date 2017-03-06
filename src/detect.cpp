@@ -44,12 +44,9 @@ public:
 
 void sp_votes::vote(chunk_t *first, chunk_t *second)
 {
-   if (!are_valid(first, second) ||
-        chunk_is_newline(first ) ||
-        chunk_is_newline(second) )
-   {
-      return;
-   }
+   return_if(!are_valid(first, second) ||
+              chunk_is_newline(first ) ||
+              chunk_is_newline(second) );
 
    int col_dif = (int)second->column - (int)(first->column + first->len());
 
@@ -65,12 +62,9 @@ void sp_votes::vote(chunk_t *first, chunk_t *second)
 sp_votes::~sp_votes()
 {
    /* no change if no items were added */
-   if ((m_remove == 0) &&
-       (m_add    == 0) &&
-       (m_force  == 0) )
-   {
-      return;
-   }
+   return_if((m_remove == 0) &&
+             (m_add    == 0) &&
+             (m_force  == 0) );
 
    if (m_remove == 0)
    {

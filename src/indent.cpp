@@ -373,14 +373,14 @@ void reindent_line(chunk_t *pc, size_t column)
       else
       {
          /* look for begin of SIGNAL/SLOT block */
-         if (pc->flags & PCF_IN_QT_MACRO)
+         if (is_flag(pc, PCF_IN_QT_MACRO))
          {
             LOG_FMT(LINDLINE, "FLAGS is set: PCF_IN_QT_MACRO\n");
             save_set_options_for_QT(pc->level);
          }
       }
       chunk_t *next = chunk_get_next(pc);
-      if (is_invalid(next)) { break; }
+      break_if (is_invalid(next));
 
       if (pc->nl_count > 0)
       {
@@ -556,18 +556,12 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    {
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
-   if (is_invalid_or_not_type(tmp, CT_OC_BLOCK_CARET))
-   {
-      return(nullptr);
-   }
+   retval_if(is_invalid_or_not_type(tmp, CT_OC_BLOCK_CARET), nullptr);
 
    retval_if(from_caret, tmp);
 
    tmp = chunk_get_prev_nc(tmp);
-   if (is_invalid_or_not_type(tmp, CT_OC_COLON))
-   {
-      return(nullptr);
-   }
+   retval_if(is_invalid_or_not_type(tmp, CT_OC_COLON), nullptr);
 
    retval_if(from_colon, tmp);
 
@@ -577,7 +571,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    {
       return(nullptr);
    }
-   if (from_keyword) { return(tmp); }
+   retval_if(from_keyword, tmp);
    return(nullptr);
 }
 
@@ -715,7 +709,7 @@ void indent_text(void)
              (pc->ptype == CT_PP_REGION))
          {
             next = chunk_get_next(pc);
-            if (is_invalid(next)) { break; }
+            break_if (is_invalid(next));
 
             /* Hack to get the logs to look right */
             set_type(next, CT_PP_REGION_INDENT);
@@ -803,9 +797,7 @@ void indent_text(void)
                   frm.pse[frm.pse_tos].indent = (size_t)((int)frm.pse[frm.pse_tos].indent + val);
                }
             }
-            else if ((pc->ptype == CT_PP_IF   ) ||
-                     (pc->ptype == CT_PP_ELSE ) ||
-                     (pc->ptype == CT_PP_ENDIF) )
+            else if (is_ptype(pc, 3, CT_PP_IF, CT_PP_ELSE, CT_PP_ENDIF))
             {
                int val = cpd.settings[UO_pp_indent_if].n;
                if (val > 0)
@@ -888,7 +880,7 @@ void indent_text(void)
                   is_type(pc, 3, CT_COMMA, CT_BRACE_OPEN, CT_SPAREN_CLOSE) ||
                   is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_AT         ) ||
                   is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_ASSIGN        ) ) &&
-                  (pc->ptype != CT_CPP_LAMBDA)                         )
+                  (pc->ptype != CT_CPP_LAMBDA)                               )
             {
                indent_pse_pop(frm, pc);
             }
@@ -1138,7 +1130,7 @@ void indent_text(void)
          {
             if (frm.pse[frm.pse_tos].pc->ptype == CT_OC_BLOCK_EXPR)
             {
-               if ((pc->flags & PCF_IN_OC_MSG) &&
+               if (is_flag(pc, PCF_IN_OC_MSG) &&
                    cpd.settings[UO_indent_oc_block_msg].u)
                {
                   frm.pse[frm.pse_tos].ip.ref   = oc_msg_block_indent(pc, false, false, false, true);
@@ -1247,7 +1239,7 @@ void indent_text(void)
                   }
                   indent_column_set((frm.pse_tos <= 1) ? 1 : frm.pse[frm.pse_tos-1].brace_indent);
                }
-               else if ((pc->flags & PCF_LONG_BLOCK) ||
+               else if (is_flag(pc, PCF_LONG_BLOCK) ||
                         !cpd.settings[UO_indent_namespace].b)
                {
                   /* don't indent long blocks */
@@ -1273,7 +1265,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }
 
-         if (pc->flags & PCF_DONT_INDENT)
+         if (is_flag(pc, PCF_DONT_INDENT))
          {
             frm.pse[frm.pse_tos].indent = pc->column;
             indent_column_set(pc->column);
@@ -1286,7 +1278,7 @@ void indent_text(void)
              * { a++;
              *   b--; }; */
             next = chunk_get_next_ncnl(pc);
-            if (is_invalid(next)) { break; }
+            break_if (is_invalid(next));
 
             if (!chunk_is_newline_between(pc, next))
             {
@@ -1609,7 +1601,7 @@ void indent_text(void)
                   if (is_type(next, CT_SPACE))
                   {
                      next = chunk_get_next_nc(next);
-                     if (is_invalid(next)) { break; }
+                     break_if (is_invalid(next));
                   }
                   frm.pse[frm.pse_tos].indent = next->column;
                }
@@ -1774,8 +1766,8 @@ void indent_text(void)
       /* Handle shift expression continuation indenting */
       shiftcontcol = 0;
       if ( (cpd.settings[UO_indent_shift].b    ) &&
-           (!(pc->flags     & PCF_IN_ENUM)     ) &&
-           (pc->ptype != CT_OPERATOR     ) &&
+            !is_flag(pc, PCF_IN_ENUM) &&
+           (pc->ptype != CT_OPERATOR) &&
            is_not_type(pc, 4, CT_COMMENT,       CT_COMMENT_CPP,
                                     CT_COMMENT_MULTI, CT_BRACE_OPEN) &&
            (pc->level       > 0                ) &&
@@ -2381,21 +2373,14 @@ bool ifdef_over_whole_file(void)
    const chunk_t *next;
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if( chunk_is_comment_or_newline(pc) ) { continue; }
+      continue_if(chunk_is_comment_or_newline(pc));
 
       if (stage == 0)
       {
          /* Check the first PP, make sure it is an #if type */
-         if (is_not_type(pc, CT_PREPROC))
-         {
-            break;
-         }
+         break_if(is_not_type(pc, CT_PREPROC));
          next = chunk_get_next(pc);
-         if (is_invalid (next          ) ||
-             is_not_type(next, CT_PP_IF) )
-         {
-            break;
-         }
+         break_if(is_invalid_or_not_type(next, CT_PP_IF));
          stage = 1;
       }
       else if (stage == 1)
@@ -2412,8 +2397,8 @@ bool ifdef_over_whole_file(void)
       else if (stage == 2)
       {
          /* We should only see the rest of the preprocessor */
-         if ( is_type(pc, CT_PREPROC     ) ||
-             ((pc->flags & PCF_IN_PREPROC) == 0) )
+         if (is_type    (pc, CT_PREPROC    ) ||
+             is_not_flag(pc, PCF_IN_PREPROC) )
          {
             stage = 0;
             break;

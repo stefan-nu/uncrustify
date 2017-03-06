@@ -28,10 +28,12 @@
 
 /* some useful defines that perform typical checks and corresponding
  * reactions. */
+#if 1
 #define return_if_invalid(ptr)         if ((ptr) == nullptr) {return;        }
 #define retval_if_invalid(ptr, retval) if ((ptr) == nullptr) {return(retval);}
 #define break_if_invalid(ptr)          if ((ptr) == nullptr) {break;         }
 #define continue_if_invalid(ptr)       if ((ptr) == nullptr) {continue;      }
+#endif
 
 #define return_if(cond)                if (cond) {return;        }
 #define retval_if(cond, retval)        if (cond) {return(retval);}
@@ -1144,10 +1146,21 @@ bool chunk_is_paren_close(
 
 
 /**
- * Returns true if either chunk is null or both have the same preproc flags.
- * If this is true, you can remove a newline/nl_cont between the two.
+ * Check if any of two chunks is invalid or both have the same preprocessor
+ * flag. Thus if both are either part of a preprocessor block or both are not
+ * part of a preprocessor block.
+ * If the result is true, a newline/nl_cont between the two may be removed.
  */
 bool chunk_same_preproc(
+   chunk_t *pc1, /**< [in] chunk 1 to compare */
+   chunk_t *pc2  /**< [in] chunk 2 to compare */
+);
+
+
+/**
+ *
+ */
+bool chunk_different_preproc(
    chunk_t *pc1, /**< [in] chunk 1 to compare */
    chunk_t *pc2  /**< [in] chunk 2 to compare */
 );
