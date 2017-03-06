@@ -73,7 +73,7 @@ const char *Args::Param(const char *token)
 
 const char *Args::Params(const char *token, size_t &index)
 {
-   if (token == nullptr) { return(token); }
+   if (ptr_is_invalid(token)) { return(token); }
 
    size_t token_len = strlen(token);
 
@@ -130,7 +130,7 @@ void Args::SetUsed(size_t idx)
 
 const char *Args::Unused(size_t &index) const
 {
-   if (ptr_is_invalid(m_used)) { return(nullptr); }
+   retval_if(ptr_is_invalid(m_used), nullptr);
 
    for (size_t idx = index; idx < m_count; idx++)
    {
@@ -147,16 +147,14 @@ const char *Args::Unused(size_t &index) const
 
 size_t Args::SplitLine(char *text, char *args[], size_t num_args)
 {
-   char   cur_quote    = 0;
-   bool   in_backslash = false;
-   bool   in_arg       = false;
-   size_t argc         = 0;
-   char   *dest        = text;
+   size_t argc      = 0;
+   char   *dest     = text;
 
    while ((*text != 0      ) &&  /* end of string not reached yet */
           (argc <= num_args) )   /* maximal number of arguments not reached yet */
    {
       /* Detect the start of an arg */
+      static bool in_arg = false;
       if ( (in_arg == false    ) &&
            (!unc_isspace(*text)) )
       {
@@ -167,6 +165,8 @@ size_t Args::SplitLine(char *text, char *args[], size_t num_args)
 
       if (in_arg == true)
       {
+         static char cur_quote    = 0;
+         static bool in_backslash = false;
          if (in_backslash == true)
          {
             in_backslash = false;

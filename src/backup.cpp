@@ -47,10 +47,9 @@ void md5_to_string(
 
 void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
 {
-   int pos = 0;
-
    for(size_t i = 0; i < MD5_CHAR_COUNT; i++)
    {
+      static int pos = 0;
       if(pos < (int)(str_len - MD5_CHAR_SIZE))
       {
          pos += snprintf(&md5_str[pos], MD5_CHAR_SIZE, "%02X", dig[i]);
@@ -64,14 +63,14 @@ int backup_copy_file(const char *filename, const vector<UINT8> &data)
    char  md5_str_in[MD5_STR_SIZE];
    md5_str_in[0] = 0;
 
-   UINT8 md5_bin   [MD5_CHAR_COUNT];
+   UINT8 md5_bin[MD5_CHAR_COUNT];
    MD5::Calc(&data[0], data.size(), md5_bin);
 
-   char  md5_str   [MD5_STR_SIZE];
+   char  md5_str[MD5_STR_SIZE];
    md5_to_string(md5_str, sizeof(md5_str), md5_bin);
 
    /* Create the backup-md5 filename, open it and read the md5 */
-   char  newpath   [1024];
+   char  newpath[1024];
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    FILE *thefile = fopen(newpath, "rb");
@@ -134,7 +133,7 @@ void backup_create_md5_file(const char *filename)
 {
    /* Try to open file */
    FILE *thefile = fopen(filename, "rb");
-   if (thefile == nullptr)
+   if (ptr_is_invalid(thefile))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, filename, strerror(errno), errno);

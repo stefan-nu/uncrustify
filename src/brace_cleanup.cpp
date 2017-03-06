@@ -142,11 +142,11 @@ static bool handle_complex_close(
 static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *next;
+
    size_t  pp_level = cpd.pp_level;
 
    /* Get the type of preprocessor and handle it */
-   next = chunk_get_next_ncnl(pc);
+   chunk_t *next = chunk_get_next_ncnl(pc);
    if (is_valid(next))
    {
       cpd.is_preproc = next->type;
@@ -205,23 +205,22 @@ static void print_stack(log_sev_t logsev, const char *str,
 void brace_cleanup(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t       *pc;
-   parse_frame_t frm;
 
    cpd.unc_stage = unc_stage_e::BRACE_CLEANUP;
 
+   parse_frame_t frm;
    memset(&frm, 0, sizeof(frm));
 
    cpd.frame_count = 0;
    cpd.is_preproc  = CT_NONE;
    cpd.pp_level    = 0;
 
-   pc = chunk_get_head();
+   chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
       /* Check for leaving a #define body */
-      if ((cpd.is_preproc               != CT_NONE) &&
-          ((pc->flags & PCF_IN_PREPROC) ==       0) )
+      if ((cpd.is_preproc     != CT_NONE) &&
+          is_not_flag(pc, PCF_IN_PREPROC) )
       {
          if (cpd.is_preproc == CT_PP_DEFINE)
          {

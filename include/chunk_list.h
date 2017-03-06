@@ -28,10 +28,10 @@
 
 /* some useful defines that perform typical checks and corresponding
  * reactions. */
-#define return_if_invalid(ptr)         do { if ((ptr) == nullptr) {return;        }} while(0)
-#define retval_if_invalid(ptr, retval) do { if ((ptr) == nullptr) {return(retval);}} while(0)
-#define break_if_invalid(ptr)          do { if ((ptr) == nullptr) {break;         }} while(0)
-#define continue_if_invalid(ptr)       do { if ((ptr) == nullptr) {continue;      }} while(0)
+#define return_if_invalid(ptr)         if ((ptr) == nullptr) {return;        }
+#define retval_if_invalid(ptr, retval) if ((ptr) == nullptr) {return(retval);}
+#define break_if_invalid(ptr)          if ((ptr) == nullptr) {break;         }
+#define continue_if_invalid(ptr)       if ((ptr) == nullptr) {continue;      }
 
 #define return_if(cond)                if (cond) {return;        }
 #define retval_if(cond, retval)        if (cond) {return(retval);}

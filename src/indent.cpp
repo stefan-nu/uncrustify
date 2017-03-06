@@ -733,11 +733,10 @@ void indent_text(void)
 
          /* Indent the body of a #if here */
          if (cpd.settings[UO_pp_if_indent_code].b &&
-             ((pc->ptype == CT_PP_IF) ||
-              (pc->ptype == CT_PP_ELSE)))
+             is_ptype(pc, 2, CT_PP_IF, CT_PP_ELSE))
          {
             next = chunk_get_next(pc);
-            if (is_invalid(next)) { break; }
+            break_if(is_invalid(next));
             /* Hack to get the logs to look right */
             memtype = next->type;
             set_type(next, CT_PP_IF_INDENT);
@@ -2448,10 +2447,10 @@ void indent_preproc(void)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (is_not_type(pc, CT_PREPROC)) { continue; }
+      continue_if(is_not_type(pc, CT_PREPROC));
 
       next = chunk_get_next_ncnl(pc);
-      if (is_invalid(next)) { break; }
+      break_if(is_invalid(next));
 
       pp_level = (int)pc->pp_level - pp_level_sub;
       pp_level = max(pp_level, 0);
