@@ -71,7 +71,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
 void split_off_angle_close(chunk_t *pc)
 {
    const chunk_tag_t *ct = find_punctuator(pc->text() + 1, cpd.lang_flags);
-   return_if_invalid(ct);
+   return_if(ptr_is_invalid(ct));
 
    chunk_t nc = *pc;
    pc->str.resize(1);
@@ -230,7 +230,7 @@ void tokenize_cleanup(void)
       }
 
 #if 1
-      if ((pc->type        == CT_ANGLE_CLOSE) &&
+      if ((pc->type  == CT_ANGLE_CLOSE) &&
           (pc->ptype != CT_TEMPLATE   ) )
 #else
          // many Cpp and some other tests fail
@@ -381,11 +381,9 @@ void tokenize_cleanup(void)
             chunk_t *tmp;
             while ((tmp = chunk_get_next(tmp2)) != nullptr)
             {
-               if(is_not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
-                        CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET))
-               {
-                  break;
-               }
+               break_if(is_not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
+                         CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET));
+
                /* Change tmp into a type so that space_needed() works right */
                make_type(tmp);
                size_t num_sp = space_needed(tmp2, tmp);
@@ -479,7 +477,7 @@ void tokenize_cleanup(void)
             /* Change words into CT_SQL_WORD until CT_SEMICOLON */
             while (is_valid(tmp))
             {
-               if (is_type(tmp, CT_SEMICOLON)) { break; }
+               break_if(is_type(tmp, CT_SEMICOLON));
 
                if ((tmp->len() > 0                      )   &&
                    (unc_isalpha(*tmp->str.c_str()       ) ||
@@ -834,10 +832,7 @@ static void check_template(chunk_t *start)
          else if (is_str(pc, ">", 1))
          {
             level--;
-            if (level == 0)
-            {
-               break;
-            }
+            break_if(level == 0);
          }
       }
       end = pc;
@@ -875,11 +870,9 @@ static void check_template(chunk_t *start)
       pc = start;
       while ((pc = chunk_get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
       {
-         if (is_type(pc, 4, CT_SEMICOLON,   CT_BRACE_OPEN,
-                            CT_BRACE_CLOSE, CT_SQUARE_CLOSE))
-         {
-            break;
-         }
+         break_if (is_type(pc, 4, CT_SEMICOLON,   CT_BRACE_OPEN,
+                                  CT_BRACE_CLOSE, CT_SQUARE_CLOSE));
+
          if (is_type(pc, 2, CT_IF, CT_RETURN))
          {
             in_if = true;

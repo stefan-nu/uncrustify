@@ -1376,10 +1376,10 @@ static bool file_content_matches(const string &filename1, const string &filename
          * than the other, do we miss that ? */
       }
       const size_t minlen = min(len1, len2);
-      if (memcmp(buf1, buf2, minlen) != 0)
-      {
-         break; /* found a difference */
-      }
+
+      /* found a difference */
+      break_if(memcmp(buf1, buf2, minlen) != 0);
+
       len1 -= minlen;
       len2 -= minlen;
    }

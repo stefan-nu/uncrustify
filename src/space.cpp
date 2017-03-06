@@ -947,7 +947,7 @@ void space_text(void)
       }
       else { next = pc->next; }
 
-      if (is_invalid(next)) { break; }
+      break_if(is_invalid(next));
 
       if ((QT_SIGNAL_SLOT_found) &&
           (cpd.settings[UO_sp_bal_nested_parens].b))

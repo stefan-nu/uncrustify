@@ -45,8 +45,8 @@ void AlignStack::ReAddSkipped()
       for (size_t idx = 0; idx < m_scratch.Len(); idx++)
       {
          const ChunkStack::Entry *ce = m_scratch.Get(idx);
-//       return_if_invalid(ce);
-         if(ptr_is_invalid(ce)) return;
+         return_if(ptr_is_invalid(ce));
+//         if(ptr_is_invalid(ce)) return;
 
          LOG_FMT(LAS, "ReAddSkipped [%zu] - ", ce->m_seqnum);
          Add(ce->m_pc, ce->m_seqnum);
@@ -183,11 +183,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          }
       }
 
-#if 1
       return_if(are_invalid(ali, ref));
-#else
-      if(!are_valid(ali, ref)) { return; }
-#endif
 
       chunk_t *tmp;
       /* Tighten down the spacing between ref and start */

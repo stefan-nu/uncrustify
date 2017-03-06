@@ -6,6 +6,7 @@
  * @license GPL v2+
  */
 #include "punctuators.h"
+#include "chunk_list.h"
 #include "uncrustify_types.h"
 
 /**
@@ -144,11 +145,10 @@ const chunk_tag_t *find_punctuator(const char *str, size_t lang_flags)
          {
             p_match = p_tab->tag;
          }
-         if (p_tab->next_idx == 0)
-         {
-            /* This is the end of the chain */
-            break;
-         }
+
+         /* This is the end of the chain */
+         break_if (p_tab->next_idx == 0);
+
          p_tab = &punc_table[p_tab->next_idx];
          ch_idx++;
       }

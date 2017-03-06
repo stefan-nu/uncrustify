@@ -586,7 +586,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          while (ctx.more())
          {
             ch = ctx.peek();
-            if (is_part_of_newline(ch)) { break; }
+            break_if(is_part_of_newline(ch));
 
             if ((ch    == BACKSLASH) &&
                 (is_cs == false    ) ) /* backslashes aren't special in comments in C# */
@@ -603,11 +603,9 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          /* If we hit an odd number of backslashes right before the newline,
           * then we keep going.
           */
-         if (((bs_cnt & 1) == 0    ) ||
-             (ctx.more()   == false) )
-         {
-            break;
-         }
+         break_if(((bs_cnt & 1) == 0    ) ||
+                   (ctx.more()  == false) );
+
          if (ctx.peek() == CARRIAGERETURN) { pc.str.append(ctx.get()); }
          if (ctx.peek() == LINEFEED      ) { pc.str.append(ctx.get()); }
          pc.nl_count++;
@@ -1505,7 +1503,7 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
       if (ctx.peek() == BACKSLASH)
       {
          size_t ch = ctx.peek(1);
-         if(is_part_of_newline(ch)) { break; }
+         break_if(is_part_of_newline(ch));
       }
       pc.str.append(ctx.get());
    }
@@ -1937,11 +1935,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       {
          // If comment contains backslash '\' followed by whitespace chars, keep last one;
          // this will prevent it from turning '\' into line continuation.
-         if ((chunk.str.size()               > 1        ) &&
-             (chunk.str[chunk.str.size()-2] == BACKSLASH) )
-         {
-            break;
-         }
+         break_if ((chunk.str.size()               > 1        ) &&
+                   (chunk.str[chunk.str.size()-2] == BACKSLASH) );
          chunk.str.pop_back();
       }
 

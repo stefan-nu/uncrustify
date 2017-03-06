@@ -390,7 +390,7 @@ static bool can_remove_braces(chunk_t *bopen)
 static void examine_brace(chunk_t *bopen)
 {
    LOG_FUNC_ENTRY();
-   return_if_invalid(bopen);
+   return_if(is_invalid(bopen));
 
    // DRY7 start
    LOG_FMT(LBRDEL, "%s: start on %zu : ", __func__, bopen->orig_line);
@@ -641,12 +641,9 @@ static void convert_vbrace_to_brace(chunk_t *pc)
    chunk_t *tmp = pc;
    while ((tmp = chunk_get_next(tmp)) != nullptr)
    {
-      if ((in_preproc == true            ) &&
-          is_not_flag(tmp, PCF_IN_PREPROC) )
-      {
-         /* Can't leave a preprocessor */
-         break;
-      }
+      /* Can't leave a preprocessor */
+      break_if ((in_preproc == true            ) &&
+                is_not_flag(tmp, PCF_IN_PREPROC) );
 
       if ((pc->brace_level == tmp->brace_level) &&
            is_type (tmp, CT_VBRACE_CLOSE) &&
@@ -1115,7 +1112,7 @@ static void process_if_chain(chunk_t *br_start)
 
       braces[br_cnt++] = pc;
       chunk_t *br_close = chunk_skip_to_match(pc, scope_e::PREPROC);
-      if (is_invalid(br_close)) { break; }
+      break_if(is_invalid(br_close));
 
       braces[br_cnt++] = br_close;
 
@@ -1136,8 +1133,7 @@ static void process_if_chain(chunk_t *br_start)
             pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
          }
       }
-      if (is_invalid(pc)) { break; }
-
+      break_if(is_invalid(pc));
       break_if(is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN));
    }
 

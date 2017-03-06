@@ -10,6 +10,7 @@
 #include "prototypes.h"
 #include "options.h"
 #include "uncrustify_version.h"
+#include "chunk_list.h"
 #include "logger.h"
 #include "log_levels.h"
 
@@ -57,10 +58,7 @@ int load_option_fileChar(char *configString)
    while (true)
    {
       delimPos = strchr(delimPos, '\n');
-      if (delimPos == nullptr)
-      {
-         break;
-      }
+      break_if(ptr_is_invalid(delimPos));
 
       // replaces \n with \0 -> string including multiple terminated substrings
       *delimPos = '\0';
