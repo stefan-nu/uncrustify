@@ -25,9 +25,9 @@ bool unc_getenv(const char *name, std::string &str)
    }
 
    buf = (char *)malloc(len);
-   if(buf == nullptr)
+   if(ptr_is_invalid(buf))
    {
-      /* \todo print error message */
+      LOG_FMT(LERR, "cannot allocate memory\n");
       return false;
    }
    else

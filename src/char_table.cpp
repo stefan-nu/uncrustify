@@ -23,7 +23,6 @@
  @{
 */
 
-/* \todo restructure char_table to avoid one global static structure */
 
 /*******************************************************************************
  * Includes

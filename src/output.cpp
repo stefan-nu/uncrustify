@@ -707,7 +707,7 @@ void output_text(FILE *pfile)
       {
          pc = output_comment_c(pc);
       }
-      else if (is_type(pc, 2, CT_JUNK, CT_IGNORED))
+      else if (is_type(pc, CT_JUNK, CT_IGNORED))
       {
          /* do not adjust the column for junk */
          add_text(pc->str, true);
@@ -729,7 +729,7 @@ void output_text(FILE *pfile)
                size_t lvlcol;
                /* FIXME: it would be better to properly set column_indent in
                 * indent_text(), but this hack for '}' and ':' seems to work. */
-               if( (is_type(pc, 2, CT_BRACE_CLOSE, CT_PREPROC)) ||
+               if( (is_type(pc, CT_BRACE_CLOSE, CT_PREPROC)) ||
                    (is_str(pc, ":", 1)                        ) )
                {
                   lvlcol = pc->column;
@@ -1075,8 +1075,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
       cmt.brace_col = 1u + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
    }
 
-   if ((pc->ptype == CT_COMMENT_START) ||
-       (pc->ptype == CT_COMMENT_WHOLE) )
+   if (is_ptype(pc, 2, CT_COMMENT_START, CT_COMMENT_WHOLE))
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
@@ -1090,8 +1089,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
    /* tab aligning code */
    if ( (cpd.settings[UO_indent_cmt_with_tabs].b)   &&
-        ((pc->ptype == CT_COMMENT_END     ) ||
-         (pc->ptype == CT_COMMENT_WHOLE   ) ) )
+        (is_ptype(pc, 2, CT_COMMENT_END, CT_COMMENT_WHOLE)))
    {
       cmt.column = align_tab_column(cmt.column - 1);
       pc->column = cmt.column;
@@ -1106,7 +1104,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
 {
    /* We can't combine if ... */
-   if ((is_invalid(pc)                ) || /* chunk is invalid or */
+   if ((is_invalid(pc)               ) || /* chunk is invalid or */
        (pc->ptype == CT_COMMENT_START) )  /* there is something other than a newline next */
    {
       return(false);
@@ -1120,9 +1118,9 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
       /* Make sure the comment is the same type at the same column */
       next = chunk_get_next(next);
       if (  is_type(next, pc->type ) &&
-          (((next->column ==            1) && (pc->column      ==            1  )) ||
-           ((next->column == cmt.base_col) && (pc->column      == cmt.base_col  )) ||
-           ((next->column  > cmt.base_col) && (pc->ptype == CT_COMMENT_END)) ) )
+          (((next->column ==            1) && (pc->column ==            1  )) ||
+           ((next->column == cmt.base_col) && (pc->column == cmt.base_col  )) ||
+           ((next->column  > cmt.base_col) && (pc->ptype  == CT_COMMENT_END)) ) )
       {
          return(true);
       }
@@ -1742,7 +1740,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
    const chunk_t *word = nullptr;
    while (is_valid(tmp))
    {
-      break_if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON));
+      break_if(is_type(tmp, CT_BRACE_OPEN, CT_SEMICOLON));
 
       if (is_type(tmp, CT_OC_COLON))
       {
@@ -1819,7 +1817,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       has_param = false;
       while (tmp)
       {
-         break_if(is_type(tmp, 2, CT_BRACE_OPEN, CT_SEMICOLON));
+         break_if(is_type(tmp, CT_BRACE_OPEN, CT_SEMICOLON));
 
          if (has_param)
          {
@@ -2090,14 +2088,14 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
       }
 
       // \todo better use a switch here
-      break_if(is_type(pc, 3, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP));
+      break_if(is_type(pc, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP));
 
       if (is_type(pc, CT_NL_CONT))
       {
          dst   += SPACE;
          column = -1;
       }
-      else if(is_type(pc, 2, CT_COMMENT, CT_COMMENT_EMBED))
+      else if(is_type(pc, CT_COMMENT, CT_COMMENT_EMBED))
       {
          /* do nothing */
       }
@@ -2132,10 +2130,7 @@ void add_long_preprocessor_conditional_block_comment(void)
       continue_if(is_not_type(pc, CT_PP_IF) ||
                   is_invalid (pp_start    ) );
 #if 0
-      if (pc->flags & PCF_IN_PREPROC)
-      {
-         continue;
-      }
+      continue_if (is_flag(pc, PCF_IN_PREPROC);
 #endif
 
       chunk_t *br_close;
@@ -2167,8 +2162,8 @@ void add_long_preprocessor_conditional_block_comment(void)
             tmp = chunk_get_next(tmp);
 
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
-                    (is_valid  (tmp) ? (int)tmp->type : -1),
-                    (is_valid  (tmp) ?
+                    (is_valid(tmp) ? (int)tmp->type : -1),
+                    (is_valid(tmp) ?
                      chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
                      "comment" : "other" : "---"));
 

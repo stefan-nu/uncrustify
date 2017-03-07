@@ -138,7 +138,7 @@ void backup_create_md5_file(const char *filename)
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
               __func__, filename, strerror(errno), errno);
       cpd.error_count++;
-      return;  /* \todo return or set error code */
+      return;
    }
 
    /* read file chunk by chunk and calculate its MD5 checksum */

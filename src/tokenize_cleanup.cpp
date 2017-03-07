@@ -125,8 +125,8 @@ void tokenize_cleanup(void)
    chunk_t *next = chunk_get_next_ncnl(pc);
    while (are_valid(pc, next))
    {
-      if (((pc->type == CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
-          ((pc->type == CT_NULLCOND) && (cpd.lang_flags & LANG_CS  )) )
+      if ((is_type(pc, CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
+          (is_type(pc, CT_NULLCOND) && (cpd.lang_flags & LANG_CS  )) )
       {
          set_type(pc, CT_MEMBER);
       }
@@ -166,7 +166,7 @@ void tokenize_cleanup(void)
        * Change CT_WORD before CT_WORD to CT_TYPE */
       if (is_type(next, CT_WORD))
       {
-         if(is_type(pc, 4, CT_ENUM, CT_ENUM_CLASS, CT_UNION, CT_STRUCT))
+         if(is_type(pc, CT_ENUM, CT_ENUM_CLASS, CT_UNION, CT_STRUCT))
          {
             set_type(next, CT_TYPE);
          }
@@ -198,15 +198,14 @@ void tokenize_cleanup(void)
 
       /* Change CT_STAR to CT_PTR_TYPE if preceded by CT_TYPE,
        * CT_QUALIFIER, or CT_PTR_TYPE. */
-      if (is_type(next,  CT_STAR                           ) &&
-          is_type(pc, 3, CT_TYPE, CT_QUALIFIER, CT_PTR_TYPE) )
+      if (is_type(next, CT_STAR                           ) &&
+          is_type(pc,   CT_TYPE, CT_QUALIFIER, CT_PTR_TYPE) )
       {
          set_type(next, CT_PTR_TYPE);
       }
 
       static bool in_type_cast = false;
-      if (is_type(pc,   CT_TYPE_CAST ) &&
-          is_type(next, CT_ANGLE_OPEN) )
+      if (are_types(pc, CT_TYPE_CAST, next, CT_ANGLE_OPEN))
       {
          set_ptype(next, CT_TYPE_CAST);
          in_type_cast = true;
@@ -255,24 +254,22 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_D)
       {
          /* Check for the D string concat symbol '~' */
-         if (  is_type(pc,      CT_INV            )   &&
-              (is_type(prev, 2, CT_STRING, CT_WORD) ||
-               is_type(next,    CT_STRING         ) ) )
+         if (  is_type(pc,   CT_INV            )   &&
+              (is_type(prev, CT_STRING, CT_WORD) ||
+               is_type(next, CT_STRING         ) ) )
          {
             set_type(pc, CT_CONCAT);
          }
 
          /* Check for the D template symbol '!' (word + '!' + word or '(') */
-         if ( is_type(pc,      CT_NOT                         ) &&
-              is_type(prev,    CT_WORD                        ) &&
-              is_type(next, 3, CT_WORD, CT_PAREN_OPEN, CT_TYPE) )
+         if ( are_types(pc, CT_NOT, prev, CT_WORD          ) &&
+              is_type(next, CT_WORD, CT_PAREN_OPEN, CT_TYPE) )
          {
             set_type(pc, CT_D_TEMPLATE);
          }
 
          /* handle "version(unittest) { }" vs "unittest { }" */
-         if (is_type(pc,   CT_UNITTEST  ) &&
-             is_type(prev, CT_PAREN_OPEN) )
+         if (are_types(pc, CT_UNITTEST, prev, CT_PAREN_OPEN))
          {
             set_type(pc, CT_WORD);
          }
@@ -295,8 +292,7 @@ void tokenize_cleanup(void)
       if (cpd.lang_flags & LANG_CPP)
       {
          /* Change Word before '::' into a type */
-         if (is_type(pc,   CT_WORD     ) &&
-             is_type(next, CT_DC_MEMBER) )
+         if (are_types(pc, CT_WORD, next, CT_DC_MEMBER))
          {
             set_type(pc, CT_TYPE);
          }
@@ -307,8 +303,8 @@ void tokenize_cleanup(void)
           is_not_type(next, CT_BRACE_OPEN) )
       {
          assert(is_valid(prev));
-         if(is_type(next,    CT_SEMICOLON                               ) &&
-            is_type(prev, 3, CT_SEMICOLON, CT_BRACE_CLOSE, CT_BRACE_OPEN) )
+         if(is_type(next, CT_SEMICOLON                               ) &&
+            is_type(prev, CT_SEMICOLON, CT_BRACE_CLOSE, CT_BRACE_OPEN) )
          {
             set_type (pc,   CT_GETSET_EMPTY);
             set_ptype(next, CT_GETSET      );
@@ -522,8 +518,8 @@ void tokenize_cleanup(void)
        * This is a dirty hack to allow some of the more common situations. */
       if (cpd.lang_flags & LANG_OC)
       {
-         if( is_type(pc, 3, CT_IF, CT_FOR, CT_WHILE) &&
-            !is_type(next,  CT_PAREN_OPEN          ) )
+         if( is_type(pc,   CT_IF, CT_FOR, CT_WHILE) &&
+            !is_type(next, CT_PAREN_OPEN          ) )
          {
             set_type(pc, CT_WORD);
          }
@@ -542,7 +538,7 @@ void tokenize_cleanup(void)
       }
 
       /* Detect Objective C class name */
-      if(is_type(pc, 3, CT_OC_IMPL, CT_OC_INTF, CT_OC_PROTOCOL))
+      if(is_type(pc, CT_OC_IMPL, CT_OC_INTF, CT_OC_PROTOCOL))
       {
          assert(is_valid(next));
          if (is_not_type(next, CT_PAREN_OPEN))
@@ -701,13 +697,13 @@ void tokenize_cleanup(void)
          chunk_t *tmp = chunk_get_next_ncnl(next);
          if (is_valid(tmp))
          {
-            bool do_it = (is_type(tmp, 2, CT_PAREN_CLOSE, CT_ANGLE_CLOSE));
+            bool do_it = (is_type(tmp, CT_PAREN_CLOSE, CT_ANGLE_CLOSE));
 
             if (is_type(tmp, CT_WORD))
             {
                chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
-               if (is_type(tmp2, 4, CT_SEMICOLON,  CT_ASSIGN,
-                                    CT_BRACE_OPEN, CT_COMMA) )
+               if (is_type(tmp2, CT_SEMICOLON,  CT_ASSIGN,
+                                 CT_BRACE_OPEN, CT_COMMA) )
                {
                   do_it = true;
                }
@@ -745,7 +741,7 @@ void tokenize_cleanup(void)
             is_type(next, CT_PAREN_OPEN ) )
 #else
       // makes test 12101 fail
-      if (is_type(pc, 2, CT_USING, CT_TRY) &&
+      if (is_type(pc, CT_USING, CT_TRY) &&
            (cpd.lang_flags & LANG_JAVA         ) &&
            is_type(next, CT_PAREN_OPEN   ) )
 #endif
@@ -870,10 +866,10 @@ static void check_template(chunk_t *start)
       pc = start;
       while ((pc = chunk_get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
       {
-         break_if (is_type(pc, 4, CT_SEMICOLON,   CT_BRACE_OPEN,
-                                  CT_BRACE_CLOSE, CT_SQUARE_CLOSE));
+         break_if (is_type(pc, CT_SEMICOLON,   CT_BRACE_OPEN,
+                               CT_BRACE_CLOSE, CT_SQUARE_CLOSE));
 
-         if (is_type(pc, 2, CT_IF, CT_RETURN))
+         if (is_type(pc, CT_IF, CT_RETURN))
          {
             in_if = true;
             break;
@@ -934,11 +930,11 @@ static void check_template(chunk_t *start)
             }
          }
          else if ((in_if     == true                ) &&
-                  is_type(pc, 2, CT_BOOL, CT_COMPARE) )
+                  is_type(pc, CT_BOOL, CT_COMPARE) )
          {
             break;
          }
-         else if (is_type(pc, 3, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_SEMICOLON))
+         else if (is_type(pc, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_SEMICOLON))
          {
             break;
          }

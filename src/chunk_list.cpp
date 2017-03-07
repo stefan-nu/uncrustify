@@ -231,6 +231,21 @@ bool ptr_is_invalid(const void * const ptr)
 }
 
 
+bool ptrs_are_invalid(const void * const ptr1, const void * const ptr2)
+{
+   return ((ptr1 == nullptr) ||
+           (ptr2 == nullptr) );
+}
+
+
+bool ptrs_are_invalid(const void * const ptr1, const void * const ptr2, const void * const ptr3)
+{
+   return ((ptr1 == nullptr) ||
+           (ptr2 == nullptr) ||
+           (ptr3 == nullptr) );
+}
+
+
 bool is_valid(const chunk_t * const pc)
 {
    return (pc != nullptr);
@@ -458,7 +473,7 @@ chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 
 chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
 {
-   retval_if_invalid(cur, cur);
+   retval_if(is_invalid(cur), cur);
 
    chunk_t *pc = g_cl.GetPrev(cur);
    if (is_invalid(pc) || (scope == scope_e::ALL))
@@ -495,19 +510,17 @@ chunk_t *chunk_get_tail(void)
 }
 
 
-chunk_t *chunk_dup(const chunk_t *pc_in)
+chunk_t *chunk_dup(const chunk_t * const pc_in)
 {
    chunk_t *const pc = new chunk_t; /* Allocate a new chunk */
-
    if (is_invalid(pc))
    {
-      /* @todo clean up properly before crashing */
       LOG_FMT(LERR, "Failed to allocate memory\n");
       exit(EXIT_FAILURE);
    }
 
    /* Copy all fields and then init the entry */
-   *pc = *pc_in;  /* \todo what happens if pc_in is invalid? */
+   *pc = *pc_in;
    g_cl.InitEntry(pc);
 
    return(pc);
@@ -828,27 +841,15 @@ void chunk_swap_lines(chunk_t *pc1, chunk_t *pc2)
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t what, const char *str)
 {
    LOG_FUNC_ENTRY();
-
    return_if(is_invalid(pc));
 
    c_token_t       *where;
    const c_token_t *type;
    const c_token_t *parent_type;
-
    switch (what)
    {
-      case (LSETTYP):
-         where       = &pc->type;
-         type        = &token;
-         parent_type = &pc->ptype;
-         break;
-
-      case (LSETPAR):
-         where       = &pc->ptype;
-         type        = &pc->type;
-         parent_type = &token;
-         break;
-
+      case (LSETTYP): where = &pc->type;  type = &token;    parent_type = &pc->ptype; break;
+      case (LSETPAR): where = &pc->ptype; type = &pc->type; parent_type = &token;     break;
       default:  /* unexpected type */ return;
    }
 
@@ -957,16 +958,16 @@ bool chunk_is_forin(chunk_t *pc)
 
 bool is_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 {
-   return((is_valid(pc)             ) &&
-          (pc->type        == type  ) &&
+   return( is_valid(pc)         &&
+          (pc->type  == type  ) &&
           (pc->ptype == parent) );
 }
 
 
 bool is_type_and_not_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 {
-   return((is_valid(pc)             ) &&
-          (pc->type        == type  ) &&
+   return( is_valid(pc)         &&
+          (pc->type  == type  ) &&
           (pc->ptype != parent) );
 }
 
@@ -1012,17 +1013,43 @@ bool are_ptypes(const chunk_t *pc1, c_token_t type1, const chunk_t *pc2, c_token
            is_ptype(pc2, type2) );
 }
 
-bool is_type(const chunk_t *pc, c_token_t type)
+
+bool is_type(const chunk_t *pc, const c_token_t type)
 {
-   return((is_valid(pc)    ) &&
-          (pc->type == type) );
+   return(is_valid(pc) && (pc->type == type));
 }
 
 
+bool is_type(const chunk_t *pc, const c_token_t type1, const c_token_t type2)
+{
+   return( is_valid(pc) &&
+          ((pc->type == type1) || (pc->type == type2)) );
+}
+
+#if 1
+bool is_type(const chunk_t *pc, const c_token_t type1, const c_token_t type2,
+                                const c_token_t type3)
+{
+   return(is_valid(pc)           &&
+          ((pc->type == type1) ||
+           (pc->type == type2) ||
+           (pc->type == type3) ) );
+}
+
+bool is_type(const chunk_t *pc, const c_token_t type1, const c_token_t type2,
+                                const c_token_t type3, const c_token_t type4)
+{
+   return(is_valid(pc)           &&
+          ((pc->type == type1) ||
+           (pc->type == type2) ||
+           (pc->type == type3) ||
+           (pc->type == type4) ) );
+}
+#endif
+
 bool is_ptype(const chunk_t * const pc, c_token_t parent)
 {
-   return((is_valid(pc)             ) &&
-          (pc->ptype == parent) );
+   return(is_valid(pc) && (pc->ptype == parent));
 }
 
 
@@ -1036,8 +1063,7 @@ bool is_only_first_type(const chunk_t *pc1, c_token_t type1, const chunk_t *pc2,
 
 bool is_not_type(const chunk_t * const pc, c_token_t c_token)
 {
-   return((is_valid(pc)       ) &&
-          (pc->type != c_token) );
+   return(is_valid(pc) && (pc->type != c_token));
 }
 
 
@@ -1066,6 +1092,7 @@ bool is_type(const chunk_t *pc, int count, ... )
    va_end(args);
    return result;
 }
+
 
 /* todo combine with is_type */
 bool is_ptype(const chunk_t * const pc, int count, ... )
@@ -1142,15 +1169,13 @@ bool is_not_ptype(chunk_t *pc, int count, ... )
 
 bool is_flag(const chunk_t * const pc, const UINT64 flags)
 {
-   return (is_valid(pc) &&
-           (pc->flags & flags) == flags);
+   return (is_valid(pc) && (pc->flags & flags) == flags);
 }
 
 
 bool is_not_flag(const chunk_t * const pc, const UINT64 flags)
 {
-   return (is_valid(pc) &&
-           (pc->flags & flags) == 0);
+   return (is_valid(pc) && (pc->flags & flags) == 0);
 }
 
 
@@ -1192,14 +1217,13 @@ bool chunk_is_function(chunk_t *pc)
 
 bool chunk_is_comment(chunk_t *pc)
 {
-   return(is_type(pc, 3, CT_COMMENT_MULTI, CT_COMMENT,
-                         CT_COMMENT_CPP));
+   return(is_type(pc, CT_COMMENT_MULTI, CT_COMMENT, CT_COMMENT_CPP));
 }
 
 
 bool chunk_is_newline(chunk_t *pc)
 {
-   return(is_type(pc, 2, CT_NEWLINE, CT_NL_CONT));
+   return(is_type(pc, CT_NEWLINE, CT_NL_CONT));
 }
 
 
@@ -1218,8 +1242,7 @@ bool chunk_is_comment_or_newline(chunk_t *pc)
 
 bool chunk_is_balanced_square(chunk_t *pc)
 {
-   return(is_type(pc, 3, CT_SQUARE_OPEN, CT_TSQUARE,
-                         CT_SQUARE_CLOSE));
+   return(is_type(pc, CT_SQUARE_OPEN, CT_TSQUARE, CT_SQUARE_CLOSE));
 }
 
 
@@ -1259,13 +1282,13 @@ bool chunk_is_comment_newline_or_blank(chunk_t * pc)
 
 bool chunk_is_single_line_comment(const chunk_t * const pc)
 {
-   return(is_type(pc, 2, CT_COMMENT, CT_COMMENT_CPP));
+   return(is_type(pc, CT_COMMENT, CT_COMMENT_CPP));
 }
 
 
 bool chunk_is_semicolon(const chunk_t * const pc)
 {
-   return(is_type(pc, 2, CT_SEMICOLON, CT_VSEMICOLON));
+   return(is_type(pc, CT_SEMICOLON, CT_VSEMICOLON));
 }
 
 
@@ -1280,44 +1303,44 @@ bool chunk_is_var_type(const chunk_t * const pc)
 
 bool chunk_is_member(chunk_t *pc)
 {
-   return(is_type(pc, 2, CT_DC_MEMBER, CT_MEMBER));
+   return(is_type(pc, CT_DC_MEMBER, CT_MEMBER));
 }
 
 bool chunk_is_closing_brace(chunk_t *pc)
 {
-   return(is_type(pc, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
+   return(is_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
 }
 
 
 bool chunk_is_opening_brace(chunk_t *pc)
 {
-   return(is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN));
+   return(is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN));
 }
 
 
 bool chunk_is_vbrace(chunk_t *pc)
 {
-   return(is_type(pc, 2, CT_VBRACE_CLOSE, CT_VBRACE_OPEN));
+   return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN));
 }
 
 
 bool chunk_is_fparen_open(chunk_t *pc)
 {
-   return(is_type(pc, 1, CT_FPAREN_OPEN));
+   return(is_type(pc, CT_FPAREN_OPEN));
 }
 
 
 bool chunk_is_paren_open(chunk_t *pc)
 {
-   return(is_type(pc, 4, CT_PAREN_OPEN,  CT_SPAREN_OPEN,
-                         CT_TPAREN_OPEN, CT_FPAREN_OPEN));
+   return(is_type(pc, CT_PAREN_OPEN,  CT_SPAREN_OPEN,
+                      CT_TPAREN_OPEN, CT_FPAREN_OPEN));
 }
 
 
 bool chunk_is_paren_close(chunk_t *pc)
 {
-   return(is_type(pc, 4, CT_PAREN_CLOSE,  CT_SPAREN_CLOSE,
-                         CT_TPAREN_CLOSE, CT_FPAREN_CLOSE));
+   return(is_type(pc, CT_PAREN_CLOSE,  CT_SPAREN_CLOSE,
+                      CT_TPAREN_CLOSE, CT_FPAREN_CLOSE));
 }
 
 
@@ -1369,7 +1392,7 @@ bool chunk_is_addr(chunk_t *pc)
       chunk_t *prev = chunk_get_prev(pc);
 
       if ((pc->flags & PCF_IN_TEMPLATE) &&
-          (is_type(prev, 2, CT_COMMA, CT_ANGLE_OPEN)) )
+          (is_type(prev, CT_COMMA, CT_ANGLE_OPEN)) )
       {
 //      (pos == dir_e::AFTER) ? g_cl.AddAfter(pc, ref) : g_cl.AddBefore(pc, ref);
          return(false);

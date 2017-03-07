@@ -7,6 +7,7 @@
  * @license GPL v2+
  */
 #include <stdarg.h>
+#include "chunk_list.h"
 #include "unc_text.h"
 #include "unc_ctype.h"
 #include "unicode.h" /* encode_utf8() */
@@ -73,10 +74,7 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
    for (idx = 0; (idx < len1) && (idx < len2) && (idx < len); idx++)
    {
       // exactly the same character ?
-      if (ref1.m_chars[idx] == ref2.m_chars[idx])
-      {
-         continue;
-      }
+      continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
 
       int diff = unc_tolower(ref1.m_chars[idx]) - unc_tolower(ref2.m_chars[idx]);
       if (diff == 0)
@@ -92,22 +90,18 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
          return(diff);
       }
    }
-   if (idx == len) { return(0);                  }
-   else            { return((int)(len1 - len2)); }
+   return (idx == len) ? 0 : ((int)(len1 - len2));
 }
 
 
 bool unc_text::equals(const unc_text &ref) const
 {
    size_t len = size();
-   if (ref.size() != len) { return(false); }
+   retval_if((ref.size() != len), false);
 
    for (size_t idx = 0; idx < len; idx++)
    {
-      if (m_chars[idx] != ref.m_chars[idx])
-      {
-         return(false);
-      }
+      retval_if((m_chars[idx] != ref.m_chars[idx]), false);
    }
    return(true);
 }

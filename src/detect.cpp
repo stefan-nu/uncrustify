@@ -193,8 +193,8 @@ static void detect_space_options(void)
          vote_sp_after_byref.vote(pc, next);
       }
 
-      if (is_not_type(pc,      CT_PTR_TYPE          ) &&
-          is_type    (prev, 2, CT_QUALIFIER, CT_TYPE) )
+      if (is_not_type(pc,   CT_PTR_TYPE          ) &&
+          is_type    (prev, CT_QUALIFIER, CT_TYPE) )
       {
          vote_sp_after_type.vote(prev, pc);
       }
@@ -244,12 +244,12 @@ static void detect_space_options(void)
       {
          switch(prev->type)
          {
-            case(CT_ELSE   ): { vote_sp_else_brace.vote (prev, pc); break; }
-            case(CT_CATCH  ):   /* fall through */
-            case(CT_FINALLY):   /* fall through */
-            case(CT_TRY    ):   /* fall through */
-            case(CT_GETSET ): { vote_sp_catch_brace.vote(prev, pc); break; }
-            default:          { /* do nothing */                    break; }
+            case(CT_ELSE   ): vote_sp_else_brace.vote (prev, pc); break;
+            case(CT_CATCH  ): /* fall through */
+            case(CT_FINALLY): /* fall through */
+            case(CT_TRY    ): /* fall through */
+            case(CT_GETSET ): vote_sp_catch_brace.vote(prev, pc); break;
+            default:          /* do nothing */                    break;
          }
 
          if (is_type(next, CT_BRACE_CLOSE)) { vote_sp_inside_braces_empty.vote(pc, next); }
@@ -260,10 +260,10 @@ static void detect_space_options(void)
          vote_sp_inside_braces.vote(prev, pc);
          switch(next->type)
          {
-            case(CT_ELSE   ): { vote_sp_brace_else.vote   (pc, next); break; }
-            case(CT_CATCH  ): { vote_sp_brace_catch.vote  (pc, next); break; }
-            case(CT_FINALLY): { vote_sp_brace_finally.vote(pc, next); break; }
-            default:          { /* do nothing */                      break; }
+            case(CT_ELSE   ): vote_sp_brace_else.vote   (pc, next); break;
+            case(CT_CATCH  ): vote_sp_brace_catch.vote  (pc, next); break;
+            case(CT_FINALLY): vote_sp_brace_finally.vote(pc, next); break;
+            default:          /* do nothing */                      break;
          }
       }
 

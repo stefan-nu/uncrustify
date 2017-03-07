@@ -57,11 +57,8 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
-         if (is_not_type (pc,    CT_SPAREN_OPEN             ) ||
-             is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) )
-         {
-            continue;
-         }
+         continue_if (is_not_type (pc,    CT_SPAREN_OPEN             ) ||
+                      is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
          chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
@@ -150,7 +147,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
          return;
       }
 
-      if (is_type(pc, 4, CT_BOOL, CT_QUESTION, CT_COND_COLON, CT_COMMA))
+      if (is_type(pc, CT_BOOL, CT_QUESTION, CT_COND_COLON, CT_COMMA))
       {
          LOG_FMT(LPARADD2, " -- %s [%s] at line %zu col %zu, level %zu\n",
                  get_token_name(pc->type),
@@ -177,7 +174,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
             pc = next;
          }
       }
-      else if (is_type(pc, 3, CT_BRACE_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
+      else if (is_type(pc, CT_BRACE_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
       {
          /* Skip [], {}, and <> */
          pc = chunk_skip_to_match(pc);

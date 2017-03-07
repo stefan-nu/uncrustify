@@ -294,11 +294,11 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
    /* Calculate the max/min values */
    switch (type)
    {
-   case AT_BOOL:   value.max_val = 1; break;
-   case AT_IARF:   value.max_val = 3; break;
-   case AT_LINE:   value.max_val = 3; break;
-   case AT_POS:    value.max_val = 2; break;
-   case AT_STRING: value.max_val = 0; break;
+   case AT_BOOL:   value.max_val = 1;                                break;
+   case AT_IARF:   value.max_val = 3;                                break;
+   case AT_LINE:   value.max_val = 3;                                break;
+   case AT_POS:    value.max_val = 2;                                break;
+   case AT_STRING: value.max_val = 0;                                break;
    case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
    case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
@@ -317,20 +317,10 @@ static bool match_text(const char *str1, const char *str2)
 
    while ((*str1 != 0) && (*str2 != 0))
    {
-      if (!unc_isalnum(*str1))
-      {
-         str1++;
-         continue;
-      }
-      if (!unc_isalnum(*str2))
-      {
-         str2++;
-         continue;
-      }
-      if (unc_tolower(*str1) != unc_tolower(*str2))
-      {
-         return(false);
-      }
+      if (!unc_isalnum(*str1)) { str1++; continue; }
+      if (!unc_isalnum(*str2)) { str2++; continue; }
+      retval_if(unc_tolower(*str1) != unc_tolower(*str2), false);
+
       matches++;
       str1++;
       str2++;
@@ -2383,21 +2373,9 @@ const char *get_argtype_name(argtype_t argtype)
 }
 
 
-const char* bool2str(bool val)
-{
-   return (bool2string(val).c_str());
-}
-
-
 string bool2string(bool val)
 {
    return ((val) ? "true" :"false");
-}
-
-
-const char* argval2str(argval_t argval)
-{
-   return (argval2string(argval).c_str());
 }
 
 

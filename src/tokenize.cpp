@@ -129,7 +129,7 @@ struct tok_ctx
                break;
 
             case CARRIAGERETURN: c.row++; c.col = 1; break;
-            default:            c.col++;   break;
+            default:             c.col++;            break;
             }
             c.last_ch = ch;
             return(ch);
@@ -2026,9 +2026,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       else
       {
          /* Check for a preprocessor start */
-         if ( is_type   (pc,    CT_POUND  )   &&
-             (is_invalid(rprev            ) ||
-              is_type   (rprev, CT_NEWLINE) ) )
+         if (is_type(pc, CT_POUND) &&
+             is_invalid_or_type(rprev, CT_NEWLINE) )
          {
             set_type(pc, CT_PREPROC);
             pc->flags     |= PCF_IN_PREPROC;

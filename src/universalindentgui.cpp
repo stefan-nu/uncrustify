@@ -77,10 +77,7 @@ void print_universal_indent_cfg(FILE *pfile)
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
-      if (ptr_is_invalid(p_grp))
-      {
-         continue;
-      }
+      continue_if(ptr_is_invalid(p_grp));
 
       for (auto optionEnumVal : p_grp->options)
       {

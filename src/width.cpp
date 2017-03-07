@@ -374,11 +374,11 @@ static bool split_line(chunk_t *start)
    if (is_invalid(ent.pc)) { pc = nullptr; }
    else
    {
-      if(( (is_type(ent.pc, 2, CT_ARITH, CT_CARET        ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
-         ( (is_type(ent.pc,    CT_ASSIGN                 ) ) && is_token_set(cpd.settings[UO_pos_assign     ].tp, TP_LEAD) ) ||
-         ( (is_type(ent.pc,    CT_COMPARE                ) ) && is_token_set(cpd.settings[UO_pos_compare    ].tp, TP_LEAD) ) ||
-         ( (is_type(ent.pc, 2, CT_COND_COLON, CT_QUESTION) ) && is_token_set(cpd.settings[UO_pos_conditional].tp, TP_LEAD) ) ||
-         ( (is_type(ent.pc,    CT_BOOL                   ) ) && is_token_set(cpd.settings[UO_pos_bool       ].tp, TP_LEAD) ) )
+      if(( (is_type(ent.pc, CT_ARITH, CT_CARET        ) ) && is_token_set(cpd.settings[UO_pos_arith      ].tp, TP_LEAD) ) ||
+         ( (is_type(ent.pc, CT_ASSIGN                 ) ) && is_token_set(cpd.settings[UO_pos_assign     ].tp, TP_LEAD) ) ||
+         ( (is_type(ent.pc, CT_COMPARE                ) ) && is_token_set(cpd.settings[UO_pos_compare    ].tp, TP_LEAD) ) ||
+         ( (is_type(ent.pc, CT_COND_COLON, CT_QUESTION) ) && is_token_set(cpd.settings[UO_pos_conditional].tp, TP_LEAD) ) ||
+         ( (is_type(ent.pc, CT_BOOL                   ) ) && is_token_set(cpd.settings[UO_pos_bool       ].tp, TP_LEAD) ) )
       {
          pc = ent.pc;
       }
@@ -461,6 +461,7 @@ static void split_for_statement(chunk_t *start)
    pc = start;
 
    /* first scan backwards for the semicolons */
+   /* use a fct count_semicolons(chunk_t *pc, const dir_t dir) */
    do
    {
       // \todo DRY2 start
@@ -604,7 +605,7 @@ static void split_fcn_params(chunk_t *start)
          cur_width += (int) pc->column + (int)pc->len() - last_col;
          last_col   = (int)(pc->column +      pc->len());
 
-         if(is_type(pc, 2, CT_COMMA, CT_FPAREN_CLOSE))
+         if(is_type(pc, CT_COMMA, CT_FPAREN_CLOSE))
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
@@ -619,7 +620,7 @@ static void split_fcn_params(chunk_t *start)
    chunk_t *prev = pc;
    while ((prev = chunk_get_prev(prev)) != nullptr)
    {
-      break_if(is_type(prev, 3, CT_COMMA, CT_NEWLINE, CT_NL_CONT));
+      break_if(is_type(prev, CT_COMMA, CT_NEWLINE, CT_NL_CONT));
 
       assert(is_valid(pc));
       last_col -= (int)pc->len();

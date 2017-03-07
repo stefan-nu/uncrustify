@@ -549,7 +549,7 @@ void align_right_comments(void)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if(is_type(pc, 3, CT_COMMENT, CT_COMMENT_CPP, CT_COMMENT_MULTI))
+      if(is_type(pc, CT_COMMENT, CT_COMMENT_CPP, CT_COMMENT_MULTI))
       {
          if(is_ptype(pc, CT_COMMENT_END))
          {
@@ -650,7 +650,7 @@ void align_preprocessor(void)
 
       /* step past the 'define' */
       pc = chunk_get_next_nc(pc);
-      break_if_invalid(pc);
+      break_if(is_invalid(pc));
 
       LOG_FMT(LALPP, "%s: define (%s) on line %zu col %zu\n",
               __func__, pc->text(), pc->orig_line, pc->orig_col);
@@ -720,8 +720,8 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
           ((pc->level >= my_level) || (pc->level == 0)))
    {
       /* Don't check inside parenthesis or SQUARE groups */
-      if (is_type(pc, 4, CT_SPAREN_OPEN, CT_FPAREN_OPEN,
-                               CT_SQUARE_OPEN, CT_PAREN_OPEN))
+      if (is_type(pc, CT_SPAREN_OPEN, CT_FPAREN_OPEN,
+                      CT_SQUARE_OPEN, CT_PAREN_OPEN))
       {
          tmp = pc->orig_line;
          pc  = chunk_skip_to_match(pc);
@@ -734,7 +734,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
       }
 
       /* Recurse if a brace set is found */
-      if(is_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN))
+      if(is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN))
       {
          const bool is_enum     = is_ptype(pc, CT_ENUM);
          const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
@@ -865,7 +865,7 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
    chunk_t *pc       = chunk_get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
-      break_if(is_type(pc, 3, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
+      break_if(is_type(pc, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
                is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) );
 
       if (pc->level == (start->level + 1))
@@ -932,7 +932,7 @@ static void align_same_func_call_params(void)
 
       /* Only align function calls that are right after a newline */
       chunk_t *prev = chunk_get_prev(pc);
-      while(is_type(prev, 2, CT_MEMBER, CT_DC_MEMBER))
+      while(is_type(prev, CT_MEMBER, CT_DC_MEMBER))
       {
          chunk_t *tprev = chunk_get_prev(prev);
          if (is_not_type(tprev, CT_TYPE))
@@ -972,7 +972,7 @@ static void align_same_func_call_params(void)
          {
             fcn_as.Add(pc);
             assert(is_valid(align_cur));
-            align_cur->align.next = pc;   /* \todo where is align_cur assigned */
+            align_cur->align.next = pc;
             align_cur             = pc;
             align_len++;
             add_str = "  Add";
@@ -1017,8 +1017,8 @@ static void align_same_func_call_params(void)
                as[idx].Start(3);
                if (!cpd.settings[UO_align_number_left].b)
                {
-                  if (is_type(chunks[idx], 4, CT_NUMBER_FP, CT_POS,
-                                                    CT_NUMBER,    CT_NEG) )
+                  if (is_type(chunks[idx], CT_NUMBER_FP, CT_POS,
+                                           CT_NUMBER,    CT_NEG) )
                   {
                      as[idx].m_right_align = !cpd.settings[UO_align_on_tabstop].b;
                   }
@@ -1049,7 +1049,6 @@ static chunk_t *step_back_over_member(chunk_t *pc)
    while (((tmp = chunk_get_prev_ncnl(pc)) != nullptr) &&
            is_type(tmp, CT_DC_MEMBER))
    {
-      /* TODO: verify that we are pointing at something sane? */
       pc = chunk_get_prev_ncnl(tmp);
    }
    return(pc);
@@ -1200,7 +1199,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       if ((fp_active == true) &&
          !(pc->flags & PCF_IN_CLASS_BASE))
       {
-         if (is_type(pc, 2, CT_FUNC_PROTO, CT_FUNC_DEF) &&
+         if (is_type(pc, CT_FUNC_PROTO, CT_FUNC_DEF) &&
               cpd.settings[UO_align_single_line_func].b)
          {
             LOG_FMT(LAVDB, "    add=[%s] line=%zu col=%zu level=%zu\n",
@@ -1284,7 +1283,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
             {
                // we must look after the previous token
                chunk_t *prev_local = pc->prev;
-               while (is_type(prev_local, 2, CT_PTR_TYPE, CT_ADDR))
+               while (is_type(prev_local, CT_PTR_TYPE, CT_ADDR))
                {
                   LOG_FMT(LAVDB, "    prev_local=%s, prev_local->type=%s\n",
                           prev_local->text(), get_token_name(prev_local->type));
@@ -1316,7 +1315,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                      break;
                   }
                   if (is_type   (next, CT_SEMICOLON) ||
-                      chunk_is_newline(next              ) )
+                      chunk_is_newline(next        ) )
                   {
                      break;
                   }
@@ -1386,7 +1385,7 @@ static comment_align_e get_comment_align_type(chunk_t *cmt)
    if (!cpd.settings[UO_align_right_cmt_mix].b &&
        ((prev = chunk_get_prev(cmt)) != nullptr))
    {
-      if(is_type(prev, 4, CT_PP_ENDIF, CT_PP_ELSE, CT_ELSE, CT_BRACE_CLOSE))
+      if(is_type(prev, CT_PP_ENDIF, CT_PP_ELSE, CT_ELSE, CT_BRACE_CLOSE))
       {
          /* REVISIT: someone may want this configurable */
          if ((cmt->column - (prev->column + prev->len())) < 3)
@@ -1537,11 +1536,9 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
       {
          /* do nothing */
       }
-      else if(is_type(pc, 4, CT_ASSIGN, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_COMMA))
+      else if(is_type(pc, CT_ASSIGN, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_COMMA))
       {
          const size_t token_width = (size_t)space_col_align(pc, next); /* \todo can we be sure the result is positive? */
-
-         /*TODO: need to handle missing structure defs? ie nullptr vs { ... } ?? */
 
          /* Is this a new entry? */
          if (idx >= cpd.al_cnt)
@@ -1582,7 +1579,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
                   {
                      LOG_FMT(LSIB, " [ min_col_diff(%d) > cur_col_diff(%d) ] ",
                              min_col_diff, cur_col_diff);
-                     assert(min_col_diff - cur_col_diff >= 0);  // \todo assure par2 is always positive
+                     assert(min_col_diff - cur_col_diff >= 0);  /* assure par2 is always positive */
                      ib_shift_out(idx, (size_t)(min_col_diff - cur_col_diff));
                   }
                }
@@ -1714,7 +1711,7 @@ static void align_init_brace(chunk_t *start)
 
                   if ((idx < (cpd.al_cnt - 1)) &&
                       cpd.settings[UO_align_number_left].b &&
-                      (is_type(next, 4, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
+                      (is_type(next, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
                   {
                      /* Need to wait until the next match to indent numbers */
                      num_token = next;
@@ -1738,7 +1735,7 @@ static void align_init_brace(chunk_t *start)
                {
                   next = chunk_get_next(pc);
                   if (!chunk_is_newline(next) &&
-                      (is_type(next, 4, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
+                      (is_type(next, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
                   {
                      /* Need to wait until the next match to indent numbers */
                      num_token = next;
@@ -1931,7 +1928,7 @@ static void align_oc_msg_colon(chunk_t *so)
          has_colon = true;
          cas.Add(pc);
          chunk_t *tmp = chunk_get_prev(pc);
-         if (is_type(tmp, 2, CT_OC_MSG_FUNC, CT_OC_MSG_NAME))
+         if (is_type(tmp, CT_OC_MSG_FUNC, CT_OC_MSG_NAME))
          {
             nas.Add(tmp);
             chunk_flags_set(tmp, (UINT64)PCF_DONT_INDENT);
@@ -2062,8 +2059,8 @@ static void align_oc_decl_colon(void)
             chunk_t *tmp2 = chunk_get_prev_ncnl(tmp, scope_e::PREPROC);
 
             /* Check for an un-labeled parameter */
-            if (is_type(tmp,  4, CT_WORD, CT_TYPE, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
-                is_type(tmp2, 3, CT_WORD, CT_TYPE, CT_PAREN_CLOSE                ) )
+            if (is_type(tmp,  CT_WORD, CT_TYPE, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
+                is_type(tmp2, CT_WORD, CT_TYPE, CT_PAREN_CLOSE                ) )
             {
                nas.Add(tmp);
             }

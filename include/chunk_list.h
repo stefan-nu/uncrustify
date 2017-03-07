@@ -28,17 +28,10 @@
 
 /* some useful defines that perform typical checks and corresponding
  * reactions. */
-#if 1
-#define return_if_invalid(ptr)         if ((ptr) == nullptr) {return;        }
-#define retval_if_invalid(ptr, retval) if ((ptr) == nullptr) {return(retval);}
-#define break_if_invalid(ptr)          if ((ptr) == nullptr) {break;         }
-#define continue_if_invalid(ptr)       if ((ptr) == nullptr) {continue;      }
-#endif
-
-#define return_if(cond)                if (cond) {return;        }
-#define retval_if(cond, retval)        if (cond) {return(retval);}
-#define break_if(cond)                 if (cond) {break;         }
-#define continue_if(cond)              if (cond) {continue;      }
+#define return_if(cond)          if (cond) {return;        }
+#define retval_if(cond, retval)  if (cond) {return(retval);}
+#define break_if(cond)           if (cond) {break;         }
+#define continue_if(cond)        if (cond) {continue;      }
 
 /**
  * Specifies which chunks should/should not be found.
@@ -65,7 +58,7 @@ bool ptr_is_valid(
 
 
 /**
- * check if two pointers are valid thus no nullptr
+ * check if all two pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
    const void * const ptr1, /**< [in] pointer1 to check */
@@ -74,7 +67,7 @@ bool ptrs_are_valid(
 
 
 /**
- * check if three pointers are valid thus no nullptr
+ * check if all three pointers are valid thus no nullptr
  */
 bool ptrs_are_valid(
    const void * const ptr1, /**< [in] pointer1 to check */
@@ -89,6 +82,26 @@ bool ptrs_are_valid(
 bool ptr_is_invalid(
    const void * const ptr /**< [in] pointer to check */
 );
+
+
+/**
+ * check if any of two pointers is invalid thus a nullptr
+ */
+bool ptrs_are_invalid(
+   const void * const ptr1, /**< [in] pointer1 to check */
+   const void * const ptr2  /**< [in] pointer2 to check */
+);
+
+
+/**
+ * check if any of three pointers is invalid thus a nullptr
+ */
+bool ptrs_are_invalid(
+   const void * const ptr1, /**< [in] pointer1 to check */
+   const void * const ptr2, /**< [in] pointer2 to check */
+   const void * const ptr3  /**< [in] pointer3 to check */
+);
+
 
 
 /**
@@ -198,10 +211,11 @@ bool chunk_and_prev_are_valid(
 
 
 /**
- *  duplicate a chunk in a chunk list
+ * \brief duplicate a chunk in a chunk list
+ *
  */
 chunk_t *chunk_dup(
-   const chunk_t *pc_in  /**< [in] chunk to duplicate */
+   const chunk_t * const pc_in  /**< [in] chunk to duplicate */
 );
 
 
@@ -941,13 +955,48 @@ bool are_ptypes(
 );
 
 
-
 /**
  * check if the given chunk is valid and holds a given token type
  */
 bool is_type(
-   const chunk_t *pc,  /**< [in] chunk to check */
-   c_token_t     type  /**< [in] token type to check for */
+   const chunk_t   *pc,  /**< [in] chunk to check */
+   const c_token_t type  /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given token type
+ * that corresponds either to type1 or type2
+ */
+bool is_type(
+   const chunk_t   *pc,   /**< [in] chunk to check */
+   const c_token_t type1, /**< [in] token type1 to check for */
+   const c_token_t type2  /**< [in] token type2 to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given token type
+ * that corresponds either to type1, type2, or type3
+ */
+bool is_type(
+   const chunk_t   *pc,   /**< [in] chunk to check */
+   const c_token_t type1, /**< [in] token type1 to check for */
+   const c_token_t type2, /**< [in] token type2 to check for */
+   const c_token_t type3  /**< [in] token type3 to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a given token type
+ * that corresponds either to type1, type2, or type3
+ */
+bool is_type(
+   const chunk_t   *pc,   /**< [in] chunk to check */
+   const c_token_t type1, /**< [in] token type1 to check for */
+   const c_token_t type2, /**< [in] token type2 to check for */
+   const c_token_t type3, /**< [in] token type3 to check for */
+   const c_token_t type4  /**< [in] token type4 to check for */
 );
 
 

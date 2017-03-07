@@ -26,10 +26,10 @@ void prot_the_line(int theLine, unsigned int actual_line)
          LOG_FMT(LGUY, "(%d) orig_line=%d, ", theLine, actual_line);
          switch(pc->type)
          {
-            case(CT_VBRACE_OPEN ): { LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break; }
-            case(CT_NEWLINE     ): { LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); break; }
-            case(CT_VBRACE_CLOSE): { LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break; }
-            case(CT_SPACE       ): { LOG_FMT(LGUY, "<CT_SPACE>\n");              break; }
+            case(CT_VBRACE_OPEN ): LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break;
+            case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); break;
+            case(CT_VBRACE_CLOSE): LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break;
+            case(CT_SPACE       ): LOG_FMT(LGUY, "<CT_SPACE>\n");              break;
             default:
             {
                LOG_FMT(LGUY, "text() %s, type %s, orig_col=%zu, column=%zu\n",
@@ -68,7 +68,7 @@ void examine_Data(const char *func_name, int theLine, int what)
    case 1:
       for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
       {
-         if (is_type(pc, 2, CT_SQUARE_CLOSE, CT_TSQUARE))
+         if (is_type(pc, CT_SQUARE_CLOSE, CT_TSQUARE))
          {
             LOG_FMT(LGUY, "\n");
             LOG_FMT(LGUY, "1:(%d),", theLine);

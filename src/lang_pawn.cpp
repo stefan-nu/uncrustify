@@ -185,7 +185,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
           is_not_type(pc, 2, CT_ASSIGN, CT_NEWLINE) )
    {
       if ((pc->level == 0) &&
-           is_type(pc, 3, CT_FUNCTION, CT_WORD, CT_OPERATOR_VAL))
+           is_type(pc, CT_FUNCTION, CT_WORD, CT_OPERATOR_VAL))
       {
          fcn = pc;
       }
@@ -248,11 +248,8 @@ void pawn_add_virtual_semicolons(void)
             prev = pc;
          }
 
-         if( (is_invalid(prev))   ||
-              is_not_type(pc, 3, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE))
-         {
-            continue;
-         }
+         continue_if((is_invalid(prev)) ||
+                     is_not_type(pc, 3, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
 
          /* we just hit a newline and we have a previous token */
          if (((prev->flags & PCF_IN_PREPROC)                == 0) &&
@@ -288,7 +285,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    }
    else
    {
-      if (is_type(start, 2, CT_FORWARD, CT_NATIVE))
+      if (is_type(start, CT_FORWARD, CT_NATIVE))
       {
          LOG_FMT(LPFUNC, "%s: %zu] '%s' [%s] proto due to %s\n",
                  __func__, fcn->orig_line, fcn->text(),
@@ -382,7 +379,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
          LOG_FMT(LPFUNC, "%s:%zu] check %s, level %zu\n",
                  __func__, prev->orig_line, get_token_name(prev->type), prev->level);
          if (is_type(prev, CT_NEWLINE) &&
-             (prev->level == 0             ) )
+             (prev->level == 0       ) )
          {
             chunk_t *next = chunk_get_next_ncnl(prev);
             break_if(is_not_type(next, 2, CT_ELSE, CT_WHILE_OF_DO));
@@ -427,8 +424,8 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *  - it is something that needs a continuation
     *    + arith, assign, bool, comma, compare */
    chunk_t *prev = chunk_get_prev_ncnl(pc);
-   if ((is_invalid(prev)       ) ||
-       (prev == vb_open        ) ||
+   if ((is_invalid(prev) ) ||
+       (prev == vb_open  ) ||
        is_flag(prev, PCF_IN_PREPROC) ||
        pawn_continued(prev, (int)vb_open->level + 1))
    {

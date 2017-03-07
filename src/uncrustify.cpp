@@ -369,6 +369,14 @@ bool is_nonempty_string(
 );
 
 
+/**
+ * rename a file
+ */
+static void rename_file(
+   const char *old_name, /**< [in] current file name */
+   const char *new_name  /**< [in] changed file name */
+);
+
 cp_data_t cpd;
 
 
@@ -444,11 +452,10 @@ const char *path_basename(const char *path)
    while (*path != 0) /* check for end of string */ /*lint !e661 */
    {
       /* Check both slash types to support Linux and Windows */
-      /* \todo better use strcmp */
       const char ch = *path;
       path++;
-      if ((ch == '/' ) ||
-          (ch == '\\') ) /* \todo define UNIX_SLASH and WIN_SLASH */
+      if ((ch == UNIX_PATH_SEP) ||       /* \todo better use strcmp */
+          (ch == WIN_PATH_SEP ) )
       {
          last_path = path;
       }
@@ -574,8 +581,7 @@ static void version_exit(void)
 
 static void redir_stdout(const char *output_file)
 {
-   /* Reopen stdout */
-   const FILE *my_stdout = stdout;
+   const FILE *my_stdout = stdout; /* Reopen stdout */
 
    if (ptr_is_valid(output_file))
    {
@@ -814,8 +820,7 @@ int main(int argc, char *argv[])
       if (replace   == true ||
           no_backup == true )
       {
-         if (ptr_is_valid(prefix) ||
-             ptr_is_valid(suffix) )
+         if (ptrs_are_valid(prefix, suffix))
          {
             usage_exit("Cannot use --replace with --prefix or --suffix", argv[0], EX_NOINPUT);
          }
@@ -827,8 +832,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-         if (ptr_is_valid(prefix) &&
-             ptr_is_valid(suffix) )
+         if (ptrs_are_valid(prefix, suffix))
          {
             suffix = ".uncrustify";
          }
@@ -918,8 +922,7 @@ int main(int argc, char *argv[])
    {
       file_mem_t fm;
 
-      if (ptr_is_invalid(source_file) ||
-          ptr_is_valid  (source_list) )
+      if (ptrs_are_invalid(source_file, source_list))
       {
          fprintf(stderr, "The --detect option requires a single input file\n");
          return(EXIT_FAILURE);
@@ -993,8 +996,7 @@ int main(int argc, char *argv[])
    /* This relies on cpd.filename being the config file name */
    load_all_header_files();
 
-   if (cpd.do_check   ||
-       cpd.if_changed )
+   if (cpd.do_check || cpd.if_changed )
    {
       cpd.bout = new deque<UINT8>();
    }
@@ -1337,7 +1339,7 @@ static bool file_content_matches(const string &filename1, const string &filename
    struct stat st1;
    struct stat st2;
 
-   /* Check the sizes first */
+   /* Check the file sizes first */
    if ((stat(filename1.c_str(), &st1) != 0) ||
        (stat(filename2.c_str(), &st2) != 0) ||
        (st1.st_size != st2.st_size))
@@ -1345,17 +1347,9 @@ static bool file_content_matches(const string &filename1, const string &filename
       return(false);
    }
 
-   int fd1;
-   if((fd1 = open(filename1.c_str(), O_RDONLY)) < 0)
-   {
-      return(false);
-   }
-   int fd2;
-   if ((fd2 = open(filename2.c_str(), O_RDONLY)) < 0)
-   {
-      close(fd1);
-      return(false);
-   }
+   int fd1, fd2;
+   if((fd1 = open(filename1.c_str(), O_RDONLY)) < 0) {             return(false); }
+   if((fd2 = open(filename2.c_str(), O_RDONLY)) < 0) { close(fd1); return(false); }
 
    size_t len1 = 0;
    size_t len2 = 0;
@@ -1368,25 +1362,17 @@ static bool file_content_matches(const string &filename1, const string &filename
       if (len1 == 0) { len1 = (size_t)read(fd1, buf1, sizeof(buf1)); }
       if (len2 == 0) { len2 = (size_t)read(fd2, buf2, sizeof(buf2)); }
 
-      if ((len1 == 0) ||
-          (len2 == 0) )
-      {
-         break; /* reached end of either files */
-         /* \todo what is if one file is longer
-         * than the other, do we miss that ? */
-      }
-      const size_t minlen = min(len1, len2);
+      break_if((len1 == 0) || (len2 == 0)); /* reached end of either files */
+      /* \todo what is if one file is longer than the other, do we miss that ? */
 
-      /* found a difference */
-      break_if(memcmp(buf1, buf2, minlen) != 0);
+      const size_t minlen = min(len1, len2);
+      break_if(memcmp(buf1, buf2, minlen) != 0); /* found a difference */
 
       len1 -= minlen;
       len2 -= minlen;
    }
-
    close(fd1);
    close(fd2);
-
    return((len1 == 0) && (len2 == 0));
 }
 
@@ -1396,7 +1382,7 @@ static string create_out_filename(const char * const filename)
    const char file_ending[]  = ".uncrustify";
    const size_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
    char *new_filename = new char[new_name_len];
-   if(new_filename == nullptr)
+   if(ptr_is_invalid(new_filename))
    {
       LOG_FMT(LERR, "Failed to allocate memory in %s \n", __func__);
    }
@@ -1453,13 +1439,7 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
 }
 
 
-void rename_file(
-   const char *old_name,
-   const char *new_name
-);
-
-
-void rename_file(const char *old_name, const char *new_name)
+static void rename_file(const char *old_name, const char *new_name)
 {
 #ifdef WIN32
    /* Atomic rename in windows can't go through stdio rename() func because underneath
@@ -1737,7 +1717,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
          if ( (ref->level == pc->level     )   &&
              (is_flag(ref, PCF_IN_PREPROC) ||
-              is_type(ref, 2, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
+              is_type(ref, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
          {
             do_insert = true;
             break;
@@ -1767,7 +1747,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       {
          /* ignore the CT_TYPE token that is the result type */
          continue_if((ref->level != pc->level  )   &&
-             is_type(ref, 2, CT_TYPE, CT_PTR_TYPE) );
+             is_type(ref, CT_TYPE, CT_PTR_TYPE) );
 
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (is_type(ref, CT_PAREN_CLOSE))

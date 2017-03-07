@@ -1180,24 +1180,8 @@ string argtype2string(
 /**
  * convert a boolean to a string
  */
-const char* bool2str(
-   bool val /**< [in] boolean to convert*/
-);
-
-
-/**
- * convert a boolean to a string
- */
 string bool2string(
    bool val /**< [in] boolean to convert*/
-);
-
-
-/**
- * convert an argument value to a zero terminated string
- */
-const char* argval2str(
-   argval_t argval/**< [in] argument value to convert */
 );
 
 

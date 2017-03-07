@@ -307,11 +307,11 @@ static bool can_remove_braces(chunk_t *bopen)
       {
          switch(pc->type)
          {
-            case(CT_BRACE_OPEN ): br_count++; break;
-            case(CT_BRACE_CLOSE): br_count--; break;
+            case(CT_BRACE_OPEN ): br_count++;                        break;
+            case(CT_BRACE_CLOSE): br_count--;                        break;
             case(CT_IF         ): /* fallthrough */
-            case(CT_ELSEIF     ): if(br_count == 0)  { if_count++; }  break;
-            default:              /* do nothing */ break;
+            case(CT_ELSEIF     ): if(br_count == 0) { if_count++; }  break;
+            default:              /* do nothing */                   break;
          }
 
          if (pc->level == level)
@@ -367,9 +367,9 @@ static bool can_remove_braces(chunk_t *bopen)
 
       prev = chunk_get_prev_ncnl(pc, scope_e::PREPROC);
       assert(is_valid(prev));
-      if ( is_type (next,    CT_ELSE                        ) &&
-           is_type (prev, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-           is_ptype(prev,    CT_IF                          ) )
+      if ( is_type (next, CT_ELSE                        ) &&
+           is_type (prev, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+           is_ptype(prev, CT_IF                          ) )
       {
          LOG_FMT(LBRDEL, " - bailed on '%s'[%s] on line %zu due to 'if' and 'else' sequence\n",
                  get_token_name(pc->type), get_token_name(pc->ptype),
@@ -435,7 +435,7 @@ static void examine_brace(chunk_t *bopen)
          {
             br_count--;
 #if 0
-            \\todo SN
+            \\todo SN disabled, enable code after if it does not fail any test
             if (br_count == 0)
             {
                next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
@@ -448,7 +448,7 @@ static void examine_brace(chunk_t *bopen)
 #endif
          }
 
-         else if (is_type(pc, 2, CT_IF, CT_ELSEIF))
+         else if (is_type(pc, CT_IF, CT_ELSEIF))
          {
             if (br_count == 0) { if_count++; }
          }
@@ -515,7 +515,7 @@ static void examine_brace(chunk_t *bopen)
       assert(is_valid(next));
       LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
       if ( (if_count    > 0        )                  &&
-           is_type(next, 2, CT_ELSE, CT_ELSEIF) )
+           is_type(next, CT_ELSE, CT_ELSEIF) )
       {
          LOG_FMT(LBRDEL, " bailed on because 'else' is next and %zu ifs\n", if_count);
          return;
@@ -671,7 +671,7 @@ static void convert_all_vbrace_to_brace(void)
    {
       continue_if(is_not_type(pc, CT_VBRACE_OPEN));
 
-#if 0
+#if 0 /* \todo fix this */
       switch(pc->ptype)
       {
          case(CT_IF        ): /* fallthrough */
@@ -802,7 +802,7 @@ void add_long_closebrace_comment(void)
 
    for (chunk_t *pc = chunk_get_head(); pc; pc = chunk_get_next_ncnl(pc))
    {
-      if(is_type(pc, 2, CT_FUNC_DEF, CT_OC_MSG_DECL)) { fcn_pc = pc; }
+      if(is_type(pc, CT_FUNC_DEF, CT_OC_MSG_DECL)) { fcn_pc = pc; }
       /* kind of pointless, since it always has the text "switch" */
       else if (is_type(pc, CT_SWITCH               )) { sw_pc = pc; }
       else if (is_type(pc, CT_NAMESPACE            )) { ns_pc = pc; }
@@ -996,7 +996,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
       }
 
       if (is_level(pc, cl_colon->level     ) &&
-          is_type (pc, 2, CT_CASE, CT_BREAK) )
+          is_type (pc, CT_CASE, CT_BREAK) )
       {
          last = pc;
          //if (is_type(pc, CT_BREAK))
@@ -1143,7 +1143,7 @@ static void process_if_chain(chunk_t *br_start)
       while (--br_cnt >= 0)
       {
          chunk_flags_set(braces[br_cnt], PCF_KEEP_BRACE);
-         if (is_type(braces[br_cnt], 2, CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
+         if (is_type(braces[br_cnt], CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
          {
             LOG_FMT(LBRCH, " %zu", braces[br_cnt]->orig_line);
             convert_vbrace(braces[br_cnt]);
@@ -1164,7 +1164,7 @@ static void process_if_chain(chunk_t *br_start)
       while (--br_cnt >= 0)
       {
          LOG_FMT(LBRCH, " {%zu}", braces[br_cnt]->orig_line);
-         if (is_type(braces[br_cnt], 2, CT_BRACE_OPEN, CT_BRACE_CLOSE))
+         if (is_type(braces[br_cnt], CT_BRACE_OPEN, CT_BRACE_CLOSE))
          {
             convert_brace(braces[br_cnt]);
          }
@@ -1181,7 +1181,7 @@ static void mod_full_brace_if_chain(void)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if(is_type (pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
+      if(is_type (pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
          is_ptype(pc, CT_IF))
       {
          process_if_chain(pc);
