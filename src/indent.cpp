@@ -1816,7 +1816,8 @@ void indent_text(void)
          if (is_type(prev_nonl, 8, CT_SEMICOLON, CT_VSEMICOLON,
                    CT_BRACE_OPEN,  CT_BRACE_CLOSE, CT_COMMA, CT_VBRACE_CLOSE,
                    CT_VBRACE_OPEN, CT_CASE_COLON) ||
-              ((prev_nonl->flags & PCF_IN_PREPROC ) != (pc->flags & PCF_IN_PREPROC)) ||
+//               chunk_different_preproc(prev_nonl, pc) ||
+              ((prev_nonl->flags & PCF_IN_PREPROC) != (pc->flags & PCF_IN_PREPROC)) ||
               (is_operator == true) )
          {
             in_shift = false;
@@ -1850,10 +1851,17 @@ void indent_text(void)
       }
 
       /* Handle variable definition continuation indenting */
+#if 1
       if ((vardefcol == 0                                  ) &&
           (is_type(pc, 2, CT_WORD, CT_FUNC_CTOR_VAR) ) &&
           ((pc->flags & PCF_IN_FCN_DEF ) == 0              ) &&
           ((pc->flags & PCF_VAR_1ST_DEF) == PCF_VAR_1ST_DEF) )
+#else
+      if ((vardefcol == 0                         ) &&
+          is_type(pc, 2, CT_WORD, CT_FUNC_CTOR_VAR) &&
+          is_not_flag(pc, PCF_IN_FCN_DEF ) &&
+          is_flag    (pc, PCF_VAR_1ST_DEF) )
+#endif
       {
          if (cpd.settings[UO_indent_continue].n != 0)
          {
@@ -1919,13 +1927,13 @@ void indent_text(void)
                tmp = chunk_get_next_ncnl(tmp);
             }
             if(is_type(tmp, 2, CT_WORD, CT_FUNC_CTOR_VAR) &&
-               (tmp->flags & PCF_VAR_DEF                      ) )
+               is_flag(tmp, PCF_VAR_DEF                 ) )
             {
                do_vardefcol = true;
             }
          }
 
-         if (pc->flags & PCF_DONT_INDENT)
+         if (is_flag(pc, PCF_DONT_INDENT))
          {
             /* no change */
          }
@@ -1936,7 +1944,11 @@ void indent_text(void)
             LOG_FMT(LINDENT, "Indent SQL: [%s] to %zu (%zu/%zu)\n",
                                 pc->text(), pc->column, sql_col, sql_orig_col);
          }
+#if 1
          else if (((pc->flags & PCF_STMT_START) == 0)                &&
+#else
+         else if (is_not_flag(pc, PCF_STMT_START)              &&
+#endif
                   (is_type(pc,   2, CT_MEMBER, CT_DC_MEMBER) ||
                    is_type(prev, 2, CT_MEMBER, CT_DC_MEMBER) ) )
          {
@@ -2131,7 +2143,7 @@ void indent_text(void)
          }
 
          /* Handle indent for variable defs at the top of a block of code */
-         if (pc->flags & PCF_VAR_TYPE)
+         if (is_flag(pc, PCF_VAR_TYPE))
          {
             if ((!frm.pse[frm.pse_tos].non_vardef           ) &&
                 ( frm.pse[frm.pse_tos].type == CT_BRACE_OPEN) )
@@ -2301,7 +2313,7 @@ static void indent_comment(chunk_t *pc, size_t col)
 
    /* force column 1 comment to column 1 if not changing them */
    if ((pc->orig_col == 1) && !cpd.settings[UO_indent_col1_comment].b &&
-       ((pc->flags & PCF_INSERTED) == 0))
+       is_not_flag(pc, PCF_INSERTED))
    {
       LOG_FMT(LCMTIND, "rule 1 - keep in col 1\n");
       reindent_line(pc, 1);
@@ -2313,8 +2325,7 @@ static void indent_comment(chunk_t *pc, size_t col)
    /* outside of any expression or statement? */
    if (pc->level == 0)
    {
-      if ( is_valid(nl) &&
-          (nl->nl_count > 1 ) )
+      if (is_valid(nl) && (nl->nl_count > 1 ))
       {
          LOG_FMT(LCMTIND, "rule 2 - level 0, nl before\n");
          reindent_line(pc, 1);
@@ -2324,7 +2335,7 @@ static void indent_comment(chunk_t *pc, size_t col)
 
    chunk_t *prev = chunk_get_prev(nl);
    if((chunk_is_comment(prev)) &&
-      (is_valid(nl)    ) &&
+      (is_valid(nl)          ) &&
       (nl->nl_count == 1     ) )
    {
       assert(is_valid(prev));

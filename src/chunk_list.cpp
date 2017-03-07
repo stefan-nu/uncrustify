@@ -1118,8 +1118,8 @@ bool is_not_type(const chunk_t * const pc, int count, ... )
 
 bool is_not_ptype(chunk_t *pc, int count, ... )
 {
-   va_list args;           /* define  argument list */
-   va_start(args, count);  /* initialize argument list */
+   va_list args;          /* define  argument list */
+   va_start(args, count); /* initialize argument list */
 
    bool result = false;
    if(is_valid(pc))
@@ -1323,24 +1323,22 @@ bool chunk_is_paren_close(chunk_t *pc)
 
 bool is_str(chunk_t *pc, const char *str, size_t len)
 {
-   return((is_valid(pc)) &&   (pc->len() == len) && /* token size equals size parameter */
-          (memcmp(pc->text(), str, len)  == 0  ) ); /* strings are equal considering case */
+   return(is_valid(pc) &&  (pc->len() == len) && /* token size equals size parameter */
+          (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
 
 
 /* \todo determine string size and remove len parameter */
 bool chunk_is_str_case(chunk_t *pc, const char *str, size_t len)
 {
-   return((is_valid(pc)    ) &&  /* valid pc pointer */
-          (pc->len() == len) && /* token size equals size parameter */
+   return(is_valid(pc) &&  (pc->len() == len) && /* token size equals size parameter */
           (strncasecmp(pc->text(), str, len) == 0)); /* strings are equal ignoring case */
 }
 
 
 bool chunk_is_word(chunk_t *pc)
 {
-   return((is_valid(pc)) &&
-          (pc->len() >= 1u) &&
+   return(is_valid(pc) && (pc->len() >= 1u) &&
           (CharTable::IsKW1((size_t)pc->str[0])) );
 }
 
@@ -1354,7 +1352,7 @@ bool chunk_is_word(chunk_t *pc)
 
 bool chunk_is_star(chunk_t *pc)
 {
-   return((is_valid(pc)) && (pc->len()  == 1) &&
+   return(is_valid(pc) && (pc->len() == 1) &&
           (pc->str[0] == '*'            ) &&
           (pc->type   != CT_OPERATOR_VAL) );
 }
@@ -1409,7 +1407,7 @@ bool chunk_same_preproc(chunk_t *pc1, chunk_t *pc2)
 
 bool chunk_different_preproc(chunk_t *pc1, chunk_t *pc2)
 {
-   return( are_invalid(pc1, pc2) ||
+   return( are_valid(pc1, pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) != (pc2->flags & PCF_IN_PREPROC)));
 }
 

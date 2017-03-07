@@ -1158,7 +1158,8 @@ bool chunk_same_preproc(
 
 
 /**
- *
+ * Check if both chunks are valid and have not the same preprocessor state.
+ * Thus either chunk is part of a preprocessor block the other one not.
  */
 bool chunk_different_preproc(
    chunk_t *pc1, /**< [in] chunk 1 to compare */
