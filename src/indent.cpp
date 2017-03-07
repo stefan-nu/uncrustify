@@ -253,8 +253,8 @@ void log_and_indent_comment(
 );
 
 
-
 static const char *get_align_mode_name(const align_mode_e align_mode);
+
 
 static const char *get_align_mode_name(const align_mode_e align_mode)
 {
@@ -266,6 +266,7 @@ static const char *get_align_mode_name(const align_mode_e align_mode)
       default:                      return ("error");
    }
 }
+
 
 void indent_to_column(chunk_t *pc, size_t column)
 {
@@ -348,8 +349,7 @@ void reindent_line(chunk_t *pc, size_t column)
    assert(is_valid(pc));
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on '%s' [%s/%s] => %zu",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
-           get_token_name(pc->type), get_token_name(pc->ptype),
-           column);
+           get_token_name(pc->type), get_token_name(pc->ptype), column);
    log_func_stack_inline(LINDLINE);
 
    return_if(column == pc->column);
@@ -557,12 +557,10 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
    retval_if(is_invalid_or_not_type(tmp, CT_OC_BLOCK_CARET), nullptr);
-
    retval_if(from_caret, tmp);
 
    tmp = chunk_get_prev_nc(tmp);
    retval_if(is_invalid_or_not_type(tmp, CT_OC_COLON), nullptr);
-
    retval_if(from_colon, tmp);
 
    tmp = chunk_get_prev_nc(tmp);
@@ -635,7 +633,7 @@ void indent_text(void)
       if ((cpd.settings[UO_use_options_overriding_for_qt_macros].b) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
-      {  // guy 2015-09-22
+      {
          LOG_FMT(LINDLINE, "%s(%d): orig_line=%zu: type %s SIGNAL/SLOT found\n",
                  __func__, __LINE__, pc->orig_line, get_token_name(pc->type));
       }
@@ -697,7 +695,7 @@ void indent_text(void)
       {
          /* Close out PP_IF_INDENT before playing with the parse frames */
          if ((frm.pse[frm.pse_tos].type == CT_PP_IF_INDENT) &&
-              is_ptype(pc, 2, CT_PP_ENDIF, CT_PP_ELSE     ) )
+              is_ptype(pc, CT_PP_ENDIF, CT_PP_ELSE     ) )
          {
             indent_pse_pop(frm, pc);
          }
@@ -727,7 +725,7 @@ void indent_text(void)
 
          /* Indent the body of a #if here */
          if (cpd.settings[UO_pp_if_indent_code].b &&
-             is_ptype(pc, 2, CT_PP_IF, CT_PP_ELSE))
+             is_ptype(pc, CT_PP_IF, CT_PP_ELSE))
          {
             next = chunk_get_next(pc);
             break_if(is_invalid(next));
@@ -797,7 +795,7 @@ void indent_text(void)
                   frm.pse[frm.pse_tos].indent = (size_t)((int)frm.pse[frm.pse_tos].indent + val);
                }
             }
-            else if (is_ptype(pc, 3, CT_PP_IF, CT_PP_ELSE, CT_PP_ENDIF))
+            else if (is_ptype(pc, CT_PP_IF, CT_PP_ELSE, CT_PP_ENDIF))
             {
                int val = cpd.settings[UO_pp_indent_if].n;
                if (val > 0)
@@ -1098,7 +1096,7 @@ void indent_text(void)
          }
          else if ((cpd.lang_flags & LANG_CS) &&
                    cpd.settings[UO_indent_cs_delegate_brace].b &&
-                   is_ptype(pc, 2, CT_LAMBDA, CT_DELEGATE))
+                   is_ptype(pc, CT_LAMBDA, CT_DELEGATE))
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int)(1 + ((pc->brace_level+1) * indent_size));

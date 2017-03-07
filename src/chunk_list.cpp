@@ -1047,9 +1047,28 @@ bool is_type(const chunk_t *pc, const c_token_t type1, const c_token_t type2,
 }
 #endif
 
-bool is_ptype(const chunk_t * const pc, c_token_t parent)
+
+bool is_ptype(const chunk_t * const pc, const c_token_t parent)
 {
    return(is_valid(pc) && (pc->ptype == parent));
+}
+
+
+bool is_ptype(const chunk_t * const pc, const c_token_t parent1, const c_token_t parent2)
+{
+   return(is_valid(pc)             &&
+         ((pc->ptype == parent1) ||
+          (pc->ptype == parent2) ) );
+}
+
+
+bool is_ptype(const chunk_t * const pc, const c_token_t parent1, const c_token_t parent2,
+                                        const c_token_t parent3)
+{
+   return(is_valid(pc)             &&
+         ((pc->ptype == parent1) ||
+          (pc->ptype == parent2) ||
+          (pc->ptype == parent3) ) );
 }
 
 
@@ -1143,7 +1162,7 @@ bool is_not_type(const chunk_t * const pc, int count, ... )
 }
 
 
-bool is_not_ptype(chunk_t *pc, int count, ... )
+bool is_not_ptype(const chunk_t * const pc, int count, ... )
 {
    va_list args;          /* define  argument list */
    va_start(args, count); /* initialize argument list */

@@ -687,7 +687,7 @@ static void convert_all_vbrace_to_brace(void)
 #else
       bool in_preproc = is_bit_set(pc->flags, PCF_IN_PREPROC);
 
-      if ((is_ptype(pc, 3, CT_IF,
+      if ((is_ptype(pc, CT_IF,
                     CT_ELSE, CT_ELSEIF ) && (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) &&  !cpd.settings[UO_mod_full_brace_if_chain].b) ||
            ((pc->ptype == CT_FOR       ) && (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD))) ||
            ((pc->ptype == CT_DO        ) && (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD))) ||
@@ -855,7 +855,7 @@ void add_long_closebrace_comment(void)
                   tag_pc = sw_pc;
                   xstr   = (is_valid(sw_pc)) ? sw_pc->str : "";
                }
-               else if(is_ptype(br_open, 2, CT_FUNC_DEF, CT_OC_MSG_DECL))
+               else if(is_ptype(br_open, CT_FUNC_DEF, CT_OC_MSG_DECL))
                {
                   nl_min = cpd.settings[UO_mod_add_long_function_closebrace_comment].u;
                   tag_pc = fcn_pc;

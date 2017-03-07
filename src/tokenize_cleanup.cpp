@@ -581,9 +581,9 @@ void tokenize_cleanup(void)
       /* @implementation ClassName (CategoryName) */
       /* @interface ClassName () */
       /* @implementation ClassName () */
-      if ((is_ptype(pc, 2, CT_OC_IMPL, CT_OC_INTF) ||
-           is_type (pc,    CT_OC_CLASS           ) ) &&
-           is_type (next,  CT_PAREN_OPEN         ) )
+      if ((is_ptype(pc,   CT_OC_IMPL, CT_OC_INTF) ||
+           is_type (pc,   CT_OC_CLASS           ) ) &&
+           is_type (next, CT_PAREN_OPEN         ) )
       {
          set_ptype(next, pc->ptype);
 
@@ -722,8 +722,7 @@ void tokenize_cleanup(void)
 
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS  ) &&
-          is_type(pc,   CT_DEFAULT   ) &&
-          is_type(next, CT_PAREN_OPEN) )
+          are_types(pc, CT_DEFAULT,next, CT_PAREN_OPEN))
       {
          set_type(pc, CT_SIZEOF);
       }
@@ -736,14 +735,14 @@ void tokenize_cleanup(void)
 
 #if 1
       if ((is_type(pc, CT_USING ) ||
-           ((pc->type == CT_TRY        ) &&
-            (cpd.lang_flags & LANG_JAVA))) &&
-            is_type(next, CT_PAREN_OPEN ) )
+           (is_type(pc, CT_TRY) &&
+            (cpd.lang_flags & LANG_JAVA)) ) &&
+            is_type(next, CT_PAREN_OPEN) )
 #else
       // makes test 12101 fail
       if (is_type(pc, CT_USING, CT_TRY) &&
-           (cpd.lang_flags & LANG_JAVA         ) &&
-           is_type(next, CT_PAREN_OPEN   ) )
+           (cpd.lang_flags & LANG_JAVA) &&
+           is_type(next, CT_PAREN_OPEN) )
 #endif
       {
          set_type(pc, CT_USING_STMT);

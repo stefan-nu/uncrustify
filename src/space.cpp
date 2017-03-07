@@ -272,7 +272,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    }
 
    if ((is_not_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE)) &&
-       (is_ptype(pc2, 2, CT_COMMENT_END, CT_COMMENT_EMBED)            ) )
+       (is_ptype(pc2, CT_COMMENT_END, CT_COMMENT_EMBED)            ) )
    {
       min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].n;
       log_option_and_return(UO_sp_before_tr_emb_cmt);
@@ -590,7 +590,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
        is_type(pc2, CT_PAREN_OPEN, CT_FPAREN_OPEN) )
    {
       /* "(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
-      if (is_ptype(pc1, 2, CT_C_CAST, CT_D_CAST))
+      if (is_ptype(pc1, CT_C_CAST, CT_D_CAST))
                                        { log_option_and_return(UO_sp_after_cast); }
 
       /* Must be an indirect/chained function call? */
@@ -628,7 +628,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                              { log_option_and_return(UO_sp_inside_braces_empty    ); }
    if (is_type(pc2, CT_BRACE_CLOSE))
    {  if (pc2->ptype == CT_ENUM)             { log_option_and_return(UO_sp_inside_braces_enum     ); }
-      if (is_ptype(pc2, 2, CT_STRUCT, CT_UNION))
+      if (is_ptype(pc2, CT_STRUCT, CT_UNION))
                                              { log_option_and_return(UO_sp_inside_braces_struct   ); }
       else                                   { log_option_and_return(UO_sp_inside_braces          ); }}
    if (is_type  (pc1, CT_D_CAST))            { log_argval_and_return(AV_REMOVE                    ); }
@@ -694,7 +694,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                              { log_option_and_return(UO_sp_inside_tparen          ); }
    if (is_type(pc1, CT_PAREN_CLOSE)) {
       if ((pc1->flags & PCF_OC_RTYPE) /*== CT_OC_RTYPE)*/ &&
-          is_ptype(pc1, 2, CT_OC_MSG_DECL, CT_OC_MSG_SPEC))
+          is_ptype(pc1, CT_OC_MSG_DECL, CT_OC_MSG_SPEC))
                                              { log_option_and_return(UO_sp_after_oc_return_type   ); }
       else if (is_ptype(pc1, 2, CT_OC_MSG_SPEC, CT_OC_MSG_DECL))
                                              { log_option_and_return(UO_sp_after_oc_type          ); }
@@ -713,11 +713,11 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
     * CPP cast: "int(a + 3)" vs "int( a + 3 )" */
    if (is_type(pc1, CT_PAREN_OPEN))
    {
-      if (is_ptype(pc1, 3, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
+      if (is_ptype(pc1, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
                                               { log_option_and_return(UO_sp_inside_paren_cast  ); }
                                               { log_option_and_return(UO_sp_inside_paren       ); } }
    if (is_type(pc2, CT_PAREN_CLOSE))
-   {  if (is_ptype(pc2, 3, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
+   {  if (is_ptype(pc2, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
                                               { log_option_and_return(UO_sp_inside_paren_cast  ); }
                                                 log_option_and_return(UO_sp_inside_paren       ); }
    /* "[3]" vs "[ 3 ]" */
@@ -774,7 +774,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                               { log_option_and_return(UO_sp_between_pstar   ); }
    if ( is_type (pc1, CT_PTR_TYPE) &&
        (is_not_option(cpd.settings[UO_sp_after_ptr_star_func].a, AV_IGNORE)) &&
-       (is_ptype(pc1, 3, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR)))
+       (is_ptype(pc1, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR)))
                                               { log_option_and_return(UO_sp_after_ptr_star_func); }
    if (is_type(pc1, CT_PTR_TYPE) && (CharTable::IsKW1((size_t)(pc2->str[0]))) ){
       chunk_t *prev = chunk_get_prev(pc1);
@@ -820,7 +820,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          return(add_option(cpd.settings[UO_sp_type_func].a, AV_ADD)); }
       log_option_and_return(UO_sp_type_func);}
    /* "(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
-   if (is_ptype(pc1, 2, CT_C_CAST, CT_D_CAST))
+   if (is_ptype(pc1, CT_C_CAST, CT_D_CAST))
                                          { log_option_and_return(UO_sp_after_cast           ); }
    if (is_type(pc1, CT_BRACE_CLOSE))     {
       if      (is_type(pc2, CT_ELSE   )) { log_option_and_return(UO_sp_brace_else           ); }
@@ -828,16 +828,16 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       else if (is_type(pc2, CT_FINALLY)) { log_option_and_return(UO_sp_brace_finally        ); } }
    if (is_type(pc1, CT_BRACE_OPEN)) {
       if (is_ptype(pc1, CT_ENUM))        { log_option_and_return(UO_sp_inside_braces_enum   ); }
-      else if (is_ptype(pc1, 2, CT_UNION, CT_STRUCT))
+      else if (is_ptype(pc1, CT_UNION, CT_STRUCT))
                                          { log_option_and_return(UO_sp_inside_braces_struct ); }
       else if (!chunk_is_comment(pc2))   { log_option_and_return(UO_sp_inside_braces        ); } }
    if (is_type(pc2, CT_BRACE_CLOSE)) {
       if (is_ptype(pc2, CT_ENUM))        { log_option_and_return(UO_sp_inside_braces_enum   ); }
-      else if (is_ptype(pc2, 2, CT_UNION, CT_STRUCT))
+      else if (is_ptype(pc2, CT_UNION, CT_STRUCT))
                                          { log_option_and_return(UO_sp_inside_braces_struct ); }
                                            log_option_and_return(UO_sp_inside_braces        ); }
    if (is_type(pc1, CT_BRACE_CLOSE) && (pc1->flags & PCF_IN_TYPEDEF) &&
-       is_ptype(pc1, 3, CT_ENUM, CT_STRUCT, CT_UNION))
+       is_ptype(pc1, CT_ENUM, CT_STRUCT, CT_UNION))
                                          { log_option_and_return(UO_sp_brace_typedef        ); }
    if (is_type(pc2, CT_SPAREN_OPEN))     { log_option_and_return(UO_sp_before_sparen        ); }
    if (is_type_and_ptype(pc2, CT_PAREN_OPEN, CT_TEMPLATE))

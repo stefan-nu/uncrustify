@@ -1296,10 +1296,10 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
    }
 
    /* Mark the braces in: "for_each_entry(xxx) { }" */
-   if (is_type (pc,      CT_BRACE_OPEN                  ) &&
-       (pc->ptype  !=  CT_DOUBLE_BRACE            ) &&
-       is_type (prev,    CT_FPAREN_CLOSE                ) &&
-       is_ptype(prev, 2, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
+   if (is_type (pc,   CT_BRACE_OPEN                  ) &&
+       (pc->ptype !=  CT_DOUBLE_BRACE                ) &&
+       is_type (prev, CT_FPAREN_CLOSE                ) &&
+       is_ptype(prev, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
        ((pc->flags & PCF_IN_CONST_ARGS) == 0))
    {
       set_paren_parent(pc, CT_FUNC_CALL);
@@ -1349,7 +1349,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       /* Check a paren pair to see if it is a cast.
        * Note that SPAREN and FPAREN have already been marked. */
       if (is_type (pc,      CT_PAREN_OPEN                              ) &&
-          is_ptype(pc,   3, CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR       ) &&
+          is_ptype(pc,      CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR       ) &&
           is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
                             CT_MEMBER, CT_ENUM, CT_DC_MEMBER, CT_UNION ) &&
           is_not_type(prev, CT_SIZEOF                                  ) &&
@@ -5356,7 +5356,7 @@ void remove_extra_returns(void)
          chunk_t *cl_br = chunk_get_next_ncnl(semi);
 
          if (are_types(semi, CT_SEMICOLON, cl_br, CT_BRACE_CLOSE) &&
-             is_ptype(cl_br, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF  ) )
+             is_ptype(cl_br, CT_FUNC_DEF, CT_FUNC_CLASS_DEF  ) )
          {
             LOG_FMT(LRMRETURN, "Removed 'return;' on line %zu\n", pc->orig_line);
             chunk_del(pc);

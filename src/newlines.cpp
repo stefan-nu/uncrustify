@@ -1684,7 +1684,7 @@ static void newlines_brace_pair(chunk_t *br_open)
    }
 
    /* Handle the cases where the brace is part of a class or struct */
-   if (is_ptype(br_open, 2, CT_CLASS, CT_STRUCT))
+   if (is_ptype(br_open, CT_CLASS, CT_STRUCT))
    {
       newline_def_blk(br_open, false);
    }
@@ -1903,13 +1903,13 @@ static void newline_func_multi_line(chunk_t *start)
    bool add_args;
    bool add_end;
 
-   if (is_ptype(start, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF))
+   if (is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF))
    {
       add_start = cpd.settings[UO_nl_func_def_start_multi_line].b;
       add_args  = cpd.settings[UO_nl_func_def_args_multi_line ].b;
       add_end   = cpd.settings[UO_nl_func_def_end_multi_line  ].b;
    }
-   else if (is_ptype(start, 2, CT_FUNC_CALL, CT_FUNC_CALL_USER))
+   else if (is_ptype(start, CT_FUNC_CALL, CT_FUNC_CALL_USER))
    {
       add_start = cpd.settings[UO_nl_func_call_start_multi_line].b;
       add_args  = cpd.settings[UO_nl_func_call_args_multi_line ].b;
@@ -1951,7 +1951,7 @@ static void newline_func_def(chunk_t *start)
            __func__, start->orig_line, start->orig_col, start->text(),
            get_token_name(start->type), get_token_name(start->ptype));
 
-   bool     is_def = is_ptype(start, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF);
+   bool     is_def = is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF);
    argval_t atmp   = cpd.settings[is_def ? UO_nl_func_def_paren : UO_nl_func_paren].a;
    chunk_t  *prev;
    if (atmp != AV_IGNORE)
@@ -2045,7 +2045,7 @@ static void newline_func_def(chunk_t *start)
    }
 
    /* Now scan for commas */
-   uo_t option = (is_ptype(start, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF) ) ?
+   uo_t option = (is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF) ) ?
                    UO_nl_func_def_args : UO_nl_func_decl_args;
    size_t comma_count = count_commas(&pc, start, cpd.settings[option].a, true);
 
@@ -2167,7 +2167,7 @@ static bool one_liner_nl_ok(chunk_t *pc)
       }
 
       if (cpd.settings[UO_nl_func_leave_one_liners].b &&
-          is_ptype(pc, 2, CT_FUNC_DEF, CT_FUNC_CLASS_DEF))
+          is_ptype(pc, CT_FUNC_DEF, CT_FUNC_CLASS_DEF))
       {
          LOG_FMT(LNL1LINE, "false (func def)\n");
          return(false);
@@ -2192,7 +2192,7 @@ static bool one_liner_nl_ok(chunk_t *pc)
       }
 
       if (cpd.settings[UO_nl_if_leave_one_liners].b &&
-          is_ptype(pc, 2, CT_IF, CT_ELSE) )
+          is_ptype(pc, CT_IF, CT_ELSE))
       {
          LOG_FMT(LNL1LINE, "false (if/else)\n");
          return(false);
@@ -2398,7 +2398,7 @@ void newlines_cleanup_braces(bool first)
          }
 
          if (cpd.settings[UO_nl_ds_struct_enum_cmt].b &&
-             (is_ptype(pc, 3, CT_ENUM, CT_STRUCT, CT_UNION ) ) )
+             (is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION ) ) )
          {
             newlines_double_space_struct_enum_union(pc);
          }
@@ -2516,7 +2516,7 @@ void newlines_cleanup_braces(bool first)
             }
          }
          else if (cpd.settings[UO_nl_ds_struct_enum_close_brace].b &&
-                  (is_ptype(pc, 3, CT_ENUM, CT_STRUCT, CT_UNION)))
+                  (is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION)))
          {
             if ((pc->flags & PCF_ONE_LINER) == 0)
             {
@@ -2533,7 +2533,7 @@ void newlines_cleanup_braces(bool first)
 
          /* Force a newline after a close brace */
          if ((cpd.settings[UO_nl_brace_struct_var].a != AV_IGNORE) &&
-             (is_ptype(pc, 3, CT_STRUCT, CT_ENUM, CT_UNION ) ) )
+             (is_ptype(pc, CT_STRUCT, CT_ENUM, CT_UNION ) ) )
          {
             next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
             if (is_not_type(next, 2, CT_SEMICOLON, CT_COMMA))
@@ -2542,7 +2542,7 @@ void newlines_cleanup_braces(bool first)
             }
          }
          else if (cpd.settings[UO_nl_after_brace_close].b ||
-                  is_ptype(pc, 3, CT_FUNC_CLASS_DEF, CT_FUNC_DEF, CT_OC_MSG_DECL))
+                  is_ptype(pc, CT_FUNC_CLASS_DEF, CT_FUNC_DEF, CT_OC_MSG_DECL))
          {
             next = chunk_get_next(pc);
             if (is_not_type(next, 7, CT_SEMICOLON, CT_COMMA, CT_SPAREN_CLOSE,
@@ -2722,7 +2722,7 @@ void newlines_cleanup_braces(bool first)
          {
             newline_func_def(pc);
          }
-         else if ((is_ptype(pc, 2, CT_FUNC_CALL, CT_FUNC_CALL_USER)) &&
+         else if ((is_ptype(pc, CT_FUNC_CALL, CT_FUNC_CALL_USER)) &&
                   ((cpd.settings[UO_nl_func_call_start_multi_line].b) ||
                    (cpd.settings[UO_nl_func_call_args_multi_line ].b) ||
                    (cpd.settings[UO_nl_func_call_end_multi_line  ].b) ) )
@@ -3636,8 +3636,8 @@ void do_blank_lines(void)
           (cpd.settings[UO_nl_after_try_catch_finally].u != pc->nl_count) &&
            are_valid(prev, next                                         ) )
       {
-         if (is_type (prev,    CT_BRACE_CLOSE      ) &&
-             is_ptype(prev, 2, CT_CATCH, CT_FINALLY) )
+         if (is_type (prev, CT_BRACE_CLOSE      ) &&
+             is_ptype(prev, CT_CATCH, CT_FINALLY) )
          {
             if (is_not_type(next, 3, CT_BRACE_CLOSE, CT_CATCH, CT_FINALLY))
             {

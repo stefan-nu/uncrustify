@@ -65,40 +65,22 @@ void remove_extra_semicolons(void)
          {
             /* keep it */
          }
-         /* \todo move if conditions to separate function and combine the
-          * same action */
          else if (is_type (prev,    CT_BRACE_CLOSE) &&
                   is_ptype(prev, 11,CT_ELSEIF, CT_FUNC_DEF,   CT_IF,
                  CT_FUNC_CLASS_DEF, CT_SWITCH, CT_USING_STMT, CT_FOR,
                  CT_OC_MSG_DECL,    CT_WHILE,  CT_NAMESPACE,  CT_ELSE))
          {
-            LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
          else if (is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_NONE))
          {
             check_unknown_brace_close(pc, prev);
          }
-         else if (is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR))
+         else if (                   is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR         ) ||
+                 ((cpd.lang_flags & LANG_D   ) && is_ptype(prev, CT_ENUM, CT_UNION, CT_STRUCT)) ||
+                 ((cpd.lang_flags & LANG_JAVA) && is_ptype(prev, CT_SYNCHRONIZED             )) ||
+                 (                                is_type (prev, CT_BRACE_OPEN               )) )
          {
-            LOG_FUNC_CALL();
-            remove_semicolon(pc);
-         }
-         else if ((cpd.lang_flags & LANG_D                      ) &&
-                  is_ptype(prev, 3, CT_ENUM, CT_UNION, CT_STRUCT) )
-         {
-            LOG_FUNC_CALL();
-            remove_semicolon(pc);
-         }
-         else if ((cpd.lang_flags & LANG_JAVA   ) &&
-                  is_ptype(prev, CT_SYNCHRONIZED) )
-         {
-            LOG_FUNC_CALL();
-            remove_semicolon(pc);
-         }
-         else if (is_type(prev, CT_BRACE_OPEN))
-         {
-            LOG_FUNC_CALL();
             remove_semicolon(pc);
          }
       }
@@ -115,7 +97,7 @@ static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
    pc = chunk_get_prev_ncnl(pc);
 
    if (is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
-                                CT_SQUARE_CLOSE, CT_TSQUARE) &&
+                          CT_SQUARE_CLOSE, CT_TSQUARE) &&
        !chunk_is_paren_close(pc) )
    {
       remove_semicolon(semi);

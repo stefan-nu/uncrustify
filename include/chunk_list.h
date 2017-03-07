@@ -881,7 +881,8 @@ bool is_type_and_not_ptype(
 
 
 /**
- * check if either of two given chunks is valid and holds the given token type
+ * check if either of two given chunks is valid and holds the
+ * given token type
  */
 bool any_is_type(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -891,7 +892,8 @@ bool any_is_type(
 
 
 /**
- * check if the either of two given chunks is valid and hold the respective given token type
+ * check if the either of two given chunks is valid and hold
+ * the respective given token type
  */
 bool any_is_type(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -902,8 +904,9 @@ bool any_is_type(
 
 
 /**
- * check if both chunks are valid but only the first has the given type the
- * second chunk has to be different from its given type
+ * check if both chunks are valid but only the first has the
+ * given type the second chunk has to be different from its
+ * given type
  */
 bool is_only_first_type(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -914,7 +917,8 @@ bool is_only_first_type(
 
 
 /**
- * check if the two given chunks are valid and both hold the same given token type
+ * check if the two given chunks are valid and both hold the
+ * same given token type
  */
 bool are_types(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -924,7 +928,8 @@ bool are_types(
 
 
 /**
- * check if the two given chunks are valid and both hold the same given parent token type
+ * check if the two given chunks are valid and both hold the
+ * same given parent token type
  */
 bool are_ptypes(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -934,7 +939,8 @@ bool are_ptypes(
 
 
 /**
- * check if the two given chunks are valid and hold a given token type
+ * check if the two given chunks are valid and hold a given
+ * token type
  */
 bool are_types(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -945,7 +951,8 @@ bool are_types(
 
 
 /**
- * check if the two given chunks are valid and hold a given parent token type
+ * check if the two given chunks are valid and hold a given
+ * parent token type
  */
 bool are_ptypes(
    const chunk_t *pc1,  /**< [in] chunk1 to check */
@@ -1001,11 +1008,35 @@ bool is_type(
 
 
 /**
- * check if the given chunk is valid and holds a given parent token type
+ * check if the given chunk is valid and holds a given
+ * parent token type
  */
 bool is_ptype(
    const chunk_t * const pc, /**< [in] chunk to check */
-   c_token_t parent          /**< [in] token type to check for */
+   const c_token_t parent    /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a parent token type
+ * that is either parent1 or parent2
+ */
+bool is_ptype(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t parent1,  /**< [in] token type1 to check for */
+   const c_token_t parent2   /**< [in] token type2 to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a parent token type
+ * that is either parent1, parent2 or parent3
+ */
+bool is_ptype(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t parent1,  /**< [in] token type1 to check for */
+   const c_token_t parent2,  /**< [in] token type2 to check for */
+   const c_token_t parent3   /**< [in] token type3 to check for */
 );
 
 
@@ -1014,8 +1045,8 @@ bool is_ptype(
  * than a given one
  */
 bool is_not_type(
-   const chunk_t * const pc,       /**< [in] chunk to check */
-   c_token_t c_token  /**< [in] token type to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   c_token_t c_token         /**< [in] token type to check for */
 );
 
 
@@ -1031,8 +1062,8 @@ bool is_type(
 
 
 /**
- * check if the given chunk is valid and holds a parent token type which is
- * part of a given list
+ * check if the given chunk is valid and holds a parent token
+ * type which is part of a given list
  */
 bool is_ptype(
    const chunk_t * const pc,   /**< [in] chunk to check */
@@ -1053,19 +1084,19 @@ bool is_not_type(
 
 
 /**
- * check if the given chunk is valid and holds a parent token type which is
- * different from all types in a given list
+ * check if the given chunk is valid and holds a parent token
+ * type which is different from all types in a given list
  */
 bool is_not_ptype(
-   chunk_t *pc,   /**< [in] chunk to check */
+   const chunk_t * const pc, /**< [in] chunk to check */
    int count,     /**< [in] number of token types to check */
    ...            /**< [in] list of parent token types to check for */
 );
 
 
 /**
- * Check if the given chunk is valid and has a given flag combination set
- * Other flags are ignored during the check.
+ * Check if the given chunk is valid and has a given flag
+ * combination set. Other flags are ignored during the check.
  */
 bool is_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
@@ -1074,8 +1105,8 @@ bool is_flag(
 
 
 /**
- * Check if the given chunk is valid and has a given flag combination not set
- * Other flags are ignored during the check.
+ * Check if the given chunk is valid and has a given flag
+ * combination not set Other flags are ignored during the check.
  */
 bool is_not_flag(
    const chunk_t * const pc, /**< [in] chunk to check */

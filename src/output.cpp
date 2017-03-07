@@ -1075,7 +1075,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
       cmt.brace_col = 1u + (pc->brace_level * cpd.settings[UO_output_tab_size].u);
    }
 
-   if (is_ptype(pc, 2, CT_COMMENT_START, CT_COMMENT_WHOLE))
+   if (is_ptype(pc, CT_COMMENT_START, CT_COMMENT_WHOLE))
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
@@ -1089,7 +1089,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 
    /* tab aligning code */
    if ( (cpd.settings[UO_indent_cmt_with_tabs].b)   &&
-        (is_ptype(pc, 2, CT_COMMENT_END, CT_COMMENT_WHOLE)))
+        (is_ptype(pc, CT_COMMENT_END, CT_COMMENT_WHOLE)))
    {
       cmt.column = align_tab_column(cmt.column - 1);
       pc->column = cmt.column;
