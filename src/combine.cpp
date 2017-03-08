@@ -1346,7 +1346,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
 
    if ((cpd.lang_flags & LANG_D) == 0)
    {
-      /* Check a paren pair to see if it is a cast.
+      /* Check a parenthesis pair to see if it is a cast.
        * Note that SPAREN and FPAREN have already been marked. */
       if (is_type (pc,      CT_PAREN_OPEN                              ) &&
           is_ptype(pc,      CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR       ) &&
@@ -1479,11 +1479,10 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          }
          else
          {
-            set_type(pc,
-                           ((prev->flags & PCF_PUNCTUATOR                                      ) &&
-                            (!chunk_is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
-                             is_not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
-                             ? CT_DEREF : CT_ARITH);
+            set_type(pc,((prev->flags & PCF_PUNCTUATOR                                ) &&
+                         (!chunk_is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
+                          is_not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
+                          ? CT_DEREF : CT_ARITH);
          }
       }
    }
@@ -1787,6 +1786,7 @@ static bool mark_function_type(chunk_t *pc)
    LOG_FMT(LFTYPE, "%s: [%s] %s @ %zu:%zu\n", __func__,
            get_token_name(pc->type), pc->text(), pc->orig_line, pc->orig_col);
 
+   /* note cannot move variable definitions below due to switch */
    size_t    star_count = 0;
    size_t    word_count = 0;
    chunk_t   *ptrcnk    = nullptr;
@@ -2018,7 +2018,7 @@ static chunk_t *process_return(chunk_t *pc)
                temp->level--;
             }
 
-            /* delete the parens */
+            /* delete the parenthesis */
             chunk_del(next);
             chunk_del(cpar);
 
@@ -2029,7 +2029,7 @@ static chunk_t *process_return(chunk_t *pc)
          }
          else
          {
-            LOG_FMT(LRETURN, "%s: keeping parens on line %zu\n",
+            LOG_FMT(LRETURN, "%s: keeping parenthesis on line %zu\n",
                     __func__, pc->orig_line);
 
             /* mark & keep them */
@@ -2133,7 +2133,7 @@ static void fix_casts(chunk_t *start)
    bool       nope;
    bool       doubtful_cast = false;
 
-   /* Make sure there is only WORD, TYPE, and '*' or '^' before the close paren */
+   /* Make sure there is only WORD, TYPE, and '*' or '^' before the close parenthesis */
    chunk_t *pc = chunk_get_next_ncnl(start);
    first = pc;
    while (chunk_is_var_type(pc) ||
@@ -2210,12 +2210,12 @@ static void fix_casts(chunk_t *start)
        * If the next item is a +, the next item has to be a number.
        * If the next item is a -, the next item can't be a string.
        *
-       * For this to be a cast, the close paren must be followed by:
+       * For this to be a cast, the close parenthesis must be followed by:
        *  - constant (number or string)
-       *  - paren open
+       *  - parenthesis open
        *  - word
        *
-       * Find the next non-open paren item. */
+       * Find the next non-open parenthesis item. */
       pc    = chunk_get_next_ncnl(paren_close);
       after = pc;
       do
@@ -2276,7 +2276,7 @@ static void fix_casts(chunk_t *start)
       }
    }
 
-   /* if the 'cast' is followed by a semicolon, comma or close paren, it isn't */
+   /* if the 'cast' is followed by a semicolon, comma or close parenthesis, it isn't */
    pc = chunk_get_next_ncnl(paren_close);
    if (chunk_is_semicolon(pc)      ||
        is_type(pc, CT_COMMA) ||
@@ -2369,7 +2369,7 @@ static void fix_enum_struct_union(chunk_t *pc)
       next = chunk_get_next_ncnl(next);
 //  \todo SN is this needed ? set_chunk_parent(next, pc->type);
 
-      /* next up is either a colon, open brace, or open paren (pawn) */
+      /* next up is either a colon, open brace, or open parenthesis (pawn) */
       if (is_invalid(next)) { return; }
 
       else if ((cpd.lang_flags & LANG_PAWN) &&
@@ -2536,7 +2536,7 @@ static void fix_typedef(chunk_t *start)
       LOG_FMT(LTYPEDEF, "%s: function typedef [%s] on line %zu\n",
               __func__, the_type->text(), the_type->orig_line);
 
-      /* If we are aligning on the open paren, grab that instead */
+      /* If we are aligning on the open parenthesis, grab that instead */
       if (is_valid(open_paren) &&
          (cpd.settings[UO_align_typedef_func].u == 1))
       {
@@ -2928,7 +2928,7 @@ static void fix_fcn_def_params(chunk_t *start)
 static chunk_t *skip_to_next_statement(chunk_t *pc)
 {
    while ( is_not_type (pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
-          !chunk_is_semicolon(pc                                  ) )
+          !chunk_is_semicolon(pc                         ) )
    {
       pc = chunk_get_next_ncnl(pc);
    }
@@ -2969,7 +2969,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    retval_if(is_invalid(end), end);
 
    /* Function defs are handled elsewhere */
-   if ((cs.Len()  <= 1                  ) ||
+   if ((cs.Len()  <= 1) ||
         is_type(end, 5, CT_OPERATOR, CT_FUNC_DEF, CT_FUNC_PROTO,
                         CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF) )
    {
@@ -3032,8 +3032,8 @@ static chunk_t *skip_expression(chunk_t *start)
    while ((is_valid(pc)       ) &&
           (pc->level >= start->level) )
    {
-      if ((pc->level == start->level) &&
-           is_type(pc, CT_COMMA, CT_SEMICOLON, CT_VSEMICOLON))
+      if (is_level(pc, start->level) &&
+          is_type (pc, CT_COMMA, CT_SEMICOLON, CT_VSEMICOLON))
       {
          return(pc);
       }
@@ -3307,26 +3307,25 @@ static void mark_function(chunk_t *pc)
          {
             switch(tmp->type)
             {
-               case(CT_BRACE_CLOSE):      /* fallthrough */
-               case(CT_SEMICOLON  ):    { /* do nothing */            goto exit_loop; }
-               case(CT_PAREN_OPEN ):      /* fallthrough */
-               case(CT_SPAREN_OPEN):      /* fallthrough */
-               case(CT_TPAREN_OPEN):      /* fallthrough */
-               case(CT_FPAREN_OPEN):      /* fallthrough */
-               case(CT_ASSIGN     ):    { set_type(pc, CT_FUNC_CALL); goto exit_loop; }
-               case(CT_TEMPLATE   ):    { set_type(pc, CT_FUNC_DEF ); goto exit_loop; }
+               case(CT_BRACE_CLOSE):    /* fallthrough */
+               case(CT_SEMICOLON  ):    /* do nothing */            goto exit_loop;
+               case(CT_PAREN_OPEN ):    /* fallthrough */
+               case(CT_SPAREN_OPEN):    /* fallthrough */
+               case(CT_TPAREN_OPEN):    /* fallthrough */
+               case(CT_FPAREN_OPEN):    /* fallthrough */
+               case(CT_ASSIGN     ):    set_type(pc, CT_FUNC_CALL); goto exit_loop;
+               case(CT_TEMPLATE   ):    set_type(pc, CT_FUNC_DEF ); goto exit_loop;
                case(CT_BRACE_OPEN ):
                {
                   switch(tmp->ptype)
                   {
-                     case(CT_FUNC_DEF): { set_type(pc, CT_FUNC_CALL); goto exit_loop; }
-                     case(CT_CLASS   ):  /* fallthrough */
-                     case(CT_STRUCT  ): { set_type(pc, CT_FUNC_DEF ); goto exit_loop; }
-                     default:           {/*ignore unexpected ptype*/  goto exit_loop; }
-                  }
+                     case(CT_FUNC_DEF): set_type(pc, CT_FUNC_CALL); goto exit_loop;
+                     case(CT_CLASS   ): /* fallthrough */
+                     case(CT_STRUCT  ): set_type(pc, CT_FUNC_DEF ); goto exit_loop;
+                     default:           /*ignore unexpected ptype*/ goto exit_loop;                  }
                   break;
                }
-               default:                 { /* go on with loop */       break;          }
+               default:                 /* go on with loop */       break;
             }
          }
 exit_loop:
@@ -3598,7 +3597,7 @@ exit_loop:
                isa_def = true;
                break;
             }
-            LOG_FMT(LFCN, " --> maybe a proto/def\n");
+            LOG_FMT(LFCN, " --> maybe a prototype or definition\n");
             isa_def = true;
          }
 
@@ -3613,7 +3612,7 @@ exit_loop:
          {
             LOG_FMT(LFCN, " --> Stopping on %s [%s]\n",
                     prev->text(), get_token_name(prev->type));
-            /* certain tokens are unlikely to precede a proto or def */
+            /* certain tokens are unlikely to precede a prototype or definition */
             if (is_type(prev, 7, CT_ARITH,  CT_ASSIGN, CT_STRING_MULTI,
                       CT_STRING, CT_NUMBER, CT_COMMA,  CT_NUMBER_FP))
             {
@@ -3669,11 +3668,11 @@ exit_loop:
    }
 
    /* We have a function definition or prototype
-    * Look for a semicolon or a brace open after the close paren to figure
+    * Look for a semicolon or a brace open after the close parenthesis to figure
     * out whether this is a prototype or definition */
    /* See if this is a prototype or implementation */
    /* FIXME: this doesn't take the old K&R parameter definitions into account */
-   /* Scan tokens until we hit a brace open (def) or semicolon (proto) */
+   /* Scan tokens until we hit a brace open (def) or semicolon (prototype) */
    chunk_t *semi = nullptr;
    tmp = paren_close;
    while ((tmp = chunk_get_next_ncnl(tmp)) != nullptr)
