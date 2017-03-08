@@ -303,7 +303,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
             log_option_and_return(UO_sp_after_semi_for);
          }
       }
-      else if (!chunk_is_comment(pc2) &&
+      else if (!chunk_is_cmt(pc2) &&
                pc2->type != CT_BRACE_CLOSE) { log_option_and_return(UO_sp_after_semi); }
       /* Let the comment spacing rules handle this */
    }
@@ -497,12 +497,12 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          else                           { log_option_and_return(UO_sp_angle_paren); }
       }
       if (is_type(pc2, CT_DC_MEMBER)) { log_option_and_return(UO_sp_before_dc); }
-      if (is_not_type(pc2, 2, CT_BYREF, CT_PTR_TYPE)) { log_option_and_return(UO_sp_after_angle); }
+      if (is_not_type(pc2, CT_BYREF, CT_PTR_TYPE)) { log_option_and_return(UO_sp_after_angle); }
    }
 
    if (is_type(pc1, CT_BYREF) &&
        is_not_option(cpd.settings[UO_sp_after_byref_func].a, AV_IGNORE) &&
-       is_ptype(pc1, 2, CT_FUNC_DEF, CT_FUNC_PROTO))
+       is_ptype(pc1, CT_FUNC_DEF, CT_FUNC_PROTO))
                                           { log_option_and_return(UO_sp_after_byref_func); }
    if (is_type(pc1, CT_BYREF) && CharTable::IsKW1((size_t)(pc2->str[0])) )
                                           { log_option_and_return(UO_sp_after_byref); }
@@ -512,7 +512,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (is_not_option(cpd.settings[UO_sp_before_byref_func].a, AV_IGNORE))
       {
          chunk_t *next = chunk_get_next(pc2);
-         if (is_type(next, 2, CT_FUNC_DEF, CT_FUNC_PROTO))
+         if (is_type(next, CT_FUNC_DEF, CT_FUNC_PROTO))
          {
             return(cpd.settings[UO_sp_before_byref_func].a);
          }
@@ -533,7 +533,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       {
          log_option_and_return(UO_sp_sparen_brace);
       }
-      if (!chunk_is_comment(pc2) &&
+      if (!chunk_is_cmt(pc2) &&
           (cpd.settings[UO_sp_after_sparen].a != AV_IGNORE))
       {
          log_option_and_return(UO_sp_after_sparen);
@@ -830,7 +830,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (is_ptype(pc1, CT_ENUM))        { log_option_and_return(UO_sp_inside_braces_enum   ); }
       else if (is_ptype(pc1, CT_UNION, CT_STRUCT))
                                          { log_option_and_return(UO_sp_inside_braces_struct ); }
-      else if (!chunk_is_comment(pc2))   { log_option_and_return(UO_sp_inside_braces        ); } }
+      else if (!chunk_is_cmt(pc2))   { log_option_and_return(UO_sp_inside_braces        ); } }
    if (is_type(pc2, CT_BRACE_CLOSE)) {
       if (is_ptype(pc2, CT_ENUM))        { log_option_and_return(UO_sp_inside_braces_enum   ); }
       else if (is_ptype(pc2, CT_UNION, CT_STRUCT))
@@ -874,7 +874,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       else                                 { log_option_and_return(UO_sp_before_oc_colon     ); }}
    if (is_type_and_ptype(pc2, CT_COMMENT, CT_COMMENT_EMBED))
                                            { log_argval_and_return(AV_FORCE                  ); }
-   if (chunk_is_comment(pc2)) { log_argval_and_return(AV_IGNORE); }
+   if (chunk_is_cmt(pc2)) { log_argval_and_return(AV_IGNORE); }
    if (is_type(pc1, CT_COMMENT)) { log_argval_and_return(AV_FORCE); }
    if (are_types(pc1, CT_NEW, pc2, CT_PAREN_OPEN))
                                            { log_option_and_return(UO_sp_between_new_paren   ); }
@@ -935,7 +935,7 @@ void space_text(void)
       {
          next = chunk_get_next(pc);
          while ( ( chunk_is_empty  (next)) &&
-                 (!chunk_is_newline(next)) &&
+                 (!chunk_is_nl(next)) &&
                  is_type(next, CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
          {
             assert(is_valid(next));
@@ -989,7 +989,7 @@ void space_text(void)
             chunk_t *tmp = next;
             while (is_valid(tmp) &&
                   (tmp->len() == 0) &&
-                  !chunk_is_newline(tmp))
+                  !chunk_is_nl(tmp))
             {
                tmp = chunk_get_next(tmp);
             }
@@ -1084,8 +1084,8 @@ void space_text(void)
             break;
          }
 
-         if (chunk_is_comment(next                ) &&
-             chunk_is_newline(chunk_get_next(next)) &&
+         if (chunk_is_cmt(next                ) &&
+             chunk_is_nl(chunk_get_next(next)) &&
              (column < next->orig_col))
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
@@ -1094,7 +1094,7 @@ void space_text(void)
                  ((next->ptype != CT_COMMENT_END  ) &&
                   (next->ptype != CT_COMMENT_EMBED) ) ) &&
                 (is_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE) ||
-                 is_not_type(pc, 2,CT_PP_ELSE, CT_PP_ENDIF     ) ) )
+                 is_not_type(pc, CT_PP_ELSE, CT_PP_ENDIF     ) ) )
             {
                if (cpd.settings[UO_indent_rel_single_line_comments].b)
                {
@@ -1249,7 +1249,7 @@ void space_add_after(chunk_t *pc, size_t count)
    chunk_t *next = chunk_get_next(pc);
 
    /* don't add at the end of the file or before a newline */
-   return_if(is_invalid(next) || chunk_is_newline(next));
+   return_if(is_invalid(next) || chunk_is_nl(next));
 
    count = min(count, MAX_SPACE_COUNT);
 

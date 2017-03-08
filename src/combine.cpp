@@ -1026,7 +1026,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
       tmp = next;
       while ((tmp = chunk_get_next_nc(tmp)) != nullptr)
       {
-         break_if (chunk_is_newline(tmp));
+         break_if (chunk_is_nl(tmp));
 
          if (is_type(tmp, CT_SQUARE_CLOSE) &&
              (next->level == tmp->level))
@@ -1482,7 +1482,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
             set_type(pc,
                            ((prev->flags & PCF_PUNCTUATOR                                      ) &&
                             (!chunk_is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
-                             is_not_type(prev, 2, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
+                             is_not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
                              ? CT_DEREF : CT_ARITH);
          }
       }
@@ -1649,7 +1649,7 @@ void fix_symbols(void)
    }
 
    pc = chunk_get_head();
-   if(chunk_is_comment_or_newline(pc))
+   if(chunk_is_cmt_or_nl(pc))
    {
       pc = chunk_get_next_ncnl(pc);
    }
@@ -1755,7 +1755,7 @@ static void mark_function_return_type(chunk_t *fname, chunk_t *start, c_token_t 
       while (is_valid(pc))
       {
          break_if((!chunk_is_var_type(pc) &&
-                   is_not_type(pc, 3, CT_OPERATOR, CT_WORD, CT_ADDR)) ||
+                   is_not_type(pc, CT_OPERATOR, CT_WORD, CT_ADDR)) ||
                    is_flag(pc, PCF_IN_PREPROC));
 
          if (!chunk_is_ptr_operator(pc))
@@ -2252,7 +2252,7 @@ static void fix_casts(chunk_t *start)
       else if (is_type(pc, CT_PLUS))
       {
          /* (UINT8)+1 or (foo)+1 */
-         if ( is_not_type(after, 2, CT_NUMBER, CT_NUMBER_FP) ||
+         if ( is_not_type(after, CT_NUMBER, CT_NUMBER_FP) ||
               doubtful_cast)
          {
             nope = true;
@@ -2556,7 +2556,7 @@ static void fix_typedef(chunk_t *start)
    next = chunk_get_next_ncnl(start, scope_e::PREPROC);
    return_if(is_invalid(next));
 
-   if (is_not_type(next, 3, CT_ENUM, CT_STRUCT, CT_UNION ))
+   if (is_not_type(next, CT_ENUM, CT_STRUCT, CT_UNION ))
    {
       if (is_valid(the_type))
       {
@@ -2718,8 +2718,8 @@ void combine_labels(void)
                   c_token_t new_type = CT_TAG;
 
                   tmp = chunk_get_next_nc(next);
-                  if (chunk_is_newline(prev) &&
-                      chunk_is_newline(tmp ) )
+                  if (chunk_is_nl(prev) &&
+                      chunk_is_nl(tmp ) )
                   {
                      new_type = CT_LABEL;
                      set_type(next, CT_LABEL_COLON);
@@ -2750,7 +2750,7 @@ void combine_labels(void)
                   /* Must be a macro thingy, assume some sort of label */
                   set_type(next, CT_LABEL_COLON);
                }
-               else if ((is_not_type(tmp, 2, CT_NUMBER, CT_SIZEOF ) &&
+               else if ((is_not_type(tmp, CT_NUMBER, CT_SIZEOF ) &&
                         !(tmp->flags & (PCF_IN_STRUCT | PCF_IN_CLASS))) ||
                          (is_type(tmp, CT_NEWLINE) ))
                {
@@ -2927,7 +2927,7 @@ static void fix_fcn_def_params(chunk_t *start)
 
 static chunk_t *skip_to_next_statement(chunk_t *pc)
 {
-   while ( is_not_type (pc, 2, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
+   while ( is_not_type (pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
           !chunk_is_semicolon(pc                                  ) )
    {
       pc = chunk_get_next_ncnl(pc);
@@ -2990,11 +2990,11 @@ static chunk_t *fix_var_def(chunk_t *start)
       while (idx > 0)
       {
          tmp_pc = cs.Get((size_t)idx)->m_pc; /*lint !e613 */
-         break_if(is_not_type(tmp_pc, 2, CT_DC_MEMBER, CT_MEMBER));
+         break_if(is_not_type(tmp_pc, CT_DC_MEMBER, CT_MEMBER));
 
          idx--;
          tmp_pc = cs.Get((size_t)idx)->m_pc; /*lint !e613 */
-         break_if(is_not_type(tmp_pc, 2, CT_WORD, CT_TYPE));
+         break_if(is_not_type(tmp_pc, CT_WORD, CT_TYPE));
 
          make_type(tmp_pc);
          idx--;
@@ -3576,7 +3576,7 @@ exit_loop:
          if (is_type(prev, CT_DC_MEMBER, CT_MEMBER))
          {
             prev = chunk_get_prev_ncnlnp(prev);
-            if (is_not_type(prev, 3, CT_WORD, CT_TYPE, CT_THIS))
+            if (is_not_type(prev, CT_WORD, CT_TYPE, CT_THIS))
             {
                LOG_FMT(LFCN, " --? Skipped MEMBER and landed on %s\n",
                        (is_invalid(prev)) ? "<null>" : get_token_name(prev->type));
@@ -3913,8 +3913,8 @@ static void mark_class_ctor(chunk_t *start)
    LOG_FUNC_ENTRY();
 
    chunk_t *pclass = chunk_get_next_ncnl(start, scope_e::PREPROC);
-   return_if(is_invalid (pclass                     ) ||
-             is_not_type(pclass, 2, CT_TYPE, CT_WORD) );
+   return_if(is_invalid (pclass                  ) ||
+             is_not_type(pclass, CT_TYPE, CT_WORD) );
 
    chunk_t *next = chunk_get_next_ncnl(pclass, scope_e::PREPROC);
    while (is_type(next, CT_TYPE, CT_WORD, CT_DC_MEMBER))
@@ -4149,9 +4149,9 @@ void mark_comments(void)
    {
       chunk_t *next   =  chunk_get_next_nvb(cur);
       bool    next_nl = (is_invalid      (next) ||
-                         chunk_is_newline(next) );
+                         chunk_is_nl(next) );
 
-      if (chunk_is_comment(cur))
+      if (chunk_is_cmt(cur))
       {
          if      (next_nl && prev_nl) { set_ptype(cur, CT_COMMENT_WHOLE); }
          else if (next_nl)            { set_ptype(cur, CT_COMMENT_END  ); }
@@ -4159,7 +4159,7 @@ void mark_comments(void)
          else                         { set_ptype(cur, CT_COMMENT_EMBED); }
       }
 
-      prev_nl = chunk_is_newline(cur);
+      prev_nl = chunk_is_nl(cur);
       cur     = next;
    }
 }
@@ -4676,7 +4676,7 @@ static void handle_oc_class(chunk_t *pc)
                is_str(tmp, "+", 1) )
       {
          as = angle_state_e::CLOSE;
-         if (chunk_is_newline(chunk_get_prev(tmp)))
+         if (chunk_is_nl(chunk_get_prev(tmp)))
          {
             set_type(tmp, CT_OC_SCOPE);
             chunk_flags_set(tmp, PCF_STMT_START);
@@ -4999,7 +4999,7 @@ static void handle_oc_message_send(chunk_t *os)
    {
       tmp = chunk_skip_to_match(tmp);
    }
-   else if (is_not_type(tmp, 3, CT_WORD, CT_TYPE, CT_STRING))
+   else if (is_not_type(tmp, CT_WORD, CT_TYPE, CT_STRING))
    {
       LOG_FMT(LOCMSG, "%s: %zu:%zu expected identifier, not '%s' [%s]\n",
               __func__, tmp->orig_line, tmp->orig_col,
@@ -5089,7 +5089,7 @@ static void handle_oc_message_send(chunk_t *os)
             {
                /* Might be a named param, check previous block */
                chunk_t *pp = chunk_get_prev(prev);
-               if (is_not_type(pp, 3, CT_OC_COLON, CT_ARITH, CT_CARET) )
+               if (is_not_type(pp, CT_OC_COLON, CT_ARITH, CT_CARET) )
                {
                   set_type (prev, CT_OC_MSG_NAME);
                   set_ptype(tmp,  CT_OC_MSG_NAME);
@@ -5160,7 +5160,7 @@ static void handle_oc_property_decl(chunk_t *os)
                   {
                      chunkGroup.push_back(next);
                      next = chunk_get_next(next);
-                  } while (is_not_type(next, 2, CT_COMMA, CT_PAREN_CLOSE));
+                  } while (is_not_type(next, CT_COMMA, CT_PAREN_CLOSE));
                   assert(is_valid(next));
                   next = next->prev;
                   break_if(is_invalid(next));
@@ -5173,7 +5173,7 @@ static void handle_oc_property_decl(chunk_t *os)
                   {
                      chunkGroup.push_back(next);
                      next = chunk_get_next(next);
-                  } while (is_not_type(next, 2, CT_COMMA, CT_PAREN_CLOSE));
+                  } while (is_not_type(next, CT_COMMA, CT_PAREN_CLOSE));
                   assert(is_valid(next));
                   next = next->prev;
                   break_if(is_invalid(next));
@@ -5422,8 +5422,8 @@ static void handle_proto_wrap(chunk_t *pc)
 
    return_if (are_invalid(opp, name    ) ||
               are_invalid(clp, cma, tmp) ||
-              is_not_type(name, 2, CT_WORD, CT_TYPE) ||
-              is_not_type(opp,     CT_PAREN_OPEN   ) );
+              is_not_type(name, CT_WORD, CT_TYPE) ||
+              is_not_type(opp,  CT_PAREN_OPEN   ) );
 
    switch(cma->type)
    {
@@ -5447,7 +5447,7 @@ static void handle_proto_wrap(chunk_t *pc)
    while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
    {
       break_if (!chunk_is_var_type(tmp) &&
-                is_not_type(tmp, 3, CT_OPERATOR, CT_WORD, CT_ADDR));
+                is_not_type(tmp, CT_OPERATOR, CT_WORD, CT_ADDR));
       set_ptype(tmp, pc->type);
       make_type(tmp);
    }

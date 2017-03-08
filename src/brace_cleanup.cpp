@@ -259,8 +259,8 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if ((chunk_is_comment(pc) == false       )   &&
-          (chunk_is_newline(pc) == false       )   &&
+      if ((chunk_is_cmt(pc) == false       )   &&
+          (chunk_is_nl(pc) == false       )   &&
           ((cpd.is_preproc      == CT_PP_DEFINE) ||
            (cpd.is_preproc      == CT_NONE     ) ) )
       {
@@ -392,7 +392,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    if (((frm->stmt_count == 0) ||
         (frm->expr_count == 0)     ) &&
        (!chunk_is_semicolon(pc)    ) &&
-         is_not_type(pc, 2, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+         is_not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
        (!is_str(pc, ")", 1)  ) &&
        (!is_str(pc, "]", 1)  ) )
    {
@@ -528,7 +528,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          {
             tmp = chunk_get_next_ncnl(pc);
             assert(is_valid(tmp));
-            if (is_not_type(tmp, 2, CT_SEMICOLON, CT_VSEMICOLON))
+            if (is_not_type(tmp, CT_SEMICOLON, CT_VSEMICOLON))
             {
                pawn_add_vsemi_after(pc);
             }
@@ -745,7 +745,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       if (is_type(pc, CT_IF))
       {
          if (!cpd.settings[UO_indent_else_if].b ||
-             !chunk_is_newline(chunk_get_prev_nc(pc)))
+             !chunk_is_nl(chunk_get_prev_nc(pc)))
          {
             /* Replace CT_ELSE with CT_IF */
             set_type(pc, CT_ELSEIF);
@@ -921,7 +921,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if(is_not_type(next, 2, CT_CATCH, CT_FINALLY))
+         if(is_not_type(next, CT_CATCH, CT_FINALLY))
          {
             frm->pse_tos--;
             print_stack(LBCSPOP, "-TRY-HCS ", frm, pc);
@@ -997,7 +997,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
          chunk.flags &= ~PCF_IN_PREPROC;
       }
 
-      while(chunk_is_comment_or_newline(ref))
+      while(chunk_is_cmt_or_nl(ref))
       {
          ref->level++;
          ref->brace_level++;

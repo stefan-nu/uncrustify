@@ -1592,7 +1592,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
 static void add_file_header(void)
 {
-   if (chunk_is_comment(chunk_get_head()) == false)
+   if (chunk_is_cmt(chunk_get_head()) == false)
    {
       /*TODO: detect the typical #ifndef FOO / #define FOO sequence */
       tokenize(cpd.file_hdr.data, chunk_get_head());
@@ -1606,15 +1606,15 @@ static void add_file_footer(void)
 
    /* Back up if the file ends with a newline */
    if (/*(pc != nullptr      ) && */
-        chunk_is_newline(pc) )
+        chunk_is_nl(pc) )
    {
       pc = chunk_get_prev(pc);
    }
-   if (((!chunk_is_comment(pc)                ) ||
-        (!chunk_is_newline(chunk_get_prev(pc))) ) )
+   if (((!chunk_is_cmt(pc)                ) ||
+        (!chunk_is_nl(chunk_get_prev(pc))) ) )
    {
       pc = chunk_get_tail();
-      if (!chunk_is_newline(pc))
+      if (!chunk_is_nl(pc))
       {
          LOG_FMT(LSYS, "Adding a newline at the end of the file\n");
          newline_add_after(pc);
@@ -1706,14 +1706,14 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               break_if((chunk_is_comment(tmp)                           ) &&
+               break_if((chunk_is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
 
          /* Ignore 'right' comments */
-         break_if((chunk_is_comment(ref)           ) &&
-             (chunk_is_newline(chunk_get_prev(ref))) );
+         break_if((chunk_is_cmt(ref)           ) &&
+             (chunk_is_nl(chunk_get_prev(ref))) );
 
          if ( (ref->level == pc->level     )   &&
              (is_flag(ref, PCF_IN_PREPROC) ||
@@ -1763,7 +1763,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               break_if((chunk_is_comment(tmp)                           ) &&
+               break_if((chunk_is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
@@ -1774,8 +1774,8 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_valid(ref))
             {
                /* Ignore 'right' comments */
-               break_if ((chunk_is_newline(ref)          ) &&
-                   (chunk_is_comment(chunk_get_prev(ref))) );
+               break_if ((chunk_is_nl(ref)          ) &&
+                   (chunk_is_cmt(chunk_get_prev(ref))) );
                do_insert = true;
             }
             break;

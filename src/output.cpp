@@ -626,7 +626,7 @@ void output_text(FILE *pfile)
       LOG_FMT(LOUTIND, "text() %s, type %s, col=%zu\n",
               pc->text(), get_token_name(pc->type), pc->orig_col);
       cpd.output_tab_as_space = (cpd.settings[UO_cmt_convert_tab_to_spaces].b &&
-                                 chunk_is_comment(pc));
+                                 chunk_is_cmt(pc));
       if (is_type(pc, CT_NEWLINE))
       {
          for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
@@ -746,7 +746,7 @@ void output_text(FILE *pfile)
                }
             }
             allow_tabs = (cpd.settings[UO_indent_with_tabs].n == 2) ||
-                         (chunk_is_comment(pc) &&
+                         (chunk_is_cmt(pc) &&
                          (cpd.settings[UO_indent_with_tabs].n != 0));
 
             LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%u - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
@@ -784,7 +784,7 @@ void output_text(FILE *pfile)
                add_char(TABSTOP);
             }
          }
-         cpd.did_newline       = chunk_is_newline(pc);
+         cpd.did_newline       = chunk_is_nl(pc);
          cpd.output_trailspace = false;
       }
    }
@@ -1201,7 +1201,7 @@ static chunk_t *output_comment_c(chunk_t *first)
 }
 
 
-/** \todo fct name */
+/** \todo use more appropriate function name */
 void do_something(
    int      &offs, /**< [in]  */
    chunk_t  *pc,   /**< [in]  */
@@ -1989,7 +1989,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
    cmt_reflow cmt;
    output_cmt_start(cmt, pc);
 
-   int col_diff = (chunk_is_newline(chunk_get_prev(pc))) ?
+   int col_diff = (chunk_is_nl(chunk_get_prev(pc))) ?
       (int)pc->orig_col - (int)pc->column : 0;
    /* The comment should be indented correctly : The comment starts after something else */
 
@@ -2144,7 +2144,7 @@ void add_long_preprocessor_conditional_block_comment(void)
          if (is_type(tmp, CT_PREPROC)) { pp_end = tmp; }
 
          assert(is_valid(pp_end));
-         if (chunk_is_newline(tmp))
+         if (chunk_is_nl(tmp))
          {
             nl_count += tmp->nl_count;
          }
@@ -2164,7 +2164,7 @@ void add_long_preprocessor_conditional_block_comment(void)
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
                     (is_valid(tmp) ? (int)tmp->type : -1),
                     (is_valid(tmp) ?
-                     chunk_is_newline(tmp) ? "newline" : chunk_is_comment(tmp) ?
+                     chunk_is_nl(tmp) ? "newline" : chunk_is_cmt(tmp) ?
                      "comment" : "other" : "---"));
 
             if (is_type(tmp, CT_NEWLINE))  /* chunk_is_newline(tmp) */

@@ -169,7 +169,7 @@ void do_braces(void)
    chunk_t *pc = chunk_get_head();
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
-      continue_if(is_not_type(pc, 2, CT_BRACE_OPEN, CT_VBRACE_OPEN));
+      continue_if(is_not_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN));
       chunk_t *br_open = pc;
       const c_token_t brc_type = get_inverse_type(pc->type); /* corresponds to closing type */
 
@@ -185,7 +185,7 @@ void do_braces(void)
       tmp = br_open;
       while ((tmp = chunk_get_next_nc(tmp)) != nullptr)
       {
-         break_if(chunk_is_newline(tmp));
+         break_if(chunk_is_nl(tmp));
          if ((is_type(tmp, brc_type)) &&
              (br_open->level == tmp->level) )
          {
@@ -242,7 +242,7 @@ static bool should_add_braces(chunk_t *vbopen)
    while( (is_valid(pc)        ) && /* chunk is valid */
           (pc->level >  vbopen->level) )  /* tbd */
    {
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          nl_count += pc->nl_count;
       }
@@ -294,7 +294,7 @@ static bool can_remove_braces(chunk_t *bopen)
          return(false);
       }
 
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          nl_count += pc->nl_count;
          if ((nl_max > 0) && (nl_count > nl_max))
@@ -416,7 +416,7 @@ static void examine_brace(chunk_t *bopen)
          return;
       }
 
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          nl_count += pc->nl_count;
          if ((nl_max > 0) && (nl_count > nl_max))
@@ -575,7 +575,7 @@ static void convert_brace(chunk_t *br)
       default:              { /* unexpected type */   return;     }
    }
 
-   if (chunk_is_newline(tmp))
+   if (chunk_is_nl(tmp))
    {
       assert(is_valid(tmp));
       if (tmp->nl_count > 1) { tmp->nl_count--; }
@@ -619,10 +619,10 @@ static void convert_vbrace(chunk_t *vbr)
        * move the brace after the newline and add another newline after
        * the close brace. */
       chunk_t *tmp = chunk_get_next(vbr);
-      if (chunk_is_comment(tmp))
+      if (chunk_is_cmt(tmp))
       {
          tmp = chunk_get_next(tmp);
-         if (chunk_is_newline(tmp))
+         if (chunk_is_nl(tmp))
          {
             chunk_move_after(vbr, tmp);
             newline_add_after(vbr);
@@ -771,7 +771,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
    chunk_t *tmp = pc;
    while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
    {
-      break_if(is_not_type(tmp, 2, CT_DC_MEMBER, CT_MEMBER));
+      break_if(is_not_type(tmp, CT_DC_MEMBER, CT_MEMBER));
       tmp = chunk_get_prev_ncnl(tmp);
       pc  = tmp;
       break_if(!chunk_is_word(tmp));
@@ -781,7 +781,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
    txt += pc->str;
    while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
    {
-      break_if(is_not_type(pc, 2, CT_DC_MEMBER, CT_MEMBER));
+      break_if(is_not_type(pc, CT_DC_MEMBER, CT_MEMBER));
       txt += pc->str;
       pc   = chunk_get_next_ncnl(pc);
       if (is_valid(pc)) { txt += pc->str; }
@@ -816,7 +816,7 @@ void add_long_closebrace_comment(void)
       chunk_t *tmp = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         if (chunk_is_newline(tmp))
+         if (chunk_is_nl(tmp))
          {
             nl_count += tmp->nl_count;
          }
@@ -837,14 +837,14 @@ void add_long_closebrace_comment(void)
                cl_semi_pc = tmp;
                tmp        = chunk_get_next(tmp);
                if (is_valid        (tmp) &&
-                  !chunk_is_newline(tmp) )
+                  !chunk_is_nl(tmp) )
                {
                   tmp        = cl_semi_pc;
                   cl_semi_pc = nullptr;
                }
             }
             if (is_invalid      (tmp) ||
-                chunk_is_newline(tmp) )
+                chunk_is_nl(tmp) )
             {
                size_t  nl_min  = 0;
                chunk_t *tag_pc = nullptr;
@@ -916,8 +916,8 @@ static void move_case_break(void)
       if ( is_type          (pc,   CT_BREAK               ) &&
            is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_CASE) )
       {
-         if (chunk_is_newline(chunk_get_prev(pc  )) &&
-             chunk_is_newline(chunk_get_prev(prev)) )
+         if (chunk_is_nl(chunk_get_prev(pc  )) &&
+             chunk_is_nl(chunk_get_prev(prev)) )
          {
             chunk_swap_lines(prev, pc);
          }
@@ -1065,8 +1065,8 @@ static void mod_case_brace(void)
          pc = mod_case_brace_remove(pc);
       }
       else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD)     ) &&
-                is_type      (pc,      CT_CASE_COLON                         ) &&
-                is_not_type  (next, 3, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE) )
+                is_type      (pc,   CT_CASE_COLON                         ) &&
+                is_not_type  (next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE) )
       {
          pc = mod_case_brace_add(pc);
       }
@@ -1128,13 +1128,13 @@ static void process_if_chain(chunk_t *br_start)
       pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
       if(is_type(pc, CT_ELSEIF))
       {
-         while(is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN))
+         while(is_not_type(pc, CT_VBRACE_OPEN, CT_BRACE_OPEN))
          {
             pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
          }
       }
       break_if(is_invalid(pc));
-      break_if(is_not_type(pc, 2, CT_VBRACE_OPEN, CT_BRACE_OPEN));
+      break_if(is_not_type(pc, CT_VBRACE_OPEN, CT_BRACE_OPEN));
    }
 
    if (must_have_braces)

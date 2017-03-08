@@ -145,7 +145,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          /* do nothing - we want prev when this exits */
       }
       chunk_t *ref = prev;
-      if (chunk_is_newline(ref))
+      if (chunk_is_nl(ref))
       {
          ref = chunk_get_next(ref);
       }
@@ -306,7 +306,7 @@ void AlignStack::Flush()
    chunk_t *pc;
    if (m_aligned.Len() == 1)
    {
-      // check if we have *one* typedef in the line
+      /* check if we have *one* typedef in the line */
       assert(ptr_is_valid(m_aligned.Get(0)));
       pc = m_aligned.Get(0)->m_pc;
       chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
@@ -314,7 +314,7 @@ void AlignStack::Flush()
       {
          if (pc->orig_line == temp->orig_line)
          {
-            // reset the gap only for *this* stack
+            /* reset the gap only for *this* stack */
             m_gap = 1;
          }
       }
@@ -419,8 +419,8 @@ void AlignStack::Flush()
       last_seqnum = ce->m_seqnum;
       m_aligned.Reset();
    }
-   m_min_col = 9999;
-   m_max_col = 0;
+   m_min_col = 9999; /* use unrealistic high numbers */
+   m_max_col = 0;    /* as start value */
 
    if (m_skipped.Empty())
    {
