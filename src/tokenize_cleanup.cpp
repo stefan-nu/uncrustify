@@ -444,7 +444,7 @@ void tokenize_cleanup(void)
            is_not_type(pc, CT_SQL_WORD) ) )
       {
          chunk_t *tmp = chunk_get_prev(pc);
-         if (chunk_is_newline(tmp))
+         if (chunk_is_nl(tmp))
          {
             if (*pc->str.c_str() == '$')
             {
@@ -777,7 +777,7 @@ void tokenize_cleanup(void)
          set_type(pc, CT_QUALIFIER);
       }
 
-      // change CT_DC_MEMBER + CT_FOR into CT_DC_MEMBER + CT_FUNC_CALL
+      /* change CT_DC_MEMBER + CT_FOR into CT_DC_MEMBER + CT_FUNC_CALL */
       if (is_type(pc,       CT_FOR      ) &&
           is_type(pc->prev, CT_DC_MEMBER) )
       {

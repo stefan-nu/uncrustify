@@ -208,7 +208,6 @@ uo_t get_inverse_uo(uo_t option)
 }
 
 
-/* \todo when using C++ the following functions can be overloaded */
 bool is_option_set(argval_t var, argval_t opt)
 {
    return ((var & opt) == opt); /*lint !e655 */

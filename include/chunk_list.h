@@ -703,6 +703,16 @@ bool is_level(
 
 
 /**
+ * Check if a chunk is valid and has a level that is larger
+ * than the reference level given as parameter
+ */
+bool exceeds_level(
+   const chunk_t *pc, /**< [in] chunk to check */
+   const size_t  ref  /**< [in] reference level to be exceeded */
+);
+
+
+/**
  * Check if a chunk is valid and has a given type and level
  */
 bool is_type_and_level(
@@ -741,7 +751,7 @@ bool chunk_is_ptr_operator(
 /**
  * check if a chunk is valid and holds a newline
  */
-bool chunk_is_newline(
+bool chunk_is_nl(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -771,7 +781,7 @@ bool chunk_is_function(
  * - C comment
  * - C++ comment
  */
-bool chunk_is_comment(
+bool chunk_is_cmt(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -779,7 +789,7 @@ bool chunk_is_comment(
 /**
  * checks if a chunk is valid and either a comment or newline
  */
-bool chunk_is_comment_or_newline(
+bool chunk_is_cmt_or_nl(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -787,7 +797,7 @@ bool chunk_is_comment_or_newline(
 /**
  * tbd
  */
-bool chunk_is_balanced_square(
+bool chunk_is_bal_square(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -812,7 +822,7 @@ bool chunk_is_no_preproc_type(
  * check if a chunk is valid and is a comment or newline located in
  * a preprocessor region
  */
-bool chunk_is_comment_or_newline_in_preproc(
+bool chunk_is_cmt_or_nl_in_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -820,7 +830,7 @@ bool chunk_is_comment_or_newline_in_preproc(
 /**
  * check if a chunk is valid and holds a newline or blank character
  */
-bool chunk_is_comment_newline_or_blank(
+bool chunk_is_cmt_nl_or_blank(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -829,7 +839,7 @@ bool chunk_is_comment_newline_or_blank(
  * check if a chunk is valid and holds a comment, a newline or is
  * a preprocessor part
  */
-bool chunk_is_comment_newline_or_preproc(
+bool chunk_is_cmt_nl_or_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -863,9 +873,9 @@ bool chunk_is_var_type(
  * and  a given parent token type
  */
 bool is_type_and_ptype(
-   chunk_t   *pc,   /**< [in] chunk to check */
-   c_token_t type,  /**< [in] token type to check for */
-   c_token_t parent /**< [in] token type to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type,     /**< [in] token type to check for */
+   const c_token_t ptype     /**< [in] token type to check for */
 );
 
 
@@ -874,9 +884,9 @@ bool is_type_and_ptype(
  * and is not a given parent token type
  */
 bool is_type_and_not_ptype(
-   chunk_t   *pc,   /**< [in] chunk to check */
-   c_token_t type,  /**< [in] token type to check for */
-   c_token_t parent /**< [in] token type to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type,     /**< [in] token type to check for */
+   const c_token_t ptype     /**< [in] token type to check for */
 );
 
 
@@ -885,9 +895,9 @@ bool is_type_and_not_ptype(
  * given token type
  */
 bool any_is_type(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type   /**< [in] token type to check for */
+   const chunk_t * const pc1, /**< [in] chunk1 to check */
+   const chunk_t * const pc2, /**< [in] chunk2 to check */
+   const c_token_t type       /**< [in] token type to check for */
 );
 
 
@@ -896,10 +906,10 @@ bool any_is_type(
  * the respective given token type
  */
 bool any_is_type(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   c_token_t     type1, /**< [in] token1 type to check for */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type2  /**< [in] token2 type to check for */
+   const chunk_t * const pc1,   /**< [in] chunk1 to check */
+   const c_token_t       type1, /**< [in] token1 type to check for */
+   const chunk_t * const pc2,   /**< [in] chunk2 to check */
+   const c_token_t       type2  /**< [in] token2 type to check for */
 );
 
 
@@ -909,10 +919,10 @@ bool any_is_type(
  * given type
  */
 bool is_only_first_type(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   c_token_t     type1, /**< [in] token1 type to check for */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type2  /**< [in] token2 type to check for */
+   const chunk_t   *pc1,  /**< [in] chunk1 to check */
+   const c_token_t type1, /**< [in] token1 type to check for */
+   const chunk_t   *pc2,  /**< [in] chunk2 to check */
+   const c_token_t type2  /**< [in] token2 type to check for */
 );
 
 
@@ -921,9 +931,9 @@ bool is_only_first_type(
  * same given token type
  */
 bool are_types(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type   /**< [in] token type to check for */
+   const chunk_t   *pc1, /**< [in] chunk1 to check */
+   const chunk_t   *pc2, /**< [in] chunk2 to check */
+   const c_token_t type  /**< [in] token type to check for */
 );
 
 
@@ -932,9 +942,9 @@ bool are_types(
  * same given parent token type
  */
 bool are_ptypes(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type   /**< [in] token type to check for */
+   const chunk_t   *pc1, /**< [in] chunk1 to check */
+   const chunk_t   *pc2, /**< [in] chunk2 to check */
+   const c_token_t type  /**< [in] token type to check for */
 );
 
 
@@ -943,10 +953,10 @@ bool are_ptypes(
  * token type
  */
 bool are_types(
-   const chunk_t *pc1,  /**< [in] chunk1 to check */
-   c_token_t     type1,  /**< [in] token1 type to check for */
-   const chunk_t *pc2,  /**< [in] chunk2 to check */
-   c_token_t     type2  /**< [in] token2 type to check for */
+   const chunk_t   *pc1,  /**< [in] chunk1 to check */
+   const c_token_t type1, /**< [in] token1 type to check for */
+   const chunk_t   *pc2,  /**< [in] chunk2 to check */
+   const c_token_t type2  /**< [in] token2 type to check for */
 );
 
 
@@ -976,9 +986,9 @@ bool is_type(
  * that corresponds either to type1 or type2
  */
 bool is_type(
-   const chunk_t   *pc,   /**< [in] chunk to check */
-   const c_token_t type1, /**< [in] token type1 to check for */
-   const c_token_t type2  /**< [in] token type2 to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2     /**< [in] token type2 to check for */
 );
 
 
@@ -987,10 +997,10 @@ bool is_type(
  * that corresponds either to type1, type2, or type3
  */
 bool is_type(
-   const chunk_t   *pc,   /**< [in] chunk to check */
-   const c_token_t type1, /**< [in] token type1 to check for */
-   const c_token_t type2, /**< [in] token type2 to check for */
-   const c_token_t type3  /**< [in] token type3 to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2,    /**< [in] token type2 to check for */
+   const c_token_t type3     /**< [in] token type3 to check for */
 );
 
 
@@ -999,11 +1009,11 @@ bool is_type(
  * that corresponds either to type1, type2, or type3
  */
 bool is_type(
-   const chunk_t   *pc,   /**< [in] chunk to check */
-   const c_token_t type1, /**< [in] token type1 to check for */
-   const c_token_t type2, /**< [in] token type2 to check for */
-   const c_token_t type3, /**< [in] token type3 to check for */
-   const c_token_t type4  /**< [in] token type4 to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2,    /**< [in] token type2 to check for */
+   const c_token_t type3,    /**< [in] token type3 to check for */
+   const c_token_t type4     /**< [in] token type4 to check for */
 );
 
 
@@ -1013,7 +1023,7 @@ bool is_type(
  */
 bool is_ptype(
    const chunk_t * const pc, /**< [in] chunk to check */
-   const c_token_t parent    /**< [in] token type to check for */
+   const c_token_t type      /**< [in] token type to check for */
 );
 
 
@@ -1023,8 +1033,8 @@ bool is_ptype(
  */
 bool is_ptype(
    const chunk_t * const pc, /**< [in] chunk to check */
-   const c_token_t parent1,  /**< [in] token type1 to check for */
-   const c_token_t parent2   /**< [in] token type2 to check for */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2     /**< [in] token type2 to check for */
 );
 
 
@@ -1033,20 +1043,43 @@ bool is_ptype(
  * that is either parent1, parent2 or parent3
  */
 bool is_ptype(
-   const chunk_t * const pc, /**< [in] chunk to check */
-   const c_token_t parent1,  /**< [in] token type1 to check for */
-   const c_token_t parent2,  /**< [in] token type2 to check for */
-   const c_token_t parent3   /**< [in] token type3 to check for */
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t type1,   /**< [in] token type1 to check for */
+   const c_token_t type2,   /**< [in] token type2 to check for */
+   const c_token_t type3    /**< [in] token type3 to check for */
 );
 
 
 /**
- * check if the given chunk is valid and has a token type different
- * than a given one
+ * check if the given chunk is valid and has a token type
+ * different than a given one
  */
 bool is_not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
-   c_token_t c_token         /**< [in] token type to check for */
+   const c_token_t type      /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and has a token type
+ * different than token1 and token2
+ */
+bool is_not_type(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2     /**< [in] token type2 to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and has a token type
+ * different than token1, token2, and token3
+ */
+bool is_not_type(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type1,    /**< [in] token type1 to check for */
+   const c_token_t type2,    /**< [in] token type2 to check for */
+   const c_token_t type3     /**< [in] token type3 to check for */
 );
 
 
@@ -1055,9 +1088,9 @@ bool is_not_type(
  * part of a given list
  */
 bool is_type(
-   const chunk_t *pc,     /**< [in] chunk to check */
-   int            count,  /**< [in] number of token types to check */
-   ...                    /**< [in] list of token types to check for */
+   const chunk_t *pc, /**< [in] chunk to check */
+   int count,  /**< [in] number of token types to check */
+   ...         /**< [in] list of token types to check for */
 );
 
 
@@ -1066,9 +1099,9 @@ bool is_type(
  * type which is part of a given list
  */
 bool is_ptype(
-   const chunk_t * const pc,   /**< [in] chunk to check */
-   int count,     /**< [in] number of token types to check */
-   ...            /**< [in] list of token types to check for */
+   const chunk_t * const pc, /**< [in] chunk to check */
+   int count,   /**< [in] number of token types to check */
+   ...          /**< [in] list of token types to check for */
 );
 
 
@@ -1078,8 +1111,8 @@ bool is_ptype(
  */
 bool is_not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
-   int count,                /**< [in] number of token types to check */
-   ...                       /**< [in] list of token types to check for */
+   int count,  /**< [in] number of token types to check */
+   ...         /**< [in] list of token types to check for */
 );
 
 
@@ -1089,8 +1122,8 @@ bool is_not_type(
  */
 bool is_not_ptype(
    const chunk_t * const pc, /**< [in] chunk to check */
-   int count,     /**< [in] number of token types to check */
-   ...            /**< [in] list of parent token types to check for */
+   int count, /**< [in] number of token types to check */
+   ...        /**< [in] list of parent token types to check for */
 );
 
 

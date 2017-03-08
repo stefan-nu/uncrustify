@@ -144,13 +144,13 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* If we hit a newline or nullptr, we are done */
       break_if(are_invalid(pc1, pc2) ||
-               chunk_is_newline(pc1) ||
-               chunk_is_newline(pc2) );
+               chunk_is_nl(pc1) ||
+               chunk_is_nl(pc2) );
    }
 
-   retval_if((is_invalid(pc1) || !chunk_is_newline(pc2)), -1);
-   retval_if(!chunk_is_newline(pc1), 1);
-   return(0); /* \todo explain the return values */
+   retval_if((is_invalid(pc1) || !chunk_is_nl(pc2)), -1);
+   retval_if(!chunk_is_nl(pc1), 1);
+   return(0); /* \todo explain the return values -1, 0, 1 */
 }
 
 
@@ -205,7 +205,7 @@ void sort_imports(void)
    {
       chunk_t *next = chunk_get_next(pc);
 
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          bool did_import = false;
 
@@ -250,7 +250,7 @@ void sort_imports(void)
          p_imp  = chunk_get_next(pc);
          p_last = pc;
       }
-      else if (!chunk_is_comment(pc))
+      else if (!chunk_is_cmt(pc))
       {
          p_last = pc;
       }

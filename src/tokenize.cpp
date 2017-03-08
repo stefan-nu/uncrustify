@@ -836,7 +836,6 @@ static bool is_hex_or_underline(int ch)
 }
 
 
-/* \todo rename to  more suitable name */
 bool analyze_character(tok_ctx &ctx, chunk_t &pc)
 {
    bool did_hex = false;
@@ -1982,7 +1981,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          chunk_flags_set(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-         if(!chunk_is_comment_or_newline(pc))
+         if(!chunk_is_cmt_or_nl(pc))
          {
             cpd.preproc_ncnl_count++;
          }
@@ -2009,7 +2008,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
             // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
-            if (is_not_type(pc, 2, CT_NL_CONT, CT_COMMENT_CPP))
+            if (is_not_type(pc, CT_NL_CONT, CT_COMMENT_CPP))
             {
                set_type(pc, CT_PP_IGNORE);
             }

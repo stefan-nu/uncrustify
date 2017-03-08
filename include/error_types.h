@@ -11,13 +11,11 @@
 
 #include <stdlib.h>      /* provides EXIT_SUCCESS and EXIT FAILURE */
 
-/* \todo if we decided to only use EX_OK and EX_xxx we can
- * avoid including stdlib.h here */
 
 #ifdef WIN32
 /* Windows does not know sysexists.h. Thus define the error codes */
 
-#define EX_OK             0    /* successful termination */
+#define EX_OK              0   /* successful termination */
 #define EX__BASE          64   /* base value for error messages */
 #define EX_USAGE          64   /* command line usage error */
 #define EX_DATAERR        65   /* data format error */

@@ -381,7 +381,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
    size_t  min_col;
    chunk_t *prev = chunk_get_prev(pc);
    if (is_invalid (prev) ||
-        chunk_is_newline(prev) )
+        chunk_is_nl(prev) )
    {
       min_col = squeeze ? 1 : pc->column;
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu\n",
@@ -452,7 +452,7 @@ void quick_indent_again(void)
       if (pc->indent.ref)
       {
          chunk_t *tmp = chunk_get_prev(pc);
-         if (chunk_is_newline(tmp))
+         if (chunk_is_nl(tmp))
          {
             const size_t col = (size_t)((int)pc->indent.ref->column + pc->indent.delta);
 
@@ -520,7 +520,7 @@ static void align_oc_msg_spec(size_t span)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if      (chunk_is_newline(pc)       ) { as.NewLines(pc->nl_count); }
+      if      (chunk_is_nl(pc)       ) { as.NewLines(pc->nl_count); }
       else if (is_type(pc, CT_OC_MSG_SPEC)) { as.Add(pc);                }
    }
    as.End();
@@ -678,7 +678,7 @@ void align_preprocessor(void)
 
       /* don't align anything if the first line ends with a newline before
        * a value is given */
-      if (!chunk_is_newline(pc))
+      if (!chunk_is_nl(pc))
       {
          LOG_FMT(LALPP, "%s: align on '%s', line %zu col %zu\n",
                  __func__, pc->text(), pc->orig_line, pc->orig_col);
@@ -753,7 +753,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          continue;
       }
 
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          as.NewLines  (pc->nl_count);
          vdas.NewLines(pc->nl_count);
@@ -809,7 +809,7 @@ static chunk_t *align_func_param(chunk_t *start)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       chunk_count++;
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          did_this_line = false;
          comma_count   = 0;
@@ -825,7 +825,7 @@ static chunk_t *align_func_param(chunk_t *start)
       }
       else if (comma_count > 0)
       {
-         if (!chunk_is_comment(pc))
+         if (!chunk_is_cmt(pc))
          {
             comma_count = 2;
             break;
@@ -902,7 +902,7 @@ static void align_same_func_call_params(void)
    {
       if (is_not_type(pc, CT_FUNC_CALL))
       {
-         if (chunk_is_newline(pc))
+         if (chunk_is_nl(pc))
          {
             for (auto &as_v : as)
             {
@@ -942,7 +942,7 @@ static void align_same_func_call_params(void)
          }
          prev = chunk_get_prev(tprev);
       }
-      continue_if(!chunk_is_newline(prev));
+      continue_if(!chunk_is_nl(prev));
 
       prev      = chunk_get_next(prev);
       align_fcn = prev;
@@ -1075,7 +1075,7 @@ static void align_func_proto(size_t span)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          look_bro = false;
          as.NewLines(pc->nl_count);
@@ -1183,7 +1183,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    {
       LOG_FMT(LGUY, "%s: pc->text()=%s, pc->orig_line=%zu, pc->orig_col=%zu\n",
               __func__, pc->text(), pc->orig_line, pc->orig_col);
-      if (chunk_is_comment(pc))
+      if (chunk_is_cmt(pc))
       {
          if (pc->nl_count > 0)
          {
@@ -1247,7 +1247,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
          break;
       }
 
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          fp_look_bro   = false;
          did_this_line = false;
@@ -1270,7 +1270,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
       /* If this is a variable def, update the max_col */
       if (!(pc->flags & PCF_IN_CLASS_BASE) &&
-          is_not_type(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
+          is_not_type(pc, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
           ((pc->flags & align_mask) == PCF_VAR_1ST) &&
           ((pc->level == (start->level + 1)) ||
            (pc->level == 0)) &&
@@ -1315,7 +1315,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                      break;
                   }
                   if (is_type   (next, CT_SEMICOLON) ||
-                      chunk_is_newline(next        ) )
+                      chunk_is_nl(next        ) )
                   {
                      break;
                   }
@@ -1356,7 +1356,7 @@ chunk_t *align_nl_cont(chunk_t *start)
    size_t     max_col = 0;
    chunk_t    *pc     = start;
 
-   while(is_not_type(pc, 2, CT_NEWLINE, CT_COMMENT_MULTI) )
+   while(is_not_type(pc, CT_NEWLINE, CT_COMMENT_MULTI) )
    {
       if (is_type(pc, CT_NL_CONT))
       {
@@ -1440,7 +1440,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
             nl_count = 0;
          }
       }
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          nl_count += pc->nl_count;
       }
@@ -1524,7 +1524,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
    }
 
    while ( is_valid  (pc) &&
-          !chunk_is_newline(pc) &&
+          !chunk_is_nl(pc) &&
           (pc->level >= start->level))
    {
       //LOG_FMT(LSIB, "%s:     '%s'   col %d/%d line %zu\n", __func__,
@@ -1532,7 +1532,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
 
       chunk_t *next = chunk_get_next(pc);
       if (is_invalid(next) ||
-          chunk_is_comment(next) )
+          chunk_is_cmt(next) )
       {
          /* do nothing */
       }
@@ -1634,7 +1634,7 @@ static void align_init_brace(chunk_t *start)
       /* debug dump the current frame */
       align_log_al(LALBR, pc->orig_line);
 
-      while (chunk_is_newline(pc))
+      while (chunk_is_nl(pc))
       {
          pc = chunk_get_next(pc);
       }
@@ -1679,7 +1679,7 @@ static void align_init_brace(chunk_t *start)
             if ((idx == 0) && cpd.al_c99_array)
             {
                chunk_t *prev = chunk_get_prev(pc);
-               if (chunk_is_newline(prev))
+               if (chunk_is_nl(prev))
                {
                   chunk_flags_set(pc, (UINT64)PCF_DONT_INDENT);
                }
@@ -1703,7 +1703,7 @@ static void align_init_brace(chunk_t *start)
             if (is_type(pc, CT_COMMA))
             {
                next = chunk_get_next(pc);
-               if ((is_valid(next)) && !chunk_is_newline(next))
+               if ((is_valid(next)) && !chunk_is_nl(next))
                {
                   //LOG_FMT(LSYS, "-= %zu =- indent [%s] col=%d len=%d\n",
                   //        next->orig_line,
@@ -1734,7 +1734,7 @@ static void align_init_brace(chunk_t *start)
                    cpd.settings[UO_align_number_left].b)
                {
                   next = chunk_get_next(pc);
-                  if (!chunk_is_newline(next) &&
+                  if (!chunk_is_nl(next) &&
                       (is_type(next, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
                   {
                      /* Need to wait until the next match to indent numbers */
@@ -1746,8 +1746,8 @@ static void align_init_brace(chunk_t *start)
          }
          else { LOG_FMT(LALBR, " no match\n"); }
       }
-      if (chunk_is_newline(pc  ) ||
-          chunk_is_newline(next) )
+      if (chunk_is_nl(pc  ) ||
+          chunk_is_nl(next) )
       {
          idx = 0;
       }
@@ -1771,7 +1771,7 @@ static void align_typedefs(size_t span)
    chunk_t *pc        = chunk_get_head();
    while (is_valid(pc))
    {
-      if (chunk_is_newline(pc))
+      if (chunk_is_nl(pc))
       {
          as.NewLines(pc->nl_count);
          c_typedef = nullptr;
@@ -1817,7 +1817,7 @@ static void align_left_shift(void)
          as.Flush();
          start = nullptr;
       }
-      else if (chunk_is_newline(pc))
+      else if (chunk_is_nl(pc))
       {
          as.NewLines(pc->nl_count);
       }
@@ -1851,7 +1851,7 @@ static void align_left_shift(void)
              *      cout
              *          << "something"; */
             chunk_t *prev = chunk_get_prev(pc);
-            if (chunk_is_newline(prev))
+            if (chunk_is_nl(prev))
             {
                indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
                pc->column_indent = pc->column;
@@ -1862,7 +1862,7 @@ static void align_left_shift(void)
             as.Add(pc);
             start = pc;
          }
-         else if (chunk_is_newline(chunk_get_prev(pc)))
+         else if (chunk_is_nl(chunk_get_prev(pc)))
          {
             /* subsequent ones must be after a newline */
             as.Add(pc);
@@ -1876,7 +1876,7 @@ static void align_left_shift(void)
           *      cout <<
           *          "something"; */
          chunk_t *prev = chunk_get_prev(pc);
-         if (chunk_is_newline(prev))
+         if (chunk_is_nl(prev))
          {
             indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
             pc->column_indent = pc->column;
@@ -1912,7 +1912,7 @@ static void align_oc_msg_colon(chunk_t *so)
    while (is_valid(pc) && (pc->level > level))
    {
       if (pc->level > (level + 1)) { /* do nothing */ }
-      else if (chunk_is_newline(pc))
+      else if (chunk_is_nl(pc))
       {
          if (has_colon == false)
          {
@@ -2044,7 +2044,7 @@ static void align_oc_decl_colon(void)
          break_if (is_type     (pc, CT_BRACE_OPEN) ||
              chunk_is_semicolon(pc               ) );
 
-         if (chunk_is_newline(pc))
+         if (chunk_is_nl(pc))
          {
             nas.NewLines(pc->nl_count);
             cas.NewLines(pc->nl_count);
@@ -2099,7 +2099,7 @@ static void align_asm_colon(void)
       while (is_valid(pc) &&
              (pc->level >= level))
       {
-         if (chunk_is_newline(pc))
+         if (chunk_is_nl(pc))
          {
             cas.NewLines(pc->nl_count);
             did_nl = true;
