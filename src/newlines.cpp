@@ -959,7 +959,6 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
     *  - two newlines in a row (don't add)
     *  - a destructor
     *  - something else (don't remove) */
-
    chunk_t *last_nl      = nullptr;
    chunk_t *last_comment = nullptr;
    chunk_t *pc;
@@ -1097,6 +1096,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
    return_if ((nl_opt == AV_IGNORE) ||
 //       ((start->flags & PCF_IN_PREPROC) &&
        (is_flag(start, PCF_IN_PREPROC) &&
+//       (is_flag(start, PCF_IN_PREPROC) &&
         !cpd.settings[UO_nl_define_macro].b));
    /* first find ending brace */
    chunk_t *pc;

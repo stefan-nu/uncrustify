@@ -1466,11 +1466,10 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
          }
          else
          {
-            set_type(pc,
-                           ((prev->flags & PCF_PUNCTUATOR                                      ) &&
-                            (!chunk_is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
-                             is_not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
-                             ? CT_DEREF : CT_ARITH);
+            set_type(pc,((prev->flags & PCF_PUNCTUATOR                                ) &&
+                         (!chunk_is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
+                          is_not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
+                          ? CT_DEREF : CT_ARITH);
          }
       }
    }
@@ -2916,7 +2915,7 @@ static void fix_fcn_def_params(chunk_t *start)
 static chunk_t *skip_to_next_statement(chunk_t *pc)
 {
    while ( is_not_type (pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
-          !chunk_is_semicolon(pc                                  ) )
+          !chunk_is_semicolon(pc                         ) )
    {
       pc = chunk_get_next_ncnl(pc);
    }
@@ -2957,7 +2956,7 @@ static chunk_t *fix_var_def(chunk_t *start)
    retval_if(is_invalid(end), end);
 
    /* Function defs are handled elsewhere */
-   if ((cs.Len()  <= 1                  ) ||
+   if ((cs.Len()  <= 1) ||
         is_type(end, 5, CT_OPERATOR, CT_FUNC_DEF, CT_FUNC_PROTO,
                         CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF) )
    {
@@ -3280,19 +3279,19 @@ static void mark_function(chunk_t *pc)
 
    /* Find out what is before the operator */
    chunk_t *tmp;
-   if (pc->ptype == CT_OPERATOR)
+   if (is_ptype(pc, CT_OPERATOR))
    {
       const chunk_t *pc_op = chunk_get_prev_type(pc, CT_OPERATOR, (int)pc->level);
-      if ((is_valid(pc_op)) && (pc_op->flags & PCF_EXPR_START))
+      if (is_flag(pc_op, PCF_EXPR_START))
       {
          set_type(pc, CT_FUNC_CALL);
       }
+
       if (cpd.lang_flags & LANG_CPP)
       {
          tmp = pc;
          while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
          {
-#if 0
             switch(tmp->type)
             {
                case(CT_BRACE_CLOSE):    /* fallthrough */
@@ -3311,45 +3310,20 @@ static void mark_function(chunk_t *pc)
                      case(CT_CLASS   ): /* fallthrough */
                      case(CT_STRUCT  ): set_type(pc, CT_FUNC_DEF ); goto exit_loop;
                      default:           /*ignore unexpected ptype*/ goto exit_loop;
+                  }
                   break;
                }
                default:                 /* go on with loop */       break;
             }
-#else
-            switch(tmp->type)
-            {
-               case(CT_BRACE_CLOSE):      /* fallthrough */
-               case(CT_SEMICOLON  ):    { /* do nothing */            goto exit_loop; }
-               case(CT_PAREN_OPEN ):      /* fallthrough */
-               case(CT_SPAREN_OPEN):      /* fallthrough */
-               case(CT_TPAREN_OPEN):      /* fallthrough */
-               case(CT_FPAREN_OPEN):      /* fallthrough */
-               case(CT_ASSIGN     ):    { set_type(pc, CT_FUNC_CALL); goto exit_loop; }
-               case(CT_TEMPLATE   ):    { set_type(pc, CT_FUNC_DEF ); goto exit_loop; }
-               case(CT_BRACE_OPEN ):
-               {
-                  switch(tmp->ptype)
-                  {
-                     case(CT_FUNC_DEF): { set_type(pc, CT_FUNC_CALL); goto exit_loop; }
-                     case(CT_CLASS   ):  /* fallthrough */
-                     case(CT_STRUCT  ): { set_type(pc, CT_FUNC_DEF ); goto exit_loop; }
-                     default:           {/*ignore unexpected ptype*/  goto exit_loop; }
-                  }
-                  break;
-               }
-               default:                 { /* go on with loop */       break;          }
-            }
-#endif
          }
-exit_loop:
 
+exit_loop:
          if (is_valid   (tmp             ) &&
              is_not_type(pc, CT_FUNC_CALL) )
          {
-            /* Mark the return type */
             while ((tmp = chunk_get_next_ncnl(tmp)) != pc)
             {
-               make_type(tmp);
+               make_type(tmp); /* Mark the return type */
             }
          }
       }
@@ -3361,7 +3335,8 @@ exit_loop:
       return_if(is_invalid(next));
    }
 
-   LOG_FMT(LFCN, "%s: orig_line=%zu] %s[%s] - parent=%s level=%zu/%zu, next=%s[%s] - level=%zu\n",
+   LOG_FMT(LFCN, "%s: orig_line=%zu] %s[%s] - parent=%s level=%zu/%zu, "
+         "next=%s[%s] - level=%zu\n",
            __func__, pc->orig_line, pc->text(),
            get_token_name(pc->type), get_token_name(pc->ptype),
            pc->level, pc->brace_level,
