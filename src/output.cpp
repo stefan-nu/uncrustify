@@ -640,7 +640,7 @@ void output_text(FILE *pfile)
       else if (is_type(pc, CT_NL_CONT))
       {
          /* FIXME: this really shouldn't be done here! */
-         if ((pc->flags & PCF_WAS_ALIGNED) == 0)
+         if (is_not_flag(pc, PCF_WAS_ALIGNED))
          {
             if (is_option_set(cpd.settings[UO_sp_before_nl_cont].a, AV_REMOVE))
             {
@@ -766,7 +766,7 @@ void output_text(FILE *pfile)
             chunk_t *prev = chunk_get_prev(pc);
             assert(is_valid(prev));
             allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
-                          (pc->flags & PCF_WAS_ALIGNED) &&
+                          is_flag(pc, PCF_WAS_ALIGNED) &&
                           ((prev->column + prev->len() + 1) != pc->column));
             if (cpd.settings[UO_align_keep_tabs].b)
             {
@@ -1079,7 +1079,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
-           (!(pc->flags & PCF_INSERTED)            ) )
+           (is_not_flag(pc, PCF_INSERTED)          ) )
       {
          cmt.column    = 1u;
          cmt.base_col  = 1u;
@@ -1398,18 +1398,17 @@ static void cmt_trim_whitespace(unc_text &line, bool in_preproc)
       (line.size() >  1        ) &&  /* with a line that holds ... */
       (line.back() == BACKSLASH) )   /* a backslash-newline ... */
    {
-      bool do_space = false;
-
       /* If there was any space before the backslash, change it to 1 space */
       line.pop_back();
 
+      bool add_space = false;
       while(line_has_trailing_whitespace(line))
       {
-         do_space = true;
+         add_space = true;
          line.pop_back();
       }
 
-      if (do_space) { line.append(SPACE); }
+      if (add_space) { line.append(SPACE); }
       line.append(BACKSLASH);
    }
 }
@@ -1514,7 +1513,7 @@ static void output_comment_multi(chunk_t *pc)
                 !unc_isspace(pc->str[nxt_len]) &&
                 (pc->str[nxt_len] != '*') &&
                 ((nxt_len == remaining) ||
-                 ((pc->flags & PCF_IN_PREPROC)
+                 (is_flag(pc, PCF_IN_PREPROC)
                   ? (pc->str[nxt_len] != '\\') ||
                   ((pc->str[nxt_len + 1] != 'r') &&
                    (pc->str[nxt_len + 1] != LINEFEED))
@@ -1907,7 +1906,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    chunk_t *fcn = get_next_function(cmt);
    retval_if(is_invalid(fcn), false);
 
-   if (fcn->flags & PCF_IN_CLASS)
+   if (is_flag(fcn, PCF_IN_CLASS))
    {
       /* if inside a class, we need to find to the class name */
       chunk_t *tmp = chunk_get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));

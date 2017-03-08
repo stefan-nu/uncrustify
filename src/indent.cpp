@@ -1531,12 +1531,12 @@ void indent_text(void)
          }
 
          if ((is_type(pc, CT_FPAREN_OPEN, CT_ANGLE_OPEN)) &&
-             ((cpd.settings[UO_indent_func_call_param    ].b && (is_ptype(pc, 2, CT_FUNC_CALL,      CT_FUNC_CALL_USER  ))) ||
-              (cpd.settings[UO_indent_func_proto_param   ].b && (is_ptype(pc, 2, CT_FUNC_PROTO,     CT_FUNC_CLASS_PROTO))) ||
-              (cpd.settings[UO_indent_func_class_param   ].b && (is_ptype(pc, 2, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))) ||
-              (cpd.settings[UO_indent_template_param     ].b && (is_ptype(pc,    CT_TEMPLATE                           ))) ||
-              (cpd.settings[UO_indent_func_ctor_var_param].b && (is_ptype(pc,    CT_FUNC_CTOR_VAR                      ))) ||
-              (cpd.settings[UO_indent_func_def_param     ].b && (is_ptype(pc,    CT_FUNC_DEF)                          ))) )
+             ((cpd.settings[UO_indent_func_call_param    ].b && (is_ptype(pc, CT_FUNC_CALL,      CT_FUNC_CALL_USER  ))) ||
+              (cpd.settings[UO_indent_func_proto_param   ].b && (is_ptype(pc, CT_FUNC_PROTO,     CT_FUNC_CLASS_PROTO))) ||
+              (cpd.settings[UO_indent_func_class_param   ].b && (is_ptype(pc, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO))) ||
+              (cpd.settings[UO_indent_template_param     ].b && (is_ptype(pc, CT_TEMPLATE                           ))) ||
+              (cpd.settings[UO_indent_func_ctor_var_param].b && (is_ptype(pc, CT_FUNC_CTOR_VAR                      ))) ||
+              (cpd.settings[UO_indent_func_def_param     ].b && (is_ptype(pc, CT_FUNC_DEF)                          ))) )
          {
             /* Skip any continuation indents */
             idx = (int)frm.pse_tos - 1;
@@ -2103,7 +2103,7 @@ void indent_text(void)
                   LOG_FMT(LINDPC, "FUNC_CALL OK [%d]\n", __LINE__);
 
                   use_ident = cpd.settings[UO_use_indent_func_call_param].b;
-                  LOG_FMT(LINDPC, "use is %s [%d]\n", bool2string(use_ident).c_str(), __LINE__);
+                  LOG_FMT(LINDPC, "use is %s [%d]\n", bool2str(use_ident).c_str(), __LINE__);
                }
             }
             if (pc->column != indent_column)

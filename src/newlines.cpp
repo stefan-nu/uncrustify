@@ -3575,8 +3575,8 @@ void do_blank_lines(void)
 
       /* Change blanks between a function comment and body */
       if ((cpd.settings[UO_nl_comment_func_def].u != 0)   &&
-          is_type_and_ptype(pcmt, CT_COMMENT_MULTI, CT_COMMENT_WHOLE ) &&
-          is_ptype         (next, 2, CT_FUNC_DEF,   CT_FUNC_CLASS_DEF) )
+          is_type_and_ptype(pcmt, CT_COMMENT_MULTI, CT_COMMENT_WHOLE) &&
+          is_ptype         (next, CT_FUNC_CLASS_DEF, CT_FUNC_DEF    ) )
       {
          if (cpd.settings[UO_nl_comment_func_def].u != pc->nl_count)
          {

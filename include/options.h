@@ -1180,7 +1180,7 @@ string argtype2string(
 /**
  * convert a boolean to a string
  */
-string bool2string(
+string bool2str(
    bool val /**< [in] boolean to convert*/
 );
 
@@ -1188,7 +1188,7 @@ string bool2string(
 /**
  * convert an argument value to a C++ string
  */
-string argval2string(
+string argval2str(
    argval_t argval  /**< [in] argument value to convert */
 );
 
@@ -1196,7 +1196,7 @@ string argval2string(
 /**
  * convert an integer number to a string
  */
-string number2string(
+string number2str(
    int number  /**< [integer number to convert */
 );
 
@@ -1204,7 +1204,7 @@ string number2string(
 /**
  * convert a line ending type to a string
  */
-string lineends2string(
+string lineends2str(
    lineends_t linends   /**< [in] line ending type to convert */
 );
 
@@ -1212,7 +1212,7 @@ string lineends2string(
 /**
  * convert a token to a string
  */
-string tokenpos2string(
+string tokenpos2str(
    tokenpos_t tokenpos  /**< [in] token to convert */
 );
 
@@ -1220,7 +1220,7 @@ string tokenpos2string(
 /**
  * convert an argument of a given type to a string
  */
-string op_val2string(
+string op_val2str(
    const argtype_t argtype,   /**< [in] type of argument */
    const op_val_t  &op_val    /**< [in] value of argument */
 );
