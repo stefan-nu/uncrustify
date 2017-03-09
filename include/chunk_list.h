@@ -304,7 +304,7 @@ chunk_t *chunk_get_prev(
 /**
  * Swaps two chunks
  */
-void chunk_swap(
+void swap_chunks(
    chunk_t *pc1, /**< [in] the first  chunk */
    chunk_t *pc2  /**< [in] the second chunk */
 );
@@ -313,7 +313,7 @@ void chunk_swap(
 /**
  * Swaps two lines that are started with the specified chunks.
  */
-void chunk_swap_lines(
+void swap_lines(
    chunk_t *pc1, /**< [in] The first chunk of line 1 */
    chunk_t *pc2  /**< [in] The first chunk of line 2 */
 );
@@ -674,7 +674,7 @@ void set_ptype_and_flag(
 /**
  * defines the flags of a chunk
  */
-void chunk_flags_set(
+void set_flags(
    chunk_t *pc,      /**< [in] chunk to operate on */
    UINT64  set_bits  /**< [in] flag bits to add */
 );
@@ -683,7 +683,7 @@ void chunk_flags_set(
 /**
  * clears flags of a chunk
  */
-void chunk_flags_clr(
+void clr_flags(
    chunk_t *pc,      /**< [in] chunk to operate on */
    UINT64  clr_bits  /**< [in] flag bits to remove */
 );
@@ -692,7 +692,7 @@ void chunk_flags_clr(
 /**
  * updates the flags in a chunk
  */
-void chunk_flags_update(
+void update_flags(
    chunk_t *pc,      /**< [in] chunk to update */
    UINT64  clr_bits, /**< [in] flag bits to remove */
    UINT64  set_bits  /**< [in] flag bits to add */
@@ -749,7 +749,7 @@ bool is_type_and_level(
 /**
  * Check to see if there is a newline between the two chunks
  */
-bool chunk_is_newline_between(
+bool is_newline_between(
    chunk_t *start,  /**< [in] chunk where check starts */
    chunk_t *end     /**< [in] chunk where check ends */
 );
@@ -758,7 +758,7 @@ bool chunk_is_newline_between(
 /**
  * check if a chunk is valid and holds a pointer operator
  */
-bool chunk_is_ptr_operator(
+bool is_ptr_operator(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -766,7 +766,7 @@ bool chunk_is_ptr_operator(
 /**
  * check if a chunk is valid and holds a newline
  */
-bool chunk_is_nl(
+bool is_nl(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -774,7 +774,7 @@ bool chunk_is_nl(
 /**
  * check if a chunk is valid and holds a comma
  */
-bool chunk_is_comma(
+bool is_comma(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -782,7 +782,7 @@ bool chunk_is_comma(
 /**
  * check if a chunk is valid and holds an empty string
  */
-bool chunk_is_empty(
+bool chunk_empty(
 chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -804,7 +804,7 @@ bool chunk_is_function(
  * - C comment
  * - C++ comment
  */
-bool chunk_is_cmt(
+bool is_cmt(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -812,7 +812,7 @@ bool chunk_is_cmt(
 /**
  * checks if a chunk is valid and either a comment or newline
  */
-bool chunk_is_cmt_or_nl(
+bool is_cmt_or_nl(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -820,7 +820,7 @@ bool chunk_is_cmt_or_nl(
 /**
  * tbd
  */
-bool chunk_is_bal_square(
+bool is_bal_square(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -828,7 +828,7 @@ bool chunk_is_bal_square(
 /**
  * check if a chunk is valid and holds a part of a preprocessor region
  */
-bool chunk_is_preproc(
+bool is_preproc(
    chunk_t * pc  /**< [in] chunk to check */
 );
 
@@ -836,7 +836,7 @@ bool chunk_is_preproc(
 /**
  * check if a chunk is valid and has a type that is not part of a preprocessor region
  */
-bool chunk_is_no_preproc_type(
+bool is_no_preproc_type(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -845,7 +845,7 @@ bool chunk_is_no_preproc_type(
  * check if a chunk is valid and is a comment or newline located in
  * a preprocessor region
  */
-bool chunk_is_cmt_or_nl_in_preproc(
+bool is_cmt_or_nl_in_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -853,7 +853,7 @@ bool chunk_is_cmt_or_nl_in_preproc(
 /**
  * check if a chunk is valid and holds a newline or blank character
  */
-bool chunk_is_cmt_nl_or_blank(
+bool is_cmt_nl_or_blank(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -862,7 +862,7 @@ bool chunk_is_cmt_nl_or_blank(
  * check if a chunk is valid and holds a comment, a newline or is
  * a preprocessor part
  */
-bool chunk_is_cmt_nl_or_preproc(
+bool is_cmt_nl_or_preproc(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -870,7 +870,7 @@ bool chunk_is_cmt_nl_or_preproc(
 /**
  * check if a chunk is valid and holds a single line comment
  */
-bool chunk_is_single_line_comment(
+bool is_single_line_cmt(
    const chunk_t* const pc /**< [in] chunk to check */
 );
 
@@ -878,7 +878,7 @@ bool chunk_is_single_line_comment(
 /**
  * check if a chunk is valid and holds a semicolon
  */
-bool chunk_is_semicolon(
+bool is_semicolon(
    const chunk_t* const pc /**< [in] chunk to check */
 );
 
@@ -886,7 +886,7 @@ bool chunk_is_semicolon(
 /**
  * check if a chunk is valid and holds a variable type
  */
-bool chunk_is_var_type(
+bool is_var_type(
    const chunk_t* const pc /**< [in] chunk to check */
 );
 
@@ -1077,7 +1077,7 @@ bool is_ptype(
  * check if the given chunk is valid and has a token type
  * different than a given one
  */
-bool is_not_type(
+bool not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
    const c_token_t type      /**< [in] token type to check for */
 );
@@ -1087,7 +1087,7 @@ bool is_not_type(
  * check if the given chunk is valid and has a token type
  * different than token1 and token2
  */
-bool is_not_type(
+bool not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
    const c_token_t type1,    /**< [in] token type1 to check for */
    const c_token_t type2     /**< [in] token type2 to check for */
@@ -1098,7 +1098,7 @@ bool is_not_type(
  * check if the given chunk is valid and has a token type
  * different than token1, token2, and token3
  */
-bool is_not_type(
+bool not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
    const c_token_t type1,    /**< [in] token type1 to check for */
    const c_token_t type2,    /**< [in] token type2 to check for */
@@ -1163,7 +1163,10 @@ bool is_type_and_flag(
 
 /**
  * Check if the given chunk is valid and has a given flag
- * combination set.
+ * set.
+ *
+ * \note Only check one flag at a time. Several flags cannot be
+ * checked together as the flags are not defined as bitmask.
  */
 bool is_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
@@ -1173,7 +1176,7 @@ bool is_flag(
 
 /**
  * Check if the given chunk is valid and has a given flag
- * combination not set Other flags are ignored during the check.
+ * combination not set.
  */
 bool is_not_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
@@ -1196,7 +1199,7 @@ bool is_str(
  * check if the given chunk is valid and holds a given string.
  * The case of the string is ignored.
  */
-bool chunk_is_str_case(
+bool is_str_case(
    chunk_t *pc,      /**< [in] chunk to check */
    const char *str,  /**< [in] string to compare with */
    size_t len        /**< [in] number of characters in string to compare */
@@ -1214,7 +1217,7 @@ bool chunk_is_str_case(
  /**
   * tbd
   */
-bool chunk_is_star(
+bool is_star(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1222,7 +1225,7 @@ bool chunk_is_star(
 /**
  * tbd
  */
-bool chunk_is_addr(
+bool is_addr(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1230,7 +1233,7 @@ bool chunk_is_addr(
 /**
  * tbd
  */
-bool chunk_is_msref(
+bool is_msref(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1247,7 +1250,7 @@ bool chunk_is_member(
 /**
  * tbd
  */
-bool chunk_is_closing_brace(
+bool is_closing_brace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1255,7 +1258,7 @@ bool chunk_is_closing_brace(
 /**
  * tbd
  */
-bool chunk_is_opening_brace(
+bool is_opening_brace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1263,7 +1266,7 @@ bool chunk_is_opening_brace(
 /**
  * tbd
  */
-bool chunk_is_vbrace(
+bool is_vbrace(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1271,7 +1274,7 @@ bool chunk_is_vbrace(
 /**
  * tbd
  */
-bool chunk_is_fparen_open(
+bool is_fparen_open(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1279,7 +1282,7 @@ bool chunk_is_fparen_open(
 /**
  * tbd
  */
-bool chunk_is_paren_open(
+bool is_paren_open(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1287,7 +1290,7 @@ bool chunk_is_paren_open(
 /**
  * tbd
  */
-bool chunk_is_paren_close(
+bool is_paren_close(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -1298,7 +1301,7 @@ bool chunk_is_paren_close(
  * part of a preprocessor block.
  * If the result is true, a newline/nl_cont between the two may be removed.
  */
-bool chunk_same_preproc(
+bool are_same_preproc(
    chunk_t *pc1, /**< [in] chunk 1 to compare */
    chunk_t *pc2  /**< [in] chunk 2 to compare */
 );
@@ -1308,7 +1311,7 @@ bool chunk_same_preproc(
  * Check if both chunks are valid and have not the same preprocessor state.
  * Thus either chunk is part of a preprocessor block the other one not.
  */
-bool chunk_different_preproc(
+bool are_different_preproc(
    chunk_t *pc1, /**< [in] chunk 1 to compare */
    chunk_t *pc2  /**< [in] chunk 2 to compare */
 );
@@ -1319,7 +1322,7 @@ bool chunk_different_preproc(
  * The prev and next chunks must have the same PCF_IN_PREPROC flag AND
  * the newline can't be after a C++ comment.
  */
-bool chunk_safe_to_del_nl(
+bool is_safe_to_del_nl(
    chunk_t *nl
 );
 
@@ -1331,7 +1334,7 @@ bool chunk_safe_to_del_nl(
  *@retval true  - the chunk is the opening parentheses of a for in loop
  *@retval false - no for(...in...) loop found
  */
-bool chunk_is_forin(
+bool is_forin(
    chunk_t *pc /**< [in] chunk to start search with */
 );
 

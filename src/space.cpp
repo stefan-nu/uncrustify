@@ -135,7 +135,7 @@ static void log_rule2(size_t line, const char *rule, chunk_t *pc1, chunk_t *pc2,
    LOG_FUNC_ENTRY();
    assert(are_valid(pc1, pc2));
 
-   if (is_not_type(pc2, CT_NEWLINE))
+   if (not_type(pc2, CT_NEWLINE))
    {
       LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
               pc1->orig_line, get_token_name(pc1->type),
@@ -165,7 +165,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(are_types  (pc1, pc2, CT_PP_IGNORE))   { log_arg_return(AV_IGNORE                ); }
    if(any_is_type(pc1, pc2, CT_PP       ))   { log_opt_return(UO_sp_pp_concat          ); }
    if(is_type    (pc1, CT_POUND    ))        { log_opt_return(UO_sp_pp_stringify       ); }
-   if(is_type    (pc2, CT_POUND  ) && is_flag(pc2, PCF_IN_PREPROC) &&
+   if(is_type    (pc2, CT_POUND  ) && is_preproc(pc2) &&
       is_not_ptype(pc1, CT_MACRO_FUNC))      { log_opt_return(UO_sp_before_pp_stringify); }
    if (any_is_type(pc1, pc2, CT_SPACE))      { log_arg_return(AV_REMOVE                ); }
    if (is_type(pc2, CT_NEWLINE, CT_VBRACE_OPEN))
@@ -296,7 +296,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          if (is_not_option(cpd.settings[UO_sp_after_semi_for].a, AV_IGNORE))
          { log_opt_return(UO_sp_after_semi_for); }
       }
-      else if (!chunk_is_cmt(pc2) &&
+      else if (!is_cmt(pc2) &&
                pc2->type != CT_BRACE_CLOSE) { log_opt_return(UO_sp_after_semi); }
       /* Let the comment spacing rules handle this */
    }
@@ -490,7 +490,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          else                           { log_opt_return(UO_sp_angle_paren); }
       }
       if (is_type(pc2, CT_DC_MEMBER))   { log_opt_return(UO_sp_before_dc); }
-      if (is_not_type(pc2, CT_BYREF, CT_PTR_TYPE))
+      if (not_type(pc2, CT_BYREF, CT_PTR_TYPE))
                                         { log_opt_return(UO_sp_after_angle); }
    }
 
@@ -513,7 +513,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (is_not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE))
       {
          chunk_t *next = chunk_get_next_nc(pc2);
-         if (is_not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_byref); }
+         if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_byref); }
       }
       log_opt_return(UO_sp_before_byref);
    }
@@ -525,7 +525,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       {
          log_opt_return(UO_sp_sparen_brace);
       }
-      if (!chunk_is_cmt(pc2) &&
+      if (!is_cmt(pc2) &&
           (cpd.settings[UO_sp_after_sparen].a != AV_IGNORE))
       {
          log_opt_return(UO_sp_after_sparen);
@@ -594,7 +594,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
    /* ")(" vs ") (" */
    if ((is_str(pc1, ")", 1) && is_str(pc2, "(", 1)) ||
-       (chunk_is_paren_close(pc1) && chunk_is_paren_open(pc2)))
+       (is_paren_close(pc1) && is_paren_open(pc2)))
                                       { log_opt_return(UO_sp_cparen_oparen); }
 
    if (is_type          (pc1,                 CT_FUNC_PROTO ) ||
@@ -689,7 +689,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                              { log_opt_return(UO_sp_after_oc_return_type   ); }
       else if (is_ptype(pc1, CT_OC_MSG_SPEC, CT_OC_MSG_DECL))
                                              { log_opt_return(UO_sp_after_oc_type          ); }
-      else if (is_ptype(pc1, CT_OC_SEL) && is_not_type(pc2, CT_SQUARE_CLOSE))
+      else if (is_ptype(pc1, CT_OC_SEL) && not_type(pc2, CT_SQUARE_CLOSE))
                                              { log_opt_return(UO_sp_after_oc_at_sel_parens ); } }
    if (cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE) {
       if ((is_type(pc1, CT_PAREN_OPEN ) && is_ptype(pc1, CT_OC_SEL, CT_OC_PROTOCOL)) ||
@@ -799,12 +799,12 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
             next = chunk_get_next_nc(next);
          }
 
-         if (is_not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }}
+         if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }}
       if (is_not_option(cpd.settings[UO_sp_before_ptr_star].a, AV_IGNORE))
                                          { log_opt_return(UO_sp_before_ptr_star     ); }}
    if (is_type(pc1, CT_OPERATOR))        { log_opt_return(UO_sp_after_operator      ); }
    if (is_type(pc2, CT_FUNC_PROTO, CT_FUNC_DEF)) {
-      if (is_not_type(pc1, CT_PTR_TYPE)) {
+      if (not_type(pc1, CT_PTR_TYPE)) {
          log_rule("sp_type_func|ADD");
          return(add_option(cpd.settings[UO_sp_type_func].a, AV_ADD)); }
       log_opt_return(UO_sp_type_func);}
@@ -819,7 +819,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (is_ptype(pc1, CT_ENUM))        { log_opt_return(UO_sp_inside_braces_enum   ); }
       else if (is_ptype(pc1, CT_UNION, CT_STRUCT))
                                          { log_opt_return(UO_sp_inside_braces_struct ); }
-      else if (!chunk_is_cmt(pc2))       { log_opt_return(UO_sp_inside_braces        ); } }
+      else if (!is_cmt(pc2))       { log_opt_return(UO_sp_inside_braces        ); } }
    if (is_type(pc2, CT_BRACE_CLOSE)) {
       if (is_ptype(pc2, CT_ENUM))        { log_opt_return(UO_sp_inside_braces_enum   ); }
       else if (is_ptype(pc2, CT_UNION, CT_STRUCT))
@@ -831,7 +831,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if (is_type(pc2, CT_SPAREN_OPEN))     { log_opt_return(UO_sp_before_sparen        ); }
    if (is_type_and_ptype(pc2, CT_PAREN_OPEN, CT_TEMPLATE))
                                          { log_opt_return(UO_sp_before_template_paren); }
-   if (is_not_type(pc2, CT_PTR_TYPE) && is_type(pc1, 2, CT_QUALIFIER, CT_TYPE))
+   if (not_type(pc2, CT_PTR_TYPE) && is_type(pc1, 2, CT_QUALIFIER, CT_TYPE))
    {
       argval_t arg = cpd.settings[UO_sp_after_type].a;
       log_rule("sp_after_type");
@@ -863,7 +863,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       else                                 { log_opt_return(UO_sp_before_oc_colon     ); }}
    if (is_type_and_ptype(pc2, CT_COMMENT, CT_COMMENT_EMBED))
                                            { log_arg_return(AV_FORCE                  ); }
-   if (chunk_is_cmt(pc2)) { log_arg_return(AV_IGNORE); }
+   if (is_cmt(pc2)) { log_arg_return(AV_IGNORE); }
    if (is_type(pc1, CT_COMMENT)) { log_arg_return(AV_FORCE); }
    if (are_types(pc1, CT_NEW, pc2, CT_PAREN_OPEN))
                                            { log_opt_return(UO_sp_between_new_paren   ); }
@@ -871,7 +871,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
        is_type_and_ptype(pc1, CT_TSQUARE, CT_DELETE) )
                                            { log_opt_return(UO_sp_after_new           ); }
    if (is_type(pc1, CT_ANNOTATION) &&
-       (chunk_is_paren_open(pc2) ) )       { log_opt_return(UO_sp_annotation_paren    ); }
+       (is_paren_open(pc2) ) )       { log_opt_return(UO_sp_annotation_paren    ); }
    if (is_type(pc1, CT_OC_PROPERTY))       { log_opt_return(UO_sp_after_oc_property   ); }
    if (are_types(pc1, CT_EXTERN, pc2, CT_PAREN_OPEN))
                                            { log_opt_return(UO_sp_extern_paren        ); }
@@ -915,7 +915,7 @@ void space_text(void)
          LOG_FMT(LSPACE, "%zu: [%d] type %s SIGNAL/SLOT found\n",
                  pc->orig_line, __LINE__, get_token_name(pc->type));
          // flag the chunk for a second processing
-         chunk_flags_set(pc, PCF_IN_QT_MACRO);
+         set_flags(pc, PCF_IN_QT_MACRO);
 
          // save the values
          save_set_options_for_QT(pc->level);
@@ -923,8 +923,8 @@ void space_text(void)
       if (cpd.settings[UO_sp_skip_vbrace_tokens].b)
       {
          next = chunk_get_next(pc);
-         while ( ( chunk_is_empty  (next)) &&
-                 (!chunk_is_nl(next)) &&
+         while ( ( chunk_empty(next)) &&
+                 (!is_nl(next)) &&
                  is_type(next, CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
          {
             assert(is_valid(next));
@@ -966,7 +966,7 @@ void space_text(void)
           * must force a space.
           * Two chunks -- "()" and "[]" will always tokenize differently.
           * They are always safe to not have a space after them. */
-         chunk_flags_clr(pc, PCF_FORCE_SPACE);
+         clr_flags(pc, PCF_FORCE_SPACE);
          if ((pc->len() > 0) &&
              !is_str(pc, "[]", 2) &&
              !is_str(pc, "{{", 2) &&
@@ -978,7 +978,7 @@ void space_text(void)
             chunk_t *tmp = next;
             while (is_valid(tmp) &&
                   (tmp->len() == 0) &&
-                  !chunk_is_nl(tmp))
+                  !is_nl(tmp))
             {
                tmp = chunk_get_next(tmp);
             }
@@ -991,7 +991,7 @@ void space_text(void)
                    (kw2 == true) )
                {
                   /* back-to-back words need a space */
-                  chunk_flags_set(pc, PCF_FORCE_SPACE);
+                  set_flags(pc, PCF_FORCE_SPACE);
                }
                else if ( (kw1 == false   ) &&
                          (kw2 == false   ) &&
@@ -1024,7 +1024,7 @@ void space_text(void)
                      }
                      else
                      {
-                        chunk_flags_set(pc, PCF_FORCE_SPACE);
+                        set_flags(pc, PCF_FORCE_SPACE);
                      }
                   }
                }
@@ -1075,8 +1075,8 @@ void space_text(void)
          }
 
 
-         if (chunk_is_cmt(next                ) &&
-             chunk_is_nl(chunk_get_next(next)) &&
+         if (is_cmt(next                ) &&
+             is_nl(chunk_get_next(next)) &&
              (column < next->orig_col))
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
@@ -1085,7 +1085,7 @@ void space_text(void)
                  ((next->ptype != CT_COMMENT_END  ) &&
                   (next->ptype != CT_COMMENT_EMBED) ) ) &&
                 (is_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE) ||
-                 is_not_type(pc, CT_PP_ELSE, CT_PP_ENDIF     ) ) )
+                 not_type(pc, CT_PP_ELSE, CT_PP_ENDIF     ) ) )
             {
                if (cpd.settings[UO_indent_rel_single_line_comments].b)
                {
@@ -1115,7 +1115,7 @@ void space_text(void)
       if (QT_SIGNAL_SLOT_found)
       {
          // flag the chunk for a second processing
-         chunk_flags_set(pc, PCF_IN_QT_MACRO);
+         set_flags(pc, PCF_IN_QT_MACRO);
       }
    }
 }
@@ -1240,7 +1240,7 @@ void space_add_after(chunk_t *pc, size_t count)
    chunk_t *next = chunk_get_next(pc);
 
    /* don't add at the end of the file or before a newline */
-   return_if(is_invalid(next) || chunk_is_nl(next));
+   return_if(is_invalid(next) || is_nl(next));
 
    count = min(count, MAX_SPACE_COUNT);
 

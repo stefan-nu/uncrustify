@@ -139,13 +139,13 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       /* Find ref. Back up to the real item that is aligned. */
       chunk_t *prev = start;
       while (((prev = chunk_get_prev(prev)) != nullptr) &&
-             (chunk_is_ptr_operator(prev) ||
+             (is_ptr_operator(prev) ||
               is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
       chunk_t *ref = prev;
-      if (chunk_is_nl(ref))
+      if (is_nl(ref))
       {
          ref = chunk_get_next(ref);
       }
@@ -156,8 +156,8 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       {
          /* back up to the first '*' or '^' preceding the token */
          prev = chunk_get_prev(ali);
-         while (chunk_is_star (prev) ||
-                chunk_is_msref(prev) )
+         while (is_star (prev) ||
+                is_msref(prev) )
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -175,7 +175,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       {
          /* back up to the first '&' preceding the token */
          prev = chunk_get_prev(ali);
-         while (chunk_is_addr(prev))
+         while (is_addr(prev))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -215,9 +215,9 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       {
          tmp = chunk_get_next(tmp);
       }
-      if ((chunk_is_star (tmp) && (m_star_style == SS_DANGLE)) ||
-          (chunk_is_addr (tmp) && (m_amp_style  == SS_DANGLE)) ||
-          (chunk_is_msref(tmp) && (m_star_style == SS_DANGLE)) ) // TODO: add m_msref_style
+      if ((is_star (tmp) && (m_star_style == SS_DANGLE)) ||
+          (is_addr (tmp) && (m_amp_style  == SS_DANGLE)) ||
+          (is_msref(tmp) && (m_star_style == SS_DANGLE)) ) // TODO: add m_msref_style
       {
          col_adj = start->column - ali->column;
          gap     = start->column - (ref->column + ref->len());
@@ -341,7 +341,7 @@ void AlignStack::Flush()
       {
          tmp = chunk_get_next(tmp);
       }
-      if (chunk_is_ptr_operator(tmp) &&
+      if (is_ptr_operator(tmp) &&
          (m_star_style == SS_DANGLE))
       {
          col_adj = (int)pc->align.start->column - (int)pc->column;
@@ -398,7 +398,7 @@ void AlignStack::Flush()
             m_skip_first = true;
             return;
          }
-         chunk_flags_set(pc, PCF_ALIGN_START);
+         set_flags(pc, PCF_ALIGN_START);
 
          pc->align.right_align = m_right_align;
          pc->align.amp_style   = m_amp_style;

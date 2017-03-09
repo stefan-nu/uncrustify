@@ -52,8 +52,8 @@ void remove_extra_semicolons(void)
    {
       chunk_t *next = chunk_get_next_ncnl(pc);
       chunk_t *prev;
-      if (is_type(pc, CT_SEMICOLON) &&
-          is_not_flag(pc, PCF_IN_PREPROC) &&
+      if ( is_type(pc, CT_SEMICOLON) &&
+          !is_preproc(pc) &&
           ((prev = chunk_get_prev_ncnl(pc)) != nullptr))
       {
          LOG_FMT(LSCANSEMI, "Semicolon on %zu:%zu parent=%s, prev = '%s' [%s/%s]\n",
@@ -98,7 +98,7 @@ static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
 
    if (is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
                           CT_SQUARE_CLOSE, CT_TSQUARE) &&
-       !chunk_is_paren_close(pc) )
+       !is_paren_close(pc) )
    {
       remove_semicolon(semi);
    }

@@ -300,10 +300,10 @@ void align_to_column(chunk_t *pc, size_t column)
       chunk_t  *prev = pc;
       pc       = next;
 
-      if (chunk_is_cmt(pc) &&
+      if (is_cmt(pc) &&
          (pc->ptype != CT_COMMENT_EMBED))
       {
-         almod = (chunk_is_single_line_comment(pc) &&
+         almod = (is_single_line_cmt(pc) &&
                   cpd.settings[UO_indent_rel_single_line_comments].b) ?
                  align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
       }
@@ -390,8 +390,8 @@ void reindent_line(chunk_t *pc, size_t column)
       min_col += space_col_align(pc, next);
       pc       = next;
 
-      bool is_comment = chunk_is_cmt(pc);
-      bool keep       = is_comment && chunk_is_single_line_comment(pc) &&
+      bool is_comment = is_cmt(pc);
+      bool keep       = is_comment && is_single_line_cmt(pc) &&
                         cpd.settings[UO_indent_rel_single_line_comments].b;
 
       if ((is_comment      == true      ) &&
@@ -441,7 +441,7 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t *pc)
       frm.pse[frm.pse_tos].level       = pc->level;
       frm.pse[frm.pse_tos].open_line   = pc->orig_line;
       frm.pse[frm.pse_tos].ref         = (int)++ref;
-      frm.pse[frm.pse_tos].in_preproc  = is_bit_set(pc->flags, PCF_IN_PREPROC);
+      frm.pse[frm.pse_tos].in_preproc  = is_preproc(pc);
       frm.pse[frm.pse_tos].indent_tab  = frm.pse[frm.pse_tos-1].indent_tab;
       frm.pse[frm.pse_tos].indent_cont = frm.pse[frm.pse_tos-1].indent_cont;
       frm.pse[frm.pse_tos].non_vardef  = false;
@@ -552,7 +552,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
    retval_if(from_brace, pc);
 
-   if (chunk_is_paren_close(tmp))
+   if (is_paren_close(tmp))
    {
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
@@ -565,7 +565,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
    tmp = chunk_get_prev_nc(tmp);
    if (is_invalid (tmp                                ) ||
-       is_not_type(tmp, CT_OC_MSG_NAME, CT_OC_MSG_FUNC) )
+       not_type(tmp, CT_OC_MSG_NAME, CT_OC_MSG_FUNC) )
    {
       return(nullptr);
    }
@@ -638,7 +638,7 @@ void indent_text(void)
                  __func__, __LINE__, pc->orig_line, get_token_name(pc->type));
       }
       /* Handle preprocessor transitions */
-      in_preproc = is_bit_set(pc->flags, PCF_IN_PREPROC);
+      in_preproc = is_preproc(pc);
 
       if (cpd.settings[UO_indent_brace_parent].b)
       {
@@ -828,7 +828,7 @@ void indent_text(void)
          }
          else
          {
-            if (!chunk_is_cmt(pc) && !chunk_is_nl(pc))
+            if (!is_cmt(pc) && !is_nl(pc))
             {
                xml_indent = 0;
             }
@@ -848,8 +848,8 @@ void indent_text(void)
          old_pse_tos = frm.pse_tos;
 
          /* End anything that drops a level */
-         if (!chunk_is_nl(pc) &&
-             !chunk_is_cmt(pc) &&
+         if (!is_nl(pc) &&
+             !is_cmt(pc) &&
              (frm.pse[frm.pse_tos].level > pc->level))
          {
             indent_pse_pop(frm, pc);
@@ -874,7 +874,7 @@ void indent_text(void)
             /* End any assign operations with a semicolon on the same level */
             if (((frm.pse[frm.pse_tos].type == CT_ASSIGN_NL) ||
                  (frm.pse[frm.pse_tos].type == CT_ASSIGN   ) )               &&
-                 (chunk_is_semicolon(pc)                                   ||
+                 (is_semicolon(pc)                                   ||
                   is_type(pc, CT_COMMA, CT_BRACE_OPEN, CT_SPAREN_CLOSE) ||
                   is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_AT         ) ||
                   is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_ASSIGN        ) ) &&
@@ -884,7 +884,7 @@ void indent_text(void)
             }
 
             /* End any assign operations with a semicolon on the same level */
-            if (chunk_is_semicolon(pc)                      &&
+            if (is_semicolon(pc)                      &&
                 ((frm.pse[frm.pse_tos].type == CT_IMPORT) ||
                  (frm.pse[frm.pse_tos].type == CT_USING ) ) )
             {
@@ -904,7 +904,7 @@ void indent_text(void)
             if (((frm.pse[frm.pse_tos].type == CT_CLASS_COLON) ||
                  (frm.pse[frm.pse_tos].type == CT_CONSTR_COLON)) &&
                 (is_type(pc, CT_BRACE_OPEN, CT_OC_END, CT_OC_SCOPE, CT_OC_PROPERTY) ||
-                 chunk_is_semicolon(pc) ) )
+                      is_semicolon(pc) ) )
             {
                indent_pse_pop(frm, pc);
             }
@@ -931,7 +931,7 @@ void indent_text(void)
             }
 
             /* return & throw are ended with a semicolon */
-            if (chunk_is_semicolon(pc) &&
+            if (is_semicolon(pc) &&
                 ((frm.pse[frm.pse_tos].type == CT_RETURN) ||
                  (frm.pse[frm.pse_tos].type == CT_THROW ) ) )
             {
@@ -940,7 +940,7 @@ void indent_text(void)
 
             /* an OC SCOPE ('-' or '+') ends with a semicolon or brace open */
             if ((frm.pse[frm.pse_tos].type == CT_OC_SCOPE) &&
-                (chunk_is_semicolon(pc) ||
+                (is_semicolon(pc) ||
                  is_type(pc, CT_BRACE_OPEN)))
             {
                indent_pse_pop(frm, pc);
@@ -949,8 +949,8 @@ void indent_text(void)
             /* a typedef and an OC SCOPE ('-' or '+') ends with a semicolon or
              * brace open */
             if ((frm.pse[frm.pse_tos].type == CT_TYPEDEF) &&
-                (chunk_is_semicolon (pc) ||
-                 chunk_is_paren_open(pc) ||
+                (is_semicolon (pc) ||
+                 is_paren_open(pc) ||
                  is_type(pc, CT_BRACE_OPEN)))
             {
                indent_pse_pop(frm, pc);
@@ -958,7 +958,7 @@ void indent_text(void)
 
             /* an SQL EXEC is ended with a semicolon */
             if ((frm.pse[frm.pse_tos].type == CT_SQL_EXEC) &&
-                chunk_is_semicolon(pc))
+                  is_semicolon(pc))
             {
                indent_pse_pop(frm, pc);
             }
@@ -966,7 +966,7 @@ void indent_text(void)
             /* an CLASS is ended with a semicolon or brace open */
             if ((frm.pse[frm.pse_tos].type == CT_CLASS) &&
                 (is_type(pc, CT_CLASS_COLON, CT_BRACE_OPEN) ||
-                 chunk_is_semicolon(pc)))
+                      is_semicolon(pc)))
             {
                indent_pse_pop(frm, pc);
             }
@@ -987,7 +987,7 @@ void indent_text(void)
       LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent_tmp=%zu\n",
               __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
 
-      if (!chunk_is_nl(pc) && !chunk_is_cmt(pc) && log_sev_on(LINDPC))
+      if (!is_nl(pc) && !is_cmt(pc) && log_sev_on(LINDPC))
       {
          LOG_FMT(LINDPC, " -=[ %zu:%zu %s ]=-\n",
                  pc->orig_line, pc->orig_col, pc->text());
@@ -1076,7 +1076,7 @@ void indent_text(void)
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
       }
       else if (is_type    (pc,       CT_BRACE_OPEN) &&
-               is_not_type(pc->next, CT_NAMESPACE ) )
+               not_type(pc->next, CT_NAMESPACE ) )
       {
          frm.level++;
          indent_pse_push(frm, pc);
@@ -1110,8 +1110,8 @@ void indent_text(void)
          }
          /* any '{' that is inside of a '(' overrides the '(' indent */
          else if (!cpd.settings[UO_indent_paren_open_brace].b &&
-                  chunk_is_paren_open(frm.pse[frm.pse_tos-1].pc) &&
-                  chunk_is_nl(chunk_get_next_nc(pc)))
+                  is_paren_open(frm.pse[frm.pse_tos-1].pc) &&
+                  is_nl(chunk_get_next_nc(pc)))
          {
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
             // DRY6
@@ -1278,7 +1278,7 @@ void indent_text(void)
             next = chunk_get_next_ncnl(pc);
             break_if (is_invalid(next));
 
-            if (!chunk_is_newline_between(pc, next))
+            if (!is_newline_between(pc, next))
             {
                if (cpd.settings[UO_indent_token_after_brace].b)
                {
@@ -1358,10 +1358,10 @@ void indent_text(void)
          /* comments before 'case' need to be aligned with the 'case' */
          chunk_t *pct = pc;
          while (((pct = chunk_get_prev_nnl(pct)) != nullptr) &&
-                chunk_is_cmt(pct))
+                is_cmt(pct))
          {
             chunk_t *t2 = chunk_get_prev(pct);
-            if (chunk_is_nl(t2))
+            if (is_nl(t2))
             {
                pct->column        = frm.pse[frm.pse_tos].indent_tmp;
                pct->column_indent = pct->column;
@@ -1392,7 +1392,7 @@ void indent_text(void)
                next = chunk_get_next(next); /* possible statement */
 
                if ( is_valid  (next) &&
-                   !chunk_is_nl(next) &&
+                   !is_nl(next) &&
                    /* label (+ 2, because there is colon and space after it) must fit into indent */
                    (cpd.settings[UO_indent_label].n + static_cast<int>(pc->len()) + 2 <= static_cast<int>(frm.pse[frm.pse_tos].indent)))
                {
@@ -1464,7 +1464,7 @@ void indent_text(void)
              (cpd.settings[UO_indent_constr_colon].b && is_type(pc, CT_CONSTR_COLON)) )
          {
             prev = chunk_get_prev(pc);
-            if (chunk_is_nl(prev))
+            if (is_nl(prev))
             {
                frm.pse[frm.pse_tos].indent += cpd.settings[UO_indent_ctor_init_leading].u;
 
@@ -1498,7 +1498,7 @@ void indent_text(void)
                                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
                         indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
                      }
-                     else if (!chunk_is_nl(next))
+                     else if (!is_nl(next))
                      {
                         frm.pse[frm.pse_tos].indent = next->column;
                      }
@@ -1515,7 +1515,7 @@ void indent_text(void)
          bool skipped = false;
 
          indent_pse_push(frm, pc);
-         if (chunk_is_nl(chunk_get_prev(pc)) &&
+         if (is_nl(chunk_get_prev(pc)) &&
              (pc->column != indent_column))
          {
             LOG_FMT(LINDENT, "%s[line %d]: %zu] indent => %zu [%s]\n",
@@ -1579,7 +1579,7 @@ void indent_text(void)
             next = chunk_get_next_nc(pc);
             break_if(is_invalid(next));
 
-            if (chunk_is_nl(next))
+            if (is_nl(next))
             {
                size_t sub = 1;
                if ((frm.pse[frm.pse_tos - 1].type == CT_ASSIGN) ||
@@ -1594,7 +1594,7 @@ void indent_text(void)
             else
             {
                if ( is_valid(next) &&
-                   !chunk_is_cmt(next) )
+                   !is_cmt(next) )
                {
                   if (is_type(next, CT_SPACE))
                   {
@@ -1607,8 +1607,8 @@ void indent_text(void)
          }
 
          if ( is_type(pc, CT_FPAREN_OPEN)    &&
-              chunk_is_nl(chunk_get_prev(pc)) &&
-             !chunk_is_nl(chunk_get_next(pc)) )
+              is_nl(chunk_get_prev(pc)) &&
+             !is_nl(chunk_get_next(pc)) )
          {
             frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent + indent_size;
             indent_column_set(frm.pse[frm.pse_tos].indent);
@@ -1660,7 +1660,7 @@ void indent_text(void)
           * just indent one level,
           * otherwise align on the '='. */
          if (is_type(pc, CT_ASSIGN) &&
-             chunk_is_nl(chunk_get_prev(pc)))
+             is_nl(chunk_get_prev(pc)))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent + indent_size;
             LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent_tmp=%zu\n",
@@ -1679,7 +1679,7 @@ void indent_text(void)
             {
                frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent;
                if ((pc->level == pc->brace_level) &&
-                   (is_not_type(pc, CT_ASSIGN) ||
+                   (not_type(pc, CT_ASSIGN) ||
                     ((pc->ptype != CT_FUNC_PROTO) && (pc->ptype != CT_FUNC_DEF))))
                {
                   //frm.pse[frm.pse_tos].indent += abs(cpd.settings[UO_indent_continue].n);
@@ -1700,7 +1700,7 @@ void indent_text(void)
                   }
                }
             }
-            else if (chunk_is_nl(next) || !cpd.settings[UO_indent_align_assign].b)
+            else if (is_nl(next) || !cpd.settings[UO_indent_align_assign].b)
             {
                frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent_tmp + indent_size;
                if (is_type(pc, CT_ASSIGN))
@@ -1725,7 +1725,7 @@ void indent_text(void)
          if (pc->level == pc->brace_level)
          {
             indent_pse_push(frm, pc);
-            if (chunk_is_nl(chunk_get_next(pc)))
+            if (is_nl(chunk_get_next(pc)))
             {
                frm.pse[frm.pse_tos].indent  = frm.pse[frm.pse_tos-1].indent + indent_size;
             }
@@ -1768,8 +1768,8 @@ void indent_text(void)
            (pc->ptype != CT_OPERATOR) &&
            is_not_type(pc, 4, CT_COMMENT,       CT_COMMENT_CPP,
                               CT_COMMENT_MULTI, CT_BRACE_OPEN) &&
-           (pc->level       > 0                ) &&
-           (!chunk_is_empty(pc)                ) )
+           (pc->level > 0 ) &&
+           (!chunk_empty(pc) ) )
       {
          bool in_shift    = false;
          bool is_operator = false;
@@ -1788,8 +1788,8 @@ void indent_text(void)
             }
             tmp = chunk_get_prev_ncnl(tmp);
          } while ((in_shift == false) &&
-               is_not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE,
-                     CT_SEMICOLON, CT_BRACE_OPEN, CT_COMMA, CT_SPAREN_OPEN));
+               is_not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_COMMA,
+                     CT_SEMICOLON, CT_BRACE_OPEN,  CT_SPAREN_OPEN));
 
          tmp = pc;
          do
@@ -1861,7 +1861,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_cont = true;
          }
          else if (cpd.settings[UO_indent_var_def_cont].b ||
-                  chunk_is_nl(chunk_get_prev(pc)))
+                  is_nl(chunk_get_prev(pc)))
          {
             vardefcol = frm.pse[frm.pse_tos].indent + indent_size;
          }
@@ -1878,15 +1878,14 @@ void indent_text(void)
             }
          }
       }
-      if (chunk_is_semicolon(pc)                             ||
-          is_type_and_ptype (pc, CT_BRACE_OPEN, CT_FUNCTION) )
+      if (is_semicolon(pc) || is_type_and_ptype(pc, CT_BRACE_OPEN, CT_FUNCTION))
       {
          vardefcol = 0;
       }
 
       /* Indent the line if needed */
       if ((my_did_newline       == true ) &&
-          (chunk_is_nl(pc) == false) &&
+          (is_nl(pc) == false) &&
           (pc->len()      != 0   ) )
       {
          pc->column_indent = frm.pse[frm.pse_tos].indent_tab;
@@ -1963,7 +1962,7 @@ void indent_text(void)
             size_t tmp = (xml_indent != 0) ? (size_t)xml_indent : prev->column;
             log_and_reindent(pc, tmp, "String");
          }
-         else if (chunk_is_cmt(pc))
+         else if (is_cmt(pc))
          {
             log_and_indent_comment(pc, frm.pse[frm.pse_tos].indent_tmp, "comment");
          }
@@ -1971,7 +1970,7 @@ void indent_text(void)
          {
             log_and_reindent(pc, indent_column, "pp-indent");
          }
-         else if (chunk_is_paren_close(pc) ||
+         else if (is_paren_close(pc) ||
                   is_type(pc, CT_ANGLE_CLOSE))
          {
             /* This is a big hack. We assume that since we hit a paren close,
@@ -1989,7 +1988,7 @@ void indent_text(void)
                assert(is_valid(ck2));
                /* If the open paren was the first thing on the line or we are
                 * doing mode 1, then put the close paren in the same column */
-               if (chunk_is_nl(ck2) ||
+               if (is_nl(ck2) ||
                    (cpd.settings[UO_indent_paren_close].u == 1))
                {
                   LOG_FMT(LINDLINE, "%s(%d): [%zu:%zu] indent_paren_close is 1\n",
@@ -2033,7 +2032,7 @@ void indent_text(void)
          else if (is_type(pc, CT_COMMA))
          {
             if (cpd.settings[UO_indent_comma_paren].b &&
-                chunk_is_paren_open(frm.pse[frm.pse_tos].pc))
+                is_paren_open(frm.pse[frm.pse_tos].pc))
             {
                indent_column_set(frm.pse[frm.pse_tos].pc->column);
             }
@@ -2062,7 +2061,7 @@ void indent_text(void)
          else if (is_type(pc, CT_BOOL))
          {
             if (cpd.settings[UO_indent_bool_paren].b &&
-                chunk_is_paren_open(frm.pse[frm.pse_tos].pc))
+                is_paren_open(frm.pse[frm.pse_tos].pc))
             {
                indent_column_set(frm.pse[frm.pse_tos].pc->column);
                if (cpd.settings[UO_indent_first_bool_expr].b)
@@ -2109,7 +2108,7 @@ void indent_text(void)
             if (pc->column != indent_column)
             {
                if (use_ident &&
-                   is_not_type(pc, CT_PP_IGNORE)) // Leave indentation alone for PP_IGNORE tokens
+                   not_type(pc, CT_PP_IGNORE)) // Leave indentation alone for PP_IGNORE tokens
                {
                   log_and_reindent(pc, indent_column, "indent");
                }
@@ -2158,7 +2157,7 @@ void indent_text(void)
       }
 
       /* if we hit a newline, reset indent_tmp */
-      if (chunk_is_nl(pc)         ||
+      if (is_nl(pc)         ||
           is_type(pc, CT_COMMENT_MULTI, CT_COMMENT_CPP))
       {
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
@@ -2198,7 +2197,7 @@ void indent_text(void)
          }
       }
 
-      if(!chunk_is_cmt_or_nl(pc))
+      if(!is_cmt_or_nl(pc))
       {
          prev = pc;
       }
@@ -2251,8 +2250,7 @@ void log_and_indent_comment(chunk_t *pc, const size_t val, const char* str)
 static bool single_line_comment_indent_rule_applies(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-
-   if (chunk_is_single_line_comment(start) == false) { return(false); }
+   retval_if(!is_single_line_cmt(start), false);
 
    /* scan forward, if only single newlines and comments before next line of
     * code, we want to apply */
@@ -2260,10 +2258,9 @@ static bool single_line_comment_indent_rule_applies(chunk_t *start)
    size_t nl_count = 0;
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
-      if (chunk_is_nl(pc))
+      if (is_nl(pc))
       {
-         if ((nl_count     > 0) ||
-             (pc->nl_count > 1) )
+         if ((nl_count > 0) || (pc->nl_count > 1))
          {
             return(false);
          }
@@ -2272,13 +2269,12 @@ static bool single_line_comment_indent_rule_applies(chunk_t *start)
       else
       {
          nl_count = 0;
-         if (!chunk_is_single_line_comment(pc))
+         if (!is_single_line_cmt(pc))
          {
             /* here we check for things to run into that we wouldn't want to
              * indent the comment for. for example, non-single line comment,
              * closing brace */
-            if (chunk_is_cmt      (pc) ||
-                chunk_is_closing_brace(pc) )
+            if (is_cmt(pc) || is_closing_brace(pc))
             {
                return(false);
             }
@@ -2320,9 +2316,7 @@ static void indent_comment(chunk_t *pc, size_t col)
    }
 
    chunk_t *prev = chunk_get_prev(nl);
-   if((chunk_is_cmt(prev)) &&
-      (is_valid(nl)          ) &&
-      (nl->nl_count == 1     ) )
+   if((is_cmt(prev)) && (is_valid(nl)) && (nl->nl_count == 1))
    {
       assert(is_valid(prev));
       int     coldiff = (int)prev->orig_col - (int)pc->orig_col;
@@ -2332,7 +2326,7 @@ static void indent_comment(chunk_t *pc, size_t col)
        * but not when the previous comment is on the same line with a preproc */
       if ((coldiff <=  3      ) &&
           (coldiff >= -3      ) &&
-          !chunk_is_preproc(pp) )
+          !is_preproc(pp) )
       {
          reindent_line(pc, prev->column);
          LOG_FMT(LCMTIND, "rule 3 - prev comment, coldiff = %d, now in %zu\n",
@@ -2370,12 +2364,12 @@ bool ifdef_over_whole_file(void)
    const chunk_t *next;
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      continue_if(chunk_is_cmt_or_nl(pc));
+      continue_if(is_cmt_or_nl(pc));
 
       if (stage == 0)
       {
          /* Check the first PP, make sure it is an #if type */
-         break_if(is_not_type(pc, CT_PREPROC));
+         break_if(not_type(pc, CT_PREPROC));
          next = chunk_get_next(pc);
          break_if(is_invalid_or_not_type(next, CT_PP_IF));
          stage = 1;
@@ -2394,8 +2388,7 @@ bool ifdef_over_whole_file(void)
       else if (stage == 2)
       {
          /* We should only see the rest of the preprocessor */
-         if (is_type    (pc, CT_PREPROC    ) ||
-             is_not_flag(pc, PCF_IN_PREPROC) )
+         if (is_type (pc, CT_PREPROC) || !is_preproc(pc))
          {
             stage = 0;
             break;
@@ -2406,7 +2399,7 @@ bool ifdef_over_whole_file(void)
    cpd.ifdef_over_whole_file = (stage == 2) ? 1 : -1;
    if (cpd.ifdef_over_whole_file > 0)
    {
-      chunk_flags_set(end_pp, PCF_WF_ENDIF);
+      set_flags(end_pp, PCF_WF_ENDIF);
    }
    LOG_FMT(LNOTE, "The whole file is%s covered by a #IF\n",
            (cpd.ifdef_over_whole_file > 0) ? "" : " NOT");
@@ -2429,7 +2422,7 @@ void indent_preproc(void)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      continue_if(is_not_type(pc, CT_PREPROC));
+      continue_if(not_type(pc, CT_PREPROC));
 
       next = chunk_get_next_ncnl(pc);
       break_if(is_invalid(next));
@@ -2477,7 +2470,7 @@ void indent_preproc(void)
              chunk_is_not_ptype(pc, CT_PP_DEFINE))
 #endif
          {
-            chunk_flags_set(pc, PCF_DONT_INDENT);
+            set_flags(pc, PCF_DONT_INDENT);
          }
       }
 

@@ -219,8 +219,7 @@ void brace_cleanup(void)
    while (is_valid(pc))
    {
       /* Check for leaving a #define body */
-      if ((cpd.is_preproc     != CT_NONE) &&
-          is_not_flag(pc, PCF_IN_PREPROC) )
+      if ((cpd.is_preproc != CT_NONE) && !is_preproc(pc))
       {
          if (cpd.is_preproc == CT_PP_DEFINE)
          {
@@ -259,8 +258,8 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if ((chunk_is_cmt(pc) == false       )   &&
-          (chunk_is_nl(pc) == false       )   &&
+      if ((is_cmt(pc) == false       )   &&
+          (is_nl(pc) == false       )   &&
           ((cpd.is_preproc      == CT_PP_DEFINE) ||
            (cpd.is_preproc      == CT_NONE     ) ) )
       {
@@ -280,14 +279,13 @@ static bool maybe_while_of_do(chunk_t *pc)
    chunk_t *prev;
 
    prev = chunk_get_prev_ncnl(pc);
-   retval_if((is_invalid(prev)             ) ||
-            (!(prev->flags & PCF_IN_PREPROC) ), false);
+   retval_if(is_invalid(prev) || !is_preproc(prev), false);
 
    /* Find the chunk before the preprocessor */
 #if 0
    prev = chunk_get_prev_ncnlnp(prev); // fails test 02300, 02301 why?
 #else
-   while (is_flag(prev, PCF_IN_PREPROC))
+   while (is_preproc(prev))
    {
       prev = chunk_get_prev_ncnl(prev);
    }
@@ -391,13 +389,13 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    /* Mark statement starts */
    if (((frm->stmt_count == 0) ||
         (frm->expr_count == 0)     ) &&
-       (!chunk_is_semicolon(pc)    ) &&
-         is_not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
+       (!is_semicolon(pc)    ) &&
+         not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
        (!is_str(pc, ")", 1)  ) &&
        (!is_str(pc, "]", 1)  ) )
    {
       const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
-      chunk_flags_set(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
+      set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
       LOG_FMT(LSTMT, "%zu] 1.marked %s as %s start st:%d ex:%d\n",
             pc->orig_line, pc->text(), type, frm->stmt_count, frm->expr_count);
    }
@@ -406,14 +404,14 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    if (frm->sparen_count > 0)
    {
-      chunk_flags_set(pc, PCF_IN_SPAREN);
+      set_flags(pc, PCF_IN_SPAREN);
 
       /* Mark everything in the for statement */
       for (int tmp = (int)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative do not use size_t */
       {
          if (frm->pse[tmp].type == CT_FOR)
          {
-            chunk_flags_set(pc, PCF_IN_FOR);
+            set_flags(pc, PCF_IN_FOR);
             break;
          }
       }
@@ -439,7 +437,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
     * TODO: may need to float VBRACE past comments until newline? */
    if (frm->pse[frm->pse_tos].type == CT_VBRACE_OPEN)
    {
-      if (chunk_is_semicolon(pc))
+      if (is_semicolon(pc))
       {
          cpd.consumed = true;
          close_statement(frm, pc);
@@ -467,7 +465,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          if (is_type(pc, CT_SPAREN_CLOSE))
          {
             frm->sparen_count--;
-            chunk_flags_clr(pc, PCF_IN_SPAREN);
+            clr_flags(pc, PCF_IN_SPAREN);
          }
       }
 
@@ -528,7 +526,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          {
             tmp = chunk_get_next_ncnl(pc);
             assert(is_valid(tmp));
-            if (is_not_type(tmp, CT_SEMICOLON, CT_VSEMICOLON))
+            if (not_type(tmp, CT_SEMICOLON, CT_VSEMICOLON))
             {
                pawn_add_vsemi_after(pc);
             }
@@ -670,7 +668,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
                            CT_BRACE_CLOSE, CT_VBRACE_CLOSE) ||
        is_type_and_not_ptype(pc, CT_BRACE_OPEN,  CT_ASSIGN) ||
        is_type_and_ptype    (pc, CT_SPAREN_OPEN, CT_FOR   ) ||
-       (chunk_is_semicolon(pc) &&
+       (is_semicolon(pc) &&
         (frm->pse[frm->pse_tos].type != CT_PAREN_OPEN ) &&
         (frm->pse[frm->pse_tos].type != CT_FPAREN_OPEN) &&
         (frm->pse[frm->pse_tos].type != CT_SPAREN_OPEN) ) )
@@ -689,8 +687,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
                              CT_FPAREN_OPEN, CT_CARET,  CT_GOTO, CT_THROW,
                              CT_SPAREN_OPEN, CT_COMMA,  CT_NOT,  CT_COLON,
                              CT_BRACE_OPEN,  CT_INV,    CT_RETURN)    ||
-        chunk_is_semicolon(pc)                                        ||
-       (is_type(pc, CT_STAR) && is_not_type(tmp, CT_STAR)))
+        is_semicolon(pc)                                        ||
+       (is_type(pc, CT_STAR) && not_type(tmp, CT_STAR)))
    {
       frm->expr_count = 0;
       LOG_FMT(LSTMT, "%s: %zu> reset expr on %s\n", __func__, pc->orig_line, pc->text());
@@ -717,7 +715,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    /* Turn an optional parenthesis into either a real parenthesis or a brace */
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
-      frm->pse[frm->pse_tos].stage = (is_not_type(pc, CT_PAREN_OPEN)) ?
+      frm->pse[frm->pse_tos].stage = (not_type(pc, CT_PAREN_OPEN)) ?
             brace_stage_e::BRACE2 : brace_stage_e::PAREN1;
    }
 
@@ -745,7 +743,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
       if (is_type(pc, CT_IF))
       {
          if (!cpd.settings[UO_indent_else_if].b ||
-             !chunk_is_nl(chunk_get_prev_nc(pc)))
+             !is_nl(chunk_get_prev_nc(pc)))
          {
             /* Replace CT_ELSE with CT_IF */
             set_type(pc, CT_ELSEIF);
@@ -821,7 +819,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Insert a CT_VBRACE_OPEN, if needed */
-   if ( is_not_type(pc, CT_BRACE_OPEN                     )   &&
+   if ( not_type(pc, CT_BRACE_OPEN                     )   &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
@@ -859,7 +857,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Verify open parenthesis in complex statement */
-   if ( is_not_type(pc, CT_PAREN_OPEN                      )   &&
+   if ( not_type(pc, CT_PAREN_OPEN                      )   &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )
    {
@@ -907,7 +905,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_ELSE, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if (is_not_type(next, CT_ELSE))
+         if (not_type(next, CT_ELSE))
          {
             frm->pse_tos--;
             print_stack(LBCSPOP, "-IF-HCS ", frm, pc);
@@ -921,7 +919,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
          next = chunk_get_next_ncnl(pc);
-         if(is_not_type(next, CT_CATCH, CT_FINALLY))
+         if(not_type(next, CT_CATCH, CT_FINALLY))
          {
             frm->pse_tos--;
             print_stack(LBCSPOP, "-TRY-HCS ", frm, pc);
@@ -992,12 +990,12 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
    else
    {
       chunk_t *ref = chunk_get_prev(pc);
-      if (is_not_flag(ref, PCF_IN_PREPROC))
+      if (!is_preproc(ref))
       {
          chunk.flags &= ~PCF_IN_PREPROC;
       }
 
-      while(chunk_is_cmt_or_nl(ref))
+      while(is_cmt_or_nl(ref))
       {
          ref->level++;
          ref->brace_level++;
@@ -1005,8 +1003,8 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       }
 
       /* Don't back into a preprocessor */
-      if (is_not_flag(pc,  PCF_IN_PREPROC) &&
-          is_flag    (ref, PCF_IN_PREPROC) )
+      if (!is_preproc(pc ) &&
+           is_preproc(ref) )
       {
          const bool is_pp_body = is_type(ref, CT_PREPROC_BODY);
          ref = (is_pp_body) ? get_prev_non_pp(ref): chunk_get_next (ref);

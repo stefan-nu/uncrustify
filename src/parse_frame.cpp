@@ -167,7 +167,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    int    b4_cnt   = cpd.frame_count;
    size_t pp_level = cpd.pp_level;
 
-   if (is_not_type(pc, CT_PREPROC)) { return(pp_level); }
+   if (not_type(pc, CT_PREPROC)) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
    if (is_invalid(next)) { return(pp_level); }
 
@@ -184,7 +184,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    pf_log_frms(LPFCHK, "TOP", frm);
 
    const char *txt = nullptr;
-   if (is_flag(pc, PCF_IN_PREPROC))
+   if (is_preproc(pc))
    {
       LOG_FMT(LPF, " <In> ");
       pf_log(LPF, frm);

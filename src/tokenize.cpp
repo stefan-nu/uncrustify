@@ -1946,13 +1946,13 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       rprev = pc;
       if (is_valid(rprev))
       {
-         chunk_flags_set(pc, rprev->flags & PCF_COPY_FLAGS);
+         set_flags(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
          assert(is_valid(pc));
          if (is_type(pc, CT_NEWLINE))
          {
-            chunk_flags_clr(pc, PCF_IN_PREPROC);
+            clr_flags(pc, PCF_IN_PREPROC);
          }
       }
       if (is_valid(ref)) { chunk.flags |=  PCF_INSERTED; }
@@ -1978,10 +1978,10 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       /* Special handling for preprocessor stuff */
       if (cpd.is_preproc != CT_NONE)
       {
-         chunk_flags_set(pc, PCF_IN_PREPROC);
+         set_flags(pc, PCF_IN_PREPROC);
 
          /* Count words after the preprocessor */
-         if(!chunk_is_cmt_or_nl(pc))
+         if(!is_cmt_or_nl(pc))
          {
             cpd.preproc_ncnl_count++;
          }
@@ -1999,7 +1999,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          /* Figure out the type of preprocessor for #include parsing */
          if (cpd.is_preproc == CT_PREPROC)
          {
-            if(chunk_is_no_preproc_type(pc))
+            if(is_no_preproc_type(pc))
             {
                set_type(pc, CT_PP_OTHER);
             }
@@ -2008,7 +2008,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
             // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
-            if (is_not_type(pc, CT_NL_CONT, CT_COMMENT_CPP))
+            if (not_type(pc, CT_NL_CONT, CT_COMMENT_CPP))
             {
                set_type(pc, CT_PP_IGNORE);
             }
@@ -2029,7 +2029,11 @@ void tokenize(const deque<int> &data, chunk_t *ref)
              is_invalid_or_type(rprev, CT_NEWLINE) )
          {
             set_type(pc, CT_PREPROC);
+#if 1
+            set_flags(pc, PCF_IN_PREPROC);
+#else
             pc->flags     |= PCF_IN_PREPROC;
+#endif
             cpd.is_preproc = CT_PREPROC;
          }
       }

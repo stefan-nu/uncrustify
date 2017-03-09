@@ -184,8 +184,8 @@ static void split_before_chunk(chunk_t *pc)
    assert(is_valid(pc));
    LOG_FMT(LSPLIT, "%s: %s\n", __func__, pc->text());
 
-   if (!chunk_is_nl(pc                ) &&
-       !chunk_is_nl(chunk_get_prev(pc)) )
+   if (!is_nl(pc                ) &&
+       !is_nl(chunk_get_prev(pc)) )
    {
       newline_add_before(pc);
       // reindent needs to include the indent_continue value and was off by one
@@ -203,8 +203,8 @@ void do_code_width(void)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if ((!chunk_is_cmt_or_nl(pc)) &&
-          (is_not_type(pc, CT_SPACE) ) &&
+      if ((!is_cmt_or_nl(pc)) &&
+          (not_type(pc, CT_SPACE) ) &&
           (is_past_width(pc)) )
       {
          if (split_line(pc) == false)
@@ -238,7 +238,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    /* Can't split after a newline */
    chunk_t *prev = chunk_get_prev(pc);
    return_if((is_invalid(prev)                                    ) ||
-             (chunk_is_nl(prev) && is_not_type(pc, CT_STRING)) );
+             (is_nl(prev) && not_type(pc, CT_STRING)) );
 
    /* Can't split a function without arguments */
    if (is_type(pc, CT_FPAREN_OPEN))
@@ -251,7 +251,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (is_type(pc, CT_STRING))
    {
       chunk_t *next = chunk_get_next(pc);
-      return_if(is_not_type(next, CT_STRING));
+      return_if(not_type(next, CT_STRING));
    }
 
    /* keep common groupings unless ls_code_width */
@@ -262,7 +262,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    if (pc_pri == 25)
    {
       chunk_t *next = chunk_get_next(pc);
-      return_if(is_not_type(next, CT_WORD) &&
+      return_if(not_type(next, CT_WORD) &&
                 (get_split_pri(next->type) != 25) );
    }
 
@@ -345,10 +345,10 @@ static bool split_line(chunk_t *start)
    chunk_t *prev;
 
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
-           (!chunk_is_nl(pc)) )
+           (!is_nl(pc)) )
    {
       LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
-      if (is_not_type(pc, CT_SPACE))
+      if (not_type(pc, CT_SPACE))
       {
          try_split_here(ent, pc);
          /*  break at maximum line length */
@@ -406,8 +406,8 @@ static bool split_line(chunk_t *start)
 
    /* add a newline before pc */
    prev = chunk_get_prev(pc);
-   if (!chunk_is_nl(pc  ) &&
-       !chunk_is_nl(prev) )
+   if (!is_nl(pc  ) &&
+       !is_nl(prev) )
    {
       //int plen = (pc->len() < 5) ? pc->len() : 5;
       //int slen = (start->len() < 5) ? start->len() : 5;
@@ -594,7 +594,7 @@ static void split_fcn_params(chunk_t *start)
    int last_col  = -1;
    while (is_valid(pc))
    {
-      if (chunk_is_nl(pc))
+      if (is_nl(pc))
       {
          cur_width =  0;
          last_col  = -1;
@@ -647,7 +647,7 @@ static void split_fcn_params(chunk_t *start)
    }
 
    if ( is_valid        (prev) &&
-       !chunk_is_nl(prev) )
+       !is_nl(prev) )
    {
       LOG_FMT(LSPLIT, " -- ended on [%s] --\n", get_token_name(prev->type));
       pc = chunk_get_next(prev);

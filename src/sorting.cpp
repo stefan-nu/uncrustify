@@ -144,12 +144,12 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
       /* If we hit a newline or nullptr, we are done */
       break_if(are_invalid(pc1, pc2) ||
-               chunk_is_nl(pc1) ||
-               chunk_is_nl(pc2) );
+               is_nl(pc1) ||
+               is_nl(pc2) );
    }
 
-   retval_if((is_invalid(pc1) || !chunk_is_nl(pc2)), -1);
-   retval_if(!chunk_is_nl(pc1), 1);
+   retval_if((is_invalid(pc1) || !is_nl(pc2)), -1);
+   retval_if(!is_nl(pc1), 1);
    return(0); /* \todo explain the return values -1, 0, 1 */
 }
 
@@ -181,7 +181,7 @@ static void do_the_sort(chunk_t **chunks, const size_t num_chunks)
       /* Swap the lines if the minimum isn't the first entry */
       if (min_idx != start_idx)
       {
-         chunk_swap_lines(chunks[start_idx], chunks[min_idx]);
+         swap_lines(chunks[start_idx], chunks[min_idx]);
 
          /* Don't need to swap, since we only want the side-effects */
          chunks[min_idx] = chunks[start_idx];
@@ -205,13 +205,13 @@ void sort_imports(void)
    {
       chunk_t *next = chunk_get_next(pc);
 
-      if (chunk_is_nl(pc))
+      if (is_nl(pc))
       {
          bool did_import = false;
 
          if ( are_valid(p_imp, p_last      )   &&
              (is_type(p_last, CT_SEMICOLON ) ||
-              is_flag(p_imp, PCF_IN_PREPROC) ) )
+              is_preproc(p_imp) ) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {
@@ -250,7 +250,7 @@ void sort_imports(void)
          p_imp  = chunk_get_next(pc);
          p_last = pc;
       }
-      else if (!chunk_is_cmt(pc))
+      else if (!is_cmt(pc))
       {
          p_last = pc;
       }

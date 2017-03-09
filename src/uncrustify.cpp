@@ -1592,7 +1592,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
 static void add_file_header(void)
 {
-   if (chunk_is_cmt(chunk_get_head()) == false)
+   if (is_cmt(chunk_get_head()) == false)
    {
       /*TODO: detect the typical #ifndef FOO / #define FOO sequence */
       tokenize(cpd.file_hdr.data, chunk_get_head());
@@ -1606,15 +1606,15 @@ static void add_file_footer(void)
 
    /* Back up if the file ends with a newline */
    if (/*(pc != nullptr      ) && */
-        chunk_is_nl(pc) )
+        is_nl(pc) )
    {
       pc = chunk_get_prev(pc);
    }
-   if (((!chunk_is_cmt(pc)                ) ||
-        (!chunk_is_nl(chunk_get_prev(pc))) ) )
+   if (((!is_cmt(pc)                ) ||
+        (!is_nl(chunk_get_prev(pc))) ) )
    {
       pc = chunk_get_tail();
-      if (!chunk_is_nl(pc))
+      if (!is_nl(pc))
       {
          LOG_FMT(LSYS, "Adding a newline at the end of the file\n");
          newline_add_after(pc);
@@ -1644,7 +1644,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      continue_if(is_not_type(pc, type));
+      continue_if(not_type(pc, type));
       continue_if(is_flag(pc, PCF_IN_CLASS                      ) &&
           (cpd.settings[UO_cmt_insert_before_inlines].b == false) );
 
@@ -1665,7 +1665,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       if(is_type_and_ptype(ref, CT_FUNC_DEF, CT_NONE))
       {
          int found_brace = 0; // Set if a close brace is found before a newline
-         while (is_not_type(ref, CT_NEWLINE))
+         while (not_type(ref, CT_NEWLINE))
          {
             ref = ref->next;
             if (is_type(ref, CT_BRACE_CLOSE))
@@ -1700,23 +1700,23 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
-         if (is_flag(ref, PCF_IN_PREPROC))
+         if (is_preproc(ref))
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               break_if((chunk_is_cmt(tmp)                           ) &&
+               break_if((is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
 
          /* Ignore 'right' comments */
-         break_if((chunk_is_cmt(ref)           ) &&
-             (chunk_is_nl(chunk_get_prev(ref))) );
+         break_if((is_cmt(ref)           ) &&
+             (is_nl(chunk_get_prev(ref))) );
 
          if ( (ref->level == pc->level     )   &&
-             (is_flag(ref, PCF_IN_PREPROC) ||
+             (is_preproc(ref) ||
               is_type(ref, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
          {
             do_insert = true;
@@ -1736,7 +1736,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 
    for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
    {
-      continue_if(is_not_type(pc, type));
+      continue_if(not_type(pc, type));
 
       do_insert = false;
 
@@ -1757,25 +1757,25 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
-         if (ref->flags & PCF_IN_PREPROC)
+         if (is_preproc(ref))
          {
             chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = chunk_get_prev_nnl(tmp);
-               break_if((chunk_is_cmt(tmp)                           ) &&
+               break_if((is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
-         if (( ref->level == pc->level                                        ) &&
-             ((ref->flags & PCF_IN_PREPROC) || is_type(ref, CT_OC_SCOPE)) )
+         if (is_level(ref, pc->level) &&
+            (is_preproc(ref) || is_type(ref, CT_OC_SCOPE)) )
          {
             ref = chunk_get_prev(ref);
             if (is_valid(ref))
             {
                /* Ignore 'right' comments */
-               break_if ((chunk_is_nl(ref)          ) &&
-                   (chunk_is_cmt(chunk_get_prev(ref))) );
+               break_if ((is_nl(ref)          ) &&
+                   (is_cmt(chunk_get_prev(ref))) );
                do_insert = true;
             }
             break;

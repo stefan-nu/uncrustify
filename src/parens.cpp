@@ -57,7 +57,7 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
       {
-         continue_if (is_not_type (pc,    CT_SPAREN_OPEN             ) ||
+         continue_if (not_type (pc,    CT_SPAREN_OPEN             ) ||
                       is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
@@ -139,7 +139,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
    chunk_t *pc = popen;
    while (((pc = chunk_get_next_ncnl(pc)) != nullptr) && (pc != pclose))
    {
-      if (is_flag(pc, PCF_IN_PREPROC))
+      if (is_preproc(pc))
       {
          LOG_FMT(LPARADD2, " -- bail on PP %s [%s] at line %zu col %zu, level %zu\n",
                  get_token_name(pc->type),
@@ -165,7 +165,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
          hit_compare = true;
       }
-      else if (chunk_is_paren_open(pc))
+      else if (is_paren_open(pc))
       {
          chunk_t *next = chunk_skip_to_match(pc);
          if (is_valid(next))

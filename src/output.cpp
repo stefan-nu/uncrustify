@@ -583,7 +583,7 @@ void output_parsed(FILE *pfile)
               pc->brace_level, pc->level, pc->pp_level,
               pc->flags, pc->nl_count, pc->after_tab);
 
-      if (is_not_type(pc, CT_NEWLINE) &&
+      if (not_type(pc, CT_NEWLINE) &&
           (pc->len() != 0         ) )
       {
          for (size_t cnt = 0; cnt < pc->column; cnt++)
@@ -591,7 +591,7 @@ void output_parsed(FILE *pfile)
             fprintf(pfile, " ");
          }
 
-         if (is_not_type(pc, CT_NL_CONT)) { fprintf(pfile, "%s", pc->text()); }
+         if (not_type(pc, CT_NL_CONT)) { fprintf(pfile, "%s", pc->text()); }
          else                                   { fprintf(pfile, "\\");             }
       }
    }
@@ -626,7 +626,7 @@ void output_text(FILE *pfile)
       LOG_FMT(LOUTIND, "text() %s, type %s, col=%zu\n",
               pc->text(), get_token_name(pc->type), pc->orig_col);
       cpd.output_tab_as_space = (cpd.settings[UO_cmt_convert_tab_to_spaces].b &&
-                                 chunk_is_cmt(pc));
+                                 is_cmt(pc));
       if (is_type(pc, CT_NEWLINE))
       {
          for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
@@ -746,7 +746,7 @@ void output_text(FILE *pfile)
                }
             }
             allow_tabs = (cpd.settings[UO_indent_with_tabs].n == 2) ||
-                         (chunk_is_cmt(pc) &&
+                         (is_cmt(pc) &&
                          (cpd.settings[UO_indent_with_tabs].n != 0));
 
             LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%u - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
@@ -784,7 +784,7 @@ void output_text(FILE *pfile)
                add_char(TABSTOP);
             }
          }
-         cpd.did_newline       = chunk_is_nl(pc);
+         cpd.did_newline       = is_nl(pc);
          cpd.output_trailspace = false;
       }
    }
@@ -1491,7 +1491,7 @@ static void output_comment_multi(chunk_t *pc)
             if ((prev_nonempty_line < 0) &&
                 !unc_isspace(line[nwidx]) &&
                 (line[nwidx] != '*') &&     // block comment: skip '*' at end of line
-                ((pc->flags & PCF_IN_PREPROC) ?
+                (is_preproc(pc) ?
                   (line[nwidx  ] !=  '\\') ||
                  ((line[nwidx+1] !=  'r' ) &&
                   (line[nwidx+1] != LINEFEED ) )
@@ -1513,7 +1513,7 @@ static void output_comment_multi(chunk_t *pc)
                 !unc_isspace(pc->str[nxt_len]) &&
                 (pc->str[nxt_len] != '*') &&
                 ((nxt_len == remaining) ||
-                 (is_flag(pc, PCF_IN_PREPROC)
+                 (is_preproc(pc)
                   ? (pc->str[nxt_len] != '\\') ||
                   ((pc->str[nxt_len + 1] != 'r') &&
                    (pc->str[nxt_len + 1] != LINEFEED))
@@ -1581,7 +1581,7 @@ static void output_comment_multi(chunk_t *pc)
          {
             nl_end = true;
             line.pop_back();
-            cmt_trim_whitespace(line, is_bit_set(pc->flags, PCF_IN_PREPROC));
+            cmt_trim_whitespace(line, is_preproc(pc));
          }
 
          // LOG_FMT(LSYS, "[%3d]%s\n", ccol, line);
@@ -1713,7 +1713,7 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
       {
          while ((tmp = chunk_get_next(tmp)) != nullptr)
          {
-            break_if(is_not_type(tmp, CT_DC_MEMBER));
+            break_if(not_type(tmp, CT_DC_MEMBER));
             tmp = chunk_get_next(tmp);
             if (tmp)
             {
@@ -1988,7 +1988,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
    cmt_reflow cmt;
    output_cmt_start(cmt, pc);
 
-   int col_diff = (chunk_is_nl(chunk_get_prev(pc))) ?
+   int col_diff = (is_nl(chunk_get_prev(pc))) ?
       (int)pc->orig_col - (int)pc->column : 0;
    /* The comment should be indented correctly : The comment starts after something else */
 
@@ -2126,10 +2126,10 @@ void add_long_preprocessor_conditional_block_comment(void)
          pp_start = pc;
       }
 
-      continue_if(is_not_type(pc, CT_PP_IF) ||
+      continue_if(not_type(pc, CT_PP_IF) ||
                   is_invalid (pp_start    ) );
 #if 0
-      continue_if (is_flag(pc, PCF_IN_PREPROC);
+      continue_if (is_preproc(pc));
 #endif
 
       chunk_t *br_close;
@@ -2143,7 +2143,7 @@ void add_long_preprocessor_conditional_block_comment(void)
          if (is_type(tmp, CT_PREPROC)) { pp_end = tmp; }
 
          assert(is_valid(pp_end));
-         if (chunk_is_nl(tmp))
+         if (is_nl(tmp))
          {
             nl_count += tmp->nl_count;
          }
@@ -2163,7 +2163,7 @@ void add_long_preprocessor_conditional_block_comment(void)
             LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
                     (is_valid(tmp) ? (int)tmp->type : -1),
                     (is_valid(tmp) ?
-                     chunk_is_nl(tmp) ? "newline" : chunk_is_cmt(tmp) ?
+                     is_nl(tmp) ? "newline" : is_cmt(tmp) ?
                      "comment" : "other" : "---"));
 
             if (is_type(tmp, CT_NEWLINE))  /* chunk_is_newline(tmp) */
