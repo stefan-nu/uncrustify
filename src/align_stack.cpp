@@ -309,7 +309,7 @@ void AlignStack::Flush()
       /* check if we have *one* typedef in the line */
       assert(ptr_is_valid(m_aligned.Get(0)));
       pc = m_aligned.Get(0)->m_pc;
-      chunk_t *temp = chunk_get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
+      chunk_t *temp = get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
       if (is_valid(temp))
       {
          if (pc->orig_line == temp->orig_line)

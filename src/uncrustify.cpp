@@ -1627,7 +1627,7 @@ static void add_file_footer(void)
 static void perform_insert(chunk_t *ref, const file_mem_t &fm)
 {
    /* Insert between after and ref */
-   chunk_t *after = chunk_get_next_ncnl(ref);
+   chunk_t *after = get_next_ncnl(ref);
    tokenize(fm.data, after);
    for (chunk_t *tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
    {
@@ -1642,7 +1642,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnlnp(pc))
    {
       continue_if(not_type(pc, type));
       continue_if(is_flag(pc, PCF_IN_CLASS                      ) &&
@@ -1695,17 +1695,17 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          /* If we hit an angle close, back up to the angle open */
          if (is_type(ref, CT_ANGLE_CLOSE))
          {
-            ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
+            ref = get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (is_preproc(ref))
          {
-            chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
+            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
-               tmp = chunk_get_prev_nnl(tmp);
+               tmp = get_prev_nnl(tmp);
                break_if((is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
@@ -1734,7 +1734,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
    chunk_t *pc;
    bool    do_insert;
 
-   for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnlnp(pc))
+   for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnlnp(pc))
    {
       continue_if(not_type(pc, type));
 
@@ -1752,17 +1752,17 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (is_type(ref, CT_PAREN_CLOSE))
          {
-            ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
+            ref = get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (is_preproc(ref))
          {
-            chunk_t *tmp = chunk_get_prev_type(ref, CT_PREPROC, (int)ref->level);
+            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
-               tmp = chunk_get_prev_nnl(tmp);
+               tmp = get_prev_nnl(tmp);
                break_if((is_cmt(tmp)                           ) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }

@@ -25,7 +25,7 @@ void prot_the_line(int theLine, unsigned int actual_line)
       {
          LOG_FMT(LGUY, "(%d) orig_line=%d, ", theLine, actual_line);
          switch(pc->type)
-         {
+         {  /* \todo combine into a single log line */
             case(CT_VBRACE_OPEN ): LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break;
             case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); break;
             case(CT_VBRACE_CLOSE): LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break;

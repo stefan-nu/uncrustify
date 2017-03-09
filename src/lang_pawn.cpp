@@ -76,7 +76,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 
    retval_if((is_invalid(pc) || is_semicolon(pc)), pc);
 
-   chunk_t *next = chunk_get_next_nc(pc);
+   chunk_t *next = get_next_nc(pc);
    retval_if(is_semicolon(next), pc);
 
    chunk_t chunk     = *pc;
@@ -158,7 +158,7 @@ void pawn_prescan(void)
          did_nl = (is_type(pc, CT_NEWLINE));
       }
 
-      pc = chunk_get_next_nc(pc);
+      pc = get_next_nc(pc);
    }
 }
 
@@ -180,7 +180,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
       fcn = start;
    }
    chunk_t *pc = start;
-   while (((pc = chunk_get_next_nc(pc)) != nullptr) &&
+   while (((pc = get_next_nc(pc)) != nullptr) &&
           !is_str(pc, "(", 1) &&
           not_type(pc, CT_ASSIGN, CT_NEWLINE))
    {
@@ -200,7 +200,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
 
    if (is_type(start, CT_ENUM))
    {
-      pc = chunk_get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
+      pc = get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
       return(pc);
    }
 
@@ -214,7 +214,7 @@ static chunk_t *pawn_process_variable(chunk_t *start)
 
    chunk_t *prev = nullptr;
    chunk_t *pc   = start;
-   while ((pc = chunk_get_next_nc(pc)) != nullptr)
+   while ((pc = get_next_nc(pc)) != nullptr)
    {
       if (is_type (pc, CT_NEWLINE                          ) &&
           (pawn_continued(prev, (int)start->level) == false) )
@@ -272,7 +272,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    /* handle prototypes */
    if (start == fcn)
    {
-      chunk_t *last = chunk_get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
+      chunk_t *last = get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
       last          = chunk_get_next     (last);
 
       if(is_type(last, CT_SEMICOLON))
@@ -291,7 +291,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
                  __func__, fcn->orig_line, fcn->text(),
                  get_token_name(fcn->type), get_token_name(start->type));
          set_type(fcn, CT_FUNC_PROTO);
-         return(chunk_get_next_nc(fcn));
+         return(get_next_nc(fcn));
       }
    }
 
@@ -313,8 +313,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    /* If we don't have a brace open right after the close fparen, then
     * we need to add virtual braces around the function body.
     */
-   chunk_t *clp  = chunk_get_next_str(pc, ")", 1, 0);
-   chunk_t *last = chunk_get_next_ncnl(clp);
+   chunk_t *clp  = get_next_str(pc, ")", 1, 0);
+   chunk_t *last = get_next_ncnl(clp);
 
    if (is_valid(last))
    {
@@ -341,7 +341,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
                  __func__, pc->orig_line, pc->text(), get_token_name(last->type));
          set_type_and_ptype(last, CT_ANGLE_CLOSE, CT_FUNC_DEF);
       }
-      last = chunk_get_next_ncnl(last);
+      last = get_next_ncnl(last);
    }
 
    retval_if(is_invalid(last), last);
@@ -349,7 +349,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    if (is_type(last, CT_BRACE_OPEN))
    {
       set_ptype(last, CT_FUNC_DEF);
-      last = chunk_get_next_type(last, CT_BRACE_CLOSE, (int)last->level);
+      last = get_next_type(last, CT_BRACE_CLOSE, (int)last->level);
       if (is_valid(last))
       {
          set_ptype(last, CT_FUNC_DEF);
@@ -372,7 +372,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       last = prev;
 
       /* find the next newline at level 0 */
-      prev = chunk_get_next_ncnl(prev);
+      prev = get_next_ncnl(prev);
       assert(is_valid(prev));
       do
       {
@@ -381,7 +381,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
          if (is_type(prev, CT_NEWLINE) &&
              (prev->level == 0       ) )
          {
-            chunk_t *next = chunk_get_next_ncnl(prev);
+            chunk_t *next = get_next_ncnl(prev);
             break_if(not_type(next, CT_ELSE, CT_WHILE_OF_DO));
          }
          prev->level++;
@@ -414,7 +414,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    LOG_FUNC_ENTRY();
 
    /* Grab the open VBrace */
-   const chunk_t *vb_open = chunk_get_prev_type(pc, CT_VBRACE_OPEN, -1);
+   const chunk_t *vb_open = get_prev_type(pc, CT_VBRACE_OPEN, -1);
 
    /** Grab the item before the newline
     * Don't do anything if:

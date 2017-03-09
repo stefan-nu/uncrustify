@@ -576,7 +576,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
 static chunk_t *oc_msg_prev_colon(chunk_t *pc)
 {
-   return(chunk_get_prev_type(pc, CT_OC_COLON, (int)pc->level, scope_e::ALL));
+   return(get_prev_type(pc, CT_OC_COLON, (int)pc->level, scope_e::ALL));
 }
 
 
@@ -650,7 +650,7 @@ void indent_text(void)
       {
          if (!in_func_def)
          {
-            next = chunk_get_next_ncnl(pc);
+            next = get_next_ncnl(pc);
             if (is_ptype(pc, CT_FUNC_DEF) ||
                (is_type (pc, CT_COMMENT ) && is_ptype(next, CT_FUNC_DEF)))
             {
@@ -1111,7 +1111,7 @@ void indent_text(void)
          /* any '{' that is inside of a '(' overrides the '(' indent */
          else if (!cpd.settings[UO_indent_paren_open_brace].b &&
                   is_paren_open(frm.pse[frm.pse_tos-1].pc) &&
-                  is_nl(chunk_get_next_nc(pc)))
+                  is_nl(get_next_nc(pc)))
          {
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
             // DRY6
@@ -1275,7 +1275,7 @@ void indent_text(void)
              * This covers this sort of stuff:
              * { a++;
              *   b--; }; */
-            next = chunk_get_next_ncnl(pc);
+            next = get_next_ncnl(pc);
             break_if (is_invalid(next));
 
             if (!is_newline_between(pc, next))
@@ -1357,7 +1357,7 @@ void indent_text(void)
 
          /* comments before 'case' need to be aligned with the 'case' */
          chunk_t *pct = pc;
-         while (((pct = chunk_get_prev_nnl(pct)) != nullptr) &&
+         while (((pct = get_prev_nnl(pct)) != nullptr) &&
                 is_cmt(pct))
          {
             chunk_t *t2 = chunk_get_prev(pct);
@@ -1373,7 +1373,7 @@ void indent_text(void)
          prev = chunk_get_prev_ncnl(pc);
          if (is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_CASE))
          {
-            const chunk_t *temp = chunk_get_prev_type(pc, CT_BRACE_OPEN, (int)pc->level);
+            const chunk_t *temp = get_prev_type(pc, CT_BRACE_OPEN, (int)pc->level);
             assert(is_valid(temp));
             /* This only affects the 'break', so no need for a stack entry */
             indent_column_set(temp->column);
@@ -1576,7 +1576,7 @@ void indent_text(void)
                   (is_str(pc, "<", 1) && !cpd.settings[UO_indent_paren_nl ].b) || /* TODO: add indent_angle_nl? */
                   (is_str(pc, "[", 1) && !cpd.settings[UO_indent_square_nl].b) )
          {
-            next = chunk_get_next_nc(pc);
+            next = get_next_nc(pc);
             break_if(is_invalid(next));
 
             if (is_nl(next))
@@ -1598,7 +1598,7 @@ void indent_text(void)
                {
                   if (is_type(next, CT_SPACE))
                   {
-                     next = chunk_get_next_nc(next);
+                     next = get_next_nc(next);
                      break_if (is_invalid(next));
                   }
                   frm.pse[frm.pse_tos].indent = next->column;
@@ -1764,9 +1764,9 @@ void indent_text(void)
       /* Handle shift expression continuation indenting */
       shiftcontcol = 0;
       if ( (cpd.settings[UO_indent_shift].b    ) &&
-            is_not_flag(pc, PCF_IN_ENUM) &&
+            not_flag(pc, PCF_IN_ENUM) &&
            (pc->ptype != CT_OPERATOR) &&
-           is_not_type(pc, 4, CT_COMMENT,       CT_COMMENT_CPP,
+           not_type(pc, 4, CT_COMMENT,       CT_COMMENT_CPP,
                               CT_COMMENT_MULTI, CT_BRACE_OPEN) &&
            (pc->level > 0 ) &&
            (!chunk_empty(pc) ) )
@@ -1788,13 +1788,13 @@ void indent_text(void)
             }
             tmp = chunk_get_prev_ncnl(tmp);
          } while ((in_shift == false) &&
-               is_not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_COMMA,
+               not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_COMMA,
                      CT_SEMICOLON, CT_BRACE_OPEN,  CT_SPAREN_OPEN));
 
          tmp = pc;
          do
          {
-            tmp = chunk_get_next_ncnl(tmp);
+            tmp = get_next_ncnl(tmp);
             if (is_str(tmp, "<<", 2) ||
                 is_str(tmp, ">>", 2) )
             {
@@ -1804,7 +1804,7 @@ void indent_text(void)
                break;
             }
          } while ((in_shift == false) &&
-                  is_not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE,
+                  not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE,
                         CT_SEMICOLON, CT_BRACE_OPEN, CT_COMMA, CT_SPAREN_OPEN));
 
          chunk_t *prev_nonl = chunk_get_prev_ncnl(pc);
@@ -1813,11 +1813,7 @@ void indent_text(void)
          if (is_type(prev_nonl, 8, CT_SEMICOLON,  CT_VBRACE_CLOSE,
                    CT_BRACE_OPEN,  CT_VSEMICOLON, CT_BRACE_CLOSE,
                    CT_VBRACE_OPEN, CT_CASE_COLON, CT_COMMA) ||
-#if 0
                are_different_preproc(prev_nonl, pc) ||
-#else
-              ((prev_nonl->flags & PCF_IN_PREPROC) != (pc->flags & PCF_IN_PREPROC)) ||
-#endif
               (is_operator == true) )
          {
             in_shift = false;
@@ -1852,7 +1848,7 @@ void indent_text(void)
       /* Handle variable definition continuation indenting */
       if ((vardefcol == 0                         ) &&
           is_type(pc, CT_WORD, CT_FUNC_CTOR_VAR) &&
-          is_not_flag(pc, PCF_IN_FCN_DEF ) &&
+          not_flag(pc, PCF_IN_FCN_DEF ) &&
           is_flag    (pc, PCF_VAR_1ST_DEF) )
       {
          if (cpd.settings[UO_indent_continue].n != 0)
@@ -1905,7 +1901,7 @@ void indent_text(void)
           * Note that some of these could be done as a stack item like
           * everything else */
          prev = chunk_get_prev_ncnl(pc);
-         next = chunk_get_next_ncnl(pc);
+         next = get_next_ncnl(pc);
 
          bool do_vardefcol = false;
          if ((vardefcol  > 0              ) &&
@@ -1915,7 +1911,7 @@ void indent_text(void)
             chunk_t *tmp = pc;
             while (is_type(tmp, CT_PTR_TYPE))
             {
-               tmp = chunk_get_next_ncnl(tmp);
+               tmp = get_next_ncnl(tmp);
             }
             if(is_type(tmp, CT_WORD, CT_FUNC_CTOR_VAR) &&
                is_flag(tmp, PCF_VAR_DEF              ) )
@@ -1935,7 +1931,7 @@ void indent_text(void)
             LOG_FMT(LINDENT, "Indent SQL: [%s] to %zu (%zu/%zu)\n",
                                 pc->text(), pc->column, sql_col, sql_orig_col);
          }
-         else if (is_not_flag(pc, PCF_STMT_START)           &&
+         else if (not_flag(pc, PCF_STMT_START)           &&
                   (is_type(pc,   CT_MEMBER, CT_DC_MEMBER) ||
                    is_type(prev, CT_MEMBER, CT_DC_MEMBER) ) )
          {
@@ -2080,15 +2076,15 @@ void indent_text(void)
                                    CT_STRING, CT_PAREN_OPEN )) &&
                     is_type(prev,  CT_COND_COLON) ) )
          {
-            chunk_t *tmp = chunk_get_prev_type(prev, CT_QUESTION, -1);
-            tmp = chunk_get_next_ncnl(tmp);
+            chunk_t *tmp = get_prev_type(prev, CT_QUESTION, -1);
+            tmp = get_next_ncnl(tmp);
             assert(is_valid(tmp));
             log_and_reindent(pc, tmp->column, "ternarydefcol");
          }
          else if ((cpd.settings[UO_indent_ternary_operator].u == 2) &&
                   is_type(pc, CT_COND_COLON))
          {
-            const chunk_t *tmp = chunk_get_prev_type(pc, CT_QUESTION, -1);
+            const chunk_t *tmp = get_prev_type(pc, CT_QUESTION, -1);
             assert(is_valid(tmp));
             log_and_reindent(pc, tmp->column, "ternarydefcol");
          }
@@ -2297,7 +2293,7 @@ static void indent_comment(chunk_t *pc, size_t col)
 
    /* force column 1 comment to column 1 if not changing them */
    if ((pc->orig_col == 1) && !cpd.settings[UO_indent_col1_comment].b &&
-       is_not_flag(pc, PCF_INSERTED))
+       not_flag(pc, PCF_INSERTED))
    {
       LOG_FMT(LCMTIND, "rule 1 - keep in col 1\n");
       reindent_line(pc, 1);
@@ -2426,7 +2422,7 @@ void indent_preproc(void)
    {
       continue_if(not_type(pc, CT_PREPROC));
 
-      next = chunk_get_next_ncnl(pc);
+      next = get_next_ncnl(pc);
       break_if(is_invalid(next));
 
       pp_level = (int)pc->pp_level - pp_level_sub;
@@ -2469,7 +2465,7 @@ void indent_preproc(void)
              (pc->ptype != CT_PP_DEFINE))
 #else
 //           error
-             chunk_is_not_ptype(pc, CT_PP_DEFINE))
+             is_not_ptype(pc, CT_PP_DEFINE))
 #endif
          {
             set_flags(pc, PCF_DONT_INDENT);

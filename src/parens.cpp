@@ -55,13 +55,13 @@ void do_parens(void)
    if (cpd.settings[UO_mod_full_paren_if_bool].b)
    {
       chunk_t *pc = chunk_get_head();
-      while ((pc = chunk_get_next_ncnl(pc)) != nullptr)
+      while ((pc = get_next_ncnl(pc)) != nullptr)
       {
          continue_if (not_type (pc,    CT_SPAREN_OPEN             ) ||
-                      is_not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
+                      not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
-         chunk_t *pclose = chunk_get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
+         chunk_t *pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
          if (is_valid(pclose))
          {
             check_bool_parens(pc, pclose, 0);
@@ -85,7 +85,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
            last->text(), last->level);
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
-   chunk_t *first_n = chunk_get_next_ncnl(first);
+   chunk_t *first_n = get_next_ncnl(first);
    assert(is_valid(first_n));
    if (first_n == last)
    {
@@ -115,7 +115,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    for (chunk_t *tmp = first_n;
         tmp != last_p;
-        tmp = chunk_get_next_ncnl(tmp))
+        tmp = get_next_ncnl(tmp))
    {
       tmp->level++;
    }
@@ -137,7 +137,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
            popen->level);
 
    chunk_t *pc = popen;
-   while (((pc = chunk_get_next_ncnl(pc)) != nullptr) && (pc != pclose))
+   while (((pc = get_next_ncnl(pc)) != nullptr) && (pc != pclose))
    {
       if (is_preproc(pc))
       {

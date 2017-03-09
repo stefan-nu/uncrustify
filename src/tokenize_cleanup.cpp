@@ -55,7 +55,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
          set_type(pc, CT_ARITH);
          pc->orig_col_end = next->orig_col_end;
 
-         chunk_t *tmp = chunk_get_next_ncnl(next);
+         chunk_t *tmp = get_next_ncnl(next);
          chunk_del(next);
          next = tmp;
       }
@@ -94,11 +94,11 @@ void tokenize_cleanup(void)
 
    /* Since [] is expected to be TSQUARE for the 'operator', we need to make
     * this change in the first pass. */
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnl(pc))
+   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       if (is_type(pc, CT_SQUARE_OPEN))
       {
-         chunk_t *next = chunk_get_next_ncnl(pc);
+         chunk_t *next = get_next_ncnl(pc);
          if (is_type(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
@@ -113,7 +113,7 @@ void tokenize_cleanup(void)
       }
       if ( is_type(pc, CT_SEMICOLON) &&
            is_preproc(pc) &&
-          !chunk_get_next_ncnl(pc, scope_e::PREPROC))
+          !get_next_ncnl(pc, scope_e::PREPROC))
       {
          LOG_FMT(LNOTE, "%s:%zu Detected a macro that ends with a semicolon. Possible failures if used.\n",
                  cpd.filename, pc->orig_line);
@@ -122,7 +122,7 @@ void tokenize_cleanup(void)
 
    /* We can handle everything else in the second pass */
    chunk_t *pc   = chunk_get_head();
-   chunk_t *next = chunk_get_next_ncnl(pc);
+   chunk_t *next = get_next_ncnl(pc);
    while (are_valid(pc, next))
    {
       if ((is_type(pc, CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
@@ -188,7 +188,7 @@ void tokenize_cleanup(void)
          else
          {
             /* Something else followed by a open brace */
-            chunk_t *tmp = chunk_get_next_ncnl(next);
+            chunk_t *tmp = get_next_ncnl(next);
             if(not_type(tmp, CT_BRACE_OPEN))
             {
                set_type(pc, CT_QUALIFIER);
@@ -229,12 +229,12 @@ void tokenize_cleanup(void)
       }
 
 #if 1
-      if ((pc->type  == CT_ANGLE_CLOSE) &&
-          (pc->ptype != CT_TEMPLATE   ) )
+      if (is_type(pc, CT_ANGLE_CLOSE) &&
+          (pc->ptype != CT_TEMPLATE ) )
 #else
          // many Cpp and some other tests fail
-      if (is_type     (pc, CT_ANGLE_CLOSE) &&
-          chunk_is_not_ptype(pc, CT_TEMPLATE   ) )
+      if (is_type  (pc, CT_ANGLE_CLOSE) &&
+          not_ptype(pc, CT_TEMPLATE   ) )
 #endif
       {
          if (in_type_cast)
@@ -319,7 +319,7 @@ void tokenize_cleanup(void)
        * likewise, 'class' may be a member name in Java. */
       if (is_type(pc, CT_CLASS) &&
           !CharTable::IsKW1(next->str[0]) &&
-          pc->next->type != CT_DC_MEMBER)
+          not_type(pc->next, CT_DC_MEMBER))
       {
          set_type(pc, CT_WORD);
       }
@@ -354,8 +354,7 @@ void tokenize_cleanup(void)
                next->orig_col_end += 1;
             }
          }
-         else if (is_type(next, CT_ANGLE_CLOSE) &&
-                  is_type(tmp2, CT_ANGLE_CLOSE) &&
+         else if (are_types(next, tmp2, CT_ANGLE_CLOSE) &&
                   (tmp2->orig_col == next->orig_col_end) )
          {
             next->str.append('>');
@@ -377,7 +376,7 @@ void tokenize_cleanup(void)
             chunk_t *tmp;
             while ((tmp = chunk_get_next(tmp2)) != nullptr)
             {
-               break_if(is_not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
+               break_if(not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
                          CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET));
 
                /* Change tmp into a type so that space_needed() works right */
@@ -397,7 +396,6 @@ void tokenize_cleanup(void)
             }
 
             set_type(next, CT_OPERATOR_VAL);
-
             next->orig_col_end = next->orig_col + next->len();
          }
          set_ptype(next, CT_OPERATOR);
@@ -423,7 +421,7 @@ void tokenize_cleanup(void)
          {
             set_type(next, CT_PRIVATE_COLON);
             chunk_t *tmp;
-            if ((tmp = chunk_get_next_ncnl(next)) != nullptr)
+            if ((tmp = get_next_ncnl(next)) != nullptr)
             {
                set_flags(tmp, PCF_STMT_START | PCF_EXPR_START);
             }
@@ -468,7 +466,7 @@ void tokenize_cleanup(void)
             tmp = chunk_get_next(next);
             if      (is_str_case(tmp, "BEGIN", 5)) { set_type(pc, CT_SQL_BEGIN); }
             else if (is_str_case(tmp, "END",   3)) { set_type(pc, CT_SQL_END  ); }
-            else                                         { set_type(pc, CT_SQL_EXEC ); }
+            else                                   { set_type(pc, CT_SQL_EXEC ); }
 
             /* Change words into CT_SQL_WORD until CT_SEMICOLON */
             while (is_valid(tmp))
@@ -481,7 +479,7 @@ void tokenize_cleanup(void)
                {
                   set_type(tmp, CT_SQL_WORD);
                }
-               tmp = chunk_get_next_ncnl(tmp);
+               tmp = get_next_ncnl(tmp);
             }
          }
       }
@@ -497,11 +495,11 @@ void tokenize_cleanup(void)
          pc->str         += next->str;
          pc->orig_col_end = next->orig_col_end;
          chunk_del(next);
-         next = chunk_get_next_ncnl(pc);
+         next = get_next_ncnl(pc);
          /* label the 'in' */
          if (is_type(next, CT_PAREN_OPEN))
          {
-            chunk_t *tmp = chunk_get_next_ncnl(next);
+            chunk_t *tmp = get_next_ncnl(next);
             while (not_type(tmp, CT_PAREN_CLOSE))
             {
                if (is_str(tmp, "in", 2))
@@ -509,7 +507,7 @@ void tokenize_cleanup(void)
                   set_type(tmp, CT_IN);
                   break;
                }
-               tmp = chunk_get_next_ncnl(tmp);
+               tmp = get_next_ncnl(tmp);
             }
          }
       }
@@ -523,16 +521,16 @@ void tokenize_cleanup(void)
          {
             set_type(pc, CT_WORD);
          }
-         if ( is_type(pc,   CT_DO   )   &&
-             (is_type(prev, CT_MINUS) || is_type(next, CT_SQUARE_CLOSE)))
+         if ( is_type(pc,   CT_DO                               ) &&
+             (any_is_type(prev, CT_MINUS, next, CT_SQUARE_CLOSE)) )
          {
             set_type(pc, CT_WORD);
          }
       }
 
       /* Another hack to clean up more keyword abuse */
-      if ( is_type(pc,   CT_CLASS) &&
-          (is_type(prev, CT_DOT  ) || is_type(next, CT_DOT)))
+      if ( is_type(pc,   CT_CLASS         ) &&
+          (any_is_type(prev, next, CT_DOT)) )
       {
          set_type(pc, CT_WORD);
       }
@@ -547,13 +545,13 @@ void tokenize_cleanup(void)
          }
          set_ptype(next, pc->type);
 
-         chunk_t *tmp = chunk_get_next_ncnl(next);
+         chunk_t *tmp = get_next_ncnl(next);
          if (is_valid(tmp))
          {
             set_flags(tmp, PCF_STMT_START | PCF_EXPR_START);
          }
 
-         tmp = chunk_get_next_type(pc, CT_OC_END, (int)pc->level);
+         tmp = get_next_type(pc, CT_OC_END, (int)pc->level);
          if (is_valid(tmp))
          {
             set_ptype(tmp, pc->type);
@@ -562,7 +560,7 @@ void tokenize_cleanup(void)
 
       if (is_type(pc, CT_OC_INTF))
       {
-         chunk_t *tmp = chunk_get_next_ncnl(pc, scope_e::PREPROC);
+         chunk_t *tmp = get_next_ncnl(pc, scope_e::PREPROC);
          while (not_type(tmp, CT_OC_END) )
          {
             if (get_token_pattern_class(tmp->type) != pattern_class_e::NONE)
@@ -572,7 +570,7 @@ void tokenize_cleanup(void)
                        get_token_name(tmp->type));
                set_type(tmp, CT_WORD);
             }
-            tmp = chunk_get_next_ncnl(tmp, scope_e::PREPROC);
+            tmp = get_next_ncnl(tmp, scope_e::PREPROC);
          }
       }
 
@@ -601,7 +599,7 @@ void tokenize_cleanup(void)
             }
          }
 
-         tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
+         tmp = get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
          set_ptype(tmp, pc->ptype);
       }
 
@@ -619,16 +617,16 @@ void tokenize_cleanup(void)
          {
             set_ptype(next, pc->type);
 
-            chunk_t *tmp = chunk_get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
+            chunk_t *tmp = get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
             if (is_valid(tmp))
             {
                set_ptype(tmp, pc->type);
-               tmp = chunk_get_next_ncnl(tmp);
+               tmp = get_next_ncnl(tmp);
                if (is_valid(tmp))
                {
                   set_flags(tmp, PCF_STMT_START | PCF_EXPR_START);
 
-                  tmp = chunk_get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
+                  tmp = get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
                   if (is_valid(tmp))
                   {
                      set_ptype(tmp, pc->type);
@@ -642,8 +640,7 @@ void tokenize_cleanup(void)
        *  @selector(msgNameWithNoArg)
        *  @selector(msgNameWith1Arg:)
        *  @selector(msgNameWith2Args:arg2Name:) */
-      if ( is_type(pc,   CT_OC_SEL    ) &&
-           is_type(next, CT_PAREN_OPEN) )
+      if ( are_types(pc, CT_OC_SEL, next, CT_PAREN_OPEN))
       {
          set_ptype(next, pc->type);
 
@@ -652,7 +649,7 @@ void tokenize_cleanup(void)
          {
             set_type_and_ptype(tmp, CT_OC_SEL_NAME, pc->type);
 
-            while ((tmp = chunk_get_next_ncnl(tmp)) != nullptr)
+            while ((tmp = get_next_ncnl(tmp)) != nullptr)
             {
                if (is_type(tmp, CT_PAREN_CLOSE))
                {
@@ -694,14 +691,14 @@ void tokenize_cleanup(void)
            is_type(next, CT_QUESTION) &&
           (next->orig_col == (pc->orig_col + pc->len())))
       {
-         chunk_t *tmp = chunk_get_next_ncnl(next);
+         chunk_t *tmp = get_next_ncnl(next);
          if (is_valid(tmp))
          {
             bool do_it = (is_type(tmp, CT_PAREN_CLOSE, CT_ANGLE_CLOSE));
 
             if (is_type(tmp, CT_WORD))
             {
-               chunk_t *tmp2 = chunk_get_next_ncnl(tmp);
+               chunk_t *tmp2 = get_next_ncnl(tmp);
                if (is_type(tmp2, CT_SEMICOLON,  CT_ASSIGN,
                                  CT_BRACE_OPEN, CT_COMMA) )
                {
@@ -722,22 +719,21 @@ void tokenize_cleanup(void)
 
       /* Change 'default(' into a sizeof-like statement */
       if ((cpd.lang_flags & LANG_CS  ) &&
-          are_types(pc, CT_DEFAULT,next, CT_PAREN_OPEN))
+          are_types(pc, CT_DEFAULT, next, CT_PAREN_OPEN))
       {
          set_type(pc, CT_SIZEOF);
       }
 
-      if (is_type    (pc,   CT_UNSAFE    ) &&
+      if (is_type (pc,   CT_UNSAFE    ) &&
           not_type(next, CT_BRACE_OPEN) )
       {
          set_type(pc, CT_QUALIFIER);
       }
 
 #if 1
-      if ((is_type(pc, CT_USING ) ||
-           (is_type(pc, CT_TRY) &&
-            (cpd.lang_flags & LANG_JAVA)) ) &&
-            is_type(next, CT_PAREN_OPEN) )
+      if ((is_type(pc, CT_USING                               ) ||
+          (is_type(pc, CT_TRY) && (cpd.lang_flags & LANG_JAVA)) ) &&
+           is_type(next, CT_PAREN_OPEN)                           )
 #else
       // makes test 12101 fail
       if (is_type(pc, CT_USING, CT_TRY) &&
@@ -770,16 +766,15 @@ void tokenize_cleanup(void)
 
       /* If Java's 'synchronized' is in a method declaration, it should be
        * a qualifier. */
-      if ((cpd.lang_flags & LANG_JAVA      ) &&
-          is_type    (pc,   CT_SYNCHRONIZED) &&
+      if ((cpd.lang_flags & LANG_JAVA   ) &&
+          is_type (pc,   CT_SYNCHRONIZED) &&
           not_type(next, CT_PAREN_OPEN  ) )
       {
          set_type(pc, CT_QUALIFIER);
       }
 
       /* change CT_DC_MEMBER + CT_FOR into CT_DC_MEMBER + CT_FUNC_CALL */
-      if (is_type(pc,       CT_FOR      ) &&
-          is_type(pc->prev, CT_DC_MEMBER) )
+      if (are_types(pc, CT_FOR, pc->prev, CT_DC_MEMBER))
       {
          set_type(pc, CT_FUNC_CALL);
       }
@@ -787,7 +782,7 @@ void tokenize_cleanup(void)
 
       prev = pc;
       pc   = next;
-      next = chunk_get_next_ncnl(pc);
+      next = get_next_ncnl(pc);
    }
 }
 
@@ -797,7 +792,7 @@ static void check_template(chunk_t *start)
    LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:", __func__, start->orig_line, start->orig_col);
 
    chunk_t *prev = chunk_get_prev_ncnl(start, scope_e::PREPROC);
-   if (is_invalid(prev)) { return; }
+   return_if(is_invalid(prev));
 
    chunk_t *end;
    chunk_t *pc;
@@ -807,9 +802,9 @@ static void check_template(chunk_t *start)
 
       /* We have: "template< ... >", which is a template declaration */
       size_t level = 1;
-      for (pc = chunk_get_next_ncnl(start, scope_e::PREPROC);
+      for (pc = get_next_ncnl(start, scope_e::PREPROC);
            is_valid(pc);
-           pc = chunk_get_next_ncnl(pc,    scope_e::PREPROC))
+           pc = get_next_ncnl(pc,    scope_e::PREPROC))
       {
          LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), level);
 
@@ -888,9 +883,9 @@ static void check_template(chunk_t *start)
       size_t    num_tokens = 1;
 
       tokens[0] = CT_ANGLE_OPEN;
-      for (pc = chunk_get_next_ncnl(start, scope_e::PREPROC);
+      for (pc = get_next_ncnl(start, scope_e::PREPROC);
            is_valid(pc);
-           pc = chunk_get_next_ncnl(pc, scope_e::PREPROC))
+           pc = get_next_ncnl(pc, scope_e::PREPROC))
       {
          LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), num_tokens);
 
@@ -924,12 +919,10 @@ static void check_template(chunk_t *start)
             }
             else if (tokens[num_tokens] != CT_ANGLE_OPEN)
             {
-               /* unbalanced parentheses */
-               break;
+               break; /* unbalanced parentheses */
             }
          }
-         else if ((in_if     == true                ) &&
-                  is_type(pc, CT_BOOL, CT_COMPARE) )
+         else if (in_if && is_type(pc, CT_BOOL, CT_COMPARE))
          {
             break;
          }
@@ -961,7 +954,7 @@ static void check_template(chunk_t *start)
 
    if (is_type(end, CT_ANGLE_CLOSE))
    {
-      pc = chunk_get_next_ncnl(end, scope_e::PREPROC);
+      pc = get_next_ncnl(end, scope_e::PREPROC);
       if (is_invalid_or_not_type(pc, CT_NUMBER))
       {
          LOG_FMT(LTEMPL, " - Template Detected\n");
@@ -971,7 +964,7 @@ static void check_template(chunk_t *start)
          pc = start;
          while (pc != end)
          {
-            chunk_t *next = chunk_get_next_ncnl(pc, scope_e::PREPROC);
+            chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
             set_flags(pc, PCF_IN_TEMPLATE);
             if (not_type(next, CT_PAREN_OPEN) )
             {

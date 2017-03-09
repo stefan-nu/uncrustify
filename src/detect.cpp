@@ -156,7 +156,7 @@ static void detect_space_options(void)
          break;
 
          case(CT_ASSIGN):
-            if (is_not_flag(pc, PCF_IN_ENUM)) { vote_sp_before_assign.vote     (prev, pc); vote_sp_after_assign.vote     (pc, next); }
+            if (not_flag(pc, PCF_IN_ENUM)) { vote_sp_before_assign.vote     (prev, pc); vote_sp_after_assign.vote     (pc, next); }
             else                              { vote_sp_enum_before_assign.vote(prev, pc); vote_sp_enum_after_assign.vote(pc, next); }
          break;
 

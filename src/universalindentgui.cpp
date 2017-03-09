@@ -27,7 +27,6 @@ void print_universal_indent_cfg(FILE *pfile)
 
    /* Dump the header and the categories */
    fprintf(pfile, "[header]\ncategories");
-//   fprintf(pfile, "categories");
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
@@ -37,7 +36,6 @@ void print_universal_indent_cfg(FILE *pfile)
          ch = '|';
       }
    }
-//   fprintf(pfile, "\n");
    fprintf(pfile, "\ncfgFileParameterEnding=cr\n"
            "configFilename=uncrustify.cfg\n");
 

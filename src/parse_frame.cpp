@@ -171,7 +171,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
    chunk_t *next = chunk_get_next(pc);
    if (is_invalid(next)) { return(pp_level); }
 
-   if (is_not_ptype(pc, next->type))
+   if (not_ptype(pc, next->type))
    {
       LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %zu: got %s expected %s\n",
               __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype),

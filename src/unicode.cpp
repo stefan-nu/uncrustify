@@ -104,14 +104,8 @@ static bool is_ascii(const vector<UINT8> &data, size_t &non_ascii_cnt, size_t &z
    zero_cnt      = 0;
    for (unsigned char value : data)
    {
-      if (value & 0x80)
-      {
-         non_ascii_cnt++;
-      }
-      if (!value)
-      {
-         zero_cnt++;
-      }
+      if (value & 0x80) { non_ascii_cnt++; }
+      if (value == 0)   { zero_cnt++;      }
    }
    return((non_ascii_cnt + zero_cnt) == 0);
 }
@@ -315,7 +309,8 @@ static bool decode_bom(const vector<UINT8> &in_data, char_encoding_e &enc)
          enc = char_encoding_e::UTF16_BE;
          return(true);
       }
-      else if ((in_data[0] == 0xff) && (in_data[1] == 0xfe))
+      else if ((in_data[0] == 0xff) &&
+               (in_data[1] == 0xfe) )
       {
          enc = char_encoding_e::UTF16_LE;
          return(true);
@@ -378,7 +373,7 @@ static void write_byte(UINT32 ch)
 {
    if ((ch & 0xff) == ch)
    {
-      if (cpd.fout) { fputc(ch, cpd.fout);            }
+      if (cpd.fout) { fputc(ch, cpd.fout);                         }
       if (cpd.bout) { cpd.bout->push_back(static_cast<UINT8>(ch)); }
    }
    else
@@ -407,16 +402,8 @@ static void write_utf16(UINT32 ch, bool be)
    if ((                  (ch < 0x0D800)) ||
        ((ch >= 0xE000) && (ch < 0x10000)) )
    {
-      if (be)
-      {
-         write_byte(ch >> 8);
-         write_byte(ch & 0xff);
-      }
-      else
-      {
-         write_byte(ch & 0xff);
-         write_byte(ch >> 8);
-      }
+      if (be) { write_byte(ch >> 8);   write_byte(ch & 0xff); }
+      else    { write_byte(ch & 0xff); write_byte(ch >> 8);   }
    }
    else if ((ch >= 0x10000) && (ch < 0x110000))
    {
@@ -425,17 +412,13 @@ static void write_utf16(UINT32 ch, bool be)
       UINT32 w2 = 0xDC00 + (v1 & 0x3ff);
       if (be)
       {
-         write_byte(w1 >> 8);
-         write_byte(w1 & 0xff);
-         write_byte(w2 >> 8);
-         write_byte(w2 & 0xff);
+         write_byte(w1 >> 8); write_byte(w1 & 0xff);
+         write_byte(w2 >> 8); write_byte(w2 & 0xff);
       }
       else
       {
-         write_byte(w1 & 0xff);
-         write_byte(w1 >> 8);
-         write_byte(w2 & 0xff);
-         write_byte(w2 >> 8);
+         write_byte(w1 & 0xff); write_byte(w1 >> 8);
+         write_byte(w2 & 0xff); write_byte(w2 >> 8);
       }
    }
    else

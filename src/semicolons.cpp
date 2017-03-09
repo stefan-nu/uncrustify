@@ -50,7 +50,7 @@ void remove_extra_semicolons(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *next = chunk_get_next_ncnl(pc);
+      chunk_t *next = get_next_ncnl(pc);
       chunk_t *prev;
       if ( is_type(pc, CT_SEMICOLON) &&
           !is_preproc(pc) &&
@@ -93,10 +93,10 @@ void remove_extra_semicolons(void)
 static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *pc = chunk_get_prev_type(brace_close, CT_BRACE_OPEN, (int)brace_close->level);
+   chunk_t *pc = get_prev_type(brace_close, CT_BRACE_OPEN, (int)brace_close->level);
    pc = chunk_get_prev_ncnl(pc);
 
-   if (is_not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
+   if (not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
                           CT_SQUARE_CLOSE, CT_TSQUARE) &&
        !is_paren_close(pc) )
    {

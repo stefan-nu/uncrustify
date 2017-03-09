@@ -146,7 +146,7 @@ static size_t preproc_start(parse_frame_t *frm, chunk_t *pc)
    size_t  pp_level = cpd.pp_level;
 
    /* Get the type of preprocessor and handle it */
-   chunk_t *next = chunk_get_next_ncnl(pc);
+   chunk_t *next = get_next_ncnl(pc);
    if (is_valid(next))
    {
       cpd.is_preproc = next->type;
@@ -524,7 +524,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
           * add a virtual semicolon, which will get handled on the next pass. */
          if (cpd.lang_flags & LANG_PAWN)
          {
-            tmp = chunk_get_next_ncnl(pc);
+            tmp = get_next_ncnl(pc);
             assert(is_valid(tmp));
             if (not_type(tmp, CT_SEMICOLON, CT_VSEMICOLON))
             {
@@ -680,7 +680,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Mark expression starts */
-   const chunk_t *tmp = chunk_get_next_ncnl(pc);
+   const chunk_t *tmp = get_next_ncnl(pc);
    if (is_type(pc, 23, CT_PAREN_OPEN,  CT_ARITH,  CT_CASE, CT_COMPARE,
                              CT_ANGLE_CLOSE, CT_MINUS,  CT_PLUS, CT_QUESTION,
                              CT_ANGLE_OPEN,  CT_ASSIGN, CT_BOOL, CT_CONTINUE,
@@ -904,7 +904,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::ELSE;
 
          /* If the next chunk isn't CT_ELSE, close the statement */
-         next = chunk_get_next_ncnl(pc);
+         next = get_next_ncnl(pc);
          if (not_type(next, CT_ELSE))
          {
             frm->pse_tos--;
@@ -918,7 +918,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t *pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::CATCH;
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
-         next = chunk_get_next_ncnl(pc);
+         next = get_next_ncnl(pc);
          if(not_type(next, CT_CATCH, CT_FINALLY))
          {
             frm->pse_tos--;

@@ -535,7 +535,7 @@ void align_backslash_newline(void)
    {
       if (not_type(pc, CT_NL_CONT))
       {
-         pc = chunk_get_next_type(pc, CT_NL_CONT, -1);
+         pc = get_next_type(pc, CT_NL_CONT, -1);
          continue;
       }
       pc = align_nl_cont(pc);
@@ -613,7 +613,7 @@ void align_struct_initializers(void)
       {
          align_init_brace(pc);
       }
-      pc = chunk_get_next_type(pc, CT_BRACE_OPEN, -1);
+      pc = get_next_type(pc, CT_BRACE_OPEN, -1);
    }
 }
 
@@ -644,12 +644,12 @@ void align_preprocessor(void)
       /* If we aren't on a 'define', then skip to the next non-comment */
       if (not_type(pc, CT_PP_DEFINE))
       {
-         pc = chunk_get_next_nc(pc);
+         pc = get_next_nc(pc);
          continue;
       }
 
       /* step past the 'define' */
-      pc = chunk_get_next_nc(pc);
+      pc = get_next_nc(pc);
       break_if(is_invalid(pc));
 
       LOG_FMT(LALPP, "%s: define (%s) on line %zu col %zu\n",
@@ -664,8 +664,8 @@ void align_preprocessor(void)
          }
 
          /* Skip to the close parenthesis */
-         pc = chunk_get_next_nc  (pc); // point to open (
-         pc = chunk_get_next_type(pc, CT_FPAREN_CLOSE, (int)pc->level);
+         pc = get_next_nc  (pc); // point to open (
+         pc = get_next_type(pc, CT_FPAREN_CLOSE, (int)pc->level);
          assert(is_valid(pc));
 
          LOG_FMT(LALPP, "%s: jumped to (%s) on line %zu col %zu\n",
@@ -743,7 +743,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          size_t mythresh = cpd.settings[thresh_type].u;
 
          tmp = pc->orig_line;
-         pc = align_assign(chunk_get_next_ncnl(pc), myspan, mythresh);
+         pc = align_assign(get_next_ncnl(pc), myspan, mythresh);
          if (is_valid(pc))
          {
             /* do a rough count of the number of lines just spanned */
@@ -771,7 +771,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
       }
       else if ((equ_count == 0                ) &&
                is_type    (pc, CT_ASSIGN      ) &&
-               is_not_flag(pc, PCF_IN_TEMPLATE) )
+               not_flag(pc, PCF_IN_TEMPLATE) )
       {
          equ_count++;
          if (var_def_cnt != 0) { vdas.Add(pc); }
@@ -847,7 +847,7 @@ static void align_func_params(void)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       continue_if(not_type (pc,    CT_FPAREN_OPEN) ||
-                  is_not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
+                  not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
                     CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF));
       /* We're on a open parenthesis of a prototype */
       pc = align_func_param(pc);
@@ -862,11 +862,11 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
    chunks.clear();
 
    bool    hit_comma = true;
-   chunk_t *pc       = chunk_get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
+   chunk_t *pc       = get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       break_if(is_type(pc, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
-               is_type_and_level(pc, CT_FPAREN_CLOSE, start->level) );
+               is_type_and_level(pc, CT_FPAREN_CLOSE, start->level));
 
       if (pc->level == (start->level + 1))
       {
@@ -1141,8 +1141,8 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       LOG_FMT(LAVDB, "%s: start=%s [%s] on line %zu (abort due to assign)\n", __func__,
               start->text(), get_token_name(start->type), start->orig_line);
 
-      chunk_t *pc = chunk_get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
-      return(chunk_get_next_ncnl(pc));
+      chunk_t *pc = get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
+      return(get_next_ncnl(pc));
    }
 
    LOG_FMT(LAVDB, "%s: start=%s [%s] on line %zu\n", __func__,
@@ -1298,7 +1298,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
             if (cpd.settings[UO_align_var_def_colon].b)
             {
-               next = chunk_get_next_nc(pc);
+               next = get_next_nc(pc);
                if (is_type(next, CT_BIT_COLON))
                {
                   as_bc.Add(next);
@@ -1307,7 +1307,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
             if (cpd.settings[UO_align_var_def_attribute].b)
             {
                next = pc;
-               while ((next = chunk_get_next_nc(next)) != nullptr)
+               while ((next = get_next_nc(next)) != nullptr)
                {
                   if(is_type(next, CT_ATTRIBUTE))
                   {
@@ -1487,10 +1487,10 @@ static chunk_t *skip_c99_array(chunk_t *sq_open)
 {
    if (is_type(sq_open, CT_SQUARE_OPEN))
    {
-      chunk_t *tmp = chunk_get_next_nc(chunk_skip_to_match(sq_open));
+      chunk_t *tmp = get_next_nc(chunk_skip_to_match(sq_open));
       if (is_type(tmp, CT_ASSIGN))
       {
-         return(chunk_get_next_nc(tmp));
+         return(get_next_nc(tmp));
       }
    }
    return(nullptr);
@@ -1589,7 +1589,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
          }
          prev_match = pc;
       }
-      pc = chunk_get_next_nc(pc);
+      pc = get_next_nc(pc);
    }
    return(pc);
 }
@@ -1620,7 +1620,7 @@ static void align_init_brace(chunk_t *start)
 
    LOG_FMT(LALBR, "%s: start @ %zu:%zu\n", __func__, start->orig_line, start->orig_col);
 
-   chunk_t *pc = chunk_get_next_ncnl(start);
+   chunk_t *pc = get_next_ncnl(start);
    pc = scan_ib_line(pc, true);
 
    /* single line - nothing to do */
@@ -1810,12 +1810,7 @@ static void align_left_shift(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
-#if 1
-      if (is_valid(start) &&
-          ((pc->flags & PCF_IN_PREPROC) != (start->flags & PCF_IN_PREPROC)))
-#else
       if(are_different_preproc(pc, start))
-#endif
       {
          /* a change in preproc status restarts the aligning */
          as.Flush();
@@ -1907,7 +1902,7 @@ static void align_oc_msg_colon(chunk_t *so)
    cas.Start(span);
 
    const size_t  level = so->level;
-   chunk_t *pc   = chunk_get_next_ncnl(so, scope_e::PREPROC);
+   chunk_t *pc   = get_next_ncnl(so, scope_e::PREPROC);
 
    bool    did_line  = false;
    bool    has_colon = false;
@@ -2037,7 +2032,7 @@ static void align_oc_decl_colon(void)
       cas.Reset();
 
       const size_t level = pc->level;
-      pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
+      pc = get_next_ncnl(pc, scope_e::PREPROC);
 
       did_line = false;
 
@@ -2096,7 +2091,7 @@ static void align_asm_colon(void)
 
       cas.Reset();
 
-      pc = chunk_get_next_ncnl(pc, scope_e::PREPROC);
+      pc = get_next_ncnl(pc, scope_e::PREPROC);
       const size_t level = pc ? pc->level : 0;
       did_nl = true;
       while (is_valid(pc) &&
@@ -2117,7 +2112,7 @@ static void align_asm_colon(void)
             did_nl = false;
             cas.Add(pc);
          }
-         pc = chunk_get_next_nc(pc, scope_e::PREPROC);
+         pc = get_next_nc(pc, scope_e::PREPROC);
       }
       cas.End();
    }

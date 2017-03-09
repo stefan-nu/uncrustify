@@ -196,7 +196,7 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
    return_if(ptr_is_invalid(fmt) || !log_sev_on(sev));
 
 #ifdef DEBUG
-// \todo add this to log message LOG_FMT(LFCN, "(%d) ", __LINE__);
+// \todo add this to begin of log message LOG_FMT(LFCN, "(%d) ", __LINE__);
 #endif
 
    /* Some implementation of vsnprintf() return the number of characters

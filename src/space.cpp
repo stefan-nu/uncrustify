@@ -166,7 +166,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(any_is_type(pc1, pc2, CT_PP       ))   { log_opt_return(UO_sp_pp_concat          ); }
    if(is_type    (pc1, CT_POUND    ))        { log_opt_return(UO_sp_pp_stringify       ); }
    if(is_type    (pc2, CT_POUND  ) && is_preproc(pc2) &&
-      is_not_ptype(pc1, CT_MACRO_FUNC))      { log_opt_return(UO_sp_before_pp_stringify); }
+      not_ptype(pc1, CT_MACRO_FUNC))      { log_opt_return(UO_sp_before_pp_stringify); }
    if (any_is_type(pc1, pc2, CT_SPACE))      { log_arg_return(AV_REMOVE                ); }
    if (is_type(pc2, CT_NEWLINE, CT_VBRACE_OPEN))
                                              { log_arg_return(AV_REMOVE                ); }
@@ -242,13 +242,13 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          { log_opt_return(UO_sp_before_semi_for); }
       }
       argval_t arg = cpd.settings[UO_sp_before_semi].a;
+
+      if (is_type(pc1, CT_SPAREN_CLOSE) &&
 #if 1
-      if ((pc1->type  == CT_SPAREN_CLOSE) &&
           (pc1->ptype != CT_WHILE_OF_DO ) )
 #else
       // fails test 01011, 30711
-      if (is_type     (pc1, CT_SPAREN_CLOSE) &&
-          is_not_ptype(pc1, CT_WHILE_OF_DO ) )
+          not_ptype(pc1, CT_WHILE_OF_DO ) )
 #endif
       {
          log_rule("sp_before_semi|sp_special_semi");
@@ -392,7 +392,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                            log_opt_return(UO_sp_before_comma); }
    if (is_type(pc2, CT_ELLIPSIS))
    {  /* non-punc followed by a ellipsis */
-      if (is_not_flag(pc1, PCF_PUNCTUATOR) &&
+      if (not_flag(pc1, PCF_PUNCTUATOR) &&
           is_not_option(cpd.settings[UO_sp_before_ellipsis].a, AV_IGNORE))
                                          { log_opt_return(UO_sp_before_ellipsis); }
       if (is_type(pc1, CT_TAG_COLON))    { log_arg_return(AV_FORCE); } }
@@ -484,7 +484,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          if (is_not_option(cpd.settings[UO_sp_angle_word].a, AV_IGNORE))
                                         { log_opt_return(UO_sp_angle_word); } }
       if (is_type(pc2, CT_FPAREN_OPEN, CT_PAREN_OPEN ) )
-      {  chunk_t *next = chunk_get_next_ncnl(pc2);
+      {  chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE))
                                         { log_opt_return(UO_sp_angle_paren_empty); }
          else                           { log_opt_return(UO_sp_angle_paren); }
@@ -512,7 +512,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
       if (is_not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE))
       {
-         chunk_t *next = chunk_get_next_nc(pc2);
+         chunk_t *next = get_next_nc(pc2);
          if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_byref); }
       }
       log_opt_return(UO_sp_before_byref);
@@ -540,7 +540,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if ((is_not_option(cpd.settings[UO_sp_after_operator_sym_empty].a, AV_IGNORE)) &&
           (is_type(pc2, CT_FPAREN_OPEN)))
       {
-         const chunk_t *next = chunk_get_next_ncnl(pc2);
+         const chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_opt_return(UO_sp_after_operator_sym_empty); }
       }
       log_opt_return(UO_sp_after_operator_sym); // DRY1 end
@@ -553,7 +553,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if ((is_not_option(cpd.settings[UO_sp_func_call_paren_empty].a, AV_IGNORE)) &&
           (is_type(pc2, CT_FPAREN_OPEN)))
       {
-         chunk_t *next = chunk_get_next_ncnl(pc2);
+         chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE) ) { log_opt_return(UO_sp_func_call_paren_empty); }
       }
       log_opt_return(UO_sp_func_call_paren); // DRY1 end
@@ -565,7 +565,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if ((is_not_option(cpd.settings[UO_sp_func_def_paren_empty].a, AV_IGNORE)) &&
           (is_type(pc2, CT_FPAREN_OPEN)))
       {
-         const chunk_t *next = chunk_get_next_ncnl(pc2);
+         const chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_opt_return(UO_sp_func_def_paren_empty); }
       }
       log_rule("sp_func_def_paren");
@@ -603,7 +603,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if ((is_not_option(cpd.settings[UO_sp_func_proto_paren_empty].a, AV_IGNORE)) &&
           (is_type(pc2, CT_FPAREN_OPEN)))
       {
-         const chunk_t *next = chunk_get_next_ncnl(pc2);
+         const chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_opt_return(UO_sp_func_proto_paren_empty ); }}
                                              { log_opt_return(UO_sp_func_proto_paren       ); }
    }
@@ -611,11 +611,11 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    {  // \todo DRY1 start
       if ((is_not_option(cpd.settings[UO_sp_func_class_paren_empty].a, AV_IGNORE)) &&
           is_type(pc2, CT_FPAREN_OPEN))
-      {  const chunk_t *next = chunk_get_next_ncnl(pc2);
+      {  const chunk_t *next = get_next_ncnl(pc2);
          if (is_type(next, CT_FPAREN_CLOSE)) { log_opt_return(UO_sp_func_class_paren_empty ); }}
                                           log_opt_return(UO_sp_func_class_paren            ); }
    if ( is_type(pc1, CT_CLASS) &&
-        is_not_flag(pc1, PCF_IN_OC_MSG))     { log_arg_return(AV_FORCE                     ); }
+        not_flag(pc1, PCF_IN_OC_MSG))     { log_arg_return(AV_FORCE                     ); }
    if (are_types(pc1, CT_BRACE_OPEN, pc2, CT_BRACE_CLOSE))
                                              { log_opt_return(UO_sp_inside_braces_empty    ); }
    if (is_type(pc2, CT_BRACE_CLOSE))
@@ -793,10 +793,10 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
       if (is_not_option(cpd.settings[UO_sp_before_unnamed_pstar].a, AV_IGNORE))
       {
-         chunk_t *next = chunk_get_next_nc(pc2);
+         chunk_t *next = get_next_nc(pc2);
          while (is_type(next, CT_PTR_TYPE) )
          {
-            next = chunk_get_next_nc(next);
+            next = get_next_nc(next);
          }
 
          if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }}

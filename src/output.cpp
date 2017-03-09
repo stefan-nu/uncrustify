@@ -640,7 +640,7 @@ void output_text(FILE *pfile)
       else if (is_type(pc, CT_NL_CONT))
       {
          /* FIXME: this really shouldn't be done here! */
-         if (is_not_flag(pc, PCF_WAS_ALIGNED))
+         if (not_flag(pc, PCF_WAS_ALIGNED))
          {
             if (is_option_set(cpd.settings[UO_sp_before_nl_cont].a, AV_REMOVE))
             {
@@ -1079,7 +1079,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
-           (is_not_flag(pc, PCF_INSERTED)          ) )
+           (not_flag(pc, PCF_INSERTED)          ) )
       {
          cmt.column    = 1u;
          cmt.base_col  = 1u;
@@ -1735,7 +1735,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
 
    out_txt.append(fcn->str);
 
-   chunk_t *tmp  = chunk_get_next_ncnl(fcn);
+   chunk_t *tmp  = get_next_ncnl(fcn);
    const chunk_t *word = nullptr;
    while (is_valid(tmp))
    {
@@ -1751,7 +1751,7 @@ static bool kw_fcn_message(chunk_t *cmt, unc_text &out_txt)
          out_txt.append(":");
       }
       if (is_type(tmp, CT_WORD)) { word = tmp; }
-      tmp = chunk_get_next_ncnl(tmp);
+      tmp = get_next_ncnl(tmp);
    }
    return(true);
 }
@@ -1812,7 +1812,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    if (is_type(fcn, CT_OC_MSG_DECL))
    {
-      chunk_t *tmp = chunk_get_next_ncnl(fcn);
+      chunk_t *tmp = get_next_ncnl(fcn);
       has_param = false;
       while (tmp)
       {
@@ -1827,28 +1827,28 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
          has_param = false;
          if (is_type(tmp, CT_PAREN_CLOSE)) { has_param = true; }
-         tmp = chunk_get_next_ncnl(tmp);
+         tmp = get_next_ncnl(tmp);
       }
       fpo = fpc = nullptr;
    }
    else
    {
-      fpo = chunk_get_next_type(fcn, CT_FPAREN_OPEN, (int)fcn->level);
+      fpo = get_next_type(fcn, CT_FPAREN_OPEN, (int)fcn->level);
       retval_if(is_invalid(fpo), true);
 
-      fpc = chunk_get_next_type(fpo, CT_FPAREN_CLOSE,(int)fcn->level);
+      fpc = get_next_type(fpo, CT_FPAREN_CLOSE,(int)fcn->level);
       retval_if(is_invalid(fpc), true);
    }
 
    chunk_t *tmp;
    /* Check for 'foo()' and 'foo(void)' */
-   if (chunk_get_next_ncnl(fpo) == fpc)
+   if (get_next_ncnl(fpo) == fpc)
    {
       has_param = false;
    }
    else
    {
-      tmp = chunk_get_next_ncnl(fpo);
+      tmp = get_next_ncnl(fpo);
       if ((tmp == chunk_get_prev_ncnl(fpc)) &&
           is_str(tmp, "void", 4))
       {
@@ -1909,14 +1909,14 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    if (is_flag(fcn, PCF_IN_CLASS))
    {
       /* if inside a class, we need to find to the class name */
-      chunk_t *tmp = chunk_get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));
+      chunk_t *tmp = get_prev_type(fcn, CT_BRACE_OPEN, (int)(fcn->level - 1));
       assert(is_valid(tmp));
-      tmp = chunk_get_prev_type(tmp, CT_CLASS, (int)tmp->level);
-      tmp = chunk_get_next_ncnl(tmp);
-      while (is_type(chunk_get_next_ncnl(tmp), CT_DC_MEMBER))
+      tmp = get_prev_type(tmp, CT_CLASS, (int)tmp->level);
+      tmp = get_next_ncnl(tmp);
+      while (is_type(get_next_ncnl(tmp), CT_DC_MEMBER))
       {
-         tmp = chunk_get_next_ncnl(tmp);
-         tmp = chunk_get_next_ncnl(tmp);
+         tmp = get_next_ncnl(tmp);
+         tmp = get_next_ncnl(tmp);
       }
 
       if (is_valid(tmp))
@@ -2117,7 +2117,7 @@ void add_long_preprocessor_conditional_block_comment(void)
    const chunk_t *pp_start = nullptr;
    const chunk_t *pp_end   = nullptr;
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next_ncnl(pc))
+   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       /* just track the preproc level: */
       if (is_type(pc, CT_PREPROC))

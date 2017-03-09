@@ -394,7 +394,7 @@ chunk_t *get_next_function(
 /**
  * Gets the next NEWLINE chunk
  */
-chunk_t *chunk_get_next_nl(
+chunk_t *get_next_nl(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -403,7 +403,7 @@ chunk_t *chunk_get_next_nl(
 /**
  * Gets the next non-comment chunk
  */
-chunk_t *chunk_get_next_nc(
+chunk_t *get_next_nc(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -412,7 +412,7 @@ chunk_t *chunk_get_next_nc(
 /**
  * Gets the next non-NEWLINE and non-comment chunk
  */
-chunk_t *chunk_get_next_nnl(
+chunk_t *get_next_nnl(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -421,7 +421,7 @@ chunk_t *chunk_get_next_nnl(
 /**
  * Gets the next non-NEWLINE and non-comment chunk, non-preprocessor chunk
  */
-chunk_t *chunk_get_next_ncnl(
+chunk_t *get_next_ncnl(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -434,7 +434,7 @@ chunk_t *chunk_get_next_ncnl(
  *
  * @return nullptr or the next chunk not in or part of square brackets
  */
-chunk_t *chunk_get_next_ncnlnp(
+chunk_t *get_next_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -452,7 +452,7 @@ chunk_t *chunk_get_next_nisq(
 /**
  * Gets the next non-blank chunk
  */
-chunk_t *chunk_get_next_nblank(
+chunk_t *get_next_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -461,7 +461,7 @@ chunk_t *chunk_get_next_nblank(
 /**
  * Gets the prev non-blank chunk
  */
-chunk_t *chunk_get_prev_nblank(
+chunk_t *get_prev_nblank(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -470,7 +470,7 @@ chunk_t *chunk_get_prev_nblank(
 /**
  * Gets the prev NEWLINE chunk
  */
-chunk_t *chunk_get_prev_nl(
+chunk_t *get_prev_nl(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -479,7 +479,7 @@ chunk_t *chunk_get_prev_nl(
 /**
  * Gets the prev COMMA chunk
  */
-chunk_t *chunk_get_prev_comma(
+chunk_t *get_prev_comma(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -497,7 +497,7 @@ chunk_t *chunk_get_prev_nc(
 /**
  * Gets the prev non-NEWLINE chunk
  */
-chunk_t *chunk_get_prev_nnl(
+chunk_t *get_prev_nnl(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -515,7 +515,7 @@ chunk_t *chunk_get_prev_ncnl(
 /**
  * Gets the prev non-NEWLINE and non-comment chunk, non-preprocessor chunk
  */
-chunk_t *chunk_get_prev_ncnlnp(
+chunk_t *get_prev_ncnlnp(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
 );
@@ -526,7 +526,7 @@ chunk_t *chunk_get_prev_ncnlnp(
  *
  * @return nullptr or the match
  */
-chunk_t *chunk_get_next_type(
+chunk_t *get_next_type(
    chunk_t *cur,        /**< [in] Starting chunk */
    c_token_t type,      /**< [in] The type to look for */
    int level,           /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
@@ -539,7 +539,7 @@ chunk_t *chunk_get_next_type(
  *
  * @return nullptr or the match
  */
-chunk_t *chunk_get_prev_type(
+chunk_t *get_prev_type(
    chunk_t   *cur,          /**< [in] Starting chunk */
    c_token_t type,          /**< [in] The type to look for */
    int       level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
@@ -556,7 +556,7 @@ chunk_t *chunk_get_prev_type(
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
-chunk_t *chunk_get_next_str(
+chunk_t *get_next_str(
    chunk_t    *cur,          /**< [in] Starting chunk */
    const char *str,          /**< [in] string to search for */
    size_t     len,           /**< [in] length of string */
@@ -574,7 +574,7 @@ chunk_t *chunk_get_next_str(
  * @retval nullptr    - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
-chunk_t *chunk_get_prev_str(
+chunk_t *get_prev_str(
    chunk_t    *cur,          /**< [in] Starting chunk */
    const char *str,          /**< [in] string to search for */
    size_t     len,           /**< [in] length of string */
@@ -633,8 +633,8 @@ chunk_t *chunk_search_next_cat(
  * defines the type of a chunk
  */
 void set_type(
-   chunk_t   *pc,  /**< [in] chunk to operate on */
-   c_token_t tt    /**< [in] value to set as chunk type */
+   chunk_t   *pc, /**< [in] chunk to operate on */
+   c_token_t type /**< [in] value to set as chunk type */
 );
 
 
@@ -642,8 +642,8 @@ void set_type(
  * defines the parent type of a chunk
  */
 void set_ptype(
-   chunk_t   *pc,  /**< [in] chunk to operate on */
-   c_token_t tt    /**< [in] value to set as parent type */
+   chunk_t   *pc, /**< [in] chunk to operate on */
+   c_token_t type /**< [in] value to set as parent type */
 );
 
 
@@ -1132,7 +1132,7 @@ bool is_ptype(
  * check if the given chunk is valid and holds a token type which is
  * different from all types in a given list
  */
-bool is_not_type(
+bool not_type(
    const chunk_t * const pc, /**< [in] chunk to check */
    int count,  /**< [in] number of token types to check */
    ...         /**< [in] list of token types to check for */
@@ -1143,7 +1143,7 @@ bool is_not_type(
  * check if the given chunk is valid and holds a parent token
  * type which is different from all types in a given list
  */
-bool is_not_ptype(
+bool not_ptype(
    const chunk_t * const pc, /**< [in] chunk to check */
    int count, /**< [in] number of token types to check */
    ...        /**< [in] list of parent token types to check for */
@@ -1178,7 +1178,7 @@ bool is_flag(
  * Check if the given chunk is valid and has a given flag
  * combination not set.
  */
-bool is_not_flag(
+bool not_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
    const UINT64 flags        /**< [in] expected flags */
 );
@@ -1296,10 +1296,9 @@ bool is_paren_close(
 
 
 /**
- * Check if any of two chunks is invalid or both have the same preprocessor
+ * Check if both chunks are invalid and both have the same preprocessor
  * flag. Thus if both are either part of a preprocessor block or both are not
  * part of a preprocessor block.
- * If the result is true, a newline/nl_cont between the two may be removed.
  */
 bool are_same_preproc(
    const chunk_t* const pc1, /**< [in] chunk 1 to compare */
@@ -1318,8 +1317,8 @@ bool are_different_preproc(
 
 
 /**
- * Returns true if it is safe to delete the newline token.
- * The prev and next chunks must have the same PCF_IN_PREPROC flag AND
+ * Returns true if it is safe to delete a newline
+ * The prev and next chunks must have the same preprocessor flag AND
  * the newline can't be after a C++ comment.
  */
 bool is_safe_to_del_nl(

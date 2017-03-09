@@ -32,10 +32,14 @@ static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
    else
    {
       size_t left = size - idx;
+#if 1
+      len = min(len, left);
+#else
       if (len > left)
       {
          len = left;
       }
+#endif
    }
 }
 
@@ -49,14 +53,8 @@ void unc_text::update_logtext()
       m_logtext.reserve(m_chars.size() * 3);
       for (int m_char : m_chars)
       {
-         if (m_char == '\n')
-         {
-            m_char = 0x2424;
-         }
-         else if (m_char == '\r')
-         {
-            m_char = 0x240d;
-         }
+         if      (m_char == LINEFEED      ) { m_char = 0x2424; }
+         else if (m_char == CARRIAGERETURN) { m_char = 0x240d; }
          encode_utf8((UINT32)m_char, m_logtext);
       }
       m_logtext.push_back(0);
@@ -71,7 +69,9 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
    size_t len2 = ref2.size();
 
    size_t idx;
-   for (idx = 0; (idx < len1) && (idx < len2) && (idx < len); idx++)
+   for (idx = 0;
+        (idx < len1) && (idx < len2) && (idx < len);
+        idx++)
    {
       // exactly the same character ?
       continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
@@ -80,7 +80,7 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
       if (diff == 0)
       {
          // if we're comparing the same character but in different case
-         // we want to favor lowercase before uppercase (e.g. a before A)
+         // we want to favor lower case before upper case (e.g. a before A)
          // so the order is the reverse of ASCII order (we negate).
          return(-(ref1.m_chars[idx] - ref2.m_chars[idx]));
       }
