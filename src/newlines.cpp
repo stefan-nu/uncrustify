@@ -2539,8 +2539,8 @@ void newlines_cleanup_braces(bool first)
          {
             if (is_flag(pc, PCF_ONE_LINER))
             {
-               // split one-liner
-               const chunk_t *end = chunk_get_next(chunk_get_next_type(pc->next, CT_SEMICOLON, -1));  /* \todo -1 is invalid enum */
+               /* split one-liner */
+               const chunk_t *end = chunk_get_next(chunk_get_next_type(pc->next, CT_SEMICOLON, -1)); /* \todo -1 is invalid enum */
                /* Scan for clear flag */
 
                LOG_FMT(LGUY, "\n");
@@ -2605,7 +2605,11 @@ void newlines_cleanup_braces(bool first)
       break;
 
       case(CT_SEMICOLON):
-         if (((pc->flags & (PCF_IN_SPAREN | PCF_IN_PREPROC)) == 0) &&
+#if 0
+      if ((!is_preproc(pc) || is_not_flag(pc, PCF_IN_SPAREN)) &&
+#else
+      if (((pc->flags & (PCF_IN_SPAREN | PCF_IN_PREPROC)) == 0) &&
+#endif
              cpd.settings[UO_nl_after_semicolon].b)
          {
             next = chunk_get_next(pc);
@@ -2614,8 +2618,7 @@ void newlines_cleanup_braces(bool first)
                next = chunk_get_next(next);
             }
 
-            if ( is_valid          (next) &&
-                !is_cmt_or_nl(next) )
+            if (is_valid(next) && !is_cmt_or_nl(next))
             {
                if (one_liner_nl_ok(next))
                {

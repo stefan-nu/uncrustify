@@ -1810,18 +1810,20 @@ void indent_text(void)
          chunk_t *prev_nonl = chunk_get_prev_ncnl(pc);
          chunk_t *prev2     = chunk_get_prev_nc  (pc);
 
-         if (is_type(prev_nonl, 8, CT_SEMICOLON, CT_VSEMICOLON,
-                   CT_BRACE_OPEN,  CT_BRACE_CLOSE, CT_COMMA, CT_VBRACE_CLOSE,
-                   CT_VBRACE_OPEN, CT_CASE_COLON) ||
-//               chunk_different_preproc(prev_nonl, pc) ||
+         if (is_type(prev_nonl, 8, CT_SEMICOLON,  CT_VBRACE_CLOSE,
+                   CT_BRACE_OPEN,  CT_VSEMICOLON, CT_BRACE_CLOSE,
+                   CT_VBRACE_OPEN, CT_CASE_COLON, CT_COMMA) ||
+#if 0
+               are_different_preproc(prev_nonl, pc) ||
+#else
               ((prev_nonl->flags & PCF_IN_PREPROC) != (pc->flags & PCF_IN_PREPROC)) ||
+#endif
               (is_operator == true) )
          {
             in_shift = false;
          }
 
-         if ( is_type(prev2, CT_NEWLINE) &&
-              (in_shift    == true           ) )
+         if (is_type(prev2, CT_NEWLINE) && (in_shift == true))
          {
             shiftcontcol                     = calc_indent_continue(frm, frm.pse_tos);
             frm.pse[frm.pse_tos].indent_cont = true;

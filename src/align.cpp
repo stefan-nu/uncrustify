@@ -1810,8 +1810,12 @@ static void align_left_shift(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
+#if 1
       if (is_valid(start) &&
           ((pc->flags & PCF_IN_PREPROC) != (start->flags & PCF_IN_PREPROC)))
+#else
+      if(are_different_preproc(pc, start))
+#endif
       {
          /* a change in preproc status restarts the aligning */
          as.Flush();

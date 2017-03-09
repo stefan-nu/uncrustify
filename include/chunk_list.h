@@ -1302,8 +1302,8 @@ bool is_paren_close(
  * If the result is true, a newline/nl_cont between the two may be removed.
  */
 bool are_same_preproc(
-   chunk_t *pc1, /**< [in] chunk 1 to compare */
-   chunk_t *pc2  /**< [in] chunk 2 to compare */
+   const chunk_t* const pc1, /**< [in] chunk 1 to compare */
+   const chunk_t* const pc2  /**< [in] chunk 2 to compare */
 );
 
 
@@ -1312,8 +1312,8 @@ bool are_same_preproc(
  * Thus either chunk is part of a preprocessor block the other one not.
  */
 bool are_different_preproc(
-   chunk_t *pc1, /**< [in] chunk 1 to compare */
-   chunk_t *pc2  /**< [in] chunk 2 to compare */
+   const chunk_t* const pc1, /**< [in] chunk 1 to compare */
+   const chunk_t* const pc2  /**< [in] chunk 2 to compare */
 );
 
 

@@ -1490,14 +1490,14 @@ bool is_ptr_operator(chunk_t *pc)
 }
 
 
-bool are_same_preproc(chunk_t *pc1, chunk_t *pc2)
+bool are_same_preproc(const chunk_t* const pc1, const chunk_t* const pc2)
 {
    return( are_invalid(pc1, pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) == (pc2->flags & PCF_IN_PREPROC)));
 }
 
 
-bool are_different_preproc(chunk_t *pc1, chunk_t *pc2)
+bool are_different_preproc(const chunk_t* const pc1, const chunk_t* const pc2)
 {
    return( are_valid(pc1, pc2) ||
           ((pc1->flags & PCF_IN_PREPROC) != (pc2->flags & PCF_IN_PREPROC)));
