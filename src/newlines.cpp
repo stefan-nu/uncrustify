@@ -1005,7 +1005,8 @@ static void newlines_func_pre_blank_lines(chunk_t *start)
 set_blank_line:
    if (is_valid(last_nl))
    {
-      LOG_FMT(LNLFUNCT, "   set blank line(s): for <NL> at line=%zu column=%zu\n", last_nl->orig_line, last_nl->orig_col);
+      LOG_FMT(LNLFUNCT, "   set blank line(s): for <NL> at line=%zu column=%zu\n",
+            last_nl->orig_line, last_nl->orig_col);
       switch (start->type)
       {
          case CT_FUNC_CLASS_DEF:   set_blank_line(UO_nl_before_func_class_def,   last_nl); break;
@@ -1054,7 +1055,8 @@ static chunk_t *get_closing_brace(chunk_t *start)
       {
          return(pc);
       }
-      /* for some reason, we can have newlines between if and opening brace that are lower level than either */
+      /* for some reason, we can have newlines between if and opening
+       * brace that are lower level than either */
       if (!chunk_is_nl(pc) && (pc->level < level))
       {
          return(nullptr);
@@ -1104,7 +1106,8 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
 
    chunk_t *next;
    chunk_t *prev;
-   /* if we're dealing with an if, we actually want to add or remove blank lines after any elses */
+   /* if we're dealing with an if, we actually want to add or remove
+    * blank lines after any elses */
    if (is_type(start, CT_IF))
    {
       while (true)
@@ -1119,7 +1122,8 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
       }
    }
 
-   /* if we're dealing with a do/while, we actually want to add or remove blank lines after while and its condition */
+   /* if we're dealing with a do/while, we actually want to add or
+    * remove blank lines after while and its condition */
    if (is_type(start, CT_DO))
    {
       /* point to the next semicolon */
@@ -1279,27 +1283,27 @@ static void newlines_enum(chunk_t *start)
 
    return_if (is_flag(start, PCF_IN_PREPROC) && !cpd.settings[UO_nl_define_macro].b);
 
-   // look for 'enum class'
+   /* look for 'enum class' */
    pcClass = chunk_get_next_ncnl(start);
    if (is_type(pcClass, CT_ENUM_CLASS))
    {
       newline_iarf_pair(start, pcClass, cpd.settings[UO_nl_enum_class].a);
-      // look for 'identifier'/ 'type'
+      /* look for 'identifier'/ 'type' */
       chunk_t  *pcType = chunk_get_next_ncnl(pcClass);
       if (is_type(pcType, CT_TYPE))
       {
          newline_iarf_pair(pcClass, pcType, cpd.settings[UO_nl_enum_class_identifier].a);
-         // look for ':'
+         /* look for ':' */
          chunk_t *pcColon = chunk_get_next_ncnl(pcType);
          if (is_type(pcColon, CT_BIT_COLON))
          {
             newline_iarf_pair(pcType, pcColon, cpd.settings[UO_nl_enum_identifier_colon].a);
-            // look for 'type' i.e. unsigned
+            /* look for 'type' i.e. unsigned */
             chunk_t *pcType1 = chunk_get_next_ncnl(pcColon);
             if (is_type(pcType1, CT_TYPE))
             {
                newline_iarf_pair(pcColon, pcType1, cpd.settings[UO_nl_enum_colon_type].a);
-               // look for 'type' i.e. int
+               /* look for 'type' i.e. int */
                chunk_t *pcType2 = chunk_get_next_ncnl(pcType1);
                if (is_type(pcType2, CT_TYPE))
                {

@@ -670,6 +670,12 @@ chunk_t *chunk_get_prev_nl(chunk_t *cur, scope_e scope)
 }
 
 
+chunk_t *chunk_get_prev_comma(chunk_t *cur, scope_e scope)
+{
+   return(chunk_search(cur, chunk_is_comma, scope, dir_e::BEFORE, true));
+}
+
+
 chunk_t *chunk_get_next_nnl(chunk_t *cur, scope_e scope)
 {
    return(chunk_search(cur, chunk_is_nl, scope, dir_e::AFTER, false));
@@ -879,6 +885,13 @@ void set_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 }
 
 
+void set_type_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
+{
+   set_type        (pc, type);
+   chunk_flags_set(pc, flag);
+}
+
+
 void set_ptype_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
 {
    set_ptype      (pc, type);
@@ -963,69 +976,67 @@ bool chunk_is_forin(chunk_t *pc)
 }
 
 
-bool is_type_and_ptype(const chunk_t * const pc, const c_token_t type,
+bool is_type_and_ptype(const chunk_t* const pc, const c_token_t type,
                                                  const c_token_t ptype)
 {
-   return( is_valid(pc)        &&
-          (pc->type  == type ) &&
-          (pc->ptype == ptype) );
+   return( is_valid(pc) && (pc->type  == type ) &&
+                           (pc->ptype == ptype) );
 }
 
 
-bool is_type_and_not_ptype(const chunk_t * const pc, const c_token_t type,
+bool is_type_and_not_ptype(const chunk_t* const pc, const c_token_t type,
                                                      const c_token_t ptype)
 {
-   return( is_valid(pc)        &&
-          (pc->type  == type ) &&
-          (pc->ptype != ptype) );
+   return( is_valid(pc) && (pc->type  == type ) &&
+                           (pc->ptype != ptype) );
 }
 
 
-bool any_is_type(const chunk_t * const pc1,
-                 const chunk_t * const pc2, const c_token_t type)
+bool any_is_type(const chunk_t* const pc1,
+                 const chunk_t* const pc2, const c_token_t type)
 {
-   return( is_type(pc1, type) ||
-           is_type(pc2, type) );
+   return(is_type(pc1, type) ||
+          is_type(pc2, type) );
 }
 
 
-bool any_is_type(const chunk_t *pc1, const c_token_t type1,
-                 const chunk_t *pc2, const c_token_t type2)
+bool any_is_type(const chunk_t*pc1, const c_token_t type1,
+                 const chunk_t*pc2, const c_token_t type2)
 {
-   return( is_type(pc1, type1) ||
-           is_type(pc2, type2) );
+   return(is_type(pc1, type1) ||
+          is_type(pc2, type2) );
 }
 
 
-bool are_types(const chunk_t *pc1,
-               const chunk_t *pc2, const c_token_t type)
+bool are_types(const chunk_t* const pc1,
+               const chunk_t* const pc2, const c_token_t type)
 {
-   return( is_type(pc1, type) &&
-           is_type(pc2, type) );
+   return(is_type(pc1, type) &&
+          is_type(pc2, type) );
 }
 
 
 bool are_ptypes(const chunk_t * const pc1,
                 const chunk_t * const pc2, const c_token_t type)
 {
-   return( is_ptype(pc1, type) &&
-           is_ptype(pc2, type) );
+   return(is_ptype(pc1, type) &&
+          is_ptype(pc2, type) );
 }
 
 
 bool are_types(const chunk_t *pc1, const c_token_t type1,
                const chunk_t *pc2, const c_token_t type2)
 {
-   return( is_type(pc1, type1) &&
-           is_type(pc2, type2) );
+   return(is_type(pc1, type1) &&
+          is_type(pc2, type2) );
 }
 
 
 bool are_ptypes(const chunk_t *pc1, const c_token_t type1,
                 const chunk_t *pc2, const c_token_t type2)
 {
-   return( is_ptype(pc1, type1) &&
-           is_ptype(pc2, type2) );
+   return(is_ptype(pc1, type1) &&
+          is_ptype(pc2, type2) );
 }
 
 
@@ -1046,21 +1057,17 @@ bool is_type(const chunk_t * const pc, const c_token_t type1,
 bool is_type(const chunk_t * const pc, const c_token_t type1,
              const c_token_t type2,    const c_token_t type3)
 {
-   return(is_valid(pc)           &&
-          ((pc->type == type1) ||
-           (pc->type == type2) ||
-           (pc->type == type3) ) );
+   return(is_valid(pc) && ((pc->type == type1) ||
+                           (pc->type == type2) ||
+                           (pc->type == type3) ) );
 }
 
 
 bool is_type(const chunk_t * const pc, const c_token_t type1, const c_token_t type2,
                                        const c_token_t type3, const c_token_t type4)
 {
-   return(is_valid(pc)           &&
-          ((pc->type == type1) ||
-           (pc->type == type2) ||
-           (pc->type == type3) ||
-           (pc->type == type4) ) );
+   return(is_valid(pc) && ((pc->type == type1) || (pc->type == type2) ||
+                           (pc->type == type3) || (pc->type == type4) ) );
 }
 
 
@@ -1073,19 +1080,17 @@ bool is_ptype(const chunk_t* const pc, const c_token_t type)
 bool is_ptype(const chunk_t * const pc, const c_token_t type1,
                                         const c_token_t type2)
 {
-   return(is_valid(pc)            &&
-          ((pc->ptype == type1) ||
-           (pc->ptype == type2) ) );
+   return(is_valid(pc) && ((pc->ptype == type1) ||
+                           (pc->ptype == type2) ) );
 }
 
 
 bool is_ptype(const chunk_t* const pc, const c_token_t type1,
               const c_token_t type2,   const c_token_t type3)
 {
-   return (is_valid(pc)            &&
-           ((pc->ptype == type1) ||
-            (pc->ptype == type2) ||
-            (pc->ptype == type3) ) );
+   return (is_valid(pc) && ((pc->ptype == type1) ||
+                            (pc->ptype == type2) ||
+                            (pc->ptype == type3) ) );
 }
 
 
@@ -1107,19 +1112,17 @@ bool is_not_type(const chunk_t * const pc, const c_token_t type)
 bool is_not_type(const chunk_t * const pc, const c_token_t type1,
                                            const c_token_t type2)
 {
-   return(is_valid(pc)        &&
-          (pc->type != type1) &&
-          (pc->type != type2) );
+   return(is_valid(pc) && (pc->type != type1) &&
+                          (pc->type != type2) );
 }
 
 
 bool is_not_type(const chunk_t * const pc, const c_token_t type1,
                  const c_token_t type2,    const c_token_t type3)
 {
-   return(is_valid(pc)        &&
-          (pc->type != type1) &&
-          (pc->type != type2) &&
-          (pc->type != type3) );
+   return(is_valid(pc) && (pc->type != type1) &&
+                          (pc->type != type2) &&
+                          (pc->type != type3) );
 }
 
 
@@ -1223,9 +1226,17 @@ bool is_not_ptype(const chunk_t * const pc, int count, ... )
 }
 
 
+bool is_type_and_flag(const chunk_t * const pc, const c_token_t type,
+                                                const UINT64    flags)
+{
+   return (is_valid(pc) && (pc->ptype == type) &&
+                           (pc->flags & flags) );
+}
+
+
 bool is_flag(const chunk_t * const pc, const UINT64 flags)
 {
-   return (is_valid(pc) && (pc->flags & flags) == flags);
+   return (is_valid(pc) && (pc->flags & flags));
 }
 
 
@@ -1283,6 +1294,12 @@ bool chunk_is_nl(chunk_t *pc)
 }
 
 
+bool chunk_is_comma(chunk_t *pc)
+{
+   return(is_type(pc, CT_COMMA));
+}
+
+
 bool chunk_is_empty(chunk_t *pc)
 {
    return(is_valid(pc) && (pc->len() == 0));
@@ -1292,7 +1309,7 @@ bool chunk_is_empty(chunk_t *pc)
 bool chunk_is_cmt_or_nl(chunk_t *pc)
 {
    return(chunk_is_cmt(pc) ||
-          chunk_is_nl(pc) );
+          chunk_is_nl (pc) );
 }
 
 
@@ -1317,7 +1334,7 @@ bool chunk_is_no_preproc_type(chunk_t *pc)
 
 bool chunk_is_cmt_or_nl_in_preproc(chunk_t * pc)
 {
-   return(chunk_is_preproc           (pc) &&
+   return(chunk_is_preproc  (pc) &&
           chunk_is_cmt_or_nl(pc) );
 }
 
@@ -1325,14 +1342,14 @@ bool chunk_is_cmt_or_nl_in_preproc(chunk_t * pc)
 bool chunk_is_cmt_nl_or_preproc(chunk_t *pc)
 {
    return(chunk_is_cmt_or_nl(pc) ||
-          chunk_is_preproc           (pc) );
+          chunk_is_preproc  (pc) );
 }
 
 
 bool chunk_is_cmt_nl_or_blank(chunk_t * pc)
 {
    return(chunk_is_cmt_or_nl(pc) ||
-          chunk_is_empty             (pc) );
+          chunk_is_empty    (pc) );
 }
 
 

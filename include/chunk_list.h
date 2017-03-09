@@ -477,9 +477,17 @@ chunk_t *chunk_get_prev_nl(
 
 
 /**
+ * Gets the prev COMMA chunk
+ */
+chunk_t *chunk_get_prev_comma(
+   chunk_t *cur,           /**< [in] chunk to start with */
+   scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+);
+
+
+/**
  * Gets the prev non-comment chunk
  */
-
 chunk_t *chunk_get_prev_nc(
    chunk_t *cur,           /**< [in] chunk to start with */
    scope_e scope = scope_e::ALL  /**< [in] code region to search in */
@@ -649,9 +657,16 @@ void set_type_and_ptype(
 );
 
 
+void set_type_and_flag(
+   chunk_t   *pc,   /**< [in] chunk to operate on */
+   c_token_t type,  /**< [in] value to set as chunk type */
+   UINT64    flag   /**< [in] flag bits to add */
+);
+
+
 void set_ptype_and_flag(
    chunk_t   *pc,   /**< [in] chunk to operate on */
-   c_token_t type,  /**< [in] value to set as chunk  type */
+   c_token_t type,  /**< [in] value to set as chunk type */
    UINT64    flag   /**< [in] flag bits to add */
 );
 
@@ -688,6 +703,15 @@ void chunk_flags_update(
  * Skips to the closing match for the current paren/brace/square.
  */
 chunk_t *chunk_skip_to_match(
+   chunk_t *cur,
+   scope_e scope = scope_e::ALL
+);
+
+
+/**
+ * tbd
+ */
+chunk_t *chunk_skip_to_match_rev(
    chunk_t *cur,
    scope_e scope = scope_e::ALL
 );
@@ -732,15 +756,6 @@ bool chunk_is_newline_between(
 
 
 /**
- * tbd
- */
-chunk_t *chunk_skip_to_match_rev(
-   chunk_t *cur,
-   scope_e scope = scope_e::ALL
-);
-
-
-/**
  * check if a chunk is valid and holds a pointer operator
  */
 bool chunk_is_ptr_operator(
@@ -752,6 +767,14 @@ bool chunk_is_ptr_operator(
  * check if a chunk is valid and holds a newline
  */
 bool chunk_is_nl(
+   chunk_t *pc  /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is valid and holds a comma
+ */
+bool chunk_is_comma(
    chunk_t *pc  /**< [in] chunk to check */
 );
 
@@ -848,7 +871,7 @@ bool chunk_is_cmt_nl_or_preproc(
  * check if a chunk is valid and holds a single line comment
  */
 bool chunk_is_single_line_comment(
-   const chunk_t * const pc  /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -856,7 +879,7 @@ bool chunk_is_single_line_comment(
  * check if a chunk is valid and holds a semicolon
  */
 bool chunk_is_semicolon(
-   const chunk_t * const pc  /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -864,7 +887,7 @@ bool chunk_is_semicolon(
  * check if a chunk is valid and holds a variable type
  */
 bool chunk_is_var_type(
-   const chunk_t * const pc  /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -873,9 +896,9 @@ bool chunk_is_var_type(
  * and  a given parent token type
  */
 bool is_type_and_ptype(
-   const chunk_t * const pc, /**< [in] chunk to check */
-   const c_token_t type,     /**< [in] token type to check for */
-   const c_token_t ptype     /**< [in] token type to check for */
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t type,    /**< [in] token type to check for */
+   const c_token_t ptype    /**< [in] token type to check for */
 );
 
 
@@ -884,9 +907,9 @@ bool is_type_and_ptype(
  * and is not a given parent token type
  */
 bool is_type_and_not_ptype(
-   const chunk_t * const pc, /**< [in] chunk to check */
-   const c_token_t type,     /**< [in] token type to check for */
-   const c_token_t ptype     /**< [in] token type to check for */
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t type,    /**< [in] token type to check for */
+   const c_token_t ptype    /**< [in] token type to check for */
 );
 
 
@@ -895,9 +918,9 @@ bool is_type_and_not_ptype(
  * given token type
  */
 bool any_is_type(
-   const chunk_t * const pc1, /**< [in] chunk1 to check */
-   const chunk_t * const pc2, /**< [in] chunk2 to check */
-   const c_token_t type       /**< [in] token type to check for */
+   const chunk_t* const pc1, /**< [in] chunk1 to check */
+   const chunk_t* const pc2, /**< [in] chunk2 to check */
+   const c_token_t type      /**< [in] token type to check for */
 );
 
 
@@ -906,10 +929,10 @@ bool any_is_type(
  * the respective given token type
  */
 bool any_is_type(
-   const chunk_t * const pc1,   /**< [in] chunk1 to check */
-   const c_token_t       type1, /**< [in] token1 type to check for */
-   const chunk_t * const pc2,   /**< [in] chunk2 to check */
-   const c_token_t       type2  /**< [in] token2 type to check for */
+   const chunk_t* const pc1,   /**< [in] chunk1 to check */
+   const c_token_t      type1, /**< [in] token1 type to check for */
+   const chunk_t* const pc2,   /**< [in] chunk2 to check */
+   const c_token_t      type2  /**< [in] token2 type to check for */
 );
 
 
@@ -931,9 +954,9 @@ bool is_only_first_type(
  * same given token type
  */
 bool are_types(
-   const chunk_t   *pc1, /**< [in] chunk1 to check */
-   const chunk_t   *pc2, /**< [in] chunk2 to check */
-   const c_token_t type  /**< [in] token type to check for */
+   const chunk_t* const pc1, /**< [in] chunk1 to check */
+   const chunk_t* const pc2, /**< [in] chunk2 to check */
+   const c_token_t type      /**< [in] token type to check for */
 );
 
 
@@ -1128,8 +1151,19 @@ bool is_not_ptype(
 
 
 /**
+ * Check if the given chunk is valid and has a given type
+ * and a given flag combination set.
+ */
+bool is_type_and_flag(
+   const chunk_t * const pc, /**< [in] chunk to check */
+   const c_token_t type,     /**< [in] token type to check for */
+   const UINT64    flags     /**< [in] expected flags */
+);
+
+
+/**
  * Check if the given chunk is valid and has a given flag
- * combination set. Other flags are ignored during the check.
+ * combination set.
  */
 bool is_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
