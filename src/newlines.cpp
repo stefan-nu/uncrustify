@@ -2606,6 +2606,7 @@ void newlines_cleanup_braces(bool first)
 
       case(CT_SEMICOLON):
 #if 0
+      // error
       if ((!is_preproc(pc) || is_not_flag(pc, PCF_IN_SPAREN)) &&
 #else
       if (((pc->flags & (PCF_IN_SPAREN | PCF_IN_PREPROC)) == 0) &&
@@ -3723,22 +3724,9 @@ void annotations_newlines(void)
 
       next = chunk_get_next_nnl(ae);
 
-#if 1
       uo_t type = (is_type(next, CT_ANNOTATION)) ?
             UO_nl_between_annotation : UO_nl_after_annotation;
       LOG_FMT(LANNOT, " -- %s\n", get_option_name(type));
       newline_iarf(ae, cpd.settings[type].a);
-#else
-      if (is_type(next, CT_ANNOTATION))
-      {
-         LOG_FMT(LANNOT, " -- nl_between_annotation\n");
-         newline_iarf(ae, cpd.settings[UO_nl_between_annotation].a);
-      }
-      else
-      {
-         LOG_FMT(LANNOT, " -- nl_after_annotation\n");
-         newline_iarf(ae, cpd.settings[UO_nl_after_annotation].a);
-      }
-#endif
    }
 }

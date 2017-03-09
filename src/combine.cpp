@@ -2605,18 +2605,8 @@ void combine_labels(void)
    while (is_valid(next))
    {
       assert(is_valid(cur));
-#if 1
       LOG_FMT(LGUY, "%s: %zu:%zu %s\n", __func__,
             cur->orig_line, cur->orig_col, get_token_name(cur->type));
-#else
-      switch(cur->type)
-      {
-         case(CT_NEWLINE     ): { LOG_FMT(LGUY, "%s: %zu:%zu CT_NEWLINE\n",      __func__, cur->orig_line, cur->orig_col); break; }
-         case(CT_VBRACE_OPEN ): { LOG_FMT(LGUY, "%s: %zu:%zu CT_VBRACE_OPEN\n",  __func__, cur->orig_line, cur->orig_col); break; }
-         case(CT_VBRACE_CLOSE): { LOG_FMT(LGUY, "%s: %zu:%zu CT_VBRACE_CLOSE\n", __func__, cur->orig_line, cur->orig_col); break; }
-         default:               { LOG_FMT(LGUY, "%s: %zu:%zu %s\n",              __func__, cur->orig_line, cur->orig_col, cur->text()); break; }
-      }
-#endif
 
       if (is_not_flag(next, PCF_IN_OC_MSG) && /* filter OC case of [self class] msg send */
           is_type(next, CT_CLASS, CT_OC_CLASS, CT_TEMPLATE) )
@@ -2733,7 +2723,7 @@ void combine_labels(void)
                   set_type(cur,  CT_LABEL      );
                   set_type(next, CT_LABEL_COLON);
                }
-#if 0
+#if 1
                else if (next->flags & (PCF_IN_STRUCT | PCF_IN_CLASS | PCF_IN_TYPEDEF))
 #else
                else if (is_flag(next, PCF_IN_STRUCT ) ||
@@ -3500,13 +3490,8 @@ exit_loop:
    /* Determine if this is a function call or a function def/proto
     * We check for level==1 to allow the case that a function prototype is
     * wrapped in a macro: "MACRO(void foo(void));" */
-#if 1
    if ( is_type (pc, CT_FUNC_CALL) &&
        (is_level(pc, pc->brace_level) || is_level(pc, 1)) &&
-#else
-   if (is_type(pc, CT_FUNC_CALL) &&
-       ((pc->level == pc->brace_level) || (pc->level == 1)) &&
-#endif
         is_not_flag(pc, PCF_IN_ARRAY_ASSIGN))
    {
       LOG_FMT(LFCN, "  Checking func call: prev=%s", (is_invalid(prev)) ?

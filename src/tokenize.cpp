@@ -1534,11 +1534,8 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    {
       pc.str.append(ctx.get());
    }
-   if (pc.str.size() == 0)
-   {
-      /* end of file? */
-      return(false);
-   }
+
+   retval_if((pc.str.size() == 0), false);   /* end of file? */
 
    /* Note that we aren't actually making sure this is in a comment, yet */
    if ((((pc.str.find("#pragma ") >= 0) || (pc.str.find("#pragma	") >= 0)) &&
@@ -1572,10 +1569,7 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Look for the ending comment and let it pass */
-   if (parse_comment(ctx, pc) && !cpd.unc_off)
-   {
-      return(true);
-   }
+   retval_if((parse_comment(ctx, pc) && !cpd.unc_off), true);
 
    /* Reset the chunk & scan to until a newline */
    pc.str.clear();
@@ -1596,10 +1590,7 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
 static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 {
-   if (ctx.more() == false)
-   {
-      return(false);
-   }
+   retval_if(ctx.more() == false, false);
 
    /* Save off the current column */
    pc.orig_line = ctx.c.row;
@@ -1612,7 +1603,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* If it is turned off, we put everything except newlines into CT_UNKNOWN */
    if (cpd.unc_off)
    {
-      if (parse_ignored(ctx, pc)){ return(true); }
+      retval_if(parse_ignored(ctx, pc), true);
    }
 
    /* Parse whitespace */
@@ -1932,8 +1923,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       while ((chunk.str.size() > 0                        ) &&
              is_space_or_tab(chunk.str[chunk.str.size()-1]) )
       {
-         // If comment contains backslash '\' followed by whitespace chars, keep last one;
-         // this will prevent it from turning '\' into line continuation.
+         /* If comment contains backslash '\' followed by whitespace chars, keep last one;
+          * this will prevent it from turning '\' into line continuation. */
          break_if ((chunk.str.size()               > 1        ) &&
                    (chunk.str[chunk.str.size()-2] == BACKSLASH) );
          chunk.str.pop_back();
@@ -1949,7 +1940,6 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          set_flags(pc, rprev->flags & PCF_COPY_FLAGS);
 
          /* a newline can't be in a preprocessor */
-         assert(is_valid(pc));
          if (is_type(pc, CT_NEWLINE))
          {
             clr_flags(pc, PCF_IN_PREPROC);
@@ -2028,12 +2018,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          if (is_type(pc, CT_POUND) &&
              is_invalid_or_type(rprev, CT_NEWLINE) )
          {
-            set_type(pc, CT_PREPROC);
-#if 1
-            set_flags(pc, PCF_IN_PREPROC);
-#else
-            pc->flags     |= PCF_IN_PREPROC;
-#endif
+            set_type_and_flag(pc, CT_PREPROC, PCF_IN_PREPROC);
             cpd.is_preproc = CT_PREPROC;
          }
       }

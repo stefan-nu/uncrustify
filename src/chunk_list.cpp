@@ -887,14 +887,14 @@ void set_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 
 void set_type_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
 {
-   set_type        (pc, type);
+   set_type (pc, type);
    set_flags(pc, flag);
 }
 
 
 void set_ptype_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
 {
-   set_ptype      (pc, type);
+   set_ptype(pc, type);
    set_flags(pc, flag);
 }
 
