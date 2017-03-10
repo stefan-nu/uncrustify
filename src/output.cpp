@@ -33,10 +33,20 @@ struct cmt_reflow
 };
 
 
+/***************************************************************************//**
+ * @brief prototype for a function that operates on a keyword
+ *
+ * @note this typedef defines the function type "kw_func_t"
+ * for a function pointer of type
+ * bool *function(chunk_t *cmt, unc_text &out_txt)
+ ******************************************************************************/
+typedef bool (*kw_func_t)(chunk_t *cmt, unc_text &out_txt);
+
+
 struct kw_subst_t
 {
    const char *tag;
-   bool  (*func)(chunk_t *cmt, unc_text &out_txt); /* \todo make function pointer clearer */
+   kw_func_t  func;
 };
 
 
@@ -550,15 +560,17 @@ static bool next_word_exceeds_limit(const unc_text &text, size_t idx)
 
 static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
 {
-   size_t iwt = cpd.settings[UO_indent_cmt_with_tabs].b ? 2 :
-               (cpd.settings[UO_indent_with_tabs    ].n ? 1 : 0);
+   size_t indent_with_tabs = cpd.settings[UO_indent_cmt_with_tabs].b ? 2 :
+                            (cpd.settings[UO_indent_with_tabs    ].n ? 1 :
+                                                                       0);
 
-   size_t tab_col = (iwt == 0) ? 0 : ((iwt == 1) ? brace_col : base_col); /* \todo what does this mean? */
+   size_t tab_col = (indent_with_tabs == 0) ? 0 :
+                    (indent_with_tabs == 1) ? brace_col :
+                  /*(indent_with_tabs == 2)*/ base_col;
 
-   /* \todo better use fill_line() */
    cpd.did_newline = false;
-   if ( (                      iwt == 2 ) ||
-        ((cpd.column == 1) && (iwt == 1)) )
+   if ( (                      indent_with_tabs == 2 ) ||
+        ((cpd.column == 1) && (indent_with_tabs == 1)) )
    {
       fill_line_with_tabs(tab_col);
    }
@@ -2086,7 +2098,33 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
          column = (int)pc->column;
       }
 
-      // \todo better use a switch here
+#if 1
+      switch(pc->type)
+      {
+         case(CT_NEWLINE      ): /* fallthrough */
+         case(CT_COMMENT_MULTI): /* fallthrough */
+         case(CT_COMMENT_CPP  ): /* do nothing */  return;
+
+         case(CT_COMMENT):       /* fallthrough */
+         case(CT_COMMENT_EMBED): /* do nothing */  break;
+
+         case(CT_NL_CONT):
+            dst   += SPACE;
+            column = -1;
+         break;
+
+         default: /* (CT_JUNK or everything  else */
+            for (int spacing = (int)pc->column - column; spacing > 0; spacing--)
+            {
+               dst += SPACE;
+               column++;
+            }
+            dst.append(pc->str);
+            column += (int)pc->len();
+         break;
+      }
+   }
+#else
       break_if(is_type(pc, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP));
 
       if (is_type(pc, CT_NL_CONT))
@@ -2109,6 +2147,7 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
          column += (int)pc->len();
       }
    }
+#endif
 }
 
 

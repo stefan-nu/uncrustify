@@ -73,20 +73,20 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
         (idx < len1) && (idx < len2) && (idx < len);
         idx++)
    {
-      // exactly the same character ?
+      /*  exactly the same character ? */
       continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
 
       int diff = unc_tolower(ref1.m_chars[idx]) - unc_tolower(ref2.m_chars[idx]);
       if (diff == 0)
       {
-         // if we're comparing the same character but in different case
-         // we want to favor lower case before upper case (e.g. a before A)
-         // so the order is the reverse of ASCII order (we negate).
+         /* if we're comparing the same character but in different case
+          * we want to favor lower case before upper case (e.g. a before A)
+          * so the order is the reverse of ASCII order (we negate). */
          return(-(ref1.m_chars[idx] - ref2.m_chars[idx]));
       }
       else
       {
-         // return the case-insensitive diff to sort alphabetically
+         /* return the case-insensitive difference to sort alphabetically */
          return(diff);
       }
    }

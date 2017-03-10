@@ -2228,7 +2228,6 @@ null_pc:
 }
 
 
-/* \todo better use a generic function log_and_action with a fct pointer */
 void log_and_reindent(chunk_t *pc, const size_t val, const char* str)
 {
    LOG_FMT(LINDENT, "%s(%d): %zu] %s => %zu\n",

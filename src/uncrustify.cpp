@@ -78,12 +78,35 @@ struct lang_ext_t
 };
 
 
-/** list of programming languages and there filename extensions that are
- *  known by uncrustify */
+/** struct links a language type with a human readable language name */
+struct lang_name_t
+{
+   const char *name;  /**< human readable identification string */
+   lang_t     lang;   /**< language identifier */
+};
+
+
+static const lang_name_t language_names[] =
+{
+   { "C",    LANG_C    },
+   { "CPP",  LANG_CPP  },
+   { "D",    LANG_D    },
+   { "CS",   LANG_CS   },
+   { "VALA", LANG_VALA },
+   { "JAVA", LANG_JAVA },
+   { "PAWN", LANG_PAWN },
+   { "OC",   LANG_OC   },
+   { "OC+",  LANG_OCPP },
+   { "ECMA", LANG_ECMA },
+};
+
+
+/** list of known filename extensions linked to the
+ *  corresponding programming language */
 const struct lang_ext_t language_exts[] =
 {
-   { ".c",    "C"    }, /* \todo the programming languages should */
-   { ".cpp",  "CPP"  }, /* better use an enum */
+   { ".c",    "C"    }, /* \todo use lang_t instead of strings */
+   { ".cpp",  "CPP"  },
    { ".d",    "D"    },
    { ".cs",   "CS"   },
    { ".vala", "VALA" },
@@ -106,14 +129,6 @@ const struct lang_ext_t language_exts[] =
    { ".mm",   "OC+"  },
    { ".sqc",  "C"    }, // embedded SQL
    { ".es",   "ECMA" },
-};
-
-
-/** */
-struct lang_name_t
-{
-   const char *name;  /**<  */
-   size_t     lang;   /**<  */
 };
 
 
@@ -426,21 +441,6 @@ static const char * const pcf_names[] =
    "IN_QT_MACRO",       // 40
 };
 #endif
-
-
-static const lang_name_t language_names[] =
-{
-   { "C",    LANG_C             },
-   { "CPP",  LANG_CPP           },
-   { "D",    LANG_D             },
-   { "CS",   LANG_CS            },
-   { "VALA", LANG_VALA          },
-   { "JAVA", LANG_JAVA          },
-   { "PAWN", LANG_PAWN          },
-   { "OC",   LANG_OC            },
-   { "OC+",  LANG_OC | LANG_CPP },
-   { "ECMA", LANG_ECMA          },
-};
 
 
 const char *path_basename(const char *path)
@@ -2214,7 +2214,7 @@ void print_extensions(FILE *pfile)
    }
 }
 
-/* \todo better use an enum for source file language */
+/* \todo better use enum lang_t for source file language */
 static size_t language_flags_from_filename(const char *filename)
 {
    /* check custom extensions first */

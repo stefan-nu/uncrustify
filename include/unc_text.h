@@ -272,7 +272,8 @@ public:
    /**
     * compares the content of two unc_text instances
     *
-    * @retval == 0 - both text elements are equal
+    * \todo explain the return values, see compare_chunks
+    * @retval == 0 - both elements are equal
     * @retval  > 0 - tbd
     * @retval  < 0 - tbd
     */

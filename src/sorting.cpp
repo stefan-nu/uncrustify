@@ -28,7 +28,10 @@ enum
 /**
  * Compare two series of chunks, starting with the given ones.
  *
- * @return tbd
+ * \todo explain the return values, see unc_text::compare
+ * @retval == 0 - both text elements are equal
+ * @retval  > 0 - tbd
+ * @retval  < 0 - tbd
  */
 static int compare_chunks(
    chunk_t *pc1,  /**< [in] chunk 1 to compare */
@@ -150,7 +153,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 
    retval_if((is_invalid(pc1) || !is_nl(pc2)), -1);
    retval_if(!is_nl(pc1), 1);
-   return(0); /* \todo explain the return values -1, 0, 1 */
+   return(0);
 }
 
 

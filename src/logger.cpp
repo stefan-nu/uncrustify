@@ -277,7 +277,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
          buf[2] = to_hex_char(total >> 4);
       }
 
-      uint8_t tmp = dat[idx]; // \todo was int
+      uint8_t tmp = dat[idx];
 
       buf[str_idx  ] = to_hex_char(tmp >> 4);
       buf[str_idx+1] = to_hex_char(tmp     );

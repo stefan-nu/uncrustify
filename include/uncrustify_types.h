@@ -41,15 +41,11 @@ using namespace std;
 #define UNUSED(variableName)    ((void)variableName)
 
 
-/**
- * swaps two elements of the same type
- */
+/** swaps two elements of the same type */
 #define SWAP(a, b) { __typeof__(a) x = (a); (a) = (b); (b) = x; }
 
 
-/**
- * Brace stage enum used in brace_cleanup
- */
+/** Brace stage enum used in brace_cleanup */
 enum class brace_stage_e : unsigned int
 {
    NONE,
@@ -91,9 +87,7 @@ struct indent_ptr_t
 };
 
 
-/**
- * Structure for counting nested level
- */
+/** Structure for counting nested level */
 struct paren_stack_entry_t
 {
    c_token_t     type;         /**< the type that opened the entry */
@@ -216,18 +210,14 @@ typedef struct align_ptr_s
 /** This is the main type of this program */
 struct chunk_t
 {
-   /**
-    * constructor for chunk_t
-    */
+   /** constructor for chunk_t */
    chunk_t()
    {
       reset();
    }
 
 
-   /**
-    * sets all elements of the struct to their default value
-    */
+   /** sets all elements of the struct to their default value */
    void reset()
    {
       memset(&align,  0, sizeof(align ));
@@ -252,18 +242,14 @@ struct chunk_t
    }
 
 
-   /**
-    * provides the number of characters of string
-    */
+   /** provides the number of characters of string */
    size_t len()
    {
       return(str.size());
    }
 
 
-   /**
-    * provides the content of a string as zero terminated character pointer
-    */
+   /** provides the content of a string as zero terminated character pointer */
    const char *text()
    {
       return(str.c_str());
@@ -277,9 +263,9 @@ struct chunk_t
    c_token_t    ptype;         /**< type of the parent chunk usually CT_NONE */
    size_t       orig_line;     /**< line number of chunk in input file */
    size_t       orig_col;      /**< column where chunk started in input file, is always > 0 */
-   uint32_t       orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
-   uint32_t       orig_prev_sp;  /**< whitespace before this token */
-   uint64_t       flags;         /**< see PCF_xxx */
+   uint32_t     orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
+   uint32_t     orig_prev_sp;  /**< whitespace before this token */
+   uint64_t     flags;         /**< see PCF_xxx */
    size_t       column;        /**< column of chunk */
    size_t       column_indent; /**< if 1st on a line, set to the 'indent'
                                 *   column, which may be less than the real column
@@ -294,24 +280,25 @@ struct chunk_t
 
 
 /** list of all programming languages known to uncrustify */
-enum
+typedef enum lang_e
 {
-   LANG_C    = 0x0001,                                           //!< LANG_C
-   LANG_CPP  = 0x0002,                                           //!< LANG_CPP
-   LANG_D    = 0x0004,                                           //!< LANG_D
-   LANG_CS   = 0x0008,     /*<< C# or C-sharp */                 //!< LANG_CS
-   LANG_JAVA = 0x0010,                                           //!< LANG_JAVA
-   LANG_OC   = 0x0020,     /*<< Objective C */                   //!< LANG_OC
-   LANG_VALA = 0x0040,     /*<< Like C# */                       //!< LANG_VALA
-   LANG_PAWN = 0x0080,                                           //!< LANG_PAWN
-   LANG_ECMA = 0x0100,                                           //!< LANG_ECMA
-   LANG_ALLC = (LANG_C    | LANG_CPP | LANG_D    | LANG_CS   |   //!< LANG_ALLC
-                LANG_JAVA | LANG_OC  | LANG_VALA | LANG_ECMA ),
-   LANG_ALL  = 0x0fff,                                           //!< LANG_ALL
+   LANG_C    = 0x0001,     /**< plain C */
+   LANG_CPP  = 0x0002,     /**< C++ */
+   LANG_D    = 0x0004,     /**< D */
+   LANG_CS   = 0x0008,     /**< C# or C-sharp */
+   LANG_JAVA = 0x0010,     /**< Java */
+   LANG_OC   = 0x0020,     /**< Objective C */
+   LANG_OCPP = LANG_OC | LANG_CPP, /**< Objective C++ */
+   LANG_VALA = 0x0040,     /**< Vala, like C# */
+   LANG_PAWN = 0x0080,     /**< Pawn ? */
+   LANG_ECMA = 0x0100,     /**< Ecma ? */
+   LANG_ALLC = (LANG_C    | LANG_CPP | LANG_D    | LANG_CS  |
+                LANG_JAVA | LANG_OC  | LANG_VALA | LANG_ECMA),
+   LANG_ALL  = 0x0fff,     /**< applies to all languages */
 
-   FLAG_DIG  = 0x4000,     /*<< digraph/trigraph */              //!< FLAG_DIG
-   FLAG_PP   = 0x8000,     /*<< only appears in a preprocessor *///!< FLAG_PP
-};
+   FLAG_DIG  = 0x4000,     /*<< digraph/trigraph */
+   FLAG_PP   = 0x8000,     /*<< only appears in a preprocessor */
+}lang_t;
 
 
 /** Pattern classes for special keywords */
@@ -348,7 +335,7 @@ struct lookup_entry_t
 {
    char              ch;              /**<  */
    char              left_in_group;   /**<  */
-   uint16_t            next_idx;        /**<  */
+   uint16_t          next_idx;        /**<  */
    const chunk_tag_t *tag;            /**<  */
 };
 
@@ -391,7 +378,7 @@ enum class unc_stage_e : unsigned int
 
 struct cp_data_t
 {
-   deque<uint8_t>    *bout;          /**<  */
+   deque<uint8_t>  *bout;          /**<  */
    FILE            *fout;          /**<  */
    int             last_char;      /**<  */
    bool            do_check;       /**<  */
@@ -399,7 +386,7 @@ struct cp_data_t
    int             check_fail_cnt; /**< total failures */
    bool            if_changed;     /**<  */
 
-   uint32_t          error_count;    /**< counts how many errors occurred so far */
+   uint32_t        error_count;    /**< counts how many errors occurred so far */
    const char      *filename;      /**<  */
 
    file_mem_t      file_hdr;       /**< for cmt_insert_file_header */
@@ -413,17 +400,17 @@ struct cp_data_t
 
    bool            unc_off;        /**<  */
    bool            unc_off_used;   /**< to check if "unc_off" is used */
-   uint32_t          line_number;    /**<  */
-   uint32_t          column;         /**< column for parsing */
-   uint32_t          spaces;         /**< space count on output */
+   uint32_t        line_number;    /**<  */
+   uint32_t        column;         /**< column for parsing */
+   uint32_t        spaces;         /**< space count on output */
 
    int             ifdef_over_whole_file;
 
    bool            frag;           /**< activates code fragment option */
-   uint32_t          frag_cols;      /**<  */
+   uint32_t        frag_cols;      /**<  */
 
    // stuff to auto-detect line endings
-   uint32_t          le_counts[LE_AUTO];  /**<  */
+   uint32_t        le_counts[LE_AUTO];  /**<  */
    unc_text        newline;             /**<  */
 
    bool            consumed;            /**<  */

@@ -432,22 +432,23 @@ void write_bom(void)
 {
    switch (cpd.enc)
    {
-   case char_encoding_e::UTF8:
-      write_byte(0xef);
-      write_byte(0xbb);
-      write_byte(0xbf);
+      case char_encoding_e::UTF8:
+         write_byte(0xef);
+         write_byte(0xbb);
+         write_byte(0xbf);
       break;
 
-   case char_encoding_e::UTF16_LE:
-      write_utf16(0xfeff, false);
+      case char_encoding_e::UTF16_LE:
+         write_utf16(0xfeff, false);
       break;
 
-   case char_encoding_e::UTF16_BE:
-      write_utf16(0xfeff, true);
+      case char_encoding_e::UTF16_BE:
+         write_utf16(0xfeff, true);
       break;
 
       default:
-         break;
+         /* do nothing */
+      break;
    }
 }
 

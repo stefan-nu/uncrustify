@@ -1537,7 +1537,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
       }
       else if(is_type(pc, CT_ASSIGN, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_COMMA))
       {
-         const size_t token_width = (size_t)space_col_align(pc, next); /* \todo can we be sure the result is positive? */
+         const size_t token_width = space_col_align(pc, next);
 
          /* Is this a new entry? */
          if (idx >= cpd.al_cnt)
