@@ -809,8 +809,7 @@ void swap_lines(chunk_t *pc1, chunk_t *pc2)
    chunk_t *ref2 = chunk_get_prev(pc2);
 
    /* Move the line started at pc2 before pc1 */
-   while (( is_valid  (pc2)) &&
-          (!is_nl(pc2)) )
+   while (is_valid(pc2) && !is_nl(pc2))
    {
       chunk_t *tmp = chunk_get_next(pc2);
       g_cl.Pop(pc2);
@@ -823,8 +822,7 @@ void swap_lines(chunk_t *pc1, chunk_t *pc2)
     *                         ^- pc1                              ^- pc2 */
 
    /* Now move the line started at pc1 after ref2 */
-   while (( is_valid  (pc1)) &&
-          (!is_nl(pc1)) )
+   while (is_valid(pc1) && !is_nl(pc1))
    {
       chunk_t *tmp = chunk_get_next(pc1);
       g_cl.Pop(pc1);
@@ -910,6 +908,12 @@ void set_ptype_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
 }
 
 
+UINT64 get_flags(chunk_t *pc, UINT64 mask)
+{
+   return(pc->flags & mask);
+}
+
+
 void set_flags(chunk_t *pc, UINT64 set_bits)
 {
    LOG_FUNC_CALL();
@@ -929,14 +933,14 @@ void update_flags(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
 
-   const UINT64 nflags = (pc->flags & ~clr_bits) | set_bits;
-   if (pc->flags != nflags)
+   const UINT64 new_flags = (pc->flags & ~clr_bits) | set_bits;
+   if (pc->flags != new_flags)
    {
       LOG_FMT(LSETFLG, "set_chunk_flags: %016" PRIx64 "^%016" PRIx64 "=%016" PRIx64 " %zu:%zu '%s' %s:%s",
-              pc->flags, pc->flags ^ nflags, nflags, pc->orig_line, pc->orig_col, pc->text(),
+              pc->flags, pc->flags ^ new_flags, new_flags, pc->orig_line, pc->orig_col, pc->text(),
               get_token_name(pc->type), get_token_name(pc->ptype));
       log_func_stack_inline(LSETFLG);
-      pc->flags = nflags;
+      pc->flags = new_flags;
    }
 }
 

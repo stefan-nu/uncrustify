@@ -410,7 +410,7 @@ static bool can_increase_nl(chunk_t *nl)
       if (is_type_and_ptype(next, CT_PREPROC, CT_PP_ENDIF) &&
           (next->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
       {
-         bool rv = ifdef_over_whole_file() && (next->flags & PCF_WF_ENDIF);
+         bool rv = ifdef_over_whole_file() && is_flag(next, PCF_WF_ENDIF);
          LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %zu (next) pp_lvl=%zu rv=%d\n",
                  __func__, nl->orig_line, nl->pp_level, rv);
          return(rv);
@@ -487,7 +487,7 @@ static void setup_newline_add(chunk_t *prev, chunk_t *nl, chunk_t *next)
    nl->brace_level = prev->brace_level;
    nl->pp_level    = prev->pp_level;
    nl->nl_count    = 1;
-   nl->flags       = (prev->flags & PCF_COPY_FLAGS) & ~PCF_IN_PREPROC;
+   update_flags(nl, PCF_IN_PREPROC, get_flags(prev, PCF_COPY_FLAGS));
 #if 0
    // makes test 30064 fail
    nl->orig_col    = prev->orig_col_end;
@@ -594,7 +594,7 @@ static void newline_end_newline(chunk_t *br_close)
    {
       nl.orig_line = br_close->orig_line;
       nl.nl_count  = 1;
-      nl.flags     = (br_close->flags & PCF_COPY_FLAGS) & ~PCF_IN_PREPROC;
+      update_flags(&nl, PCF_IN_PREPROC, get_flags(br_close, PCF_COPY_FLAGS));
       if (is_preproc(br_close) && is_valid(next) && is_preproc(next))
       {
          nl.flags |= PCF_IN_PREPROC;
@@ -855,7 +855,7 @@ static void newlines_if_for_while_switch_pre_blank_lines(chunk_t *start, argval_
          if ((pc->nl_count > 1) || is_nl(chunk_get_prev_nvb(pc)))
          {
             /* need to remove */
-            if (is_option_set(nl_opt, AV_REMOVE) && ((pc->flags & PCF_VAR_DEF) == 0))
+            if (is_option_set(nl_opt, AV_REMOVE) && not_flag(pc, PCF_VAR_DEF))
             {
                /* if we're also adding, take care of that here */
                size_t nl_count = do_add ? 2 : 1;
@@ -1140,9 +1140,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t *start, argval
          remove_next_newlines(pc);
       }
       else if ((is_nl(next = chunk_get_next_nvb(pc))) &&
-            (is_valid(next)) &&
-            !(next->flags & PCF_VAR_DEF) )
-//            is_not_flag(next, PCF_VAR_DEF))
+                not_flag(next, PCF_VAR_DEF))
       {
          /* otherwise just deal with newlines after brace */
          if (next->nl_count != 1)
@@ -1982,7 +1980,7 @@ static void newline_func_def(chunk_t *start)
                UO_nl_func_proto_type_name : UO_nl_func_type_name;
          argval_t a = cpd.settings[option].a;
 
-         if ((tmp->flags & PCF_IN_CLASS) &&
+         if (is_flag(tmp, PCF_IN_CLASS) &&
              (cpd.settings[UO_nl_func_type_name_class].a != AV_IGNORE))
          {
             a = cpd.settings[UO_nl_func_type_name_class].a;
@@ -2096,9 +2094,9 @@ static bool one_liner_nl_ok(chunk_t *pc)
    LOG_FUNC_ENTRY();
    LOG_FMT(LNL1LINE, "%s: check [%s] parent=[%s] flg=%" PRIx64 ", on line %zu, col %zu - ",
            __func__, get_token_name(pc->type), get_token_name(pc->ptype),
-           pc->flags, pc->orig_line, pc->orig_col);
+           get_flags(pc), pc->orig_line, pc->orig_col);
 
-   if (!(pc->flags & PCF_ONE_LINER))
+   if (not_flag(pc, PCF_ONE_LINER))
    {
       LOG_FMT(LNL1LINE, "true (not 1-liner), a new line may be added\n");
       return(true);
@@ -2115,7 +2113,7 @@ static bool one_liner_nl_ok(chunk_t *pc)
    else
    {
       while ( is_valid(br_open) &&
-             (br_open->flags & PCF_ONE_LINER) &&
+             is_flag(br_open, PCF_ONE_LINER) &&
              !is_opening_brace(br_open) &&
              !is_closing_brace(br_open) )
       {
@@ -2140,15 +2138,15 @@ static bool one_liner_nl_ok(chunk_t *pc)
       if (cond && is_ptype(pc, CT_FUNC_DEF,
                          CT_FUNC_CLASS_DEF))     { LOG_FMT(LNL1LINE, "false (func def)\n");   return(false); }
       cond = cpd.settings[UO_nl_func_leave_one_liners].b;
-      if (cond && (pc->ptype == CT_OC_MSG_DECL)) { LOG_FMT(LNL1LINE, "false (method def)\n"); return(false); }
+      if (cond && is_ptype(pc, CT_OC_MSG_DECL))  { LOG_FMT(LNL1LINE, "false (method def)\n"); return(false); }
       cond = cpd.settings[UO_nl_cpp_lambda_leave_one_liners].b;
-      if (cond && (pc->ptype == CT_CPP_LAMBDA))  { LOG_FMT(LNL1LINE, "false (lambda)\n");     return(false); }
+      if (cond && is_ptype(pc, CT_CPP_LAMBDA))   { LOG_FMT(LNL1LINE, "false (lambda)\n");     return(false); }
       cond = cpd.settings[UO_nl_oc_msg_leave_one_liner].b;
-      if (cond && (pc->flags & PCF_IN_OC_MSG))   { LOG_FMT(LNL1LINE, "false (message)\n");    return(false); }
+      if (cond && is_flag(pc, PCF_IN_OC_MSG))    { LOG_FMT(LNL1LINE, "false (message)\n");    return(false); }
       cond = cpd.settings[UO_nl_if_leave_one_liners].b;
       if (cond && is_ptype(pc, CT_IF, CT_ELSE))  { LOG_FMT(LNL1LINE, "false (if/else)\n");    return(false); }
       cond = cpd.settings[UO_nl_while_leave_one_liners].b;
-      if (cond && (pc->ptype == CT_WHILE))       { LOG_FMT(LNL1LINE, "false (while)\n");      return(false); }
+      if (cond && is_ptype(pc, CT_WHILE))        { LOG_FMT(LNL1LINE, "false (while)\n");      return(false); }
    }
    LOG_FMT(LNL1LINE, "true, a new line may be added\n");
    return(true);
@@ -2159,8 +2157,7 @@ void undo_one_liner(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   if ( (is_valid(pc)        ) &&
-         (pc->flags & PCF_ONE_LINER) )
+   if (is_flag(pc, PCF_ONE_LINER))
    {
       LOG_FMT(LNL1LINE, "%s: [%s]", __func__, pc->text());
       clr_flags(pc, PCF_ONE_LINER);
@@ -2169,7 +2166,7 @@ void undo_one_liner(chunk_t *pc)
       chunk_t *tmp = pc;
       while ((tmp = chunk_get_prev(tmp)) != nullptr)
       {
-         break_if(!(tmp->flags & PCF_ONE_LINER));
+         break_if(not_flag(tmp, PCF_ONE_LINER));
          LOG_FMT(LNL1LINE, " %s", tmp->text());
          clr_flags(tmp, PCF_ONE_LINER);
       }
@@ -2179,7 +2176,7 @@ void undo_one_liner(chunk_t *pc)
       LOG_FMT(LNL1LINE, " -");
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         break_if(!(tmp->flags & PCF_ONE_LINER));
+         break_if(not_flag(tmp, PCF_ONE_LINER));
          LOG_FMT(LNL1LINE, " %s", tmp->text());
          clr_flags(tmp, PCF_ONE_LINER);
       }
@@ -2464,7 +2461,7 @@ void newlines_cleanup_braces(bool first)
          else if (cpd.settings[UO_nl_ds_struct_enum_close_brace].b &&
                   (is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION)))
          {
-            if ((pc->flags & PCF_ONE_LINER) == 0)
+            if (not_flag(pc, PCF_ONE_LINER))
             {
                /* Make sure the brace is preceded by two newlines */
                prev = chunk_get_prev(pc);
@@ -2493,7 +2490,7 @@ void newlines_cleanup_braces(bool first)
             next = chunk_get_next(pc);
             if (not_type(next, 7, CT_SEMICOLON, CT_COMMA, CT_SPAREN_CLOSE,
                   CT_SQUARE_CLOSE, CT_FPAREN_CLOSE, CT_WHILE_OF_DO, CT_VBRACE_CLOSE) &&
-                ((pc->flags & (PCF_IN_ARRAY_ASSIGN | PCF_IN_TYPEDEF)) == 0) &&
+                not_flag(pc, (PCF_IN_ARRAY_ASSIGN | PCF_IN_TYPEDEF)) &&
                 !is_nl(next) &&
                 !is_cmt(next) )
             {
@@ -2547,7 +2544,7 @@ void newlines_cleanup_braces(bool first)
                for (chunk_t *temp = pc; temp != end; temp = chunk_get_next(temp))
                {
                   LOG_FMT(LGUY, "%s type=%s , level=%zu", temp->text(), get_token_name(temp->type), temp->level);
-                  log_pcf_flags(LGUY, temp->flags);
+                  log_pcf_flags(LGUY, get_flags(temp));
                   clr_flags(temp, PCF_ONE_LINER);
                }
                // split
@@ -2605,12 +2602,7 @@ void newlines_cleanup_braces(bool first)
       break;
 
       case(CT_SEMICOLON):
-#if 0
-      // error
-      if ((!is_preproc(pc) || not_flag(pc, PCF_IN_SPAREN)) &&
-#else
-      if (((pc->flags & (PCF_IN_SPAREN | PCF_IN_PREPROC)) == 0) &&
-#endif
+         if (not_flag(pc, (PCF_IN_SPAREN | PCF_IN_PREPROC)) &&
              cpd.settings[UO_nl_after_semicolon].b)
          {
             next = chunk_get_next(pc);
@@ -2632,7 +2624,7 @@ void newlines_cleanup_braces(bool first)
                }
             }
          }
-         else if (pc->ptype == CT_CLASS)
+         else if (is_ptype(pc, CT_CLASS))
          {
             if (cpd.settings[UO_nl_after_class].u > 0)
             {
@@ -2706,7 +2698,7 @@ void newlines_cleanup_braces(bool first)
             if (cpd.settings[UO_nl_oc_msg_args].b) { newline_oc_msg(pc); }
          }
 
-         if (is_ptype   (pc, CT_ASSIGN    ) &&
+         if (is_ptype(pc, CT_ASSIGN    ) &&
              not_flag(pc, PCF_ONE_LINER) )
          {
             tmp = chunk_get_prev_ncnl(pc);
@@ -2766,8 +2758,8 @@ void newlines_cleanup_braces(bool first)
       break;
 
       default:
-         if ( (first == true) &&
-              (is_preproc(pc) && (cpd.settings[UO_nl_remove_extra_newlines].u == 1)))
+         if ((first == true) &&
+             (is_preproc(pc) && (cpd.settings[UO_nl_remove_extra_newlines].u == 1)))
          {
             newline_iarf(pc, AV_REMOVE);
          }
@@ -2809,7 +2801,7 @@ void newline_after_multiline_comment(void)
 {
    LOG_FUNC_ENTRY();
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for(chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       continue_if(not_type(pc, CT_COMMENT_MULTI));
 
@@ -3079,12 +3071,12 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
             // we get 'mode' from cpd.settings[UO_pos_comma].tp
             // BUT we must take care of cpd.settings[UO_pos_class_comma].tp
             // TODO and cpd.settings[UO_pos_constr_comma].tp
-            if (pc->flags & PCF_IN_CLASS_BASE)
+            if (is_flag(pc, PCF_IN_CLASS_BASE))
             {
                // change mode
                mode_local = cpd.settings[UO_pos_class_comma].tp;
             }
-            else if (pc->flags & PCF_IN_ENUM)
+            else if (is_flag(pc, PCF_IN_ENUM))
             {
                mode_local = cpd.settings[UO_pos_enum_comma].tp;
             }
@@ -3488,7 +3480,7 @@ void do_blank_lines(void)
           is_ptype(prev, 4, CT_FUNC_DEF, CT_FUNC_CLASS_DEF,
                             CT_ASSIGN,   CT_OC_MSG_DECL) )
       {
-         if (prev->flags & PCF_ONE_LINER)
+         if (is_flag(prev, PCF_ONE_LINER))
          {
             if (cpd.settings[UO_nl_after_func_body_one_liner].u > pc->nl_count)
             {
@@ -3497,7 +3489,7 @@ void do_blank_lines(void)
          }
          else
          {
-            if ((prev->flags & PCF_IN_CLASS) &&
+            if ((is_flag(prev, PCF_IN_CLASS)) &&
                 (cpd.settings[UO_nl_after_func_body_class].u > 0))
             {
                if (cpd.settings[UO_nl_after_func_body_class].u != pc->nl_count)

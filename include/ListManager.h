@@ -110,8 +110,8 @@ public:
    {
       if (ptr_is_valid(obj))
       {
-         if (first == obj)         { first = obj->next; }
-         if (last  == obj)         { last  = obj->prev; }
+         if (first == obj)            { first = obj->next; }
+         if (last  == obj)            { last  = obj->prev; }
          if (ptr_is_valid(obj->next)) { obj->next->prev = obj->prev; }
          if (ptr_is_valid(obj->prev)) { obj->prev->next = obj->next; }
          obj->next = nullptr;
@@ -125,8 +125,7 @@ public:
     */
    void Swap(T *obj1, T *obj2)
    {
-      if (ptr_is_valid(obj1) &&
-          ptr_is_valid(obj2) )
+      if (ptrs_are_valid(obj1, obj2))
       {
          if      (obj1->prev == obj2) { Pop(obj1); AddBefore(obj1, obj2); }
          else if (obj2->prev == obj1) { Pop(obj2); AddBefore(obj2, obj1); }
@@ -145,48 +144,106 @@ public:
    }
 
 
-   /**
-    * tbd
-    */
-   // \todo combine with AddBefore
-   void AddAfter(T *obj, T *ref)
+   /** use this enum to define in what direction or location an
+    *  operation shall be performed. */
+   enum class loc_e : unsigned int
    {
-      if (ptr_is_valid(obj) &&
-          ptr_is_valid(ref) )
+      BEFORE, /**< indicates a position or direction upwards   (=prev) */
+      AFTER,  /**< indicates a position or direction downwards (=next) */
+   };
+
+
+   /** add a new element to a list */
+   void Add(
+      T *obj, /**< [in] new object to add to list */
+      T *ref, /**< [in] reference determines insert position */
+      loc_e pos = loc_e::AFTER /**< [in] insert before or after reference */
+   )
+   {
+      assert( (pos == loc_e::AFTER) || (pos == loc_e::BEFORE));
+      return_if(ptr_is_invalid(obj));
+
+      bool after = (pos == loc_e::AFTER);
+
+      if (ptr_is_valid(ref))
       {
-         Pop(obj);
-         obj->next = ref->next;
-         obj->prev = ref;
-         if (ptr_is_valid(ref->next)) { ref->next->prev = obj; }
-         else                         { last = obj;            }
-         ref->next = obj;
+         Pop(obj); /* \todo is this necessary? */
+         obj->next = (after) ? ref->next  : ref;
+         obj->prev = (after) ? ref        : ref->prev;
+         T **ins   = (after) ? &ref->next : &ref->prev;
+         if (ptr_is_valid(*ins))
+         {
+            T **add = (after) ? &ref->next->prev : &ref->prev->next;
+            *add    = obj;
+         }
+         else
+         {
+            T **end = (after) ? &last : &first;
+            *end    = obj;
+         }
+         *ins = obj;
+      }
+      else /* and an element to an empty list */
+      {
+         if(after) /* add to tail */
+         {
+            obj->next = nullptr;
+            obj->prev = last;
+            if (last == nullptr)
+            {
+               last  = obj;
+               first = obj;
+            }
+            else
+            {
+               last->next = obj;
+            }
+            last = obj;
+         }
+         else /* add to head */
+         {
+            obj->next = first;
+            obj->prev = nullptr;
+            if (first == nullptr)
+            {
+               last  = obj;
+               first = obj;
+            }
+            else
+            {
+               first->prev = obj;
+            }
+            first = obj;
+         }
       }
    }
 
 
-   /**
-    * tbd
-    */
-   void AddBefore(T *obj, T *ref)
+   /** add a new element after a reference position in a list */
+   void AddAfter(
+      T *obj, /**< [in] new object to add to list */
+      T *ref  /**< [in] chunk after which to insert new object */
+   )
    {
-      if (ptr_is_valid(obj) &&
-          ptr_is_valid(ref) )
-      {
-         Pop(obj);
-         obj->next = ref;
-         obj->prev = ref->prev;
-         if (ptr_is_valid(ref->prev)) { ref->prev->next = obj; }
-         else                         { first = obj;           }
-         ref->prev = obj;
-      }
+      Add(obj, ref, loc_e::AFTER);
    }
 
 
-   /**
-    * tbd
-    */
+   /** add a new element before a reference position in a list */
+   void AddBefore(
+      T *obj, /**< [in] new object to add to list */
+      T *ref  /**< [in] chunk before to insert new object */
+   )
+   {
+      Add(obj, ref, loc_e::BEFORE);
+   }
+
+
+   /** add a new element to the tail of a list */
    void AddTail(T *obj)
    {
+      Add(obj, last, loc_e::AFTER);
+#if 0
       obj->next = nullptr;
       obj->prev = last;
       if (last == nullptr)
@@ -199,14 +256,15 @@ public:
          last->next = obj;
       }
       last = obj;
+#endif
    }
 
 
-   /**
-    * tbd
-    */
+   /** add a new element to the head of a list */
    void AddHead(T *obj)
    {
+      Add(obj, last, loc_e::BEFORE);
+#if 0
       obj->next = first;
       obj->prev = nullptr;
       if (first == nullptr)
@@ -219,6 +277,7 @@ public:
          first->prev = obj;
       }
       first = obj;
+#endif
    }
 };
 

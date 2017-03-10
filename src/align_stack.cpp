@@ -51,8 +51,7 @@ void AlignStack::ReAddSkipped()
          Add(ce->m_pc, ce->m_seqnum);
       }
 
-      /* Check to see if we need to flush right away */
-      NewLines(0);
+      NewLines(0); /* Check to see if we need to flush right away */
    }
 }
 
@@ -139,8 +138,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       /* Find ref. Back up to the real item that is aligned. */
       chunk_t *prev = start;
       while (((prev = chunk_get_prev(prev)) != nullptr) &&
-             (is_ptr_operator(prev) ||
-              is_type(prev, CT_TPAREN_OPEN)))
+             (is_ptr_operator(prev) || is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
@@ -156,8 +154,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       {
          /* back up to the first '*' or '^' preceding the token */
          prev = chunk_get_prev(ali);
-         while (is_star (prev) ||
-                is_msref(prev) )
+         while (is_star(prev) || is_msref(prev))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);

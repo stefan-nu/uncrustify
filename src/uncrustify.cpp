@@ -1953,16 +1953,16 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       mark_comments();
 
       /* Add balanced spaces around nested params */
-      if (cpd.settings[UO_sp_bal_nested_parens].b) { space_text_balance_nested_parens(); }
+      if (cpd.settings[UO_sp_bal_nested_parens].b)  { space_text_balance_nested_parens(); }
 
       /* Scrub certain added semicolons */
       if ((cpd.lang_flags & LANG_PAWN           ) &&
-          (cpd.settings[UO_mod_pawn_semicolon].b) )    { pawn_scrub_vsemi(); }
+          (cpd.settings[UO_mod_pawn_semicolon].b) ) { pawn_scrub_vsemi(); }
 
       /* Sort imports/using/include */
       if (cpd.settings[UO_mod_sort_import ].b ||
           cpd.settings[UO_mod_sort_include].b ||
-          cpd.settings[UO_mod_sort_using  ].b )        { sort_imports(); }
+          cpd.settings[UO_mod_sort_using  ].b )     { sort_imports(); }
 
       /* Fix same-line inter-chunk spacing */
       space_text();

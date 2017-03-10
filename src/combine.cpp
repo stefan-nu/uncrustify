@@ -764,13 +764,13 @@ static bool chunk_ends_type(chunk_t *start)
    {
       LOG_FMT(LFTYPE, "%s: [%s] %s flags %" PRIx64 " on line %zu, col %zu\n",
               __func__, get_token_name(pc->type), pc->text(),
-              pc->flags, pc->orig_line, pc->orig_col);
+              get_flags(pc), pc->orig_line, pc->orig_col);
 
       if(is_type(pc, 6, CT_QUALIFIER, CT_WORD, CT_STRUCT,
                         CT_DC_MEMBER, CT_TYPE, CT_PTR_TYPE))
       {
          cnt++;
-         last_lval = (pc->flags & PCF_LVALUE) != 0;
+         last_lval = is_flag(pc, PCF_LVALUE);
          continue;
       }
 
@@ -1558,7 +1558,7 @@ void do_symbol_check(chunk_t *prev, chunk_t *pc, chunk_t *next)
                set_type(pc,       CT_TYPE    ); // change CT_WORD => CT_TYPE
                set_type(pc->next, CT_PTR_TYPE); // change CT_STAR => CT_PTR_TYPE
             }
-            break_if (tmp->flags & PCF_STMT_START);  // we are at beginning of the line
+            break_if(is_flag(tmp, PCF_STMT_START));  // we are at beginning of the line
 
             tmp = chunk_get_prev(tmp);
          }
@@ -1814,7 +1814,7 @@ static bool mark_function_type(chunk_t *pc)
          goto nogo_exit;
    }
 
-   ptp = (pc->flags & PCF_IN_TYPEDEF) ? CT_FUNC_TYPE : CT_FUNC_VAR;
+   ptp = (is_flag(pc, PCF_IN_TYPEDEF)) ? CT_FUNC_TYPE : CT_FUNC_VAR;
 
    tmp = pc;
    while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
@@ -1872,7 +1872,7 @@ static bool mark_function_type(chunk_t *pc)
 
    if (anon == false)
    {
-      if (pc->flags & PCF_IN_TYPEDEF)
+      if (is_flag(pc, PCF_IN_TYPEDEF))
       {
          set_type(varcnk, CT_TYPE);
       }
@@ -1889,7 +1889,7 @@ static bool mark_function_type(chunk_t *pc)
 
    if (is_semicolon(aft))
    {
-      set_ptype(aft, (aft->flags & PCF_IN_TYPEDEF) ? CT_TYPEDEF : CT_FUNC_VAR);
+      set_ptype(aft, (is_flag(aft, PCF_IN_TYPEDEF)) ? CT_TYPEDEF : CT_FUNC_VAR);
    }
    else if (is_type(aft, CT_BRACE_OPEN))
    {
@@ -1906,7 +1906,7 @@ static bool mark_function_type(chunk_t *pc)
 
       if (*tmp->str.c_str() == '(')
       {
-         if ((pc->flags & PCF_IN_TYPEDEF) == 0)
+         if (not_flag(pc, PCF_IN_TYPEDEF))
          {
             set_flags(tmp, PCF_VAR_1ST_DEF);
          }
@@ -2035,7 +2035,7 @@ static chunk_t *process_return(chunk_t *pc)
       chunk.brace_level = pc->brace_level;
       chunk.orig_line   = pc->orig_line;
       chunk.ptype = CT_RETURN;
-      chunk.flags       = pc->flags & PCF_COPY_FLAGS;
+      set_flags(&chunk, get_flags(pc, PCF_COPY_FLAGS));
       chunk_add_before(&chunk, next);
 
       chunk.type      = CT_PAREN_CLOSE;
@@ -2313,7 +2313,7 @@ static void fix_enum_struct_union(chunk_t *pc)
 
    chunk_t *prev        = nullptr;
    size_t  flags        = PCF_VAR_1ST_DEF;
-   size_t  in_fcn_paren = pc->flags & PCF_IN_FCN_DEF;
+   size_t  in_fcn_paren = get_flags(pc, PCF_IN_FCN_DEF);
 
    /* the next item is either a type or open brace */
    chunk_t *next = get_next_ncnl(pc);
@@ -2396,9 +2396,8 @@ static void fix_enum_struct_union(chunk_t *pc)
    }
 
    /* We are either pointing to a ';' or a variable */
-   while (not_type(next, CT_ASSIGN) &&
-         !is_semicolon(next) &&
-          ((in_fcn_paren ^ (next->flags & PCF_IN_FCN_DEF)) == 0))
+   while (not_type(next, CT_ASSIGN) && !is_semicolon(next) &&
+          (in_fcn_paren ^ (not_flag(next, PCF_IN_FCN_DEF))))
    {
       if (is_level(next, pc->level))
       {
@@ -2687,14 +2686,14 @@ void combine_labels(void)
 
                LOG_FMT(LGUY, "%s: %zu:%zu, tmp=%s\n", __func__, tmp->orig_line,
                        tmp->orig_col, (is_type(tmp, CT_NEWLINE)) ? "<NL>" : tmp->text());
-               log_pcf_flags(LGUY, tmp->flags);
+               log_pcf_flags(LGUY, get_flags(tmp));
                if (is_flag(next, PCF_IN_FCN_CALL))
                {
                   /* Must be a macro thingy, assume some sort of label */
                   set_type(next, CT_LABEL_COLON);
                }
                else if ((not_type(tmp, CT_NUMBER, CT_SIZEOF ) &&
-                        !(tmp->flags & (PCF_IN_STRUCT | PCF_IN_CLASS))) ||
+                         not_flag(tmp, (PCF_IN_STRUCT | PCF_IN_CLASS))) ||
                          (is_type(tmp, CT_NEWLINE) ))
                {
                   /* the CT_SIZEOF isn't great - test 31720 happens to use a sizeof expr,
@@ -3018,8 +3017,8 @@ static chunk_t *mark_variable_definition(chunk_t *start)
    {
       if (is_type(pc, CT_WORD, CT_FUNC_CTOR_VAR))
       {
-         UINT64 flg = pc->flags;
-         if ((pc->flags & PCF_IN_ENUM) == 0)
+         UINT64 flg = get_flags(pc);
+         if (not_flag(pc, PCF_IN_ENUM))
          {
             set_flags(pc, flags);
          }
@@ -3027,7 +3026,7 @@ static chunk_t *mark_variable_definition(chunk_t *start)
 
          LOG_FMT(LVARDEF, "%s:%zu marked '%s'[%s] in col %zu flags: %#" PRIx64 " -> %#" PRIx64 "\n",
                  __func__, pc->orig_line, pc->text(),
-                 get_token_name(pc->type), pc->orig_col, flg, pc->flags);
+                 get_token_name(pc->type), pc->orig_col, flg, get_flags(pc));
       }
       else if (is_star (pc) ||
                is_msref(pc) )
@@ -3296,7 +3295,7 @@ exit_loop:
            pc->level, pc->brace_level,
            next->text(), get_token_name(next->type), next->level);
 
-   if (pc->flags & PCF_IN_CONST_ARGS)
+   if (is_flag(pc, PCF_IN_CONST_ARGS))
    {
       set_type_and_log(pc, CT_FUNC_CTOR_VAR, 1);
       next = skip_template_next(next);
@@ -4386,7 +4385,7 @@ static void mark_template_func(chunk_t *pc, chunk_t *pc_next)
       if (is_str(after, "(", 1))
       {
          assert(is_valid(angle_close));
-         if (angle_close->flags & PCF_IN_FCN_CALL)
+         if (is_flag(angle_close, PCF_IN_FCN_CALL))
          {
             LOG_FMT(LTEMPFUNC, "%s: marking '%s' in line %zu as a FUNC_CALL\n",
                     __func__, pc->text(), pc->orig_line);
@@ -4730,9 +4729,9 @@ static void handle_oc_block_literal(chunk_t *pc)
 static void handle_oc_block_type(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   if (is_invalid(pc)) { return; }
+   return_if(is_invalid(pc));
 
-   if (pc->flags & PCF_IN_TYPEDEF)
+   if (is_flag(pc, PCF_IN_TYPEDEF))
    {
       LOG_FMT(LOCBLK, "%s: skip block type @ %zu:%zu -- in typedef\n",
               __func__, pc->orig_line, pc->orig_col);
@@ -5175,7 +5174,7 @@ static void handle_oc_property_decl(chunk_t *os)
                endchunk.orig_line   = curr_chunk->orig_line;
                endchunk.column      = static_cast<int>(curr_chunk->orig_col_end) + 1u;
                endchunk.ptype       = curr_chunk->ptype;
-               endchunk.flags       = curr_chunk->flags & PCF_COPY_FLAGS;
+               set_flags(&endchunk, get_flags(curr_chunk, PCF_COPY_FLAGS));
                chunk_add_after(&endchunk, curr_chunk);
                curr_chunk = curr_chunk->next;
             }
@@ -5252,7 +5251,7 @@ static void handle_cs_property(chunk_t *bro)
             set_ptype(pc, CT_CS_PROPERTY);
             make_type(pc);
          }
-         break_if(pc->flags & PCF_STMT_START);
+         break_if(is_flag(pc, PCF_STMT_START));
       }
    }
 }

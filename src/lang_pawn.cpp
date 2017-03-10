@@ -124,7 +124,7 @@ static bool pawn_continued(chunk_t *pc, size_t br_level)
                          CT_DO,    CT_WHILE,  CT_SWITCH                  ) ||
          is_ptype(pc, 9, CT_IF,    CT_ELSE,   CT_ELSEIF,   CT_FUNC_DEF,
                          CT_FOR,   CT_WHILE,  CT_SWITCH,   CT_DO, CT_ENUM) ||
-       (pc->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) ||
+       is_flag(pc, (PCF_IN_ENUM | PCF_IN_STRUCT)) ||
        is_str(pc, ":", 1) ||
        is_str(pc, "+", 1) ||
        is_str(pc, "-", 1) )
@@ -252,9 +252,8 @@ void pawn_add_virtual_semicolons(void)
                      not_type(pc, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
 
          /* we just hit a newline and we have a previous token */
-         if ((!is_preproc(prev)) &&
-             ((prev->flags & (PCF_IN_ENUM | PCF_IN_STRUCT)) == 0) &&
-             (not_type(prev, CT_VSEMICOLON, CT_SEMICOLON)) &&
+         if ((!is_preproc(prev)) && not_flag(prev, (PCF_IN_ENUM | PCF_IN_STRUCT)) &&
+              not_type(prev, CT_VSEMICOLON, CT_SEMICOLON) &&
              !pawn_continued(prev, (int)prev->brace_level))
          {
             pawn_add_vsemi_after(prev);

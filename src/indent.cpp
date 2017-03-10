@@ -364,7 +364,7 @@ void reindent_line(chunk_t *pc, size_t column)
       {
          // connect(&mapper, SIGNAL(mapped(QString &)), this, SLOT(onSomeEvent(QString &)));
          // look for end of SIGNAL/SLOT block
-         if (!(pc->flags & PCF_IN_QT_MACRO))
+         if (not_flag(pc, PCF_IN_QT_MACRO))
          {
             LOG_FMT(LINDLINE, "FLAGS is NOT set: PCF_IN_QT_MACRO\n");
             restore_options_for_QT();
@@ -628,7 +628,7 @@ void indent_text(void)
       {
          LOG_FMT(LINDLINE, "%s(%d): %zu:%zu pc->text() %s\n",
                  __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
-         log_pcf_flags(LINDLINE, pc->flags);
+         log_pcf_flags(LINDLINE, get_flags(pc));
       }
       if ((cpd.settings[UO_use_options_overriding_for_qt_macros].b) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
@@ -1138,7 +1138,7 @@ void indent_text(void)
                if (cpd.settings[UO_indent_oc_block                ].b ||
                    cpd.settings[UO_indent_oc_block_msg_xcode_style].b)
                {
-                  bool in_oc_msg           = (pc->flags & PCF_IN_OC_MSG) != 0;
+                  bool in_oc_msg           = (is_flag(pc, PCF_IN_OC_MSG));
                   bool indent_from_keyword = cpd.settings[UO_indent_oc_block_msg_from_keyword].b && in_oc_msg;
                   bool indent_from_colon   = cpd.settings[UO_indent_oc_block_msg_from_colon  ].b && in_oc_msg;
                   bool indent_from_caret   = cpd.settings[UO_indent_oc_block_msg_from_caret  ].b && in_oc_msg;

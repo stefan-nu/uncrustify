@@ -581,7 +581,7 @@ void output_parsed(FILE *pfile)
               get_token_name(pc->ptype),
               pc->column, pc->orig_col, pc->orig_col_end, pc->orig_prev_sp,
               pc->brace_level, pc->level, pc->pp_level,
-              pc->flags, pc->nl_count, pc->after_tab);
+              get_flags(pc), pc->nl_count, pc->after_tab);
 
       if (not_type(pc, CT_NEWLINE) &&
           (pc->len() != 0         ) )
@@ -691,7 +691,7 @@ void output_text(FILE *pfile)
          }
          else
          {
-            output_comment_multi_simple(pc, (pc->flags & PCF_INSERTED) != 0);
+            output_comment_multi_simple(pc, not_flag(pc, PCF_INSERTED));
          }
       }
       else if (is_type(pc, CT_COMMENT_CPP))
@@ -1068,7 +1068,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    cmt.cont_text.clear();
    cmt.reflow = false;
 
-   if ((pc->flags & PCF_INSERTED)) { do_keyword_substitution(pc); }
+   if (is_flag(pc, PCF_INSERTED)) { do_keyword_substitution(pc); }
 
    if (cmt.brace_col == 0)
    {
@@ -1079,7 +1079,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
    {
       if ( (!cpd.settings[UO_indent_col1_comment].b) &&
            (pc->orig_col == 1                      ) &&
-           (not_flag(pc, PCF_INSERTED)          ) )
+           (not_flag(pc, PCF_INSERTED)             ) )
       {
          cmt.column    = 1u;
          cmt.base_col  = 1u;

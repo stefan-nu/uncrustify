@@ -914,10 +914,8 @@ void space_text(void)
       {
          LOG_FMT(LSPACE, "%zu: [%d] type %s SIGNAL/SLOT found\n",
                  pc->orig_line, __LINE__, get_token_name(pc->type));
-         // flag the chunk for a second processing
-         set_flags(pc, PCF_IN_QT_MACRO);
+         set_flags(pc, PCF_IN_QT_MACRO); /* flag the chunk for a second processing */
 
-         // save the values
          save_set_options_for_QT(pc->level);
       }
       if (cpd.settings[UO_sp_skip_vbrace_tokens].b)
@@ -1258,7 +1256,7 @@ void space_add_after(chunk_t *pc, size_t count)
    }
 
    chunk_t sp;
-   sp.flags       = pc->flags & PCF_COPY_FLAGS;
+   set_flags(&sp, get_flags(pc, PCF_COPY_FLAGS));
    sp.type        = CT_SPACE;
    sp.str         = "                "; // 16 spaces
    sp.str.resize(count);

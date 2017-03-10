@@ -380,8 +380,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
    size_t  min_col;
    chunk_t *prev = chunk_get_prev(pc);
-   if (is_invalid (prev) ||
-        is_nl(prev) )
+   if (is_invalid (prev) || is_nl(prev) )
    {
       min_col = squeeze ? 1 : pc->column;
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu min_col=%zu\n",
@@ -520,8 +519,8 @@ static void align_oc_msg_spec(size_t span)
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      if      (is_nl(pc)       ) { as.NewLines(pc->nl_count); }
-      else if (is_type(pc, CT_OC_MSG_SPEC)) { as.Add(pc);                }
+      if      (is_nl  (pc)) { as.NewLines(pc->nl_count); }
+      else if (is_type(pc, CT_OC_MSG_SPEC)) { as.Add(pc); }
    }
    as.End();
 }
@@ -1197,7 +1196,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       }
 
       if ((fp_active == true) &&
-         !(pc->flags & PCF_IN_CLASS_BASE))
+         !is_flag(pc, PCF_IN_CLASS_BASE))
       {
          if (is_type(pc, CT_FUNC_PROTO, CT_FUNC_DEF) &&
               cpd.settings[UO_align_single_line_func].b)
@@ -1269,9 +1268,9 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       }
 
       /* If this is a variable def, update the max_col */
-      if (!(pc->flags & PCF_IN_CLASS_BASE) &&
+      if (!is_flag(pc, PCF_IN_CLASS_BASE) &&
           not_type(pc, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
-          ((pc->flags & align_mask) == PCF_VAR_1ST) &&
+          (get_flags(pc, align_mask) == PCF_VAR_1ST) &&
           ((pc->level == (start->level + 1)) ||
            (pc->level == 0)) &&
            not_type(pc->prev, CT_MEMBER))
@@ -1836,7 +1835,7 @@ static void align_left_shift(void)
          as.Flush();
          start = nullptr;
       }
-      else if (!(pc->flags & PCF_IN_ENUM) && is_str(pc, "<<", 2))
+      else if (not_flag(pc, PCF_IN_ENUM) && is_str(pc, "<<", 2))
       {
          if (is_ptype(pc, CT_OPERATOR))
          {
@@ -1854,7 +1853,7 @@ static void align_left_shift(void)
             {
                indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
                pc->column_indent = pc->column;
-               pc->flags        |= PCF_DONT_INDENT;
+               set_flags(pc, PCF_DONT_INDENT);
             }
 
             /* first one can be anywhere */
@@ -1879,7 +1878,7 @@ static void align_left_shift(void)
          {
             indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
             pc->column_indent = pc->column;
-            pc->flags        |= PCF_DONT_INDENT;
+            set_flags(pc, PCF_DONT_INDENT);
          }
       }
 
@@ -1980,7 +1979,7 @@ static void align_oc_msg_colon(chunk_t *so)
       chunk.ptype = CT_NONE;
       chunk.level       = longest->level;
       chunk.brace_level = longest->brace_level;
-      chunk.flags       = longest->flags & PCF_COPY_FLAGS;
+      set_flags(&chunk, get_flags(longest, PCF_COPY_FLAGS));
 
       /* start at one since we already indent for the '[' */
       for (size_t idx = 1; idx < len; idx++)

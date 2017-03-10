@@ -95,7 +95,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    chunk_t pc;
    pc.type        = CT_PAREN_OPEN;
    pc.str         = "(";
-   pc.flags       = first_n->flags & PCF_COPY_FLAGS;
+   set_flags(&pc, get_flags(first_n, PCF_COPY_FLAGS));
    pc.level       = first_n->level;
    pc.pp_level    = first_n->pp_level;
    pc.brace_level = first_n->brace_level;
@@ -106,7 +106,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    assert(is_valid(last_p));
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";
-   pc.flags       = last_p->flags & PCF_COPY_FLAGS;
+   set_flags(&pc, get_flags(last_p, PCF_COPY_FLAGS));
    pc.level       = last_p->level;
    pc.pp_level    = last_p->pp_level;
    pc.brace_level = last_p->brace_level;

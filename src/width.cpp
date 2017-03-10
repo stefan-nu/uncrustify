@@ -296,10 +296,10 @@ static bool split_line(chunk_t *start)
    LOG_FMT(LSPLIT, "%s: line %zu, col %zu token: '%s' [%s] (IN_FUNC=%d) ",
            __func__, start->orig_line, start->column, start->text(),
            get_token_name(start->type),
-           (start->flags & (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)) != 0);
+           is_flag(start, (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)));
 
    /* break at maximum line length if ls_code_width is true */
-   if (start->flags & PCF_ONE_LINER)
+   if (is_flag(start, PCF_ONE_LINER))
    {
       LOG_FMT(LSPLIT, " ** ONCE LINER SPLIT **\n");
       undo_one_liner(start);
@@ -312,7 +312,7 @@ static bool split_line(chunk_t *start)
    }
 
    /* Check to see if we are in a for statement */
-   else if (start->flags & PCF_IN_FOR)
+   else if (is_flag(start, PCF_IN_FOR))
    {
       LOG_FMT(LSPLIT, " ** FOR SPLIT **\n");
       split_for_statement(start);
@@ -472,14 +472,14 @@ static void split_for_statement(chunk_t *start)
    }
    while ( (count < (int)max_cnt                ) &&
            ((pc = chunk_get_prev(pc)) != nullptr) &&
-           (pc->flags & PCF_IN_SPAREN           ) );
+            get_flags(pc, PCF_IN_SPAREN         ) );
 
 
    /* And now scan forward */
    pc = start;
    while (( count < (int)max_cnt               ) &&
           ((pc = chunk_get_next(pc)) != nullptr) &&
-          ( pc->flags & PCF_IN_SPAREN          ) )
+          is_flag(pc, PCF_IN_SPAREN)             )
    {
       // \todo DRY2 start
       if (is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
@@ -542,7 +542,7 @@ void scan_for_type(chunk_t* pc, int* count, size_t  max_cnt, dir_e dir)
    }
    while ( (count < (int)max_cnt                ) &&
            ((pc = chunk_get_prev(pc)) != nullptr) &&
-           (pc->flags & PCF_IN_SPAREN           ) );
+           is_flag(pc, PCF_IN_SPAREN           ) );
 }
 #endif
 

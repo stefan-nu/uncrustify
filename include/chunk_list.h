@@ -672,6 +672,15 @@ void set_ptype_and_flag(
 
 
 /**
+ * provides the flags of a chunk filtered by an optional mask
+ */
+UINT64 get_flags(
+   chunk_t *pc,             /**< [in] chunk to operate on */
+   UINT64 mask = UINT64_MAX /**< [in] mask to exclude some bits */
+);
+
+
+/**
  * defines the flags of a chunk
  */
 void set_flags(

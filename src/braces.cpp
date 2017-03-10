@@ -731,7 +731,7 @@ chunk_t *insert_comment_after(chunk_t *ref, c_token_t cmt_type,
    chunk_t new_cmt = *ref;
    new_cmt.prev  = nullptr;
    new_cmt.next  = nullptr;
-   new_cmt.flags = (ref->flags & PCF_COPY_FLAGS);
+   set_flags(&new_cmt, get_flags(ref, PCF_COPY_FLAGS));
    new_cmt.type  = cmt_type;
    new_cmt.str.clear();
    if (cmt_type == CT_COMMENT_CPP)
@@ -1025,7 +1025,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    chunk.level       = cl_colon->level;
    chunk.brace_level = cl_colon->brace_level;
    chunk.str         = "{";
-   chunk.flags       = pc->flags & PCF_COPY_FLAGS;
+   set_flags(&chunk, get_flags(pc, PCF_COPY_FLAGS));
 
    chunk_t *br_open = chunk_add_after(&chunk, cl_colon);
 

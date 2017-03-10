@@ -849,7 +849,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
          /* Mark as a start of a statement */
          frm->stmt_count = 0;
          frm->expr_count = 0;
-         pc->flags      |= PCF_STMT_START | PCF_EXPR_START;
+         set_flags(pc, PCF_STMT_START | PCF_EXPR_START);
          frm->stmt_count = 1;
          frm->expr_count = 1;
          LOG_FMT(LSTMT, "%zu] 2.marked %s as statement start\n", pc->orig_line, pc->text());
@@ -979,7 +979,8 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
    chunk.ptype = frm->pse[frm->pse_tos].type;
    chunk.level       = frm->level;
    chunk.brace_level = frm->brace_level;
-   chunk.flags       = pc->flags & PCF_COPY_FLAGS;
+   set_flags(&chunk, get_flags(pc, PCF_COPY_FLAGS));
+
    chunk.str         = "";
    chunk_t *rv;
    if (after)
@@ -992,7 +993,7 @@ static chunk_t *insert_vbrace(chunk_t *pc, bool after, parse_frame_t *frm)
       chunk_t *ref = chunk_get_prev(pc);
       if (!is_preproc(ref))
       {
-         chunk.flags &= ~PCF_IN_PREPROC;
+         clr_flags(&chunk, PCF_IN_PREPROC);
       }
 
       while(is_cmt_or_nl(ref))

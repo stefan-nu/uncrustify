@@ -1937,7 +1937,7 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       rprev = pc;
       if (is_valid(rprev))
       {
-         set_flags(pc, rprev->flags & PCF_COPY_FLAGS);
+         set_flags(pc, get_flags(rprev, PCF_COPY_FLAGS));
 
          /* a newline can't be in a preprocessor */
          if (is_type(pc, CT_NEWLINE))
