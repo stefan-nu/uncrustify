@@ -19,7 +19,7 @@
  * Change number/word + CT_NEG to CT_ARITH
  * Change word + ( to a CT_FUNCTION
  * Change struct/union/enum + CT_WORD => CT_TYPE
- * Force parens on return.
+ * Force parenthesis on return.
  *
  * TODO: This could be done earlier.
  *
@@ -97,8 +97,8 @@ void make_type(
 void flag_series(
    chunk_t *start,
    chunk_t *end,
-   UINT64 set_flags,
-   UINT64 clr_flags = 0,
+   uint64_t set_flags,
+   uint64_t clr_flags = 0,
    scope_e nav = scope_e::ALL
 );
 

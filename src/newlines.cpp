@@ -617,7 +617,7 @@ static void newline_end_newline(chunk_t *br_close)
 }
 
 
-static void newline_min_after(chunk_t *ref, size_t count, UINT64 flag)
+static void newline_min_after(chunk_t *ref, size_t count, uint64_t flag)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(ref));
@@ -2076,7 +2076,7 @@ static void newline_oc_msg(chunk_t *start)
    }
 
    /* we don't use the 1-liner flag, but set it anyway */
-   UINT64 flags = one_liner ? PCF_ONE_LINER : 0;
+   uint64_t flags = one_liner ? PCF_ONE_LINER : 0;
    flag_series(start, sq_c, flags, flags ^ PCF_ONE_LINER);
 
    return_if(cpd.settings[UO_nl_oc_msg_leave_one_liner].b && one_liner);

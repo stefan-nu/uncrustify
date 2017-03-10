@@ -105,8 +105,8 @@ enum class comment_align_e : unsigned int
  *
  *   - typedefs
  *     typedef uint8_t     BYTE;
- *     typedef int32_t     INT32;
- *     typedef uint32_t    UINT32;
+ *     typedef int32_t     int32_t;
+ *     typedef uint32_t    uint32_t;
  */
 
 
@@ -395,7 +395,7 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
 
       const bool is_multi = is_type(prev, CT_COMMENT_MULTI);
       const char *type = (is_multi) ? "Y" : "N";
-      const size_t col = (is_multi) ? prev->orig_col_end : (UINT32)prev->column;
+      const size_t col = (is_multi) ? prev->orig_col_end : (uint32_t)prev->column;
 
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu \
             min_col=%zu multi:%s prev->col=%u prev->len()=%zu %s\n",
@@ -1147,7 +1147,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    LOG_FMT(LAVDB, "%s: start=%s [%s] on line %zu\n", __func__,
            start->text(), get_token_name(start->type), start->orig_line);
 
-   UINT64 align_mask = PCF_IN_FCN_DEF | PCF_VAR_1ST;
+   uint64_t align_mask = PCF_IN_FCN_DEF | PCF_VAR_1ST;
    if (!cpd.settings[UO_align_var_def_inline].b)
    {
       align_mask |= PCF_VAR_INLINE;
@@ -1368,7 +1368,7 @@ chunk_t *align_nl_cont(chunk_t *start)
    chunk_t *tmp;
    while ((tmp = cs.Pop_Back()) != nullptr)
    {
-      set_flags(tmp, (UINT64)PCF_WAS_ALIGNED);
+      set_flags(tmp, (uint64_t)PCF_WAS_ALIGNED);
       tmp->column = max_col;
    }
 
@@ -1680,7 +1680,7 @@ static void align_init_brace(chunk_t *start)
                chunk_t *prev = chunk_get_prev(pc);
                if (is_nl(prev))
                {
-                  set_flags(pc, (UINT64)PCF_DONT_INDENT);
+                  set_flags(pc, (uint64_t)PCF_DONT_INDENT);
                }
             }
             LOG_FMT(LALBR, " [%s] to col %zu\n", pc->text(), cpd.al[idx].col);
@@ -1694,7 +1694,7 @@ static void align_init_brace(chunk_t *start)
                //        num_token->orig_line,
                //        num_token->text(), cpd.al[idx - 1].col, col_diff);
 
-               set_flags(num_token, (UINT64)PCF_WAS_ALIGNED);
+               set_flags(num_token, (uint64_t)PCF_WAS_ALIGNED);
                num_token = nullptr;
             }
 
@@ -1718,7 +1718,7 @@ static void align_init_brace(chunk_t *start)
                   else if (idx < (cpd.al_cnt - 1))
                   {
                      reindent_line(next, cpd.al[idx].col + cpd.al[idx].len);
-                     set_flags(next, (UINT64)PCF_WAS_ALIGNED);
+                     set_flags(next, (uint64_t)PCF_WAS_ALIGNED);
                   }
                }
             }
@@ -1726,7 +1726,7 @@ static void align_init_brace(chunk_t *start)
             {
                /* first item on the line */
                reindent_line(pc, cpd.al[idx].col);
-               set_flags(pc, (UINT64)PCF_WAS_ALIGNED);
+               set_flags(pc, (uint64_t)PCF_WAS_ALIGNED);
 
                /* see if we need to right-align a number */
                if ((idx < (cpd.al_cnt - 1)) &&
@@ -1929,7 +1929,7 @@ static void align_oc_msg_colon(chunk_t *so)
          if (is_type(tmp, CT_OC_MSG_FUNC, CT_OC_MSG_NAME))
          {
             nas.Add(tmp);
-            set_flags(tmp, (UINT64)PCF_DONT_INDENT);
+            set_flags(tmp, (uint64_t)PCF_DONT_INDENT);
          }
          did_line = true;
       }

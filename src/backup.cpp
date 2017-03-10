@@ -41,11 +41,11 @@
 void md5_to_string(
    char         *md5_str,
    const size_t str_len,
-   UINT8        dig[16]
+   uint8_t        dig[16]
 );
 
 
-void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
+void md5_to_string(char *md5_str, const size_t str_len, uint8_t dig[16])
 {
    for(size_t i = 0; i < MD5_CHAR_COUNT; i++)
    {
@@ -58,12 +58,12 @@ void md5_to_string(char *md5_str, const size_t str_len, UINT8 dig[16])
 }
 
 
-int backup_copy_file(const char *filename, const vector<UINT8> &data)
+int backup_copy_file(const char *filename, const vector<uint8_t> &data)
 {
    char  md5_str_in[MD5_STR_SIZE];
    md5_str_in[0] = 0;
 
-   UINT8 md5_bin[MD5_CHAR_COUNT];
+   uint8_t md5_bin[MD5_CHAR_COUNT];
    MD5::Calc(&data[0], data.size(), md5_bin);
 
    char  md5_str[MD5_STR_SIZE];
@@ -144,14 +144,14 @@ void backup_create_md5_file(const char *filename)
    /* read file chunk by chunk and calculate its MD5 checksum */
    MD5 md5;
    md5.Init();
-   UINT8  buf[FILE_CHUNK];
+   uint8_t  buf[FILE_CHUNK];
    size_t len;
    while ((len = fread(buf, 1, sizeof(buf), thefile)) > 0)
    {
       md5.Update(buf, len);
    }
    fclose(thefile);
-   UINT8 md5_bin[16];
+   uint8_t md5_bin[16];
    md5.Final(md5_bin);
 
    char   newpath[1024];

@@ -226,7 +226,7 @@ void log_hex(log_sev_t sev, const void *vdata, size_t len)
    return_if(ptr_is_invalid(vdata) || !log_sev_on(sev));
 
    char        buf[80];
-   const UINT8 *dat = static_cast<const UINT8 *>(vdata);
+   const uint8_t *dat = static_cast<const uint8_t *>(vdata);
    size_t      idx  = 0;
    while (len-- > 0)
    {
@@ -255,7 +255,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
    return_if(ptr_is_invalid(data) || !log_sev_on(sev));
 
    static char buf[80] = "nnn | XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX | cccccccccccccccc\n";
-   const UINT8 *dat    = static_cast<const UINT8 *>(data);
+   const uint8_t *dat    = static_cast<const uint8_t *>(data);
    int         str_idx = 0;
    int         chr_idx = 0;
 
@@ -264,7 +264,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
 
    /* Loop through the data of the current iov */
    int count = 0;
-   UINT32 total = 0;
+   uint32_t total = 0;
    for (size_t idx = 0; idx < len; idx++)
    {
       if (count == 0)
@@ -277,7 +277,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
          buf[2] = to_hex_char(total >> 4);
       }
 
-      UINT8 tmp = dat[idx]; // \todo was int
+      uint8_t tmp = dat[idx]; // \todo was int
 
       buf[str_idx  ] = to_hex_char(tmp >> 4);
       buf[str_idx+1] = to_hex_char(tmp     );

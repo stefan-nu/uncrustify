@@ -29,7 +29,7 @@
  */
 static chunk_t *flag_parens(
    chunk_t   *po,       /**< [in] Pointer to the open parenthesis */
-   UINT64    flags,     /**< [in] flags to add */
+   uint64_t    flags,     /**< [in] flags to add */
    c_token_t opentype,  /**< [in]  */
    c_token_t parenttype,/**< [in]  */
    bool      parent_all /**< [in]  */
@@ -451,7 +451,7 @@ static void handle_oc_property_decl(
 static chunk_t *handle_oc_md_type(
    chunk_t  *paren_open, /**< [in]  */
    c_token_t ptype,      /**< [in]  */
-   UINT64    flags,      /**< [in]  */
+   uint64_t    flags,      /**< [in]  */
    bool      &did_it     /**< [in]  */
 );
 
@@ -605,8 +605,8 @@ void make_type(chunk_t *pc)
 }
 
 
-void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags,
-                 UINT64 clr_flags, scope_e nav)
+void flag_series(chunk_t *start, chunk_t *end, uint64_t set_flags,
+                 uint64_t clr_flags, scope_e nav)
 {
    LOG_FUNC_ENTRY();
    while ((is_valid(start)) && (start != end ) )
@@ -622,7 +622,7 @@ void flag_series(chunk_t *start, chunk_t *end, UINT64 set_flags,
 }
 
 
-static chunk_t *flag_parens(chunk_t *po, UINT64 flags, c_token_t opentype,
+static chunk_t *flag_parens(chunk_t *po, uint64_t flags, c_token_t opentype,
                             c_token_t parenttype, bool parent_all)
 {
    LOG_FUNC_ENTRY();
@@ -2211,7 +2211,7 @@ static void fix_casts(chunk_t *start)
       }
       else if (is_type(pc, CT_MINUS))
       {
-         /* (UINT8)-1 or (foo)-1 or (FOO)-'a' */
+         /* (uint8_t)-1 or (foo)-1 or (FOO)-'a' */
          if(is_type(after, CT_STRING) || doubtful_cast)
          {
             nope = true;
@@ -2219,7 +2219,7 @@ static void fix_casts(chunk_t *start)
       }
       else if (is_type(pc, CT_PLUS))
       {
-         /* (UINT8)+1 or (foo)+1 */
+         /* (uint8_t)+1 or (foo)+1 */
          if(not_type(after, CT_NUMBER, CT_NUMBER_FP) || doubtful_cast)
          {
             nope = true;
@@ -3017,7 +3017,7 @@ static chunk_t *mark_variable_definition(chunk_t *start)
    {
       if (is_type(pc, CT_WORD, CT_FUNC_CTOR_VAR))
       {
-         UINT64 flg = get_flags(pc);
+         uint64_t flg = get_flags(pc);
          if (not_flag(pc, PCF_IN_ENUM))
          {
             set_flags(pc, flags);
@@ -4792,7 +4792,7 @@ static void handle_oc_block_type(chunk_t *pc)
 }
 
 
-static chunk_t *handle_oc_md_type(chunk_t *paren_open, c_token_t ptype, UINT64 flags, bool &did_it)
+static chunk_t *handle_oc_md_type(chunk_t *paren_open, c_token_t ptype, uint64_t flags, bool &did_it)
 {
    chunk_t *paren_close;
 

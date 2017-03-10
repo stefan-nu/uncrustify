@@ -1,9 +1,9 @@
 /**
  * Reverse the bytes in 32-bit chunks.
  */
-void MD5::reverse_u32(UINT8 *buf, int n_u32)
+void MD5::reverse_u32(uint8_t *buf, int n_u32)
 {
-	UINT8 tmp;
+	uint8_t tmp;
 }
 
 

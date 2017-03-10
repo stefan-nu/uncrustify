@@ -1,8 +1,8 @@
 void foo()
 {
    BSTR test = L"SID";
-   CHAR s[]  = "This is a \"test\"";
-   CHAR ch   = 'a';
+   char s[]  = "This is a \"test\"";
+   char ch   = 'a';
 }
 
 

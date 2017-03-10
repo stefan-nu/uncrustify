@@ -159,7 +159,7 @@ static void do_keyword_substitution(
  * All output text is sent here, one char at a time.
  */
 static void add_char(
-   UINT32 ch /**< [in]  */
+   uint32_t ch /**< [in]  */
 );
 
 
@@ -401,7 +401,7 @@ static const kw_subst_t kw_subst_table[] =
 };
 
 
-static void add_char(UINT32 ch)
+static void add_char(uint32_t ch)
 {
    /* output a newline if ... */
    if ((cpd.last_char == CARRIAGERETURN) &&
@@ -515,7 +515,7 @@ static void add_text(const unc_text &text, bool is_ignored = false)
       if( (is_ignored == true) &&
           (ch         >= 0   ) )
       {
-         write_char((UINT32)ch);
+         write_char((uint32_t)ch);
       }
       else
       {

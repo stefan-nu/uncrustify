@@ -431,7 +431,7 @@ protected:
 
 
    int_list_t    m_chars;   /**< contains the non-encoded 31-bit chars */
-   vector<UINT8> m_logtext; /**< logging text, utf8 encoded - updated in c_str() */
+   vector<uint8_t> m_logtext; /**< logging text, utf8 encoded - updated in c_str() */
    bool          m_logok;
 };
 

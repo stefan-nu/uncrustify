@@ -30,8 +30,8 @@ private:
 
 protected:
    size_t  m_count;      /**< number of command line arguments */
-   char   **m_values;    /**< pointer array to each argument */
-   UINT8  *m_used;       /**< bit array with one flag per argument */
+   char    **m_values;    /**< pointer array to each argument */
+   uint8_t *m_used;       /**< bit array with one flag per argument */
 
 public:
 

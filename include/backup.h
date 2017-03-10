@@ -45,8 +45,8 @@
  * @retval           EX_IOERR - could not create backup file
  */
 int backup_copy_file(
-   const char          *filename,
-   const vector<UINT8> &data
+   const char            *filename,
+   const vector<uint8_t> &data
 );
 
 

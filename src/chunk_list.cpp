@@ -279,7 +279,7 @@ bool is_invalid_or_type(const chunk_t* const pc, const c_token_t type)
 }
 
 
-bool is_invalid_or_flag(const chunk_t* const pc, const UINT64 flags)
+bool is_invalid_or_flag(const chunk_t* const pc, const uint64_t flags)
 {
    return (is_invalid(pc) || is_flag(pc, flags));
 }
@@ -609,7 +609,7 @@ void chunk_move_after(chunk_t *pc_in, chunk_t *ref)
 
       /* HACK: Adjust the original column */
       pc_in->column       = ref->column + (size_t)space_col_align(ref, pc_in);
-      pc_in->orig_col     = static_cast<UINT32>(pc_in->column);
+      pc_in->orig_col     = static_cast<uint32_t>(pc_in->column);
       pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
    }
 }
@@ -894,46 +894,46 @@ void set_type_and_ptype(chunk_t *pc, c_token_t type, c_token_t parent)
 }
 
 
-void set_type_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
+void set_type_and_flag(chunk_t *pc, c_token_t type, uint64_t flag)
 {
    set_type (pc, type);
    set_flags(pc, flag);
 }
 
 
-void set_ptype_and_flag(chunk_t *pc, c_token_t type, UINT64 flag)
+void set_ptype_and_flag(chunk_t *pc, c_token_t type, uint64_t flag)
 {
    set_ptype(pc, type);
    set_flags(pc, flag);
 }
 
 
-UINT64 get_flags(chunk_t *pc, UINT64 mask)
+uint64_t get_flags(chunk_t *pc, uint64_t mask)
 {
    return(pc->flags & mask);
 }
 
 
-void set_flags(chunk_t *pc, UINT64 set_bits)
+void set_flags(chunk_t *pc, uint64_t set_bits)
 {
    LOG_FUNC_CALL();
    update_flags(pc, 0, set_bits);
 }
 
 
-void clr_flags(chunk_t *pc, UINT64 clr_bits)
+void clr_flags(chunk_t *pc, uint64_t clr_bits)
 {
    LOG_FUNC_CALL();
    update_flags(pc, clr_bits, 0);
 }
 
 
-void update_flags(chunk_t *pc, UINT64 clr_bits, UINT64 set_bits)
+void update_flags(chunk_t *pc, uint64_t clr_bits, uint64_t set_bits)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
 
-   const UINT64 new_flags = (pc->flags & ~clr_bits) | set_bits;
+   const uint64_t new_flags = (pc->flags & ~clr_bits) | set_bits;
    if (pc->flags != new_flags)
    {
       LOG_FMT(LSETFLG, "set_chunk_flags: %016" PRIx64 "^%016" PRIx64 "=%016" PRIx64 " %zu:%zu '%s' %s:%s",
@@ -1223,20 +1223,20 @@ bool not_ptype(const chunk_t* const pc, int count, ... )
 
 
 bool is_type_and_flag(const chunk_t* const pc, const c_token_t type,
-                                               const UINT64    flags)
+                                               const uint64_t    flags)
 {
    return (is_valid(pc) && (pc->ptype          == type ) &&
                            (pc->flags & flags) == flags);
 }
 
 
-bool is_flag(const chunk_t* const pc, const UINT64 flags)
+bool is_flag(const chunk_t* const pc, const uint64_t flags)
 {
    return (is_valid(pc) && (pc->flags & flags) == flags);
 }
 
 
-bool not_flag(const chunk_t* const pc, const UINT64 flags)
+bool not_flag(const chunk_t* const pc, const uint64_t flags)
 {
    return (is_valid(pc) && (pc->flags & flags) == 0);
 }

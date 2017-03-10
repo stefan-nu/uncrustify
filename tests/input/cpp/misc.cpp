@@ -1,8 +1,8 @@
 
 /* Not detected as a prototype? Spacing wrong. */
-static struct my_entry *get_first_entry(const CHAR *blah);
-static CFooo::entry *get_next_entry(const CHAR *blah);
-static struct my_entry *get_next_entry(const CHAR *blah);
+static struct my_entry *get_first_entry(const char *blah);
+static CFooo::entry *get_next_entry(const char *blah);
+static struct my_entry *get_next_entry(const char *blah);
 
 /* Not handling prototype params: */
 typedef void (*function_name)(my_t * p_my, int foo);

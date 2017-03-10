@@ -35,7 +35,6 @@
 #define EX__MAX           78   /* maximum listed value */
 
 #else /* not WIN32 */
-/* \todo do all non windows systems know sysexits.h, Linux probably not? */
 #include "sysexits.h"      /* comes from BSD */
 #endif
 

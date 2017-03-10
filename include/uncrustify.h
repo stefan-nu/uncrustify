@@ -42,7 +42,7 @@ c_token_t find_token_name(
  */
 void log_pcf_flags(
    log_sev_t sev,
-   UINT64 flags
+   uint64_t flags
 );
 
 

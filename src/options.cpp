@@ -255,13 +255,13 @@ bool is_not_token(tokenpos_t var, tokenpos_t opt)
 }
 
 
-bool is_bit_set(UINT64 var, UINT64 flag)
+bool is_bit_set(uint64_t var, uint64_t flag)
 {
    return ((var & flag) == flag);
 }
 
 
-bool is_bit_unset(UINT64 var, UINT64 flag)
+bool is_bit_unset(uint64_t var, uint64_t flag)
 {
    return ((var & flag) == 0);
 }

@@ -18,7 +18,7 @@
  * See if all characters are ASCII (0-127)
  */
 static bool is_ascii(
-   const  vector<UINT8> &data,
+   const  vector<uint8_t> &data,
    size_t &non_ascii_cnt,
    size_t &zero_cnt
 );
@@ -28,7 +28,7 @@ static bool is_ascii(
  * Convert the array of bytes into an array of ints
  */
 static bool decode_bytes(
-   const vector<UINT8> &in_data,
+   const vector<uint8_t> &in_data,
    deque<int> &out_data
 );
 
@@ -38,7 +38,7 @@ static bool decode_bytes(
  * If there are any decoding errors, then return false.
  */
 static bool decode_utf8(
-   const vector<UINT8> &in_data,
+   const vector<uint8_t> &in_data,
    deque<int> &out_data
 );
 
@@ -47,7 +47,7 @@ static bool decode_utf8(
  * Extract 2 bytes from the stream and increment idx by 2
  */
 static int get_word(
-   const  vector<UINT8> &in_data,
+   const  vector<uint8_t> &in_data,
    size_t &idx,
    bool   be
 );
@@ -59,7 +59,7 @@ static int get_word(
  * Must have the BOM as the first two bytes.
  */
 static bool decode_utf16(
-   const vector<UINT8> &in_data,
+   const vector<uint8_t> &in_data,
    deque<int> &out_data,
    char_encoding_e &enc
 );
@@ -71,7 +71,7 @@ static bool decode_utf16(
  * Sets enc to char_encoding_e::ASCII and returns false if not found.
  */
 static bool decode_bom(
-   const vector<UINT8> &in_data,
+   const vector<uint8_t> &in_data,
    char_encoding_e &enc
 );
 
@@ -80,7 +80,7 @@ static bool decode_bom(
  * Write for ASCII and BYTE encoding
  */
 static void write_byte(
-   UINT32 ch
+   uint32_t ch
 );
 
 
@@ -88,17 +88,17 @@ static void write_byte(
  * Writes a single character to a file using UTF-8 encoding
  */
 static void write_utf8(
-   UINT32 ch
+   uint32_t ch
 );
 
 
 static void write_utf16(
-   UINT32 ch,
+   uint32_t ch,
    bool   be
 );
 
 
-static bool is_ascii(const vector<UINT8> &data, size_t &non_ascii_cnt, size_t &zero_cnt)
+static bool is_ascii(const vector<uint8_t> &data, size_t &non_ascii_cnt, size_t &zero_cnt)
 {
    non_ascii_cnt = 0;
    zero_cnt      = 0;
@@ -111,7 +111,7 @@ static bool is_ascii(const vector<UINT8> &data, size_t &non_ascii_cnt, size_t &z
 }
 
 
-static bool decode_bytes(const vector<UINT8> &in_data, deque<int> &out_data)
+static bool decode_bytes(const vector<uint8_t> &in_data, deque<int> &out_data)
 {
    size_t out_size = in_data.size();
    out_data.resize(out_size);
@@ -123,7 +123,7 @@ static bool decode_bytes(const vector<UINT8> &in_data, deque<int> &out_data)
 }
 
 
-void encode_utf8(UINT32 ch, vector<UINT8> &res)
+void encode_utf8(uint32_t ch, vector<uint8_t> &res)
 {
    if (ch < 0x80)
    {
@@ -173,7 +173,7 @@ void encode_utf8(UINT32 ch, vector<UINT8> &res)
 }
 
 
-static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
+static bool decode_utf8(const vector<uint8_t> &in_data, deque<int> &out_data)
 {
    /* check for UTF-8 BOM silliness and skip */
    size_t idx = 0;
@@ -192,7 +192,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
    int cnt;
    while (idx < in_data.size())
    {
-      UINT32 ch = in_data[idx++];
+      uint32_t ch = in_data[idx++];
 
       if      ( ch < 0x80         ) { out_data.push_back(ch); continue; }/* 1-byte sequence */
       else if ((ch & 0xE0) == 0xC0) { ch &= 0x1F; cnt = 1; } /* 2-byte sequence */
@@ -204,7 +204,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
 
       while ((cnt-- > 0) && (idx < in_data.size()))
       {
-         UINT32 tmp = in_data[idx++];
+         uint32_t tmp = in_data[idx++];
          retval_if((tmp & 0xC0) != 0x80, false); /* invalid UTF-8 sequence */
          ch = (ch << 6) | (tmp & 0x3f);
       }
@@ -215,7 +215,7 @@ static bool decode_utf8(const vector<UINT8> &in_data, deque<int> &out_data)
 }
 
 
-static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be)
+static int get_word(const vector<uint8_t> &in_data, size_t &idx, bool be)
 {
    int ch;
 
@@ -227,7 +227,7 @@ static int get_word(const vector<UINT8> &in_data, size_t &idx, bool be)
 }
 
 
-static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, char_encoding_e &enc)
+static bool decode_utf16(const vector<uint8_t> &in_data, deque<int> &out_data, char_encoding_e &enc)
 {
    out_data.clear();
 
@@ -298,7 +298,7 @@ static bool decode_utf16(const vector<UINT8> &in_data, deque<int> &out_data, cha
 }
 
 
-static bool decode_bom(const vector<UINT8> &in_data, char_encoding_e &enc)
+static bool decode_bom(const vector<uint8_t> &in_data, char_encoding_e &enc)
 {
    enc = char_encoding_e::ASCII;
    if (in_data.size() >= 2)
@@ -328,7 +328,7 @@ static bool decode_bom(const vector<UINT8> &in_data, char_encoding_e &enc)
 }
 
 
-bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, char_encoding_e &enc, bool &has_bom)
+bool decode_unicode(const vector<uint8_t> &in_data, deque<int> &out_data, char_encoding_e &enc, bool &has_bom)
 {
    /* check for a BOM */
    if (decode_bom(in_data, enc))
@@ -369,12 +369,12 @@ bool decode_unicode(const vector<UINT8> &in_data, deque<int> &out_data, char_enc
 }
 
 
-static void write_byte(UINT32 ch)
+static void write_byte(uint32_t ch)
 {
    if ((ch & 0xff) == ch)
    {
       if (cpd.fout) { fputc(ch, cpd.fout);                         }
-      if (cpd.bout) { cpd.bout->push_back(static_cast<UINT8>(ch)); }
+      if (cpd.bout) { cpd.bout->push_back(static_cast<uint8_t>(ch)); }
    }
    else
    {
@@ -383,9 +383,9 @@ static void write_byte(UINT32 ch)
 }
 
 
-static void write_utf8(UINT32 ch)
+static void write_utf8(uint32_t ch)
 {
-   vector<UINT8> vv;
+   vector<uint8_t> vv;
    vv.reserve(6);
 
    encode_utf8(ch, vv);
@@ -396,7 +396,7 @@ static void write_utf8(UINT32 ch)
 }
 
 
-static void write_utf16(UINT32 ch, bool be)
+static void write_utf16(uint32_t ch, bool be)
 {
    /* U+0000 to U+D7FF and U+E000 to U+FFFF */
    if ((                  (ch < 0x0D800)) ||
@@ -407,9 +407,9 @@ static void write_utf16(UINT32 ch, bool be)
    }
    else if ((ch >= 0x10000) && (ch < 0x110000))
    {
-      UINT32 v1 = ch - 0x10000;
-      UINT32 w1 = 0xD800 + (v1 >> 10);
-      UINT32 w2 = 0xDC00 + (v1 & 0x3ff);
+      uint32_t v1 = ch - 0x10000;
+      uint32_t w1 = 0xD800 + (v1 >> 10);
+      uint32_t w2 = 0xDC00 + (v1 & 0x3ff);
       if (be)
       {
          write_byte(w1 >> 8); write_byte(w1 & 0xff);
@@ -452,7 +452,7 @@ void write_bom(void)
 }
 
 
-void write_char(UINT32 ch)
+void write_char(uint32_t ch)
 {
    switch (cpd.enc)
    {
@@ -470,6 +470,6 @@ void write_string(const unc_text &text)
 {
    for (size_t idx = 0; idx < text.size(); idx++)
    {
-      write_char((UINT32)text[idx]);
+      write_char((uint32_t)text[idx]);
    }
 }

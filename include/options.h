@@ -1031,8 +1031,8 @@ bool is_not_token(
  * @retval false at least one of the expected bits is missing
  */
 bool is_bit_set(
-   UINT64 var, /**< [in] variable to operate with */
-   UINT64 flag /**< [in] bit mask to check for */
+   uint64_t var, /**< [in] variable to operate with */
+   uint64_t flag /**< [in] bit mask to check for */
 );
 
 
@@ -1045,8 +1045,8 @@ bool is_bit_set(
  * @retval false at least one of the bits in the bit mask is set
  */
 bool is_bit_unset(
-   UINT64 var, /**> [in] variable to operate with */
-   UINT64 flag /**< [in] bit mask to check for */
+   uint64_t var, /**> [in] variable to operate with */
+   uint64_t flag /**< [in] bit mask to check for */
 );
 
 

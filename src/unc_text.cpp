@@ -55,7 +55,7 @@ void unc_text::update_logtext()
       {
          if      (m_char == LINEFEED      ) { m_char = 0x2424; }
          else if (m_char == CARRIAGERETURN) { m_char = 0x240d; }
-         encode_utf8((UINT32)m_char, m_logtext);
+         encode_utf8((uint32_t)m_char, m_logtext);
       }
       m_logtext.push_back(0);
       m_logok = true;

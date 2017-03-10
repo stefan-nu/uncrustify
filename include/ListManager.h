@@ -14,17 +14,20 @@
 
 /**
  * A simple list manager for a double-linked list.
- * Class T must define 'next' and 'prev', which must be pointers to type T.
+ *
+ * This template class can be used with any Class T
+ * given that it defines pointers to 'next' and 'prev',
+ * which must be pointers to type T.
  */
+
+/* \todo why do we provide this template class? can't we use
+ * a double linked list from the standard library ? */
 
 template<class T> class ListManager
 {
 protected:
-   /* Pointers to the head and tail.
-    * They are either both nullptr or both non-nullptr.
-    */
-   T *first;
-   T *last;
+   T *first; /**< pointer to the head of list */
+   T *last;  /**> pointer to tail of list */
 
 private:
    /* Hide copy constructor */
@@ -40,7 +43,6 @@ public:
       first = nullptr;
       last  = nullptr;
    }
-
 
    /**
     * \brief return the first element of the linked list
@@ -88,9 +90,7 @@ public:
    }
 
 
-   /**
-    * tbd
-    */
+   /** \brief initialize the pointers of a new list element */
    void InitEntry(T *obj) const
    {
       if (ptr_is_valid(obj))
@@ -101,12 +101,8 @@ public:
    }
 
 
-   /**
-    * \brief remove an element from a linked list
-    *
-    * @param [in] obj list element to remove
-    */
-   void Pop(T *obj)
+   /** \brief remove an element from a linked list */
+   void Pop(T *obj) /**< [in] element to remove from list */
    {
       if (ptr_is_valid(obj))
       {
@@ -120,9 +116,7 @@ public:
    }
 
 
-   /**
-    * tbd
-    */
+   /** swap two elements of a list */
    void Swap(T *obj1, T *obj2)
    {
       if (ptrs_are_valid(obj1, obj2))
@@ -131,12 +125,8 @@ public:
          else if (obj2->prev == obj1) { Pop(obj2); AddBefore(obj2, obj1); }
          else
          {
-            T *prev1 = obj1->prev;
-            Pop(obj1);
-
-            T *prev2 = obj2->prev;
-            Pop(obj2);
-
+            T *prev1 = obj1->prev; Pop(obj1);
+            T *prev2 = obj2->prev; Pop(obj2);
             AddAfter(obj1, prev2);
             AddAfter(obj2, prev1);
          }
@@ -153,7 +143,7 @@ public:
    };
 
 
-   /** add a new element to a list */
+   /** \brief add a new element to a list */
    void Add(
       T *obj, /**< [in] new object to add to list */
       T *ref, /**< [in] reference determines insert position */
@@ -219,9 +209,9 @@ public:
    }
 
 
-   /** add a new element after a reference position in a list */
+   /** \brief add a new element after a reference position in a list */
    void AddAfter(
-      T *obj, /**< [in] new object to add to list */
+      T *obj, /**< [in] new element to add to list */
       T *ref  /**< [in] chunk after which to insert new object */
    )
    {
@@ -229,9 +219,9 @@ public:
    }
 
 
-   /** add a new element before a reference position in a list */
+   /** \brief add a new element before a reference position in a list */
    void AddBefore(
-      T *obj, /**< [in] new object to add to list */
+      T *obj, /**< [in] new element to add to list */
       T *ref  /**< [in] chunk before to insert new object */
    )
    {
@@ -239,45 +229,17 @@ public:
    }
 
 
-   /** add a new element to the tail of a list */
-   void AddTail(T *obj)
+   /** \brief add a new element to the tail of a list */
+   void AddTail(T *obj) /**< [in] new element to add to list */
    {
       Add(obj, last, loc_e::AFTER);
-#if 0
-      obj->next = nullptr;
-      obj->prev = last;
-      if (last == nullptr)
-      {
-         last  = obj;
-         first = obj;
-      }
-      else
-      {
-         last->next = obj;
-      }
-      last = obj;
-#endif
    }
 
 
-   /** add a new element to the head of a list */
-   void AddHead(T *obj)
+   /** \brief add a new element to the head of a list */
+   void AddHead(T *obj) /**< [in] new element to add to list */
    {
       Add(obj, last, loc_e::BEFORE);
-#if 0
-      obj->next = first;
-      obj->prev = nullptr;
-      if (first == nullptr)
-      {
-         last  = obj;
-         first = obj;
-      }
-      else
-      {
-         first->prev = obj;
-      }
-      first = obj;
-#endif
    }
 };
 

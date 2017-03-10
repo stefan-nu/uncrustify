@@ -12,11 +12,6 @@
 #include "char_table.h"
 
 
-/* for backward compatibility
- * \todo remove later */
-//#define set_chunk_parent set_chunk_ptype
-
-
 /* \todo better use a class for all chunk related operations,
  *  then the following functions can be changed into member
  *  functions. The function  "chunk_is_comment(chunk)" would for instance
@@ -143,7 +138,7 @@ bool is_invalid_or_type(
  */
 bool is_invalid_or_flag(
    const chunk_t* const pc,
-   const UINT64 flags
+   const uint64_t flags
 );
 
 
@@ -660,23 +655,23 @@ void set_type_and_ptype(
 void set_type_and_flag(
    chunk_t   *pc,   /**< [in] chunk to operate on */
    c_token_t type,  /**< [in] value to set as chunk type */
-   UINT64    flag   /**< [in] flag bits to add */
+   uint64_t    flag   /**< [in] flag bits to add */
 );
 
 
 void set_ptype_and_flag(
    chunk_t   *pc,   /**< [in] chunk to operate on */
    c_token_t type,  /**< [in] value to set as chunk type */
-   UINT64    flag   /**< [in] flag bits to add */
+   uint64_t    flag   /**< [in] flag bits to add */
 );
 
 
 /**
  * provides the flags of a chunk filtered by an optional mask
  */
-UINT64 get_flags(
+uint64_t get_flags(
    chunk_t *pc,             /**< [in] chunk to operate on */
-   UINT64 mask = UINT64_MAX /**< [in] mask to exclude some bits */
+   uint64_t mask = UINT64_MAX /**< [in] mask to exclude some bits */
 );
 
 
@@ -685,7 +680,7 @@ UINT64 get_flags(
  */
 void set_flags(
    chunk_t *pc,      /**< [in] chunk to operate on */
-   UINT64  set_bits  /**< [in] flag bits to add */
+   uint64_t  set_bits  /**< [in] flag bits to add */
 );
 
 
@@ -694,7 +689,7 @@ void set_flags(
  */
 void clr_flags(
    chunk_t *pc,      /**< [in] chunk to operate on */
-   UINT64  clr_bits  /**< [in] flag bits to remove */
+   uint64_t  clr_bits  /**< [in] flag bits to remove */
 );
 
 
@@ -703,8 +698,8 @@ void clr_flags(
  */
 void update_flags(
    chunk_t *pc,      /**< [in] chunk to update */
-   UINT64  clr_bits, /**< [in] flag bits to remove */
-   UINT64  set_bits  /**< [in] flag bits to add */
+   uint64_t  clr_bits, /**< [in] flag bits to remove */
+   uint64_t  set_bits  /**< [in] flag bits to add */
 );
 
 
@@ -1166,7 +1161,7 @@ bool not_ptype(
 bool is_type_and_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
    const c_token_t type,     /**< [in] token type to check for */
-   const UINT64    flags     /**< [in] expected flags */
+   const uint64_t    flags     /**< [in] expected flags */
 );
 
 
@@ -1179,7 +1174,7 @@ bool is_type_and_flag(
  */
 bool is_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
-   const UINT64 flags        /**< [in] expected flags */
+   const uint64_t flags        /**< [in] expected flags */
 );
 
 
@@ -1189,7 +1184,7 @@ bool is_flag(
  */
 bool not_flag(
    const chunk_t * const pc, /**< [in] chunk to check */
-   const UINT64 flags        /**< [in] expected flags */
+   const uint64_t flags        /**< [in] expected flags */
 );
 
 

@@ -17,7 +17,7 @@ Args::Args(int argc, char **argv)
    m_count  = (size_t)argc;
    m_values = argv;
    const size_t len = NumberOfBits(argc);
-   m_used = new UINT8[len];
+   m_used = new uint8_t[len];
    if (ptr_is_valid(m_used))
    {
       memset(m_used, 0, len);
@@ -35,8 +35,8 @@ Args::Args(const Args &ref)
 
 size_t Args::NumberOfBits(const int argc)
 {
-   const UINT32 bits_per_byte = 8;
-   return ((UINT32)argc / bits_per_byte) + 1;
+   const uint32_t bits_per_byte = 8;
+   return ((uint32_t)argc / bits_per_byte) + 1;
 }
 
 

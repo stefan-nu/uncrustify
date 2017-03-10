@@ -241,7 +241,7 @@ const char *const token_names[] =
    "PP_IF_INDENT",
    "PP_IGNORE",
    "PP_OTHER",
-   "CHAR",
+   "char",
    "DEFINED",
    "FORWARD",
    "NATIVE",

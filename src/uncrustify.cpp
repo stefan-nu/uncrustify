@@ -998,7 +998,7 @@ int main(int argc, char *argv[])
 
    if (cpd.do_check || cpd.if_changed )
    {
-      cpd.bout = new deque<UINT8>();
+      cpd.bout = new deque<uint8_t>();
    }
 
    if (ptrs_are_valid(source_file, source_list, p_arg))
@@ -1127,8 +1127,8 @@ static void process_source_list(const char * const source_list, const char *pref
 
 static bool read_stdin(file_mem_t &fm)
 {
-   deque<UINT8> dq;
-   UINT8        buf[4096];
+   deque<uint8_t> dq;
+   uint8_t        buf[4096];
 
    fm.raw.clear();
    fm.data.clear();
@@ -1353,8 +1353,8 @@ static bool file_content_matches(const string &filename1, const string &filename
 
    size_t len1 = 0;
    size_t len2 = 0;
-   UINT8  buf1[FILE_CHUNK_SIZE];
-   UINT8  buf2[FILE_CHUNK_SIZE];
+   uint8_t  buf1[FILE_CHUNK_SIZE];
+   uint8_t  buf2[FILE_CHUNK_SIZE];
    memset(buf1, 0, sizeof(buf1));
    memset(buf2, 0, sizeof(buf2));
    while (true)
@@ -1544,8 +1544,8 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    {
       if (cpd.if_changed == true)
       {
-         deque<UINT8>::const_iterator i   = cpd.bout->begin();
-         deque<UINT8>::const_iterator end = cpd.bout->end();
+         deque<uint8_t>::const_iterator i   = cpd.bout->begin();
+         deque<uint8_t>::const_iterator end = cpd.bout->end();
          for (; i != end; ++i)
          {
             fputc(*i, pfout);
@@ -1798,7 +1798,7 @@ static void uncrustify_start(const deque<int> &data)
    if (cpd.frag)
    {
       const chunk_t *pc = chunk_get_head();
-      cpd.frag_cols = (UINT16)((is_valid(pc)) ? pc->orig_col : 0);
+      cpd.frag_cols = (uint16_t)((is_valid(pc)) ? pc->orig_col : 0);
    }
 
    if (cpd.file_hdr.data.size() > 0) { add_file_header(); } /* Add the file header */
@@ -2254,7 +2254,7 @@ static size_t language_flags_from_filename(const char *filename)
 }
 
 
-void log_pcf_flags(log_sev_t sev, UINT64 flags)
+void log_pcf_flags(log_sev_t sev, uint64_t flags)
 {
    return_if(log_sev_on(sev) == false);
 

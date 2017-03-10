@@ -15,17 +15,14 @@
 
 #define NO_MACRO_VARARG    /* variable parameter numbers don't work on windows */
 
-/* \todo better use types from stdint.h */
-typedef char                 CHAR;
+typedef signed char          int8_t;
+typedef short                int16_t;
+typedef int                  int32_t;
 
-typedef signed char          INT8;
-typedef short                INT16;
-typedef int                  INT32;
-
-typedef unsigned char        UINT8;
-typedef unsigned short       UINT16;
-typedef unsigned int         UINT32;
-typedef unsigned long long   UINT64;
+typedef unsigned char        uint8_t;
+typedef unsigned short       uint16_t;
+typedef unsigned int         uint32_t;
+typedef unsigned long long   uint64_t;
 
 #ifndef PRIx64
 #define PRIx64    "llx"

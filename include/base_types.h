@@ -9,6 +9,7 @@
 #ifndef BASE_TYPES_H_INCLUDED
 #define BASE_TYPES_H_INCLUDED
 
+#include <stdint.h>
 #include "error_types.h"
 #include "char_table.h"
 
@@ -27,18 +28,6 @@
    #else
       #error "Don't know where int8_t is defined"
    #endif
-
-   /* \todo better use types from stdint.h */
-   typedef char       CHAR;
-
-   typedef int8_t     INT8;
-   typedef int16_t    INT16;
-   typedef int32_t    INT32;
-
-   typedef uint8_t    UINT8;
-   typedef uint16_t   UINT16;
-   typedef uint32_t   UINT32;
-   typedef uint64_t   UINT64;
 #endif   /* ifdef WIN32 */
 
 

@@ -54,8 +54,8 @@ enum class brace_stage_e : unsigned int
 {
    NONE,
    PAREN1,     /**< if/for/switch/while/synchronized */
-   OP_PAREN1,  /**< optional paren: catch () { */
-   WOD_PAREN,  /**< while of do parens */
+   OP_PAREN1,  /**< optional parenthesis: catch () { */
+   WOD_PAREN,  /**< while of do parenthesis */
    WOD_SEMI,   /**< semicolon after while of do */
    BRACE_DO,   /**< do */
    BRACE2,     /**< if/else/for/switch/while */
@@ -71,9 +71,9 @@ enum class char_encoding_e : unsigned int
 {
    ASCII,      /**< 0-127 */
    BYTE,       /**< 0-255, not UTF-8 */
-   UTF8,       /**< utf 8 bit wide */
-   UTF16_LE,   /**< utf 16 bit wide, little endian */
-   UTF16_BE    /**< utf 16 bit wide, big endian */
+   UTF8,       /**< UTF-8 bit wide */
+   UTF16_LE,   /**< UTF-16 bit wide, little endian */
+   UTF16_BE    /**< UTF-16 bit wide, big endian */
 };
 
 
@@ -145,9 +145,9 @@ struct parse_frame_t
 #define PCF_IN_PREPROC         PCF_BIT(0)   /**< in a preprocessor */
 #define PCF_IN_STRUCT          PCF_BIT(1)   /**< in a struct */
 #define PCF_IN_ENUM            PCF_BIT(2)   /**< in enum */
-#define PCF_IN_FCN_DEF         PCF_BIT(3)   /**< inside function def parens */
-#define PCF_IN_FCN_CALL        PCF_BIT(4)   /**< inside function call parens */
-#define PCF_IN_SPAREN          PCF_BIT(5)   /**< inside for/if/while/switch parens */
+#define PCF_IN_FCN_DEF         PCF_BIT(3)   /**< inside function def parenthesis */
+#define PCF_IN_FCN_CALL        PCF_BIT(4)   /**< inside function call parenthesis */
+#define PCF_IN_SPAREN          PCF_BIT(5)   /**< inside for/if/while/switch parenthesis */
 #define PCF_IN_TEMPLATE        PCF_BIT(6)   /**<  */
 #define PCF_IN_TYPEDEF         PCF_BIT(7)   /**<  */
 #define PCF_IN_CONST_ARGS      PCF_BIT(8)   /**<  */
@@ -277,9 +277,9 @@ struct chunk_t
    c_token_t    ptype;         /**< type of the parent chunk usually CT_NONE */
    size_t       orig_line;     /**< line number of chunk in input file */
    size_t       orig_col;      /**< column where chunk started in input file, is always > 0 */
-   UINT32       orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
-   UINT32       orig_prev_sp;  /**< whitespace before this token */
-   UINT64       flags;         /**< see PCF_xxx */
+   uint32_t       orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
+   uint32_t       orig_prev_sp;  /**< whitespace before this token */
+   uint64_t       flags;         /**< see PCF_xxx */
    size_t       column;        /**< column of chunk */
    size_t       column_indent; /**< if 1st on a line, set to the 'indent'
                                 *   column, which may be less than the real column
@@ -321,16 +321,16 @@ enum class pattern_class_e : unsigned int
    BRACED,   // keyword + braced statement:
              //    do, try, finally, body, unittest, unsafe, volatile
              //    add, get, remove, set
-   PBRACED,  // keyword + parens + braced statement:
+   PBRACED,  // keyword + parenthesis + braced statement:
              //    if, elseif, switch, for, while, synchronized,
              //    using, lock, with, version, CT_D_SCOPE_IF
-   OPBRACED, // keyword + optional parens + braced statement:
+   OPBRACED, // keyword + optional parenthesis + braced statement:
              //    catch, version, debug
    VBRACED,  // keyword + value + braced statement:
              //    namespace
-   PAREN,    // keyword + parens:
+   PAREN,    // keyword + parenthesis:
              //    while-of-do
-   OPPAREN,  // keyword + optional parens: invariant (D lang)
+   OPPAREN,  // keyword + optional parenthesis: invariant (D lang)
    ELSE,     // Special case of pattern_class_e::BRACED for handling CT_IF
              //    else
 };
@@ -348,7 +348,7 @@ struct lookup_entry_t
 {
    char              ch;              /**<  */
    char              left_in_group;   /**<  */
-   UINT16            next_idx;        /**<  */
+   uint16_t            next_idx;        /**<  */
    const chunk_tag_t *tag;            /**<  */
 };
 
@@ -364,7 +364,7 @@ struct align_t
 /** holds information and data of a file */
 struct file_mem_t
 {
-   vector<UINT8>   raw;   /**< raw content of file  */
+   vector<uint8_t>   raw;   /**< raw content of file  */
    deque<int>      data;  /**< processed content of file  */
    bool            bom;   /**<  */
    char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
@@ -391,7 +391,7 @@ enum class unc_stage_e : unsigned int
 
 struct cp_data_t
 {
-   deque<UINT8>    *bout;          /**<  */
+   deque<uint8_t>    *bout;          /**<  */
    FILE            *fout;          /**<  */
    int             last_char;      /**<  */
    bool            do_check;       /**<  */
@@ -399,7 +399,7 @@ struct cp_data_t
    int             check_fail_cnt; /**< total failures */
    bool            if_changed;     /**<  */
 
-   UINT32          error_count;    /**< counts how many errors occurred so far */
+   uint32_t          error_count;    /**< counts how many errors occurred so far */
    const char      *filename;      /**<  */
 
    file_mem_t      file_hdr;       /**< for cmt_insert_file_header */
@@ -413,17 +413,17 @@ struct cp_data_t
 
    bool            unc_off;        /**<  */
    bool            unc_off_used;   /**< to check if "unc_off" is used */
-   UINT32          line_number;    /**<  */
-   UINT32          column;         /**< column for parsing */
-   UINT32          spaces;         /**< space count on output */
+   uint32_t          line_number;    /**<  */
+   uint32_t          column;         /**< column for parsing */
+   uint32_t          spaces;         /**< space count on output */
 
    int             ifdef_over_whole_file;
 
    bool            frag;           /**< activates code fragment option */
-   UINT32          frag_cols;      /**<  */
+   uint32_t          frag_cols;      /**<  */
 
    // stuff to auto-detect line endings
-   UINT32          le_counts[LE_AUTO];  /**<  */
+   uint32_t          le_counts[LE_AUTO];  /**<  */
    unc_text        newline;             /**<  */
 
    bool            consumed;            /**<  */
