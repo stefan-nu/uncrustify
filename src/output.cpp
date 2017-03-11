@@ -1676,7 +1676,7 @@ static void output_comment_multi(chunk_t *pc)
                   }
                   else
                   {
-                     if (cpd.lang_flags & LANG_D) { add_text(cmt.cont_text); } // 0=no lead char present
+                     if (is_lang(cpd, LANG_D)) { add_text(cmt.cont_text); } // 0=no lead char present
                   }
                }
 
@@ -1703,14 +1703,14 @@ static bool kw_fcn_class(chunk_t *cmt, unc_text &out_txt)
 {
    chunk_t *tmp = nullptr;
 
-   if ((cpd.lang_flags & LANG_CPP) &&
-       (cpd.lang_flags & LANG_OC ) )
+   if (is_lang(cpd, LANG_CPP) &&
+       is_lang(cpd, LANG_OC ) )
    {
       chunk_t *fcn = get_next_function(cmt);
 
       tmp = (is_type(fcn, CT_OC_MSG_DECL)) ? get_prev_oc_class(cmt) : get_next_class(cmt);
    }
-   else if (cpd.lang_flags & LANG_OC)
+   else if (is_lang(cpd, LANG_OC))
    {
       tmp = get_prev_oc_class(cmt);
    }
@@ -2219,8 +2219,7 @@ void add_long_preprocessor_conditional_block_comment(void)
 
                if ((nl_min > 0) && (nl_count > nl_min))        /* nl_count is 1 too large at all times as #if line was counted too */
                {                                               /* determine the added comment style */
-                  c_token_t style = (cpd.lang_flags & (LANG_CPP | LANG_CS)) ?
-                                    CT_COMMENT_CPP : CT_COMMENT;
+                  c_token_t style = (is_lang(cpd, LANG_CPPCS)) ? CT_COMMENT_CPP : CT_COMMENT;
 
                   unc_text str;
                   generate_if_conditional_as_text(str, br_open);

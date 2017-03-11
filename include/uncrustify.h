@@ -47,11 +47,11 @@ void log_pcf_flags(
 
 
 /**
- * \brief checks if a file uses a given coding language
+ * \brief checks if a file uses any of a given language set
  */
 bool is_lang(
    cp_data_t &cpd, /**< [in] configuration with language */
-   lang_t    lang  /**< [in] language to check for */
+   lang_t    lang  /**< [in] set of languages to check for */
 );
 
 

@@ -445,7 +445,7 @@ static const char * const pcf_names[] =
 
 bool is_lang(cp_data_t &cpd, lang_t lang)
 {
-   return((cpd.lang_flags & lang) == lang);
+   return((cpd.lang_flags & lang));
 }
 
 
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
    if ((p_arg = arg_list.Param("-l")) != nullptr)
    {
       cpd.lang_flags = language_flags_from_name(p_arg);
-      if (cpd.lang_flags == 0)
+      if (cpd.lang_flags == LANG_NONE)
       {
          LOG_FMT(LWARN, "Ignoring unknown language: %s\n", p_arg);
       }
@@ -936,7 +936,7 @@ int main(int argc, char *argv[])
 
       /* Do some simple language detection based on the filename extension */
       if (!cpd.lang_forced ||
-          (cpd.lang_flags == 0))
+          (cpd.lang_flags == LANG_NONE))
       {
          cpd.lang_flags = language_flags_from_filename(source_file);
       }
@@ -1010,7 +1010,7 @@ int main(int argc, char *argv[])
    if (ptrs_are_valid(source_file, source_list, p_arg))
    {
       /* no input specified, so use stdin */
-      if (cpd.lang_flags == 0)
+      if (cpd.lang_flags == LANG_NONE)
       {
          cpd.lang_flags = (ptr_is_valid(assume)) ?
            language_flags_from_filename(assume) : (lang_t)LANG_C;
@@ -1468,7 +1468,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
    /* Do some simple language detection based on the filename extension */
    if ((cpd.lang_forced == false) ||
-       (cpd.lang_flags  == 0    ) )
+       (cpd.lang_flags  == LANG_NONE) )
    {
       cpd.lang_flags = language_flags_from_filename(filename_in);
    }
@@ -1821,7 +1821,7 @@ static void uncrustify_start(const deque<int> &data)
    brace_cleanup();
 
    /* At this point, the level information is available and accurate. */
-   if (cpd.lang_flags & LANG_PAWN) { pawn_prescan(); }
+   if (is_lang(cpd, LANG_PAWN)) { pawn_prescan(); }
 
    fix_symbols(); /* Re-type chunks, combine chunks */
 
@@ -1962,7 +1962,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       if (cpd.settings[UO_sp_bal_nested_parens].b)  { space_text_balance_nested_parens(); }
 
       /* Scrub certain added semicolons */
-      if ((cpd.lang_flags & LANG_PAWN           ) &&
+      if (is_lang(cpd, LANG_PAWN) &&
           (cpd.settings[UO_mod_pawn_semicolon].b) ) { pawn_scrub_vsemi(); }
 
       /* Sort imports/using/include */

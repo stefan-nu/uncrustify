@@ -1094,7 +1094,7 @@ void indent_text(void)
                     __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos  ].indent_tmp;
          }
-         else if ((cpd.lang_flags & LANG_CS) &&
+         else if (is_lang(cpd, LANG_CS) &&
                    cpd.settings[UO_indent_cs_delegate_brace].b &&
                    is_ptype(pc, CT_LAMBDA, CT_DELEGATE))
          {
@@ -1524,8 +1524,7 @@ void indent_text(void)
          }
          frm.pse[frm.pse_tos].indent = pc->column + pc->len();
 
-         if (is_type(pc, CT_SQUARE_OPEN) &&
-             (cpd.lang_flags & LANG_D   ) )
+         if (is_type(pc, CT_SQUARE_OPEN) && is_lang(cpd, LANG_D))
          {
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }

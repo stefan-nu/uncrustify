@@ -217,7 +217,7 @@ void tokenize_cleanup(void)
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
-         if (cpd.lang_flags & (LANG_CPP | LANG_CS | LANG_JAVA | LANG_VALA | LANG_OC))
+         if (is_lang(cpd, LANG_CPPCSJOV))
          {
             check_template(pc);
          }
@@ -251,7 +251,7 @@ void tokenize_cleanup(void)
       assert(is_valid(next));
 
       static chunk_t *prev = nullptr;
-      if (cpd.lang_flags & LANG_D)
+      if (is_lang(cpd, LANG_D))
       {
          /* Check for the D string concat symbol '~' */
          if (  is_type(pc,   CT_INV            )   &&
@@ -289,7 +289,7 @@ void tokenize_cleanup(void)
          }
       }
 
-      if (cpd.lang_flags & LANG_CPP)
+      if (is_lang(cpd, LANG_CPP))
       {
          /* Change Word before '::' into a type */
          if (are_types(pc, CT_WORD, next, CT_DC_MEMBER))
@@ -514,7 +514,7 @@ void tokenize_cleanup(void)
 
       /* ObjectiveC allows keywords to be used as identifiers in some situations
        * This is a dirty hack to allow some of the more common situations. */
-      if (cpd.lang_flags & LANG_OC)
+      if (is_lang(cpd, LANG_OC))
       {
          if( is_type(pc,   CT_IF, CT_FOR, CT_WHILE) &&
             !is_type(next, CT_PAREN_OPEN          ) )
@@ -687,7 +687,7 @@ void tokenize_cleanup(void)
       }
 
       /* Check for C# nullable types '?' is in next */
-      if ((cpd.lang_flags & LANG_CS ) &&
+      if (is_lang(cpd, LANG_CS ) &&
            is_type(next, CT_QUESTION) &&
           (next->orig_col == (pc->orig_col + pc->len())))
       {
@@ -718,7 +718,7 @@ void tokenize_cleanup(void)
       }
 
       /* Change 'default(' into a sizeof-like statement */
-      if ((cpd.lang_flags & LANG_CS  ) &&
+      if (is_lang(cpd, LANG_CS  ) &&
           are_types(pc, CT_DEFAULT, next, CT_PAREN_OPEN))
       {
          set_type(pc, CT_SIZEOF);
@@ -731,13 +731,13 @@ void tokenize_cleanup(void)
       }
 
 #if 1
-      if ((is_type(pc, CT_USING                               ) ||
-          (is_type(pc, CT_TRY) && (cpd.lang_flags & LANG_JAVA)) ) &&
-           is_type(next, CT_PAREN_OPEN)                           )
+      if ((is_type(pc, CT_USING                           ) ||
+          (is_type(pc, CT_TRY) && is_lang(cpd, LANG_JAVA))) &&
+           is_type(next, CT_PAREN_OPEN)                   )
 #else
       // makes test 12101 fail
       if (is_type(pc, CT_USING, CT_TRY) &&
-           (cpd.lang_flags & LANG_JAVA) &&
+            is_lang(cpd, LANG_JAVA) &&
            is_type(next, CT_PAREN_OPEN) )
 #endif
       {
@@ -766,7 +766,7 @@ void tokenize_cleanup(void)
 
       /* If Java's 'synchronized' is in a method declaration, it should be
        * a qualifier. */
-      if ((cpd.lang_flags & LANG_JAVA   ) &&
+      if (is_lang(cpd, LANG_JAVA   ) &&
           is_type (pc,   CT_SYNCHRONIZED) &&
           not_type(next, CT_PAREN_OPEN  ) )
       {

@@ -487,7 +487,7 @@ string uncrustify(string file, bool frag)
    // to know if errors occurred during the formating step we reset this var here
    cpd.error_count = 0;
 
-   if (cpd.lang_flags == 0)   // 0 == undefined
+   if (cpd.lang_flags == LANG_NONE)
    {
       LOG_FMT(LWARN, "language of input file not defined, C++ will be assumed\n");
       cpd.lang_flags = LANG_CPP;

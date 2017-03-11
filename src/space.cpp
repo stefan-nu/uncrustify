@@ -1010,8 +1010,8 @@ void space_text(void)
 
                      /* C++11 allows '>>' to mean '> >' in templates:
                       *   some_func<vector<string>>();*/
-                     if ((((cpd.lang_flags & LANG_CPP ) && cpd.settings[UO_sp_permit_cpp11_shift].b) ||
-                          ((cpd.lang_flags & LANG_JAVA) || (cpd.lang_flags & LANG_CS))) &&
+                     if (((is_lang(cpd, LANG_CPP ) && cpd.settings[UO_sp_permit_cpp11_shift].b) ||
+                          (is_lang(cpd, LANG_JAVA) || is_lang(cpd, LANG_CS))) &&
                           are_types(pc, next, CT_ANGLE_CLOSE) )
                      {
                         /* allow '>' and '>' to become '>>' */

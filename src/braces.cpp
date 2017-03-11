@@ -891,7 +891,7 @@ void add_long_closebrace_comment(void)
                    is_valid(tag_pc) )
                {
                   /* determine the added comment style */
-                  const c_token_t style = (cpd.lang_flags & (LANG_CPP | LANG_CS)) ?
+                  const c_token_t style = (is_lang(cpd, LANG_CPPCS)) ?
                                     CT_COMMENT_CPP : CT_COMMENT;
 
                   /* Add a comment after the close brace */

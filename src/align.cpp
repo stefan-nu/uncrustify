@@ -608,7 +608,7 @@ void align_struct_initializers(void)
       chunk_t *prev = chunk_get_prev_ncnl(pc);
       if ( is_type(prev, CT_ASSIGN     ) &&
           (is_type(pc,   CT_BRACE_OPEN ) ||
-          (is_type(pc,   CT_SQUARE_OPEN) && (cpd.lang_flags & LANG_D) )))
+          (is_type(pc,   CT_SQUARE_OPEN) && is_lang(cpd, LANG_D) )))
       {
          align_init_brace(pc);
       }

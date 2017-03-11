@@ -442,7 +442,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          cpd.consumed = true;
          close_statement(frm, pc);
       }
-      else if (cpd.lang_flags & LANG_PAWN)
+      else if (is_lang(cpd, LANG_PAWN))
       {
          if (is_type(pc, CT_BRACE_CLOSE))
          {
@@ -522,7 +522,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
          /* If consumed, then we are on the close sparen.
           * PAWN: Check the next chunk for a semicolon. If it isn't, then
           * add a virtual semicolon, which will get handled on the next pass. */
-         if (cpd.lang_flags & LANG_PAWN)
+         if (is_lang(cpd, LANG_PAWN))
          {
             tmp = get_next_ncnl(pc);
             assert(is_valid(tmp));
@@ -573,7 +573,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
             }
             /* NS_ENUM and NS_OPTIONS are followed by a (type, name) pair */
             else if ((is_type(prev, CT_ENUM)) &&
-                     (cpd.lang_flags & LANG_OC) )
+                     is_lang(cpd, LANG_OC) )
             {
                /* Treat both as CT_ENUM since the syntax is identical */
                set_type(pc, CT_FPAREN_OPEN);
@@ -598,7 +598,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
             }
             /*  Carry through CT_ENUM parent in NS_ENUM (type, name) { */
             else if (is_type_and_ptype(prev, CT_FPAREN_CLOSE, CT_ENUM) &&
-                     (cpd.lang_flags & LANG_OC) )
+                     is_lang(cpd, LANG_OC))
             {
                parent = CT_ENUM;
             }
@@ -823,8 +823,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
-      if ((cpd.lang_flags & LANG_CS) &&
-           is_type(pc, CT_USING_STMT) &&
+      if (is_lang(cpd, LANG_CS) && is_type(pc, CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {
          // don't indent the using block

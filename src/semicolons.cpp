@@ -77,8 +77,8 @@ void remove_extra_semicolons(void)
             check_unknown_brace_close(pc, prev);
          }
          else if (                   is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR         ) ||
-                 ((cpd.lang_flags & LANG_D   ) && is_ptype(prev, CT_ENUM, CT_UNION, CT_STRUCT)) ||
-                 ((cpd.lang_flags & LANG_JAVA) && is_ptype(prev, CT_SYNCHRONIZED             )) ||
+                 (is_lang(cpd, LANG_D   ) && is_ptype(prev, CT_ENUM, CT_UNION, CT_STRUCT)) ||
+                 (is_lang(cpd, LANG_JAVA) && is_ptype(prev, CT_SYNCHRONIZED             )) ||
                  (                                is_type (prev, CT_BRACE_OPEN               )) )
          {
             remove_semicolon(pc);

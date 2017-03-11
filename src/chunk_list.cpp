@@ -957,8 +957,7 @@ static chunk_t* get_ncnlnp(chunk_t* cur, const scope_e scope, const dir_e dir)
 
 bool is_forin(chunk_t* pc)
 {
-   if ((cpd.lang_flags & LANG_OC   ) &&
-       (is_type(pc, CT_SPAREN_OPEN)) )
+   if (is_lang(cpd, LANG_OC) && (is_type(pc, CT_SPAREN_OPEN)) )
    {
       chunk_t *prev = chunk_get_prev_ncnl(pc);
       if(is_type(prev, CT_FOR))
@@ -1471,7 +1470,7 @@ bool is_addr(chunk_t *pc)
 // ms compilers for C++/CLI and WinRT use '^' instead of '*' for marking up reference types vs pointer types
 bool is_msref(chunk_t *pc)
 {
-   return((cpd.lang_flags & LANG_CPP    ) &&
+   return(is_lang(cpd, LANG_CPP) &&
           (is_valid(pc)) &&
           (pc->len() == 1) &&
           (pc->str[0] == '^'            ) &&
