@@ -282,22 +282,67 @@ struct chunk_t
 /** list of all programming languages known to uncrustify */
 typedef enum lang_e
 {
-   LANG_C    = 0x0001,     /**< plain C */
-   LANG_CPP  = 0x0002,     /**< C++ */
-   LANG_D    = 0x0004,     /**< D */
-   LANG_CS   = 0x0008,     /**< C# or C-sharp */
-   LANG_JAVA = 0x0010,     /**< Java */
-   LANG_OC   = 0x0020,     /**< Objective C */
-   LANG_OCPP = LANG_OC | LANG_CPP, /**< Objective C++ */
-   LANG_VALA = 0x0040,     /**< Vala, like C# */
-   LANG_PAWN = 0x0080,     /**< Pawn ? */
-   LANG_ECMA = 0x0100,     /**< Ecma ? */
-   LANG_ALLC = (LANG_C    | LANG_CPP | LANG_D    | LANG_CS  |
-                LANG_JAVA | LANG_OC  | LANG_VALA | LANG_ECMA),
-   LANG_ALL  = 0x0fff,     /**< applies to all languages */
+   LANG_NONE  = 0x0000,     /**< no language */
+   LANG_C     = 0x0001,     /**< plain C */
+   LANG_CPP   = 0x0002,     /**< C++ */
+   LANG_D     = 0x0004,     /**< D */
+   LANG_CS    = 0x0008,     /**< C# or C-sharp */
+   LANG_JAVA  = 0x0010,     /**< Java */
+   LANG_OC    = 0x0020,     /**< Objective C */
+   LANG_VALA  = 0x0040,     /**< Vala, like C# */
+   LANG_PAWN  = 0x0080,     /**< Pawn a compubase language */
+   LANG_ECMA  = 0x0100,     /**< ECMA script based on Java script */
+   LANG_ALL   = 0x0fff,     /**< applies to all languages */
+   FLAG_DIG   = 0x4000,     /**< digraph/trigraph */
+   FLAG_PP    = 0x8000,     /**< only appears in a preprocessor */
 
-   FLAG_DIG  = 0x4000,     /*<< digraph/trigraph */
-   FLAG_PP   = 0x8000,     /*<< only appears in a preprocessor */
+   /* various language combinations are defined to avoid compiler errors due to int/enum conversions */
+   LANG_CCPPDCSJVE= LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
+   LANG_CCPPDCSV  = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |                         LANG_VALA,
+   LANG_CCPPDCSVE = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |                         LANG_VALA | LANG_ECMA,
+   LANG_CCPPD     = LANG_C   | LANG_CPP  | LANG_D,
+   LANG_CCPPDJP   = LANG_C   | LANG_CPP  | LANG_D    |            LANG_JAVA |                                    LANG_PAWN,
+   LANG_CCPPDE    = LANG_C   | LANG_CPP  | LANG_D    |                                                LANG_ECMA,
+   LANG_CCPPCS    = LANG_C   | LANG_CPP  |             LANG_CS,
+   LANG_CCPPCSJE  = LANG_C   | LANG_CPP  |             LANG_CS  | LANG_JAVA |                         LANG_ECMA,
+   LANG_CCPPCSVP  = LANG_C   | LANG_CPP  |             LANG_CS                          | LANG_VALA |            LANG_PAWN,
+   LANG_CCPPDIG   = LANG_C   | LANG_CPP  |                                                                                   FLAG_DIG,
+   LANG_CCPP      = LANG_C   | LANG_CPP,
+   LANG_CCPPF     = LANG_C   | LANG_CPP  |                                                                                   FLAG_PP,
+   LANG_CCPPO     = LANG_C   | LANG_CPP  |                                     LANG_OC,
+   LAGN_CCPPDO    = LANG_C   | LANG_CPP  | LANG_D    |                         LANG_OC,
+   LANG_ALLC      = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA | LANG_OC   | LANG_VALA | LANG_ECMA,
+   LANG_ALLCPP    = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA | LANG_OC   | LANG_VALA | LANG_ECMA|             FLAG_PP,
+   LANG_CCPPDCSOV = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |             LANG_OC   | LANG_VALA,
+   LANG_CCPPPP    = LANG_C   | LANG_CPP  |                                                                       LANG_PAWN | FLAG_PP,
+   LANG_CPPDCSJVE =            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA, // xxx
+   LANG_CPPD      =            LANG_CPP  | LANG_D,
+   LANG_CPPDE     =            LANG_CPP  | LANG_D    |                                                LANG_ECMA,
+   LANG_CPPDVE    =            LANG_CPP  | LANG_D    |                                    LANG_VALA | LANG_ECMA,
+   LANG_CPPDCSJV  =            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA,
+   LANG_CPPDCSJVEP=            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA| LANG_PAWN,
+   LANG_CPPCSV    =            LANG_CPP  |             LANG_CS  |                         LANG_VALA,
+   LANG_CPPDIG    =            LANG_CPP                                                                        |             FLAG_DIG,
+   LANG_CPPCSP    =            LANG_CPP  |             LANG_CS                                      |            LANG_PAWN,
+   LANG_DE        =                        LANG_D    |                                                LANG_ECMA,
+   LANG_DCSJV     =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA,
+   LANG_DCSJVE    =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
+   LANG_DCSJVEX   =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
+   LANG_DCSOVE    =                        LANG_D    | LANG_CS  |              LANG_OC  | LANG_VALA | LANG_ECMA,
+   LANG_DCSV      =                        LANG_D    | LANG_CS  |                         LANG_VALA,
+   LANG_DP        =                        LANG_D    |                                                           LANG_PAWN,
+   LANG_DJE       =                        LANG_D    |            LANG_JAVA |                         LANG_ECMA,
+   LANG_DJP       =                        LANG_D    |            LANG_JAVA |                                    LANG_PAWN,
+   LANG_CSDJE     =                        LANG_D    | LANG_CS  | LANG_JAVA |                         LANG_ECMA,
+   LANG_CSV       =                                    LANG_CS  |                         LANG_VALA,
+   LANG_CSPP      =                                    LANG_CS  |                                                            FLAG_PP,
+   LANG_JE        =                                               LANG_JAVA |                         LANG_ECMA,
+   LANG_JVE       =                                               LANG_JAVA |             LANG_VALA | LANG_ECMA,
+   LANG_VE        =                                                                       LANG_VALA | LANG_ECMA,
+   LANG_OCPP      =                                                            LANG_OC  |                                    FLAG_PP,
+   LANG_PPP       =                                                                                              LANG_PAWN | FLAG_PP,
+   LANG_ALLPP     = LANG_ALL |                                                                                               FLAG_PP,
+   LANG_ALLNJE    = LANG_ALL & ~(LANG_JAVA | LANG_ECMA),
 }lang_t;
 
 
@@ -327,7 +372,7 @@ struct chunk_tag_t
 {
    const char *tag;         /**<  */
    c_token_t  type;         /**<  */
-   size_t     lang_flags;   /**<  */
+   lang_t     lang_flags;   /**<  */
 };
 
 
@@ -351,7 +396,7 @@ struct align_t
 /** holds information and data of a file */
 struct file_mem_t
 {
-   vector<uint8_t>   raw;   /**< raw content of file  */
+   vector<uint8_t> raw;   /**< raw content of file  */
    deque<int>      data;  /**< processed content of file  */
    bool            bom;   /**<  */
    char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
@@ -395,7 +440,7 @@ struct cp_data_t
    file_mem_t      oc_msg_hdr;     /**< for cmt_insert_oc_msg_header */
    file_mem_t      class_hdr;      /**< for cmt_insert_class_header */
 
-   size_t          lang_flags;     /**< defines the language of the source input LANG_xxx */
+   lang_t          lang_flags;     /**< defines the language of the source input LANG_xxx */
    bool            lang_forced;    /**<  */
 
    bool            unc_off;        /**<  */
@@ -435,11 +480,11 @@ struct cp_data_t
    bool            warned_unable_string_replace_tab_chars;    /**<  */
 
    // Here are all the settings
-   op_val_t        settings[UO_option_count];   /**<  */
+   op_val_t        settings[UO_option_count]; /**<  */
 
-   parse_frame_t   frames[16];                  /**<  */
-   int             frame_count;                 /**<  */
-   size_t          pp_level;                    /**< \todo can this ever be -1 */
+   parse_frame_t   frames[16];                /**<  */
+   int             frame_count;               /**<  */
+   size_t          pp_level;                  /**< \todo can this ever be -1 */
 
    // the default values for settings
    op_val_t        defaults[UO_option_count];   /**<  */

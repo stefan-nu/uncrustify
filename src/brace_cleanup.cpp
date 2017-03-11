@@ -238,7 +238,7 @@ void brace_cleanup(void)
       }
 
       /* Do before assigning stuff from the frame */
-      if (cpd.lang_flags & LANG_PAWN)
+      if (is_lang(cpd, LANG_PAWN))
       {
          if ((frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN) &&
               is_type(pc,  CT_NEWLINE) )
@@ -823,7 +823,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t *pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
-      if ((cpd.lang_flags & LANG_CS       ) &&
+      if ((cpd.lang_flags & LANG_CS) &&
            is_type(pc, CT_USING_STMT) &&
           (!cpd.settings[UO_indent_using_block].b))
       {

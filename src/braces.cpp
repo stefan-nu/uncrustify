@@ -514,8 +514,7 @@ static void examine_brace(chunk_t *bopen)
 
       assert(is_valid(next));
       LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
-      if ( (if_count    > 0        )                  &&
-           is_type(next, CT_ELSE, CT_ELSEIF) )
+      if ((if_count > 0 ) && is_type(next, CT_ELSE, CT_ELSEIF))
       {
          LOG_FMT(LBRDEL, " bailed on because 'else' is next and %zu ifs\n", if_count);
          return;

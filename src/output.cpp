@@ -20,9 +20,9 @@
 
 
 /** tbd */
-struct cmt_reflow
+struct cmt_reflow_t
 {
-   chunk_t  *pc;         /**<   */
+   chunk_t  *pc;         /**< tbd  */
    size_t   column;      /**< Column of the comment start */
    size_t   brace_col;   /**< Brace column (for indenting with tabs) */
    size_t   base_col;    /**< Base column (for indenting with tabs) */
@@ -286,7 +286,7 @@ static size_t cmt_parse_lead(
  * @return          cmt.xtra_indent is set to 0 or 1
  */
 static void calculate_comment_body_indent(
-   cmt_reflow     &cmt, /**< [in]  */
+   cmt_reflow_t   &cmt, /**< [in]  */
    const unc_text &str  /**< [in]  */
 );
 
@@ -345,7 +345,7 @@ static void cmt_trim_whitespace(
  */
 static void add_comment_text(
    const unc_text &text,     /**< [in]  */
-   cmt_reflow     &cmt,      /**< [in]  */
+   cmt_reflow_t   &cmt,      /**< [in]  */
    bool           esc_close  /**< [in]  */
 );
 
@@ -354,8 +354,8 @@ static void add_comment_text(
  * tbd
  */
 static void output_cmt_start(
-   cmt_reflow &cmt, /**< [in]  */
-   chunk_t    *pc   /**< [in]  */
+   cmt_reflow_t &cmt, /**< [in]  */
+   chunk_t      *pc   /**< [in]  */
 );
 
 
@@ -368,8 +368,8 @@ static void output_cmt_start(
  *  3. They are indented to the same level
  */
 static bool can_combine_comment(
-   chunk_t          *pc,   /**< [in] chunk with first comment */
-   const cmt_reflow &cmt   /**< [in]  */
+   chunk_t            *pc,   /**< [in] chunk with first comment */
+   const cmt_reflow_t &cmt   /**< [in]  */
 );
 
 
@@ -864,7 +864,7 @@ bool is_space_or_tab(const int character)
 }
 
 
-static void calculate_comment_body_indent(cmt_reflow &cmt, const unc_text &str)
+static void calculate_comment_body_indent(cmt_reflow_t &cmt, const unc_text &str)
 {
    return_if(!cpd.settings[UO_cmt_indent_multi].b);
 
@@ -982,7 +982,7 @@ static int next_up(const unc_text &text, size_t idx, const unc_text &tag)
 }
 
 
-static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_close)
+static void add_comment_text(const unc_text &text, cmt_reflow_t &cmt, bool esc_close)
 {
    bool   was_star  = false;
    bool   was_slash = false;
@@ -1069,7 +1069,7 @@ static void add_comment_text(const unc_text &text, cmt_reflow &cmt, bool esc_clo
 } /*lint !e850 */
 
 
-static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
+static void output_cmt_start(cmt_reflow_t &cmt, chunk_t *pc)
 {
    cmt.pc          = pc;
    cmt.column      = pc->column;
@@ -1113,7 +1113,7 @@ static void output_cmt_start(cmt_reflow &cmt, chunk_t *pc)
 }
 
 
-static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
+static bool can_combine_comment(chunk_t *pc, const cmt_reflow_t &cmt)
 {
    /* We can't combine if ... */
    if ((is_invalid(pc)               ) || /* chunk is invalid or */
@@ -1145,13 +1145,13 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow &cmt)
  * tbd
  */
 void combine_comment(
-   unc_text &tmp,   /**< [in]  */
-   chunk_t *pc,     /**< [in]  */
-   cmt_reflow &cmt  /**< [in]  */
+   unc_text &tmp,     /**< [in]  */
+   chunk_t *pc,       /**< [in]  */
+   cmt_reflow_t &cmt  /**< [in]  */
 );
 
 /* \todo is this fct name correct? */
-void combine_comment(unc_text &tmp, chunk_t *pc, cmt_reflow &cmt)
+void combine_comment(unc_text &tmp, chunk_t *pc, cmt_reflow_t &cmt)
 {
    tmp.set(pc->str, 2, pc->len() - 4);
    if ((cpd.last_char == '*'  ) &&
@@ -1167,7 +1167,7 @@ static chunk_t *output_comment_c(chunk_t *first)
 {
    retval_if(is_invalid(first), first);
 
-   cmt_reflow cmt;
+   cmt_reflow_t cmt;
    output_cmt_start(cmt, first);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
@@ -1225,7 +1225,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
 {
    retval_if(is_invalid(first), first);
 
-   cmt_reflow cmt;
+   cmt_reflow_t cmt;
    output_cmt_start(cmt, first);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
@@ -1430,7 +1430,7 @@ static void output_comment_multi(chunk_t *pc)
 {
    // \todo DRY 5 with output_comment_multi_simple
 
-   cmt_reflow cmt;
+   cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
@@ -1676,7 +1676,6 @@ static void output_comment_multi(chunk_t *pc)
                   }
                   else
                   {
-                     // bug #653
                      if (cpd.lang_flags & LANG_D) { add_text(cmt.cont_text); } // 0=no lead char present
                   }
                }
@@ -1997,7 +1996,7 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
 
    // DRY 5 start with output_comment_multi
 
-   cmt_reflow cmt;
+   cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
 
    int col_diff = (is_nl(chunk_get_prev(pc))) ?

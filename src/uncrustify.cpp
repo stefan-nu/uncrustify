@@ -135,7 +135,7 @@ const struct lang_ext_t language_exts[] =
 /**
  * tbd
  */
-static size_t language_flags_from_name(
+static lang_t language_flags_from_name(
    const char *tag /**< [in]  */
 );
 
@@ -158,7 +158,7 @@ static bool load_header_file(
  *
  * @return  LANG_xxx
  */
-static size_t language_flags_from_filename(
+static lang_t language_flags_from_filename(
    const char *filenme  /**< [in] The name of the file */
 );
 
@@ -441,6 +441,12 @@ static const char * const pcf_names[] =
    "IN_QT_MACRO",       // 40
 };
 #endif
+
+
+bool is_lang(cp_data_t &cpd, lang_t lang)
+{
+   return((cpd.lang_flags & lang) == lang);
+}
 
 
 const char *path_basename(const char *path)
@@ -1007,7 +1013,7 @@ int main(int argc, char *argv[])
       if (cpd.lang_flags == 0)
       {
          cpd.lang_flags = (ptr_is_valid(assume)) ?
-           language_flags_from_filename(assume) : (size_t)LANG_C;
+           language_flags_from_filename(assume) : (lang_t)LANG_C;
       }
 
       if (!cpd.do_check) { redir_stdout(output_file); }
@@ -2121,7 +2127,7 @@ static bool ends_with(const char *filename, const char *tag, bool case_sensitive
 }
 
 
-static size_t language_flags_from_name(const char *name)
+static lang_t language_flags_from_name(const char *name)
 {
    for (const auto &language : language_names)
    {
@@ -2130,7 +2136,7 @@ static size_t language_flags_from_name(const char *name)
          return(language.lang);
       }
    }
-   return(0);
+   return(LANG_NONE);
 }
 
 
@@ -2215,7 +2221,7 @@ void print_extensions(FILE *pfile)
 }
 
 /* \todo better use enum lang_t for source file language */
-static size_t language_flags_from_filename(const char *filename)
+static lang_t language_flags_from_filename(const char *filename)
 {
    /* check custom extensions first */
    for (const auto &extension_val : g_ext_map)

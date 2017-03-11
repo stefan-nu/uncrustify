@@ -47,6 +47,15 @@ void log_pcf_flags(
 
 
 /**
+ * \brief checks if a file uses a given coding language
+ */
+bool is_lang(
+   cp_data_t &cpd, /**< [in] configuration with language */
+   lang_t    lang  /**< [in] language to check for */
+);
+
+
+/**
  * Replace the brain-dead and non-portable basename().
  * Returns a pointer to the character after the last '/'.
  * The returned value always points into path, unless path is nullptr.
