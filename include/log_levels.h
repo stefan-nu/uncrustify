@@ -72,11 +72,11 @@ enum log_sev_t
    LPARADD2  = 56, /* adding parens in if/while - details */
    LBLANKD   = 57, /* blank line details */
    LTEMPFUNC = 58, /* Template function detection */
-   LSCANSEMI = 59, /* scan semi colon removal */
+   LSCANSEMI = 59, /* scan semicolon removal */
    LDELSEMI  = 60, /* Removing semicolons */
    LFPARAM   = 61, /* Testing for a full parameter */
    LNL1LINE  = 62, /* NL check for 1 liners */
-   LPFCHK    = 63, /* Parse Frame check fcn call */
+   LPFCHK    = 63, /* Parse Frame check function call */
    LAVDB     = 64, /* align var def braces */
    LSORT     = 65, /* Sorting */
    LSPACE    = 66, /* Space */

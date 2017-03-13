@@ -92,7 +92,7 @@ struct paren_stack_entry_t
 {
    c_token_t     type;         /**< the type that opened the entry */
    size_t        level;        /**< Level of opening type */
-   size_t        open_line;    /**< line that open symbol is on */
+   size_t        open_line;    /**< line that opening symbol is on */
    chunk_t       *pc;          /**< Chunk that opened the level */
    int           brace_indent; /**< indent for braces - may not relate to indent */
    size_t        indent;       /**< indent level (depends on use) */
@@ -105,7 +105,7 @@ struct paren_stack_entry_t
    bool          in_preproc;   /**< whether this was created in a preprocessor */
    size_t        ns_cnt;       /**<  */
    bool          non_vardef;   /**< Hit a non-vardef line */
-   indent_ptr_t  ip;
+   indent_ptr_t  ip;           /**<  */
 };
 
 
@@ -216,7 +216,6 @@ struct chunk_t
       reset();
    }
 
-
    /** sets all elements of the struct to their default value */
    void reset()
    {
@@ -225,7 +224,7 @@ struct chunk_t
       next          = 0;
       prev          = 0;
       type          = CT_NONE;
-      ptype   = CT_NONE;
+      ptype         = CT_NONE;
       orig_line     = 0;
       orig_col      = 0;
       orig_col_end  = 0;
@@ -443,7 +442,7 @@ struct cp_data_t
    file_mem_t      class_hdr;      /**< for cmt_insert_class_header */
 
    lang_t          lang_flags;     /**< defines the language of the source input LANG_xxx */
-   bool            lang_forced;    /**<  */
+   bool            lang_forced;    /**< overwrites automatic language detection */
 
    bool            unc_off;        /**<  */
    bool            unc_off_used;   /**< to check if "unc_off" is used */

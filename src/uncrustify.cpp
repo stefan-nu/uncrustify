@@ -855,10 +855,10 @@ int main(int argc, char *argv[])
       {
          usage_exit("Unable to load the config file", argv[0], EX_IOERR);
       }
-      // test if all options are compatible to each other
+      /* test if all options are compatible to each other */
       if (cpd.settings[UO_nl_max].u > 0)
       {
-         // test if one/some option(s) is/are not too big for that
+         /* test if one/some option(s) is/are not too big for that */
          if (cpd.settings[UO_nl_func_var_def_blk].u >= cpd.settings[UO_nl_max].u)
          {
             fprintf(stderr, "The option 'nl_func_var_def_blk' is too big against the option 'nl_max'\n");
@@ -881,14 +881,14 @@ int main(int argc, char *argv[])
       char buffer[MAXLENGTHFORARG];
       strcpy(buffer, p_arg);
 
-      // Tokenize and extract key and value
+      /* Tokenize and extract key and value */
       const char *token  = strtok(buffer, "=");
       const char * const option = token;
 
       token = strtok(nullptr, "=");
       const char * const value = token;
 
-      if (ptrs_are_valid(option, value)    &&
+      if (ptrs_are_valid(option, value) &&
           (strtok(nullptr, "=") == nullptr) )
       {
          if (set_option_value(option, value) == -1)
@@ -935,8 +935,7 @@ int main(int argc, char *argv[])
       }
 
       /* Do some simple language detection based on the filename extension */
-      if (!cpd.lang_forced ||
-          (cpd.lang_flags == LANG_NONE))
+      if (!cpd.lang_forced || (cpd.lang_flags == LANG_NONE))
       {
          cpd.lang_flags = language_flags_from_filename(source_file);
       }
@@ -1611,13 +1610,11 @@ static void add_file_footer(void)
    chunk_t *pc = chunk_get_tail();
 
    /* Back up if the file ends with a newline */
-   if (/*(pc != nullptr      ) && */
-        is_nl(pc) )
+   if (is_nl(pc))
    {
       pc = chunk_get_prev(pc);
    }
-   if (((!is_cmt(pc)                ) ||
-        (!is_nl(chunk_get_prev(pc))) ) )
+   if ((!is_cmt(pc) || !is_nl(chunk_get_prev(pc))))
    {
       pc = chunk_get_tail();
       if (!is_nl(pc))
@@ -1691,8 +1688,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          /* Bail if we change level or find an access specifier colon */
-         if ((ref->level != pc->level     ) ||
-             is_type(ref, CT_PRIVATE_COLON) )
+         if((ref->level != pc->level) || is_type(ref, CT_PRIVATE_COLON))
          {
             do_insert = true;
             break;
@@ -1712,18 +1708,16 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
-               break_if((is_cmt(tmp)                           ) &&
+               break_if(is_cmt(tmp) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
 
          /* Ignore 'right' comments */
-         break_if((is_cmt(ref)           ) &&
-             (is_nl(chunk_get_prev(ref))) );
+         break_if(is_cmt(ref) && is_nl(chunk_get_prev(ref)));
 
-         if ( (ref->level == pc->level     )   &&
-             (is_preproc(ref) ||
-              is_type(ref, CT_SEMICOLON, CT_BRACE_CLOSE) ) )
+         if (is_level(ref, pc->level) &&
+             (is_preproc(ref) || is_type(ref, CT_SEMICOLON, CT_BRACE_CLOSE)))
          {
             do_insert = true;
             break;
@@ -1752,7 +1746,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          /* ignore the CT_TYPE token that is the result type */
-         continue_if((ref->level != pc->level  )   &&
+         continue_if((ref->level != pc->level)  &&
              is_type(ref, CT_TYPE, CT_PTR_TYPE) );
 
          /* If we hit a parentheses around return type, back up to the open parentheses */
@@ -1769,19 +1763,18 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
-               break_if((is_cmt(tmp)                           ) &&
+               break_if(is_cmt(tmp) &&
                    (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
             }
          }
          if (is_level(ref, pc->level) &&
-            (is_preproc(ref) || is_type(ref, CT_OC_SCOPE)) )
+            (is_preproc(ref) || is_type(ref, CT_OC_SCOPE)))
          {
             ref = chunk_get_prev(ref);
             if (is_valid(ref))
             {
                /* Ignore 'right' comments */
-               break_if ((is_nl(ref)          ) &&
-                   (is_cmt(chunk_get_prev(ref))) );
+               break_if(is_nl(ref) && is_cmt(chunk_get_prev(ref)));
                do_insert = true;
             }
             break;
@@ -1810,24 +1803,14 @@ static void uncrustify_start(const deque<int> &data)
    if (cpd.file_hdr.data.size() > 0) { add_file_header(); } /* Add the file header */
    if (cpd.file_ftr.data.size() > 0) { add_file_footer(); } /* Add the file footer */
 
-   /* Change certain token types based on simple sequence.
-    * Example: change '[' + ']' to '[]'
-    * Note that level info is not yet available, so it is OK to do all
-    * processing that doesn't need to know level info. (that's very little!) */
    tokenize_cleanup();
-
-   /* Detect the brace and paren levels and insert virtual braces.
-    * This handles all that nasty preprocessor stuff */
    brace_cleanup();
 
    /* At this point, the level information is available and accurate. */
    if (is_lang(cpd, LANG_PAWN)) { pawn_prescan(); }
 
-   fix_symbols(); /* Re-type chunks, combine chunks */
-
+   fix_symbols();
    mark_comments();
-
-   /* Look at all colons ':' and mark labels, :? sequences, etc. */
    combine_labels();
 }
 
@@ -1886,147 +1869,138 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
    /* Done with detection. Do the rest only if the file will go somewhere.
     * The detection code needs as few changes as possible. */
+
+   /* Add comments before function defs and classes */
+   if (cpd.func_hdr.data.empty() == false)
    {
-      /* Add comments before function defs and classes */
-      if (cpd.func_hdr.data.empty() == false)
+      add_func_header(CT_FUNC_DEF, cpd.func_hdr);
+      if (cpd.settings[UO_cmt_insert_before_ctor_dtor].b)
       {
-         add_func_header(CT_FUNC_DEF, cpd.func_hdr);
-         if (cpd.settings[UO_cmt_insert_before_ctor_dtor].b)
-         {
-            add_func_header(CT_FUNC_CLASS_DEF, cpd.func_hdr);
-         }
+         add_func_header(CT_FUNC_CLASS_DEF, cpd.func_hdr);
       }
-      if (cpd.class_hdr.data.empty()  == false) { add_func_header(CT_CLASS,       cpd.class_hdr ); }
-      if (cpd.oc_msg_hdr.data.empty() == false) { add_msg_header (CT_OC_MSG_DECL, cpd.oc_msg_hdr); }
-
-      /* Change virtual braces into real braces... */
-      do_braces();
-
-      /* Scrub extra semicolons */
-      if (cpd.settings[UO_mod_remove_extra_semicolon].b) { remove_extra_semicolons(); }
-
-      /* Remove unnecessary returns */
-      if (cpd.settings[UO_mod_remove_empty_return   ].b) { remove_extra_returns();    }
-
-      /* Add parens */
-      do_parens();
-
-      /* Modify line breaks as needed */
-      if (cpd.settings[UO_nl_remove_extra_newlines].u == 2) { newlines_remove_newlines(); }
-
-      bool first = true;
-      int  old_changes;
-      cpd.pass_count = 3;
-      do
-      {
-         old_changes = cpd.changes;
-
-         LOG_FMT(LNEWLINE, "Newline loop start: %d\n", cpd.changes);
-
-         annotations_newlines();
-         newlines_cleanup_dup();
-         newlines_cleanup_braces(first);
-
-         if (cpd.settings[UO_nl_after_multiline_comment].b) { newline_after_multiline_comment(); }
-         if (cpd.settings[UO_nl_after_label_colon      ].b) { newline_after_label_colon();       }
-
-         newlines_insert_blank_lines();
-
-         set_newline_chunk_pos(UO_pos_bool,        UO_pos_bool,        CT_BOOL      );
-         set_newline_chunk_pos(UO_pos_compare,     UO_pos_compare,     CT_COMPARE   );
-         set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_COND_COLON);
-         set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_QUESTION  );
-         set_newline_chunk_pos(UO_pos_comma,       UO_pos_comma,       CT_COMMA     );
-         set_newline_chunk_pos(UO_pos_enum_comma,  UO_pos_comma,       CT_COMMA     );
-         set_newline_chunk_pos(UO_pos_assign,      UO_pos_assign,      CT_ASSIGN    );
-         set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_ARITH     );
-         set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_CARET     );
-
-         newlines_class_colon_pos(CT_CLASS_COLON );
-         newlines_class_colon_pos(CT_CONSTR_COLON);
-
-         if (cpd.settings[UO_nl_squeeze_ifdef].b) { newlines_squeeze_ifdef(); }
-
-         do_blank_lines();
-         newlines_eat_start_end();
-         newlines_functions_remove_extra_blank_lines();
-         newlines_cleanup_dup();
-         first = false;
-         cpd.pass_count--;
-      } while ((old_changes    != cpd.changes) &&
-               (cpd.pass_count >   0         ) );
-
-      mark_comments();
-
-      /* Add balanced spaces around nested params */
-      if (cpd.settings[UO_sp_bal_nested_parens].b)  { space_text_balance_nested_parens(); }
-
-      /* Scrub certain added semicolons */
-      if (is_lang(cpd, LANG_PAWN) &&
-          (cpd.settings[UO_mod_pawn_semicolon].b) ) { pawn_scrub_vsemi(); }
-
-      /* Sort imports/using/include */
-      if (cpd.settings[UO_mod_sort_import ].b ||
-          cpd.settings[UO_mod_sort_include].b ||
-          cpd.settings[UO_mod_sort_using  ].b )     { sort_imports(); }
-
-      /* Fix same-line inter-chunk spacing */
-      space_text();
-
-      /* Do any aligning of preprocessors */
-      if (cpd.settings[UO_align_pp_define_span].u > 0) { align_preprocessor(); }
-
-      /* Indent the text */
-      indent_preproc();
-      indent_text();
-
-      /* Insert trailing comments after certain close braces */
-      if ((cpd.settings[UO_mod_add_long_switch_closebrace_comment   ].u > 0) ||
-          (cpd.settings[UO_mod_add_long_function_closebrace_comment ].u > 0) ||
-          (cpd.settings[UO_mod_add_long_class_closebrace_comment    ].u > 0) ||
-          (cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u > 0) )
-      {
-         add_long_closebrace_comment();
-      }
-
-      /* Insert trailing comments after certain preprocessor conditional blocks */
-      if ((cpd.settings[UO_mod_add_long_ifdef_else_comment ].u > 0) ||
-          (cpd.settings[UO_mod_add_long_ifdef_endif_comment].u > 0) )
-      {
-         add_long_preprocessor_conditional_block_comment();
-      }
-
-      /* Align everything else, reindent and break at code_width */
-      first          = true;
-      cpd.pass_count = 3;
-      do
-      {
-         align_all();
-         indent_text();
-         old_changes = cpd.changes;
-         if (cpd.settings[UO_code_width].u > 0)
-         {
-            LOG_FMT(LNEWLINE, "Code_width loop start: %d\n", cpd.changes);
-            do_code_width();
-            if ((old_changes != cpd.changes) &&
-                (first       == true       ) )
-            {
-               /* retry line breaks caused by splitting 1-liners */
-               newlines_cleanup_braces(false);
-               newlines_insert_blank_lines();
-               first = false;
-            }
-         }
-      } while ((old_changes      != cpd.changes) &&
-               (cpd.pass_count--  > 0          ) );
-
-      /* And finally, align the backslash newline stuff */
-      align_right_comments();
-      if (cpd.settings[UO_align_nl_cont].b) { align_backslash_newline(); }
-
-      /* Now render it all to the output file */
-      output_text(pfout);
    }
+   if (cpd.class_hdr.data.empty()  == false) { add_func_header(CT_CLASS,       cpd.class_hdr ); }
+   if (cpd.oc_msg_hdr.data.empty() == false) { add_msg_header (CT_OC_MSG_DECL, cpd.oc_msg_hdr); }
+
+   do_braces(); /* Change virtual braces into real braces... */
+
+   if (cpd.settings[UO_mod_remove_extra_semicolon].b) { remove_extra_semicolons(); }
+   if (cpd.settings[UO_mod_remove_empty_return   ].b) { remove_extra_returns();    }
+   do_parens();
+   if (cpd.settings[UO_nl_remove_extra_newlines].u == 2) { newlines_remove_newlines(); }
+
+   bool first = true;
+   int  old_changes;
+   cpd.pass_count = 3;
+   do
+   {
+      old_changes = cpd.changes;
+
+      LOG_FMT(LNEWLINE, "Newline loop start: %d\n", cpd.changes);
+
+      annotations_newlines();
+      newlines_cleanup_dup();
+      newlines_cleanup_braces(first);
+
+      if (cpd.settings[UO_nl_after_multiline_comment].b) { newline_after_multiline_comment(); }
+      if (cpd.settings[UO_nl_after_label_colon      ].b) { newline_after_label_colon();       }
+
+      newlines_insert_blank_lines();
+
+      set_newline_chunk_pos(UO_pos_bool,        UO_pos_bool,        CT_BOOL      );
+      set_newline_chunk_pos(UO_pos_compare,     UO_pos_compare,     CT_COMPARE   );
+      set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_COND_COLON);
+      set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_QUESTION  );
+      set_newline_chunk_pos(UO_pos_comma,       UO_pos_comma,       CT_COMMA     );
+      set_newline_chunk_pos(UO_pos_enum_comma,  UO_pos_comma,       CT_COMMA     );
+      set_newline_chunk_pos(UO_pos_assign,      UO_pos_assign,      CT_ASSIGN    );
+      set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_ARITH     );
+      set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_CARET     );
+
+      newlines_class_colon_pos(CT_CLASS_COLON );
+      newlines_class_colon_pos(CT_CONSTR_COLON);
+
+      if (cpd.settings[UO_nl_squeeze_ifdef].b) { newlines_squeeze_ifdef(); }
+
+      do_blank_lines();
+      newlines_eat_start_end();
+      newlines_functions_remove_extra_blank_lines();
+      newlines_cleanup_dup();
+      first = false;
+      cpd.pass_count--;
+   } while ((old_changes    != cpd.changes) &&
+            (cpd.pass_count >   0         ) );
+
+   mark_comments();
+
+   /* Add balanced spaces around nested params */
+   if (cpd.settings[UO_sp_bal_nested_parens].b)  { space_text_balance_nested_parens(); }
+
+   /* Scrub certain added semicolons */
+   if (is_lang(cpd, LANG_PAWN) &&
+       (cpd.settings[UO_mod_pawn_semicolon].b) ) { pawn_scrub_vsemi(); }
+
+   /* Sort imports/using/include */
+   if (cpd.settings[UO_mod_sort_import ].b ||
+       cpd.settings[UO_mod_sort_include].b ||
+       cpd.settings[UO_mod_sort_using  ].b )     { sort_imports(); }
+
+   /* Fix same-line inter-chunk spacing */
+   space_text();
+
+   /* Do any aligning of preprocessors */
+   if (cpd.settings[UO_align_pp_define_span].u > 0) { align_preprocessor(); }
+
+   /* Indent the text */
+   indent_preproc();
+   indent_text();
+
+   /* Insert trailing comments after certain close braces */
+   if ((cpd.settings[UO_mod_add_long_switch_closebrace_comment   ].u > 0) ||
+       (cpd.settings[UO_mod_add_long_function_closebrace_comment ].u > 0) ||
+       (cpd.settings[UO_mod_add_long_class_closebrace_comment    ].u > 0) ||
+       (cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u > 0) )
+   {
+      add_long_closebrace_comment();
+   }
+
+   /* Insert trailing comments after certain preprocessor conditional blocks */
+   if ((cpd.settings[UO_mod_add_long_ifdef_else_comment ].u > 0) ||
+       (cpd.settings[UO_mod_add_long_ifdef_endif_comment].u > 0) )
+   {
+      add_long_preprocessor_conditional_block_comment();
+   }
+
+   /* Align everything else, reindent and break at code_width */
+   first          = true;
+   cpd.pass_count = 3;
+   do
+   {
+      align_all();
+      indent_text();
+      old_changes = cpd.changes;
+      if (cpd.settings[UO_code_width].u > 0)
+      {
+         LOG_FMT(LNEWLINE, "Code_width loop start: %d\n", cpd.changes);
+         do_code_width();
+         if ((old_changes != cpd.changes) &&
+             (first       == true       ) )
+         {
+            /* retry line breaks caused by splitting 1-liners */
+            newlines_cleanup_braces(false);
+            newlines_insert_blank_lines();
+            first = false;
+         }
+      }
+   } while ((old_changes      != cpd.changes) &&
+            (cpd.pass_count--  > 0          ) );
+
+   /* And finally, align the backslash newline stuff */
+   align_right_comments();
+   if (cpd.settings[UO_align_nl_cont].b) { align_backslash_newline(); }
+
+   /* Now render it all to the output file */
+   output_text(pfout);
 
    /* Special hook for dumping parsed data for debugging */
    if (ptr_is_valid(parsed_file))

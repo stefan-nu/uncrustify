@@ -13,6 +13,8 @@
 
 
 /**
+ * \brief Re-type chunks and combine chunks
+ *
  * Change CT_INCDEC_AFTER + WORD to CT_INCDEC_BEFORE
  * Change number/word + CT_ADDR to CT_ARITH
  * Change number/word + CT_STAR to CT_ARITH
@@ -34,6 +36,8 @@ void fix_symbols(void);
  * Examines the whole file and changes CT_COLON to
  * CT_Q_COLON, CT_LABEL_COLON, or CT_CASE_COLON.
  * It also changes the CT_WORD before CT_LABEL_COLON into CT_LABEL.
+ *
+ * Look at all colons ':' and mark labels, :? sequences, etc.
  */
 void combine_labels(void);
 
@@ -183,7 +187,8 @@ chunk_t *skip_attribute_prev(
 
 
 /**
- * Remove 'return;' that appears as the last statement in a function
+ * \brief Remove unnecessary returns
+ * that is remove 'return;' that appears as the last statement in a function
  */
 void remove_extra_returns(void);
 

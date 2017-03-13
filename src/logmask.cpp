@@ -69,8 +69,7 @@ void logmask_from_string(const char *str, log_mask_t &mask)
 {
    return_if(ptr_is_invalid(str));
 
-   /* Start with a clean mask */
-   logmask_set_all(mask, false);
+   logmask_set_all(mask, false); /* Start with a clean mask */
 
    /* If the first character is 'A', set all sevs */
    if (unc_toupper(*str) == 'A')

@@ -12,7 +12,7 @@
 
 
 /**
- * tbd
+ * Add parenthesis
  */
 void do_parens(void);
 

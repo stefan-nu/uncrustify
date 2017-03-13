@@ -13,6 +13,7 @@
 
 /**
  * Remove all extra newlines.
+ * Modify line breaks as needed.
  */
 void newlines_remove_newlines(void);
 

@@ -12,8 +12,8 @@
 
 
 /**
- * Marches through the whole file and checks to see how many spaces should be
- * between two chunks
+ * Marches through the whole file and checks to see
+ * how many spaces should be between two chunks
  */
 void space_text(void);
 

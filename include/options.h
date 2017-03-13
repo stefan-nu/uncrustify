@@ -21,6 +21,7 @@
 /**
  * abbreviations used
  *
+ * av     = argument values
  * bal    = balance, balanced
  * pstart = pointer star
  * rel    = relative
@@ -28,13 +29,13 @@
 
 enum argtype_t
 {
-   AT_BOOL,    /**< true / false */                 //!< AT_BOOL
-   AT_IARF,    /**< Ignore / Add / Remove / Force *///!< AT_IARF
-   AT_NUM,     /**< Number */                       //!< AT_NUM
-   AT_LINE,    /**< Line Endings */                 //!< AT_LINE
-   AT_POS,     /**< start/end or Trail/Lead */      //!< AT_POS
-   AT_STRING,  /**< string value */                 //!< AT_STRING
-   AT_UNUM     /**< unsigned Number */              //!< AT_UNUM
+   AT_BOOL,    /**< true / false */
+   AT_IARF,    /**< Ignore / Add / Remove / Force */
+   AT_NUM,     /**< Number */
+   AT_LINE,    /**< Line Endings */
+   AT_POS,     /**< start/end or Trail/Lead */
+   AT_STRING,  /**< string value */
+   AT_UNUM     /**< unsigned Number */
 };
 
 
@@ -73,7 +74,7 @@ enum tokenpos_t
    TP_TRAIL_BREAK     = (TP_TRAIL | TP_BREAK),
    TP_TRAIL_FORCE     = (TP_TRAIL | TP_FORCE),
    TP_JOIN            = (1u << 4),            /* remove newlines on both sides */
-   TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL |TP_JOIN)
+   TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL | TP_JOIN)
 };
 
 
@@ -1078,9 +1079,9 @@ void register_options(void);
  * tbd
  */
 void unc_begin_group(
-   ug_t       id,
-   const char *short_desc,
-   const char *long_desc = nullptr
+   ug_t       id,                  /**< [in]  */
+   const char *short_desc,         /**< [in]  */
+   const char *long_desc = nullptr /**< [in]  */
 );
 
 
@@ -1093,8 +1094,8 @@ void unc_begin_group(
  *                  extracted
  */
 void process_option_line(
-   char       *configLine,
-   const char *filename
+   char       *configLine, /**< [in]  */
+   const char *filename    /**< [in]  */
 );
 
 
@@ -1102,7 +1103,7 @@ void process_option_line(
  * tbd
  */
 int load_option_file(
-   const char *filename
+   const char *filename /**< [in]  */
 );
 
 
@@ -1110,8 +1111,8 @@ int load_option_file(
  * tbd
  */
 int save_option_file(
-   FILE *pfile,
-   bool withDoc
+   FILE *pfile, /**< [in]  */
+   bool withDoc /**< [in]  */
 );
 
 
@@ -1119,9 +1120,9 @@ int save_option_file(
  * tbd
  */
 int save_option_file_kernel(
-   FILE *pfile,
-   bool withDoc,
-   bool only_not_default
+   FILE *pfile,           /**< [in]  */
+   bool withDoc,          /**< [in]  */
+   bool only_not_default  /**< [in]  */
 );
 
 
@@ -1132,8 +1133,8 @@ int save_option_file_kernel(
  * @retval -1   entry was not found
  */
 int set_option_value(
-   const char *name,
-   const char *value
+   const char *name, /**< [in]  */
+   const char *value /**< [in]  */
 );
 
 
@@ -1141,7 +1142,7 @@ int set_option_value(
  * tbd
  */
 bool is_path_relative(
-   const char *path
+   const char *path /**< [in]  */
 );
 
 
@@ -1149,7 +1150,7 @@ bool is_path_relative(
  * tbd
  */
 const group_map_value_t *get_group_name(
-   size_t ug
+   size_t ug /**< [in]  */
 );
 
 
@@ -1157,7 +1158,7 @@ const group_map_value_t *get_group_name(
  * tbd
  */
 const option_map_value_t *get_option_name(
-   uo_t uo
+   uo_t uo /**< [in]  */
 );
 
 
@@ -1165,7 +1166,7 @@ const option_map_value_t *get_option_name(
  * tbd
  */
 void print_options(
-   FILE *pfile
+   FILE *pfile /**< [in]  */
 );
 
 
@@ -1173,7 +1174,7 @@ void print_options(
  * convert a argument type to a string
  */
 string argtype2string(
-   argtype_t argtype /**> [in] argument type to convert */
+   argtype_t argtype /**< [in] argument type to convert */
 );
 
 
@@ -1241,7 +1242,7 @@ bool is_path_relative(
  * tbd
  */
 const option_map_value_t *unc_find_option(
-   const char *name
+   const char *name /**< [in]  */
 );
 
 

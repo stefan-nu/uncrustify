@@ -12,7 +12,10 @@
 
 
 /**
- * Scans through the whole list and does stuff.
+ * Scans through the whole chunk list and cleans up braces.
+ *
+ * Detect the brace and paren levels and insert virtual braces.
+ * This handles all that nasty preprocessor stuff.
  * It has to do some tricks to parse preprocessors.
  *
  * TODO: This can be cleaned up and simplified -

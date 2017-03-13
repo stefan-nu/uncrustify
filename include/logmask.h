@@ -22,10 +22,12 @@ typedef std::bitset<256> log_mask_t;
 /**
  * Tests whether a sev bit is set in the mask
  *
- * @param sev  The severity to check
  * @return     true (is set) or false (not set)
  */
-static inline bool logmask_test(const log_mask_t &mask, log_sev_t sev)
+static inline bool logmask_test(
+   const log_mask_t &mask, /**< [in] log mask to operate on */
+   log_sev_t        sev    /**< [in] The severity to check */
+)
 {
    return(mask.test(sev));
 }
@@ -33,11 +35,12 @@ static inline bool logmask_test(const log_mask_t &mask, log_sev_t sev)
 
 /**
  * Sets a set bit in the mask
- *
- * @param sev     The severity to check
- * @param value   true (set bit) or false (clear bit)
  */
-static inline void logmask_set_sev(log_mask_t &mask, log_sev_t sev, bool value)
+static inline void logmask_set_sev(
+   log_mask_t &mask, /**< [in] log mask to operate on */
+   log_sev_t  sev,   /**< [in] The severity to check */
+   bool       value  /**< [in] true (set bit) or false (clear bit) */
+)
 {
    mask.set(sev, value);
 }
@@ -45,10 +48,11 @@ static inline void logmask_set_sev(log_mask_t &mask, log_sev_t sev, bool value)
 
 /**
  * Sets all bits to the same value
- *
- * @param value true (set bit) or false (clear bit)
  */
-static inline void logmask_set_all(log_mask_t &mask, bool value)
+static inline void logmask_set_all(
+   log_mask_t &mask,  /**< [in] log mask to operate on */
+   bool       value   /**< [in] true (set bit) or false (clear bit) */
+)
 {
    if (value) { mask.set  (); }
    else       { mask.reset(); }
@@ -60,7 +64,7 @@ static inline void logmask_set_all(log_mask_t &mask, bool value)
  * The string is a comma-delimited list of severities.
  * Example: 1,3,5-10
  *
- * @return     buf (pass through)
+ * @return buf (pass through)
  */
 char *logmask_to_str(
    const log_mask_t &mask, /**< [in] the mask to convert */

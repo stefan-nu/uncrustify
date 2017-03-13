@@ -12,7 +12,12 @@
 
 
 /**
- * tbd
+ * \brief clean up tokens
+ *
+ * Change certain token types based on simple sequence.
+ * Example: change '[' + ']' to '[]'
+ * Note that level info is not yet available, so it is OK to do all
+ * processing that doesn't need to know level info. (that's very little!)
  */
 void tokenize_cleanup(void);
 

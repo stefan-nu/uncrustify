@@ -2320,8 +2320,8 @@ static void indent_comment(chunk_t *pc, size_t col)
 
       /* Here we want to align comments that are relatively close one to another
        * but not when the previous comment is on the same line with a preproc */
-      if ((coldiff <=  3      ) &&
-          (coldiff >= -3      ) &&
+      if ((coldiff <=  3) &&
+          (coldiff >= -3) &&
           !is_preproc(pp) )
       {
          reindent_line(pc, prev->column);
@@ -2364,7 +2364,7 @@ bool ifdef_over_whole_file(void)
 
       if (stage == 0)
       {
-         /* Check the first PP, make sure it is an #if type */
+         /* Check the first preprocessor, make sure it is an #if type */
          break_if(not_type(pc, CT_PREPROC));
          next = chunk_get_next(pc);
          break_if(is_invalid_or_not_type(next, CT_PP_IF));
@@ -2372,9 +2372,8 @@ bool ifdef_over_whole_file(void)
       }
       else if (stage == 1)
       {
-         /* Scan until a PP at level 0 is found - the close to the #if */
-         if (is_type(pc, CT_PREPROC) &&
-             (pc->pp_level == 0))
+         /* Scan until a preprocessor at level 0 is found - the close to the #if */
+         if(is_type(pc, CT_PREPROC) && (pc->pp_level == 0))
          {
             stage  = 2;
             end_pp = pc;
@@ -2384,7 +2383,7 @@ bool ifdef_over_whole_file(void)
       else if (stage == 2)
       {
          /* We should only see the rest of the preprocessor */
-         if (is_type (pc, CT_PREPROC) || !is_preproc(pc))
+         if(is_type (pc, CT_PREPROC) || !is_preproc(pc))
          {
             stage = 0;
             break;

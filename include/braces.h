@@ -12,7 +12,7 @@
 
 
 /**
- * tbd
+ * \brief Change virtual braces into real braces
  */
 void do_braces(void);
 

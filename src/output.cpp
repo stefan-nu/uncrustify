@@ -201,8 +201,7 @@ static bool next_word_exceeds_limit(
 
 
 /**
- * fill a line with empty characters until a specific column
- * cpd.column is reached
+ * fill a line with empty characters until a specific column is reached
  */
 static void fill_line(
    size_t column,    /**< [in] The column to advance to */
@@ -496,7 +495,7 @@ void fill_line_with_spaces(size_t column)
 
 static void fill_line(size_t column, bool allow_tabs)
 {
-   cpd.did_newline = false;      // \todo what is this flag used for?
+   cpd.did_newline = false;      // \todo what is this globl flag used for?
    if (allow_tabs)
    {
       fill_line_with_tabs(column);   /* tab out as far as possible ... */
@@ -589,11 +588,11 @@ void output_parsed(FILE *pfile)
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3u/%3u][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
-              pc->orig_line, get_token_name(pc->type),
-              get_token_name(pc->ptype),
-              pc->column, pc->orig_col, pc->orig_col_end, pc->orig_prev_sp,
-              pc->brace_level, pc->level, pc->pp_level,
-              get_flags(pc), pc->nl_count, pc->after_tab);
+              pc->orig_line,   get_token_name(pc->type),
+              get_token_name(pc->ptype),         pc->column,
+              pc->orig_col,    pc->orig_col_end, pc->orig_prev_sp,
+              pc->brace_level, pc->level,        pc->pp_level,
+              get_flags(pc),   pc->nl_count,     pc->after_tab);
 
       if (not_type(pc, CT_NEWLINE) &&
           (pc->len() != 0         ) )
@@ -604,7 +603,7 @@ void output_parsed(FILE *pfile)
          }
 
          if (not_type(pc, CT_NL_CONT)) { fprintf(pfile, "%s", pc->text()); }
-         else                                   { fprintf(pfile, "\\");             }
+         else                          { fprintf(pfile, "\\");             }
       }
    }
    fprintf(pfile, "\n# -=====-\n");
@@ -625,6 +624,7 @@ void output_text(FILE *pfile)
    {
       size_t indent = cpd.frag_cols - 1;
 
+      /* loop over the whole chunk list */
       for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
       {
          pc->column        += indent;
@@ -633,171 +633,182 @@ void output_text(FILE *pfile)
       cpd.frag_cols = 0;
    }
 
+   /* loop over the whole chunk list */
    for (pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       LOG_FMT(LOUTIND, "text() %s, type %s, col=%zu\n",
               pc->text(), get_token_name(pc->type), pc->orig_col);
       cpd.output_tab_as_space = (cpd.settings[UO_cmt_convert_tab_to_spaces].b &&
                                  is_cmt(pc));
-      if (is_type(pc, CT_NEWLINE))
-      {
-         for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
-         {
-            add_char(LINEFEED);
-         }
-         cpd.did_newline = true;
-         cpd.column      = 1;
-         LOG_FMT(LOUTIND, " xx\n");
-      }
-      else if (is_type(pc, CT_NL_CONT))
-      {
-         /* FIXME: this really shouldn't be done here! */
-         if (not_flag(pc, PCF_WAS_ALIGNED))
-         {
-            if (is_option_set(cpd.settings[UO_sp_before_nl_cont].a, AV_REMOVE))
-            {
-               pc->column = cpd.column + (is_option(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
-            }
-            else
-            {
-               /* Try to keep the same relative spacing */
-               chunk_t *prev = chunk_get_prev(pc);
-               while ((is_valid(prev)) &&
-                      (prev->orig_col == 0 ) &&
-                      (prev->nl_count == 0 ) )
-               {
-                  prev = chunk_get_prev(prev);
-               }
 
-               if ((is_valid(prev)) &&
-                   (prev->nl_count == 0 ) )
-               {
-                  int orig_sp = (int)pc->orig_col - (int)prev->orig_col_end;
-                  pc->column = (size_t)((int)cpd.column + orig_sp);
-                  // the value might be negative --> use an int
-                  int columnDiff = (int)cpd.column + orig_sp;
-                  if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
-                      (columnDiff < (int)(cpd.column + 1u) ))
-                  {
-                     pc->column = cpd.column + 1;
-                  }
-               }
-            }
-            fill_line(pc->column, false);
-         }
-         else
-         {
-            fill_line(pc->column, (cpd.settings[UO_indent_with_tabs].n == 2));
-         }
-         add_char(BACKSLASH);
-         add_char(LINEFEED);
-         cpd.did_newline = true;
-         cpd.column      = 1;
-         LOG_FMT(LOUTIND, " \\xx\n");
-      }
-      else if (is_type(pc, CT_COMMENT_MULTI))
+      switch(pc->type)
       {
-         if (cpd.settings[UO_cmt_indent_multi].b)
-         {
-            output_comment_multi(pc);
-         }
-         else
-         {
-            output_comment_multi_simple(pc, not_flag(pc, PCF_INSERTED));
-         }
-      }
-      else if (is_type(pc, CT_COMMENT_CPP))
-      {
-         bool tmp = cpd.output_trailspace;
-         // keep trailing spaces if they are still present in a chunk;
-         // note that tokenize() already strips spaces in comments, so if they made it up to here, they are to stay
-         cpd.output_trailspace = true;
-         pc                    = output_comment_cpp(pc);
-         cpd.output_trailspace = tmp;
-      }
-      else if (is_type(pc, CT_COMMENT))
-      {
-         pc = output_comment_c(pc);
-      }
-      else if (is_type(pc, CT_JUNK, CT_IGNORED))
-      {
-         /* do not adjust the column for junk */
-         add_text(pc->str, true);
-      }
-      else if (pc->len() == 0)
-      {
-         /* don't do anything for non-visible stuff */
-         LOG_FMT(LOUTIND, " <%zu> -", pc->column);
-      }
-      else
-      {
-         bool allow_tabs;
-         cpd.output_trailspace = is_type(pc, CT_STRING_MULTI);
-         /* indent to the 'level' first */
-         if (cpd.did_newline == true)
-         {
-            if (cpd.settings[UO_indent_with_tabs].n == 1)
+         case(CT_NEWLINE):
+            for (size_t cnt = 0; cnt < pc->nl_count; cnt++)
             {
-               size_t lvlcol;
-               /* FIXME: it would be better to properly set column_indent in
-                * indent_text(), but this hack for '}' and ':' seems to work. */
-               if( (is_type(pc, CT_BRACE_CLOSE, CT_PREPROC)) ||
-                   (is_str(pc, ":", 1)                        ) )
+               add_char(LINEFEED);
+            }
+            cpd.did_newline = true;
+            cpd.column      = 1;
+            LOG_FMT(LOUTIND, " xx\n");
+         break;
+
+         case(CT_NL_CONT):
+            /* FIXME: this really shouldn't be done here! */
+            if (not_flag(pc, PCF_WAS_ALIGNED))
+            {
+               if (is_option_set(cpd.settings[UO_sp_before_nl_cont].a, AV_REMOVE))
                {
-                  lvlcol = pc->column;
+                  pc->column = cpd.column + (is_option(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
                }
                else
                {
-                  lvlcol = pc->column_indent;
-                  lvlcol = min(lvlcol, pc->column);
-               }
+                  /* Try to keep the same relative spacing */
+                  chunk_t *prev = chunk_get_prev(pc);
+                  while ((is_valid(prev)) &&
+                         (prev->orig_col == 0 ) &&
+                         (prev->nl_count == 0 ) )
+                  {
+                     prev = chunk_get_prev(prev);
+                  }
 
-               if (lvlcol > 1)
+                  if ((is_valid(prev)) &&
+                      (prev->nl_count == 0 ) )
+                  {
+                     int orig_sp = (int)pc->orig_col - (int)prev->orig_col_end;
+                     pc->column = (size_t)((int)cpd.column + orig_sp);
+                     // the value might be negative --> use an int
+                     int columnDiff = (int)cpd.column + orig_sp;
+                     if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
+                         (columnDiff < (int)(cpd.column + 1u) ))
+                     {
+                        pc->column = cpd.column + 1;
+                     }
+                  }
+               }
+               fill_line(pc->column, false);
+            }
+            else
+            {
+               fill_line(pc->column, (cpd.settings[UO_indent_with_tabs].n == 2));
+            }
+            add_char(BACKSLASH);
+            add_char(LINEFEED);
+            cpd.did_newline = true;
+            cpd.column      = 1;
+            LOG_FMT(LOUTIND, " \\xx\n");
+         break;
+
+         case(CT_COMMENT_MULTI):
+            if (cpd.settings[UO_cmt_indent_multi].b)
+            {
+               output_comment_multi(pc);
+            }
+            else
+            {
+               output_comment_multi_simple(pc, not_flag(pc, PCF_INSERTED));
+            }
+         break;
+
+         case(CT_COMMENT_CPP):
+         {
+            bool tmp = cpd.output_trailspace;
+            /* keep trailing spaces if they are still present in a chunk;
+             * note that tokenize() already strips spaces in comments,
+             * so if they made it up to here, they are to stay */
+            cpd.output_trailspace = true;
+            pc                    = output_comment_cpp(pc);
+            cpd.output_trailspace = tmp;
+         }
+         break;
+
+         case(CT_COMMENT):
+            pc = output_comment_c(pc);
+         break;
+
+         case(CT_JUNK):
+         case(CT_IGNORED):
+            /* do not adjust the column for junk */
+            add_text(pc->str, true);
+         break;
+
+         default:
+            if (pc->len() == 0)
+            {
+               /* don't do anything for non-visible stuff */
+               LOG_FMT(LOUTIND, " <%zu> -", pc->column);
+            }
+            else
+            {
+               bool allow_tabs;
+               cpd.output_trailspace = is_type(pc, CT_STRING_MULTI);
+               /* indent to the 'level' first */
+               if (cpd.did_newline == true)
                {
-                  fill_line(lvlcol, true);
+                  if (cpd.settings[UO_indent_with_tabs].n == 1)
+                  {
+                     size_t lvlcol;
+                     /* FIXME: it would be better to properly set column_indent in
+                      * indent_text(), but this hack for '}' and ':' seems to work. */
+                     if( (is_type(pc, CT_BRACE_CLOSE, CT_PREPROC)) ||
+                         (is_str(pc, ":", 1)                     ) )
+                     {
+                        lvlcol = pc->column;
+                     }
+                     else
+                     {
+                        lvlcol = pc->column_indent;
+                        lvlcol = min(lvlcol, pc->column);
+                     }
+
+                     if (lvlcol > 1)
+                     {
+                        fill_line(lvlcol, true);
+                     }
+                  }
+                  allow_tabs = (cpd.settings[UO_indent_with_tabs].n == 2) ||
+                               (is_cmt(pc) &&
+                               (cpd.settings[UO_indent_with_tabs].n != 0));
+
+                  LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%u - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
                }
-            }
-            allow_tabs = (cpd.settings[UO_indent_with_tabs].n == 2) ||
-                         (is_cmt(pc) &&
-                         (cpd.settings[UO_indent_with_tabs].n != 0));
+               else
+               {
+                  /* Reformatting multi-line comments can screw up the column.
+                   * Make sure we don't mess up the spacing on this line.
+                   * This has to be done here because comments are not formatted
+                   * until the output phase. */
+                  if (pc->column < cpd.column)
+                  {
+                     reindent_line(pc, cpd.column);
+                  }
 
-            LOG_FMT(LOUTIND, "  %zu> col %zu/%zu/%u - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
-         }
-         else
-         {
-            /* Reformatting multi-line comments can screw up the column.
-             * Make sure we don't mess up the spacing on this line.
-             * This has to be done here because comments are not formatted
-             * until the output phase. */
-            if (pc->column < cpd.column)
-            {
-               reindent_line(pc, cpd.column);
-            }
+                  /* not the first item on a line */
+                  chunk_t *prev = chunk_get_prev(pc); /* \todo einfacher wäre den vorherigen Chunk zwischenzuspeichern */
+                  assert(is_valid(prev));
+                  allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
+                                is_flag(pc, PCF_WAS_ALIGNED) &&
+                                ((prev->column + prev->len() + 1) != pc->column));
+                  if (cpd.settings[UO_align_keep_tabs].b)
+                  {
+                     allow_tabs = (pc->after_tab == true) ? true : allow_tabs;
+                  }
+                  LOG_FMT(LOUTIND, " %zu(%d) -", pc->column, allow_tabs);
+               }
 
-            /* not the first item on a line */
-            chunk_t *prev = chunk_get_prev(pc);
-            assert(is_valid(prev));
-            allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
-                          is_flag(pc, PCF_WAS_ALIGNED) &&
-                          ((prev->column + prev->len() + 1) != pc->column));
-            if (cpd.settings[UO_align_keep_tabs].b)
-            {
-               allow_tabs = (pc->after_tab == true) ? true : allow_tabs;
+               fill_line(pc->column, allow_tabs);
+               add_text(pc->str);
+               if (is_type(pc, CT_PP_DEFINE))
+               {
+                  if (cpd.settings[UO_force_tab_after_define].b)
+                  {
+                     add_char(TABSTOP);
+                  }
+               }
+               cpd.did_newline       = is_nl(pc);
+               cpd.output_trailspace = false;
+            break;
             }
-            LOG_FMT(LOUTIND, " %zu(%d) -", pc->column, allow_tabs);
-         }
-
-         fill_line(pc->column, allow_tabs);
-         add_text(pc->str);
-         if (is_type(pc, CT_PP_DEFINE))
-         {
-            if (cpd.settings[UO_force_tab_after_define].b)
-            {
-               add_char(TABSTOP);
-            }
-         }
-         cpd.did_newline       = is_nl(pc);
-         cpd.output_trailspace = false;
       }
    }
 }
