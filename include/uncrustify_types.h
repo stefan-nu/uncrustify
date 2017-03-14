@@ -340,7 +340,7 @@ typedef enum lang_e
    LANG_JE        =                                               LANG_JAVA |                         LANG_ECMA,
    LANG_JVE       =                                               LANG_JAVA |             LANG_VALA | LANG_ECMA,
    LANG_VE        =                                                                       LANG_VALA | LANG_ECMA,
-   LANG_OCPP      =                                                            LANG_OC  |                                    FLAG_PP,
+   LANG_OCPP      =            LANG_CPP  |                                     LANG_OC,
    LANG_PPP       =                                                                                              LANG_PAWN | FLAG_PP,
    LANG_ALLPP     = LANG_ALL |                                                                                               FLAG_PP,
    LANG_ALLNJE    = LANG_ALL & ~(LANG_JAVA | LANG_ECMA),
