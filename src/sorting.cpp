@@ -212,9 +212,8 @@ void sort_imports(void)
       {
          bool did_import = false;
 
-         if ( are_valid(p_imp, p_last      )   &&
-             (is_type(p_last, CT_SEMICOLON ) ||
-              is_preproc(p_imp) ) )
+         if (are_valid(p_imp, p_last                             ) &&
+             (is_type(p_last, CT_SEMICOLON ) || is_preproc(p_imp)) )
          {
             if (num_chunks < MAX_NUMBER_TO_SORT)
             {
@@ -230,9 +229,9 @@ void sort_imports(void)
             }
             did_import = true;
          }
-         if ((did_import == false  ) ||
-             (pc->nl_count > 1     ) ||
-             (is_invalid(next)) )
+         if ((did_import == false) ||
+             (pc->nl_count > 1   ) ||
+             (is_invalid(next)   ) )
          {
             if (num_chunks > 1)
             {
@@ -243,8 +242,8 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if( (is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import ].b == true)) ||
-               (is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using  ].b == true)) )
+      else if( (is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import].b == true)) ||
+               (is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using ].b == true)) )
       {
          p_imp = chunk_get_next(pc);
       }

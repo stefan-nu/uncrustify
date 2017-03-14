@@ -75,6 +75,7 @@ enum class char_encoding_e : unsigned int
 
 struct chunk_t;   /**< forward declaration */
 
+
 /**
  * Sort of like the aligning stuff, but the token indent is relative to the
  * indent of another chunk. This is needed, as that chunk may be aligned and
