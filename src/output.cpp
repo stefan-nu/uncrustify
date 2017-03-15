@@ -45,8 +45,8 @@ typedef bool (*kw_func_t)(chunk_t *cmt, unc_text &out_txt);
 
 struct kw_subst_t
 {
-   const char *tag;
-   kw_func_t  func;
+   const char *tag; /**<   */
+   kw_func_t  func; /**<   */
 };
 
 
@@ -495,7 +495,7 @@ void fill_line_with_spaces(size_t column)
 
 static void fill_line(size_t column, bool allow_tabs)
 {
-   cpd.did_newline = false;      // \todo what is this globl flag used for?
+   cpd.did_newline = false; // \todo what is this global flag used for?
    if (allow_tabs)
    {
       fill_line_with_tabs(column);   /* tab out as far as possible ... */
@@ -1127,8 +1127,8 @@ static void output_cmt_start(cmt_reflow_t &cmt, chunk_t *pc)
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow_t &cmt)
 {
    /* We can't combine if ... */
-   if ((is_invalid(pc)               ) || /* chunk is invalid or */
-       (pc->ptype == CT_COMMENT_START) )  /* there is something other than a newline next */
+   if ((is_invalid(pc)              ) || /* chunk is invalid or */
+       is_ptype(pc, CT_COMMENT_START) )  /* there is something other than a newline next */
    {
       return(false);
    }
@@ -1156,8 +1156,8 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow_t &cmt)
  * tbd
  */
 void combine_comment(
-   unc_text &tmp,     /**< [in]  */
-   chunk_t *pc,       /**< [in]  */
+   unc_text     &tmp, /**< [in]  */
+   chunk_t*     pc,   /**< [in]  */
    cmt_reflow_t &cmt  /**< [in]  */
 );
 
@@ -1251,8 +1251,8 @@ static chunk_t *output_comment_cpp(chunk_t *first)
       if ((sComment[2] == SLASH) ||
           (sComment[2] == '!') ) // doxygen style found!
       {
-         leadin += sComment[2];               // at least one additional char (either "///" or "//!")
-         if (sComment[3] == '<')              // and a further one (either "///<" or "//!<")
+         leadin += sComment[2];  // at least one additional char (either "///" or "//!")
+         if (sComment[3] == '<') // and a further one (either "///<" or "//!<")
          {
             leadin += '<';
          }
@@ -1342,7 +1342,6 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    {
       /* nothing to group: just output a single line */
       add_text("/*");
-      // patch # 32, 2012-03-23
       if( (!unc_isspace(first->str[2])            ) &&
           (is_option_set(sp_cmt_cpp_start, AV_ADD)) )
       {
@@ -1528,7 +1527,7 @@ static void output_comment_multi(chunk_t *pc)
          size_t remaining = pc->len() - cmt_idx;
          for (size_t nxt_len = 0;
               (nxt_len <= remaining    ) &&
-              (pc->str[nxt_len] != 'r' ) &&
+              (pc->str[nxt_len] != 'r' ) && /* \todo should this be \r ? */
               (pc->str[nxt_len] != LINEFEED);
               nxt_len++)
          {
@@ -1538,7 +1537,7 @@ static void output_comment_multi(chunk_t *pc)
                 ((nxt_len == remaining) ||
                  (is_preproc(pc)
                   ? (pc->str[nxt_len] != '\\') ||
-                  ((pc->str[nxt_len + 1] != 'r') &&
+                  ((pc->str[nxt_len + 1] != 'r') && /* \todo should this be \r ? */
                    (pc->str[nxt_len + 1] != LINEFEED))
                   : true)))
             {
@@ -1871,7 +1870,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    else
    {
       tmp = get_next_ncnl(fpo);
-      if ((tmp == chunk_get_prev_ncnl(fpc)) &&
+      if ((tmp == get_prev_ncnl(fpc)) &&
           is_str(tmp, "void", 4))
       {
          has_param = false;
@@ -1884,8 +1883,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       tmp = fpo;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
-         if (is_type(tmp, CT_COMMA) ||
-             (tmp       == fpc     ) )
+         if (is_type(tmp, CT_COMMA) || (tmp == fpc))
          {
             out_txt.append_cond(need_nl, "\n");
             need_nl = true;
@@ -1903,17 +1901,16 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    }
 
    /* Do the return stuff */
-   tmp = chunk_get_prev_ncnl(fcn);
+   tmp = get_prev_ncnl(fcn);
    assert(is_valid(tmp));
 
    /* For Objective-C we need to go to the previous chunk */
    if (is_type_and_ptype(tmp, CT_PAREN_CLOSE, CT_OC_MSG_DECL))
    {
-      tmp = chunk_get_prev_ncnl(tmp);
+      tmp = get_prev_ncnl(tmp);
    }
 
-   if ( is_valid(tmp)            &&
-       !is_str  (tmp, "void", 4) )
+   if (is_valid(tmp) && !is_str(tmp, "void", 4))
    {
       out_txt.append_cond(need_nl, "\n");
       out_txt.append("@return TODO");
@@ -1950,15 +1947,15 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    else
    {
       /* if outside a class, we expect "CLASS::METHOD(...)" */
-      chunk_t *tmp = chunk_get_prev_ncnl(fcn);
+      chunk_t *tmp = get_prev_ncnl(fcn);
       if(is_type(tmp, CT_OPERATOR))
       {
-         tmp = chunk_get_prev_ncnl(tmp);
+         tmp = get_prev_ncnl(tmp);
       }
 
       if(chunk_is_member(tmp))
       {
-         tmp = chunk_get_prev_ncnl(tmp);
+         tmp = get_prev_ncnl(tmp);
          assert(is_valid(tmp));
          out_txt.append(tmp->str);
          return(true);
@@ -2103,12 +2100,8 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
    dst.clear();
    for (chunk_t *pc = ifdef; is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (column == -1)
-      {
-         column = (int)pc->column;
-      }
+      if (column == -1) { column = (int)pc->column; }
 
-#if 1
       switch(pc->type)
       {
          case(CT_NEWLINE      ): /* fallthrough */
@@ -2134,30 +2127,6 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
          break;
       }
    }
-#else
-      break_if(is_type(pc, CT_NEWLINE, CT_COMMENT_MULTI, CT_COMMENT_CPP));
-
-      if (is_type(pc, CT_NL_CONT))
-      {
-         dst   += SPACE;
-         column = -1;
-      }
-      else if(is_type(pc, CT_COMMENT, CT_COMMENT_EMBED))
-      {
-         /* do nothing */
-      }
-      else // if is_type(pc, CT_JUNK) || else
-      {
-         for (int spacing = (int)pc->column - column; spacing > 0; spacing--)
-         {
-            dst += SPACE;
-            column++;
-         }
-         dst.append(pc->str);
-         column += (int)pc->len();
-      }
-   }
-#endif
 }
 
 
@@ -2175,11 +2144,7 @@ void add_long_preprocessor_conditional_block_comment(void)
          pp_start = pc;
       }
 
-      continue_if(not_type(pc, CT_PP_IF) ||
-                  is_invalid (pp_start    ) );
-#if 0
-      continue_if (is_preproc(pc));
-#endif
+      continue_if(not_type(pc, CT_PP_IF) || is_invalid (pp_start ));
 
       chunk_t *br_close;
       chunk_t *br_open = pc;

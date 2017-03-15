@@ -87,7 +87,7 @@ static int checkOptionNumber = -1;
 
 
 const char *get_argtype_name(
-   argtype_t argtype
+   argtype_t argtype /**< [in]  */
 );
 
 
@@ -95,8 +95,8 @@ const char *get_argtype_name(
  *  only compare alpha-numeric characters
  */
 static bool match_text(
-   const char *str1,
-   const char *str2
+   const char *str1, /**< [in]  */
+   const char *str2  /**< [in]  */
 );
 
 
@@ -104,20 +104,20 @@ static bool match_text(
  * Convert the value string to the correct type in dest.
  */
 static void convert_value(
-   const option_map_value_t *entry,
-   const char *val,
-   op_val_t   *dest
+   const option_map_value_t *entry, /**< [in]  */
+   const char *val, /**< [in]  */
+   op_val_t   *dest /**< [in]  */
 );
 
 
 static void unc_add_option(
-   const char *name,
-   uo_t       id,
-   argtype_t  type,
-   const char *short_desc = nullptr,
-   const char *long_desc  = nullptr,
-   int        min_val     =  0,
-   int        max_val     = 16
+   const char *name,  /**< [in]  */
+   uo_t       id,     /**< [in]  */
+   argtype_t  type,   /**< [in]  */
+   const char *short_desc = nullptr, /**< [in]  */
+   const char *long_desc  = nullptr, /**< [in]  */
+   int        min_val     =  0, /**< [in]  */
+   int        max_val     = 16  /**< [in]  */
 );
 
 #if 0
@@ -313,7 +313,6 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
 static bool match_text(const char *str1, const char *str2)
 {
    int matches = 0;
-
    while ((*str1 != 0) && (*str2 != 0))
    {
       if (!unc_isalnum(*str1)) { str1++; continue; }
@@ -2076,13 +2075,10 @@ int load_option_file(const char *filename)
 {
 #ifdef WIN32
    /* "/dev/null" not understood by "fopen" in Windows */
-   if (strcasecmp(filename, "/dev/null") == 0)
-   {
-      return(0);
-   }
+   retval_if((strcasecmp(filename, "/dev/null") == 0), 0);
 #endif
 
-   FILE *pfile = fopen(filename, "r");
+   FILE* pfile = fopen(filename, "r");
    if (ptr_is_invalid(pfile))
    {
       fprintf(stderr, "%s: fopen(%s) failed: %s (%d)\n",
@@ -2134,8 +2130,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             for (idx = 0; option->short_desc[idx] != 0; idx++)
             {
                fputc(option->short_desc[idx], pfile);
-               if ((option->short_desc[idx] == '\n') &&
-                   (option->short_desc[idx + 1] != 0))
+               if ( (option->short_desc[idx] == '\n') &&
+                    (option->short_desc[idx + 1] != 0))
                {
                   fputs("# ", pfile);
                }
@@ -2146,12 +2142,11 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             }
          }
          first = false;
-         string     val_string = op_val2str(option->type, cpd.settings[option->id]);
-         const char *val_str   = val_string.c_str();
-         size_t     val_len    = strlen(val_str);
-         size_t     name_len   = strlen(option->name);
+         string      val_string = op_val2str(option->type, cpd.settings[option->id]);
+         const char* val_str    = val_string.c_str();
+         size_t      val_len    = strlen(val_str);
+         size_t      name_len   = strlen(option->name);
 
-         // guy
          bool print_option = true;
          if (only_not_default)
          {
@@ -2341,7 +2336,7 @@ string argtype2string(argtype_t argtype)
    }
 }
 
-const char *get_encoding_name(const char_encoding_e enc)
+const char* get_encoding_name(const char_encoding_e enc)
 {
    switch(enc)
    {
@@ -2355,7 +2350,7 @@ const char *get_encoding_name(const char_encoding_e enc)
 }
 
 
-const char *get_argtype_name(argtype_t argtype)
+const char* get_argtype_name(argtype_t argtype)
 {
    switch (argtype)
    {

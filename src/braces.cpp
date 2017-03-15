@@ -365,7 +365,7 @@ static bool can_remove_braces(chunk_t *bopen)
    {
       chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
 
-      prev = chunk_get_prev_ncnl(pc, scope_e::PREPROC);
+      prev = get_prev_ncnl(pc, scope_e::PREPROC);
       assert(is_valid(prev));
       if ( is_type (next, CT_ELSE                        ) &&
            is_type (prev, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
@@ -527,7 +527,7 @@ static void examine_brace(chunk_t *bopen)
             next = get_next_ncnl(bopen);
             if (is_type(next, CT_IF))
             {
-               prev = chunk_get_prev_ncnl(bopen);
+               prev = get_prev_ncnl(bopen);
                LOG_FMT(LBRDEL, " else-if removing braces on line %zu and %zu\n",
                        bopen->orig_line, pc->orig_line);
 
@@ -576,7 +576,6 @@ static void convert_brace(chunk_t *br)
 
    if (is_nl(tmp))
    {
-      assert(is_valid(tmp));
       if (tmp->nl_count > 1) { tmp->nl_count--; }
       else
       {
@@ -645,9 +644,9 @@ static void convert_vbrace_to_brace(chunk_t *pc)
                 !is_preproc(tmp) )
 
       if ((pc->brace_level == tmp->brace_level) &&
-           is_type (tmp, CT_VBRACE_CLOSE) &&
-           is_ptype(pc,  tmp->ptype     ) &&
-          (is_preproc(tmp) == is_preproc(pc)) )
+           is_type (tmp, CT_VBRACE_CLOSE      ) &&
+           is_ptype(pc,  tmp->ptype           ) &&
+           are_same_preproc(tmp, pc           ) )
       {
          vbc = tmp;
          break;
@@ -700,8 +699,7 @@ static void convert_all_vbrace_to_brace(void)
          while ((tmp = chunk_get_next(tmp)) != nullptr)
          {
             /* Can't leave a preprocessor */
-            break_if ((in_preproc == true    ) &&
-                       !is_preproc(tmp) )
+            break_if((in_preproc == true) && !is_preproc(tmp))
 
             if ((pc->brace_level == tmp->brace_level) &&
                  is_type (tmp, CT_VBRACE_CLOSE      ) &&
@@ -768,12 +766,12 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
 
    /* step backwards over all a::b stuff */
    chunk_t *tmp = pc;
-   while ((tmp = chunk_get_prev_ncnl(tmp)) != nullptr)
+   while ((tmp = get_prev_ncnl(tmp)) != nullptr)
    {
       break_if(not_type(tmp, CT_DC_MEMBER, CT_MEMBER));
-      tmp = chunk_get_prev_ncnl(tmp);
+      tmp = get_prev_ncnl(tmp);
       pc  = tmp;
-      break_if(!chunk_is_word(tmp));
+      break_if(!is_word(tmp));
    }
 
    assert(is_valid(pc));
@@ -801,18 +799,29 @@ void add_long_closebrace_comment(void)
 
    for (chunk_t *pc = chunk_get_head(); pc; pc = get_next_ncnl(pc))
    {
+#if 1
+      switch(pc->type)
+      {
+         case(CT_FUNC_DEF   ):  /* fallthrough */
+         case(CT_OC_MSG_DECL): fcn_pc = pc; break;
+         case(CT_SWITCH     ): sw_pc  = pc; break; /* pointless, since it always has the text "switch" */
+         case(CT_NAMESPACE  ): ns_pc  = pc; break;
+         case(CT_CLASS      ): cl_pc  = pc; break;
+         default: /* unexpected type */     break;
+      }
+#else
       if(is_type(pc, CT_FUNC_DEF, CT_OC_MSG_DECL)) { fcn_pc = pc; }
       /* kind of pointless, since it always has the text "switch" */
-      else if (is_type(pc, CT_SWITCH               )) { sw_pc = pc; }
-      else if (is_type(pc, CT_NAMESPACE            )) { ns_pc = pc; }
-      else if (is_type(pc, CT_CLASS                )) { cl_pc = pc; }
+      else if (is_type(pc, CT_SWITCH            )) { sw_pc = pc; }
+      else if (is_type(pc, CT_NAMESPACE         )) { ns_pc = pc; }
+      else if (is_type(pc, CT_CLASS             )) { cl_pc = pc; }
+#endif
 
-      continue_if(not_type(pc, CT_BRACE_OPEN) ||
-                  is_preproc(pc));
+      continue_if(not_type(pc, CT_BRACE_OPEN) || is_preproc(pc));
 
-      chunk_t *br_open = pc;
-      size_t  nl_count = 0;
-      chunk_t *tmp = pc;
+      size_t   nl_count = 0;
+      chunk_t* br_open  = pc;
+      chunk_t* tmp      = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
          if (is_nl(tmp))
@@ -830,23 +839,21 @@ void add_long_closebrace_comment(void)
             /* Found the matching close brace - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
-            // Check for end of class
+            /* Check for end of class */
             if(is_type_and_ptype(tmp, CT_SEMICOLON, CT_CLASS))
             {
                cl_semi_pc = tmp;
                tmp        = chunk_get_next(tmp);
-               if (is_valid        (tmp) &&
-                  !is_nl(tmp) )
+               if (is_valid(tmp) && !is_nl(tmp))
                {
                   tmp        = cl_semi_pc;
                   cl_semi_pc = nullptr;
                }
             }
-            if (is_invalid      (tmp) ||
-                is_nl(tmp) )
+            if (is_invalid(tmp) || is_nl(tmp))
             {
-               size_t  nl_min  = 0;
-               chunk_t *tag_pc = nullptr;
+               size_t   nl_min  = 0;
+               chunk_t* tag_pc = nullptr;
 
                if(is_ptype(br_open, CT_SWITCH))
                {
@@ -886,9 +893,9 @@ void add_long_closebrace_comment(void)
                   cl_pc      = nullptr;
                }
 
-               if ((nl_min   >  0      ) &&
-                   (nl_count >= nl_min ) &&
-                   is_valid(tag_pc) )
+               if ((nl_min   >  0     ) &&
+                   (nl_count >= nl_min) &&
+                   is_valid(tag_pc)     )
                {
                   /* determine the added comment style */
                   const c_token_t style = (is_lang(cpd, LANG_CPPCS)) ?
@@ -943,8 +950,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
 
    /* Make sure 'break', 'return', 'goto', 'case' or '}' is after the close brace */
    chunk_t *pc = get_next_ncnl(br_close, scope_e::PREPROC);
-   if (not_type(pc, 5, CT_CASE, CT_BREAK, CT_BRACE_CLOSE,
-                          CT_GOTO, CT_RETURN))
+   if (not_type(pc, 5, CT_CASE, CT_BREAK, CT_BRACE_CLOSE, CT_GOTO, CT_RETURN))
    {
       LOG_FMT(LMCB, " - after '%s'\n", (is_invalid(pc)) ? "<null>" : get_token_name(pc->type));
       return(next);
@@ -994,7 +1000,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
          return(next);
       }
 
-      if (is_level(pc, cl_colon->level     ) &&
+      if (is_level(pc, cl_colon->level  ) &&
           is_type (pc, CT_CASE, CT_BREAK) )
       {
          last = pc;
@@ -1063,9 +1069,9 @@ static void mod_case_brace(void)
       {
          pc = mod_case_brace_remove(pc);
       }
-      else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD)     ) &&
-                is_type      (pc,   CT_CASE_COLON                         ) &&
-                not_type  (next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE) )
+      else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD) ) &&
+                is_type      (pc,   CT_CASE_COLON                        ) &&
+                not_type  (next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE  ) )
       {
          pc = mod_case_brace_add(pc);
       }

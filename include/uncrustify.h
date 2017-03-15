@@ -17,14 +17,17 @@
 /**
  * tbd
  */
-int main(int argc, char *argv[]);
+int main(
+   int argc,    /**< [in]  */
+   char *argv[] /**< [in]  */
+);
 
 
 /**
  * tbd
  */
 const char *get_token_name(
-   c_token_t token
+   c_token_t token /**< [in]  */
 );
 
 
@@ -33,7 +36,7 @@ const char *get_token_name(
  * returns CT_NONE on failure to match
  */
 c_token_t find_token_name(
-   const char *text
+   const char *text /**< [in]  */
 );
 
 
@@ -41,8 +44,8 @@ c_token_t find_token_name(
  * tbd
  */
 void log_pcf_flags(
-   log_sev_t sev,
-   uint64_t flags
+   log_sev_t sev, /**< [in]  */
+   uint64_t flags /**< [in]  */
 );
 
 
@@ -70,7 +73,7 @@ bool is_lang(
  * @return     Pointer to the character after the last path separator
  */
 const char *path_basename(
-   const char *path
+   const char *path /**< [in]  */
 );
 
 
@@ -89,7 +92,7 @@ size_t path_dirname_len(
  * Done when returns nullptr
  */
 const char *get_file_extension(
-   size_t &idx
+   size_t &idx /**< [in]  */
 );
 
 
@@ -97,7 +100,7 @@ const char *get_file_extension(
  * Prints custom file extensions to the file
  */
 void print_extensions(
-   FILE *pfile
+   FILE *pfile /**< [in]  */
 );
 
 
@@ -105,9 +108,9 @@ void print_extensions(
  * tbd
  */
 void usage_exit(
-   const char *msg,
-   const char *argv0,
-   int        code
+   const char *msg,   /**< [in]  */
+   const char *argv0, /**< [in]  */
+   int        code    /**< [in]  */
 );
 
 
@@ -115,8 +118,8 @@ void usage_exit(
  * tbd
  */
 const char *extension_add(
-   const char *ext_text,
-   const char *lang_text
+   const char *ext_text, /**< [in]  */
+   const char *lang_text /**< [in]  */
 );
 
 
@@ -124,9 +127,9 @@ const char *extension_add(
  * tbd
  */
 void usage_exit(
-   const char *msg,
-   const char *argv0,
-   int        code
+   const char *msg,   /**< [in]  */
+   const char *argv0, /**< [in]  */
+   int        code    /**< [in]  */
 );
 
 

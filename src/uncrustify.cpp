@@ -96,7 +96,7 @@ static const lang_name_t language_names[] =
    { "JAVA", LANG_JAVA },
    { "PAWN", LANG_PAWN },
    { "OC",   LANG_OC   },
-   { "OC+",  LANG_OCPP },
+   { "OC+",  LANG_CPPO },
    { "ECMA", LANG_ECMA },
 };
 

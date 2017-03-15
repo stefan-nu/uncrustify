@@ -50,10 +50,24 @@ static void do_the_sort(
 );
 
 
+/** tbd */
+static int get_chunk_priority(
+   chunk_t *pc
+);
+
+
+/** tbd */
+static void prepare_categories(void);
+
+
+/** tbd */
+static void cleanup_categories(void);
+
+
 include_category *include_categories[kIncludeCategoriesCount];
 
 
-static void prepare_categories()
+static void prepare_categories(void)
 {
    for (size_t i = 0; i < kIncludeCategoriesCount; i++)
    {
@@ -69,7 +83,7 @@ static void prepare_categories()
 }
 
 
-static void cleanup_categories()
+static void cleanup_categories(void)
 {
    for (auto &include_category : include_categories)
    {
@@ -92,7 +106,6 @@ static int get_chunk_priority(chunk_t *pc)
          }
       }
    }
-
    return(kIncludeCategoriesCount);
 }
 
@@ -193,6 +206,7 @@ static void do_the_sort(chunk_t **chunks, const size_t num_chunks)
 }
 
 
+#define MAX_NUMBER_TO_SORT    256
 void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
@@ -222,7 +236,8 @@ void sort_imports(void)
             }
             else
             {
-               fprintf(stderr, "Number of 'import' to be sorted is too big for the current value %d.\n", MAX_NUMBER_TO_SORT);
+               fprintf(stderr, "Number of 'import' to be sorted is too big \
+                     for the current value %d.\n", MAX_NUMBER_TO_SORT);
                fprintf(stderr, "Please make a report.\n");
                cpd.error_count++;
                exit(2);

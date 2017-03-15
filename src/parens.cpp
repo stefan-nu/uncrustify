@@ -102,7 +102,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    chunk_add_before(&pc, first_n);
 
-   chunk_t *last_p = chunk_get_prev_ncnl(last, scope_e::PREPROC);
+   chunk_t *last_p = get_prev_ncnl(last, scope_e::PREPROC);
    assert(is_valid(last_p));
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";

@@ -284,7 +284,7 @@ void tokenize_cleanup(void)
             pc->orig_col  = prev->orig_col;
             pc->orig_line = prev->orig_line;
             chunk_t *to_be_deleted = prev;
-            prev = chunk_get_prev_ncnl(prev);
+            prev = get_prev_ncnl(prev);
             chunk_del(to_be_deleted);
          }
       }
@@ -791,7 +791,7 @@ static void check_template(chunk_t *start)
 {
    LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:", __func__, start->orig_line, start->orig_col);
 
-   chunk_t *prev = chunk_get_prev_ncnl(start, scope_e::PREPROC);
+   chunk_t *prev = get_prev_ncnl(start, scope_e::PREPROC);
    return_if(is_invalid(prev));
 
    chunk_t *end;
@@ -858,7 +858,7 @@ static void check_template(chunk_t *start)
       /* Scan back and make sure we aren't inside square parens */
       bool in_if = false;
       pc = start;
-      while ((pc = chunk_get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
+      while ((pc = get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
       {
          break_if (is_type(pc, CT_SEMICOLON,   CT_BRACE_OPEN,
                                CT_BRACE_CLOSE, CT_SQUARE_CLOSE));

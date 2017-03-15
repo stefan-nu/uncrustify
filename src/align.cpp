@@ -605,7 +605,7 @@ void align_struct_initializers(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      chunk_t *prev = get_prev_ncnl(pc);
       if ( is_type(prev, CT_ASSIGN     ) &&
           (is_type(pc,   CT_BRACE_OPEN ) ||
           (is_type(pc,   CT_SQUARE_OPEN) && is_lang(cpd, LANG_D) )))
@@ -1045,10 +1045,10 @@ static chunk_t *step_back_over_member(chunk_t *pc)
 {
    /* Skip over any class stuff: bool CFoo::bar() */
    chunk_t *tmp;
-   while (((tmp = chunk_get_prev_ncnl(pc)) != nullptr) &&
+   while (((tmp = get_prev_ncnl(pc)) != nullptr) &&
            is_type(tmp, CT_DC_MEMBER))
    {
-      pc = chunk_get_prev_ncnl(tmp);
+      pc = get_prev_ncnl(tmp);
    }
    return(pc);
 }
@@ -1086,7 +1086,7 @@ static void align_func_proto(size_t span)
          if (is_ptype(pc, CT_OPERATOR) &&
              cpd.settings[UO_align_on_operator].b)
          {
-            toadd = chunk_get_prev_ncnl(pc);
+            toadd = get_prev_ncnl(pc);
          }
          else
          {
@@ -1134,7 +1134,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    }
 
    /* can't be any variable definitions in a "= {" block */
-   chunk_t *prev = chunk_get_prev_ncnl(start);
+   chunk_t *prev = get_prev_ncnl(start);
    if(is_type(prev, CT_ASSIGN))
    {
       LOG_FMT(LAVDB, "%s: start=%s [%s] on line %zu (abort due to assign)\n", __func__,
@@ -2053,7 +2053,7 @@ static void align_oc_decl_colon(void)
             cas.Add(pc);
 
             chunk_t *tmp  = chunk_get_prev(pc, scope_e::PREPROC);
-            chunk_t *tmp2 = chunk_get_prev_ncnl(tmp, scope_e::PREPROC);
+            chunk_t *tmp2 = get_prev_ncnl(tmp, scope_e::PREPROC);
 
             /* Check for an un-labeled parameter */
             if (is_type(tmp,  CT_WORD, CT_TYPE, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&

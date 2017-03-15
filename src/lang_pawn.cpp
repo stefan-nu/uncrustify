@@ -18,8 +18,8 @@
  * change until the token after the open.
  */
 static bool pawn_continued(
-   chunk_t *pc,
-   size_t  br_level
+   chunk_t* pc,      /**< [in]  */
+   size_t   br_level /**< [in]  */
 );
 
 
@@ -40,7 +40,7 @@ static bool pawn_continued(
  * Variable definitions start with 'stock', 'static', 'new', or 'public'.
  */
 static chunk_t *pawn_process_line(
-   chunk_t *start
+   chunk_t *start /**< [in]  */
 );
 
 
@@ -48,8 +48,8 @@ static chunk_t *pawn_process_line(
  * We are on a level 0 function proto of def
  */
 static chunk_t *pawn_mark_function0(
-   chunk_t *start,
-   chunk_t *fcn
+   chunk_t *start, /**< [in]  */
+   chunk_t *fcn    /**< [in]  */
 );
 
 
@@ -58,7 +58,7 @@ static chunk_t *pawn_mark_function0(
  * Adds a semicolon at the end, if needed.
  */
 static chunk_t *pawn_process_variable(
-   chunk_t *start
+   chunk_t *start /**< [in]  */
 );
 
 
@@ -66,14 +66,13 @@ static chunk_t *pawn_process_variable(
  * tbd
  */
 static chunk_t *pawn_process_func_def(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
 chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-
    retval_if((is_invalid(pc) || is_semicolon(pc)), pc);
 
    chunk_t *next = get_next_nc(pc);
@@ -100,10 +99,10 @@ void pawn_scrub_vsemi(void)
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       continue_if(not_type(pc, CT_VSEMICOLON));
-      chunk_t *prev = chunk_get_prev_ncnl(pc);
+      chunk_t *prev = get_prev_ncnl(pc);
 
       if (is_type (prev,    CT_BRACE_CLOSE) &&
-          is_ptype(prev, 5, CT_IF, CT_ELSE, CT_SWITCH,
+          is_ptype(prev, 5, CT_ELSE, CT_IF, CT_SWITCH,
                             CT_CASE, CT_WHILE_OF_DO))
       {
          pc->str.clear();
@@ -145,9 +144,8 @@ void pawn_prescan(void)
    chunk_t *pc    = chunk_get_head();
    while (is_valid(pc))
    {
-      if( (did_nl   == true      ) &&
-          not_type(pc, CT_PREPROC, CT_NEWLINE, CT_NL_CONT) &&
-          (pc->level == 0        ) )
+      if( (did_nl == true) && is_level(pc, 0) &&
+          not_type(pc, CT_PREPROC, CT_NEWLINE, CT_NL_CONT))
       {
          /* pc now points to the start of a line */
          pc = pawn_process_line(pc);
@@ -167,8 +165,8 @@ static chunk_t *pawn_process_line(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
 
-   if((is_type(start, CT_NEW    )) ||
-      (is_str (start, "const", 5)) )
+   if(is_type(start, CT_NEW    ) ||
+      is_str (start, "const", 5) )
    {
       return(pawn_process_variable(start));
    }
@@ -249,7 +247,7 @@ void pawn_add_virtual_semicolons(void)
          }
 
          continue_if((is_invalid(prev)) ||
-                     not_type(pc, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
+                 not_type(pc, CT_NEWLINE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
 
          /* we just hit a newline and we have a previous token */
          if ((!is_preproc(prev)) && not_flag(prev, (PCF_IN_ENUM | PCF_IN_STRUCT)) &&
@@ -272,7 +270,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
    if (start == fcn)
    {
       chunk_t *last = get_next_type(fcn, CT_PAREN_CLOSE, (int)fcn->level);
-      last          = chunk_get_next     (last);
+      last          = chunk_get_next(last);
 
       if(is_type(last, CT_SEMICOLON))
       {
@@ -422,7 +420,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *  - level > (vb_open->level + 1) -- ie, in () or []
     *  - it is something that needs a continuation
     *    + arith, assign, bool, comma, compare */
-   chunk_t *prev = chunk_get_prev_ncnl(pc);
+   chunk_t *prev = get_prev_ncnl(pc);
    if ((is_invalid(prev) ) ||
        (prev == vb_open  ) ||
        is_preproc(prev) ||

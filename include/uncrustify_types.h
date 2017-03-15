@@ -83,8 +83,8 @@ struct chunk_t;   /**< forward declaration */
  */
 struct indent_ptr_t
 {
-   chunk_t *ref;   /**<  */
-   int     delta;  /**<  */
+   chunk_t* ref;   /**<  */
+   int      delta;  /**<  */
 };
 
 
@@ -94,7 +94,7 @@ struct paren_stack_entry_t
    c_token_t     type;         /**< the type that opened the entry */
    size_t        level;        /**< Level of opening type */
    size_t        open_line;    /**< line that opening symbol is on */
-   chunk_t       *pc;          /**< Chunk that opened the level */
+   chunk_t*      pc;           /**< Chunk that opened the level */
    int           brace_indent; /**< indent for braces - may not relate to indent */
    size_t        indent;       /**< indent level (depends on use) */
    size_t        indent_tmp;   /**< temporary indent level (depends on use) */
@@ -193,18 +193,18 @@ typedef enum StarStyle_e
 
 typedef struct align_ptr_s
 {
-   chunk_t      *next;       /**< nullptr or the chunk that should be under this one */
-   bool         right_align; /**< AlignStack.m_right_align */
-   StarStyle_t  star_style;  /**< AlignStack.m_star_style */
-   StarStyle_t  amp_style;   /**< AlignStack.m_amp_style */
-   size_t       gap;         /**< AlignStack.m_gap */
+   chunk_t*    next;        /**< nullptr or the chunk that should be under this one */
+   bool        right_align; /**< AlignStack.m_right_align */
+   StarStyle_t star_style;  /**< AlignStack.m_star_style */
+   StarStyle_t amp_style;   /**< AlignStack.m_amp_style */
+   size_t      gap;         /**< AlignStack.m_gap */
 
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
     * A right-aligned word would be a positive value. */
-   int     col_adj;          /**<  */
-   chunk_t *ref;             /**<  */
-   chunk_t *start;           /**<  */
+   int      col_adj;        /**<  */
+   chunk_t* ref;            /**<  */
+   chunk_t* start;          /**<  */
 }align_ptr_t;
 
 
@@ -212,13 +212,13 @@ typedef struct align_ptr_s
 struct chunk_t
 {
    /** constructor for chunk_t */
-   chunk_t()
+   chunk_t(void)
    {
       reset();
    }
 
    /** sets all elements of the struct to their default value */
-   void reset()
+   void reset(void)
    {
       memset(&align,  0, sizeof(align ));
       memset(&indent, 0, sizeof(indent));
@@ -243,20 +243,20 @@ struct chunk_t
 
 
    /** provides the number of characters of string */
-   size_t len()
+   size_t len(void)
    {
       return(str.size());
    }
 
 
    /** provides the content of a string as zero terminated character pointer */
-   const char *text()
+   const char* text(void)
    {
       return(str.c_str());
    }
 
-   chunk_t      *next;         /**< pointer to next chunk in list */
-   chunk_t      *prev;         /**< pointer to previous chunk in list */
+   chunk_t*     next;          /**< pointer to next chunk in list */
+   chunk_t*     prev;          /**< pointer to previous chunk in list */
    align_ptr_t  align;         /**<  */
    indent_ptr_t indent;        /**<  */
    c_token_t    type;          /**< type of the chunk itself */
@@ -297,54 +297,54 @@ typedef enum lang_e
    FLAG_PP    = 0x8000,     /**< only appears in a preprocessor */
 
    /* various language combinations are defined to avoid compiler errors due to int/enum conversions */
-   LANG_CCPPDCSJVE= LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
-   LANG_CCPPDCSV  = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |                         LANG_VALA,
-   LANG_CCPPDCSVE = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |                         LANG_VALA | LANG_ECMA,
-   LANG_CCPPD     = LANG_C   | LANG_CPP  | LANG_D,
-   LANG_CCPPDJP   = LANG_C   | LANG_CPP  | LANG_D    |            LANG_JAVA |                                    LANG_PAWN,
-   LANG_CCPPDE    = LANG_C   | LANG_CPP  | LANG_D    |                                                LANG_ECMA,
-   LANG_CCPPCS    = LANG_C   | LANG_CPP  |             LANG_CS,
-   LANG_CCPPCSJE  = LANG_C   | LANG_CPP  |             LANG_CS  | LANG_JAVA |                         LANG_ECMA,
-   LANG_CCPPCSVP  = LANG_C   | LANG_CPP  |             LANG_CS                          | LANG_VALA |            LANG_PAWN,
-   LANG_CCPPDIG   = LANG_C   | LANG_CPP  |                                                                                   FLAG_DIG,
-   LANG_CCPP      = LANG_C   | LANG_CPP,
-   LANG_CCPPF     = LANG_C   | LANG_CPP  |                                                                                   FLAG_PP,
-   LANG_CCPPO     = LANG_C   | LANG_CPP  |                                     LANG_OC,
-   LAGN_CCPPDO    = LANG_C   | LANG_CPP  | LANG_D    |                         LANG_OC,
-   LANG_ALLC      = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |  LANG_OC  | LANG_VALA | LANG_ECMA,
-   LANG_ALLCPP    = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |  LANG_OC  | LANG_VALA | LANG_ECMA|             FLAG_PP,
-   LANG_CCPPDCSOV = LANG_C   | LANG_CPP  | LANG_D    | LANG_CS  |              LANG_OC  | LANG_VALA,
-   LANG_CCPPPP    = LANG_C   | LANG_CPP  |                                                                       LANG_PAWN | FLAG_PP,
-   LANG_CPPDCSJVE =            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA, // xxx
-   LANG_CPPD      =            LANG_CPP  | LANG_D,
-   LANG_CPPDE     =            LANG_CPP  | LANG_D    |                                                LANG_ECMA,
-   LANG_CPPDVE    =            LANG_CPP  | LANG_D    |                                    LANG_VALA | LANG_ECMA,
-   LANG_CPPDCSJV  =            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA,
-   LANG_CPPDCSJVEP=            LANG_CPP  | LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA| LANG_PAWN,
-   LANG_CPPCSV    =            LANG_CPP  |             LANG_CS  |                         LANG_VALA,
-   LANG_CPPDIG    =            LANG_CPP                                                                        |             FLAG_DIG,
-   LANG_CPPCSJOV  =            LANG_CPP  |             LANG_CS  | LANG_JAVA |  LANG_OC  | LANG_VALA,
-   LANG_CPPCS     =            LANG_CPP  |             LANG_CS,
-   LANG_CPPCSP    =            LANG_CPP  |             LANG_CS                                      |            LANG_PAWN,
-   LANG_DE        =                        LANG_D    |                                                LANG_ECMA,
-   LANG_DCSJV     =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA,
-   LANG_DCSJVE    =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
-   LANG_DCSJVEX   =                        LANG_D    | LANG_CS  | LANG_JAVA |             LANG_VALA | LANG_ECMA,
-   LANG_DCSOVE    =                        LANG_D    | LANG_CS  |              LANG_OC  | LANG_VALA | LANG_ECMA,
-   LANG_DCSV      =                        LANG_D    | LANG_CS  |                         LANG_VALA,
-   LANG_DP        =                        LANG_D    |                                                           LANG_PAWN,
-   LANG_DJE       =                        LANG_D    |            LANG_JAVA |                         LANG_ECMA,
-   LANG_DJP       =                        LANG_D    |            LANG_JAVA |                                    LANG_PAWN,
-   LANG_CSDJE     =                        LANG_D    | LANG_CS  | LANG_JAVA |                         LANG_ECMA,
-   LANG_CSV       =                                    LANG_CS  |                         LANG_VALA,
-   LANG_CSPP      =                                    LANG_CS  |                                                            FLAG_PP,
-   LANG_JE        =                                               LANG_JAVA |                         LANG_ECMA,
-   LANG_JVE       =                                               LANG_JAVA |             LANG_VALA | LANG_ECMA,
-   LANG_VE        =                                                                       LANG_VALA | LANG_ECMA,
-   LANG_OCPP      =            LANG_CPP  |                                     LANG_OC,
-   LANG_PPP       =                                                                                              LANG_PAWN | FLAG_PP,
-   LANG_ALLPP     = LANG_ALL |                                                                                               FLAG_PP,
+   LANG_ALLPP     = LANG_ALL |                                                                                       FLAG_PP,
    LANG_ALLNJE    = LANG_ALL & ~(LANG_JAVA | LANG_ECMA),
+   LANG_ALLCPP    = LANG_C | LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |  LANG_OC | LANG_VALA | LANG_ECMA |            FLAG_PP,
+   LANG_ALLC      = LANG_C | LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |  LANG_OC | LANG_VALA | LANG_ECMA,
+   LANG_CCPPDCSJVE= LANG_C | LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA | LANG_ECMA,
+   LANG_CCPPDCSV  = LANG_C | LANG_CPP | LANG_D | LANG_CS |                        LANG_VALA,
+   LANG_CCPPDCSVE = LANG_C | LANG_CPP | LANG_D | LANG_CS |                        LANG_VALA | LANG_ECMA,
+   LANG_CCPPDCSOV = LANG_C | LANG_CPP | LANG_D | LANG_CS |              LANG_OC | LANG_VALA,
+   LANG_CCPPDJP   = LANG_C | LANG_CPP | LANG_D |           LANG_JAVA |                                   LANG_PAWN,
+   LANG_CCPPDE    = LANG_C | LANG_CPP | LANG_D |                                              LANG_ECMA,
+   LAGN_CCPPDO    = LANG_C | LANG_CPP | LANG_D |                        LANG_OC,
+   LANG_CCPPD     = LANG_C | LANG_CPP | LANG_D,
+   LANG_CCPPCSJE  = LANG_C | LANG_CPP |          LANG_CS | LANG_JAVA |                        LANG_ECMA,
+   LANG_CCPPCSVP  = LANG_C | LANG_CPP |          LANG_CS |                        LANG_VALA |            LANG_PAWN,
+   LANG_CCPPCS    = LANG_C | LANG_CPP |          LANG_CS,
+   LANG_CCPPO     = LANG_C | LANG_CPP |                                 LANG_OC,
+   LANG_CCPPDIG   = LANG_C | LANG_CPP |                                                                              FLAG_DIG,
+   LANG_CCPPF     = LANG_C | LANG_CPP |                                                                              FLAG_PP,
+   LANG_CCPPPP    = LANG_C | LANG_CPP |                                                                  LANG_PAWN | FLAG_PP,
+   LANG_CCPP      = LANG_C | LANG_CPP,
+   LANG_CPPDCSJVEP=          LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA | LANG_ECMA| LANG_PAWN,
+   LANG_CPPDCSJVE =          LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA | LANG_ECMA,
+   LANG_CPPDCSJV  =          LANG_CPP | LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA,
+   LANG_CPPDVE    =          LANG_CPP | LANG_D |                                  LANG_VALA | LANG_ECMA,
+   LANG_CPPDE     =          LANG_CPP | LANG_D |                                              LANG_ECMA,
+   LANG_CPPD      =          LANG_CPP | LANG_D,
+   LANG_CPPCSJOV  =          LANG_CPP |          LANG_CS | LANG_JAVA |  LANG_OC | LANG_VALA,
+   LANG_CPPCSV    =          LANG_CPP |          LANG_CS |                        LANG_VALA,
+   LANG_CPPCSP    =          LANG_CPP |          LANG_CS |                                               LANG_PAWN,
+   LANG_CPPCS     =          LANG_CPP |          LANG_CS,
+   LANG_CPPO      =          LANG_CPP |                                 LANG_OC,
+   LANG_CPPDIG    =          LANG_CPP |                                                                              FLAG_DIG,
+   LANG_DCSJV     =                     LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA,
+   LANG_DCSJVE    =                     LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA | LANG_ECMA,
+   LANG_DCSJVEX   =                     LANG_D | LANG_CS | LANG_JAVA |            LANG_VALA | LANG_ECMA,
+   LANG_CSDJE     =                     LANG_D | LANG_CS | LANG_JAVA |                        LANG_ECMA,
+   LANG_DCSOVE    =                     LANG_D | LANG_CS |              LANG_OC | LANG_VALA | LANG_ECMA,
+   LANG_DCSV      =                     LANG_D | LANG_CS |                        LANG_VALA,
+   LANG_DP        =                     LANG_D |                                                         LANG_PAWN,
+   LANG_DJE       =                     LANG_D |           LANG_JAVA |                        LANG_ECMA,
+   LANG_DJP       =                     LANG_D |           LANG_JAVA |                                   LANG_PAWN,
+   LANG_DE        =                     LANG_D |                                              LANG_ECMA,
+   LANG_CSV       =                              LANG_CS |                        LANG_VALA,
+   LANG_CSPP      =                              LANG_CS |                                                           FLAG_PP,
+   LANG_JE        =                                        LANG_JAVA |                        LANG_ECMA,
+   LANG_JVE       =                                        LANG_JAVA |            LANG_VALA | LANG_ECMA,
+   LANG_VE        =                                                               LANG_VALA | LANG_ECMA,
+   LANG_PPP       =                                                                                      LANG_PAWN | FLAG_PP,
 }lang_t;
 
 
@@ -372,18 +372,18 @@ enum class pattern_class_e : unsigned int
 
 struct chunk_tag_t
 {
-   const char *tag;         /**<  */
-   c_token_t  type;         /**<  */
-   lang_t     lang_flags;   /**<  */
+   const char* tag;         /**<  */
+   c_token_t   type;         /**<  */
+   lang_t      lang_flags;   /**<  */
 };
 
 
 struct lookup_entry_t
 {
-   char              ch;              /**<  */
-   char              left_in_group;   /**<  */
-   uint16_t          next_idx;        /**<  */
-   const chunk_tag_t *tag;            /**<  */
+   char               ch;              /**<  */
+   char               left_in_group;   /**<  */
+   uint16_t           next_idx;        /**<  */
+   const chunk_tag_t* tag;            /**<  */
 };
 
 
@@ -425,8 +425,8 @@ enum class unc_stage_e : unsigned int
 
 struct cp_data_t
 {
-   deque<uint8_t>  *bout;          /**<  */
-   FILE            *fout;          /**<  */
+   deque<uint8_t>* bout;          /**<  */
+   FILE*           fout;          /**<  */
    int             last_char;      /**<  */
    bool            do_check;       /**<  */
    unc_stage_e     unc_stage;      /**<  */
@@ -434,7 +434,7 @@ struct cp_data_t
    bool            if_changed;     /**<  */
 
    uint32_t        error_count;    /**< counts how many errors occurred so far */
-   const char      *filename;      /**<  */
+   const char*     filename;      /**<  */
 
    file_mem_t      file_hdr;       /**< for cmt_insert_file_header */
    file_mem_t      file_ftr;       /**< for cmt_insert_file_footer */
@@ -493,7 +493,7 @@ struct cp_data_t
 };
 
 
-extern cp_data_t cpd;   /* \todo can we avoid this external variable? */
+extern cp_data_t cpd; /* \todo can we avoid this external variable? */
 
 
 #endif /* UNCRUSTIFY_TYPES_H_INCLUDED */
