@@ -13,8 +13,8 @@
  * tbd
  */
 const chunk_tag_t *find_punctuator(
-   const char *str,
-   lang_t lang_flags
+   const char *str,  /**< [in]  */
+   lang_t lang_flags /**< [in]  */
 );
 
 

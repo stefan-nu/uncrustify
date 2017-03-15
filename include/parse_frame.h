@@ -15,8 +15,8 @@
  * Logs one parse frame
  */
 void pf_log(
-   log_sev_t     logsev,
-   parse_frame_t *pf
+   log_sev_t     logsev, /**< [in]  */
+   parse_frame_t *pf     /**< [in]  */
 );
 
 
@@ -24,8 +24,8 @@ void pf_log(
  * Copies src to dst.
  */
 void pf_copy(
-   parse_frame_t       *dst,
-   const parse_frame_t *src
+   parse_frame_t       *dst, /**< [in]  */
+   const parse_frame_t *src  /**< [in]  */
 );
 
 
@@ -34,7 +34,7 @@ void pf_copy(
  * This is called on #if and #ifdef.
  */
 void pf_push(
-   parse_frame_t *pf
+   parse_frame_t *pf /**< [in]  */
 );
 
 
@@ -44,7 +44,7 @@ void pf_push(
  * This is called on the first #else and #elif.
  */
 void pf_push_under(
-   parse_frame_t *pf
+   parse_frame_t *pf /**< [in]  */
 );
 
 
@@ -53,7 +53,7 @@ void pf_push_under(
  * This is called on #else and #elif.
  */
 void pf_copy_tos(
-   parse_frame_t *pf
+   parse_frame_t *pf /**< [in]  */
 );
 
 
@@ -68,7 +68,7 @@ void pf_trash_tos(void);
  * This is called on #endif
  */
 void pf_pop(
-   parse_frame_t *pf
+   parse_frame_t *pf /**< [in]  */
 );
 
 
@@ -76,8 +76,8 @@ void pf_pop(
  * Returns the pp_indent to use for this line
  */
 size_t pf_check(
-   parse_frame_t *frm,
-   chunk_t       *pc
+   parse_frame_t *frm,/**< [in]  */
+   chunk_t       *pc  /**< [in]  */
 );
 
 

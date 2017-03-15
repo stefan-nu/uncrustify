@@ -21,18 +21,10 @@
  *  throughout the code it is important to correctly recognize and name
  *  the found object. Here is some useful information.
  *
- *  parenthesis = ( )
+ *  parenthesis = ( ) aka "round brace"
  *  brace       = { } aka "curly brace"
  *  bracket     = [ ] aka "square bracket"
  */
-
-/** use this enum to define in what direction or location an
- *  operation shall be performed. */
-enum class dir_e : unsigned int
-{
-   BEFORE, /**< indicates a position or direction upwards   (=prev) */
-   AFTER   /**< indicates a position or direction downwards (=next) */
-};
 
 
 /***************************************************************************//**
@@ -57,7 +49,7 @@ typedef chunk_t * (*search_t)(chunk_t *cur, const scope_e scope);
 
 
 typedef ListManager<chunk_t> ChunkList_t;
-
+typedef ListManager<chunk_t>::dir_e dir_e;
 
 
 /***************************************************************************//**
@@ -187,6 +179,13 @@ static chunk_t *chunk_add(
  ******************************************************************************/
 static search_t select_search_fct(
    const dir_e dir = dir_e::AFTER /**< [in] search direction */
+);
+
+
+static chunk_t *chunk_get(
+   chunk_t *cur,                       /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL, /**< [in] code region to search in */
+   const dir_e   dir   = dir_e::AFTER
 );
 
 
@@ -345,7 +344,7 @@ chunk_t *chunk_search_next_cat(chunk_t *pc, const c_token_t cat)
 static void set_chunk(chunk_t *pc, c_token_t token, log_sev_t val, const char *str);
 
 
-ChunkList_t g_cl; /** global chunk list */ /*\todo should become a local variable */
+ChunkList_t g_cl; /** global chunk list, \todo should become a local variable */
 
 
 static chunk_t *chunk_search_type(chunk_t *cur, const c_token_t type,
@@ -370,7 +369,8 @@ chunk_t *chunk_search_typelevel(chunk_t *cur, const c_token_t type, scope_e scop
 
    do                                  /* loop over the chunk list */
    {
-      pc = search_function(pc, scope); /* in either direction while */
+//      pc = search_function(pc, scope); /* in either direction while */
+      pc = chunk_get(pc, scope, dir);
    } while ((is_valid(pc)) &&          /* the end of the list was not reached */
             (is_type_and_level(pc, type, level) == false)); /* and chunk not found yet */
    return(pc);                         /* the latest chunk is the searched one */
@@ -411,6 +411,7 @@ bool is_level(const chunk_t *pc, const size_t level)
    return (is_valid(pc) && pc->level == level);
 }
 
+
 bool exceeds_level(const chunk_t *pc, const size_t ref)
 {
    return (is_valid(pc) && pc->level > ref);
@@ -434,11 +435,9 @@ static bool is_expected_string_and_level(chunk_t *pc, const char *str, int level
 }
 
 
-/* \todo the following function shall be made similar to the search functions */
-chunk_t *chunk_first_on_line(chunk_t *pc)
+chunk_t *get_first_on_line(chunk_t *pc)
 {
    chunk_t *first = pc;
-
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
            !is_nl(pc) )
    {
@@ -448,10 +447,33 @@ chunk_t *chunk_first_on_line(chunk_t *pc)
 }
 
 
-/* \todo maybe it is better to combine chunk_get_next and chunk_get_prev
- * into a common function However this should be done with the preprocessor
- * to avoid addition check conditions that would be evaluated in the
- * while loop of the calling function */
+static chunk_t *chunk_get(chunk_t *cur, const scope_e scope, const dir_e dir)
+{
+#if 0
+   return (dir == dir_e::BEFORE) ?
+         chunk_get_prev(cur, scope) :
+         chunk_get_next(cur, scope);
+#else
+   retval_if(is_invalid(cur), cur);
+
+   chunk_t *pc = g_cl.Get(cur, dir);
+   retval_if((is_invalid(pc) || (scope == scope_e::ALL)), pc);
+
+   if (is_preproc(cur))
+   {
+      /* If in a preproc, return nullptr if trying to leave */
+      return(!is_preproc(pc)) ? (chunk_t*)nullptr : pc;
+   }
+   /* Not in a preproc, skip any preproc */
+   while (is_preproc(pc))
+   {
+      pc = g_cl.Get(pc, dir);
+   }
+   return(pc);
+#endif
+}
+
+
 chunk_t *chunk_get_next(chunk_t *cur, const scope_e scope)
 {
    retval_if(is_invalid(cur), cur);
@@ -478,18 +500,12 @@ chunk_t *chunk_get_prev(chunk_t *cur, const scope_e scope)
    retval_if(is_invalid(cur), cur);
 
    chunk_t *pc = g_cl.GetPrev(cur);
-   if (is_invalid(pc) || (scope == scope_e::ALL))
-   {
-      return(pc);
-   }
+   retval_if((is_invalid(pc) || (scope == scope_e::ALL)), pc);
+
    if (is_preproc(cur))
    {
       /* If in a preproc, return nullptr if trying to leave */
-      if (!is_preproc(pc))
-      {
-         return((chunk_t*)nullptr);
-      }
-      return(pc);
+      return(!is_preproc(pc)) ? (chunk_t*)nullptr : pc;
    }
    /* Not in a preproc, skip any preproc */
    while (is_preproc(pc))
@@ -798,8 +814,8 @@ void swap_chunks(chunk_t* pc1, chunk_t* pc2)
 void swap_lines(chunk_t *pc1, chunk_t *pc2)
 {
    /* to swap lines we need to find the first chunk of the lines */
-   pc1 = chunk_first_on_line(pc1);
-   pc2 = chunk_first_on_line(pc2);
+   pc1 = get_first_on_line(pc1);
+   pc2 = get_first_on_line(pc2);
 
    return_if(are_invalid(pc1, pc2) || (pc1 == pc2));
 
@@ -1035,6 +1051,12 @@ bool are_ptypes(const chunk_t* pc1, const c_token_t type1,
 {
    return(is_ptype(pc1, type1) &&
           is_ptype(pc2, type2) );
+}
+
+
+bool is_type(const c_token_t token, const c_token_t type)
+{
+   return(token == type);
 }
 
 

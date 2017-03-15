@@ -19,7 +19,7 @@
  * @retval           EX_IOERR - reading defines file failed
  */
 int load_define_file(
-   const char *filename
+   const char *filename /**< [in]  */
 );
 
 
@@ -30,8 +30,8 @@ int load_define_file(
  * @param value      nullptr or the value of the define
  */
 void add_define(
-   const char *tag,
-   const char *value
+   const char *tag,  /**< [in]  */
+   const char *value /**< [in]  */
 );
 
 
@@ -39,7 +39,7 @@ void add_define(
  * tbd
  */
 void print_defines(
-   FILE *pfile
+   FILE *pfile /**< [in]  */
 );
 
 

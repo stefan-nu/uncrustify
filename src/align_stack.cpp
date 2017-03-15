@@ -33,7 +33,7 @@ void AlignStack::Start(size_t span, size_t thresh)
 }
 
 
-void AlignStack::ReAddSkipped()
+void AlignStack::ReAddSkipped(void)
 {
    if (!m_skipped.Empty())
    {

@@ -26,7 +26,7 @@
  * @param log_file   nullptr for stderr or the FILE stream for logs.
  */
 void log_init(
-   FILE *log_file
+   FILE *log_file /**< [in]  */
 );
 
 
@@ -36,7 +36,7 @@ void log_init(
  * @param true=show  false=hide
  */
 void log_show_sev(
-   bool show
+   bool show /**< [in]  */
 );
 
 
@@ -47,7 +47,7 @@ void log_show_sev(
  * @return     true/false
  */
 bool log_sev_on(
-   log_sev_t sev
+   log_sev_t sev /**< [in]  */
 );
 
 
@@ -58,8 +58,8 @@ bool log_sev_on(
  * @return     true/false
  */
 void log_set_sev(
-   log_sev_t sev,
-   bool value
+   log_sev_t sev, /**< [in]  */
+   bool value     /**< [in]  */
 );
 
 
@@ -69,7 +69,7 @@ void log_set_sev(
  * @param mask The mask to copy
  */
 void log_set_mask(
-   const log_mask_t &mask
+   const log_mask_t &mask /**< [in]  */
 );
 
 
@@ -79,7 +79,7 @@ void log_set_mask(
  * @param mask Where to copy the mask
  */
 void log_get_mask(
-   log_mask_t &mask
+   log_mask_t &mask /**< [in]  */
 );
 
 
@@ -91,9 +91,9 @@ void log_get_mask(
  * @param len  The length of the string from strlen(str)
  */
 void log_str(
-   log_sev_t sev,
-   const char *str,
-   size_t len
+   log_sev_t sev,   /**< [in]  */
+   const char *str, /**< [in]  */
+   size_t len       /**< [in]  */
 );
 
 
@@ -135,9 +135,9 @@ __attribute__((format(printf, 2, 3)));
  * @param len     The number of bytes to log
  */
 void log_hex(
-   log_sev_t sev,
-   const void *vdata,
-   size_t len
+   log_sev_t sev,     /**< [in]  */
+   const void *vdata, /**< [in]  */
+   size_t len         /**< [in]  */
 );
 
 
@@ -160,9 +160,9 @@ void log_hex(
  * @param len     The number of bytes to log
  */
 void log_hex_blk(
-   log_sev_t sev,
-   const void *data,
-   size_t len
+   log_sev_t sev,    /**< [in]  */
+   const void *data, /**< [in]  */
+   size_t len        /**< [in]  */
 );
 
 
@@ -216,7 +216,7 @@ class log_func
 {
 public:
    log_func(const char *name, int line);
-   ~log_func();
+   ~log_func(); /**< [in]  */
 };
 
 
@@ -224,7 +224,7 @@ public:
  * tbd
  */
 void log_func_call(
-   int line
+   int line /**< [in]  */
 );
 
 

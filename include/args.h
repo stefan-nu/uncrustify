@@ -46,7 +46,7 @@ public:
    );
 
    /** Standard destructor */
-   ~Args();
+   ~Args(void);
 
 
    /* Copy constructor */

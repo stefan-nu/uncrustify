@@ -55,7 +55,7 @@ void align_struct_initializers(void);
  * @return        pointer the last item looked at (nullptr/newline/comment)
  */
 chunk_t *align_nl_cont(
-   chunk_t *start
+   chunk_t *start /**< [in]  */
 );
 
 
@@ -67,9 +67,9 @@ chunk_t *align_nl_cont(
  * Otherwise, only look at the first '=' on the line.
  */
 chunk_t *align_assign(
-   chunk_t *first,
-   size_t  span,
-   size_t  thresh
+   chunk_t *first, /**< [in]  */
+   size_t  span,   /**< [in]  */
+   size_t  thresh  /**< [in]  */
 );
 
 

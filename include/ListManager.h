@@ -38,6 +38,15 @@ private:
    }
 
 public:
+   /** use this enum to define in what direction or location an
+    *  operation shall be performed. */
+   enum class dir_e : unsigned int
+   {
+      BEFORE, /**< indicates a position or direction upwards   (=prev) */
+      AFTER,  /**< indicates a position or direction downwards (=next) */
+   };
+
+
    ListManager()
    {
       first = nullptr;
@@ -49,7 +58,7 @@ public:
     *
     * @return pointer to first element or nullptr if list is empty
     */
-   T *GetHead()
+   T* GetHead(void)
    {
       return(first);
    }
@@ -60,7 +69,7 @@ public:
     *
     * @return pointer to last element or nullptr if list is empty
     */
-   T *GetTail()
+   T* GetTail(void)
    {
       return(last);
    }
@@ -69,10 +78,9 @@ public:
    /**
     *  \brief return the next element of the linked list
     *
-    * @param [in] ref pointer to current list element
     * @return pointer to next element or nullptr if no next element exists
     */
-   T *GetNext(T *ref)
+   T* GetNext(T* ref) /**< [in] pointer to current list element */
    {
       return(ptr_is_valid(ref) ? ref->next : nullptr);
    }
@@ -81,17 +89,33 @@ public:
    /**
     * \brief return the previous element of the linked list
     *
-    * @param [in] ref pointer to current list element
     * @return pointer to previous element or nullptr if no previous element exists
     */
-   T *GetPrev(T *ref)
+   T* GetPrev(T* ref) /**< [in] pointer to current list element */
    {
       return(ptr_is_valid(ref) ? ref->prev : nullptr);
    }
 
 
+   /**
+    * \brief return the the next element of the linked list
+    *
+    * @return pointer to next list element or nullptr if ref pointer is invalid
+    */
+   T* Get(
+      T*    ref,      /**< [in] pointer to current list element */
+      const dir_e dir /**< [in] direction to proceed in list */
+   )
+   {
+      retval_if(ptr_is_invalid(ref), nullptr);
+      return (dir == dir_e::BEFORE) ? ref->prev : ref->next;
+   }
+
+
    /** \brief initialize the pointers of a new list element */
-   void InitEntry(T *obj) const
+   void InitEntry(
+      T* obj /**< [in] object to initialize */
+   ) const
    {
       if (ptr_is_valid(obj))
       {
@@ -102,12 +126,12 @@ public:
 
 
    /** \brief remove an element from a linked list */
-   void Pop(T *obj) /**< [in] element to remove from list */
+   void Pop(T* obj) /**< [in] element to remove from list */
    {
       if (ptr_is_valid(obj))
       {
-         if (first == obj)            { first = obj->next; }
-         if (last  == obj)            { last  = obj->prev; }
+         if (first == obj)            { first           = obj->next; }
+         if (last  == obj)            { last            = obj->prev; }
          if (ptr_is_valid(obj->next)) { obj->next->prev = obj->prev; }
          if (ptr_is_valid(obj->prev)) { obj->prev->next = obj->next; }
          obj->next = nullptr;
@@ -117,7 +141,10 @@ public:
 
 
    /** swap two elements of a list */
-   void Swap(T *obj1, T *obj2)
+   void Swap(
+      T* obj1, /**< [in] first  object to swap */
+      T* obj2  /**< [in] second object to swap */
+   )
    {
       if (ptrs_are_valid(obj1, obj2))
       {
@@ -134,26 +161,17 @@ public:
    }
 
 
-   /** use this enum to define in what direction or location an
-    *  operation shall be performed. */
-   enum class loc_e : unsigned int
-   {
-      BEFORE, /**< indicates a position or direction upwards   (=prev) */
-      AFTER,  /**< indicates a position or direction downwards (=next) */
-   };
-
-
    /** \brief add a new element to a list */
-   void Add(
-      T *obj, /**< [in] new object to add to list */
-      T *ref, /**< [in] reference determines insert position */
-      loc_e pos = loc_e::AFTER /**< [in] insert before or after reference */
+   void Push(
+      T*    obj, /**< [in] new object to add to list */
+      T*    ref, /**< [in] reference determines insert position */
+      dir_e pos = dir_e::AFTER /**< [in] insert before or after reference */
    )
    {
-      assert( (pos == loc_e::AFTER) || (pos == loc_e::BEFORE));
+      assert( (pos == dir_e::AFTER) || (pos == dir_e::BEFORE));
       return_if(ptr_is_invalid(obj));
 
-      bool after = (pos == loc_e::AFTER);
+      bool after = (pos == dir_e::AFTER);
 
       if (ptr_is_valid(ref))
       {
@@ -211,35 +229,35 @@ public:
 
    /** \brief add a new element after a reference position in a list */
    void AddAfter(
-      T *obj, /**< [in] new element to add to list */
-      T *ref  /**< [in] chunk after which to insert new object */
+      T* obj, /**< [in] new element to add to list */
+      T* ref  /**< [in] chunk after which to insert new object */
    )
    {
-      Add(obj, ref, loc_e::AFTER);
+      Push(obj, ref, dir_e::AFTER);
    }
 
 
    /** \brief add a new element before a reference position in a list */
    void AddBefore(
-      T *obj, /**< [in] new element to add to list */
-      T *ref  /**< [in] chunk before to insert new object */
+      T* obj, /**< [in] new element to add to list */
+      T* ref  /**< [in] chunk before to insert new object */
    )
    {
-      Add(obj, ref, loc_e::BEFORE);
+      Push(obj, ref, dir_e::BEFORE);
    }
 
 
    /** \brief add a new element to the tail of a list */
-   void AddTail(T *obj) /**< [in] new element to add to list */
+   void AddTail(T* obj) /**< [in] new element to add to list */
    {
-      Add(obj, last, loc_e::AFTER);
+      Push(obj, last, dir_e::AFTER);
    }
 
 
    /** \brief add a new element to the head of a list */
-   void AddHead(T *obj) /**< [in] new element to add to list */
+   void AddHead(T* obj) /**< [in] new element to add to list */
    {
-      Add(obj, last, loc_e::BEFORE);
+      Push(obj, last, dir_e::BEFORE);
    }
 };
 

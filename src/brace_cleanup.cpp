@@ -258,10 +258,10 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if ((is_cmt(pc) == false       )   &&
-          (is_nl(pc) == false       )   &&
-          ((cpd.is_preproc      == CT_PP_DEFINE) ||
-           (cpd.is_preproc      == CT_NONE     ) ) )
+      if ((is_cmt(pc) == false) &&
+          (is_nl (pc) == false) &&
+          ((cpd.is_preproc == CT_PP_DEFINE) ||
+           (cpd.is_preproc == CT_NONE     ) ) )
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);
@@ -388,11 +388,11 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
    /* Mark statement starts */
    if (((frm->stmt_count == 0) ||
-        (frm->expr_count == 0)     ) &&
-       (!is_semicolon(pc)    ) &&
+        (frm->expr_count == 0)) &&
+       (!is_semicolon(pc)     ) &&
          not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-       (!is_str(pc, ")", 1)  ) &&
-       (!is_str(pc, "]", 1)  ) )
+       (!is_str(pc, ")", 1)   ) &&
+       (!is_str(pc, "]", 1)   ) )
    {
       const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
@@ -418,7 +418,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
 
       /* Mark the parent on semicolons in for() statements */
       if (is_type(pc, CT_SEMICOLON) &&
-          (frm->pse_tos > 1        ) &&
+          (frm->pse_tos > 1       ) &&
           (frm->pse[frm->pse_tos - 1].type == CT_FOR))
       {
          set_ptype(pc, CT_FOR);
@@ -452,14 +452,14 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
    }
 
    /* Handle close parenthesis, vbrace, brace, and square */
-
    if (is_type(pc, 6, CT_PAREN_CLOSE, CT_BRACE_CLOSE, CT_VBRACE_CLOSE,
-                            CT_ANGLE_CLOSE, CT_MACRO_CLOSE, CT_SQUARE_CLOSE) )
+                      CT_ANGLE_CLOSE, CT_MACRO_CLOSE, CT_SQUARE_CLOSE) )
    {
       /* Change CT_PAREN_CLOSE into CT_SPAREN_CLOSE or CT_FPAREN_CLOSE */
-      if ( is_type(pc, CT_PAREN_CLOSE)   &&
-          ((frm->pse[frm->pse_tos].type == CT_FPAREN_OPEN) ||
-           (frm->pse[frm->pse_tos].type == CT_SPAREN_OPEN) ) )
+      c_token_t my_type = frm->pse[frm->pse_tos].type;
+      if ( is_type(pc,      CT_PAREN_CLOSE) &&
+          (is_type(my_type, CT_FPAREN_OPEN) ||
+           is_type(my_type, CT_SPAREN_OPEN) ) )
       {
          set_type(pc, get_inverse_type(frm->pse[frm->pse_tos].type) );
          if (is_type(pc, CT_SPAREN_CLOSE))
@@ -473,8 +473,9 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t *pc)
       if (pc->type != (c_token_t)((int)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
 //    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type )) fails
       {
-         if ((frm->pse[frm->pse_tos].type != CT_NONE     ) &&
-             (frm->pse[frm->pse_tos].type != CT_PP_DEFINE) )
+         my_type = frm->pse[frm->pse_tos].type;
+         if ((my_type != CT_NONE     ) &&
+             (my_type != CT_PP_DEFINE) )
          {
             LOG_FMT(LWARN, "%s: %s:%zu Error: Unexpected '%s' for '%s', which was on line %zu\n",
                     __func__, cpd.filename, pc->orig_line, pc->text(),

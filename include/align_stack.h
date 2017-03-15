@@ -31,7 +31,7 @@ public:
    bool         m_skip_first;  /**< do not include the first item if it causes it to be indented */
 
 
-   AlignStack()
+   AlignStack(void)
       : m_max_col    (0)
       , m_min_col    (0)
       , m_span       (0)
@@ -65,7 +65,7 @@ public:
    { }
 
 
-   ~AlignStack() { }
+   ~AlignStack(void) { }
 
 
    /**
@@ -98,19 +98,19 @@ public:
     * Aligns all the stuff in m_aligned.
     * Re-adds 'newer' items in m_skipped.
     */
-   void Flush();
+   void Flush(void);
 
 
    /**
     * Resets the stack, discarding anything that was previously added
     */
-   void Reset();
+   void Reset(void);
 
 
    /**
     * Aligns everything else and resets the lists.
     */
-   void End();
+   void End(void);
 
 
 protected:
@@ -120,7 +120,7 @@ protected:
    /**
     * Calls Add on all the skipped items
     */
-   void   ReAddSkipped();
+   void   ReAddSkipped(void);
 };
 
 

@@ -28,6 +28,7 @@
 #define break_if(cond)           if (cond) {break;         }
 #define continue_if(cond)        if (cond) {continue;      }
 
+
 /**
  * Specifies which chunks should/should not be found.
  * ALL (default)
@@ -315,14 +316,21 @@ void swap_lines(
 
 
 /**
- * Finds the first chunk on the line that pc is on.
- * This just backs up until a newline or nullptr is hit.
+ * Finds the first chunk of the line that pc is part of.
+ * This backs up until a newline or nullptr is hit.
  *
- * given: [ a - b - c - n1 - d - e - n2 ]
- * input: [ a | b | c | n1 ] => a
- * input: [ d | e | n2 ]     => d
+ * chunk list: [ a - b - c - n1 - d - e - n2 ]
+ * input:      [ a  => a ]
+ * input:      [ b  => a ]
+ * input:      [ c  => a ]
+ * input:      [ n1 => a ]
+ * input:      [ d  => d ]
+ * input:      [ e  => d ]
+ * input:      [ n2 => d ]
+ *
+ * @return pointer to first chunk of the line
  */
-chunk_t *chunk_first_on_line(
+chunk_t *get_first_on_line(
    chunk_t *pc  /**< [in] chunk to start with */
 );
 
@@ -1041,6 +1049,15 @@ bool is_type(
    const c_token_t type2,    /**< [in] token type2 to check for */
    const c_token_t type3,    /**< [in] token type3 to check for */
    const c_token_t type4     /**< [in] token type4 to check for */
+);
+
+
+/**
+ * check if the given token holds a given token type
+ */
+bool is_type(
+   const c_token_t token, /**< [in] token to check */
+   const c_token_t type   /**< [in] token type to check for */
 );
 
 

@@ -30,9 +30,9 @@ void add_long_closebrace_comment(void);
  * Returns the added chunk or nullptr
  */
 chunk_t *insert_comment_after(
-   chunk_t        *ref,
-   c_token_t      cmt_type,
-   const unc_text &cmt_text
+   chunk_t        *ref,      /**< [in]  */
+   c_token_t      cmt_type,  /**< [in]  */
+   const unc_text &cmt_text  /**< [in]  */
 );
 
 
