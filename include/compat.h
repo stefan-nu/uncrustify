@@ -15,8 +15,8 @@
  * tbd
  */
 bool unc_getenv(
-   const char *name,
-   std::string &str
+   const char *name, /**< [in]  */
+   std::string &str  /**< [in]  */
 );
 
 
@@ -24,7 +24,7 @@ bool unc_getenv(
  * tbd
  */
 bool unc_homedir(
-   std::string &home
+   std::string &home /**< [in]  */
 );
 
 

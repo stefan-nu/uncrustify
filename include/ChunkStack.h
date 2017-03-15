@@ -16,162 +16,125 @@ class ChunkStack
 public:
    struct Entry
    {
-      Entry()
+      Entry(void)
          : m_seqnum(0)
          , m_pc(0)
-      {
-      }
+      { }
 
 
       Entry(const Entry &ref)
          : m_seqnum(ref.m_seqnum)
          , m_pc(ref.m_pc)
-      {
-      }
+      { }
 
 
       Entry(size_t sn, chunk_t *pc)
          : m_seqnum(sn)
          , m_pc(pc)
-      {
-      }
+      { }
       size_t  m_seqnum;
       chunk_t *m_pc;
    };
 
 
 protected:
-   deque<Entry> m_cse;
-   size_t       m_seqnum; // current sequence number
+   deque<Entry> m_cse;    /**<   */
+   size_t       m_seqnum; /**< current sequence number */
 
 
 public:
 
-   /**
-    * Constructor
-    */
-   ChunkStack()
+   /** Constructor */
+   ChunkStack(void)
       : m_seqnum(0)
-   {
-   }
+   { }
 
 
-   /**
-    * Constructor
-    */
-   ChunkStack(const ChunkStack &cs)
+   /** Constructor */
+   ChunkStack(const ChunkStack &cs)  /**< [in]  */
    {
       Set(cs);
    }
 
 
-   /**
-    * Destructor
-    */
-   virtual ~ChunkStack()
-   {
-   }
+   /** Destructor */
+   virtual ~ChunkStack(void)
+   { }
 
 
-   /**
-    * tbd
-    */
+   /** tbd */
    void Set(
-      const ChunkStack &cs
+      const ChunkStack &cs /**< [in]  */
    );
 
 
-   /**
-    * tbd
-    */
+   /** tbd */
    void Push_Back(chunk_t *pc)
    {
       Push_Back(pc, ++m_seqnum);
    }
 
 
-   /**
-    * tbd
-    */
-   bool Empty() const
+   /** tbd */
+   bool Empty(void) const
    {
       return(m_cse.empty());
    }
 
 
-   /**
-    * tbd
-    */
-   size_t Len() const
+   /** tbd */
+   size_t Len(void) const
    {
       return(m_cse.size());
    }
 
 
-   /**
-    * tbd
-    */
-   const Entry *Top() const;
+   /** tbd */
+   const Entry *Top(void) const;
 
 
-   /**
-    * tbd
-    */
+   /** tbd */
    const Entry *Get(
-      size_t idx
+      size_t idx /**< [in]  */
    ) const;
 
 
-   /**
-    * tbd
-    */
+   /** tbd */
    chunk_t *GetChunk(
-      size_t idx
+      size_t idx /**< [in]  */
    ) const;
 
 
-   /**
-    * tbd
-    */
-   chunk_t *Pop_Back();
+   /** tbd */
+   chunk_t *Pop_Back(void);
 
 
-   /**
-    * tbd
-    */
+   /** tbd */
    void Push_Back(
-      chunk_t *pc,
-      size_t  seqnum
+      chunk_t *pc,   /**< [in]  */
+      size_t  seqnum /**< [in]  */
    );
 
 
-   /**
-    * tbd
-    */
-   chunk_t *Pop_Front();
+   /** tbd */
+   chunk_t *Pop_Front(void);
 
 
-   /**
-    * tbd
-    */
-   void Reset()
+   /** tbd */
+   void Reset(void)
    {
       m_cse.clear();
    }
 
 
-   /**
-    * Mark an entry to be removed by Collapse()
-    */
+   /** Mark an entry to be removed by Collapse() */
    void Zap(
       size_t idx /**< [in] item to remove */
    );
 
 
-   /**
-    * Compresses down the stack by removing dead entries
-    */
-   void Collapse();
+   /** Compresses down the stack by removing dead entries */
+   void Collapse(void);
 };
 
 

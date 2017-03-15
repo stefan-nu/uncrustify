@@ -17,17 +17,17 @@
 class MD5
 {
 public:
-   MD5();
+   MD5(void);
 
 
-   ~MD5()
+   ~MD5(void)
    {
    }
 
    /**
     * tbd
     */
-   void Init();
+   void Init(void);
 
 
    /**
@@ -35,8 +35,8 @@ public:
     * the transform routine.
     */
    void Update(
-      const void *data,
-      uint32_t     len
+      const void *data, /**< [in]  */
+      uint32_t   len    /**< [in]  */
    );
 
 
@@ -55,8 +55,8 @@ public:
     * the data and converts bytes into longwords for this routine.
     */
    static void Transform(
-      uint32_t       buf[4],
-      const uint32_t in_data[16]
+      uint32_t       buf[4],     /**< [in]  */
+      const uint32_t in_data[16] /**< [in]  */
    );
 
 
@@ -64,9 +64,9 @@ public:
     * Calculates MD5 for a block of data
     */
    static void Calc(
-      const void   *data,     /**< [in] data to calculate MD5 for */
+      const void     *data,     /**< [in] data to calculate MD5 for */
       const uint32_t length,    /**< [in] number of bytes in data */
-      uint8_t      digest[16] /**< [out] calculated MD5 checksum */
+      uint8_t        digest[16] /**< [out] calculated MD5 checksum */
    );
 
 
@@ -82,8 +82,8 @@ private:
     * 'buf' might not be word-aligned.
     */
    void reverse_u32(
-      uint8_t  *buf,   /**< [in] The byte array to reverse */
-      size_t n_u32   /**< [in] The number of uint32_t's in the data */
+      uint8_t *buf, /**< [in] The byte array to reverse */
+      size_t  n_u32 /**< [in] The number of uint32_t's in the data */
    ) const;
 };
 

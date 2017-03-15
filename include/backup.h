@@ -45,8 +45,8 @@
  * @retval           EX_IOERR - could not create backup file
  */
 int backup_copy_file(
-   const char            *filename,
-   const vector<uint8_t> &data
+   const char            *filename, /**< [in]  */
+   const vector<uint8_t> &data      /**< [in]  */
 );
 
 
@@ -63,7 +63,7 @@ int backup_copy_file(
  * @param filename   The file that was written (full path)
  */
 void backup_create_md5_file(
-   const char *filename
+   const char *filename /**< [in]  */
 );
 
 

@@ -1368,7 +1368,7 @@ static bool file_content_matches(const string &filename1, const string &filename
       if (len2 == 0) { len2 = (size_t)read(fd2, buf2, sizeof(buf2)); }
 
       break_if((len1 == 0) || (len2 == 0)); /* reached end of either files */
-      /* \todo what is if one file is longer than the other, do we miss that ? */
+      /* \todo what is if one file is longer than the other, do we miss that? */
 
       const size_t minlen = min(len1, len2);
       break_if(memcmp(buf1, buf2, minlen) != 0); /* found a difference */
@@ -1447,8 +1447,8 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
 static void rename_file(const char *old_name, const char *new_name)
 {
 #ifdef WIN32
-   /* Atomic rename in windows can't go through stdio rename() func because underneath
-    * it calls MoveFileExW without MOVEFILE_REPLACE_EXISTING. */
+   /* Atomic rename in windows can't go through stdio rename() func because
+    * underneath it calls MoveFileExW without MOVEFILE_REPLACE_EXISTING. */
    if (!MoveFileEx(old_name, new_name, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED))
 #else
    if (rename(old_name, new_name) != 0)
@@ -1486,15 +1486,16 @@ static void do_source_file(const char *filename_in, const char *filename_out,
 
    cpd.filename = filename_in;
 
-   /* If we're only going to write on an actual change, then build the output buffer now
-    * and if there were changes, run it through the normal file write path.
+   /* If we're only going to write on an actual change, then build the output
+    * buffer now and if there were changes, run it through the normal file
+    * write path.
     *
-    * \todo: many code paths could be simplified if 'bout' were always used and not
-    * optionally selected in just for do_check and if_changed. */
+    * \todo: many code paths could be simplified if 'bout' were always used
+    * and not optionally selected in just for do_check and if_changed. */
    if (cpd.if_changed == true)
    {
-      /* Cleanup is deferred because we need 'bout' preserved long enough to write it to
-       * a file (if it changed). */
+      /* Cleanup is deferred because we need 'bout' preserved long enough
+       * to write it to a file (if it changed). */
       uncrustify_file(fm, nullptr, parsed_file, true);
       if (bout_content_matches(fm, false))
       {

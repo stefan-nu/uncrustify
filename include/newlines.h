@@ -22,7 +22,7 @@ void newlines_remove_newlines(void);
  * Step through all chunks.
  */
 void newlines_cleanup_braces(
-   bool first
+   bool first /**< [in]  */
 );
 
 
@@ -58,8 +58,8 @@ void newlines_eat_start_end(void);
  * We can't remove a newline if it is right before a preprocessor.
  */
 void newlines_chunk_pos(
-   c_token_t chunk_type,
-   tokenpos_t mode
+   c_token_t chunk_type, /**< [in]  */
+   tokenpos_t mode       /**< [in]  */
 );
 
 
@@ -68,7 +68,7 @@ void newlines_chunk_pos(
  * Also breaks up the args
  */
 void newlines_class_colon_pos(
-   c_token_t tok
+   c_token_t tok /**< [in]  */
 );
 
 
@@ -111,7 +111,7 @@ void do_blank_lines(void);
  * Done right before inserting a newline.
  */
 void undo_one_liner(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -122,8 +122,8 @@ void undo_one_liner(
  * @param av   The IARF value
  */
 void newline_iarf(
-   chunk_t *pc,
-   argval_t av
+   chunk_t *pc, /**< [in]  */
+   argval_t av  /**< [in]  */
 );
 
 
@@ -132,7 +132,7 @@ void newline_iarf(
  * Virtual braces are skipped, as they do not contribute to the output.
  */
 chunk_t *newline_add_before(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -140,7 +140,7 @@ chunk_t *newline_add_before(
  * tbd
  */
 chunk_t *newline_force_before(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -149,7 +149,7 @@ chunk_t *newline_force_before(
  * Virtual braces are skipped, as they do not contribute to the output.
  */
 chunk_t *newline_add_after(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -157,7 +157,7 @@ chunk_t *newline_add_after(
  * tbd
  */
 chunk_t *newline_force_after(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 
@@ -172,8 +172,8 @@ chunk_t *newline_force_after(
  * @return        true/false - removed something
  */
 void newline_del_between(
-   chunk_t *start,
-   chunk_t *end
+   chunk_t *start, /**< [in]  */
+   chunk_t *end    /**< [in]  */
 );
 
 
@@ -193,8 +193,8 @@ void newline_del_between(
  *    {
  */
 chunk_t *newline_add_between(
-   chunk_t *start,
-   chunk_t *end
+   chunk_t *start, /**< [in]  */
+   chunk_t *end    /**< [in]  */
 );
 
 

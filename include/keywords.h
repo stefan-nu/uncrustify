@@ -25,7 +25,7 @@ void init_keywords(void);
  * @retval           EX_IOERR - reading keywords file failed
  */
 int load_keyword_file(
-   const char *filename
+   const char *filename /**< [in]  */
 );
 
 
@@ -37,8 +37,8 @@ int load_keyword_file(
  * @return        CT_WORD (no match) or the keyword token
  */
 c_token_t find_keyword_type(
-   const char *word,
-   size_t     len
+   const char *word, /**< [in]  */
+   size_t     len    /**< [in]  */
 );
 
 
@@ -49,8 +49,8 @@ c_token_t find_keyword_type(
  * @param type       The type, usually CT_TYPE
  */
 void add_keyword(
-   const char *tag,
-   c_token_t  type
+   const char *tag, /**< [in]  */
+   c_token_t  type  /**< [in]  */
 );
 
 
@@ -58,7 +58,7 @@ void add_keyword(
  * tbd
  */
 void print_keywords(
-   FILE *pfile
+   FILE *pfile /**< [in]  */
 );
 
 
@@ -72,7 +72,7 @@ void clear_keyword_file(void);
  * Returns the pattern that the keyword needs based on the token
  */
 pattern_class_e get_token_pattern_class(
-   c_token_t tok
+   c_token_t tok /**< [in]  */
 );
 
 
