@@ -342,6 +342,7 @@ typedef enum lang_e
    LANG_CSV       =                              LANG_CS |                        LANG_VALA,
    LANG_CSPP      =                              LANG_CS |                                                           FLAG_PP,
    LANG_JE        =                                        LANG_JAVA |                        LANG_ECMA,
+   LANG_OPP       =                                                     LANG_OC |                                    FLAG_PP,
    LANG_JVE       =                                        LANG_JAVA |            LANG_VALA | LANG_ECMA,
    LANG_VE        =                                                               LANG_VALA | LANG_ECMA,
    LANG_PPP       =                                                                                      LANG_PAWN | FLAG_PP,
