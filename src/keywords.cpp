@@ -422,7 +422,7 @@ c_token_t find_keyword_type(const char *word, size_t len)
 
 
 /* \todo DRY with load_define_file */
-int load_keyword_file(const char *filename)
+int load_keyword_file(const char *filename, const size_t max_line_size)
 {
    retval_if(ptr_is_invalid(filename), EX_CONFIG);
 
@@ -434,12 +434,11 @@ int load_keyword_file(const char *filename)
       return(EX_IOERR);
    }
 
-   const size_t max_line_size = 256;/**< maximal allowed line size in the define file */
    char   buf[max_line_size];
    size_t line_no = 0;
 
    /* read file line by line */
-   while (fgets(buf, max_line_size, pf) != nullptr)
+   while (fgets(buf, sizeof(buf), pf) != nullptr)
    {
       line_no++;
 
@@ -457,15 +456,15 @@ int load_keyword_file(const char *filename)
 
       if (argc > 0)
       {
-         if ((argc < arg_parts                    ) &&
-             (CharTable::IsKW1((size_t)(*args[0]))) )
+         if ((argc < arg_parts           ) &&
+             (CharTable::IsKW1(*args[0]) ) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
             add_keyword(args[0], CT_TYPE);
          }
          else
          {
-            LOG_FMT(LWARN, "%s:%zu Invalid line (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s line %zu invalid (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }

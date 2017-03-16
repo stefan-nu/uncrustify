@@ -20,37 +20,32 @@ void init_keywords(void);
 /**
  * Loads the dynamic keywords from a file
  *
- * @param filename   The path to the file to load
- * @retval           EX_OK    - successfully read keywords from file
- * @retval           EX_IOERR - reading keywords file failed
+ * @retval EX_OK    - successfully read keywords from file
+ * @retval EX_IOERR - reading keywords file failed
  */
 int load_keyword_file(
-   const char *filename /**< [in]  */
+   const char*  filename,     /**< [in] path to file to read from */
+   const size_t max_line_size /**< [in] maximal allowed characters per line */
 );
 
 
 /**
  * Search first the dynamic and then the static table for a matching keyword
  *
- * @param word    Pointer to the text -- NOT zero terminated
- * @param len     The length of the text
  * @return        CT_WORD (no match) or the keyword token
  */
 c_token_t find_keyword_type(
-   const char *word, /**< [in]  */
-   size_t     len    /**< [in]  */
+   const char *word, /**< [in] Pointer to the text -- NOT zero terminated */
+   size_t     len    /**< [in] The length of the text */
 );
 
 
 /**
  * Adds a keyword to the list of dynamic keywords
- *
- * @param tag        The tag (string) must be zero terminated
- * @param type       The type, usually CT_TYPE
  */
 void add_keyword(
-   const char *tag, /**< [in]  */
-   c_token_t  type  /**< [in]  */
+   const char *tag, /**< [in] The tag (string) must be zero terminated */
+   c_token_t  type  /**< [in] The type, usually CT_TYPE */
 );
 
 

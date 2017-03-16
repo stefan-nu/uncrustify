@@ -46,11 +46,11 @@ void add_define(const char *tag, const char *value)
 
 
 /* \todo DRY with load_keyword_file */
-int load_define_file(const char *filename)
+int load_define_file(const char* filename, const size_t max_line_size)
 {
    retval_if(ptr_is_invalid(filename), EX_CONFIG);
-   FILE *pf = fopen(filename, "r");
 
+   FILE *pf = fopen(filename, "r");
    if (ptr_is_invalid(pf))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
@@ -58,7 +58,6 @@ int load_define_file(const char *filename)
       return(EX_IOERR);
    }
 
-   const size_t max_line_size = 160;/**< maximal allowed line size in the define file */
    char   buf[max_line_size];
    size_t line_no = 0;
 
@@ -68,20 +67,20 @@ int load_define_file(const char *filename)
       line_no++;
 
       /* remove comments after '#' sign */
-      char *ptr;
-      if ((ptr = strchr(buf, '#')) != nullptr)
+      char *ptr = strchr(buf, '#');
+      if (ptr_is_valid(ptr))
       {
          *ptr = 0; /* set string end where comment begins */
       }
 
-      const size_t arg_parts  = 3;  /**< each define argument consists of three parts */
-      char *args[arg_parts];
-      size_t argc = Args::SplitLine(buf, args, arg_parts-1 );
-      args[arg_parts-1] = 0; /* third element of defines is not used currently */
+      const size_t arg_parts = 2;  /**< each define argument consists of three parts */
+      char *args[arg_parts+1];
+      size_t argc = Args::SplitLine(buf, args, arg_parts);
+      args[arg_parts] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
       {
-         if ((argc < arg_parts                ) &&
+         if ((argc < arg_parts           ) &&
              (CharTable::IsKW1(*args[0]) ) )
          {
             LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
@@ -89,7 +88,7 @@ int load_define_file(const char *filename)
          }
          else
          {
-            LOG_FMT(LWARN, "%s: line %zu invalid (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s line %zu invalid (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }
