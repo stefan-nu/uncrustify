@@ -56,7 +56,7 @@ void AlignStack::ReAddSkipped(void)
 }
 
 
-void AlignStack::Add(chunk_t *start, size_t seqnum)
+void AlignStack::Add(chunk_t* start, size_t seqnum)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(start));
@@ -136,20 +136,20 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
       }
 
       /* Find ref. Back up to the real item that is aligned. */
-      chunk_t *prev = start;
+      chunk_t* prev = start;
       while (((prev = chunk_get_prev(prev)) != nullptr) &&
              (is_ptr_operator(prev) || is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
-      chunk_t *ref = prev;
+      chunk_t* ref = prev;
       if (is_nl(ref))
       {
          ref = chunk_get_next(ref);
       }
 
       /* Find the item that we are going to align. */
-      chunk_t *ali = start;
+      chunk_t* ali = start;
       if (m_star_style != SS_IGNORE)
       {
          /* back up to the first '*' or '^' preceding the token */
@@ -181,7 +181,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
 
       return_if(are_invalid(ali, ref));
 
-      chunk_t *tmp;
+      chunk_t* tmp;
       /* Tighten down the spacing between ref and start */
       if (cpd.settings[UO_align_keep_extra_space].b == false)
       {
@@ -189,7 +189,7 @@ void AlignStack::Add(chunk_t *start, size_t seqnum)
          tmp = ref;
          while (tmp != start)
          {
-            chunk_t *next = chunk_get_next(tmp);
+            chunk_t* next = chunk_get_next(tmp);
             assert(is_valid(next));
             tmp_col += (size_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
             if (next->column != tmp_col)
@@ -295,18 +295,18 @@ void AlignStack::NewLines(size_t cnt)
 }
 
 
-void AlignStack::Flush()
+void AlignStack::Flush(void)
 {
    LOG_FMT(LAS, "%s: m_aligned.Len()=%zu\n", __func__, m_aligned.Len());
    LOG_FMT(LAS, "Flush (min=%zu, max=%zu)\n", m_min_col, m_max_col);
 
-   chunk_t *pc;
+   chunk_t* pc;
    if (m_aligned.Len() == 1)
    {
       /* check if we have *one* typedef in the line */
       assert(ptr_is_valid(m_aligned.Get(0)));
       pc = m_aligned.Get(0)->m_pc;
-      chunk_t *temp = get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
+      chunk_t* temp = get_prev_type(pc, CT_TYPEDEF, (int)pc->level);
       if (is_valid(temp))
       {
          if (pc->orig_line == temp->orig_line)
@@ -333,7 +333,7 @@ void AlignStack::Flush()
       {
          gap = pc->column - (pc->align.ref->column + pc->align.ref->len());
       }
-      chunk_t *tmp = pc;
+      chunk_t* tmp = pc;
       if (is_type(tmp, CT_TPAREN_OPEN))
       {
          tmp = chunk_get_next(tmp);
@@ -441,14 +441,14 @@ void AlignStack::Flush()
 }
 
 
-void AlignStack::Reset()
+void AlignStack::Reset(void)
 {
    m_aligned.Reset();
    m_skipped.Reset();
 }
 
 
-void AlignStack::End()
+void AlignStack::End(void)
 {
    if (!m_aligned.Empty())
    {

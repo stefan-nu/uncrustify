@@ -371,8 +371,8 @@ chunk_t* get_prev_oc_class(
  * Gets the previous function open brace
  */
 chunk_t* get_prev_fparen_open(
-   chunk_t     *pc,              /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      pc,                  /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -407,8 +407,8 @@ chunk_t* get_next_nl(
  * Gets the next non-comment chunk
  */
 chunk_t* get_next_nc(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -416,8 +416,8 @@ chunk_t* get_next_nc(
  * Gets the next non-NEWLINE and non-comment chunk
  */
 chunk_t* get_next_nnl(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -438,8 +438,8 @@ chunk_t* get_next_ncnl(
  * @return nullptr or the next chunk not in or part of square brackets
  */
 chunk_t* get_next_ncnlnp(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -447,8 +447,8 @@ chunk_t* get_next_ncnlnp(
  * tbd
  */
 chunk_t* get_next_nisq(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -456,8 +456,8 @@ chunk_t* get_next_nisq(
  * Gets the next non-blank chunk
  */
 chunk_t* get_next_nblank(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -465,8 +465,8 @@ chunk_t* get_next_nblank(
  * Gets the prev non-blank chunk
  */
 chunk_t* get_prev_nblank(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -474,8 +474,8 @@ chunk_t* get_prev_nblank(
  * Gets the prev NEWLINE chunk
  */
 chunk_t* get_prev_nl(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -483,8 +483,8 @@ chunk_t* get_prev_nl(
  * Gets the prev COMMA chunk
  */
 chunk_t* get_prev_comma(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -492,8 +492,8 @@ chunk_t* get_prev_comma(
  * Gets the prev non-comment chunk
  */
 chunk_t* get_prev_nc(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -501,8 +501,8 @@ chunk_t* get_prev_nc(
  * Gets the prev non-NEWLINE chunk
  */
 chunk_t* get_prev_nnl(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -510,8 +510,8 @@ chunk_t* get_prev_nnl(
  * Gets the prev non-NEWLINE and non-comment chunk
  */
 chunk_t* get_prev_ncnl(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -519,8 +519,8 @@ chunk_t* get_prev_ncnl(
  * Gets the prev non-NEWLINE and non-comment chunk, non-preprocessor chunk
  */
 chunk_t* get_prev_ncnlnp(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -530,9 +530,9 @@ chunk_t* get_prev_ncnlnp(
  * @return nullptr or the match
  */
 chunk_t* get_next_type(
-   chunk_t* cur,        /**< [in] Starting chunk */
-   c_token_t type,      /**< [in] The type to look for */
-   int level,           /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   chunk_t*        cur,   /**< [in] Starting chunk */
+   const c_token_t type,  /**< [in] The type to look for */
+   const int       level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -543,9 +543,9 @@ chunk_t* get_next_type(
  * @return nullptr or the match
  */
 chunk_t* get_prev_type(
-   chunk_t   *cur,          /**< [in] Starting chunk */
-   c_token_t type,          /**< [in] The type to look for */
-   int       level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   chunk_t*        cur,   /**< [in] Starting chunk */
+   const c_token_t type,  /**< [in] The type to look for */
+   const int       level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -556,14 +556,14 @@ chunk_t* get_prev_type(
  * traverses a chunk list either in forward or backward direction.
  * The traversal continues until a chunk of a given category is found.
  *
- * @retval nullptr    - no chunk found or invalid parameters provided
+ * @retval nullptr - no chunk found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t* get_next_str(
-   chunk_t    *cur,          /**< [in] Starting chunk */
-   const char *str,          /**< [in] string to search for */
-   size_t     len,           /**< [in] length of string */
-   int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   chunk_t*     cur,   /**< [in] Starting chunk */
+   const char*  str,   /**< [in] string to search for */
+   const size_t len,   /**< [in] length of string */
+   const int    level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -578,10 +578,10 @@ chunk_t* get_next_str(
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t* get_prev_str(
-   chunk_t    *cur,          /**< [in] Starting chunk */
-   const char *str,          /**< [in] string to search for */
-   size_t     len,           /**< [in] length of string */
-   int        level,         /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   chunk_t*      cur,   /**< [in] Starting chunk */
+   const char*   str,   /**< [in] string to search for */
+   const size_t  len,   /**< [in] length of string */
+   const int     level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
