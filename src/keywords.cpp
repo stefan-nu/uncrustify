@@ -195,8 +195,8 @@ static const chunk_tag_t keywords[] =
    { "ifndef",           CT_PP_IF,         LANG_ALLCPP    },
    { "implements",       CT_QUALIFIER,     LANG_JE        },
    { "implicit",         CT_QUALIFIER,     LANG_CS        },
-   { "import",           CT_IMPORT,        LANG_DJE       }, // fudged to get indenting
-   { "import",           CT_PP_INCLUDE,    LANG_CPPO      }, // ObjectiveC version of include
+   { "import",           CT_IMPORT,        LANG_DJE       }, /* fudged to get indenting */
+   { "import",           CT_PP_INCLUDE,    LANG_OPP       }, /* #import = ObjectiveC version of #include */
    { "in",               CT_IN,            LANG_DCSOVE    },
    { "include",          CT_PP_INCLUDE,    LANG_CCPPPP    },
    { "inline",           CT_QUALIFIER,     LANG_CCPP      },
