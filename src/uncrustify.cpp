@@ -725,7 +725,8 @@ int main(int argc, char *argv[])
    size_t idx = 0;
    while ((p_arg = arg_list.Params("-t", idx)) != nullptr)
    {
-      load_keyword_file(p_arg, 256);
+      const int return_code = load_keyword_file(p_arg, 256);
+      retval_if(return_code != EX_OK, return_code);
    }
 
    /* add types */

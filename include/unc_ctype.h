@@ -17,16 +17,20 @@
 /**
  * Truncate anything except EOF (-1) to 0-255
  */
-static inline int unc_fix_ctype(int ch)
+static inline int unc_fix_ctype(
+   int ch /**< [in]  */
+)
 {
    return((ch == -1) ? -1 : (ch & 0xff));
 }
 
 
 /**
- * tbd
+ * check if a character is a space
  */
-static inline int unc_isspace(int ch)
+static inline int unc_isspace(
+   int ch /**< [in] character to check */
+)
 {
    return(isspace(unc_fix_ctype(ch)));
 }
@@ -35,7 +39,9 @@ static inline int unc_isspace(int ch)
 /**
  * tbd
  */
-static inline int unc_isprint(int ch)
+static inline int unc_isprint(
+   int ch /**< [in]  */
+)
 {
    return(isprint(unc_fix_ctype(ch)));
 }
@@ -44,7 +50,9 @@ static inline int unc_isprint(int ch)
 /**
  * tbd
  */
-static inline int unc_isalpha(int ch)
+static inline int unc_isalpha(
+   int ch /**< [in]  */
+)
 {
    return(isalpha(unc_fix_ctype(ch)));
 }
@@ -53,25 +61,31 @@ static inline int unc_isalpha(int ch)
 /**
  * tbd
  */
-static inline int unc_isalnum(int ch)
+static inline int unc_isalnum(
+   int ch /**< [in]  */
+)
 {
    return(isalnum(unc_fix_ctype(ch)));
 }
 
 
 /**
- * tbd
+ * convert a character to upper case
  */
-static inline int unc_toupper(int ch)
+static inline int unc_toupper(
+   int ch /**< [in] character to convert */
+)
 {
    return(toupper(unc_fix_ctype(ch)));
 }
 
 
 /**
- * tbd
+ * convert a character to lower case
  */
-static inline int unc_tolower(int ch)
+static inline int unc_tolower(
+   int ch /**< [in] character to convert */
+)
 {
    return(tolower(unc_fix_ctype(ch)));
 }
@@ -80,7 +94,9 @@ static inline int unc_tolower(int ch)
 /**
  * tbd
  */
-static inline int unc_isxdigit(int ch)
+static inline int unc_isxdigit(
+   int ch /**< [in] character to convert */
+)
 {
    return(isxdigit(unc_fix_ctype(ch)));
 }
@@ -89,7 +105,9 @@ static inline int unc_isxdigit(int ch)
 /**
  * tbd
  */
-static inline int unc_isdigit(int ch)
+static inline int unc_isdigit(
+   int ch /**< [in] character to convert */
+)
 {
    return(isdigit(unc_fix_ctype(ch)));
 }
@@ -98,10 +116,12 @@ static inline int unc_isdigit(int ch)
 /**
  * tbd
  */
-static inline int unc_isupper(int ch)
+static inline int unc_isupper(
+   int ch /**< [in] character to convert */
+)
 {
-   return(isalpha(unc_fix_ctype(ch)) &&
-          (unc_toupper(unc_fix_ctype(ch)) == ch));
+   int character = unc_fix_ctype(ch);
+   return(isalpha(character) &&  unc_toupper(character) == ch);
 }
 
 

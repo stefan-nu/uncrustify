@@ -24,7 +24,7 @@ typedef map<string, string> defmap;
 defmap defines;
 
 
-void add_define(const char *tag, const char *value)
+void add_define(const char* tag, const char* value)
 {
    return_if(ptr_is_invalid(tag) || (*tag == 0));
 

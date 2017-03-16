@@ -20,13 +20,13 @@ typedef std::bitset<256> log_mask_t;
 
 
 /**
- * Tests whether a sev bit is set in the mask
+ * Tests whether a bit is set in a log mask
  *
- * @return     true (is set) or false (not set)
+ * @return true (is set) or false (not set)
  */
 static inline bool logmask_test(
-   const log_mask_t &mask, /**< [in] log mask to operate on */
-   log_sev_t        sev    /**< [in] The severity to check */
+   const log_mask_t &mask, /**< [in] log mask to evaluate */
+   log_sev_t        sev    /**< [in] severity bit to check */
 )
 {
    return(mask.test(sev));
@@ -34,11 +34,11 @@ static inline bool logmask_test(
 
 
 /**
- * Sets a set bit in the mask
+ * Sets or clears a set of bits in a bit mask
  */
 static inline void logmask_set_sev(
-   log_mask_t &mask, /**< [in] log mask to operate on */
-   log_sev_t  sev,   /**< [in] The severity to check */
+   log_mask_t &mask, /**< [in,out] log mask to modify */
+   log_sev_t  sev,   /**< [in] The severity bits to set or clear */
    bool       value  /**< [in] true (set bit) or false (clear bit) */
 )
 {
@@ -47,11 +47,11 @@ static inline void logmask_set_sev(
 
 
 /**
- * Sets all bits to the same value
+ * Sets or clears all bits in a bit mask
  */
 static inline void logmask_set_all(
    log_mask_t &mask,  /**< [in] log mask to operate on */
-   bool       value   /**< [in] true (set bit) or false (clear bit) */
+   bool       value   /**< [in] true (set bits) or false (clear bits) */
 )
 {
    if (value) { mask.set  (); }
@@ -68,17 +68,28 @@ static inline void logmask_set_all(
  */
 char *logmask_to_str(
    const log_mask_t &mask, /**< [in] the mask to convert */
-   char             *buf,  /**< [in] buffer to hold the string */
+   char*            buf,   /**< [in] buffer to hold the string */
    size_t           size   /**< [in] size of the buffer */
 );
 
 
 /**
- * Parses a string into a log severity
+ * Parses a string to create a log severity bit mask
+ *
+ * the following kind of input strings are supported
+ * "A"    -> sets all log levels
+ * "a"    -> sets all log levels
+ * "1"    -> sets log level 1
+ * "0 1"  -> sets log levels 0,1
+ * "3-5"  -> sets log level 3,4,5
+ * "2,8"  -> sets log level 2 and 8
+ * "4,6-8"-> sets log level 4,6,7,9
+ * ""     -> sets no log level
+ * " "    -> sets no log level
  */
 void logmask_from_string(
-   const char *str,  /**< [in] string to parse */
-   log_mask_t &mask  /**< [in] mask to populate */
+   const char* str,  /**< [in]  string to parse */
+   log_mask_t& mask  /**< [out] bit mask to populate with log levels */
 );
 
 

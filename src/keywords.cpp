@@ -342,7 +342,7 @@ bool keywords_are_sorted(void)
 }
 
 
-void add_keyword(const char *tag, c_token_t type)
+void add_keyword(const char* tag, c_token_t type)
 {
    string ss = tag;
 
@@ -362,7 +362,7 @@ void add_keyword(const char *tag, c_token_t type)
 }
 
 
-static const chunk_tag_t *kw_static_first(const chunk_tag_t *tag)
+static const chunk_tag_t* kw_static_first(const chunk_tag_t *tag)
 {
    const chunk_tag_t *prev = tag - 1;
 
@@ -422,7 +422,7 @@ c_token_t find_keyword_type(const char *word, size_t len)
 
 
 /* \todo DRY with load_define_file */
-int load_keyword_file(const char *filename, const size_t max_line_size)
+int load_keyword_file(const char* filename, const size_t max_line_size)
 {
    retval_if(ptr_is_invalid(filename), EX_CONFIG);
 

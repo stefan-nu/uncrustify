@@ -7,8 +7,8 @@
  * @license GPL v2+
  */
 #include "logmask.h"
-#include <cstdio>      /* snprintf() */
-#include <cstdlib>     /* strtoul() */
+#include <cstdio>      /* provides snprintf() */
+#include <cstdlib>     /* provides strtoul() */
 #include "chunk_list.h"
 #include "unc_ctype.h"
 
@@ -65,32 +65,32 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
 }
 
 
-void logmask_from_string(const char *str, log_mask_t &mask)
+void logmask_from_string(const char* str, log_mask_t &mask)
 {
    return_if(ptr_is_invalid(str));
 
    logmask_set_all(mask, false); /* Start with a clean mask */
 
-   /* If the first character is 'A', set all sevs */
+   /* If the first character is 'a' or 'A', set all severities */
    if (unc_toupper(*str) == 'A')
    {
       logmask_set_all(mask, true);
       str++;
    }
 
-   char *ptmp;
-   bool was_dash   = false;
-   int  last_level = -1;
-   while (*str != 0)
+   bool  was_dash   = false;
+   int   last_level = -1;
+   while (*str != 0) /* check string until termination character */
    {
-      if (unc_isspace(*str))
+      if (unc_isspace(*str)) /* ignore spaces */
       {
-         str++;
-         continue;
+         str++;              /* and go on with */
+         continue;           /* next character */
       }
 
       if (unc_isdigit(*str))
       {
+         char* ptmp;
          size_t level = strtoul(str, &ptmp, 10);
          str = ptmp;
 
@@ -106,8 +106,8 @@ void logmask_from_string(const char *str, log_mask_t &mask)
 
          last_level = (int)level;
       }
-      else if (*str == '-')
-      {
+      else if (*str == '-') /* a dash marks all bits */
+      {                     /* until the next number */
          was_dash = true;
          str++;
       }

@@ -33,16 +33,12 @@ typedef unsigned long long   uint64_t;
 
 /* MSVC compilers before VC7 don't have __func__ at all;
  * later compiler MSVC versions call it __FUNCTION__. */
-
-/* \todo does MinGW provide a __func__ macro? if so use it */
 #ifdef _MSC_VER
-#if _MSC_VER < 1300
-   #define __func__    "unknown_fct"
-#else
-   #define __func__    __FUNCTION__
-#endif
-#else /* _MSC_VER */
-   #define __func__    "unknown_fct" // __func__
+   #if _MSC_VER < 1300
+      #define __func__    "unknown_fct"
+   #else
+      #define __func__    __FUNCTION__
+   #endif
 #endif
 
 #include <stdio.h>

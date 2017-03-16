@@ -39,20 +39,20 @@ struct log_buf_t
    log_buf_t() /* set member variables with a initialization list */
       : log_file(nullptr)
       , sev(LSYS)
-      , in_log(0)
+      , in_log(false)
       , buf_len(0)
       , show_hdr(false)
    {
       memset(buf, 0, LOG_BUF_SIZE);
    }
 
-   FILE       *log_file;
-   log_sev_t  sev;
-   int        in_log;
-   char       buf[LOG_BUF_SIZE];
-   size_t     buf_len;
-   log_mask_t mask;
-   bool       show_hdr;
+   FILE*      log_file;          /** file where the log messages are stored into */
+   log_sev_t  sev;               /** log level determines which messages are logged */
+   bool       in_log;            /** flag indicates if a log operation is going on */
+   char       buf[LOG_BUF_SIZE]; /** buffer holds the log message */
+   size_t     buf_len;           /** number of characters currently stored in buffer */
+   log_mask_t mask;              /**  */
+   bool       show_hdr;          /** flag determine if a header gets added to log message */
 };
 
 static struct log_buf_t g_log;
@@ -195,10 +195,6 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
 {
    return_if(ptr_is_invalid(fmt) || !log_sev_on(sev));
 
-#ifdef DEBUG
-// \todo add this to begin of log message LOG_FMT(LFCN, "(%d) ", __LINE__);
-#endif
-
    /* Some implementation of vsnprintf() return the number of characters
     * that would have been stored if the buffer was large enough instead of
     * the number of characters actually stored. */
@@ -214,7 +210,7 @@ void log_fmt(log_sev_t sev, const char *fmt, ...)
    {
       len = min(len, cap);
       g_log.buf_len           += len;
-      g_log.buf[g_log.buf_len] = 0;
+      g_log.buf[g_log.buf_len] = 0;  /* add string termination character */
    }
 
    log_end();
