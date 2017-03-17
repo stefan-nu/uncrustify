@@ -145,6 +145,49 @@ static void log_rule2(size_t line, const char *rule, chunk_t *pc1, chunk_t *pc2,
    }
 }
 
+/** type that combines two chunk pointers
+ * this is used to keep the function prototypes short */
+typedef struct chunks_s
+{
+   chunk_t* a; /**< first  chunk */
+   chunk_t* b; /**< second chunk */
+}chunks_t;
+
+
+/* various conditions to determine where to places spaces
+ * the conditions have been placed in individual functions to use
+ * them in arrays of functions which will make the code easier
+ * and more efficient.  */
+static bool sp_cond_0001(chunks_t* c) { return any_is_type(c->a, c->b, CT_IGNORED  ); }
+static bool sp_cond_0002(chunks_t* c) { return are_types  (c->a, c->b, CT_PP_IGNORE); }
+static bool sp_cond_0003(chunks_t* c) { return any_is_type(c->a, c->b, CT_PP       ); }
+static bool sp_cond_0004(chunks_t* c) { return is_type    (c->a,       CT_POUND    ); }
+static bool sp_cond_0005(chunks_t* c) { return(is_type    (c->b,       CT_POUND    ) && is_preproc(c->b) && not_ptype(c->a, CT_MACRO_FUNC)); }
+static bool sp_cond_0006(chunks_t* c) { return any_is_type(c->a, c->b, CT_SPACE    ); }
+static bool sp_cond_0007(chunks_t* c) { return is_type    (c->b,       CT_NEWLINE, CT_VBRACE_OPEN); }
+static bool sp_cond_0008(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_OPEN,  c->b, CT_NL_CONT); }
+static bool sp_cond_0009(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_CLOSE, c->b, CT_NL_CONT); }
+static bool sp_cond_0010(chunks_t* c) { return is_type    (c->b, CT_VSEMICOLON); }
+static bool sp_cond_0011(chunks_t* c) { return is_type    (c->a, CT_MACRO_FUNC); }
+static bool sp_cond_0012(chunks_t* c) { return is_type    (c->b, CT_NL_CONT); }
+static bool sp_cond_0013(chunks_t* c) { return any_is_type(c->a, c->b, CT_D_ARRAY_COLON); }
+static bool sp_cond_0014(chunks_t* c) { return is_type    (c->a, CT_CASE) && (CharTable::IsKW1((size_t)(c->b->str[0])) || is_type(c->b, CT_NUMBER)); }
+static bool sp_cond_0015(chunks_t* c) { return is_type    (c->a, CT_FOR_COLON); }
+static bool sp_cond_0016(chunks_t* c) { return is_type    (c->b, CT_FOR_COLON); }
+static bool sp_cond_0017(chunks_t* c) { return are_types  (c->a, CT_QUESTION, c->b, CT_COND_COLON); }
+static bool sp_cond_0018(chunks_t* c) { return any_is_type(c->a, c->b, CT_QUESTION); }
+static bool sp_cond_0019(chunks_t* c) { return is_type    (c->b, CT_QUESTION); }
+static bool sp_cond_0020(chunks_t* c) { return is_type    (c->a, CT_QUESTION); }
+static bool sp_cond_0021(chunks_t* c) { return any_is_type(c->a, c->b, CT_COND_COLON); }
+static bool sp_cond_0022(chunks_t* c) { return any_is_type(c->a, c->b, CT_RANGE); }
+static bool sp_cond_0023(chunks_t* c) { return is_type_and_ptype(c->a, CT_COLON, CT_SQL_EXEC); }
+static bool sp_cond_0024(chunks_t* c) { return is_type    (c->a, CT_MACRO); }
+static bool sp_cond_0025(chunks_t* c) { return is_type_and_ptype(c->a, CT_FPAREN_CLOSE, CT_MACRO_FUNC); }
+static bool sp_cond_0026(chunks_t* c) { return is_type(c->a, CT_PREPROC); }
+static bool sp_cond_0027(chunks_t* c) { return false; }
+static bool sp_cond_0028(chunks_t* c) { return false; }
+static bool sp_cond_0029(chunks_t* c) { return false; }
+
 
 /* \todo make min_sp a size_t */
 /* Note that the order of the if statements is VERY important. */
@@ -154,83 +197,51 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    LOG_FUNC_ENTRY();
    assert(are_valid(pc1, pc2));
 
+   chunks_t chunks = {pc1, pc2};
+   chunks_t* pc = &chunks;
+
    LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n", __func__, pc1->orig_line,
          pc1->orig_col, pc1->text(), get_token_name(pc1->type));
 
    min_sp = 1;
 
-   /* \todo try to use a switch here */
-   if(any_is_type(pc1, pc2, CT_IGNORED  ))   { log_arg_return(AV_REMOVE                ); }
-   /* Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD) */
-   if(are_types  (pc1, pc2, CT_PP_IGNORE))   { log_arg_return(AV_IGNORE                ); }
-   if(any_is_type(pc1, pc2, CT_PP       ))   { log_opt_return(UO_sp_pp_concat          ); }
-   if(is_type    (pc1, CT_POUND    ))        { log_opt_return(UO_sp_pp_stringify       ); }
-   if(is_type    (pc2, CT_POUND  ) && is_preproc(pc2) &&
-      not_ptype(pc1, CT_MACRO_FUNC))      { log_opt_return(UO_sp_before_pp_stringify); }
-   if (any_is_type(pc1, pc2, CT_SPACE))      { log_arg_return(AV_REMOVE                ); }
-   if (is_type(pc2, CT_NEWLINE, CT_VBRACE_OPEN))
-                                             { log_arg_return(AV_REMOVE                ); }
-   if (is_only_first_type(pc1, CT_VBRACE_OPEN, pc2, CT_NL_CONT))
-                                             { log_arg_return(AV_FORCE                 ); }
-   if (is_only_first_type(pc1, CT_VBRACE_CLOSE, pc2, CT_NL_CONT))
-                                             { log_arg_return(AV_REMOVE                ); }
-   if (is_type(pc2, CT_VSEMICOLON))          { log_arg_return(AV_REMOVE                ); }
-   if (is_type(pc1, CT_MACRO_FUNC))          { log_arg_return(AV_REMOVE                ); }
-   if (is_type(pc2, CT_NL_CONT))             { log_opt_return(UO_sp_before_nl_cont     ); }
-   if (any_is_type(pc1, pc2, CT_D_ARRAY_COLON))
-                                             { log_opt_return(UO_sp_d_array_colon      ); }
-   if (is_type(pc1, CT_CASE) && (CharTable::IsKW1((size_t)(pc2->str[0])) || is_type(pc2, CT_NUMBER)))
-   {
-      log_rule("sp_case_label");
-      return(add_option(cpd.settings[UO_sp_case_label].a, AV_ADD));
+   if(sp_cond_0001(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0002(pc)) { log_arg_return(AV_IGNORE                ); } /* Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD) */
+   if(sp_cond_0003(pc)) { log_opt_return(UO_sp_pp_concat          ); }
+   if(sp_cond_0004(pc)) { log_opt_return(UO_sp_pp_stringify       ); }
+   if(sp_cond_0005(pc)) { log_opt_return(UO_sp_before_pp_stringify); }
+   if(sp_cond_0006(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0007(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0008(pc)) { log_arg_return(AV_FORCE                 ); }
+   if(sp_cond_0009(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0010(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0011(pc)) { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0012(pc)) { log_opt_return(UO_sp_before_nl_cont     ); }
+   if(sp_cond_0013(pc)) { log_opt_return(UO_sp_d_array_colon      ); }
+   if(sp_cond_0014(pc)) { log_rule("sp_case_label"); return(add_option(cpd.settings[UO_sp_case_label].a, AV_ADD)); }
+   if(sp_cond_0015(pc)) { log_opt_return(UO_sp_after_for_colon    ); }
+   if(sp_cond_0016(pc)) { log_opt_return(UO_sp_before_for_colon   ); }
+   if(sp_cond_0017(pc)) {
+      if (is_not_option(cpd.settings[UO_sp_cond_ternary_short  ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_ternary_short  ); }
    }
-   if (is_type  (pc1, CT_FOR_COLON))         { log_opt_return(UO_sp_after_for_colon    ); }
-   if (is_type  (pc2, CT_FOR_COLON))         { log_opt_return(UO_sp_before_for_colon   ); }
-   if (are_types(pc1, CT_QUESTION, pc2, CT_COND_COLON))
-   {  if (is_not_option(cpd.settings[UO_sp_cond_ternary_short].a, AV_IGNORE))
-                                             { log_opt_return(UO_sp_cond_ternary_short ); }}
-   if (any_is_type(pc1, pc2, CT_QUESTION))
-   {  if (is_type(pc2, CT_QUESTION) &&
-         (is_not_option(cpd.settings[UO_sp_cond_question_before].a, AV_IGNORE)))
-                                             { log_opt_return(UO_sp_cond_question_before); }
-      if (is_type(pc1, CT_QUESTION) &&
-          (is_not_option(cpd.settings[UO_sp_cond_question_after].a, AV_IGNORE)))
-                                             { log_opt_return(UO_sp_cond_question_after); }
-      if (is_not_option(cpd.settings[UO_sp_cond_question].a, AV_IGNORE))
-                                             { log_opt_return(UO_sp_cond_question); } }
-   if (any_is_type(pc1, pc2, CT_COND_COLON))
-   {  if (is_type(pc2, CT_COND_COLON) && is_not_option(cpd.settings[UO_sp_cond_colon_before].a, AV_IGNORE))
-                                             { log_opt_return(UO_sp_cond_colon_before); }
-      if (is_type(pc1, CT_COND_COLON) && (is_not_option(cpd.settings[UO_sp_cond_colon_after].a, AV_IGNORE)))
-                                             { log_opt_return(UO_sp_cond_colon_after); }
-      if (is_not_option(cpd.settings[UO_sp_cond_colon].a, AV_IGNORE))
-                                             { log_opt_return(UO_sp_cond_colon); }
+   if(sp_cond_0018(pc)) {
+      if (sp_cond_0019(pc) && is_not_option(cpd.settings[UO_sp_cond_question_before].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_before); }
+      if (sp_cond_0020(pc) && is_not_option(cpd.settings[UO_sp_cond_question_after ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_after ); }
+      if (                    is_not_option(cpd.settings[UO_sp_cond_question       ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question       ); }
    }
-   if (any_is_type(pc1, pc2, CT_RANGE))      { log_opt_return(UO_sp_range); }
-   if (is_type_and_ptype(pc1, CT_COLON, CT_SQL_EXEC))
-                                             { log_arg_return(AV_REMOVE); }
+   if(sp_cond_0021(pc))
+   {  if (is_type(pc2, CT_COND_COLON) && is_not_option(cpd.settings[UO_sp_cond_colon_before].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_before); }
+      if (is_type(pc1, CT_COND_COLON) && is_not_option(cpd.settings[UO_sp_cond_colon_after ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_after ); }
+      if (                               is_not_option(cpd.settings[UO_sp_cond_colon       ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon       ); }
+   }
+   if(sp_cond_0022(pc)) { log_opt_return(UO_sp_range); }
+   if(sp_cond_0023(pc)) { log_arg_return(AV_REMOVE  ); }
    /* Macro stuff can only return IGNORE, ADD, or FORCE */
-   if (is_type(pc1, CT_MACRO))
-   {  log_rule("sp_macro");
-      argval_t arg     = cpd.settings[UO_sp_macro].a;
-      argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE;
-      return (add_option(arg, add_arg));
+   if(sp_cond_0024(pc)) { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
+   if(sp_cond_0025(pc)) { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
+   if(sp_cond_0026(pc)) {
+      if (cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); } log_arg_return(AV_REMOVE); /* Remove spaces, unless we are ignoring. See indent_preproc() */
    }
-   if (is_type_and_ptype(pc1, CT_FPAREN_CLOSE, CT_MACRO_FUNC))
-   {
-      log_rule("sp_macro_func");
-      argval_t arg     = cpd.settings[UO_sp_macro_func].a;
-      argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE;
-      return (add_option(arg, add_arg));
-   }
-
-   if (is_type(pc1, CT_PREPROC))
-   {
-      /* Remove spaces, unless we are ignoring. See indent_preproc() */
-      if (cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); }
-      log_arg_return(AV_REMOVE);
-   }
-
    if (is_type(pc2, CT_SEMICOLON))
    {
       if (is_ptype(pc2, CT_FOR))
