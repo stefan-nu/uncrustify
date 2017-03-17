@@ -127,14 +127,12 @@ const struct lang_ext_t language_exts[] =
    { ".di",   "D"    },
    { ".m",    "OC"   },
    { ".mm",   "OC+"  },
-   { ".sqc",  "C"    }, // embedded SQL
+   { ".sqc",  "C"    }, /**< embedded SQL */
    { ".es",   "ECMA" },
 };
 
 
-/**
- * tbd
- */
+/** tbd */
 static lang_t language_flags_from_name(
    const char *tag /**< [in]  */
 );
@@ -173,9 +171,7 @@ const char *language_name_from_flags(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool read_stdin(
    file_mem_t &fm  /**< [out] file description to update */
 );
@@ -191,23 +187,17 @@ static void make_folders(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void uncrustify_start(
    const deque<int> &data  /**< [in]  */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void uncrustify_end(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool ends_with(
    const char *filename, /**< [in]  */
    const char *tag,      /**< [in]  */
@@ -215,9 +205,7 @@ static bool ends_with(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 void uncrustify_file(
    const file_mem_t &fm,             /**< [out] file description to update */
    FILE             *pfout,          /**< [in]  */
@@ -238,39 +226,29 @@ static void do_source_file(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_file_header(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_file_footer(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_func_header(
    c_token_t        type, /**< [in]  */
    const file_mem_t &fm   /**< [out] file description to update */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_msg_header(
    c_token_t        type, /**< [in]  */
    const file_mem_t &fm   /**< [out] file description to update */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void process_source_list(
    const char * const source_list, /**< [in]  */
    const char         *prefix,     /**< [in]  */
@@ -289,9 +267,7 @@ static void process_source_list(
 bool load_all_header_files(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static const char *make_output_filename(
    char *buf,
    const size_t       buf_size, /**< [in]  */
@@ -321,9 +297,7 @@ static string create_out_filename(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool bout_content_matches(
    const file_mem_t &fm,          /**< [out] file description to update */
    const bool       report_status /**< [in]  */
@@ -360,9 +334,7 @@ static bool load_mem_file_config(
 static void version_exit(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void redir_stdout(
    const char *output_file /**< [in]  */
 );
@@ -449,7 +421,7 @@ bool is_lang(cp_data_t &cpd, lang_t lang)
 }
 
 
-const char *path_basename(const char *path)
+const char* path_basename(const char* path)
 {
    if (ptr_is_invalid(path)) { return(""); }
 
@@ -470,7 +442,7 @@ const char *path_basename(const char *path)
 }
 
 
-size_t path_dirname_len(const char *full_name)
+size_t path_dirname_len(const char* full_name)
 {
    if (full_name == nullptr) { return(0); }
 
@@ -482,7 +454,7 @@ size_t path_dirname_len(const char *full_name)
 }
 
 
-void usage_exit(const char *msg, const char *argv0, int code)
+void usage_exit(const char* msg, const char* argv0, int code)
 {
    if (ptr_is_valid(msg))
    {

@@ -76,10 +76,10 @@ void remove_extra_semicolons(void)
          {
             check_unknown_brace_close(pc, prev);
          }
-         else if (                   is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR         ) ||
+         else if (              is_type_and_not_ptype(prev, CT_SEMICOLON, CT_FOR         ) ||
                  (is_lang(cpd, LANG_D   ) && is_ptype(prev, CT_ENUM, CT_UNION, CT_STRUCT)) ||
                  (is_lang(cpd, LANG_JAVA) && is_ptype(prev, CT_SYNCHRONIZED             )) ||
-                 (                                is_type (prev, CT_BRACE_OPEN               )) )
+                 (                           is_type (prev, CT_BRACE_OPEN               )) )
          {
             remove_semicolon(pc);
          }
@@ -97,7 +97,7 @@ static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
    pc = get_prev_ncnl(pc);
 
    if (not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,
-                          CT_SQUARE_CLOSE, CT_TSQUARE) &&
+                       CT_SQUARE_CLOSE, CT_TSQUARE) &&
        !is_paren_close(pc) )
    {
       remove_semicolon(semi);
