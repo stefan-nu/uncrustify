@@ -403,10 +403,6 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if (is_type(pc2, CT_TAG_COLON ))      { log_arg_return(AV_REMOVE); }
    if (is_type(pc1, CT_DESTRUCTOR))      { log_arg_return(AV_REMOVE); }   /* handle '~' */
 
-   /* "((" vs "( (" or "))" vs ") )" */
-   if ((is_str(pc1, "(", 1) && is_str(pc2, "(", 1)) ||
-       (is_str(pc1, ")", 1) && is_str(pc2, ")", 1)) )
-                                         { log_opt_return(UO_sp_paren_paren); }
    if (are_types(pc1, CT_CATCH, pc2, CT_SPAREN_OPEN) &&
        (is_not_option(cpd.settings[UO_sp_catch_paren].a, AV_IGNORE)))
                                          { log_opt_return(UO_sp_catch_paren); }
@@ -461,7 +457,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if (is_type(pc2, CT_BIT_COLON) &&
        is_flag(pc2, PCF_IN_ENUM))       { log_opt_return(UO_sp_enum_colon); }
    if (is_type(pc2, CT_OC_BLOCK_CARET)) { log_opt_return(UO_sp_before_oc_block_caret); }
-   if (is_type(pc1, CT_OC_BLOCK_CARET)) { log_opt_return(UO_sp_after_oc_block_caret); }
+   if (is_type(pc1, CT_OC_BLOCK_CARET)) { log_opt_return(UO_sp_after_oc_block_caret ); }
    if (is_type(pc2, CT_OC_MSG_FUNC))    { log_opt_return(UO_sp_after_oc_msg_receiver); }
    if (is_type(pc2, CT_SQUARE_OPEN) &&  /* "a [x]" vs "a[x]" */
        (pc2->ptype != CT_OC_MSG   ) )   { log_opt_return(UO_sp_before_square); }
@@ -663,7 +659,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                              { log_opt_return(UO_sp_getset_brace           ); }
    if    (are_types (pc1, CT_WORD, pc2, CT_BRACE_OPEN)) {
       if (is_ptype  (pc1, CT_NAMESPACE))     { log_opt_return(UO_sp_word_brace_ns          ); }
-      if (are_ptypes(pc1, pc2, CT_NONE))     { log_opt_return(UO_sp_word_brace             ); }}
+      if (are_ptypes(pc1, pc2, CT_NONE))     { log_opt_return(UO_sp_word_brace             ); }
+   }
    if    (is_type_and_ptype(pc2, CT_PAREN_OPEN, CT_INVARIANT))
                                              { log_opt_return(UO_sp_invariant_paren        ); }
    if    (is_type (pc1, CT_PAREN_CLOSE))
@@ -676,7 +673,11 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       /* D-specific: "delegate(some thing) dg */
       if (is_ptype(pc1, CT_DELEGATE))        { log_arg_return(AV_ADD                       ); }
       /* PAWN-specific: "state (condition) next" */
-      if (is_ptype(pc1, CT_STATE))           { log_arg_return(AV_ADD                       ); }}
+      if (is_ptype(pc1, CT_STATE))           { log_arg_return(AV_ADD                       ); }
+      /* C++ new operator: new(bar) Foo */
+      if (is_ptype(pc1, CT_NEW))             { log_opt_return(UO_sp_after_newop_paren      ); }
+   }
+
    if    (any_is_type(pc1, CT_FPAREN_OPEN, pc2, CT_FPAREN_CLOSE)) { /* "foo(...)" vs "foo( ... )" */
       if (are_types  (pc1, CT_FPAREN_OPEN, pc2, CT_FPAREN_CLOSE))
                                              { log_opt_return(UO_sp_inside_fparens         ); }
@@ -702,13 +703,24 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
     * CPP cast: "int(a + 3)" vs "int( a + 3 )" */
    if (is_type(pc1, CT_PAREN_OPEN))
    {
-      if (is_ptype(pc1, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
-                                              { log_opt_return(UO_sp_inside_paren_cast  ); }
-                                              { log_opt_return(UO_sp_inside_paren       ); } }
+      if (is_ptype(pc1, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))             { log_opt_return(UO_sp_inside_paren_cast  ); }
+      if (is_ptype(pc1, CT_NEW))
+      {
+         if(cpd.settings[UO_sp_inside_newop_paren_open].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren_open); }
+         if(cpd.settings[UO_sp_inside_newop_paren].a      != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren     ); }
+      }
+                                              { log_opt_return(UO_sp_inside_paren       ); }
+   }
    if (is_type(pc2, CT_PAREN_CLOSE))
    {  if (is_ptype(pc2, CT_C_CAST, CT_CPP_CAST, CT_D_CAST))
                                               { log_opt_return(UO_sp_inside_paren_cast  ); }
-                                                log_opt_return(UO_sp_inside_paren       ); }
+      if (is_ptype(pc2, CT_NEW))
+      {
+         if(cpd.settings[UO_sp_inside_newop_paren_close].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren_close); }
+         if(cpd.settings[UO_sp_inside_newop_paren].a       != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren      ); }
+      }
+                                                log_opt_return(UO_sp_inside_paren       );
+   }
    /* "[3]" vs "[ 3 ]" */
    if (any_is_type(pc1, CT_SQUARE_OPEN, pc2, CT_SQUARE_CLOSE))
                                               { log_opt_return(UO_sp_inside_square      ); }
@@ -865,6 +877,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
                                            { log_arg_return(AV_FORCE                  ); }
    if (is_cmt(pc2)) { log_arg_return(AV_IGNORE); }
    if (is_type(pc1, CT_COMMENT)) { log_arg_return(AV_FORCE); }
+   /* c# new Constraint, c++ new operator */
    if (are_types(pc1, CT_NEW, pc2, CT_PAREN_OPEN))
                                            { log_opt_return(UO_sp_between_new_paren   ); }
    if (is_type          (pc1, CT_NEW,  CT_DELETE) ||
@@ -875,7 +888,12 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if (is_type(pc1, CT_OC_PROPERTY))       { log_opt_return(UO_sp_after_oc_property   ); }
    if (are_types(pc1, CT_EXTERN, pc2, CT_PAREN_OPEN))
                                            { log_opt_return(UO_sp_extern_paren        ); }
+   /* "((" vs "( (" or "))" vs ") )" */
+   if ((is_str(pc1, "(", 1) && is_str(pc2, "(", 1)) ||
+       (is_str(pc1, ")", 1) && is_str(pc2, ")", 1)) )
+                                           { log_opt_return(UO_sp_paren_paren); }
    // this table lists out all combos where a space should NOT be present CT_UNKNOWN is a wildcard.
+   // CT_UNKNOWN is a wildcard.
    for (auto it : no_space_table)
    {   if (((it.first  == CT_UNKNOWN) || (it.first  == pc1->type) ) &&
            ((it.second == CT_UNKNOWN) || (it.second == pc2->type) ) )
