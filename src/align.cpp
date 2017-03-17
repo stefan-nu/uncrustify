@@ -484,7 +484,8 @@ void align_all(void)
    /* Align assignments */
    align_assign(chunk_get_head(),
                 cpd.settings[UO_align_assign_span  ].u,
-                cpd.settings[UO_align_assign_thresh].u);
+                cpd.settings[UO_align_assign_thresh].u,
+                nullptr);
 
    /* Align structure initializers */
    if (cpd.settings[UO_align_struct_init_span].u > 0)  { align_struct_initializers(); }
@@ -691,7 +692,7 @@ void align_preprocessor(void)
 }
 
 
-chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
+chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_count)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(first), first);
@@ -715,8 +716,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
    size_t  equ_count   = 0;
    size_t  tmp;
    chunk_t *pc = first;
-   while (  is_valid(pc) &&
-          ((pc->level >= my_level) || (pc->level == 0)))
+   while (is_valid(pc))
    {
       /* Don't check inside parenthesis or SQUARE groups */
       if (is_type(pc, CT_SPAREN_OPEN, CT_FPAREN_OPEN,
@@ -738,24 +738,40 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh)
          const bool is_enum     = is_ptype(pc, CT_ENUM);
          const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
          const uo_t thresh_type = is_enum ? UO_align_enum_equ_thresh : UO_align_assign_thresh;
+
          size_t myspan   = cpd.settings[span_type  ].u;
          size_t mythresh = cpd.settings[thresh_type].u;
+         size_t sub_nl_count = 0;
 
-         tmp = pc->orig_line;
-         pc = align_assign(get_next_ncnl(pc), myspan, mythresh);
-         if (is_valid(pc))
+         pc = align_assign(get_next_ncnl(pc), myspan, mythresh, &sub_nl_count);
+         if (sub_nl_count > 0)
          {
-            /* do a rough count of the number of lines just spanned */
-            as.NewLines  (pc->orig_line - tmp);
-            vdas.NewLines(pc->orig_line - tmp);
+            as.NewLines(sub_nl_count);
+            vdas.NewLines(sub_nl_count);
+            if (p_nl_count != nullptr)
+            {
+               *p_nl_count += sub_nl_count;
+            }
          }
          continue;
+      }
+
+      /* Done with this brace set? */
+      if (is_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE))
+      {
+         pc = chunk_get_next(pc);
+         break;
       }
 
       if (is_nl(pc))
       {
          as.NewLines  (pc->nl_count);
          vdas.NewLines(pc->nl_count);
+         if (p_nl_count != nullptr)
+         {
+            *p_nl_count += pc->nl_count;
+         }
+
          var_def_cnt = 0;
          equ_count   = 0;
       }

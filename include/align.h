@@ -67,9 +67,10 @@ chunk_t *align_nl_cont(
  * Otherwise, only look at the first '=' on the line.
  */
 chunk_t *align_assign(
-   chunk_t *first, /**< [in]  */
-   size_t  span,   /**< [in]  */
-   size_t  thresh  /**< [in]  */
+   chunk_t* first,     /**< [in]  */
+   size_t   span,      /**< [in]  */
+   size_t   thresh,    /**< [in]  */
+   size_t*  p_nl_count /**< [in]  */
 );
 
 
