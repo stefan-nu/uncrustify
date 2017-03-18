@@ -1,6 +1,6 @@
 /**
  * @file parens.cpp
- * Adds or removes parens.
+ * Adds or removes parenthesis.
  *
  * @author  Ben Gardner
  * @license GPL v2+
@@ -15,7 +15,7 @@
 
 
 /**
- * Add an open paren after first and add a close paren before the last
+ * Add an open parenthesis after first and add a close parenthesis before the last
  */
 static void add_parens_between(
    chunk_t *first,  /**< [in]  */
@@ -24,13 +24,13 @@ static void add_parens_between(
 
 
 /**
- * Scans between two parens and adds additional parens if needed.
- * This function is recursive. If it hits another open paren, it'll call itself
+ * Scans between two parenthesis and adds additional parenthesis if needed.
+ * This function is recursive. If it hits another open parenthesis, it'll call itself
  * with the new bounds.
  *
- * Adds optional parens in an IF or SWITCH conditional statement.
+ * Adds optional parenthesis in an IF or SWITCH conditional statement.
  *
- * This basically just checks for a CT_COMPARE that isn't surrounded by parens.
+ * This basically just checks for a CT_COMPARE that isn't surrounded by parenthesis.
  * The edges for the compare are the open, close and any CT_BOOL tokens.
  *
  * This only handles VERY simple patterns:
@@ -42,9 +42,9 @@ static void add_parens_between(
  *        a non-preprocessor
  */
 static void check_bool_parens(
-   chunk_t *popen,   /**< [in]  */
-   chunk_t *pclose,  /**< [in]  */
-   int     nest      /**< [in]  */
+   chunk_t *popen,  /**< [in]  */
+   chunk_t *pclose, /**< [in]  */
+   int     nest     /**< [in]  */
 );
 
 
@@ -57,7 +57,7 @@ void do_parens(void)
       chunk_t *pc = chunk_get_head();
       while ((pc = get_next_ncnl(pc)) != nullptr)
       {
-         continue_if (not_type (pc,    CT_SPAREN_OPEN             ) ||
+         continue_if (not_type (pc, CT_SPAREN_OPEN             ) ||
                       not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
@@ -81,16 +81,12 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 
    LOG_FMT(LPARADD, "%s: line %zu between %s [lvl=%zu] and %s [lvl=%zu]\n",
            __func__, first->orig_line,
-           first->text(), first->level,
-           last->text(), last->level);
+           first->text(), first->level, last->text(),  last->level);
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
    chunk_t *first_n = get_next_ncnl(first);
    assert(is_valid(first_n));
-   if (first_n == last)
-   {
-      return;
-   }
+   return_if(first_n == last);
 
    chunk_t pc;
    pc.type        = CT_PAREN_OPEN;
@@ -131,10 +127,8 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
    bool    hit_compare = false;
 
    LOG_FMT(LPARADD, "%s(%d): popen on %zu, col %zu, pclose on %zu, col %zu, level=%zu\n",
-           __func__, nest,
-           popen->orig_line, popen->orig_col,
-           pclose->orig_line, pclose->orig_col,
-           popen->level);
+           __func__, nest, popen->orig_line, popen->orig_col,
+           pclose->orig_line, pclose->orig_col, popen->level);
 
    chunk_t *pc = popen;
    while (((pc = get_next_ncnl(pc)) != nullptr) && (pc != pclose))

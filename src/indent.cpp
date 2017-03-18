@@ -336,8 +336,7 @@ void align_to_column(chunk_t* pc, size_t column)
       LOG_FMT(LINDLINED, "   %s set column of %s on line %zu to col %zu (orig %zu)\n",
             get_align_mode_name(almod), get_token_name(pc->type), pc->orig_line,
             pc->column, pc->orig_col);
-   } while ( is_valid(pc) &&
-            (pc->nl_count == 0) );
+   } while (is_valid(pc) && (pc->nl_count == 0));
 }
 
 
@@ -581,9 +580,9 @@ static chunk_t* oc_msg_prev_colon(chunk_t* pc)
 void indent_text(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t       *pc;
-   chunk_t       *next;
-   chunk_t       *prev       = nullptr;
+   chunk_t*      pc;
+   chunk_t*      next;
+   chunk_t*      prev       = nullptr;
    bool          my_did_newline = true;
    int           idx;
    size_t        vardefcol    = 0;
@@ -1810,7 +1809,7 @@ void indent_text(void)
          if (is_type(prev_nonl, 8, CT_SEMICOLON,  CT_VBRACE_CLOSE,
                    CT_BRACE_OPEN,  CT_VSEMICOLON, CT_BRACE_CLOSE,
                    CT_VBRACE_OPEN, CT_CASE_COLON, CT_COMMA) ||
-               are_different_preproc(prev_nonl, pc) ||
+               are_different_pp(prev_nonl, pc) ||
               (is_operator == true) )
          {
             in_shift = false;

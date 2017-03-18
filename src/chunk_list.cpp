@@ -793,9 +793,9 @@ static void set_chunk(chunk_t* pc, c_token_t token, log_sev_t val, const char* s
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
 
-   c_token_t       *what; /* object to update */
-   const c_token_t *newt; /* new value for chunk type */
-   const c_token_t *newp; /* new value for chunk parent */
+   c_token_t*       what; /* object to update */
+   const c_token_t* newt; /* new value for chunk type */
+   const c_token_t* newp; /* new value for chunk parent */
    switch (val)
    {
       case (LSETTYP): what = &pc->type;  newt = &token;    newp = &pc->ptype; break;
@@ -1077,7 +1077,7 @@ bool is_ptype(const chunk_t* const pc, const c_token_t type1,
 bool is_only_first_type(const chunk_t* pc1, const c_token_t type1,
                         const chunk_t* pc2, const c_token_t type2)
 {
-   return(is_type    (pc1, type1) &&
+   return(is_type (pc1, type1) &&
           not_type(pc2, type2) );
 
 }
@@ -1106,7 +1106,30 @@ bool not_type(const chunk_t* const pc, const c_token_t type1,
 }
 
 
-bool is_type(const chunk_t* pc, int count, ... )
+bool not_ptype(const chunk_t* const pc, const c_token_t ptype)
+{
+   return(is_valid(pc) && (pc->ptype != ptype));
+}
+
+
+bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
+                                        const c_token_t ptype2)
+{
+   return(is_valid(pc) && (pc->ptype != ptype1) &&
+                          (pc->ptype != ptype2) );
+}
+
+
+bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
+              const c_token_t ptype2,   const c_token_t ptype3)
+{
+   return(is_valid(pc) && (pc->ptype != ptype1) &&
+                          (pc->ptype != ptype2) &&
+                          (pc->ptype != ptype3) );
+}
+
+
+bool is_type(const chunk_t* const pc, int count, ... )
 {
    va_list args;          /* define     argument list */
    va_start(args, count); /* initialize argument list */
@@ -1468,14 +1491,14 @@ bool is_ptr_operator(chunk_t* pc)
 }
 
 
-bool are_same_preproc(const chunk_t* const pc1, const chunk_t* const pc2)
+bool are_same_pp(const chunk_t* const pc1, const chunk_t* const pc2)
 {
    return( are_valid(pc1, pc2) &&
           (is_flag(pc1, PCF_IN_PREPROC) == is_flag(pc2, PCF_IN_PREPROC)));
 }
 
 
-bool are_different_preproc(const chunk_t* const pc1, const chunk_t* const pc2)
+bool are_different_pp(const chunk_t* const pc1, const chunk_t* const pc2)
 {
    return( are_valid(pc1, pc2) &&
           (is_flag(pc1, PCF_IN_PREPROC) != is_flag(pc2, PCF_IN_PREPROC)));
@@ -1486,5 +1509,5 @@ bool is_safe_to_del_nl(chunk_t* nl)
 {
    chunk_t* tmp = chunk_get_prev(nl);
    return (is_type(tmp, CT_COMMENT_CPP)) ?
-    false : are_same_preproc(chunk_get_prev(nl), chunk_get_next(nl));
+    false : are_same_pp(chunk_get_prev(nl), chunk_get_next(nl));
 }

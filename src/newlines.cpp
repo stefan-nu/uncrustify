@@ -723,7 +723,7 @@ void newline_del_between(chunk_t* start, chunk_t* end)
    log_func_stack_inline(LNEWLINE);
 
    /* Can't remove anything if the preproc status differs */
-   return_if(!are_same_preproc(start, end));
+   return_if(!are_same_pp(start, end));
 
    chunk_t* pc           = start;
    bool    start_removed = false;

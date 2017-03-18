@@ -812,11 +812,6 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    LOG_FUNC_ENTRY();
    LOG_FMT(LGUY, "%s: %zu:%zu %s:%s\n", __func__, pc->orig_line, pc->orig_col,
                                         pc->text(), get_token_name(pc->type));
-   // LOG_FMT(LSYS, " %3d > ['%s' %s] ['%s' %s] ['%s' %s]\n",
-   //         pc->orig_line,
-   //         prev->text(), get_token_name(prev->type),
-   //         pc->text(), get_token_name(pc->type),
-   //         next->text(), get_token_name(next->type));
 
    if (is_type(pc, CT_OC_AT))
    {
@@ -840,12 +835,11 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       set_paren_parent(next, pc->type);
    }
 
-   chunk_t* tmp;
    if ( is_type(next, CT_PAREN_OPEN                   ) &&
         is_type(pc,   CT_D_CAST, CT_DELEGATE, CT_ALIGN) )
    {
       /* mark the parenthesis parent */
-      tmp = set_paren_parent(next, pc->type);
+      chunk_t* tmp = set_paren_parent(next, pc->type);
 
       /* For a D cast - convert the next item */
       if (is_type (pc, CT_D_CAST) && is_valid(tmp))
@@ -894,7 +888,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       if (is_type(next, CT_PAREN_OPEN))
       {
          set_ptype(next, pc->type);
-         tmp = chunk_get_next(next);
+         chunk_t* tmp = chunk_get_next(next);
          while (is_valid(tmp))
          {
             if (is_type(tmp, CT_PAREN_CLOSE))
@@ -980,8 +974,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
 
    if (is_type(pc, CT_NEW))
    {
-      chunk_t* ts = nullptr;
-      tmp = next;
+      chunk_t* ts  = nullptr;
+      chunk_t* tmp = next;
       if (is_type(tmp, CT_TSQUARE))
       {
          ts  = tmp;
@@ -1010,7 +1004,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       set_paren_parent(next, CT_ASSIGN);
 
       /* Mark one-liner assignment */
-      tmp = next;
+      chunk_t* tmp = next;
       while ((tmp = get_next_nc(tmp)) != nullptr)
       {
          break_if (is_nl(tmp));
@@ -1031,7 +1025,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    }
    if (is_type(pc, CT_ANNOTATION))
    {
-      tmp = get_next_ncnl(pc);
+      chunk_t* tmp = get_next_ncnl(pc);
       if (is_paren_open(tmp))
       {
          set_paren_parent(tmp, CT_ANNOTATION);
@@ -1072,7 +1066,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    {
       if (is_paren_open(next))
       {
-         tmp = flag_parens(next, 0, CT_NONE, CT_EXTERN, true);
+         chunk_t* tmp = flag_parens(next, 0, CT_NONE, CT_EXTERN, true);
          if (is_type(tmp, CT_BRACE_OPEN))
          {
             set_paren_parent(tmp, CT_EXTERN);
@@ -1082,7 +1076,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       {
          /* next likely is a string (see tokenize_cleanup.cpp) */
          set_ptype(next, CT_EXTERN);
-         tmp = get_next_ncnl(next);
+         chunk_t* tmp = get_next_ncnl(next);
          if (is_type(tmp, CT_BRACE_OPEN))
          {
             set_paren_parent(tmp, CT_EXTERN);
@@ -1128,7 +1122,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
     * CT_WORD => CT_FUNC_CALL or CT_FUNC_DEF */
    if (is_type(next, CT_PAREN_OPEN))
    {
-      tmp = get_next_ncnl(next);
+      chunk_t* tmp = get_next_ncnl(next);
       if (is_lang(cpd, LANG_OC) && is_type(tmp, CT_CARET))
       {
          handle_oc_block_type(tmp);
@@ -1157,7 +1151,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
           * "int(foo)(void)"
           *
           * FIXME: this check can be done better... */
-         tmp = get_next_type(next, CT_PAREN_CLOSE, (int)next->level);
+         chunk_t* tmp = get_next_type(next, CT_PAREN_CLOSE, (int)next->level);
          tmp = chunk_get_next(tmp);
          if (is_type(tmp, CT_PAREN_OPEN) )
          {
@@ -1221,7 +1215,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    if (is_type(pc, CT_FUNC_CALL, CT_FUNC_CALL_USER,
                    CT_FUNC_DEF,  CT_FUNC_PROTO))
    {
-      tmp = next;
+      chunk_t* tmp = next;
       if (is_type(tmp, CT_SQUARE_OPEN))
       {
          tmp = set_paren_parent(tmp, pc->type);
@@ -1281,13 +1275,11 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       set_paren_parent(pc, CT_FUNC_CALL);
    }
 
-   /* Check for a close paren followed by an open paren, which means that
-    * we are on a function type declaration (C/C++ only?).
-    * Note that typedefs are already taken care of.
-    */
+   /* Check for a close parenthesis followed by an open parenthesis,
+    * which means that we are on a function type declaration (C/C++ only?).
+    * Note that typedefs are already taken care of. */
    if (not_flag(pc, (PCF_IN_TYPEDEF | PCF_IN_TEMPLATE)) &&
-       (pc->ptype != CT_CPP_CAST   ) &&
-       (pc->ptype != CT_C_CAST     ) &&
+       not_ptype(pc, 2, CT_CPP_CAST, CT_C_CAST) &&
        !is_preproc (pc) &&
        !is_oc_block(pc) &&
        (pc->ptype != CT_OC_MSG_DECL) &&
@@ -1322,15 +1314,15 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
 
    if ((cpd.lang_flags & LANG_D) == 0)
    {
-      /* Check a paren pair to see if it is a cast.
+      /* Check a parenthesis pair to see if it is a cast.
        * Note that SPAREN and FPAREN have already been marked. */
       if (is_type (pc,      CT_PAREN_OPEN                              ) &&
           is_ptype(pc,      CT_NONE, CT_OC_MSG, CT_OC_BLOCK_EXPR       ) &&
           is_type (next, 8, CT_WORD,   CT_TYPE, CT_QUALIFIER, CT_STRUCT,
                             CT_MEMBER, CT_ENUM, CT_DC_MEMBER, CT_UNION ) &&
-          not_type(prev, CT_SIZEOF                                     ) &&
-          (prev->ptype != CT_OPERATOR                                  ) &&
-          not_flag(pc, PCF_IN_TYPEDEF))
+          not_type (prev, CT_SIZEOF                                    ) &&
+          not_ptype(prev, CT_OPERATOR                                  ) &&
+          not_flag (pc,   PCF_IN_TYPEDEF                               ) )
       {
          fix_casts(pc);
       }
@@ -1353,7 +1345,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
             }
          break;
 
-         case(CT_CARET        ):
+         case(CT_CARET):
             if (is_lang(cpd, LANG_CPP) && is_type(prev, CT_ANGLE_CLOSE))
             {
                set_type(pc, CT_PTR_TYPE);
@@ -1374,12 +1366,12 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    }
 
    /* Detect a variable definition that starts with struct/enum/union/class */
-   if ( not_flag(pc, PCF_IN_TYPEDEF ) &&
-       (prev->ptype != CT_CPP_CAST  ) &&
-       not_flag(prev, PCF_IN_FCN_DEF) &&
+   if (not_flag (pc,   PCF_IN_TYPEDEF) &&
+       not_ptype(prev, CT_CPP_CAST   ) &&
+       not_flag (prev, PCF_IN_FCN_DEF) &&
        is_type(pc, CT_STRUCT, CT_UNION, CT_CLASS, CT_ENUM) )
    {
-      tmp = skip_dc_member(next);
+      chunk_t* tmp = skip_dc_member(next);
       if (is_type(tmp, CT_TYPE, CT_WORD))
       {
          set_type_and_ptype(tmp, CT_TYPE, pc->type);
@@ -1418,7 +1410,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    }
 
    /* Change CT_STAR to CT_PTR_TYPE or CT_ARITH or CT_DEREF */
-   if ( is_type(pc, CT_STAR                                 ) ||
+   if ( is_type(pc, CT_STAR                            ) ||
        (is_type(pc, CT_CARET) && is_lang(cpd, LANG_CPP)) )
    {
       if (is_paren_close(next) ||
@@ -1450,19 +1442,21 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       }
       else if (is_type(pc, CT_STAR))
       {
-         /* most PCF_PUNCTUATOR chunks except a paren close would make this
-          * a deref. A parenthesis close may end a cast or may be part of a macro fcn.
-          */
+         /* A star can have three meanings
+          * 1. CT_DEREF    = pointer dereferencation
+          * 2. CT_PTR_TYPE = pointer definition
+          * 3. CT_ARITH    = arithmetic multiplication */
          if (is_type(prev, CT_TYPE))
          {
             set_type(pc, CT_PTR_TYPE);
          }
          else
          {
-            set_type(pc,(  is_flag(prev, PCF_PUNCTUATOR                         ) &&
-                         (!is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
-                          not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER          ) )
-                          ? CT_DEREF : CT_ARITH);
+            const c_token_t type = ( is_flag(prev, PCF_PUNCTUATOR)                    &&
+                             (!is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
+                               not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER)          ) ?
+                               CT_DEREF : CT_ARITH;
+            set_type(pc, type);
          }
       }
    }
@@ -1481,7 +1475,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          set_type(pc, CT_ARITH);
          if (is_type(prev, CT_WORD))
          {
-            tmp = get_prev_ncnl(prev);
+            chunk_t* tmp = get_prev_ncnl(prev);
             if (is_type(tmp, CT_SEMICOLON,  CT_VSEMICOLON,
                              CT_BRACE_OPEN, CT_QUALIFIER))
             {
@@ -1550,7 +1544,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    {
       if (is_type(pc->next, CT_STAR)) // here *
       {
-         tmp = pc;
+         chunk_t* tmp = pc;
          while (is_valid(tmp))
          {
             if (is_type(tmp, CT_ATTRIBUTE))

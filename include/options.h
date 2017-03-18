@@ -965,7 +965,7 @@ bool is_option(
  * @retval true  if option value is not equal to the given value
  * @retval false if option value is     equal to the given value
  */
-bool is_not_option(
+bool not_option(
    argval_t var,  /**< [in] variable to operate with */
    argval_t opt   /**< [in] option value to check for */
 );
@@ -1021,7 +1021,7 @@ bool is_token(
  * @retval true  if token is not equal to the given value
  * @retval false if token is     equal to the given value
  */
-bool is_not_token(
+bool not_token(
    tokenpos_t var, /**< [in] variable to check */
    tokenpos_t opt  /**< [in] Token combination to check for */
 );

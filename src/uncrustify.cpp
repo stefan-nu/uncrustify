@@ -1791,7 +1791,7 @@ static void uncrustify_start(const deque<int> &data)
 
 void set_newline_chunk_pos(uo_t check, uo_t set, c_token_t token)
 {
-   if (is_not_token(cpd.settings[check].tp, TP_IGNORE))
+   if (not_token(cpd.settings[check].tp, TP_IGNORE))
    {
       newlines_chunk_pos(token, cpd.settings[set].tp);
    }
