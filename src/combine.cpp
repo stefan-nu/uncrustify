@@ -25,13 +25,13 @@
 /**
  * Flags all chunks from the open parenthesis to the close parenthesis.
  *
- * @return     The token after the close parenthesis
+ * @return The token after the close parenthesis
  */
 static chunk_t* flag_parens(
-   chunk_t   *po,       /**< [in] Pointer to the open parenthesis */
-   uint64_t    flags,     /**< [in] flags to add */
+   chunk_t*  po,        /**< [in] Pointer to the open parenthesis */
+   uint64_t  flags,     /**< [in] flags to add */
    c_token_t opentype,  /**< [in]  */
-   c_token_t parenttype,/**< [in]  */
+   c_token_t ptype,     /**< [in]  */
    bool      parent_all /**< [in]  */
 );
 
@@ -291,7 +291,7 @@ static void process_returns(void);
 
 /**
  * Processes a return statement, labeling the parenthesis and marking
- * the parent. May remove or add parens around the return statement
+ * the parent. May remove or add parenthesis around the return statement
  */
 static chunk_t* process_return(
    chunk_t* pc  /**< [in] Pointer to the return chunk */
@@ -623,7 +623,7 @@ void flag_series(chunk_t* start, chunk_t* end, uint64_t set_flags,
 
 
 static chunk_t* flag_parens(chunk_t* po, uint64_t flags, c_token_t opentype,
-                            c_token_t parenttype, bool parent_all)
+                            c_token_t ptype, bool parent_all)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(po));
@@ -641,13 +641,13 @@ static chunk_t* flag_parens(chunk_t* po, uint64_t flags, c_token_t opentype,
    LOG_FMT(LFLPAREN, "flag_parens: %zu:%zu [%s] and %zu:%zu [%s] type=%s ptype=%s",
            po->orig_line, po->orig_col, po->text(),
            paren_close->orig_line, paren_close->orig_col, paren_close->text(),
-           get_token_name(opentype), get_token_name(parenttype));
+           get_token_name(opentype), get_token_name(ptype));
    log_func_stack_inline(LFLPAREN);
 
    if (po != paren_close)
    {
       if ((flags != 0) ||
-          (parent_all && (parenttype != CT_NONE)))
+          (parent_all && (ptype != CT_NONE)))
       {
          chunk_t* pc;
          for (pc = chunk_get_next(po, scope_e::PREPROC);
@@ -657,7 +657,7 @@ static chunk_t* flag_parens(chunk_t* po, uint64_t flags, c_token_t opentype,
             set_flags(pc, flags);
             if (parent_all)
             {
-               set_ptype(pc, parenttype);
+               set_ptype(pc, ptype);
             }
          }
       }
@@ -668,10 +668,10 @@ static chunk_t* flag_parens(chunk_t* po, uint64_t flags, c_token_t opentype,
          set_type(paren_close, get_inverse_type(opentype));
       }
 
-      if (parenttype != CT_NONE)
+      if (ptype != CT_NONE)
       {
-         set_ptype(po,          parenttype);
-         set_ptype(paren_close, parenttype);
+         set_ptype(po,          ptype);
+         set_ptype(paren_close, ptype);
       }
    }
    return(get_next_ncnl(paren_close, scope_e::PREPROC));
@@ -2094,10 +2094,10 @@ static void fix_casts(chunk_t* start)
       return;
    }
 
-   chunk_t    *first;
-   chunk_t    *after;
-   chunk_t    *last = nullptr;
-   chunk_t    *paren_close;
+   chunk_t*   first;
+   chunk_t*   after;
+   chunk_t*   last = nullptr;
+   chunk_t*   paren_close;
    const char *verb      = "likely";
    const char *detail    = "";
    size_t     count      = 0;
@@ -2457,7 +2457,7 @@ static void fix_typedef(chunk_t* start)
          }
          break_if (is_type(next, CT_ATTRIBUTE));
 
-         if (is_lang(cpd, LANG_D) && (is_type(next, CT_ASSIGN)))
+         if (is_lang(cpd, LANG_D) && is_type(next, CT_ASSIGN))
          {
             set_ptype(next, CT_TYPEDEF);
             break;
@@ -2569,7 +2569,6 @@ void combine_labels(void)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t* tmp;
    bool    hit_case  = false;
    bool    hit_class = false;
 
@@ -2640,7 +2639,7 @@ void combine_labels(void)
          {
             hit_case = false;
             set_type(next, CT_CASE_COLON);
-            tmp = get_next_ncnl(next);
+            chunk_t* tmp = get_next_ncnl(next);
             if (is_type(tmp, CT_BRACE_OPEN))
             {
                set_ptype(tmp, CT_CASE);
@@ -2661,7 +2660,7 @@ void combine_labels(void)
                {
                   c_token_t new_type = CT_TAG;
 
-                  tmp = get_next_nc(next);
+                  chunk_t* tmp = get_next_nc(next);
                   if (is_nl(prev) && is_nl(tmp))
                   {
                      new_type = CT_LABEL;
@@ -2682,7 +2681,7 @@ void combine_labels(void)
             else if (is_flag(next, PCF_OC_BOXED       )) { set_type(next, CT_OC_DICT_COLON); }
             else if (is_type(cur, CT_WORD))
             {
-               tmp = get_next_nc(next, scope_e::PREPROC);
+               chunk_t* tmp = get_next_nc(next, scope_e::PREPROC);
                assert(is_valid(tmp));
 
                LOG_FMT(LGUY, "%s: %zu:%zu, tmp=%s\n", __func__, tmp->orig_line,
@@ -2726,7 +2725,7 @@ void combine_labels(void)
             else if (next->level > next->brace_level) { /* ignore it, as it is inside a paren */ }
             else
             {
-               tmp = get_next_ncnl(next);
+               chunk_t* tmp = get_next_ncnl(next);
                if (is_type(tmp, CT_BASE, CT_THIS))
                {
                   /* ignore it, as it is a C# base thingy */

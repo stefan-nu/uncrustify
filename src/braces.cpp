@@ -134,6 +134,13 @@ static void process_if_chain(
    chunk_t *br_start /**< [in]  */
 );
 
+/* defines to make checking options easier \todo can be  */
+#define is_opt(option, value) is_option_set(cpd.settings[option].a, (value)  )
+#define is_opt_add   (option) is_option_set(cpd.settings[option].a, AV_ADD   )
+#define is_opt_remove(option) is_option_set(cpd.settings[option].a, AV_REMOVE)
+#define is_opt_force (option) is_option_set(cpd.settings[option].a, AV_FORCE )
+#define is_opt_ignore(option) is_option_set(cpd.settings[option].a, AV_IGNORE)
+
 
 void do_braces(void)
 {
@@ -145,22 +152,39 @@ void do_braces(void)
       mod_full_brace_if_chain();
    }
 
+#if 1
+   if (is_opt(UO_mod_full_brace_if   , AV_REMOVE) ||
+       is_opt(UO_mod_full_brace_do   , AV_REMOVE) ||
+       is_opt(UO_mod_full_brace_for  , AV_REMOVE) ||
+       is_opt(UO_mod_full_brace_using, AV_REMOVE) ||
+       is_opt(UO_mod_full_brace_while, AV_REMOVE) )
+#else
    if ( (is_option_set(cpd.settings[UO_mod_full_brace_if   ].a, AV_REMOVE)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_do   ].a, AV_REMOVE)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_for  ].a, AV_REMOVE)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_using].a, AV_REMOVE)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_while].a, AV_REMOVE)) )
+#endif
    {
       examine_braces();
    }
 
    /* convert vbraces if needed */
+#if 1
+   if ( is_opt(UO_mod_full_brace_if      , AV_ADD) ||
+        is_opt(UO_mod_full_brace_do      , AV_ADD) ||
+        is_opt(UO_mod_full_brace_for     , AV_ADD) ||
+        is_opt(UO_mod_full_brace_function, AV_ADD) ||
+        is_opt(UO_mod_full_brace_using   , AV_ADD) ||
+        is_opt(UO_mod_full_brace_while   , AV_ADD) )
+#else
    if ( (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_function].a, AV_ADD)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_using   ].a, AV_ADD)) ||
         (is_option_set(cpd.settings[UO_mod_full_brace_while   ].a, AV_ADD)) )
+#endif
    {
       convert_all_vbrace_to_brace();
    }
@@ -789,12 +813,12 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
 void add_long_closebrace_comment(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t  *br_close;
-   chunk_t  *fcn_pc     = nullptr;
-   chunk_t  *sw_pc      = nullptr;
-   chunk_t  *ns_pc      = nullptr;
-   chunk_t  *cl_pc      = nullptr;
-   chunk_t  *cl_semi_pc = nullptr;
+   chunk_t* br_close;
+   chunk_t* fcn_pc     = nullptr;
+   chunk_t* sw_pc      = nullptr;
+   chunk_t* ns_pc      = nullptr;
+   chunk_t* cl_pc      = nullptr;
+   chunk_t* cl_semi_pc = nullptr;
    unc_text xstr;
 
    for (chunk_t *pc = chunk_get_head(); pc; pc = get_next_ncnl(pc))
@@ -852,7 +876,7 @@ void add_long_closebrace_comment(void)
             }
             if (is_invalid(tmp) || is_nl(tmp))
             {
-               size_t   nl_min  = 0;
+               size_t   nl_min = 0;
                chunk_t* tag_pc = nullptr;
 
                if(is_ptype(br_open, CT_SWITCH))
