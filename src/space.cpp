@@ -172,8 +172,18 @@ static bool sp_cond_0151(chunks_t* c) { return is_type_and_ptype(c->b, CT_PAREN_
 static bool sp_cond_0008(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_OPEN,  c->b, CT_NL_CONT); }
 static bool sp_cond_0009(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_CLOSE, c->b, CT_NL_CONT); }
 
-static bool sp_cond_0140(chunks_t* c) { return any_is_type(c->a, CT_MEMBER,     c->b, CT_MEMBER     ); }
-static bool sp_cond_0085(chunks_t* c) { return any_is_type(c->a, CT_ANGLE_OPEN, c->b, CT_ANGLE_CLOSE); }
+static bool sp_cond_0091(chunks_t* c) { return any_is_type(c->a, CT_FPAREN_OPEN,   c->b, CT_FPAREN_CLOSE); }
+static bool sp_cond_0161(chunks_t* c) { return any_is_type(c->a, CT_TPAREN_OPEN,   c->b, CT_TPAREN_CLOSE); }
+static bool sp_cond_0178(chunks_t* c) { return any_is_type(c->a, CT_SPAREN_OPEN,   c->b, CT_SPAREN_CLOSE); }
+static bool sp_cond_0174(chunks_t* c) { return any_is_type(c->a, CT_SQUARE_OPEN,   c->b, CT_SQUARE_CLOSE); }
+static bool sp_cond_0223(chunks_t* c) { return any_is_type(c->a, CT_INCDEC_BEFORE, c->b, CT_INCDEC_AFTER); }
+static bool sp_cond_0140(chunks_t* c) { return any_is_type(c->a, CT_MEMBER,        c->b, CT_MEMBER      ); }
+static bool sp_cond_0085(chunks_t* c) { return any_is_type(c->a, CT_ANGLE_OPEN,    c->b, CT_ANGLE_CLOSE ); }
+
+static bool sp_cond_0217(chunks_t* c) { return any_is_type(c->a, c->b, CT_PTR_TYPE     ); }
+static bool sp_cond_0188(chunks_t* c) { return any_is_type(c->a, c->b, CT_BOOL         ); }
+static bool sp_cond_0189(chunks_t* c) { return any_is_type(c->a, c->b, CT_COMPARE      ); }
+static bool sp_cond_0186(chunks_t* c) { return any_is_type(c->a, c->b, CT_NULLCOND     ); }
 static bool sp_cond_0067(chunks_t* c) { return any_is_type(c->a, c->b, CT_LAMBDA       ); }
 static bool sp_cond_0001(chunks_t* c) { return any_is_type(c->a, c->b, CT_IGNORED      ); }
 static bool sp_cond_0003(chunks_t* c) { return any_is_type(c->a, c->b, CT_PP           ); }
@@ -186,29 +196,34 @@ static bool sp_cond_0141(chunks_t* c) { return any_is_type(c->a, c->b, CT_D_TEMP
 
 static bool sp_cond_0084(chunks_t* c) { return are_types(c->a, c->b, CT_ANGLE_CLOSE); }
 static bool sp_cond_0002(chunks_t* c) { return are_types(c->a, c->b, CT_PP_IGNORE  ); }
+static bool sp_cond_0191(chunks_t* c) { return are_types(c->a, c->b, CT_PTR_TYPE   ); }
 
 static bool sp_cond_0150(chunks_t* c) { return are_ptypes(c->a, c->b, CT_NONE); }
 
-static bool sp_cond_0063(chunks_t* c) { return are_types(c->a, CT_CATCH,        c->b, CT_SPAREN_OPEN); }
-static bool sp_cond_0064(chunks_t* c) { return are_types(c->a, CT_D_VERSION_IF, c->b, CT_SPAREN_OPEN); }
-static bool sp_cond_0065(chunks_t* c) { return are_types(c->a, CT_D_SCOPE_IF,   c->b, CT_SPAREN_OPEN); }
-static bool sp_cond_0017(chunks_t* c) { return are_types(c->a, CT_QUESTION,     c->b, CT_COND_COLON ); }
-static bool sp_cond_0129(chunks_t* c) { return are_types(c->a, CT_PP_DEFINED,   c->b, CT_PAREN_OPEN ); }
-static bool sp_cond_0132(chunks_t* c) { return are_types(c->a, CT_THIS,         c->b, CT_PAREN_OPEN ); }
-static bool sp_cond_0133(chunks_t* c) { return are_types(c->a, CT_STATE,        c->b, CT_PAREN_OPEN ); }
-static bool sp_cond_0134(chunks_t* c) { return are_types(c->a, CT_DELEGATE,     c->b, CT_PAREN_OPEN ); }
-static bool sp_cond_0112(chunks_t* c) { return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_WHEN       ); }
-static bool sp_cond_0124(chunks_t* c) { return are_types(c->a, CT_BRACE_OPEN,   c->b, CT_BRACE_CLOSE); }
-static bool sp_cond_0142(chunks_t* c) { return are_types(c->a, CT_ELSE,         c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0143(chunks_t* c) { return are_types(c->a, CT_ELSE,         c->b, CT_ELSEIF     ); }
-static bool sp_cond_0144(chunks_t* c) { return are_types(c->a, CT_CATCH,        c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0145(chunks_t* c) { return are_types(c->a, CT_FINALLY,      c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0146(chunks_t* c) { return are_types(c->a, CT_TRY,          c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0147(chunks_t* c) { return are_types(c->a, CT_GETSET,       c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0148(chunks_t* c) { return are_types(c->a, CT_WORD,         c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0137(chunks_t* c) { return are_types(c->a, CT_SUPER,        c->b, CT_PAREN_OPEN ); }
-static bool sp_cond_0138(chunks_t* c) { return are_types(c->a, CT_FPAREN_CLOSE, c->b, CT_BRACE_OPEN ); }
-static bool sp_cond_0070(chunks_t* c) { return are_types(c->a, CT_ENUM,         c->b, CT_FPAREN_OPEN); }
+static bool sp_cond_0190(chunks_t* c) { return are_types(c->a, CT_PAREN_OPEN,   c->b, CT_PTR_TYPE    ); }
+static bool sp_cond_0160(chunks_t* c) { return are_types(c->a, CT_FPAREN_OPEN,  c->b, CT_FPAREN_CLOSE); }
+static bool sp_cond_0175(chunks_t* c) { return are_types(c->a, CT_SQUARE_CLOSE, c->b, CT_FPAREN_OPEN ); }
+static bool sp_cond_0063(chunks_t* c) { return are_types(c->a, CT_CATCH,        c->b, CT_SPAREN_OPEN ); }
+static bool sp_cond_0064(chunks_t* c) { return are_types(c->a, CT_D_VERSION_IF, c->b, CT_SPAREN_OPEN ); }
+static bool sp_cond_0065(chunks_t* c) { return are_types(c->a, CT_D_SCOPE_IF,   c->b, CT_SPAREN_OPEN ); }
+static bool sp_cond_0017(chunks_t* c) { return are_types(c->a, CT_QUESTION,     c->b, CT_COND_COLON  ); }
+static bool sp_cond_0129(chunks_t* c) { return are_types(c->a, CT_PP_DEFINED,   c->b, CT_PAREN_OPEN  ); }
+static bool sp_cond_0132(chunks_t* c) { return are_types(c->a, CT_THIS,         c->b, CT_PAREN_OPEN  ); }
+static bool sp_cond_0133(chunks_t* c) { return are_types(c->a, CT_STATE,        c->b, CT_PAREN_OPEN  ); }
+static bool sp_cond_0134(chunks_t* c) { return are_types(c->a, CT_DELEGATE,     c->b, CT_PAREN_OPEN  ); }
+static bool sp_cond_0112(chunks_t* c) { return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_WHEN        ); }
+static bool sp_cond_0124(chunks_t* c) { return are_types(c->a, CT_BRACE_OPEN,   c->b, CT_BRACE_CLOSE ); }
+static bool sp_cond_0142(chunks_t* c) { return are_types(c->a, CT_ELSE,         c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0143(chunks_t* c) { return are_types(c->a, CT_ELSE,         c->b, CT_ELSEIF      ); }
+static bool sp_cond_0144(chunks_t* c) { return are_types(c->a, CT_CATCH,        c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0145(chunks_t* c) { return are_types(c->a, CT_FINALLY,      c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0146(chunks_t* c) { return are_types(c->a, CT_TRY,          c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0147(chunks_t* c) { return are_types(c->a, CT_GETSET,       c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0148(chunks_t* c) { return are_types(c->a, CT_WORD,         c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0137(chunks_t* c) { return are_types(c->a, CT_SUPER,        c->b, CT_PAREN_OPEN  ); }
+static bool sp_cond_0138(chunks_t* c) { return are_types(c->a, CT_FPAREN_CLOSE, c->b, CT_BRACE_OPEN  ); }
+static bool sp_cond_0070(chunks_t* c) { return are_types(c->a, CT_ENUM,         c->b, CT_FPAREN_OPEN ); }
+static bool sp_cond_0239(chunks_t* c) { return are_types(c->a, CT_EXTERN,       c->b, CT_PAREN_OPEN  ); }
 
 static bool sp_cond_0045(chunks_t* c) { return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_DC_MEMBER) && is_type(c->b->next, CT_FUNC_CALL); }
 
@@ -242,7 +257,6 @@ static bool sp_cond_0026(chunks_t* c) { return is_type(c->a, CT_PREPROC       );
 static bool sp_cond_0027(chunks_t* c) { return is_type(c->b, CT_COND_COLON    ); }
 static bool sp_cond_0028(chunks_t* c) { return is_type(c->a, CT_COND_COLON    ); }
 static bool sp_cond_0029(chunks_t* c) { return is_type(c->b, CT_SEMICOLON     ); }
-static bool sp_cond_0032(chunks_t* c) { return is_type(c->a, CT_SPAREN_CLOSE  ); }
 static bool sp_cond_0036(chunks_t* c) { return is_type(c->a, CT_SEMICOLON     ); }
 static bool sp_cond_0038(chunks_t* c) { return is_type(c->b, CT_SPAREN_CLOSE  ); }
 static bool sp_cond_0040(chunks_t* c) { return is_type(c->a, CT_RETURN        ); }
@@ -290,11 +304,48 @@ static bool sp_cond_0125(chunks_t* c) { return is_type(c->b, CT_BRACE_CLOSE   );
 static bool sp_cond_0128(chunks_t* c) { return is_type(c->a, CT_D_CAST        ); }
 static bool sp_cond_0115(chunks_t* c) { return is_type(c->a, CT_TPAREN_CLOSE  ); }
 static bool sp_cond_0118(chunks_t* c) { return is_type(c->b, CT_FPAREN_OPEN   ); }
+static bool sp_cond_0212(chunks_t* c) { return is_type(c->b, CT_SPAREN_OPEN   ); }
+static bool sp_cond_0218(chunks_t* c) { return is_type(c->a, CT_NOT           ); }
+static bool sp_cond_0219(chunks_t* c) { return is_type(c->a, CT_INV           ); }
+static bool sp_cond_0220(chunks_t* c) { return is_type(c->a, CT_ADDR          ); }
+static bool sp_cond_0221(chunks_t* c) { return is_type(c->a, CT_DEREF         ); }
+static bool sp_cond_0222(chunks_t* c) { return is_type(c->a, CT_POS, CT_NEG   ); }
+static bool sp_cond_0224(chunks_t* c) { return is_type(c->b, CT_CS_SQ_COLON   ); }
+static bool sp_cond_0225(chunks_t* c) { return is_type(c->a, CT_CS_SQ_COLON   ); }
+static bool sp_cond_0226(chunks_t* c) { return is_type(c->a, CT_OC_SCOPE      ); }
+static bool sp_cond_0227(chunks_t* c) { return is_type(c->a, CT_OC_DICT_COLON ); }
+static bool sp_cond_0228(chunks_t* c) { return is_type(c->b, CT_OC_DICT_COLON ); }
+static bool sp_cond_0229(chunks_t* c) { return is_type(c->a, CT_OC_COLON      ); }
+static bool sp_cond_0231(chunks_t* c) { return is_type(c->b, CT_OC_COLON      ); }
+static bool sp_cond_0216(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN    ); }
+static bool sp_cond_0238(chunks_t* c) { return is_type(c->a, CT_OC_PROPERTY   ); }
+static bool sp_cond_0168(chunks_t* c) { return is_type(c->a, CT_PAREN_OPEN    ); }
+static bool sp_cond_0171(chunks_t* c) { return is_type(c->b, CT_PAREN_CLOSE   ); }
+static bool sp_cond_0176(chunks_t* c) { return is_type(c->b, CT_SPAREN_CLOSE  ); }
+static bool sp_cond_0177(chunks_t* c) { return is_type(c->a, CT_SPAREN_OPEN   ); }
+static bool sp_cond_0179(chunks_t* c) { return is_type(c->a, CT_CLASS_COLON   ); }
+static bool sp_cond_0180(chunks_t* c) { return is_type(c->b, CT_CLASS_COLON   ); }
+static bool sp_cond_0181(chunks_t* c) { return is_type(c->a, CT_CONSTR_COLON  ); }
+static bool sp_cond_0182(chunks_t* c) { return is_type(c->b, CT_CONSTR_COLON  ); }
+static bool sp_cond_0183(chunks_t* c) { return is_type(c->b, CT_CASE_COLON    ); }
+static bool sp_cond_0184(chunks_t* c) { return is_type(c->a, CT_DOT           ); }
+static bool sp_cond_0185(chunks_t* c) { return is_type(c->b, CT_DOT           ); }
+static bool sp_cond_0200(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE   ); }
+static bool sp_cond_0201(chunks_t* c) { return is_type(c->b, CT_ELSE          ); }
+static bool sp_cond_0202(chunks_t* c) { return is_type(c->b, CT_CATCH         ); }
+static bool sp_cond_0203(chunks_t* c) { return is_type(c->b, CT_FINALLY       ); }
+static bool sp_cond_0204(chunks_t* c) { return is_type(c->a, CT_BRACE_OPEN    ); }
+static bool sp_cond_0208(chunks_t* c) { return is_type(c->b, CT_BRACE_CLOSE   ); }
+static bool sp_cond_0195(chunks_t* c) { return is_type(c->b, CT_QUALIFIER     ); }
+static bool sp_cond_0196(chunks_t* c) { return is_type(c->a, CT_OPERATOR      ); }
+static bool sp_cond_0162(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE   ); }
+static bool sp_cond_0234(chunks_t* c) { return is_type(c->a, CT_COMMENT       ); }
 
 static bool sp_cond_0033(chunks_t* c) { return is_type(c->b, CT_COMMENT     ) && is_type(c->a, CT_PP_ELSE,      CT_PP_ENDIF); }
 static bool sp_cond_0051(chunks_t* c) { return is_type(c->a, CT_FPAREN_CLOSE) && is_type(c->b, CT_FPAREN_CLOSE, CT_COMMA   ); }
 static bool sp_cond_0039(chunks_t* c) { return is_type(c->a, CT_NEG,  CT_POS,  CT_ARITH) && is_type(c->b, CT_NEG, CT_POS, CT_ARITH); }
 static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((size_t)(c->a->str[0])); }
+
 static bool sp_cond_0052(chunks_t* c) { return is_type(c->a, 22, CT_SBOOL, CT_SARITH,  CT_SASSIGN,  CT_CASE, CT_NEW,
       CT_QUALIFIER, CT_RETURN,   CT_DELETE, CT_ARITH, CT_ARITH, CT_FRIEND, CT_PRIVATE, CT_OPERATOR, CT_UNION,
       CT_NAMESPACE, CT_SCOMPARE, CT_SIZEOF, CT_CLASS, CT_USING, CT_STRUCT, CT_TYPEDEF, CT_TYPENAME, CT_THROW); }
@@ -305,7 +356,6 @@ static bool sp_cond_0127(chunks_t* c) { return is_ptype(c->b, CT_STRUCT,      CT
 static bool sp_cond_0114(chunks_t* c) { return is_ptype(c->a, CT_C_CAST,      CT_D_CAST       ); }
 
 static bool sp_cond_0139(chunks_t* c) { return is_ptype(c->b, CT_DOUBLE_BRACE); }
-static bool sp_cond_0126(chunks_t* c) { return is_ptype(c->b, CT_ENUM        ); }
 static bool sp_cond_0035(chunks_t* c) { return is_ptype(c->b, CT_COMMENT_END ); }
 static bool sp_cond_0030(chunks_t* c) { return is_ptype(c->b, CT_FOR         ); }
 static bool sp_cond_0037(chunks_t* c) { return is_ptype(c->a, CT_FOR         ); }
@@ -315,9 +365,14 @@ static bool sp_cond_0153(chunks_t* c) { return is_ptype(c->a, CT_D_TEMPLATE  ); 
 static bool sp_cond_0154(chunks_t* c) { return is_ptype(c->a, CT_INVARIANT   ); }
 static bool sp_cond_0157(chunks_t* c) { return is_ptype(c->a, CT_DELEGATE    ); }
 static bool sp_cond_0158(chunks_t* c) { return is_ptype(c->a, CT_STATE       ); }
-static bool sp_cond_0159(chunks_t* c) { return is_ptype(c->a, CT_NEW         ); }
 static bool sp_cond_0073(chunks_t* c) { return is_ptype(c->b, CT_FUNC_PROTO  ); }
 static bool sp_cond_0076(chunks_t* c) { return is_ptype(c->a, CT_FUNC_PROTO  ); }
+static bool sp_cond_0159(chunks_t* c) { return is_ptype(c->a, CT_NEW         ); }
+static bool sp_cond_0170(chunks_t* c) { return is_ptype(c->a, CT_NEW         ); }
+static bool sp_cond_0173(chunks_t* c) { return is_ptype(c->b, CT_NEW         ); }
+static bool sp_cond_0205(chunks_t* c) { return is_ptype(c->a, CT_ENUM        ); }
+static bool sp_cond_0126(chunks_t* c) { return is_ptype(c->b, CT_ENUM        ); }
+static bool sp_cond_0209(chunks_t* c) { return is_ptype(c->b, CT_ENUM        ); }
 
 static bool sp_cond_0075(chunks_t* c) { return is_flag(c->a, PCF_IN_ENUM); }
 static bool sp_cond_0072(chunks_t* c) { return is_flag(c->b, PCF_IN_ENUM); }
@@ -333,7 +388,7 @@ static bool sp_cond_0077(chunks_t* c) { return is_type(c->a, CT_BIT_COLON  ) && 
 static bool sp_cond_0078(chunks_t* c) { return is_type(c->b, CT_BIT_COLON  ) && is_flag(c->b, PCF_IN_ENUM); }
 static bool sp_cond_0082(chunks_t* c) { return is_type(c->b, CT_SQUARE_OPEN) && (c->b->ptype != CT_OC_MSG); }
 
-
+static bool sp_cond_0207(chunks_t* c) { return !is_cmt(c->b); }
 static bool sp_cond_0100(chunks_t* c) { return !is_cmt(c->b); }
 
 static bool sp_cond_0103(chunks_t* c) { return is_type(get_next_ncnl(c->b), CT_FPAREN_CLOSE); }
@@ -345,101 +400,68 @@ static bool sp_cond_0135(chunks_t* c) { return is_type(get_next_ncnl(c->b), CT_F
 static bool sp_cond_0116(chunks_t* c) { return (is_str(c->a, ")", 1) && is_str(c->b, "(", 1)) ||
                                                (is_paren_close(c->a) && is_paren_open(c->b)); }
 
-static bool sp_cond_0091(chunks_t* c) { return any_is_type(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE); }
-static bool sp_cond_0160(chunks_t* c) { return are_types  (c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE); }
-static bool sp_cond_0161(chunks_t* c) { return any_is_type(c->a, CT_TPAREN_OPEN, c->b, CT_TPAREN_CLOSE); }
-static bool sp_cond_0162(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE); }
 static bool sp_cond_0163(chunks_t* c) { return is_flag(c->a, PCF_OC_RTYPE) && is_ptype(c->a, CT_OC_MSG_DECL, CT_OC_MSG_SPEC); }
-static bool sp_cond_0164(chunks_t* c) { return is_ptype(c->a, CT_OC_MSG_SPEC, CT_OC_MSG_DECL); }
+
+
 static bool sp_cond_0165(chunks_t* c) { return is_ptype(c->a, CT_OC_SEL) && not_type(c->b, CT_SQUARE_CLOSE); }
+
 static bool sp_cond_0166(chunks_t* c) { return ((is_type(c->a, CT_PAREN_OPEN ) && is_ptype(c->a, CT_OC_SEL, CT_OC_PROTOCOL)) ||
                                                 (is_type(c->b, CT_PAREN_CLOSE) && is_ptype(c->b, CT_OC_SEL, CT_OC_PROTOCOL)) ); }
 
+static bool sp_cond_0032(chunks_t* c) { return is_type(c->a, CT_SPAREN_CLOSE && not_ptype(c->a, CT_WHILE_OF_DO)); }
+
 static bool sp_cond_0167(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN) && is_type(c->a, CT_OC_SEL, CT_OC_PROTOCOL); }
-static bool sp_cond_0168(chunks_t* c) { return is_type(c->a, CT_PAREN_OPEN); }
+
+static bool sp_cond_0164(chunks_t* c) { return is_ptype(c->a, CT_OC_MSG_SPEC, CT_OC_MSG_DECL); }
 static bool sp_cond_0169(chunks_t* c) { return is_ptype(c->a, CT_C_CAST, CT_CPP_CAST, CT_D_CAST); }
-static bool sp_cond_0170(chunks_t* c) { return is_ptype(c->a, CT_NEW); }
-static bool sp_cond_0171(chunks_t* c) { return is_type(c->b, CT_PAREN_CLOSE); }
 static bool sp_cond_0172(chunks_t* c) { return is_ptype(c->b, CT_C_CAST, CT_CPP_CAST, CT_D_CAST); }
-static bool sp_cond_0173(chunks_t* c) { return is_ptype(c->b, CT_NEW); }
-static bool sp_cond_0174(chunks_t* c) { return any_is_type(c->a, CT_SQUARE_OPEN, c->b, CT_SQUARE_CLOSE); }
-static bool sp_cond_0175(chunks_t* c) { return are_types(c->a, CT_SQUARE_CLOSE, c->b, CT_FPAREN_OPEN); }
-static bool sp_cond_0176(chunks_t* c) { return is_type(c->b, CT_SPAREN_CLOSE); }
-static bool sp_cond_0177(chunks_t* c) { return is_type(c->a, CT_SPAREN_OPEN); }
-static bool sp_cond_0178(chunks_t* c) { return any_is_type(c->a, CT_SPAREN_OPEN, c->b, CT_SPAREN_CLOSE); }
-static bool sp_cond_0179(chunks_t* c) { return is_type(c->a, CT_CLASS_COLON); }
-static bool sp_cond_0180(chunks_t* c) { return is_type(c->b, CT_CLASS_COLON); }
-static bool sp_cond_0181(chunks_t* c) { return is_type(c->a, CT_CONSTR_COLON); }
-static bool sp_cond_0182(chunks_t* c) { return is_type(c->b, CT_CONSTR_COLON); }
-static bool sp_cond_0183(chunks_t* c) { return is_type(c->b, CT_CASE_COLON); }
-static bool sp_cond_0184(chunks_t* c) { return is_type(c->a, CT_DOT); }
-static bool sp_cond_0185(chunks_t* c) { return is_type(c->b, CT_DOT); }
-static bool sp_cond_0186(chunks_t* c) { return any_is_type(c->a, c->b, CT_NULLCOND); }
+
 static bool sp_cond_0187(chunks_t* c) { return is_type(c->a, CT_ARITH, CT_CARET) || is_type(c->b, CT_ARITH, CT_CARET) ; }
-static bool sp_cond_0188(chunks_t* c) { return any_is_type(c->a, c->b, CT_BOOL); }
-static bool sp_cond_0189(chunks_t* c) { return any_is_type(c->a, c->b, CT_COMPARE); }
-static bool sp_cond_0190(chunks_t* c) { return are_types(c->a, CT_PAREN_OPEN, c->b, CT_PTR_TYPE); }
-static bool sp_cond_0191(chunks_t* c) { return are_types(c->a, c->b, CT_PTR_TYPE); }
+
+
 static bool sp_cond_0192(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((size_t)(c->b->str[0])); }
 static bool sp_cond_0193(chunks_t* c) { return is_only_first_type(c->b, CT_PTR_TYPE, c->a, CT_IN); }
 static bool sp_cond_0194(chunks_t* c) { return is_type(chunk_get_prev(c->a), CT_IN); }
-static bool sp_cond_0195(chunks_t* c) { return is_type(c->b, CT_QUALIFIER); }
-static bool sp_cond_0196(chunks_t* c) { return is_type(c->a, CT_OPERATOR); }
+
 static bool sp_cond_0197(chunks_t* c) { return is_type(c->b, CT_FUNC_PROTO, CT_FUNC_DEF); }
 static bool sp_cond_0198(chunks_t* c) { return not_type(c->a, CT_PTR_TYPE); }
+
 static bool sp_cond_0199(chunks_t* c) { return is_ptype(c->a, CT_C_CAST, CT_D_CAST); }
-static bool sp_cond_0200(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE); }
-static bool sp_cond_0201(chunks_t* c) { return is_type(c->b, CT_ELSE   ); }
-static bool sp_cond_0202(chunks_t* c) { return is_type(c->b, CT_CATCH  ); }
-static bool sp_cond_0203(chunks_t* c) { return is_type(c->b, CT_FINALLY); }
-static bool sp_cond_0204(chunks_t* c) { return is_type(c->a, CT_BRACE_OPEN); }
-static bool sp_cond_0205(chunks_t* c) { return is_ptype(c->a, CT_ENUM); }
-static bool sp_cond_0206(chunks_t* c) { return is_ptype(c->a, CT_UNION, CT_STRUCT); }
-static bool sp_cond_0207(chunks_t* c) { return !is_cmt(c->b) ; }
-static bool sp_cond_0208(chunks_t* c) { return is_type(c->b, CT_BRACE_CLOSE); }
-static bool sp_cond_0209(chunks_t* c) { return is_ptype(c->b, CT_ENUM); }
-static bool sp_cond_0210(chunks_t* c) { return is_ptype(c->b, CT_UNION, CT_STRUCT); }
+static bool sp_cond_0206(chunks_t* c) { return is_ptype(c->a, CT_UNION,  CT_STRUCT); }
+static bool sp_cond_0210(chunks_t* c) { return is_ptype(c->b, CT_UNION,  CT_STRUCT); }
+
 static bool sp_cond_0211(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE) && is_flag(c->a, PCF_IN_TYPEDEF) &&
                                                is_ptype(c->a, CT_ENUM, CT_STRUCT, CT_UNION); }
-static bool sp_cond_0212(chunks_t* c) { return is_type(c->b, CT_SPAREN_OPEN); }
+
 static bool sp_cond_0213(chunks_t* c) { return is_type_and_ptype(c->b, CT_PAREN_OPEN, CT_TEMPLATE); }
 static bool sp_cond_0214(chunks_t* c) { return not_type(c->b, CT_PTR_TYPE) && is_type(c->a, CT_QUALIFIER, CT_TYPE); }
 static bool sp_cond_0215(chunks_t* c) { return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
-static bool sp_cond_0216(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN); }
-static bool sp_cond_0217(chunks_t* c) { return any_is_type(c->a, c->b, CT_PTR_TYPE); }
-static bool sp_cond_0218(chunks_t* c) { return is_type(c->a, CT_NOT); }
-static bool sp_cond_0219(chunks_t* c) { return is_type(c->a, CT_INV); }
-static bool sp_cond_0220(chunks_t* c) { return is_type(c->a, CT_ADDR); }
-static bool sp_cond_0221(chunks_t* c) { return is_type(c->a, CT_DEREF); }
-static bool sp_cond_0222(chunks_t* c) { return is_type(c->a, CT_POS, CT_NEG); }
-static bool sp_cond_0223(chunks_t* c) { return any_is_type(c->a, CT_INCDEC_BEFORE, c->b, CT_INCDEC_AFTER); }
-static bool sp_cond_0224(chunks_t* c) { return is_type(c->b, CT_CS_SQ_COLON); }
-static bool sp_cond_0225(chunks_t* c) { return is_type(c->a, CT_CS_SQ_COLON); }
-static bool sp_cond_0226(chunks_t* c) { return is_type(c->a, CT_OC_SCOPE); }
-static bool sp_cond_0227(chunks_t* c) { return is_type(c->a, CT_OC_DICT_COLON); }
-static bool sp_cond_0228(chunks_t* c) { return is_type(c->b, CT_OC_DICT_COLON); }
-static bool sp_cond_0229(chunks_t* c) { return is_type(c->a, CT_OC_COLON); }
+
+
+
+
+
 static bool sp_cond_0230(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG); }
-static bool sp_cond_0231(chunks_t* c) { return is_type(c->b, CT_OC_COLON); }
 static bool sp_cond_0232(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG) && is_type(c->a, CT_OC_MSG_FUNC, CT_OC_MSG_NAME); }
 static bool sp_cond_0233(chunks_t* c) { return is_cmt(c->b); }
-static bool sp_cond_0234(chunks_t* c) { return is_type(c->a, CT_COMMENT); }
 static bool sp_cond_0235(chunks_t* c) { return are_types(c->a, CT_NEW, c->b, CT_PAREN_OPEN); }
-static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW,  CT_DELETE) || is_type_and_ptype(c->a, CT_TSQUARE, CT_DELETE); }
+static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW, CT_DELETE) || is_type_and_ptype(c->a, CT_TSQUARE, CT_DELETE); }
 static bool sp_cond_0237(chunks_t* c) { return is_type(c->a, CT_ANNOTATION) && is_paren_open(c->b); }
-static bool sp_cond_0238(chunks_t* c) { return is_type(c->a, CT_OC_PROPERTY); }
-static bool sp_cond_0239(chunks_t* c) { return are_types(c->a, CT_EXTERN, c->b, CT_PAREN_OPEN); }
+
+
 static bool sp_cond_0240(chunks_t* c) { return ((is_str(c->a, "(", 1) && is_str(c->b, "(", 1)) ||
                                                 (is_str(c->a, ")", 1) && is_str(c->b, ")", 1)) ); }
 static bool sp_cond_0241(chunks_t* c) { return is_type (c->a, CT_PTR_TYPE) && is_ptype(c->a, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR); }
-static bool sp_cond_0242(chunks_t* c) { return false; }
-static bool sp_cond_0243(chunks_t* c) { return false; }
-static bool sp_cond_0244(chunks_t* c) { return false; }
-static bool sp_cond_0245(chunks_t* c) { return false; }
-static bool sp_cond_0246(chunks_t* c) { return false; }
-static bool sp_cond_0247(chunks_t* c) { return false; }
-
-
+static bool sp_cond_0242(chunks_t* c) { return !is_cmt(c->b) && not_type(c->b, CT_BRACE_CLOSE); }
+static bool sp_cond_0243(chunks_t* c) { return is_type(chunk_get_next(c->b), CT_FUNC_DEF, CT_FUNC_PROTO); }
+static bool sp_cond_0244(chunks_t* c) { return not_type(get_next_nc(c->b), CT_WORD); }
+static bool sp_cond_0245(chunks_t* c) { return is_type(get_next_ncnl(c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0246(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && is_type(c->b, CT_FPAREN_OPEN, CT_TPAREN_OPEN); }
+static bool sp_cond_0247(chunks_t* c) { return is_type_and_ptype(c->b, CT_COMMENT, CT_COMMENT_EMBED); }
+static bool sp_cond_0248(chunks_t* c) { return(are_types(c->a,       CT_PAREN_CLOSE, c->b,             CT_TYPE     ) &&
+                                               are_types(c->b->next, CT_DC_MEMBER,   c->b->next->next, CT_FUNC_CALL) ); }
+static bool sp_cond_0249(chunks_t* c) { return false; }
+static bool sp_cond_0250(chunks_t* c) { return false; }
 
 
 /* \todo make min_sp a size_t */
@@ -473,42 +495,38 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0014(pc)) { log_rule("sp_case_label"); return(add_option(cpd.settings[UO_sp_case_label].a, AV_ADD)); }
    if(sp_cond_0015(pc)) { log_opt_return(UO_sp_after_for_colon    ); }
    if(sp_cond_0016(pc)) { log_opt_return(UO_sp_before_for_colon   ); }
-   if(sp_cond_0017(pc)) {
-      if (is_not_option(cpd.settings[UO_sp_cond_ternary_short  ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_ternary_short  ); }
-   }
+   if(sp_cond_0017(pc) && not_option(cpd.settings[UO_sp_cond_ternary_short  ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_ternary_short  ); }
    if(sp_cond_0018(pc)) {
-      if(sp_cond_0019(pc) && is_not_option(cpd.settings[UO_sp_cond_question_before].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_before); }
-      if(sp_cond_0020(pc) && is_not_option(cpd.settings[UO_sp_cond_question_after ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_after ); }
-      if(                    is_not_option(cpd.settings[UO_sp_cond_question       ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question       ); }
+      if(sp_cond_0019(pc) && not_option(cpd.settings[UO_sp_cond_question_before].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_before); }
+      if(sp_cond_0020(pc) && not_option(cpd.settings[UO_sp_cond_question_after ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_after ); }
+      if(                    not_option(cpd.settings[UO_sp_cond_question       ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question       ); }
    }
    if(sp_cond_0021(pc))
-   {  if(sp_cond_0027(pc) && is_not_option(cpd.settings[UO_sp_cond_colon_before   ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_before   ); }
-      if(sp_cond_0028(pc) && is_not_option(cpd.settings[UO_sp_cond_colon_after    ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_after    ); }
-      if(                    is_not_option(cpd.settings[UO_sp_cond_colon          ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon          ); }
+   {  if(sp_cond_0027(pc) && not_option(cpd.settings[UO_sp_cond_colon_before   ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_before   ); }
+      if(sp_cond_0028(pc) && not_option(cpd.settings[UO_sp_cond_colon_after    ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_after    ); }
+      if(                    not_option(cpd.settings[UO_sp_cond_colon          ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon          ); }
    }
    if(sp_cond_0022(pc)) { log_opt_return(UO_sp_range); }
    if(sp_cond_0023(pc)) { log_arg_return(AV_REMOVE  ); }
-   /* Macro stuff can only return IGNORE, ADD, or FORCE */
-   if(sp_cond_0024(pc)) { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
-   if(sp_cond_0025(pc)) { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = is_not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
-   if(sp_cond_0026(pc)) {
-      if (cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); } log_arg_return(AV_REMOVE); /* Remove spaces, unless we are ignoring. See indent_preproc() */
+   if(sp_cond_0024(pc)) { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); } /* Macro stuff can only return IGNORE, ADD, or FORCE */
+   if(sp_cond_0025(pc)) { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
+#if 1
+   if(sp_cond_0026(pc)) {/* Remove spaces, unless we are ignoring. See indent_preproc() */
+      if (cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); }
+      log_arg_return(AV_REMOVE);
    }
+#else
+   // error
+   if(sp_cond_0026(pc) && cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); } log_arg_return(AV_REMOVE); /* Remove spaces, unless we are ignoring. See indent_preproc() */
+#endif
    if (sp_cond_0029(pc)) {
       if (sp_cond_0030(pc)) {
-         if (is_not_option(cpd.settings[UO_sp_before_semi_for_empty].a, AV_IGNORE) && sp_cond_0031(pc)) { log_opt_return(UO_sp_before_semi_for_empty); }
-         if (is_not_option(cpd.settings[UO_sp_before_semi_for      ].a, AV_IGNORE)                    ) { log_opt_return(UO_sp_before_semi_for      ); }
+         if (not_option(cpd.settings[UO_sp_before_semi_for_empty].a, AV_IGNORE) && sp_cond_0031(pc)) { log_opt_return(UO_sp_before_semi_for_empty); }
+         if (not_option(cpd.settings[UO_sp_before_semi_for      ].a, AV_IGNORE)                    ) { log_opt_return(UO_sp_before_semi_for      ); }
       }
       argval_t arg = cpd.settings[UO_sp_before_semi].a;
 
-      if (sp_cond_0032(pc) &&
-#if 1
-          (pc1->ptype != CT_WHILE_OF_DO ) )
-#else
-      // fails test 01011, 30711
-          not_ptype(pc1, CT_WHILE_OF_DO ) )
-#endif
-      {
+      if (sp_cond_0032(pc)) {
          log_rule("sp_before_semi|sp_special_semi");
          arg = (add_option(arg, cpd.settings[UO_sp_special_semi].a));
       }
@@ -516,14 +534,12 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       return(arg);
    }
 
-   if (sp_cond_0033(pc)) {
-      if (is_not_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE)) {
+   if (sp_cond_0033(pc) && not_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE)) {
          set_type(pc2, CT_COMMENT_ENDIF);
          log_opt_return(UO_sp_endif_cmt);
-      }
    }
 
-   if (is_not_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE) && sp_cond_0034(pc)) {
+   if (sp_cond_0034(pc) && not_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE)) {
       min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].n;
       log_opt_return(UO_sp_before_tr_emb_cmt);
    }
@@ -538,10 +554,10 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    /* "for (;;)" vs "for (;; )" and "for (a;b;c)" vs "for (a; b; c)" */
    if (sp_cond_0036(pc)) {
       if (sp_cond_0037(pc)) {
-         if (is_not_option(cpd.settings[UO_sp_after_semi_for_empty].a, AV_IGNORE) && sp_cond_0038(pc)) { log_opt_return(UO_sp_after_semi_for_empty); }
-         if (is_not_option(cpd.settings[UO_sp_after_semi_for      ].a, AV_IGNORE)                    ) { log_opt_return(UO_sp_after_semi_for      ); }
+         if (sp_cond_0038(pc) && not_option(cpd.settings[UO_sp_after_semi_for_empty].a, AV_IGNORE)) { log_opt_return(UO_sp_after_semi_for_empty); }
+         if (                    not_option(cpd.settings[UO_sp_after_semi_for      ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_semi_for      ); }
       }
-      else if (!is_cmt(pc2) && not_type(pc2, CT_BRACE_CLOSE)) { log_opt_return(UO_sp_after_semi); }
+      else if (sp_cond_0242(pc)) { log_opt_return(UO_sp_after_semi); }
       /* Let the comment spacing rules handle this */
    }
    if (sp_cond_0039(pc)) { log_arg_return(AV_ADD); } /* puts a space in the rare '+-' or '-+' */
@@ -576,94 +592,83 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    /* test if we are within a SIGNAL/SLOT call */
    if (QT_SIGNAL_SLOT_found) {
       if (sp_cond_0051(pc)) {
-         if (pc2->level == (size_t)(QT_SIGNAL_SLOT_level)) {
+         if (pc2->level == (QT_SIGNAL_SLOT_level)) {
             restoreValues = true;
          }
       }
    }
    if(sp_cond_0053(pc)) {
-      if (sp_cond_0054(pc))                                                   { log_opt_return(UO_sp_before_mdatype_commas); }
-      if (sp_cond_0055(pc) && cpd.settings[UO_sp_paren_comma].a != AV_IGNORE) { log_opt_return(UO_sp_paren_comma); }
-                                                                                log_opt_return(UO_sp_before_comma);
+      if(sp_cond_0054(pc))                                                   { log_opt_return(UO_sp_before_mdatype_commas); }
+      if(sp_cond_0055(pc) && cpd.settings[UO_sp_paren_comma].a != AV_IGNORE) { log_opt_return(UO_sp_paren_comma          ); }
+      else                                                                   { log_opt_return(UO_sp_before_comma         ); }
    }
    if(sp_cond_0056(pc))
    {  /* non-punc followed by a ellipsis */
-      if (sp_cond_0057(pc) && is_not_option(cpd.settings[UO_sp_before_ellipsis].a, AV_IGNORE)) { log_opt_return(UO_sp_before_ellipsis); }
-      if (sp_cond_0058(pc))                                                                    { log_arg_return(AV_FORCE             ); }
+      if(sp_cond_0057(pc) && not_option(cpd.settings[UO_sp_before_ellipsis].a, AV_IGNORE)) { log_opt_return(UO_sp_before_ellipsis); }
+      if(sp_cond_0058(pc))                                                                 { log_arg_return(AV_FORCE             ); }
    }
-   if(sp_cond_0059(pc)) { log_arg_return(AV_FORCE       ); }
-   if(sp_cond_0060(pc)) { log_opt_return(UO_sp_after_tag); }
-   if(sp_cond_0061(pc)) { log_arg_return(AV_REMOVE      ); }
-   if(sp_cond_0062(pc)) { log_arg_return(AV_REMOVE      ); }   /* handle '~' */
-   if(sp_cond_0063(pc) && (is_not_option(cpd.settings[UO_sp_catch_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_catch_paren  ); }
-   if(sp_cond_0064(pc) && (is_not_option(cpd.settings[UO_sp_version_paren].a, AV_IGNORE))) { log_opt_return(UO_sp_version_paren); }
-   if(sp_cond_0065(pc) && (is_not_option(cpd.settings[UO_sp_scope_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_scope_paren  ); }
-   if(sp_cond_0066(pc)                                                          ) { log_opt_return(UO_sp_before_sparen    ); } /* "if (" vs "if(" */
-   if(sp_cond_0067(pc)                                                          ) { log_opt_return(UO_sp_assign           ); }
-   if(sp_cond_0068(pc) && (cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE)) { log_opt_return(UO_sp_cpp_lambda_assign); } /* Handle the special lambda case for C++11: [=](Something arg){.....} */
-   if(sp_cond_0069(pc) && (cpd.settings[UO_sp_cpp_lambda_paren ].a != AV_IGNORE)) { log_opt_return(UO_sp_cpp_lambda_paren ); } /* Handle the special lambda case for C++11: [](Something arg){.....} */
+   if(sp_cond_0059(pc))                                                                 { log_arg_return(AV_FORCE       ); }
+   if(sp_cond_0060(pc))                                                                 { log_opt_return(UO_sp_after_tag); }
+   if(sp_cond_0061(pc))                                                                 { log_arg_return(AV_REMOVE      ); }
+   if(sp_cond_0062(pc))                                                                 { log_arg_return(AV_REMOVE      ); }   /* handle '~' */
+   if(sp_cond_0063(pc) && (not_option(cpd.settings[UO_sp_catch_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_catch_paren  ); }
+   if(sp_cond_0064(pc) && (not_option(cpd.settings[UO_sp_version_paren].a, AV_IGNORE))) { log_opt_return(UO_sp_version_paren); }
+   if(sp_cond_0065(pc) && (not_option(cpd.settings[UO_sp_scope_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_scope_paren  ); }
+   if(sp_cond_0066(pc))                                                                 { log_opt_return(UO_sp_before_sparen    ); } /* "if (" vs "if(" */
+   if(sp_cond_0067(pc))                                                                 { log_opt_return(UO_sp_assign           ); }
+   if(sp_cond_0068(pc) && (cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE))       { log_opt_return(UO_sp_cpp_lambda_assign); } /* Handle the special lambda case for C++11: [=](Something arg){.....} */
+   if(sp_cond_0069(pc) && (cpd.settings[UO_sp_cpp_lambda_paren ].a != AV_IGNORE))       { log_opt_return(UO_sp_cpp_lambda_paren ); } /* Handle the special lambda case for C++11: [](Something arg){.....} */
    if(sp_cond_0070(pc)) {
-      if (is_not_option(cpd.settings[UO_sp_enum_paren].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_paren); }
+      if (not_option(cpd.settings[UO_sp_enum_paren].a, AV_IGNORE))                      { log_opt_return(UO_sp_enum_paren); }
    }
    if (sp_cond_0071(pc)) {
-      if (sp_cond_0072(pc)) {
-         if (is_not_option(cpd.settings[UO_sp_enum_before_assign].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_before_assign); }
-         else                                                                    { log_opt_return(UO_sp_enum_assign       ); }
+      if(sp_cond_0072(pc)) {
+         if (not_option(cpd.settings[UO_sp_enum_before_assign].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_before_assign); }
+         else                                                                 { log_opt_return(UO_sp_enum_assign       ); }
       }
-      if(is_not_option(cpd.settings[UO_sp_assign_default].a, AV_IGNORE) && sp_cond_0073(pc)) { log_opt_return(UO_sp_assign_default); }
-      if(is_not_option(cpd.settings[UO_sp_before_assign ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_assign     ); }
-      else                                                               { log_opt_return(UO_sp_assign            ); } }
+      if(sp_cond_0073(pc) && not_option(cpd.settings[UO_sp_assign_default].a, AV_IGNORE)) { log_opt_return(UO_sp_assign_default); }
+      if(                    not_option(cpd.settings[UO_sp_before_assign ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_assign ); }
+      else                                                                                { log_opt_return(UO_sp_assign        ); }
+   }
    if (sp_cond_0074(pc)) {
       if (sp_cond_0075(pc)) {
-         if (is_not_option(cpd.settings[UO_sp_enum_after_assign].a, AV_IGNORE))
-                                        { log_opt_return(UO_sp_enum_after_assign); }
-         else                           { log_opt_return(UO_sp_enum_assign); } }
-      if ((is_not_option(cpd.settings[UO_sp_assign_default].a, AV_IGNORE)) &&
-            sp_cond_0076(pc)) { log_opt_return(UO_sp_assign_default); }
-      if (is_not_option(cpd.settings[UO_sp_after_assign].a, AV_IGNORE))
-                                        { log_opt_return(UO_sp_after_assign); }
-      else                              { log_opt_return(UO_sp_assign); } }
-   if(sp_cond_0077(pc)) { log_opt_return(UO_sp_enum_colon); }
-   if(sp_cond_0078(pc)) { log_opt_return(UO_sp_enum_colon); }
+         if(                 not_option(cpd.settings[UO_sp_enum_after_assign].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_after_assign); }
+         else                                                                                { log_opt_return(UO_sp_enum_assign); } }
+      if(sp_cond_0076(pc) && not_option(cpd.settings[UO_sp_assign_default   ].a, AV_IGNORE)) { log_opt_return(UO_sp_assign_default); }
+      if(                    not_option(cpd.settings[UO_sp_after_assign     ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_assign); }
+      else                                                                                   { log_opt_return(UO_sp_assign); } }
+   if(sp_cond_0077(pc)) { log_opt_return(UO_sp_enum_colon           ); }
+   if(sp_cond_0078(pc)) { log_opt_return(UO_sp_enum_colon           ); }
    if(sp_cond_0079(pc)) { log_opt_return(UO_sp_before_oc_block_caret); }
    if(sp_cond_0080(pc)) { log_opt_return(UO_sp_after_oc_block_caret ); }
    if(sp_cond_0081(pc)) { log_opt_return(UO_sp_after_oc_msg_receiver); }
-   if(sp_cond_0082(pc)) { log_opt_return(UO_sp_before_square); }  /* "a [x]" vs "a[x]" */
-   if(sp_cond_0083(pc)) { log_opt_return(UO_sp_before_squares); }    /* "byte[]" vs "byte []" */
+   if(sp_cond_0082(pc)) { log_opt_return(UO_sp_before_square        ); }  /* "a [x]" vs "a[x]" */
+   if(sp_cond_0083(pc)) { log_opt_return(UO_sp_before_squares       ); }    /* "byte[]" vs "byte []" */
    if(sp_cond_0084(pc) && (cpd.settings[UO_sp_angle_shift].a != AV_IGNORE)) { log_opt_return(UO_sp_angle_shift); }
    if(sp_cond_0085(pc)) { log_opt_return(UO_sp_inside_angle); }  /* spacing around template < > stuff */
    if(sp_cond_0086(pc)) {
-      if(sp_cond_0087(pc) && is_not_option(cpd.settings[UO_sp_template_angle].a, AV_IGNORE))
-                                        { log_opt_return(UO_sp_template_angle); }
-      else                              { log_opt_return(UO_sp_before_angle); }
+      if(sp_cond_0087(pc) && not_option(cpd.settings[UO_sp_template_angle].a, AV_IGNORE)) { log_opt_return(UO_sp_template_angle); }
+      else                                                                                   { log_opt_return(UO_sp_before_angle); }
    }
    if(sp_cond_0088(pc)) {
       if(sp_cond_0089(pc)) {
-         if (is_not_option(cpd.settings[UO_sp_angle_word].a, AV_IGNORE)) { log_opt_return(UO_sp_angle_word); }
+         if (not_option(cpd.settings[UO_sp_angle_word].a, AV_IGNORE)) { log_opt_return(UO_sp_angle_word); }
       }
-      if (sp_cond_0090(pc)) {
-         chunk_t *next = get_next_ncnl(pc2);
-         if (is_type(next, CT_FPAREN_CLOSE))
-                                        { log_opt_return(UO_sp_angle_paren_empty); }
-         else                           { log_opt_return(UO_sp_angle_paren      ); }
+      if(sp_cond_0090(pc)) {
+         if (sp_cond_0245(pc)) { log_opt_return(UO_sp_angle_paren_empty); }
+         else                  { log_opt_return(UO_sp_angle_paren      ); }
       }
       if(sp_cond_0092(pc)) { log_opt_return(UO_sp_before_dc  ); }
       if(sp_cond_0093(pc)) { log_opt_return(UO_sp_after_angle); }
    }
-   if(sp_cond_0094(pc) && sp_cond_0095(pc) && is_not_option(cpd.settings[UO_sp_after_byref_func].a, AV_IGNORE)) { log_opt_return(UO_sp_after_byref_func); }
+   if(sp_cond_0094(pc) && sp_cond_0095(pc) && not_option(cpd.settings[UO_sp_after_byref_func].a, AV_IGNORE)) { log_opt_return(UO_sp_after_byref_func); }
    if(sp_cond_0096(pc)) { log_opt_return(UO_sp_after_byref     ); }
    if(sp_cond_0097(pc)) {
-      if (is_not_option(cpd.settings[UO_sp_before_byref_func].a, AV_IGNORE)) {
-         chunk_t* next = chunk_get_next(pc2);
-         if (is_type(next, CT_FUNC_DEF, CT_FUNC_PROTO)) { return(cpd.settings[UO_sp_before_byref_func].a); }
+      if(not_option(cpd.settings[UO_sp_before_byref_func].a, AV_IGNORE)) {
+         if(sp_cond_0243(pc)) { return(cpd.settings[UO_sp_before_byref_func].a); }
       }
-
-      if(is_not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE))
-      {
-         chunk_t* next = get_next_nc(pc2);
-         if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_byref); }
-      }
-      log_opt_return(UO_sp_before_byref);
+      if(sp_cond_0244(pc) && not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE)) { log_opt_return(UO_sp_before_unnamed_byref); }
+      else                                                                                      { log_opt_return(UO_sp_before_byref        ); }
    }
 
    if(sp_cond_0098(pc))
@@ -672,8 +677,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       if (sp_cond_0100(pc) && (cpd.settings[UO_sp_after_sparen].a != AV_IGNORE)) { log_opt_return(UO_sp_after_sparen); }
    }
 
-   if(sp_cond_0101(pc) && is_not_option(cpd.settings[UO_sp_after_operator_sym].a, AV_IGNORE)) {
-      if(sp_cond_0102(pc) && is_not_option(cpd.settings[UO_sp_after_operator_sym_empty].a, AV_IGNORE)) {
+   if(sp_cond_0101(pc) && not_option(cpd.settings[UO_sp_after_operator_sym].a, AV_IGNORE)) {
+      if(sp_cond_0102(pc) && not_option(cpd.settings[UO_sp_after_operator_sym_empty].a, AV_IGNORE)) {
          if(sp_cond_0135(pc)) { log_opt_return(UO_sp_after_operator_sym_empty); }
       }
       log_opt_return(UO_sp_after_operator_sym);
@@ -681,7 +686,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
    /* spaces between function and open paren */
    if(sp_cond_0104(pc)) {
-      if(sp_cond_0110(pc) && is_not_option(cpd.settings[UO_sp_func_call_paren_empty].a, AV_IGNORE)) {
+      if(sp_cond_0110(pc) && not_option(cpd.settings[UO_sp_func_call_paren_empty].a, AV_IGNORE)) {
          if(sp_cond_0103(pc)) { log_opt_return(UO_sp_func_call_paren_empty); }
       }
       log_opt_return(UO_sp_func_call_paren);
@@ -689,11 +694,10 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0105(pc)) { log_opt_return(UO_sp_func_call_user_paren); }
    if(sp_cond_0106(pc)) { log_opt_return(UO_sp_attribute_paren     ); }
    if(sp_cond_0107(pc)) {
-      if(sp_cond_0108(pc) && is_not_option(cpd.settings[UO_sp_func_def_paren_empty].a, AV_IGNORE)) {
+      if(sp_cond_0108(pc) && not_option(cpd.settings[UO_sp_func_def_paren_empty].a, AV_IGNORE)) {
          if(sp_cond_0109(pc)) { log_opt_return(UO_sp_func_def_paren_empty); }
       }
-      log_rule("sp_func_def_paren");
-      return(cpd.settings[UO_sp_func_def_paren].a);
+      log_rule("sp_func_def_paren"); return(cpd.settings[UO_sp_func_def_paren].a);
    }
    if(sp_cond_0111(pc)) { log_opt_return(UO_sp_cpp_cast_paren); }
    if(sp_cond_0112(pc)) { log_arg_return(AV_FORCE            ); } /* TODO: make this configurable? */
@@ -706,17 +710,17 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0115(pc)) { log_opt_return(UO_sp_after_tparen_close); } /* handle the space between parens in fcn type 'void (*f)(void)' */
    if(sp_cond_0116(pc)) { log_opt_return(UO_sp_cparen_oparen     ); } /* ")(" vs ") (" */
 
-   if (sp_cond_0117(pc)) {
-      if (sp_cond_0118(pc) && is_not_option(cpd.settings[UO_sp_func_proto_paren_empty].a, AV_IGNORE)) {
-         if (sp_cond_0119(pc)) { log_opt_return(UO_sp_func_proto_paren_empty ); }
+   if(sp_cond_0117(pc)) {
+      if(sp_cond_0118(pc) && not_option(cpd.settings[UO_sp_func_proto_paren_empty].a, AV_IGNORE)) {
+         if(sp_cond_0119(pc)) { log_opt_return(UO_sp_func_proto_paren_empty ); }
       }
-      log_opt_return(UO_sp_func_proto_paren       );
+      else                    { log_opt_return(UO_sp_func_proto_paren       ); }
    }
    if(sp_cond_0120(pc)) {
-      if(sp_cond_0121(pc) && is_not_option(cpd.settings[UO_sp_func_class_paren_empty].a, AV_IGNORE)) {
+      if(sp_cond_0121(pc) && not_option(cpd.settings[UO_sp_func_class_paren_empty].a, AV_IGNORE)) {
          if(sp_cond_0122(pc)) { log_opt_return(UO_sp_func_class_paren_empty ); }
       }
-      log_opt_return(UO_sp_func_class_paren       );
+      else                    { log_opt_return(UO_sp_func_class_paren       ); }
    }
    if(sp_cond_0123(pc)) { log_arg_return(AV_FORCE                     ); }
    if(sp_cond_0124(pc)) { log_opt_return(UO_sp_inside_braces_empty    ); }
@@ -729,7 +733,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0129(pc)) { log_opt_return(UO_sp_defined_paren          ); }
    if(sp_cond_0130(pc)) {
       if(sp_cond_0131(pc)) { log_opt_return(UO_sp_throw_paren          ); }
-                             log_opt_return(UO_sp_after_throw          );
+      else                 { log_opt_return(UO_sp_after_throw          ); }
    }
    if(sp_cond_0132(pc)) { log_opt_return(UO_sp_this_paren             ); }
    if(sp_cond_0133(pc)) { log_arg_return(AV_ADD                       ); }
@@ -741,8 +745,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0137(pc)) { log_opt_return(UO_sp_super_paren            ); }
    if(sp_cond_0138(pc)) {
       if(sp_cond_0139(pc)) { log_opt_return(UO_sp_fparen_dbrace          ); }
-      log_rule("sp_fparen_brace");
-      return(cpd.settings[UO_sp_fparen_brace].a); }
+      else                 { log_rule("sp_fparen_brace"); return(cpd.settings[UO_sp_fparen_brace].a); }
+   }
    if(sp_cond_0141(pc)) { log_arg_return(AV_REMOVE                    ); }
    if(sp_cond_0142(pc)) { log_opt_return(UO_sp_else_brace             ); }
    if(sp_cond_0143(pc)) { log_arg_return(AV_FORCE                     ); }
@@ -767,18 +771,17 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
 
    if(sp_cond_0091(pc)) { /* "foo(...)" vs "foo( ... )" */
       if(sp_cond_0160(pc)) { log_opt_return(UO_sp_inside_fparens         ); }
-                             log_opt_return(UO_sp_inside_fparen          ); }
+      else                 { log_opt_return(UO_sp_inside_fparen          ); }
+   }
    /* "foo(...)" vs "foo( ... )" */
    if(sp_cond_0161(pc)) { log_opt_return(UO_sp_inside_tparen          ); }
    if(sp_cond_0162(pc)) {
-      if (sp_cond_0163(pc)) { log_opt_return(UO_sp_after_oc_return_type   ); }
-      else if (sp_cond_0164(pc)) { log_opt_return(UO_sp_after_oc_type          ); }
-      else if (sp_cond_0165(pc)) { log_opt_return(UO_sp_after_oc_at_sel_parens ); }
+      if     (sp_cond_0163(pc)) { log_opt_return(UO_sp_after_oc_return_type   ); }
+      else if(sp_cond_0164(pc)) { log_opt_return(UO_sp_after_oc_type          ); }
+      else if(sp_cond_0165(pc)) { log_opt_return(UO_sp_after_oc_at_sel_parens ); }
    }
-   if (cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE) {
-      if(sp_cond_0166(pc)) { log_opt_return(UO_sp_inside_oc_at_sel_parens); }
-   }
-   if(sp_cond_0167(pc)) { log_opt_return(UO_sp_after_oc_at_sel        ); }
+   if(sp_cond_0166(pc) && cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE) { log_opt_return(UO_sp_inside_oc_at_sel_parens); }
+   if(sp_cond_0167(pc))                                                               { log_opt_return(UO_sp_after_oc_at_sel        ); }
    /* C cast:   "(int)"      vs "( int )"
     * D cast:   "cast(int)"  vs "cast( int )"
     * CPP cast: "int(a + 3)" vs "int( a + 3 )" */
@@ -798,25 +801,25 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
       }
                                                 log_opt_return(UO_sp_inside_paren       );
    }
-   if(sp_cond_0174(pc)) { log_opt_return(UO_sp_inside_square      ); }    /* "[3]" vs "[ 3 ]" */
-   if(sp_cond_0175(pc)) { log_opt_return(UO_sp_square_fparen      ); }
-   if(sp_cond_0176(pc) && is_not_option(cpd.settings[UO_sp_inside_sparen_close].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_close); }    /* "if(...)" vs "if( ... )" */
-   if(sp_cond_0177(pc) && is_not_option(cpd.settings[UO_sp_inside_sparen_open ].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_open ); }
-   if(sp_cond_0178(pc))                                                                        { log_opt_return(UO_sp_inside_sparen      ); }
-   if(sp_cond_0179(pc) && is_not_option(cpd.settings[UO_sp_after_class_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_class_colon  ); }
-   if(sp_cond_0180(pc) && is_not_option(cpd.settings[UO_sp_before_class_colon ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_class_colon ); }
-   if(sp_cond_0181(pc) && is_not_option(cpd.settings[UO_sp_after_constr_colon ].a, AV_IGNORE))
+   if(sp_cond_0174(pc))                                                                     { log_opt_return(UO_sp_inside_square      ); }    /* "[3]" vs "[ 3 ]" */
+   if(sp_cond_0175(pc))                                                                     { log_opt_return(UO_sp_square_fparen      ); }
+   if(sp_cond_0176(pc) && not_option(cpd.settings[UO_sp_inside_sparen_close].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_close); }    /* "if(...)" vs "if( ... )" */
+   if(sp_cond_0177(pc) && not_option(cpd.settings[UO_sp_inside_sparen_open ].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_open ); }
+   if(sp_cond_0178(pc))                                                                     { log_opt_return(UO_sp_inside_sparen      ); }
+   if(sp_cond_0179(pc) && not_option(cpd.settings[UO_sp_after_class_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_class_colon  ); }
+   if(sp_cond_0180(pc) && not_option(cpd.settings[UO_sp_before_class_colon ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_class_colon ); }
+   if(sp_cond_0181(pc) && not_option(cpd.settings[UO_sp_after_constr_colon ].a, AV_IGNORE))
    { min_sp = cpd.settings[UO_indent_ctor_init_leading].n - 1; // default indent is 1 space
      log_opt_return(UO_sp_after_constr_colon); }
-   if(sp_cond_0182(pc) && is_not_option(cpd.settings[UO_sp_before_constr_colon].a, AV_IGNORE)) { log_opt_return(UO_sp_before_constr_colon); }
-   if(sp_cond_0183(pc) && is_not_option(cpd.settings[UO_sp_before_case_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_case_colon  ); }
-   if(sp_cond_0184(pc)) { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0185(pc)) { log_arg_return(AV_ADD                   ); }
-   if(sp_cond_0186(pc)) { log_opt_return(UO_sp_member             ); }
-   if(sp_cond_0187(pc)) { log_opt_return(UO_sp_arith              ); }
+   if(sp_cond_0182(pc) && not_option(cpd.settings[UO_sp_before_constr_colon].a, AV_IGNORE)) { log_opt_return(UO_sp_before_constr_colon); }
+   if(sp_cond_0183(pc) && not_option(cpd.settings[UO_sp_before_case_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_case_colon  ); }
+   if(sp_cond_0184(pc))                                                                     { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0185(pc))                                                                     { log_arg_return(AV_ADD                   ); }
+   if(sp_cond_0186(pc))                                                                     { log_opt_return(UO_sp_member             ); }
+   if(sp_cond_0187(pc))                                                                     { log_opt_return(UO_sp_arith              ); }
    if(sp_cond_0188(pc)) {
       argval_t arg = cpd.settings[UO_sp_bool].a;
-      if (is_not_token(cpd.settings[UO_pos_bool].tp, TP_IGNORE) &&
+      if (not_token(cpd.settings[UO_pos_bool].tp, TP_IGNORE) &&
          (pc1->orig_line != pc2->orig_line) && (arg != AV_REMOVE)) {
          arg = static_cast<argval_t>(arg | AV_ADD); }
          log_rule("sp_bool");
@@ -824,17 +827,15 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    }
    if(sp_cond_0189(pc)) { log_opt_return(UO_sp_compare            ); }
    if(sp_cond_0190(pc)) { log_arg_return(AV_REMOVE                ); }
-   if(is_type(pc1, CT_PTR_TYPE) &&
-      is_type(pc2, CT_FPAREN_OPEN, CT_TPAREN_OPEN) &&
-      (cpd.settings[UO_sp_ptr_star_paren].a != AV_IGNORE)) { log_opt_return(UO_sp_ptr_star_paren     ); }
-   if(sp_cond_0191(pc) && is_not_option(cpd.settings[UO_sp_between_pstar      ].a, AV_IGNORE)) { log_opt_return(UO_sp_between_pstar   ); }
-   if(sp_cond_0241(pc) && is_not_option(cpd.settings[UO_sp_after_ptr_star_func].a, AV_IGNORE)) { log_opt_return(UO_sp_after_ptr_star_func); }
+   if(sp_cond_0246(pc) &&           (cpd.settings[UO_sp_ptr_star_paren     ].a != AV_IGNORE)) { log_opt_return(UO_sp_ptr_star_paren     ); }
+   if(sp_cond_0191(pc) && not_option(cpd.settings[UO_sp_between_pstar      ].a, AV_IGNORE)) { log_opt_return(UO_sp_between_pstar      ); }
+   if(sp_cond_0241(pc) && not_option(cpd.settings[UO_sp_after_ptr_star_func].a, AV_IGNORE)) { log_opt_return(UO_sp_after_ptr_star_func); }
    if(sp_cond_0192(pc)) {
-     if (sp_cond_0194(pc)) { log_opt_return(UO_sp_deref              ); }
-     if (sp_cond_0195(pc) && is_not_option(cpd.settings[UO_sp_after_pstar_qualifier].a, AV_IGNORE)) { log_opt_return(UO_sp_after_pstar_qualifier); }
-     else if (is_not_option(cpd.settings[UO_sp_after_pstar].a, AV_IGNORE)) { log_opt_return(UO_sp_after_pstar     ); }}
+     if(sp_cond_0194(pc))                                                                       { log_opt_return(UO_sp_deref                ); }
+     if(sp_cond_0195(pc) && not_option(cpd.settings[UO_sp_after_pstar_qualifier].a, AV_IGNORE)) { log_opt_return(UO_sp_after_pstar_qualifier); }
+     else if (not_option(cpd.settings[UO_sp_after_pstar].a, AV_IGNORE))                         { log_opt_return(UO_sp_after_pstar          ); }}
    if(sp_cond_0193(pc)) {
-     if (is_not_option(cpd.settings[UO_sp_before_ptr_star_func].a, AV_IGNORE))
+     if(not_option(cpd.settings[UO_sp_before_ptr_star_func].a, AV_IGNORE))
      {
         /* Find the next non-'*' chunk */
         chunk_t *next = pc2;
@@ -843,14 +844,14 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
            next = chunk_get_next(next);
          } while (is_type(next, CT_PTR_TYPE) );
 
-         if (is_type(next, CT_FUNC_DEF, CT_FUNC_PROTO) )
+         if(is_type(next, CT_FUNC_DEF, CT_FUNC_PROTO) )
          {
             log_opt_return(UO_sp_before_ptr_star_func);
             //return(cpd.settings[UO_sp_before_ptr_star_func].a);
          }
       }
 
-      if (is_not_option(cpd.settings[UO_sp_before_unnamed_pstar].a, AV_IGNORE))
+      if(not_option(cpd.settings[UO_sp_before_unnamed_pstar].a, AV_IGNORE))
       {
          chunk_t *next = get_next_nc(pc2);
          while (is_type(next, CT_PTR_TYPE) )
@@ -858,9 +859,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
             next = get_next_nc(next);
          }
 
-         if (not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }}
-      if (is_not_option(cpd.settings[UO_sp_before_ptr_star].a, AV_IGNORE))
-                                        { log_opt_return(UO_sp_before_ptr_star     ); }}
+         if(not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }}
+      if(not_option(cpd.settings[UO_sp_before_ptr_star].a, AV_IGNORE)) { log_opt_return(UO_sp_before_ptr_star     ); }}
    if(sp_cond_0196(pc)) { log_opt_return(UO_sp_after_operator      ); }
    if(sp_cond_0197(pc)) {
      if (sp_cond_0198(pc)) {
@@ -870,17 +870,20 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    /*"(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
    if(sp_cond_0199(pc)) { log_opt_return(UO_sp_after_cast           ); }
    if(sp_cond_0200(pc))     {
-     if      (sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else           ); }
-     else if (sp_cond_0202(pc)) { log_opt_return(UO_sp_brace_catch          ); }
-     else if (sp_cond_0203(pc)) { log_opt_return(UO_sp_brace_finally        ); } }
+     if     (sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else           ); }
+     else if(sp_cond_0202(pc)) { log_opt_return(UO_sp_brace_catch          ); }
+     else if(sp_cond_0203(pc)) { log_opt_return(UO_sp_brace_finally        ); }
+   }
    if(sp_cond_0204(pc)) {
-     if      (sp_cond_0205(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
-     else if (sp_cond_0206(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-     else if (sp_cond_0207(pc)) { log_opt_return(UO_sp_inside_braces        ); } }
+     if     (sp_cond_0205(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
+     else if(sp_cond_0206(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
+     else if(sp_cond_0207(pc)) { log_opt_return(UO_sp_inside_braces        ); }
+   }
    if(sp_cond_0208(pc)) {
-     if (sp_cond_0209(pc))      { log_opt_return(UO_sp_inside_braces_enum   ); }
-     else if (sp_cond_0210(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-                                  log_opt_return(UO_sp_inside_braces        ); }
+     if     (sp_cond_0209(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
+     else if(sp_cond_0210(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
+     else                      { log_opt_return(UO_sp_inside_braces        ); }
+   }
    if(sp_cond_0211(pc)) { log_opt_return(UO_sp_brace_typedef        ); }
    if(sp_cond_0212(pc)) { log_opt_return(UO_sp_before_sparen        ); }
    if(sp_cond_0213(pc)) { log_opt_return(UO_sp_before_template_paren); }
@@ -891,9 +894,9 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
      return((arg != AV_REMOVE) ? arg : AV_FORCE);
    }
    if(sp_cond_0215(pc)) {
-     if (sp_cond_0216(pc)) { log_opt_return(UO_sp_func_call_paren     ); }
-                             log_arg_return(AV_IGNORE                 ); }
-
+     if(sp_cond_0216(pc)) { log_opt_return(UO_sp_func_call_paren     ); }
+     else                 { log_arg_return(AV_IGNORE                 ); }
+   }
    if(sp_cond_0217(pc)) { log_arg_return(AV_IGNORE                 ); } /* If nothing claimed the PTR_TYPE, then return ignore */
    if(sp_cond_0218(pc)) { log_opt_return(UO_sp_not                 ); }
    if(sp_cond_0219(pc)) { log_opt_return(UO_sp_inv                 ); }
@@ -907,31 +910,28 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0227(pc)) { log_opt_return(UO_sp_after_oc_dict_colon ); }
    if(sp_cond_0228(pc)) { log_opt_return(UO_sp_before_oc_dict_colon); }
    if(sp_cond_0229(pc)) {
-     if (sp_cond_0230(pc)) { log_opt_return(UO_sp_after_send_oc_colon ); }
-     else                  { log_opt_return(UO_sp_after_oc_colon      ); }}
+     if(sp_cond_0230(pc)) { log_opt_return(UO_sp_after_send_oc_colon ); }
+     else                 { log_opt_return(UO_sp_after_oc_colon      ); }}
    if(sp_cond_0231(pc)) {
-     if (sp_cond_0232(pc)) { log_opt_return(UO_sp_before_send_oc_colon); }
-     else                  { log_opt_return(UO_sp_before_oc_colon     ); }}
-   if(is_type_and_ptype(pc2, CT_COMMENT, CT_COMMENT_EMBED))
-                                          { log_arg_return(AV_FORCE                  ); }
-   if(sp_cond_0233(pc)) { log_arg_return(AV_IGNORE); }
-   if(sp_cond_0234(pc)) { log_arg_return(AV_FORCE); }
-   if(sp_cond_0235(pc)) { log_opt_return(UO_sp_between_new_paren   ); }    /* c# new Constraint, c++ new operator */
-   if(sp_cond_0236(pc)) { log_opt_return(UO_sp_after_new           ); }
-   if(sp_cond_0237(pc)) { log_opt_return(UO_sp_annotation_paren    ); }
-   if(sp_cond_0238(pc)) { log_opt_return(UO_sp_after_oc_property   ); }
-   if(sp_cond_0239(pc)) { log_opt_return(UO_sp_extern_paren        ); }
-   if(sp_cond_0240(pc)) { log_opt_return(UO_sp_paren_paren); }   /* "((" vs "( (" or "))" vs ") )" */
+     if(sp_cond_0232(pc)) { log_opt_return(UO_sp_before_send_oc_colon); }
+     else                 { log_opt_return(UO_sp_before_oc_colon     ); }}
+   if(sp_cond_0247(pc)) { log_arg_return(AV_FORCE               ); }
+   if(sp_cond_0233(pc)) { log_arg_return(AV_IGNORE              ); }
+   if(sp_cond_0234(pc)) { log_arg_return(AV_FORCE               ); }
+   if(sp_cond_0235(pc)) { log_opt_return(UO_sp_between_new_paren); }    /* c# new Constraint, c++ new operator */
+   if(sp_cond_0236(pc)) { log_opt_return(UO_sp_after_new        ); }
+   if(sp_cond_0237(pc)) { log_opt_return(UO_sp_annotation_paren ); }
+   if(sp_cond_0238(pc)) { log_opt_return(UO_sp_after_oc_property); }
+   if(sp_cond_0239(pc)) { log_opt_return(UO_sp_extern_paren     ); }
+   if(sp_cond_0240(pc)) { log_opt_return(UO_sp_paren_paren      ); }   /* "((" vs "( (" or "))" vs ") )" */
 
    // this table lists out all combos where a space should NOT be present CT_UNKNOWN is a wildcard.
    for (auto it : no_space_table)
    {   if (((it.first  == CT_UNKNOWN) || (it.first  == pc1->type) ) &&
            ((it.second == CT_UNKNOWN) || (it.second == pc2->type) ) )
-                                           { log_arg_return(AV_REMOVE                 ); }}
+                                           { log_arg_return(AV_REMOVE  ); }}
    // mapped_file_source abc((int) A::CW2A(sTemp));
-   if (are_types(pc1, CT_PAREN_CLOSE, pc2, CT_TYPE) &&
-       are_types(pc2->next, CT_DC_MEMBER, pc2->next->next, CT_FUNC_CALL))
-                                           { log_arg_return(AV_REMOVE                 ); }
+   if (sp_cond_0248(pc)) { log_arg_return(AV_REMOVE    ); }
 #ifdef DEBUG
    // these lines are only useful for debugging uncrustify itself
    LOG_FMT(LSPACE, "\n\n(%d) %s: WARNING: unrecognized do_space: first: %zu:%zu %s %s and second: %zu:%zu %s %s\n\n\n",
