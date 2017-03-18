@@ -28,7 +28,7 @@
  * template thingy.  Otherwise, it's likely a comparison.
  */
 static void check_template(
-   chunk_t *start  /**< [in]  */
+   chunk_t* start  /**< [in] chunk to start check at */
 );
 
 
@@ -36,15 +36,14 @@ static void check_template(
  * Convert '>' + '>' into '>>'
  * If we only have a single '>', then change it to CT_COMPARE.
  */
-static chunk_t *handle_double_angle_close(
-   chunk_t *pc  /**< [in]  */
+static chunk_t* handle_double_angle_close(
+   chunk_t* pc /**< [in] chunk to start at */
 );
 
 
-static chunk_t *handle_double_angle_close(chunk_t *pc)
+static chunk_t* handle_double_angle_close(chunk_t* pc)
 {
-   chunk_t *next = chunk_get_next(pc);
-
+   chunk_t* next = chunk_get_next(pc);
    if (is_valid(next))
    {
       if (is_type_and_ptype(pc,   CT_ANGLE_CLOSE, CT_NONE) &&
@@ -55,7 +54,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
          set_type(pc, CT_ARITH);
          pc->orig_col_end = next->orig_col_end;
 
-         chunk_t *tmp = get_next_ncnl(next);
+         chunk_t* tmp = get_next_ncnl(next);
          chunk_del(next);
          next = tmp;
       }
@@ -70,7 +69,7 @@ static chunk_t *handle_double_angle_close(chunk_t *pc)
 
 void split_off_angle_close(chunk_t *pc)
 {
-   const chunk_tag_t *ct = find_punctuator(pc->text() + 1, cpd.lang_flags);
+   const chunk_tag_t* ct = find_punctuator(pc->text() + 1, cpd.lang_flags);
    return_if(ptr_is_invalid(ct));
 
    chunk_t nc = *pc;
@@ -94,11 +93,11 @@ void tokenize_cleanup(void)
 
    /* Since [] is expected to be TSQUARE for the 'operator', we need to make
     * this change in the first pass. */
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       if (is_type(pc, CT_SQUARE_OPEN))
       {
-         chunk_t *next = get_next_ncnl(pc);
+         chunk_t* next = get_next_ncnl(pc);
          if (is_type(next, CT_SQUARE_CLOSE))
          {
             /* Change '[' + ']' into '[]' */
@@ -121,8 +120,8 @@ void tokenize_cleanup(void)
    }
 
    /* We can handle everything else in the second pass */
-   chunk_t *pc   = chunk_get_head();
-   chunk_t *next = get_next_ncnl(pc);
+   chunk_t* pc   = chunk_get_head();
+   chunk_t* next = get_next_ncnl(pc);
    while (are_valid(pc, next))
    {
       if ((is_type(pc, CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
@@ -212,8 +211,8 @@ void tokenize_cleanup(void)
       }
 
       /* Change angle open/close to CT_COMPARE, if not a template thingy */
-      if (is_type(pc, CT_ANGLE_OPEN) &&
-          (pc->ptype != CT_TYPE_CAST ) )
+      if (is_type  (pc, CT_ANGLE_OPEN) &&
+          not_ptype(pc, CT_TYPE_CAST ) )
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
@@ -254,9 +253,9 @@ void tokenize_cleanup(void)
       if (is_lang(cpd, LANG_D))
       {
          /* Check for the D string concat symbol '~' */
-         if (  is_type(pc,   CT_INV            )   &&
-              (is_type(prev, CT_STRING, CT_WORD) ||
-               is_type(next, CT_STRING         ) ) )
+         if ( is_type(pc,   CT_INV            )   &&
+             (is_type(prev, CT_STRING, CT_WORD) ||
+              is_type(next, CT_STRING         ) ) )
          {
             set_type(pc, CT_CONCAT);
          }
@@ -377,7 +376,7 @@ void tokenize_cleanup(void)
             while ((tmp = chunk_get_next(tmp2)) != nullptr)
             {
                break_if(not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
-                         CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET));
+                           CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET));
 
                /* Change tmp into a type so that space_needed() works right */
                make_type(tmp);
@@ -787,15 +786,15 @@ void tokenize_cleanup(void)
 }
 
 
-static void check_template(chunk_t *start)
+static void check_template(chunk_t* start)
 {
    LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:", __func__, start->orig_line, start->orig_col);
 
    chunk_t *prev = get_prev_ncnl(start, scope_e::PREPROC);
    return_if(is_invalid(prev));
 
-   chunk_t *end;
-   chunk_t *pc;
+   chunk_t* end;
+   chunk_t* pc;
    if (is_type(prev, CT_TEMPLATE))
    {
       LOG_FMT(LTEMPL, " CT_TEMPLATE:");
@@ -837,10 +836,10 @@ static void check_template(chunk_t *start)
 
       /* A template requires a word/type right before the open angle */
 #if 1
-      if ((prev->type        != CT_WORD        ) &&
-          (prev->type        != CT_TYPE        ) &&
-          (prev->type        != CT_COMMA       ) &&
-          (prev->type        != CT_OPERATOR_VAL) &&
+      if ((prev->type  != CT_WORD        ) &&
+          (prev->type  != CT_TYPE        ) &&
+          (prev->type  != CT_COMMA       ) &&
+          (prev->type  != CT_OPERATOR_VAL) &&
           (prev->ptype != CT_OPERATOR    ) )
 #else
         // test 31001 fails
@@ -860,8 +859,8 @@ static void check_template(chunk_t *start)
       pc = start;
       while ((pc = get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
       {
-         break_if (is_type(pc, CT_SEMICOLON,   CT_BRACE_OPEN,
-                               CT_BRACE_CLOSE, CT_SQUARE_CLOSE));
+         break_if(is_type(pc, CT_SEMICOLON,   CT_BRACE_OPEN,
+                              CT_BRACE_CLOSE, CT_SQUARE_CLOSE));
 
          if (is_type(pc, CT_IF, CT_RETURN))
          {

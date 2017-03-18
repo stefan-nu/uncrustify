@@ -27,13 +27,13 @@ public:
    typedef deque<int> int_list_t;   /* double encoded list of int values */
 
 public:
-   unc_text()
+   unc_text(void)
       : m_logok(false)
    {
    }
 
 
-   ~unc_text()
+   ~unc_text(void)
    {
    }
 
@@ -79,13 +79,13 @@ public:
    /**
     * tbd
     */
-   void clear();
+   void clear(void);
 
 
    /**
     * grab the number of characters
     */
-   size_t size() const
+   size_t size(void) const
    {
       return(m_chars.size());
    }
@@ -267,7 +267,7 @@ public:
    /**
     *  get the UTF-8 string for logging
     */
-   const char *c_str();
+   const char *c_str(void);
 
    /**
     * compares the content of two unc_text instances
@@ -294,14 +294,14 @@ public:
    /**
     *  grab the data as a series of ints for outputting to a file
     */
-   int_list_t &get()
+   int_list_t &get(void)
    {
       m_logok = false;
       return(m_chars);
    }
 
 
-   const int_list_t &get() const
+   const int_list_t &get(void) const
    {
       return(m_chars);
    }
@@ -331,7 +331,7 @@ public:
    /**
     * tbd
     */
-   const int &back() const
+   const int &back(void) const
    {
       return(m_chars.back());
    }
@@ -340,7 +340,7 @@ public:
    /*
     * returns the last element of the character list
     */
-   int &back()
+   int &back(void)
    {
       /* \todo returning a temporary via a reference
        * this has to be checked and probably changed */
