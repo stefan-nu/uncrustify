@@ -1984,7 +1984,7 @@ static void newline_func_def(chunk_t* start)
             assert(is_valid(prev));
             LOG_FMT(LNFD, "%s: prev %zu:%zu '%s' [%s/%s]\n",
                     __func__, prev->orig_line, prev->orig_col, prev->text(),
-                    get_token_name(prev->type       ),
+                    get_token_name(prev->type ),
                     get_token_name(prev->ptype));
 
             if (is_type(prev, CT_DESTRUCTOR))

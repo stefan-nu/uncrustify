@@ -919,16 +919,16 @@ bool is_forin(chunk_t* pc)
 bool is_type_and_ptype(const chunk_t* const pc, const c_token_t type,
                                                 const c_token_t ptype)
 {
-   return( is_valid(pc) && (pc->type  == type ) &&
-                           (pc->ptype == ptype) );
+   return(is_valid(pc) && (pc->type  == type ) &&
+                          (pc->ptype == ptype) );
 }
 
 
 bool is_type_and_not_ptype(const chunk_t* const pc, const c_token_t type,
                                                     const c_token_t ptype)
 {
-   return( is_valid(pc) && (pc->type  == type ) &&
-                           (pc->ptype != ptype) );
+   return(is_valid(pc) && (pc->type  == type ) &&
+                          (pc->ptype != ptype) );
 }
 
 
@@ -1029,8 +1029,7 @@ bool is_type(const chunk_t* const pc, const c_token_t type)
 bool is_type(const chunk_t* const pc, const c_token_t type1,
                                       const c_token_t type2)
 {
-   return( is_valid(pc) &&
-          ((pc->type == type1) || (pc->type == type2)) );
+   return(is_valid(pc) && ((pc->type == type1) || (pc->type == type2)));
 }
 
 
@@ -1077,8 +1076,7 @@ bool is_ptype(const chunk_t* const pc, const c_token_t type1,
 bool is_only_first_type(const chunk_t* pc1, const c_token_t type1,
                         const chunk_t* pc2, const c_token_t type2)
 {
-   return(is_type (pc1, type1) &&
-          not_type(pc2, type2) );
+   return(is_type (pc1, type1) && not_type(pc2, type2));
 
 }
 

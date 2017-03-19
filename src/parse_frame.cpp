@@ -189,7 +189,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       LOG_FMT(LPF, " <In> ");
       pf_log(LPF, frm);
 
-      if (pc->ptype == CT_PP_IF)
+      if (is_ptype(pc, CT_PP_IF))
       {
          /* An #if pushes a copy of the current frame on the stack */
          cpd.pp_level++;

@@ -906,8 +906,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       }
    }
 
-   if (is_type(prev, CT_BRACE_OPEN   ) &&
-       (prev->ptype != CT_CS_PROPERTY) &&
+   if (is_type_and_not_ptype(prev, CT_BRACE_OPEN, CT_CS_PROPERTY) &&
        (is_type(pc, CT_GETSET, CT_GETSET_EMPTY) ) )
    {
       flag_parens(prev, 0, CT_NONE, CT_GETSET, false);
@@ -1235,7 +1234,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
             {
                if (is_type(tmp, CT_BRACE_OPEN))
                {
-                  if ((tmp->ptype != CT_DOUBLE_BRACE) &&
+                  if (not_ptype(tmp, CT_DOUBLE_BRACE) &&
                       not_flag(pc, PCF_IN_CONST_ARGS) )
                   {
                      set_paren_parent(tmp, pc->type);
@@ -1266,8 +1265,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    }
 
    /* Mark the braces in: "for_each_entry(xxx) { }" */
-   if (is_type (pc,   CT_BRACE_OPEN                  ) &&
-       (pc->ptype !=  CT_DOUBLE_BRACE                ) &&
+   if (is_type_and_not_ptype(pc, CT_BRACE_OPEN, CT_DOUBLE_BRACE) &&
        is_type (prev, CT_FPAREN_CLOSE                ) &&
        is_ptype(prev, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
        not_flag(pc, PCF_IN_CONST_ARGS                ) )
@@ -1280,10 +1278,10 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
     * Note that typedefs are already taken care of. */
    if (not_flag(pc, (PCF_IN_TYPEDEF | PCF_IN_TEMPLATE)) &&
        not_ptype(pc, 2, CT_CPP_CAST, CT_C_CAST) &&
+       not_ptype(pc, 2, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
        !is_preproc (pc) &&
        !is_oc_block(pc) &&
-       (pc->ptype != CT_OC_MSG_DECL) &&
-       (pc->ptype != CT_OC_MSG_SPEC) &&
+
        is_str(pc,   ")"            ) &&
        is_str(next, "("            ) )
    {
@@ -1668,8 +1666,8 @@ void fix_symbols(void)
       if ((square_level < 0          ) &&
            is_flag(pc, PCF_STMT_START) &&
           (is_type(pc, CT_QUALIFIER, CT_TYPE, CT_TYPENAME, CT_WORD)) &&
-          (pc->ptype != CT_ENUM) &&
-           not_flag(pc, PCF_IN_ENUM))
+           not_ptype(pc, CT_ENUM    ) &&
+           not_flag (pc, PCF_IN_ENUM) )
       {
          pc = fix_var_def(pc);
       }
@@ -3254,7 +3252,7 @@ static void mark_function(chunk_t* pc)
                      case(CT_FUNC_DEF): set_type(pc, CT_FUNC_CALL); goto exit_loop;
                      case(CT_CLASS   ): /* fallthrough */
                      case(CT_STRUCT  ): set_type(pc, CT_FUNC_DEF ); goto exit_loop;
-                     default:           /*ignore unexpected ptype*/ goto exit_loop;
+                     default:   /* ignore unexpected parent type */ goto exit_loop;
                   }
                   break;
                }
@@ -3400,7 +3398,7 @@ exit_loop:
       }
       else
       {
-         set_type(pc, (pc->ptype == CT_OPERATOR) ? CT_FUNC_DEF : CT_FUNC_CALL);
+         set_type(pc, is_ptype(pc, CT_OPERATOR) ? CT_FUNC_DEF : CT_FUNC_CALL);
       }
    }
 
@@ -3560,9 +3558,8 @@ exit_loop:
       }
 
       if ((isa_def == true) &&
-          ((is_paren_close(prev) &&
-           (prev->ptype != CT_D_CAST)) ||
-           is_type(prev, CT_ASSIGN, CT_RETURN)))
+          ((is_paren_close(prev) && not_ptype(prev, CT_D_CAST) ) ||
+           is_type  (prev, CT_ASSIGN, CT_RETURN) ))
       {
          LOG_FMT(LFCN, " -- overriding DEF due to %s [%s]\n",
                  prev->text(), get_token_name(prev->type));
@@ -3591,8 +3588,7 @@ exit_loop:
             get_token_name(pc->type), pc->text(), pc->orig_line, pc->orig_col);
 
       tmp = flag_parens(next, PCF_IN_FCN_CALL, CT_FPAREN_OPEN, CT_FUNC_CALL, false);
-      if (is_type(tmp, CT_BRACE_OPEN) &&
-         (tmp->ptype != CT_DOUBLE_BRACE))
+      if(is_type_and_not_ptype(tmp, CT_BRACE_OPEN, CT_DOUBLE_BRACE))
       {
          set_paren_parent(tmp, pc->type);
       }
@@ -3646,9 +3642,9 @@ exit_loop:
     * 'parameter list' for items that are not allowed in a prototype.
     * We search backwards and checking the parent of the containing open braces.
     * If the parent is a class or namespace, then it probably is a prototype */
-   if (is_lang(cpd, LANG_CPP) &&
-       (is_type(pc, CT_FUNC_PROTO)) &&
-       (pc->ptype != CT_OPERATOR))
+   if (is_lang  (cpd, LANG_CPP     ) &&
+       is_type  (pc,  CT_FUNC_PROTO) &&
+       not_ptype(pc,  CT_OPERATOR  ) )
    {
       LOG_FMT(LFPARAM, "%s :: checking '%s' for constructor variable %s %s\n",
               __func__, pc->text(),

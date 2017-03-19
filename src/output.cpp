@@ -1141,9 +1141,9 @@ static bool can_combine_comment(chunk_t *pc, const cmt_reflow_t &cmt)
       /* Make sure the comment is the same type at the same column */
       next = chunk_get_next(next);
       if (  is_type(next, pc->type ) &&
-          (((next->column ==            1) && (pc->column ==            1  )) ||
-           ((next->column == cmt.base_col) && (pc->column == cmt.base_col  )) ||
-           ((next->column  > cmt.base_col) && (pc->ptype  == CT_COMMENT_END)) ) )
+          (((next->column ==            1) && (pc->column ==            1)) ||
+           ((next->column == cmt.base_col) && (pc->column == cmt.base_col)) ||
+           ((next->column  > cmt.base_col) && is_ptype(pc, CT_COMMENT_END)) ) )
       {
          return(true);
       }

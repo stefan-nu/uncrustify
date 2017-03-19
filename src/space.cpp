@@ -31,12 +31,20 @@
 #include "uncrustify.h"
 
 
-static void log_rule2(
-   size_t     line,    /**< [in]  */
-   const char *rule,   /**< [in]  */
-   chunk_t    *pc1,  /**< [in]  */
-   chunk_t    *pc2, /**< [in]  */
-   bool       complete /**< [in]  */
+/** type that combines two chunk pointers
+ * this is used to keep the function prototypes short */
+typedef struct chunks_s
+{
+   chunk_t* a; /**< first  chunk */
+   chunk_t* b; /**< second chunk */
+}chunks_t;
+
+
+static void log_space(
+   size_t      line,    /**< [in]  */
+   const char* rule,    /**< [in]  */
+   chunks_t*   c,       /**< [in]  */
+   bool        complete /**< [in]  */
 );
 
 
@@ -46,25 +54,27 @@ static void log_rule2(
  * @return AV_IGNORE, AV_ADD, AV_REMOVE or AV_FORCE
  */
 static argval_t do_space(
-   chunk_t *pc1,    /**< [in]  The first chunk */
-   chunk_t *pc2,    /**< [in]  The second chunk */
+   chunk_t* pc1,    /**< [in]  The first chunk */
+   chunk_t* pc2,    /**< [in]  The second chunk */
    int     &min_sp, /**< [out] minimal required space */
    bool    complete /**< [in]  */
 );
 
 
+/** type that stores two chunks between those no space
+ * shall occur */
 struct no_space_table_t
 {
-   c_token_t first;   /**< [in]  */
-   c_token_t second;  /**< [in]  */
+   c_token_t first;   /**< [in] first  chunk */
+   c_token_t second;  /**< [in] second chunk */
 };
 
 
 /**
- * this table lists all combos where a space should NOT be present
- * CT_UNKNOWN is a wildcard.
+ * this table lists all chunk combos where a space must NOT be present
  *
- * TODO: some of these are no longer needed.
+ * \note: CT_UNKNOWN is a wildcard for all chunks.
+ * \todo: some of these are no longer needed.
  */
 const no_space_table_t no_space_table[] =
 {
@@ -106,52 +116,40 @@ const no_space_table_t no_space_table[] =
 };
 
 
-
-#define log_arg_return(a)                              \
-   do {                                                \
-      if (log_sev_on(LSPACE))                          \
-      {log_rule2(__LINE__, (argval2str(a).c_str()),    \
-                            pc1, pc2, complete); }     \
-      return(a);                                       \
+#define log_arg_return(a)                                          \
+   do {log_space(__LINE__, (argval2str(a).c_str()), pc, complete); \
+      return(a);                                                   \
    } while(0)
 
-#define log_opt_return(uo)                                       \
-   do {                                                          \
-      const option_map_value_t* my_uo = get_option_name(uo);     \
-      if (log_sev_on(LSPACE))                                    \
-      {log_rule2(__LINE__, (my_uo->name), pc1, pc2, complete); } \
-      return(cpd.settings[uo].a);                                \
+#define log_opt_return(uo)                                    \
+   do {const option_map_value_t* my_uo = get_option_name(uo); \
+       log_space(__LINE__, (my_uo->name), pc, complete);      \
+       return(cpd.settings[uo].a);                            \
    } while(0)
 
-#define log_rule(rule)                                   \
-   do {                                                  \
-      if (log_sev_on(LSPACE))                            \
-      {log_rule2(__LINE__, (rule), pc1, pc2, complete);} \
+#define log_rule(rule)                            \
+   do {log_space(__LINE__, (rule), pc, complete); \
    } while (0)
 
 
-static void log_rule2(size_t line, const char *rule, chunk_t *pc1, chunk_t *pc2, bool complete)
+static void log_space(size_t line, const char* rule, chunks_t* c, bool complete)
 {
    LOG_FUNC_ENTRY();
-   assert(are_valid(pc1, pc2));
-
-   if (not_type(pc2, CT_NEWLINE))
+   if (log_sev_on(LSPACE))
    {
-      LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
-              pc1->orig_line, get_token_name(pc1->type),
-              get_token_name(pc1->ptype), pc1->text(),
-              get_token_name(pc2->type), get_token_name(pc2->ptype),
-              pc2->text(), rule, line, complete ? "\n" : "");
+      chunk_t* pc1 = c->a;
+      chunk_t* pc2 = c->b;
+      assert(are_valid(pc1, pc2));
+      if (not_type(pc2, CT_NEWLINE))
+      {
+         LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
+                 pc1->orig_line, get_token_name(pc1->type),
+                 get_token_name(pc1->ptype), pc1->text(),
+                 get_token_name(pc2->type), get_token_name(pc2->ptype),
+                 pc2->text(), rule, line, complete ? "\n" : "");
+      }
    }
 }
-
-/** type that combines two chunk pointers
- * this is used to keep the function prototypes short */
-typedef struct chunks_s
-{
-   chunk_t* a; /**< first  chunk */
-   chunk_t* b; /**< second chunk */
-}chunks_t;
 
 
 /* various conditions to determine where to places spaces
@@ -166,6 +164,7 @@ static bool sp_cond_0041(chunks_t* c) { return is_type_and_ptype(c->b, CT_PAREN_
 static bool sp_cond_0054(chunks_t* c) { return is_type_and_ptype(c->a, CT_SQUARE_OPEN,  CT_TYPE      ); }
 static bool sp_cond_0151(chunks_t* c) { return is_type_and_ptype(c->b, CT_PAREN_OPEN,   CT_INVARIANT ); }
 
+static bool sp_cond_0193(chunks_t* c) { return is_only_first_type(c->b, CT_PTR_TYPE,     c->a, CT_IN     ); }
 static bool sp_cond_0008(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_OPEN,  c->b, CT_NL_CONT); }
 static bool sp_cond_0009(chunks_t* c) { return is_only_first_type(c->a, CT_VBRACE_CLOSE, c->b, CT_NL_CONT); }
 
@@ -197,6 +196,7 @@ static bool sp_cond_0191(chunks_t* c) { return are_types(c->a, c->b, CT_PTR_TYPE
 
 static bool sp_cond_0150(chunks_t* c) { return are_ptypes(c->a, c->b, CT_NONE); }
 
+static bool sp_cond_0235(chunks_t* c) { return are_types(c->a, CT_NEW,          c->b, CT_PAREN_OPEN  ); }
 static bool sp_cond_0190(chunks_t* c) { return are_types(c->a, CT_PAREN_OPEN,   c->b, CT_PTR_TYPE    ); }
 static bool sp_cond_0160(chunks_t* c) { return are_types(c->a, CT_FPAREN_OPEN,  c->b, CT_FPAREN_CLOSE); }
 static bool sp_cond_0175(chunks_t* c) { return are_types(c->a, CT_SQUARE_CLOSE, c->b, CT_FPAREN_OPEN ); }
@@ -222,16 +222,34 @@ static bool sp_cond_0138(chunks_t* c) { return are_types(c->a, CT_FPAREN_CLOSE, 
 static bool sp_cond_0070(chunks_t* c) { return are_types(c->a, CT_ENUM,         c->b, CT_FPAREN_OPEN ); }
 static bool sp_cond_0239(chunks_t* c) { return are_types(c->a, CT_EXTERN,       c->b, CT_PAREN_OPEN  ); }
 
+static bool sp_cond_0248(chunks_t* c) { return(are_types(c->a,       CT_PAREN_CLOSE, c->b,             CT_TYPE     ) &&
+                                               are_types(c->b->next, CT_DC_MEMBER,   c->b->next->next, CT_FUNC_CALL) ); }
+
 static bool sp_cond_0045(chunks_t* c) { return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_DC_MEMBER) && is_type(c->b->next, CT_FUNC_CALL); }
 
+static bool sp_cond_0241(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE    ) && is_ptype(c->a, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR); }
+static bool sp_cond_0033(chunks_t* c) { return is_type(c->b, CT_COMMENT     ) && is_type(c->a, CT_PP_ELSE,      CT_PP_ENDIF   ); }
+static bool sp_cond_0051(chunks_t* c) { return is_type(c->a, CT_FPAREN_CLOSE) && is_type(c->b, CT_FPAREN_CLOSE, CT_COMMA      ); }
+static bool sp_cond_0167(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN  ) && is_type(c->a, CT_OC_PROTOCOL,  CT_OC_SEL     ); }
+static bool sp_cond_0113(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE ) && is_type(c->b, CT_PAREN_OPEN,   CT_FPAREN_OPEN); }
+static bool sp_cond_0246(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE    ) && is_type(c->b, CT_FPAREN_OPEN,  CT_TPAREN_OPEN); }
+static bool sp_cond_0187(chunks_t* c) { return is_type(c->a, CT_ARITH, CT_CARET) || is_type(c->b, CT_ARITH, CT_CARET) ; }
+static bool sp_cond_0192(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((size_t)(c->b->str[0])); }
+static bool sp_cond_0101(chunks_t* c) { return is_type(c->b, CT_FPAREN_OPEN ) && is_ptype(c->a, CT_OPERATOR); }
+static bool sp_cond_0039(chunks_t* c) { return is_type(c->a, CT_NEG,  CT_POS,  CT_ARITH) && is_type(c->b, CT_NEG, CT_POS, CT_ARITH); }
+static bool sp_cond_0215(chunks_t* c) { return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
 static bool sp_cond_0059(chunks_t* c) { return is_type(c->a, CT_ELLIPSIS   ) &&  CharTable::IsKW1((size_t)(c->b->str[0])); }
 static bool sp_cond_0014(chunks_t* c) { return is_type(c->a, CT_CASE       ) && (CharTable::IsKW1((size_t)(c->b->str[0])) || is_type(c->b, CT_NUMBER)); }
 static bool sp_cond_0005(chunks_t* c) { return is_type(c->b, CT_POUND      ) && is_preproc(c->b) && not_ptype(c->a, CT_MACRO_FUNC); }
 static bool sp_cond_0123(chunks_t* c) { return is_type(c->a, CT_CLASS      ) && not_flag(c->a, PCF_IN_OC_MSG); }
-static bool sp_cond_0113(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE) && is_type(c->b, CT_PAREN_OPEN, CT_FPAREN_OPEN); }
 static bool sp_cond_0096(chunks_t* c) { return is_type(c->a, CT_BYREF      ) && CharTable::IsKW1((size_t)(c->b->str[0])); }
 static bool sp_cond_0089(chunks_t* c) { return is_type(c->b, CT_WORD       ) || CharTable::IsKW1((size_t)(c->b->str[0])); }
 static bool sp_cond_0117(chunks_t* c) { return is_type(c->a, CT_FUNC_PROTO ) || is_type_and_ptype(c->b, CT_FPAREN_OPEN, CT_FUNC_PROTO ); }
+static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((size_t)(c->a->str[0])); }
+static bool sp_cond_0077(chunks_t* c) { return is_type(c->a, CT_BIT_COLON   ) && is_flag(c->a, PCF_IN_ENUM); }
+static bool sp_cond_0078(chunks_t* c) { return is_type(c->b, CT_BIT_COLON   ) && is_flag(c->b, PCF_IN_ENUM); }
+static bool sp_cond_0082(chunks_t* c) { return is_type(c->b, CT_SQUARE_OPEN ) && not_ptype(c->b, CT_OC_MSG     ); }
+static bool sp_cond_0032(chunks_t* c) { return is_type(c->a, CT_SPAREN_CLOSE) && not_ptype(c->a, CT_WHILE_OF_DO); }
 
 static bool sp_cond_0007(chunks_t* c) { return is_type(c->b, CT_NEWLINE,        CT_VBRACE_OPEN     ); }
 static bool sp_cond_0031(chunks_t* c) { return is_type(c->a, CT_SPAREN_OPEN,    CT_SEMICOLON       ); }
@@ -338,11 +356,14 @@ static bool sp_cond_0196(chunks_t* c) { return is_type(c->a, CT_OPERATOR      );
 static bool sp_cond_0162(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE   ); }
 static bool sp_cond_0234(chunks_t* c) { return is_type(c->a, CT_COMMENT       ); }
 
-static bool sp_cond_0101(chunks_t* c) { return is_type(c->b, CT_FPAREN_OPEN ) && is_ptype(c->a, CT_OPERATOR); }
-static bool sp_cond_0033(chunks_t* c) { return is_type(c->b, CT_COMMENT     ) && is_type(c->a, CT_PP_ELSE,      CT_PP_ENDIF); }
-static bool sp_cond_0051(chunks_t* c) { return is_type(c->a, CT_FPAREN_CLOSE) && is_type(c->b, CT_FPAREN_CLOSE, CT_COMMA   ); }
-static bool sp_cond_0039(chunks_t* c) { return is_type(c->a, CT_NEG,  CT_POS,  CT_ARITH) && is_type(c->b, CT_NEG, CT_POS, CT_ARITH); }
-static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((size_t)(c->a->str[0])); }
+static bool sp_cond_0245(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0243(chunks_t* c) { return is_type(chunk_get_next(c->b), CT_FUNC_DEF, CT_FUNC_PROTO); }
+static bool sp_cond_0194(chunks_t* c) { return is_type(chunk_get_prev(c->a), CT_IN          ); }
+static bool sp_cond_0103(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0122(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0119(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0109(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0135(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0052(chunks_t* c) { return is_type(c->a, 22, CT_SBOOL, CT_SARITH,  CT_SASSIGN,  CT_CASE, CT_NEW,
       CT_QUALIFIER, CT_RETURN,   CT_DELETE, CT_ARITH, CT_ARITH, CT_FRIEND, CT_PRIVATE, CT_OPERATOR, CT_UNION,
@@ -378,75 +399,43 @@ static bool sp_cond_0205(chunks_t* c) { return is_ptype(c->a, CT_ENUM        ); 
 static bool sp_cond_0126(chunks_t* c) { return is_ptype(c->b, CT_ENUM        ); }
 static bool sp_cond_0209(chunks_t* c) { return is_ptype(c->b, CT_ENUM        ); }
 
-static bool sp_cond_0075(chunks_t* c) { return is_flag(c->a, PCF_IN_ENUM); }
-static bool sp_cond_0072(chunks_t* c) { return is_flag(c->b, PCF_IN_ENUM); }
+static bool sp_cond_0232(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG) && is_type (c->a, CT_OC_MSG_FUNC, CT_OC_MSG_NAME); }
+static bool sp_cond_0163(chunks_t* c) { return is_flag(c->a, PCF_OC_RTYPE ) && is_ptype(c->a, CT_OC_MSG_DECL, CT_OC_MSG_SPEC); }
+static bool sp_cond_0230(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG); }
+static bool sp_cond_0075(chunks_t* c) { return is_flag(c->a, PCF_IN_ENUM  ); }
+static bool sp_cond_0072(chunks_t* c) { return is_flag(c->b, PCF_IN_ENUM  ); }
 
 static bool sp_cond_0057(chunks_t* c) { return not_flag(c->a, PCF_PUNCTUATOR); }
 static bool sp_cond_0198(chunks_t* c) { return not_type(c->a, CT_PTR_TYPE); }
 static bool sp_cond_0093(chunks_t* c) { return not_type(c->b, CT_BYREF, CT_PTR_TYPE); }
 static bool sp_cond_0244(chunks_t* c) { return not_type(get_next_nc(c->b), CT_WORD); }
+static bool sp_cond_0214(chunks_t* c) { return not_type(c->b, CT_PTR_TYPE) && is_type(c->a, CT_QUALIFIER, CT_TYPE); }
 
+static bool sp_cond_0247(chunks_t* c) { return   is_type_and_ptype(c->b, CT_COMMENT,      CT_COMMENT_EMBED); }
+static bool sp_cond_0213(chunks_t* c) { return   is_type_and_ptype(c->b, CT_PAREN_OPEN,   CT_TEMPLATE); }
 static bool sp_cond_0068(chunks_t* c) { return ((is_type_and_ptype(c->a, CT_SQUARE_OPEN,  CT_CPP_LAMBDA) && is_type(c->b, CT_ASSIGN)) ||
                                                 (is_type_and_ptype(c->b, CT_SQUARE_CLOSE, CT_CPP_LAMBDA) && is_type(c->a, CT_ASSIGN)) ); }
 
-
-static bool sp_cond_0077(chunks_t* c) { return is_type(c->a, CT_BIT_COLON  ) && is_flag(c->a, PCF_IN_ENUM); }
-static bool sp_cond_0078(chunks_t* c) { return is_type(c->b, CT_BIT_COLON  ) && is_flag(c->b, PCF_IN_ENUM); }
-static bool sp_cond_0082(chunks_t* c) { return is_type(c->b, CT_SQUARE_OPEN) && (c->b->ptype != CT_OC_MSG); }
-
+static bool sp_cond_0242(chunks_t* c) { return !is_cmt(c->b) && not_type(c->b, CT_BRACE_CLOSE); }
 static bool sp_cond_0207(chunks_t* c) { return !is_cmt(c->b); }
 static bool sp_cond_0100(chunks_t* c) { return !is_cmt(c->b); }
 static bool sp_cond_0233(chunks_t* c) { return  is_cmt(c->b); }
-
-static bool sp_cond_0245(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-static bool sp_cond_0243(chunks_t* c) { return is_type(chunk_get_next(c->b), CT_FUNC_DEF, CT_FUNC_PROTO); }
-static bool sp_cond_0194(chunks_t* c) { return is_type(chunk_get_prev(c->a), CT_IN          ); }
-static bool sp_cond_0103(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-static bool sp_cond_0122(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-static bool sp_cond_0119(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-static bool sp_cond_0109(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-static bool sp_cond_0135(chunks_t* c) { return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0240(chunks_t* c) { return ((is_str(c->a, "(") && is_str(c->b, "(")) ||
                                                 (is_str(c->a, ")") && is_str(c->b, ")")) ); }
 static bool sp_cond_0116(chunks_t* c) { return (is_str(c->a, ")")    && is_str(c->b, "(") ) ||
                                                (is_paren_close(c->a) && is_paren_open(c->b) ); }
 
-static bool sp_cond_0232(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG) && is_type (c->a, CT_OC_MSG_FUNC, CT_OC_MSG_NAME); }
-static bool sp_cond_0163(chunks_t* c) { return is_flag(c->a, PCF_OC_RTYPE ) && is_ptype(c->a, CT_OC_MSG_DECL, CT_OC_MSG_SPEC); }
-static bool sp_cond_0230(chunks_t* c) { return is_flag(c->a, PCF_IN_OC_MSG); }
-
-
 static bool sp_cond_0165(chunks_t* c) { return is_ptype(c->a, CT_OC_SEL) && not_type(c->b, CT_SQUARE_CLOSE); }
 
 static bool sp_cond_0166(chunks_t* c) { return ((is_type(c->a, CT_PAREN_OPEN ) && is_ptype(c->a, CT_OC_SEL, CT_OC_PROTOCOL)) ||
                                                 (is_type(c->b, CT_PAREN_CLOSE) && is_ptype(c->b, CT_OC_SEL, CT_OC_PROTOCOL)) ); }
 
-static bool sp_cond_0032(chunks_t* c) { return is_type(c->a, CT_SPAREN_CLOSE && not_ptype(c->a, CT_WHILE_OF_DO)); }
-static bool sp_cond_0167(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN ) && is_type  (c->a, CT_OC_SEL, CT_OC_PROTOCOL); }
-static bool sp_cond_0187(chunks_t* c) { return is_type(c->a, CT_ARITH, CT_CARET) || is_type(c->b, CT_ARITH, CT_CARET) ; }
-
-
-static bool sp_cond_0192(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((size_t)(c->b->str[0])); }
-static bool sp_cond_0193(chunks_t* c) { return is_only_first_type(c->b, CT_PTR_TYPE, c->a, CT_IN); }
-
 static bool sp_cond_0211(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE) && is_flag(c->a, PCF_IN_TYPEDEF) &&
                                                is_ptype(c->a, CT_ENUM, CT_STRUCT, CT_UNION); }
 
-static bool sp_cond_0213(chunks_t* c) { return is_type_and_ptype(c->b, CT_PAREN_OPEN, CT_TEMPLATE); }
-static bool sp_cond_0214(chunks_t* c) { return not_type(c->b, CT_PTR_TYPE) && is_type(c->a, CT_QUALIFIER, CT_TYPE); }
-static bool sp_cond_0215(chunks_t* c) { return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
-
-static bool sp_cond_0235(chunks_t* c) { return are_types(c->a, CT_NEW, c->b, CT_PAREN_OPEN); }
 static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW, CT_DELETE) || is_type_and_ptype(c->a, CT_TSQUARE, CT_DELETE); }
 static bool sp_cond_0237(chunks_t* c) { return is_type(c->a, CT_ANNOTATION) && is_paren_open(c->b); }
-
-static bool sp_cond_0241(chunks_t* c) { return is_type (c->a, CT_PTR_TYPE) && is_ptype(c->a, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR); }
-static bool sp_cond_0242(chunks_t* c) { return !is_cmt(c->b) && not_type(c->b, CT_BRACE_CLOSE); }
-static bool sp_cond_0246(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && is_type(c->b, CT_FPAREN_OPEN, CT_TPAREN_OPEN); }
-static bool sp_cond_0247(chunks_t* c) { return is_type_and_ptype(c->b, CT_COMMENT, CT_COMMENT_EMBED); }
-static bool sp_cond_0248(chunks_t* c) { return(are_types(c->a,       CT_PAREN_CLOSE, c->b,             CT_TYPE     ) &&
-                                               are_types(c->b->next, CT_DC_MEMBER,   c->b->next->next, CT_FUNC_CALL) ); }
 
 static bool sp_cond_0249(chunks_t* c) { return false; }
 static bool sp_cond_0250(chunks_t* c) { return false; }
@@ -1104,11 +1093,8 @@ void space_text(void)
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
              * sp_endif_cmt did not apply. */
-            if (((is_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE)) ||
-                 ((next->ptype != CT_COMMENT_END  ) &&
-                  (next->ptype != CT_COMMENT_EMBED) ) ) &&
-                (is_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE) ||
-                 not_type(pc, CT_PP_ELSE, CT_PP_ENDIF     ) ) )
+            if ((is_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE) || not_ptype(next, 2, CT_COMMENT_END, CT_COMMENT_EMBED) ) &&
+                (is_option(cpd.settings[UO_sp_endif_cmt        ].a, AV_IGNORE) || not_type (pc,      CT_PP_ELSE,     CT_PP_ENDIF     ) ) )
             {
                if (cpd.settings[UO_indent_rel_single_line_comments].b)
                {

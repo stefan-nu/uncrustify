@@ -217,14 +217,8 @@ void tokenize_cleanup(void)
          }
       }
 
-#if 1
-      if (is_type(pc, CT_ANGLE_CLOSE) &&
-          (pc->ptype != CT_TEMPLATE ) )
-#else
-         // many Cpp and some other tests fail
       if (is_type  (pc, CT_ANGLE_CLOSE) &&
           not_ptype(pc, CT_TEMPLATE   ) )
-#endif
       {
          if (in_type_cast)
          {
@@ -575,7 +569,7 @@ void tokenize_cleanup(void)
          {
             if (is_type(tmp, CT_PAREN_CLOSE))
             {
-               //set_chunk_type(tmp, CT_OC_CLASS_EXT);
+               //set_type(tmp, CT_OC_CLASS_EXT);
                set_ptype(tmp, pc->ptype);
             }
             else
@@ -807,22 +801,13 @@ static void check_template(chunk_t* start)
    {
       /* We may have something like "a< ... >", which is a template where
        * '...' may consist of anything except braces {}, a semicolon, and
-       * unbalanced parens.
+       * unbalanced parenthesis.
        * if we are inside an 'if' statement and hit a CT_BOOL, then it isn't a
        * template. */
 
       /* A template requires a word/type right before the open angle */
-#if 1
-      if ((prev->type  != CT_WORD        ) &&
-          (prev->type  != CT_TYPE        ) &&
-          (prev->type  != CT_COMMA       ) &&
-          (prev->type  != CT_OPERATOR_VAL) &&
-          (prev->ptype != CT_OPERATOR    ) )
-#else
-        // test 31001 fails
       if (not_type (prev, 4, CT_WORD, CT_TYPE, CT_COMMA, CT_OPERATOR_VAL) &&
-          chunk_is_not_ptype(prev,    CT_OPERATOR                                ) )
-#endif
+          not_ptype(prev,    CT_OPERATOR                                ) )
       {
          LOG_FMT(LTEMPL, " - after %s + ( - Not a template\n", get_token_name(prev->type));
          set_type(start, CT_COMPARE);
@@ -831,7 +816,7 @@ static void check_template(chunk_t* start)
 
       LOG_FMT(LTEMPL, " - prev %s -", get_token_name(prev->type));
 
-      /* Scan back and make sure we aren't inside square parens */
+      /* Scan back and make sure we aren't inside square parenthesis */
       bool in_if = false;
       pc = start;
       while ((pc = get_prev_ncnl(pc, scope_e::PREPROC)) != nullptr)
