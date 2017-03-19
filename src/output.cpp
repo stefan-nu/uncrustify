@@ -751,7 +751,7 @@ void output_text(FILE *pfile)
                      /* FIXME: it would be better to properly set column_indent in
                       * indent_text(), but this hack for '}' and ':' seems to work. */
                      if( (is_type(pc, CT_BRACE_CLOSE, CT_PREPROC)) ||
-                         (is_str(pc, ":", 1)                     ) )
+                         (is_str(pc, ":")                        ) )
                      {
                         lvlcol = pc->column;
                      }
@@ -1808,7 +1808,7 @@ static bool kw_fcn_function(chunk_t *cmt, unc_text &out_txt)
    const chunk_t *fcn = get_next_function(cmt);
    if (is_valid(fcn))
    {
-      out_txt.append_cond(fcn->ptype == CT_OPERATOR, "operator ");
+      out_txt.append_cond(is_ptype(fcn, CT_OPERATOR), "operator ");
 
       if(is_type(fcn->prev, CT_DESTRUCTOR))
       {
@@ -1871,7 +1871,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
    {
       tmp = get_next_ncnl(fpo);
       if ((tmp == get_prev_ncnl(fpc)) &&
-          is_str(tmp, "void", 4))
+          is_str(tmp, "void"))
       {
          has_param = false;
       }
@@ -1910,7 +1910,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       tmp = get_prev_ncnl(tmp);
    }
 
-   if (is_valid(tmp) && !is_str(tmp, "void", 4))
+   if (is_valid(tmp) && !is_str(tmp, "void"))
    {
       out_txt.append_cond(need_nl, "\n");
       out_txt.append("@return TODO");

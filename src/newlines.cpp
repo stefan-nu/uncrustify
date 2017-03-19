@@ -761,9 +761,9 @@ void newline_del_between(chunk_t* start, chunk_t* end)
       pc = next;
    } while (pc != end);
 
-   if (!start_removed                      &&
-       is_str  (end,   "{", 1          )   &&
-       (is_str (start, ")", 1          ) ||
+   if (!start_removed                    &&
+       is_str  (end,   "{"           )   &&
+       (is_str (start, ")"           ) ||
         is_type(start, CT_DO, CT_ELSE) ) )
    {
       chunk_move_after(end, start);
@@ -2013,7 +2013,7 @@ static void newline_func_def(chunk_t* start)
    }
 
    chunk_t* pc = get_next_ncnl(start);
-   if (is_str(pc, ")", 1))
+   if (is_str(pc, ")"))
    {
       atmp = cpd.settings[is_def ? UO_nl_func_def_empty : UO_nl_func_decl_empty].a;
       if (atmp != AV_IGNORE) { newline_iarf(start, atmp); }
@@ -2511,19 +2511,17 @@ void newlines_cleanup_braces(bool first)
                if (add_it) { newline_iarf(pc, AV_ADD); }
             }
 
-            if ((((pc->ptype == CT_IF    ) ||
-                  (pc->ptype == CT_ELSEIF) ||
-                  is_ptype(pc, CT_ELSE  ) ) && cpd.settings[UO_nl_create_if_one_liner   ].b) ||
-                 (is_ptype(pc, CT_FOR   )   && cpd.settings[UO_nl_create_for_one_liner  ].b) ||
-                 (is_ptype(pc, CT_WHILE )   && cpd.settings[UO_nl_create_while_one_liner].b) )
+            if ((is_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_ELSE)
+                                         && cpd.settings[UO_nl_create_if_one_liner   ].b) ||
+                (is_ptype(pc, CT_FOR   ) && cpd.settings[UO_nl_create_for_one_liner  ].b) ||
+                (is_ptype(pc, CT_WHILE ) && cpd.settings[UO_nl_create_while_one_liner].b) )
             {
                nl_create_one_liner(pc);
             }
-            if ((((pc->ptype == CT_IF    ) ||
-                  (pc->ptype == CT_ELSEIF) ||
-                  is_ptype(pc, CT_ELSE  ) ) && cpd.settings[UO_nl_split_if_one_liner   ].b) ||
-                 (is_ptype(pc, CT_FOR   )   && cpd.settings[UO_nl_split_for_one_liner  ].b) ||
-                 (is_ptype(pc, CT_WHILE )   && cpd.settings[UO_nl_split_while_one_liner].b) )
+            if ((is_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_ELSE)
+                                         && cpd.settings[UO_nl_split_if_one_liner   ].b) ||
+                (is_ptype(pc, CT_FOR   ) && cpd.settings[UO_nl_split_for_one_liner  ].b) ||
+                (is_ptype(pc, CT_WHILE ) && cpd.settings[UO_nl_split_while_one_liner].b) )
             {
                if (is_flag(pc, PCF_ONE_LINER))
                {
@@ -3504,8 +3502,7 @@ void do_blank_lines(void)
             MARK_CHANGE();
          }
          if ((cpd.settings[UO_nl_after_func_proto_group].u > pc->nl_count) &&
-             (is_valid(next)) &&
-             (next->ptype != CT_FUNC_PROTO))
+             (is_valid(next)) && not_ptype(next, CT_FUNC_PROTO))
          {
             blank_line_set(pc, UO_nl_after_func_proto_group);
          }
@@ -3520,8 +3517,7 @@ void do_blank_lines(void)
             MARK_CHANGE();
          }
          if ((cpd.settings[UO_nl_after_func_class_proto_group].u > pc->nl_count) &&
-             (is_valid(next)) &&
-             (next->ptype != CT_FUNC_CLASS_PROTO))
+             (is_valid(next)) && not_ptype(next, CT_FUNC_CLASS_PROTO))
          {
             blank_line_set(pc, UO_nl_after_func_class_proto_group);
          }

@@ -1270,9 +1270,8 @@ bool not_flag(
  * The case of the string is considered.
  */
 bool is_str(
-   chunk_t*    pc,  /**< [in] chunk to check */
-   const char* str, /**< [in] string to compare with */
-   size_t      len  /**< [in] number of characters in string to compare */
+   chunk_t*    pc, /**< [in] chunk to check */
+   const char* str /**< [in] string to compare with */
 );
 
 
@@ -1281,9 +1280,8 @@ bool is_str(
  * The case of the string is ignored.
  */
 bool is_str_case(
-   chunk_t*    pc,  /**< [in] chunk to check */
-   const char* str, /**< [in] string to compare with */
-   size_t      len  /**< [in] number of characters in string to compare */
+   chunk_t*    pc, /**< [in] chunk to check */
+   const char* str /**< [in] string to compare with */
 );
 
 

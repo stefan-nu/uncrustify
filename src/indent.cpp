@@ -746,8 +746,7 @@ void indent_text(void)
          frm.level++;
          indent_pse_push(frm, chunk_get_next(pc));
 
-         if ((pc->ptype == CT_PP_DEFINE) ||
-             (pc->ptype == CT_PP_UNDEF ) )
+         if (is_ptype(pc, CT_PP_DEFINE, CT_PP_UNDEF))
          {
             frm.pse[frm.pse_tos].indent_tmp = cpd.settings[UO_pp_define_at_level].b ?
                                               frm.pse[frm.pse_tos-1].indent_tmp : 1;
@@ -779,8 +778,7 @@ void indent_text(void)
             }
             LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent=%zu\n",
                     __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent);
-            if ((pc->ptype == CT_PP_REGION   ) ||
-                (pc->ptype == CT_PP_ENDREGION) )
+            if (is_ptype(pc, CT_PP_REGION, CT_PP_ENDREGION))
             {
                int val = cpd.settings[UO_pp_indent_region].n;
                if (val > 0)
@@ -1189,7 +1187,7 @@ void indent_text(void)
 
             /* If this brace is part of a statement, bump it out by indent_brace */
             if (is_ptype(pc, 11, CT_IF, CT_ELSEIF, CT_ELSE, CT_USING_STMT, CT_FOR,
-                 CT_TRY, CT_CATCH, CT_DO, CT_WHILE, CT_SWITCH, CT_SYNCHRONIZED) )
+                 CT_TRY, CT_CATCH, CT_DO, CT_WHILE, CT_SWITCH, CT_SYNCHRONIZED))
             {
                if (parent_token_indent != 0)
                {
@@ -1201,7 +1199,7 @@ void indent_text(void)
                   indent_column_set(indent_column +  cpd.settings[UO_indent_brace].u);
                }
             }
-            else if (pc->ptype == CT_CASE)
+            else if (is_ptype(pc, CT_CASE))
             {
                /* An open brace with the parent of case does not indent by default
                 * UO_indent_case_brace can be used to indent the brace.
@@ -1222,7 +1220,7 @@ void indent_text(void)
             {
                frm.pse[frm.pse_tos].indent -= indent_size;
             }
-            else if (pc->ptype == CT_NAMESPACE)
+            else if (is_ptype(pc, CT_NAMESPACE))
             {
                if (cpd.settings[UO_indent_namespace              ].b &&
                    cpd.settings[UO_indent_namespace_single_indent].b)
@@ -1568,9 +1566,9 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }
 
-         else if ((is_str(pc, "(", 1) && !cpd.settings[UO_indent_paren_nl ].b) ||
-                  (is_str(pc, "<", 1) && !cpd.settings[UO_indent_paren_nl ].b) || /* TODO: add indent_angle_nl? */
-                  (is_str(pc, "[", 1) && !cpd.settings[UO_indent_square_nl].b) )
+         else if ((is_str(pc, "(") && !cpd.settings[UO_indent_paren_nl ].b) ||
+                  (is_str(pc, "<") && !cpd.settings[UO_indent_paren_nl ].b) || /* TODO: add indent_angle_nl? */
+                  (is_str(pc, "[") && !cpd.settings[UO_indent_square_nl].b) )
          {
             next = get_next_nc(pc);
             break_if(is_invalid(next));
@@ -1774,8 +1772,8 @@ void indent_text(void)
          chunk_t* tmp = pc;
          do // \todo DRY see below
          {
-            if (is_str(tmp, "<<", 2) ||
-                is_str(tmp, ">>", 2) )
+            if (is_str(tmp, "<<") ||
+                is_str(tmp, ">>") )
             {
                in_shift = true;
                tmp = get_prev_ncnl(tmp);
@@ -1791,8 +1789,8 @@ void indent_text(void)
          do
          {
             tmp = get_next_ncnl(tmp);
-            if (is_str(tmp, "<<", 2) ||
-                is_str(tmp, ">>", 2) )
+            if (is_str(tmp, "<<") ||
+                is_str(tmp, ">>") )
             {
                in_shift = true;
                tmp = get_prev_ncnl(tmp);
