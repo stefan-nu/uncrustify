@@ -257,12 +257,12 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if( (is_type(pc, CT_IMPORT) && (cpd.settings[UO_mod_sort_import].b == true)) ||
-               (is_type(pc, CT_USING ) && (cpd.settings[UO_mod_sort_using ].b == true)) )
+      else if( (is_type(pc, CT_IMPORT) && is_true(UO_mod_sort_import)) ||
+               (is_type(pc, CT_USING ) && is_true(UO_mod_sort_using )) )
       {
          p_imp = chunk_get_next(pc);
       }
-      else if (is_type(pc, CT_PP_INCLUDE) && (cpd.settings[UO_mod_sort_include].b == true))
+      else if (is_type(pc, CT_PP_INCLUDE) && is_true(UO_mod_sort_include))
       {
          p_imp  = chunk_get_next(pc);
          p_last = pc;

@@ -80,7 +80,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 
    chunk_t chunk     = *pc;
    chunk.type        = CT_VSEMICOLON;
-   chunk.str         = cpd.settings[UO_mod_pawn_semicolon].b ? ";" : "";
+   chunk.str         = is_true(UO_mod_pawn_semicolon) ? ";" : "";
    chunk.column     += pc->len();
    chunk.ptype = CT_NONE;
 
@@ -94,7 +94,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 void pawn_scrub_vsemi(void)
 {
    LOG_FUNC_ENTRY();
-   return_if(!cpd.settings[UO_mod_pawn_semicolon].b);
+   return_if(is_false(UO_mod_pawn_semicolon));
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {

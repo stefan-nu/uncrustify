@@ -219,9 +219,16 @@ bool is_opt_set(uo_t opt, argval_t val)
    return(is_opt_set(cpd.settings[opt].a, val));
 }
 
-bool is_opt_true(uo_t opt)
+
+bool is_true(uo_t opt)
 {
-   return(cpd.settings[opt].b == true);
+   return(is_true(opt) == true);
+}
+
+
+bool is_false(uo_t opt)
+{
+   return(is_true(opt) == false);
 }
 
 
@@ -1896,7 +1903,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       if (((tmp = unc_find_option(val)) != nullptr) &&
            (tmp->type == entry->type))
       {
-         dest->b = cpd.settings[tmp->id].b ? btrue : !btrue;
+         dest->b = is_true(tmp->id) ? btrue : !btrue;
          return;
       }
       fprintf(stderr, "%s:%u Expected 'True' or 'False' for %s, got %s\n",

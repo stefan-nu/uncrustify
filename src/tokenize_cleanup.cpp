@@ -853,9 +853,7 @@ static void check_template(chunk_t* start)
          if ((tokens[num_tokens - 1] == CT_ANGLE_OPEN) &&
              (pc->str[0] == '>') &&
              (pc->len() > 1    ) &&
-             (cpd.settings[UO_tok_split_gte].b ||
-             (is_str(pc, ">>") &&
-             (num_tokens >= 2   ) ) ) )
+             (is_true(UO_tok_split_gte) || (is_str(pc, ">>") && (num_tokens >= 2))))
          {
             LOG_FMT(LTEMPL, " {split '%s' at %zu:%zu}",
                     pc->text(), pc->orig_line, pc->orig_col);

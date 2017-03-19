@@ -1622,7 +1622,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
    {
       continue_if(not_type(pc, type));
       continue_if(is_flag(pc, PCF_IN_CLASS                      ) &&
-          (cpd.settings[UO_cmt_insert_before_inlines].b == false) );
+          (is_false(UO_cmt_insert_before_inlines)) );
 
       // Check for one liners for classes. Declarations only. Walk down the chunks.
       chunk_t *ref = pc;
@@ -1682,7 +1682,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
             {
                tmp = get_prev_nnl(tmp);
                break_if(is_cmt(tmp) &&
-                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
+                   (is_false(UO_cmt_insert_before_preproc)) );
             }
          }
 
@@ -1737,7 +1737,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             {
                tmp = get_prev_nnl(tmp);
                break_if(is_cmt(tmp) &&
-                   (cpd.settings[UO_cmt_insert_before_preproc].b == false) );
+                   (is_false(UO_cmt_insert_before_preproc)) );
             }
          }
          if (is_level(ref, pc->level) &&
@@ -1805,9 +1805,8 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    /* Save off the encoding and whether a BOM is required */
    cpd.bom = fm.bom;
    cpd.enc = fm.enc;
-   if (  (cpd.settings[UO_utf8_force].b == true)   ||
-        ((cpd.settings[UO_utf8_byte ].b == true) &&
-         (cpd.enc == char_encoding_e::BYTE     ) ) )
+   if ( is_true(UO_utf8_force) ||
+       (is_true(UO_utf8_byte ) && (cpd.enc == char_encoding_e::BYTE)) )
    {
       cpd.enc = char_encoding_e::UTF8;
    }
@@ -1847,7 +1846,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    if (cpd.func_hdr.data.empty() == false)
    {
       add_func_header(CT_FUNC_DEF, cpd.func_hdr);
-      if (cpd.settings[UO_cmt_insert_before_ctor_dtor].b)
+      if (is_true(UO_cmt_insert_before_ctor_dtor))
       {
          add_func_header(CT_FUNC_CLASS_DEF, cpd.func_hdr);
       }
@@ -1857,8 +1856,8 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
    do_braces(); /* Change virtual braces into real braces... */
 
-   if (cpd.settings[UO_mod_remove_extra_semicolon].b) { remove_extra_semicolons(); }
-   if (cpd.settings[UO_mod_remove_empty_return   ].b) { remove_extra_returns();    }
+   if (is_true(UO_mod_remove_extra_semicolon)) { remove_extra_semicolons(); }
+   if (is_true(UO_mod_remove_empty_return   )) { remove_extra_returns();    }
    do_parens();
    if (cpd.settings[UO_nl_remove_extra_newlines].u == 2) { newlines_remove_newlines(); }
 
@@ -1875,8 +1874,8 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       newlines_cleanup_dup();
       newlines_cleanup_braces(first);
 
-      if (cpd.settings[UO_nl_after_multiline_comment].b) { newline_after_multiline_comment(); }
-      if (cpd.settings[UO_nl_after_label_colon      ].b) { newline_after_label_colon();       }
+      if (is_true(UO_nl_after_multiline_comment)) { newline_after_multiline_comment(); }
+      if (is_true(UO_nl_after_label_colon      )) { newline_after_label_colon();       }
 
       newlines_insert_blank_lines();
 
@@ -1893,7 +1892,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
       newlines_class_colon_pos(CT_CLASS_COLON );
       newlines_class_colon_pos(CT_CONSTR_COLON);
 
-      if (cpd.settings[UO_nl_squeeze_ifdef].b) { newlines_squeeze_ifdef(); }
+      if (is_true(UO_nl_squeeze_ifdef)) { newlines_squeeze_ifdef(); }
 
       do_blank_lines();
       newlines_eat_start_end();
@@ -1907,16 +1906,16 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    mark_comments();
 
    /* Add balanced spaces around nested params */
-   if (cpd.settings[UO_sp_bal_nested_parens].b)  { space_text_balance_nested_parens(); }
+   if (is_true(UO_sp_bal_nested_parens))  { space_text_balance_nested_parens(); }
 
    /* Scrub certain added semicolons */
    if (is_lang(cpd, LANG_PAWN) &&
-       (cpd.settings[UO_mod_pawn_semicolon].b) ) { pawn_scrub_vsemi(); }
+       (is_true(UO_mod_pawn_semicolon)) ) { pawn_scrub_vsemi(); }
 
    /* Sort imports/using/include */
-   if (cpd.settings[UO_mod_sort_import ].b ||
-       cpd.settings[UO_mod_sort_include].b ||
-       cpd.settings[UO_mod_sort_using  ].b )     { sort_imports(); }
+   if (is_true(UO_mod_sort_import ) ||
+       is_true(UO_mod_sort_include) ||
+       is_true(UO_mod_sort_using  ) ) { sort_imports(); }
 
    /* Fix same-line inter-chunk spacing */
    space_text();
@@ -1970,7 +1969,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
 
    /* And finally, align the backslash newline stuff */
    align_right_comments();
-   if (cpd.settings[UO_align_nl_cont].b) { align_backslash_newline(); }
+   if (is_true(UO_align_nl_cont)) { align_backslash_newline(); }
 
    /* Now render it all to the output file */
    output_text(pfout);

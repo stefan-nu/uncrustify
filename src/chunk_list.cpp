@@ -265,6 +265,12 @@ bool is_invalid_or_type(const chunk_t* const pc, const c_token_t type)
 }
 
 
+bool is_invalid_or_ptype(const chunk_t* const pc, const c_token_t ptype)
+{
+   return (is_invalid(pc) || is_ptype(pc, ptype));
+}
+
+
 bool is_invalid_or_flag(const chunk_t* const pc, const uint64_t flags)
 {
    return (is_invalid(pc) || is_flag(pc, flags));

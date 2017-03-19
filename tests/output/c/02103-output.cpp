@@ -147,7 +147,7 @@ void output_options(FILE *pfile)
         {
         fprintf(pfile, "%3d) %32s = %s\n",
                 ptr->id, ptr->name,
-                cpd.settings[ptr->id].b ? "True" : "False");
+                is_true(ptr->id) ? "True" : "False");
         }
       else if (ptr->type == AT_IARF)
         {
@@ -226,12 +226,12 @@ void output_text(FILE *pfile)
       else
         {
           /* not the first item on a line */
-        if (cpd.settings[UO_align_keep_tabs].b)
+        if (is_true(UO_align_keep_tabs))
           allow_tabs = pc->after_tab;
         else
           {
           prev       = chunk_get_prev(pc);
-          allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
+          allow_tabs = (is_true(UO_align_with_tabs) &&
                         ((pc->flags & PCF_WAS_ALIGNED) != 0) &&
                         (((pc->column - 1) % cpd.settings[UO_output_tab_size].n) == 0) &&
                         ((prev->column + prev->len + 1) != pc->column));
@@ -377,7 +377,7 @@ chunk_t *output_comment_cpp(chunk_t *first)
     /* Bump out to the column */
   output_indent(col, col_br);
 
-  if (!cpd.settings[UO_cmt_cpp_to_c].b)
+  if (is_false(UO_cmt_cpp_to_c))
     {
     add_text_len(first->str, first->len);
     return first;
@@ -386,7 +386,7 @@ chunk_t *output_comment_cpp(chunk_t *first)
     /* If we are grouping, see if there is something to group */
   bool combined = false;
 
-  if (cpd.settings[UO_cmt_cpp_group].b)
+  if (is_true(UO_cmt_cpp_group))
     {
       /* next is a newline by definition */
     chunk_t *next = chunk_get_next(first);
@@ -430,7 +430,7 @@ chunk_t *output_comment_cpp(chunk_t *first)
     /* Output the first line */
   add_text_len("/*", 2);
 
-  if (combined && cpd.settings[UO_cmt_cpp_nl_start].b)
+  if (combined && is_true(UO_cmt_cpp_nl_start))
     /* I suppose someone more clever could do this without a goto or
      * repeating too much code...
      */
@@ -456,7 +456,7 @@ cpp_newline:
       add_char('\n');
       output_indent(col, col_br);
       add_char(' ');
-      add_char(cpd.settings[UO_cmt_star_cont].b ? '*' : ' ');
+      add_char(is_true(UO_cmt_star_cont) ? '*' : ' ');
 cpp_addline:
 
       if ((pc->str[2] != ' ') && (pc->str[2] != '\t'))
@@ -466,7 +466,7 @@ cpp_addline:
       }
     }
 
-  if (cpd.settings[UO_cmt_cpp_nl_end].b)
+  if (is_true(UO_cmt_cpp_nl_end))
     {
     add_char('\n');
     output_indent(col, col_br);
@@ -571,7 +571,7 @@ void output_comment_multi(chunk_t *pc)
         /* this is the first line - add unchanged */
 
           /*TODO: need to support indent_with_tabs mode 1 */
-        output_to_column(cmt_col, cpd.settings[UO_indent_with_tabs].b);
+        output_to_column(cmt_col, is_true(UO_indent_with_tabs));
         add_text_len(line, line_len);
         }
       else
@@ -587,9 +587,9 @@ void output_comment_multi(chunk_t *pc)
         if (line[0] == '\n')
           {
             /* Emtpy line - just a '\n' */
-          if (cpd.settings[UO_cmt_star_cont].b)
+          if (is_true(UO_cmt_star_cont))
             {
-            output_to_column(cmt_col, cpd.settings[UO_indent_with_tabs].b);
+            output_to_column(cmt_col, is_true(UO_indent_with_tabs));
             add_text((xtra == 1) ? " *" : "*");
             }
 
@@ -601,17 +601,17 @@ void output_comment_multi(chunk_t *pc)
           if ((line[0] != '*') && (line[0] != '|') && (line[0] != '#') &&
               (line[0] != '\\') && (line[0] != '+'))
             {
-            output_to_column(cmt_col, cpd.settings[UO_indent_with_tabs].b);
+            output_to_column(cmt_col, is_true(UO_indent_with_tabs));
 
-            if (cpd.settings[UO_cmt_star_cont].b)
+            if (is_true(UO_cmt_star_cont))
               add_text((xtra == 1) ? " * " : "*  ");
             else
               add_text("   ");
 
-            output_to_column(ccol, cpd.settings[UO_indent_with_tabs].b);
+            output_to_column(ccol, is_true(UO_indent_with_tabs));
             }
           else
-            output_to_column(cmt_col + xtra, cpd.settings[UO_indent_with_tabs].b);
+            output_to_column(cmt_col + xtra, is_true(UO_indent_with_tabs));
 
           add_text_len(line, line_len);
           }

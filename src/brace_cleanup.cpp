@@ -739,8 +739,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
    {
       if (is_type(pc, CT_IF))
       {
-         if (!cpd.settings[UO_indent_else_if].b ||
-             !is_nl(get_prev_nc(pc)))
+         if (is_false(UO_indent_else_if) || !is_nl(get_prev_nc(pc)))
          {
             /* Replace CT_ELSE with CT_IF */
             set_type(pc, CT_ELSEIF);
@@ -821,7 +820,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
       if (is_lang(cpd, LANG_CS) && is_type(pc, CT_USING_STMT) &&
-          (!cpd.settings[UO_indent_using_block].b))
+          (is_false(UO_indent_using_block)))
       {
          // don't indent the using block
       }

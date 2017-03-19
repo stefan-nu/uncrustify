@@ -404,10 +404,10 @@ static bool can_increase_nl(chunk_t* nl)
    const chunk_t* pcmt = chunk_get_prev(nl);
    chunk_t* next       = chunk_get_next(nl);
 
-   if (cpd.settings[UO_nl_squeeze_ifdef].b)
+   if (is_true(UO_nl_squeeze_ifdef))
    {
       if (is_type_and_ptype(prev, CT_PREPROC, CT_PP_ENDIF) &&
-          (prev->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
+          (prev->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %zu (prev) pp_lvl=%zu rv=0\n",
                  __func__, nl->orig_line, nl->pp_level);
@@ -415,7 +415,7 @@ static bool can_increase_nl(chunk_t* nl)
       }
 
       if (is_type_and_ptype(next, CT_PREPROC, CT_PP_ENDIF) &&
-          (next->level > 0 || cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
+          (next->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          bool rv = ifdef_over_whole_file() && is_flag(next, PCF_WF_ENDIF);
          LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %zu (next) pp_lvl=%zu rv=%d\n",
@@ -424,7 +424,7 @@ static bool can_increase_nl(chunk_t* nl)
       }
    }
 
-   if (cpd.settings[UO_eat_blanks_before_close_brace].b)
+   if (is_true(UO_eat_blanks_before_close_brace))
    {
       if (is_type(next, CT_BRACE_CLOSE))
       {
@@ -433,7 +433,7 @@ static bool can_increase_nl(chunk_t* nl)
       }
    }
 
-   if (cpd.settings[UO_eat_blanks_after_open_brace].b)
+   if (is_true(UO_eat_blanks_after_open_brace))
    {
       if(is_type(prev, CT_BRACE_OPEN))
       {
@@ -777,7 +777,7 @@ static bool newlines_if_for_while_switch(chunk_t* start, argval_t nl_opt)
    LOG_FUNC_ENTRY();
 
    if ((nl_opt == AV_IGNORE) ||
-       (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b))
+       (is_preproc(start) && is_false(UO_nl_define_macro)))
    {
       return(false);
    }
@@ -792,7 +792,7 @@ static bool newlines_if_for_while_switch(chunk_t* start, argval_t nl_opt)
       if (is_type(brace_open, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
           one_liner_nl_ok(brace_open                       ) )
       {
-         if (cpd.settings[UO_nl_multi_line_cond].b)
+         if (is_true(UO_nl_multi_line_cond))
          {
             while ((pc = chunk_get_next(pc)) != close_paren)
             {
@@ -839,7 +839,7 @@ static void newlines_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_
 {
    LOG_FUNC_ENTRY();
    return_if( (nl_opt == AV_IGNORE) ||
-              (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b));
+              (is_preproc(start) && is_false(UO_nl_define_macro)));
 
    chunk_t* prev;
    chunk_t* next;
@@ -1094,7 +1094,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t* start, argval
    LOG_FUNC_ENTRY();
 
    return_if ((nl_opt == AV_IGNORE) ||
-       (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b));
+       (is_preproc(start) && is_false(UO_nl_define_macro)));
    /* first find ending brace */
    chunk_t* pc;
    return_if ((pc = get_closing_brace(start)) == nullptr);
@@ -1200,7 +1200,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t* start, argval
                pc = chunk_get_next(pc);
                //LOG_FMT(LSYS, "  -- pc2=%s [%s]\n", pc->text(), get_token_name(pc->type));
                if (is_type_and_ptype(pc, CT_PREPROC, CT_PP_ENDIF) &&
-                   cpd.settings[UO_nl_squeeze_ifdef].b)
+                   is_true(UO_nl_squeeze_ifdef))
                {
                   assert(is_valid(prev));
                   LOG_FMT(LNEWLINE, "%s: cannot add newline after line %zu due to nl_squeeze_ifdef\n",
@@ -1221,7 +1221,7 @@ static void newlines_struct_enum_union(chunk_t* start, argval_t nl_opt, bool lea
 {
    LOG_FUNC_ENTRY();
    return_if ((nl_opt == AV_IGNORE) ||
-              (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b));
+              (is_preproc(start) && is_false(UO_nl_define_macro)));
 
    /* step past any junk between the keyword and the open brace
     * Quit if we hit a semicolon or '=', which are not expected. */
@@ -1267,7 +1267,7 @@ static void newlines_struct_enum_union(chunk_t* start, argval_t nl_opt, bool lea
 static void newlines_enum(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
-   return_if (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b);
+   return_if (is_preproc(start) && is_false(UO_nl_define_macro));
 
    /* look for 'enum class' */
    chunk_t* pcClass = get_next_ncnl(start);
@@ -1334,7 +1334,7 @@ static void newlines_enum(chunk_t* start)
 static void newlines_cuddle_uncuddle(chunk_t* start, argval_t nl_opt)
 {
    LOG_FUNC_ENTRY();
-   return_if(is_preproc(start) && !cpd.settings[UO_nl_define_macro].b);
+   return_if(is_preproc(start) && is_false(UO_nl_define_macro));
 
    chunk_t* br_close = get_prev_ncnl(start);
    if (is_type(br_close, CT_BRACE_CLOSE))
@@ -1350,7 +1350,7 @@ static void newlines_do_else(chunk_t* start, argval_t nl_opt)
    assert(is_valid(start));
 
    return_if((nl_opt == AV_IGNORE) ||
-            (is_preproc(start) && !cpd.settings[UO_nl_define_macro].b));
+            (is_preproc(start) && is_false(UO_nl_define_macro)));
 
    chunk_t* next = get_next_ncnl(start);
    if (is_type(next, CT_BRACE_OPEN, CT_VBRACE_OPEN))
@@ -1559,12 +1559,12 @@ static void newlines_brace_pair(chunk_t* br_open)
 {
    LOG_FUNC_ENTRY();
 
-   return_if(is_preproc(br_open) && !cpd.settings[UO_nl_define_macro].b);
+   return_if(is_preproc(br_open) && is_false(UO_nl_define_macro));
 
    chunk_t* next;
    chunk_t* pc;
 
-   if (cpd.settings[UO_nl_collapse_empty_body].b)
+   if (is_true(UO_nl_collapse_empty_body))
    {
       next = get_next_nnl(br_open);
       if (is_type(next, CT_BRACE_CLOSE))
@@ -1613,7 +1613,7 @@ static void newlines_brace_pair(chunk_t* br_open)
    }
 
    /* Eat any extra newlines after the brace open */
-   if (cpd.settings[UO_eat_blanks_after_open_brace].b)
+   if (is_true(UO_eat_blanks_after_open_brace))
    {
       if (is_nl(next))
       {
@@ -1879,21 +1879,21 @@ static void newline_func_multi_line(chunk_t* start)
 
    if (is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF))
    {
-      add_start = cpd.settings[UO_nl_func_def_start_multi_line].b;
-      add_args  = cpd.settings[UO_nl_func_def_args_multi_line ].b;
-      add_end   = cpd.settings[UO_nl_func_def_end_multi_line  ].b;
+      add_start = is_true(UO_nl_func_def_start_multi_line);
+      add_args  = is_true(UO_nl_func_def_args_multi_line );
+      add_end   = is_true(UO_nl_func_def_end_multi_line  );
    }
    else if (is_ptype(start, CT_FUNC_CALL, CT_FUNC_CALL_USER))
    {
-      add_start = cpd.settings[UO_nl_func_call_start_multi_line].b;
-      add_args  = cpd.settings[UO_nl_func_call_args_multi_line ].b;
-      add_end   = cpd.settings[UO_nl_func_call_end_multi_line  ].b;
+      add_start = is_true(UO_nl_func_call_start_multi_line);
+      add_args  = is_true(UO_nl_func_call_args_multi_line );
+      add_end   = is_true(UO_nl_func_call_end_multi_line  );
    }
    else
    {
-      add_start = cpd.settings[UO_nl_func_decl_start_multi_line].b;
-      add_args  = cpd.settings[UO_nl_func_decl_args_multi_line ].b;
-      add_end   = cpd.settings[UO_nl_func_decl_end_multi_line  ].b;
+      add_start = is_true(UO_nl_func_decl_start_multi_line);
+      add_args  = is_true(UO_nl_func_decl_args_multi_line );
+      add_end   = is_true(UO_nl_func_decl_end_multi_line  );
    }
 
    return_if((add_start == false) &&
@@ -2072,7 +2072,7 @@ static void newline_oc_msg(chunk_t* start)
    uint64_t flags = one_liner ? PCF_ONE_LINER : 0;
    flag_series(start, sq_c, flags, flags ^ PCF_ONE_LINER);
 
-   return_if(cpd.settings[UO_nl_oc_msg_leave_one_liner].b && one_liner);
+   return_if(is_true(UO_nl_oc_msg_leave_one_liner) && one_liner);
 
    for (pc = get_next_ncnl(start); pc; pc = get_next_ncnl(pc))
    {
@@ -2118,26 +2118,26 @@ static bool one_liner_nl_ok(chunk_t* pc)
                    CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
    {
       bool cond;
-      cond = cpd.settings[UO_nl_class_leave_one_liners].b;
+      cond = is_true(UO_nl_class_leave_one_liners);
       if (cond && is_flag(pc, PCF_IN_CLASS))     { LOG_FMT(LNL1LINE, "false (class)\n" );     return(false); }
-      cond = cpd.settings[UO_nl_assign_leave_one_liners].b;
+      cond = is_true(UO_nl_assign_leave_one_liners);
       if (cond && is_ptype(pc, CT_ASSIGN))       { LOG_FMT(LNL1LINE, "false (assign)\n");     return(false); }
-      cond = cpd.settings[UO_nl_enum_leave_one_liners].b;
+      cond = is_true(UO_nl_enum_leave_one_liners);
       if (cond && is_ptype(pc, CT_ENUM))         { LOG_FMT(LNL1LINE, "false (enum)\n");       return(false); }
-      cond = cpd.settings[UO_nl_getset_leave_one_liners].b;
+      cond = is_true(UO_nl_getset_leave_one_liners);
       if (cond && is_ptype(pc, CT_GETSET))       { LOG_FMT(LNL1LINE, "false (get/set)\n");    return(false); }
-      cond = cpd.settings[UO_nl_func_leave_one_liners].b;
+      cond = is_true(UO_nl_func_leave_one_liners);
       if (cond && is_ptype(pc, CT_FUNC_DEF,
                          CT_FUNC_CLASS_DEF))     { LOG_FMT(LNL1LINE, "false (func def)\n");   return(false); }
-      cond = cpd.settings[UO_nl_func_leave_one_liners].b;
+      cond = is_true(UO_nl_func_leave_one_liners);
       if (cond && is_ptype(pc, CT_OC_MSG_DECL))  { LOG_FMT(LNL1LINE, "false (method def)\n"); return(false); }
-      cond = cpd.settings[UO_nl_cpp_lambda_leave_one_liners].b;
+      cond = is_true(UO_nl_cpp_lambda_leave_one_liners);
       if (cond && is_ptype(pc, CT_CPP_LAMBDA))   { LOG_FMT(LNL1LINE, "false (lambda)\n");     return(false); }
-      cond = cpd.settings[UO_nl_oc_msg_leave_one_liner].b;
+      cond = is_true(UO_nl_oc_msg_leave_one_liner);
       if (cond && is_flag(pc, PCF_IN_OC_MSG))    { LOG_FMT(LNL1LINE, "false (message)\n");    return(false); }
-      cond = cpd.settings[UO_nl_if_leave_one_liners].b;
+      cond = is_true(UO_nl_if_leave_one_liners);
       if (cond && is_ptype(pc, CT_IF, CT_ELSE))  { LOG_FMT(LNL1LINE, "false (if/else)\n");    return(false); }
-      cond = cpd.settings[UO_nl_while_leave_one_liners].b;
+      cond = is_true(UO_nl_while_leave_one_liners);
       if (cond && is_ptype(pc, CT_WHILE))        { LOG_FMT(LNL1LINE, "false (while)\n");      return(false); }
    }
    LOG_FMT(LNL1LINE, "true, a new line may be added\n");
@@ -2331,7 +2331,7 @@ void newlines_cleanup_braces(bool first)
                newlines_enum_entries(pc, cpd.settings[UO_nl_enum_own_lines].a);
             }
 
-            if (cpd.settings[UO_nl_ds_struct_enum_cmt].b &&
+            if (is_true(UO_nl_ds_struct_enum_cmt) &&
                 is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION ) )
             {
                newlines_double_space_struct_enum_union(pc);
@@ -2368,7 +2368,7 @@ void newlines_cleanup_braces(bool first)
                /* Handle nl_after_brace_open */
                if ((is_ptype(pc, CT_CPP_LAMBDA  ) ||
                     is_level(pc, pc->brace_level) ) &&
-                   cpd.settings[UO_nl_after_brace_open].b)
+                   is_true(UO_nl_after_brace_open))
                {
                   if (!one_liner_nl_ok(pc))
                   {
@@ -2388,8 +2388,8 @@ void newlines_cleanup_braces(bool first)
                      {
                         if (is_cmt(tmp))
                         {
-                           break_if (!cpd.settings[UO_nl_after_brace_open_cmt].b &&
-                                     not_type(tmp, CT_COMMENT_MULTI));
+                           break_if(is_false(UO_nl_after_brace_open_cmt) &&
+                                    not_type(tmp, CT_COMMENT_MULTI));
                         }
                         tmp = chunk_get_prev(tmp);
                      }
@@ -2434,7 +2434,7 @@ void newlines_cleanup_braces(bool first)
                }
             }
 
-            if (cpd.settings[UO_eat_blanks_before_close_brace].b)
+            if (is_true(UO_eat_blanks_before_close_brace))
             {
                /* Limit the newlines before the close brace to 1 */
                prev = chunk_get_prev(pc);
@@ -2449,7 +2449,7 @@ void newlines_cleanup_braces(bool first)
                   }
                }
             }
-            else if (cpd.settings[UO_nl_ds_struct_enum_close_brace].b &&
+            else if (is_true(UO_nl_ds_struct_enum_close_brace) &&
                      (is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION)))
             {
                if (not_flag(pc, PCF_ONE_LINER))
@@ -2475,7 +2475,7 @@ void newlines_cleanup_braces(bool first)
                   newline_iarf(pc, cpd.settings[UO_nl_brace_struct_var].a);
                }
             }
-            else if (cpd.settings[UO_nl_after_brace_close].b ||
+            else if (is_true(UO_nl_after_brace_close) ||
                      is_ptype(pc, CT_FUNC_CLASS_DEF, CT_FUNC_DEF, CT_OC_MSG_DECL))
             {
                next = chunk_get_next(pc);
@@ -2491,20 +2491,20 @@ void newlines_cleanup_braces(bool first)
          break;
 
          case(CT_VBRACE_OPEN):
-            if (cpd.settings[UO_nl_after_vbrace_open      ].b ||
-                cpd.settings[UO_nl_after_vbrace_open_empty].b )
+            if (is_true(UO_nl_after_vbrace_open) ||
+                is_true(UO_nl_after_vbrace_open_empty) )
             {
                next = chunk_get_next(pc, scope_e::PREPROC);
                assert(is_valid(next));
                bool add_it;
                if (is_semicolon(next))
                {
-                  add_it = cpd.settings[UO_nl_after_vbrace_open_empty].b;
+                  add_it = is_true(UO_nl_after_vbrace_open_empty);
                }
                else
                {
-                  add_it = (cpd.settings[UO_nl_after_vbrace_open].b &&
-                            (next->type != CT_VBRACE_CLOSE) &&
+                  add_it = (is_true(UO_nl_after_vbrace_open) &&
+                            not_type(next, CT_VBRACE_CLOSE) &&
                             !is_cmt(next) &&
                             !is_nl(next));
                }
@@ -2512,16 +2512,16 @@ void newlines_cleanup_braces(bool first)
             }
 
             if ((is_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_ELSE)
-                                         && cpd.settings[UO_nl_create_if_one_liner   ].b) ||
-                (is_ptype(pc, CT_FOR   ) && cpd.settings[UO_nl_create_for_one_liner  ].b) ||
-                (is_ptype(pc, CT_WHILE ) && cpd.settings[UO_nl_create_while_one_liner].b) )
+                                        && is_true(UO_nl_create_if_one_liner   )) ||
+                (is_ptype(pc, CT_FOR  ) && is_true(UO_nl_create_for_one_liner  )) ||
+                (is_ptype(pc, CT_WHILE) && is_true(UO_nl_create_while_one_liner)) )
             {
                nl_create_one_liner(pc);
             }
             if ((is_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_ELSE)
-                                         && cpd.settings[UO_nl_split_if_one_liner   ].b) ||
-                (is_ptype(pc, CT_FOR   ) && cpd.settings[UO_nl_split_for_one_liner  ].b) ||
-                (is_ptype(pc, CT_WHILE ) && cpd.settings[UO_nl_split_while_one_liner].b) )
+                                        && is_true(UO_nl_split_if_one_liner   )) ||
+                (is_ptype(pc, CT_FOR  ) && is_true(UO_nl_split_for_one_liner  )) ||
+                (is_ptype(pc, CT_WHILE) && is_true(UO_nl_split_while_one_liner)) )
             {
                if (is_flag(pc, PCF_ONE_LINER))
                {
@@ -2543,7 +2543,7 @@ void newlines_cleanup_braces(bool first)
          break;
 
          case(CT_VBRACE_CLOSE):
-            if (cpd.settings[UO_nl_after_vbrace_close].b)
+            if (is_true(UO_nl_after_vbrace_close))
             {
                if (!is_nl(get_next_nc(pc))) { newline_iarf(pc, AV_ADD); }
             }
@@ -2551,7 +2551,7 @@ void newlines_cleanup_braces(bool first)
 
          case(CT_CASE):
             /* Note: 'default' also maps to CT_CASE */
-            if (cpd.settings[UO_nl_before_case].b) { newline_case(pc); }
+            if (is_true(UO_nl_before_case)) { newline_case(pc); }
          break;
 
          case(CT_THROW):
@@ -2569,7 +2569,7 @@ void newlines_cleanup_braces(bool first)
             {
                newline_iarf(pc, cpd.settings[UO_nl_case_colon_brace].a);
             }
-            else if (cpd.settings[UO_nl_after_case].b)
+            else if (is_true(UO_nl_after_case))
             {
                newline_case_colon(pc);
             }
@@ -2586,13 +2586,13 @@ void newlines_cleanup_braces(bool first)
          break;
 
          case(CT_RETURN):
-            if (cpd.settings[UO_nl_before_return].b) { newline_before_return(pc); }
-            if (cpd.settings[UO_nl_after_return ].b) { newline_after_return (pc); }
+            if (is_true(UO_nl_before_return)) { newline_before_return(pc); }
+            if (is_true(UO_nl_after_return )) { newline_after_return (pc); }
          break;
 
          case(CT_SEMICOLON):
             if (not_flag(pc, (PCF_IN_SPAREN | PCF_IN_PREPROC)) &&
-                cpd.settings[UO_nl_after_semicolon].b)
+                is_true(UO_nl_after_semicolon))
             {
                next = chunk_get_next(pc);
                while (is_type(next, CT_VBRACE_CLOSE))
@@ -2625,12 +2625,12 @@ void newlines_cleanup_braces(bool first)
          case(CT_FPAREN_OPEN):
             if ((is_ptype(pc, 5, CT_FUNC_CLASS_DEF,   CT_FUNC_DEF,
                   CT_FUNC_PROTO, CT_FUNC_CLASS_PROTO, CT_OPERATOR)) &&
-                ((cpd.settings[UO_nl_func_decl_start_multi_line].b             ) ||
-                 (cpd.settings[UO_nl_func_def_start_multi_line ].b             ) ||
-                 (cpd.settings[UO_nl_func_decl_args_multi_line ].b             ) ||
-                 (cpd.settings[UO_nl_func_def_args_multi_line  ].b             ) ||
-                 (cpd.settings[UO_nl_func_decl_end_multi_line  ].b             ) ||
-                 (cpd.settings[UO_nl_func_def_end_multi_line   ].b             ) ||
+                ((is_true(UO_nl_func_decl_start_multi_line)             ) ||
+                 (is_true(UO_nl_func_def_start_multi_line )             ) ||
+                 (is_true(UO_nl_func_decl_args_multi_line )             ) ||
+                 (is_true(UO_nl_func_def_args_multi_line)             ) ||
+                 (is_true(UO_nl_func_decl_end_multi_line)             ) ||
+                 (is_true(UO_nl_func_def_end_multi_line)             ) ||
                  (cpd.settings[UO_nl_func_decl_start           ].a != AV_IGNORE) ||
                  (cpd.settings[UO_nl_func_def_start            ].a != AV_IGNORE) ||
                  (cpd.settings[UO_nl_func_decl_start_single    ].a != AV_IGNORE) ||
@@ -2653,10 +2653,10 @@ void newlines_cleanup_braces(bool first)
             {
                newline_func_def(pc);
             }
-            else if ((is_ptype(pc, CT_FUNC_CALL, CT_FUNC_CALL_USER)) &&
-                     ((cpd.settings[UO_nl_func_call_start_multi_line].b) ||
-                      (cpd.settings[UO_nl_func_call_args_multi_line ].b) ||
-                      (cpd.settings[UO_nl_func_call_end_multi_line  ].b) ) )
+            else if ( is_ptype(pc, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
+                     (is_true(UO_nl_func_call_start_multi_line) ||
+                      is_true(UO_nl_func_call_args_multi_line ) ||
+                      is_true(UO_nl_func_call_end_multi_line  ) ) )
             {
                newline_func_multi_line(pc);
             }
@@ -2684,7 +2684,7 @@ void newlines_cleanup_braces(bool first)
          case(CT_SQUARE_OPEN):
             if (is_ptype(pc, CT_OC_MSG))
             {
-               if (cpd.settings[UO_nl_oc_msg_args].b) { newline_oc_msg(pc); }
+               if (is_true(UO_nl_oc_msg_args)) { newline_oc_msg(pc); }
             }
 
             if (is_ptype(pc, CT_ASSIGN    ) &&
@@ -2740,7 +2740,7 @@ void newlines_cleanup_braces(bool first)
          break;
 
          case(CT_PP_DEFINE):
-            if (cpd.settings[UO_nl_multi_line_define].b)
+            if (is_true(UO_nl_multi_line_define))
             {
                nl_handle_define(pc);
             }
@@ -2899,8 +2899,7 @@ void newlines_squeeze_ifdef(void)
    for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       if (is_type(pc, CT_PREPROC) &&
-          (pc->level > 0 ||
-          cpd.settings[UO_nl_squeeze_ifdef_top_level].b))
+          (pc->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          chunk_t* ppr = chunk_get_next(pc);
          assert(is_valid(ppr));

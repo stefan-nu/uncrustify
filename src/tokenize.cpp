@@ -1019,7 +1019,7 @@ static bool parse_string(tok_ctx &ctx, chunk_t &pc, size_t quote_idx, bool allow
 {
    size_t escape_char        = cpd.settings[UO_string_escape_char].u;
    size_t escape_char2       = cpd.settings[UO_string_escape_char2].u;
-   bool   should_escape_tabs = cpd.settings[UO_string_replace_tab_chars].b && (cpd.lang_flags & LANG_ALLC);
+   bool   should_escape_tabs = is_true(UO_string_replace_tab_chars) && (cpd.lang_flags & LANG_ALLC);
 
    pc.str.clear();
    while (quote_idx-- > 0)
@@ -1096,7 +1096,7 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
    pc.str.append(ctx.get());
    pc.type = CT_STRING;
 
-   bool should_escape_tabs = cpd.settings[UO_string_replace_tab_chars].b;
+   bool should_escape_tabs = is_true(UO_string_replace_tab_chars);
 
    /* go until we hit a zero (end of file) or a single " */
    while (ctx.more())
@@ -1354,7 +1354,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
       else
       {
          pc.type = CT_MACRO;
-         if (cpd.settings[UO_pp_ignore_define_body].b)
+         if (is_true(UO_pp_ignore_define_body))
          {
             // We are setting the PP_IGNORE preproc state because the following
             // chunks are part of the macro body and will have to be ignored.
@@ -1996,15 +1996,15 @@ void tokenize(const deque<int> &data, chunk_t *ref)
          }
          else if (cpd.is_preproc == CT_PP_IGNORE)
          {
-            // ASSERT(cpd.settings[UO_pp_ignore_define_body].b);
+            // ASSERT(is_true(UO_pp_ignore_define_body));
             if (not_type(pc, CT_NL_CONT, CT_COMMENT_CPP))
             {
                set_type(pc, CT_PP_IGNORE);
             }
          }
          else if (cpd.is_preproc == CT_PP_DEFINE    &&
-                  is_type(pc, CT_PAREN_CLOSE) &&
-                  cpd.settings[UO_pp_ignore_define_body].b)
+                  is_type(pc, CT_PAREN_CLOSE      ) &&
+                  is_true(UO_pp_ignore_define_body) )
          {
             // When we have a PAREN_CLOSE in a PP_DEFINE we should be terminating a MACRO_FUNC
             // arguments list. Therefore we can enter the PP_IGNORE state and ignore next chunks.

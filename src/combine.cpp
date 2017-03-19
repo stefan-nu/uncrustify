@@ -5023,7 +5023,7 @@ static void handle_oc_message_send(chunk_t* os)
 
 static void handle_oc_property_decl(chunk_t* os)
 {
-   if (cpd.settings[UO_mod_sort_oc_properties].b)
+   if (is_true(UO_mod_sort_oc_properties))
    {
       typedef std::vector<chunk_t* > ChunkGroup;
       std::vector<ChunkGroup> thread_chunks;      // atomic/nonatomic

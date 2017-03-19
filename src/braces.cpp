@@ -139,8 +139,8 @@ void do_braces(void)
 {
    LOG_FUNC_ENTRY();
 
-   if (cpd.settings[UO_mod_full_brace_if_chain     ].b ||
-       cpd.settings[UO_mod_full_brace_if_chain_only].b)
+   if (is_true(UO_mod_full_brace_if_chain     ) ||
+       is_true(UO_mod_full_brace_if_chain_only) )
    {
       mod_full_brace_if_chain();
    }
@@ -196,7 +196,7 @@ void do_braces(void)
    }
 
    if (cpd.settings[UO_mod_case_brace].a != AV_IGNORE) { mod_case_brace();  }
-   if (cpd.settings[UO_mod_move_case_break].b        ) { move_case_break(); }
+   if (is_true(UO_mod_move_case_break)) { move_case_break(); }
 }
 
 
@@ -675,7 +675,7 @@ static void convert_all_vbrace_to_brace(void)
          case(CT_IF        ): /* fallthrough */
          case(CT_ELSE      ): /* fallthrough */
          case(CT_ELSEIF    ): if(is_opt_set(UO_mod_full_brace_if      , AV_ADD) &&
-                                 !cpd.settings[UO_mod_full_brace_if_chain].b) convert_vbrace_to_brace(pc); break;
+                                 is_false(UO_mod_full_brace_if_chain)) convert_vbrace_to_brace(pc); break;
          case(CT_DO        ): if(is_opt_set(UO_mod_full_brace_do      , AV_ADD)) convert_vbrace_to_brace(pc); break;
          case(CT_FOR       ): if(is_opt_set(UO_mod_full_brace_for     , AV_ADD)) convert_vbrace_to_brace(pc); break;
          case(CT_WHILE     ): if(is_opt_set(UO_mod_full_brace_while   , AV_ADD)) convert_vbrace_to_brace(pc); break;
@@ -687,7 +687,7 @@ static void convert_all_vbrace_to_brace(void)
       bool in_preproc = is_preproc(pc);
 
       if ((is_ptype(pc, CT_IF,
-                    CT_ELSE, CT_ELSEIF ) && is_opt_set(UO_mod_full_brace_if      , AV_ADD) &&  !cpd.settings[UO_mod_full_brace_if_chain].b) ||
+                    CT_ELSE, CT_ELSEIF ) && is_opt_set(UO_mod_full_brace_if      , AV_ADD) &&  is_false(UO_mod_full_brace_if_chain)) ||
            ((pc->ptype == CT_FOR       ) && is_opt_set(UO_mod_full_brace_for     , AV_ADD)) ||
            ((pc->ptype == CT_DO        ) && is_opt_set(UO_mod_full_brace_do      , AV_ADD)) ||
            ((pc->ptype == CT_WHILE     ) && is_opt_set(UO_mod_full_brace_while   , AV_ADD)) ||
@@ -1116,7 +1116,7 @@ static void process_if_chain(chunk_t *br_start)
       pc = get_next_ncnl(br_close, scope_e::PREPROC);
       break_if(is_invalid_or_not_type(pc, CT_ELSE));
 
-      if (cpd.settings[UO_mod_full_brace_if_chain_only].b)
+      if (is_true(UO_mod_full_brace_if_chain_only))
       {
          // There is an 'else' - we want full braces.
          must_have_braces = true;
@@ -1153,7 +1153,7 @@ static void process_if_chain(chunk_t *br_start)
       }
       LOG_FMT(LBRCH, "\n");
    }
-   else if (cpd.settings[UO_mod_full_brace_if_chain].b)
+   else if (is_true(UO_mod_full_brace_if_chain))
    {
       /* This might run because either UO_mod_full_brace_if_chain or
        * UO_mod_full_brace_if_chain_only is used.

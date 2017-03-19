@@ -922,7 +922,7 @@ void space_text(void)
    {
       LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n",
               __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
-      if ((cpd.settings[UO_use_options_overriding_for_qt_macros].b) &&
+      if ((is_true(UO_use_options_overriding_for_qt_macros)) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
       {
@@ -932,7 +932,7 @@ void space_text(void)
 
          save_set_options_for_QT(pc->level);
       }
-      if (cpd.settings[UO_sp_skip_vbrace_tokens].b)
+      if (is_true(UO_sp_skip_vbrace_tokens))
       {
          next = chunk_get_next(pc);
          while ( ( chunk_empty(next)) &&
@@ -951,8 +951,7 @@ void space_text(void)
 
       break_if(is_invalid(next));
 
-      if ((QT_SIGNAL_SLOT_found) &&
-          (cpd.settings[UO_sp_bal_nested_parens].b))
+      if (QT_SIGNAL_SLOT_found && is_true(UO_sp_bal_nested_parens))
       {
          if (is_type(next->next, CT_SPACE))
          {
@@ -1024,7 +1023,7 @@ void space_text(void)
 
                      /* C++11 allows '>>' to mean '> >' in templates:
                       *   some_func<vector<string>>();*/
-                     if (((is_lang(cpd, LANG_CPP ) && cpd.settings[UO_sp_permit_cpp11_shift].b) ||
+                     if (((is_lang(cpd, LANG_CPP ) && is_true(UO_sp_permit_cpp11_shift)) ||
                           (is_lang(cpd, LANG_JAVA) || is_lang(cpd, LANG_CS))) &&
                           are_types(pc, next, CT_ANGLE_CLOSE) )
                      {
@@ -1096,7 +1095,7 @@ void space_text(void)
             if ((is_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE) || not_ptype(next, 2, CT_COMMENT_END, CT_COMMENT_EMBED) ) &&
                 (is_option(cpd.settings[UO_sp_endif_cmt        ].a, AV_IGNORE) || not_type (pc,      CT_PP_ELSE,     CT_PP_ENDIF     ) ) )
             {
-               if (cpd.settings[UO_indent_rel_single_line_comments].b)
+               if (is_true(UO_indent_rel_single_line_comments))
                {
                   /* Try to keep relative spacing between tokens */
                   LOG_FMT(LSPACE, " <relative adj>");

@@ -559,7 +559,7 @@ static bool next_word_exceeds_limit(const unc_text &text, size_t idx)
 
 static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
 {
-   size_t indent_with_tabs = cpd.settings[UO_indent_cmt_with_tabs].b ? 2 :
+   size_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 :
                             (cpd.settings[UO_indent_with_tabs    ].n ? 1 :
                                                                        0);
 
@@ -638,7 +638,7 @@ void output_text(FILE *pfile)
    {
       LOG_FMT(LOUTIND, "text() %s, type %s, col=%zu\n",
               pc->text(), get_token_name(pc->type), pc->orig_col);
-      cpd.output_tab_as_space = (cpd.settings[UO_cmt_convert_tab_to_spaces].b &&
+      cpd.output_tab_as_space = (is_true(UO_cmt_convert_tab_to_spaces) &&
                                  is_cmt(pc));
 
       switch(pc->type)
@@ -700,7 +700,7 @@ void output_text(FILE *pfile)
          break;
 
          case(CT_COMMENT_MULTI):
-            if (cpd.settings[UO_cmt_indent_multi].b)
+            if (is_true(UO_cmt_indent_multi))
             {
                output_comment_multi(pc);
             }
@@ -786,10 +786,10 @@ void output_text(FILE *pfile)
                   /* not the first item on a line */
                   chunk_t *prev = chunk_get_prev(pc); /* \todo einfacher wäre den vorherigen Chunk zwischenzuspeichern */
                   assert(is_valid(prev));
-                  allow_tabs = (cpd.settings[UO_align_with_tabs].b &&
+                  allow_tabs = (is_true(UO_align_with_tabs) &&
                                 is_flag(pc, PCF_WAS_ALIGNED) &&
                                 ((prev->column + prev->len() + 1) != pc->column));
-                  if (cpd.settings[UO_align_keep_tabs].b)
+                  if (is_true(UO_align_keep_tabs))
                   {
                      allow_tabs = (pc->after_tab == true) ? true : allow_tabs;
                   }
@@ -800,7 +800,7 @@ void output_text(FILE *pfile)
                add_text(pc->str);
                if (is_type(pc, CT_PP_DEFINE))
                {
-                  if (cpd.settings[UO_force_tab_after_define].b)
+                  if (is_true(UO_force_tab_after_define))
                   {
                      add_char(TABSTOP);
                   }
@@ -877,13 +877,13 @@ bool is_space_or_tab(const int character)
 
 static void calculate_comment_body_indent(cmt_reflow_t &cmt, const unc_text &str)
 {
-   return_if(!cpd.settings[UO_cmt_indent_multi].b);
+   return_if(is_false(UO_cmt_indent_multi));
 
    cmt.xtra_indent = 0;
    size_t idx      = 0;
    size_t len      = str.size();
    size_t last_len = 0;
-   if (cpd.settings[UO_cmt_multi_check_last].b)
+   if (is_true(UO_cmt_multi_check_last))
    {
       /* find the last line length */
       for (idx = len - 1; idx > 0; idx--)
@@ -1100,9 +1100,8 @@ static void output_cmt_start(cmt_reflow_t &cmt, chunk_t *pc)
 
    if (is_ptype(pc, CT_COMMENT_START, CT_COMMENT_WHOLE))
    {
-      if ( (!cpd.settings[UO_indent_col1_comment].b) &&
-           (pc->orig_col == 1                      ) &&
-           (not_flag(pc, PCF_INSERTED)             ) )
+      if (is_false(UO_indent_col1_comment) &&
+          (pc->orig_col == 1) && (not_flag(pc, PCF_INSERTED)) )
       {
          cmt.column    = 1u;
          cmt.base_col  = 1u;
@@ -1111,7 +1110,7 @@ static void output_cmt_start(cmt_reflow_t &cmt, chunk_t *pc)
    }
 
    /* tab aligning code */
-   if ( (cpd.settings[UO_indent_cmt_with_tabs].b)   &&
+   if ( (is_true(UO_indent_cmt_with_tabs))   &&
         (is_ptype(pc, CT_COMMENT_END, CT_COMMENT_WHOLE)))
    {
       cmt.column = align_tab_column(cmt.column - 1);
@@ -1126,12 +1125,8 @@ static void output_cmt_start(cmt_reflow_t &cmt, chunk_t *pc)
 
 static bool can_combine_comment(chunk_t *pc, const cmt_reflow_t &cmt)
 {
-   /* We can't combine if ... */
-   if ((is_invalid(pc)              ) || /* chunk is invalid or */
-       is_ptype(pc, CT_COMMENT_START) )  /* there is something other than a newline next */
-   {
-      return(false);
-   }
+   /* We can't combine if there is something other than a newline next */
+   retval_if(is_invalid_or_ptype(pc, CT_COMMENT_START), false);
 
    /* next is a newline for sure, make sure it is a single newline */
    chunk_t *next = chunk_get_next(pc);
@@ -1183,21 +1178,20 @@ static chunk_t *output_comment_c(chunk_t *first)
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
    /* See if we can combine this comment with the next comment */
-   if (!cpd.settings[UO_cmt_c_group].b ||
-       !can_combine_comment(first, cmt))
+   if (is_false(UO_cmt_c_group) || !can_combine_comment(first, cmt))
    {
       /* Just add the single comment */
-      cmt.cont_text = cpd.settings[UO_cmt_star_cont].b ? " * " : "   ";
+      cmt.cont_text = is_true(UO_cmt_star_cont) ? " * " : "   ";
       LOG_CONTTEXT();
       add_comment_text(first->str, cmt, false);
       return(first);
    }
 
-   cmt.cont_text = cpd.settings[UO_cmt_star_cont].b ? " *" : "  ";
+   cmt.cont_text = is_true(UO_cmt_star_cont) ? " *" : "  ";
    LOG_CONTTEXT();
 
    add_text("/*"); /* comment start */
-   if (cpd.settings[UO_cmt_c_nl_start].b)
+   if (is_true(UO_cmt_c_nl_start))
    {
       add_comment_text("\n", cmt, false);
    }
@@ -1213,7 +1207,7 @@ static chunk_t *output_comment_c(chunk_t *first)
    assert(is_valid(pc));
    combine_comment(tmp, pc, cmt);
 
-   if (cpd.settings[UO_cmt_c_nl_end].b)
+   if (is_true(UO_cmt_c_nl_end))
    {
       cmt.cont_text = " ";
       LOG_CONTTEXT();
@@ -1241,7 +1235,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    cmt.reflow = (cpd.settings[UO_cmt_reflow_mode].n != 1);
 
    unc_text leadin = "//";                    // default setting to keep previous behavior
-   if (cpd.settings[UO_sp_cmt_cpp_doxygen].b) // special treatment for doxygen style comments (treat as unity)
+   if (is_true(UO_sp_cmt_cpp_doxygen)) // special treatment for doxygen style comments (treat as unity)
    {
       const char *sComment = first->text();
       retval_if(ptr_is_invalid(sComment), first);
@@ -1272,7 +1266,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    }
 
    /* Special treatment for Qt translator or meta-data comments (treat as unity) */
-   if (cpd.settings[UO_sp_cmt_cpp_qttr].b)
+   if (is_true(UO_sp_cmt_cpp_qttr))
    {
       const int c = first->str[2];
       if ((c == ':') ||
@@ -1286,7 +1280,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    const argval_t sp_cmt_cpp_start = cpd.settings[UO_sp_cmt_cpp_start].a;
 
    /* CPP comments can't be grouped unless they are converted to C comments */
-   if (!cpd.settings[UO_cmt_cpp_to_c].b)
+   if (is_false(UO_cmt_cpp_to_c))
    {
       cmt.cont_text = leadin;
       if (not_option(sp_cmt_cpp_start, AV_REMOVE))
@@ -1332,13 +1326,12 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    }
 
    /* We are going to convert the CPP comments to C comments */
-   cmt.cont_text = cpd.settings[UO_cmt_star_cont].b ? " * " : "   ";
+   cmt.cont_text = is_true(UO_cmt_star_cont) ? " * " : "   ";
    LOG_CONTTEXT();
 
    unc_text tmp;
    /* See if we can combine this comment with the next comment */
-   if (!cpd.settings[UO_cmt_cpp_group].b ||
-       !can_combine_comment(first, cmt))
+   if (is_false(UO_cmt_cpp_group) || !can_combine_comment(first, cmt))
    {
       /* nothing to group: just output a single line */
       add_text("/*");
@@ -1354,7 +1347,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    }
 
    add_text("/*");
-   if (cpd.settings[UO_cmt_cpp_nl_start].b)
+   if (is_true(UO_cmt_cpp_nl_start))
    {
       add_comment_text("\n", cmt, false);
    }
@@ -1382,7 +1375,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    do_something(offs, pc, tmp);
 
    add_comment_text(tmp, cmt, true);
-   if (cpd.settings[UO_cmt_cpp_nl_end].b)
+   if (is_true(UO_cmt_cpp_nl_end))
    {
       cmt.cont_text = "";
       LOG_CONTTEXT();
@@ -1449,8 +1442,8 @@ static void output_comment_multi(chunk_t *pc)
 
    calculate_comment_body_indent(cmt, pc->str);
 
-   cmt.cont_text =  cpd.settings[UO_cmt_indent_multi].b == false ? ""   :
-                   (cpd.settings[UO_cmt_star_cont   ].b == true  ? "* " : "  ");
+   cmt.cont_text =  is_false(UO_cmt_indent_multi) ? ""   :
+                    is_true (UO_cmt_star_cont   ) ? "* " : "  ";
    LOG_CONTTEXT();
 
    size_t   line_count = 0;
@@ -1624,7 +1617,7 @@ static void output_comment_multi(chunk_t *pc)
             if (line.size() == 0)
             {
                /* Empty line - just a LINEFEED */
-               if (cpd.settings[UO_cmt_star_cont].b)
+               if (is_true(UO_cmt_star_cont))
                {
                   cmt.column = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
                   cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
@@ -1638,7 +1631,7 @@ static void output_comment_multi(chunk_t *pc)
             {
                /* If this doesn't start with a '*' or '|'.
                 * '\name' is a common parameter documentation thing. */
-               if (cpd.settings[UO_cmt_indent_multi].b &&
+               if (is_true(UO_cmt_indent_multi) &&
                     (line[0] != '*' ) &&
                     (line[0] != '|' ) &&
                     (line[0] != '#' ) &&
@@ -1647,7 +1640,7 @@ static void output_comment_multi(chunk_t *pc)
                {
                   size_t start_col = cmt_col + cpd.settings[UO_cmt_sp_before_star_cont].u;
 
-                  if (cpd.settings[UO_cmt_star_cont].b)
+                  if (is_true(UO_cmt_star_cont))
                   {
                      cmt.column = start_col;
                      cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);

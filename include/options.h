@@ -935,8 +935,14 @@ bool is_opt_set(
 );
 
 
-/** check if a uncrustify option is set true */
-bool is_opt_true(
+/** check if an uncrustify option is set true */
+bool is_true(
+   uo_t opt /**< [in] uncrustify option to check */
+);
+
+
+/** check if an uncrustify option is set false */
+bool is_false(
    uo_t opt /**< [in] uncrustify option to check */
 );
 

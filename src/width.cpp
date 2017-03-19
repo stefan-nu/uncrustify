@@ -238,8 +238,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 
    /* Can't split after a newline */
    chunk_t *prev = chunk_get_prev(pc);
-   return_if((is_invalid(prev)                      ) ||
-             (is_nl(prev) && not_type(pc, CT_STRING)) );
+   return_if(is_invalid(prev) || (is_nl(prev) && not_type(pc, CT_STRING)) );
 
    /* Can't split a function without arguments */
    if (is_type(pc, CT_FPAREN_OPEN))
@@ -256,7 +255,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    }
 
    /* keep common groupings unless ls_code_width */
-   return_if((cpd.settings[UO_ls_code_width].b == false) &&
+   return_if((is_false(UO_ls_code_width)) &&
              (pc_pri                           >= 20   ) );
 
    /* don't break after last term of a qualified type */
@@ -308,9 +307,7 @@ static bool split_line(chunk_t *start)
       return(false);
    }
 
-   if (cpd.settings[UO_ls_code_width].b)
-   {
-   }
+   if (is_true(UO_ls_code_width)) {  }
 
    /* Check to see if we are in a for statement */
    else if (is_flag(start, PCF_IN_FOR))
@@ -323,14 +320,14 @@ static bool split_line(chunk_t *start)
    }
 
    /* If this is in a function call or prototype, split on commas or right
-    * after the open paren */
+    * after the open parenthesis */
    else if ( is_flag (start, PCF_IN_FCN_DEF) ||
             (is_level(start, (start->brace_level + 1)) &&
              is_flag (start, PCF_IN_FCN_CALL)))
    {
       LOG_FMT(LSPLIT, " ** FUNC SPLIT **\n");
 
-      if (cpd.settings[UO_ls_func_split_full].b)
+      if (is_true(UO_ls_func_split_full))
       {
          split_fcn_params_full(start);
          retval_if(!is_past_width(start), true);
@@ -353,7 +350,7 @@ static bool split_line(chunk_t *start)
       {
          try_split_here(ent, pc);
          /*  break at maximum line length */
-         break_if(is_valid(ent.pc) && (cpd.settings[UO_ls_code_width].b));
+         break_if(is_valid(ent.pc) && is_true(UO_ls_code_width));
       }
    }
 
@@ -431,7 +428,7 @@ static void split_for_statement(chunk_t *start)
    LOG_FMT(LSPLIT, "%s: starting on %s, line %zu\n",
            __func__, start->text(), start->orig_line);
 
-   size_t  max_cnt     = cpd.settings[UO_ls_for_split_full].b ? 2 : 1;
+   size_t  max_cnt     = is_true(UO_ls_for_split_full) ? 2 : 1;
    chunk_t *open_paren = nullptr;
    size_t  nl_cnt      = 0;
 
@@ -448,7 +445,7 @@ static void split_for_statement(chunk_t *start)
    }
    if (is_invalid(open_paren))
    {
-      LOG_FMT(LSPLIT, "No open paren\n");
+      LOG_FMT(LSPLIT, "No open parenthesis\n");
       return;
    }
 
@@ -626,7 +623,7 @@ static void split_fcn_params(chunk_t *start)
       {
          pc = chunk_get_next(prev);
          assert(is_valid(pc));
-         if (!cpd.settings[UO_indent_paren_nl].b)
+         if (is_false(UO_indent_paren_nl))
          {
             min_col = pc->brace_level * cpd.settings[UO_indent_columns].u + 1u;
             if (cpd.settings[UO_indent_continue].n == 0)
