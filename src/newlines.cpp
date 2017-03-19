@@ -807,7 +807,7 @@ static bool newlines_if_for_while_switch(chunk_t* start, argval_t nl_opt)
          if (is_type(brace_open, CT_VBRACE_OPEN))
          {
             /* Can only add - we don't want to create a one-line here */
-            if (is_option_set(nl_opt, AV_ADD))
+            if (is_opt_set(nl_opt, AV_ADD))
             {
                newline_iarf_pair(close_paren, get_next_ncnl(brace_open), nl_opt);
                pc = get_next_type(brace_open, CT_VBRACE_CLOSE, (int)brace_open->level);
@@ -845,7 +845,7 @@ static void newlines_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_
    chunk_t* next;
    chunk_t* last_nl = nullptr;
    size_t  level    = start->level;
-   bool    do_add   = is_option_set(nl_opt, AV_ADD);
+   bool    do_add   = is_opt_set(nl_opt, AV_ADD);
 
    /* look backwards until we find
     *  open brace (don't add or remove)
@@ -860,7 +860,7 @@ static void newlines_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_
          if ((pc->nl_count > 1) || is_nl(get_prev_nvb(pc)))
          {
             /* need to remove */
-            if (is_option_set(nl_opt, AV_REMOVE) && not_flag(pc, PCF_VAR_DEF))
+            if (is_opt_set(nl_opt, AV_REMOVE) && not_flag(pc, PCF_VAR_DEF))
             {
                /* if we're also adding, take care of that here */
                size_t nl_count = do_add ? 2 : 1;
@@ -1129,7 +1129,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t* start, argval
    return_if((prev = get_prev_nvb(pc)) == nullptr);
 
    bool have_pre_vbrace_nl = isVBrace && is_nl(prev);
-   if (is_option_set(nl_opt, AV_REMOVE))
+   if (is_opt_set(nl_opt, AV_REMOVE))
    {
       /* if vbrace, have to check before and after */
       /* if chunk before vbrace, remove any newlines after vbrace */
@@ -1157,7 +1157,7 @@ static void newlines_if_for_while_switch_post_blank_lines(chunk_t* start, argval
 
    /* may have a newline before and after vbrace */
    /* don't do anything with it if the next non newline chunk is a closing brace */
-   if (is_option_set(nl_opt, AV_ADD))
+   if (is_opt_set(nl_opt, AV_ADD))
    {
       if ((next = get_next_nnl(pc)) == nullptr) { return; }
 
@@ -1368,7 +1368,7 @@ static void newlines_do_else(chunk_t* start, argval_t nl_opt)
       if (next->type == CT_VBRACE_OPEN)
       {
          /* Can only add - we don't want to create a one-line here */
-         if (is_option_set(nl_opt, AV_ADD))
+         if (is_opt_set(nl_opt, AV_ADD))
          {
             newline_iarf_pair(start, get_next_ncnl(next), nl_opt);
             chunk_t* tmp = get_next_type(next, CT_VBRACE_CLOSE, (int)next->level);
@@ -1800,7 +1800,7 @@ static void newline_iarf_pair(chunk_t* before, chunk_t* after, argval_t av)
 
    if(are_valid(before, after))
    {
-      if (is_option_set(av, AV_ADD))
+      if (is_opt_set(av, AV_ADD))
       {
          chunk_t* nl = newline_add_between(before, after);
          if ( (is_valid(nl)    ) &&
@@ -1810,7 +1810,7 @@ static void newline_iarf_pair(chunk_t* before, chunk_t* after, argval_t av)
             nl->nl_count = 1;
          }
       }
-      else if (is_option_set(av, AV_REMOVE))
+      else if (is_opt_set(av, AV_REMOVE))
       {
          newline_del_between(before, after);
       }
@@ -2695,7 +2695,7 @@ void newlines_cleanup_braces(bool first)
 
                argval_t arg = cpd.settings[UO_nl_after_square_assign].a;
 
-               if (is_option_set(cpd.settings[UO_nl_assign_square].a, AV_ADD))
+               if (is_opt_set(UO_nl_assign_square, AV_ADD))
                {
                   arg = AV_ADD;
                }
@@ -2958,10 +2958,10 @@ void newlines_eat_start_end(void)
    chunk_t* pc;
 
    /* Process newlines at the start of the file */
-   if ( (cpd.frag_cols == 0) &&
-       ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_REMOVE)) ||
-       ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD   )) &&
-         (cpd.settings[UO_nl_start_of_file_min].u > 0))))
+   if ((cpd.frag_cols == 0) &&
+       (is_opt_set(UO_nl_start_of_file, AV_REMOVE) ||
+       (is_opt_set(UO_nl_start_of_file, AV_ADD   ) &&
+       (cpd.settings[UO_nl_start_of_file_min].u > 0))))
    {
       pc = chunk_get_head();
       if (is_valid(pc))
@@ -2982,7 +2982,7 @@ void newlines_eat_start_end(void)
                MARK_CHANGE();
             }
          }
-         else if ((is_option_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD)) &&
+         else if ((is_opt_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD)) &&
                   (cpd.settings[UO_nl_start_of_file_min].u > 0))
          {
             chunk_t chunk;
@@ -2999,9 +2999,9 @@ void newlines_eat_start_end(void)
 
    /* Process newlines at the end of the file */
    if ((cpd.frag_cols == 0) &&
-        ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_REMOVE)) ||
-        ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_ADD   )) &&
-         (cpd.settings[UO_nl_end_of_file_min].u > 0))))
+        (is_opt_set(UO_nl_end_of_file, AV_REMOVE) ||
+        (is_opt_set(UO_nl_end_of_file, AV_ADD   ) &&
+        (cpd.settings[UO_nl_end_of_file_min].u > 0))))
    {
       pc = chunk_get_tail();
       if (is_valid(pc))
@@ -3025,7 +3025,7 @@ void newlines_eat_start_end(void)
                }
             }
          }
-         else if ((is_option_set(cpd.settings[UO_nl_end_of_file].a, AV_ADD)) &&
+         else if ( is_opt_set(UO_nl_end_of_file, AV_ADD) &&
                   (cpd.settings[UO_nl_end_of_file_min].u > 0))
          {
             chunk_t chunk;
@@ -3222,7 +3222,7 @@ void newlines_class_colon_pos(c_token_t tok)
 
          if (!is_nl(prev) &&
              !is_nl(next) &&
-             is_option_set(anc, AV_ADD))
+             is_opt_set(anc, AV_ADD))
          {
             newline_add_after(pc);
             prev = get_prev_nc(pc);
@@ -3277,7 +3277,7 @@ void newlines_class_colon_pos(c_token_t tok)
          assert(is_valid(ccolon));
          if (is_type_and_level(pc, CT_COMMA, ccolon->level))
          {
-            if (is_option_set(ncia, AV_ADD))
+            if (is_opt_set(ncia, AV_ADD))
             {
                if (is_token_set(pcc, TP_TRAIL))
                {

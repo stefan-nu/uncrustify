@@ -1314,7 +1314,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
             as.Add(step_back_over_member(pc));
 
-            if (cpd.settings[UO_align_var_def_colon].b)
+            if (is_opt_true(UO_align_var_def_colon))
             {
                next = get_next_nc(pc);
                if (is_type(next, CT_BIT_COLON))
@@ -1322,7 +1322,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                   as_bc.Add(next);
                }
             }
-            if (cpd.settings[UO_align_var_def_attribute].b)
+            if (is_opt_true(UO_align_var_def_attribute))
             {
                next = pc;
                while ((next = get_next_nc(next)) != nullptr)

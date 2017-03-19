@@ -208,62 +208,73 @@ uo_t get_inverse_uo(uo_t option)
 }
 
 
-bool is_option_set(argval_t var, argval_t opt)
+bool is_opt_set(argval_t opt, argval_t val)
 {
-   return ((var & opt) == opt); /*lint !e655 */
+   return ((opt & val) == val); /*lint !e655 */
 }
 
 
-bool is_option_unset(argval_t var, argval_t opt)
+bool is_opt_set(uo_t opt, argval_t val)
 {
-   return ((var & opt) == 0); /*lint !e655 !e641*/
+   return(is_opt_set(cpd.settings[opt].a, val));
+}
+
+bool is_opt_true(uo_t opt)
+{
+   return(cpd.settings[opt].b == true);
 }
 
 
-bool is_option(argval_t var, argval_t opt)
+bool is_opt_unset(argval_t opt, argval_t val)
 {
-   return (var == opt);
+   return ((opt & val) == 0); /*lint !e655 !e641*/
 }
 
 
-bool not_option(argval_t var, argval_t opt)
+bool is_option(argval_t var, argval_t val)
 {
-   return (var != opt);
+   return (var == val);
 }
 
 
-bool is_token_set(tokenpos_t var, tokenpos_t opt)
+bool not_option(argval_t opt, argval_t val)
 {
-   return ((var & opt) == opt); /*lint !e655 */
+   return (opt != val);
 }
 
 
-bool is_token_unset(tokenpos_t var, tokenpos_t opt)
+bool is_token_set(tokenpos_t tok, tokenpos_t val)
 {
-   return ((var & opt) == 0); /*lint !e655 !e641*/
-}
-
-bool is_token(tokenpos_t var, tokenpos_t opt)
-{
-   return (var == opt);
+   return ((tok & val) == val); /*lint !e655 */
 }
 
 
-bool not_token(tokenpos_t var, tokenpos_t opt)
+bool is_token_unset(tokenpos_t tok, tokenpos_t val)
 {
-   return (var != opt);
+   return ((tok & val) == 0); /*lint !e655 !e641*/
+}
+
+bool is_token(tokenpos_t tok, tokenpos_t val)
+{
+   return (tok == val);
 }
 
 
-bool is_bit_set(uint64_t var, uint64_t flag)
+bool not_token(tokenpos_t tok, tokenpos_t val)
 {
-   return ((var & flag) == flag);
+   return (tok != val);
 }
 
 
-bool is_bit_unset(uint64_t var, uint64_t flag)
+bool is_bit_set(uint64_t var, uint64_t bit)
 {
-   return ((var & flag) == 0);
+   return ((var & bit) == bit);
+}
+
+
+bool is_bit_unset(uint64_t var, uint64_t bit)
+{
+   return ((var & bit) == 0);
 }
 
 
@@ -1600,7 +1611,7 @@ void register_options(void)
                   "Add or remove braces on single-line 'do' statement");
    unc_add_option("mod_full_brace_for", UO_mod_full_brace_for, AT_IARF,
                   "Add or remove braces on single-line 'for' statement");
-   unc_add_option("mod_full_brace_function", UO_mod_full_brace_function, AT_IARF,
+   unc_add_option("mod_full_brace_function", UO_mod_full_brace_fct, AT_IARF,
                   "Add or remove braces on single-line function definitions. (Pawn)");
    unc_add_option("mod_full_brace_if", UO_mod_full_brace_if, AT_IARF,
                   "Add or remove braces on single-line 'if' statement. Will not remove the braces if they contain an 'else'.");

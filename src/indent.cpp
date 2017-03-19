@@ -2409,11 +2409,11 @@ void indent_preproc(void)
       pp_level = max(pp_level, 0);
 
       /* Adjust the indent of the '#' */
-      if (is_option_set(cpd.settings[UO_pp_indent].a, AV_ADD))
+      if (is_opt_set(UO_pp_indent, AV_ADD))
       {
          reindent_line(pc, 1 + (size_t)pp_level * cpd.settings[UO_pp_indent_count].u);
       }
-      else if (is_option_set(cpd.settings[UO_pp_indent].a, AV_REMOVE))
+      else if (is_opt_set(cpd.settings[UO_pp_indent].a, AV_REMOVE))
       {
          reindent_line(pc, 1);
       }
@@ -2421,14 +2421,14 @@ void indent_preproc(void)
       /* Add spacing by adjusting the length */
       if ((cpd.settings[UO_pp_space].a != AV_IGNORE) &&  (is_valid(next)))
       {
-         if (is_option_set(cpd.settings[UO_pp_space].a, AV_ADD))
+         if (is_opt_set(UO_pp_space, AV_ADD))
          {
             size_t mult = cpd.settings[UO_pp_space_count].u;
             mult = max(mult, (size_t)1u);
 
             reindent_line(next, (size_t)((int)pc->column + (int)pc->len() + (pp_level * (int)mult)));
          }
-         else if (is_option_set(cpd.settings[UO_pp_space].a, AV_REMOVE))
+         else if (is_opt_set(cpd.settings[UO_pp_space].a, AV_REMOVE))
          {
             reindent_line(next, pc->column + pc->len());
          }
