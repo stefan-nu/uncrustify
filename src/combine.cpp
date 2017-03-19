@@ -828,7 +828,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
    /* D stuff */
    if (is_lang(cpd,  LANG_D       ) &&
        is_type(pc,   CT_QUALIFIER ) &&
-       is_str (pc,   "const", 5   ) &&
+       is_str (pc,   "const"  ) &&
        is_type(next, CT_PAREN_OPEN) )
    {
       set_type(pc, CT_D_CAST);
@@ -921,9 +921,9 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       /* Check for message declarations */
       if (is_flag(pc, PCF_STMT_START))
       {
-         if ((is_str(pc,   "-", 1) ||
-              is_str(pc,   "+", 1) ) &&
-              is_str(next, "(", 1)   )
+         if ((is_str(pc,   "-") ||
+              is_str(pc,   "+") ) &&
+              is_str(next, "(")   )
          {
             handle_oc_message_decl(pc);
          }
@@ -1284,8 +1284,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
        !is_oc_block(pc) &&
        (pc->ptype != CT_OC_MSG_DECL) &&
        (pc->ptype != CT_OC_MSG_SPEC) &&
-       is_str(pc, ")", 1           ) &&
-       is_str(next, "(", 1         ) )
+       is_str(pc,   ")"            ) &&
+       is_str(next, "("            ) )
    {
       if (is_lang(cpd, LANG_D))
       {
@@ -1693,17 +1693,17 @@ static void mark_lvalue(chunk_t* pc)
    {
       if ((prev->level < pc->level) ||
           is_type(prev, CT_ASSIGN, CT_COMMA, CT_BOOL) ||
-          is_semicolon(prev)  ||
-          is_str(prev, "(", 1) ||
-          is_str(prev, "{", 1) ||
-          is_str(prev, "[", 1) ||
+          is_semicolon(prev) ||
+          is_str(prev, "(" ) ||
+          is_str(prev, "{" ) ||
+          is_str(prev, "[" ) ||
           is_preproc(prev))
       {
          break;
       }
       set_flags(prev, PCF_LVALUE);
       if (is_level(prev, pc->level) &&
-          is_str  (prev, "&", 1   ) )
+          is_str  (prev, "&"      ) )
       {
          make_type(prev);
       }
@@ -1775,7 +1775,7 @@ static bool mark_function_type(chunk_t* pc)
    if (!is_word(varcnk))
    {
       if (is_lang(cpd, LANG_OC) &&
-           is_str(varcnk, "^", 1) &&
+           is_str(varcnk, "^" ) &&
            is_paren_open(get_prev_ncnl(varcnk)))
       {
          /* anonymous ObjC block type -- RTYPE (^)(ARGS) */
@@ -1836,7 +1836,7 @@ static bool mark_function_type(chunk_t* pc)
          word_count = 0;
          LOG_FMT(LFTYPE, " -- :: reset word_count\n");
       }
-      else if (is_str(tmp, "(", 1))
+      else if (is_str(tmp, "("))
       {
          LOG_FMT(LFTYPE, " -- open parenthesis (break)\n");
          break;
@@ -2158,7 +2158,7 @@ static void fix_casts(chunk_t* start)
       {
          detail = " -- upper case";
       }
-      else if (is_lang(cpd, LANG_OC) && is_str(last, "id", 2))
+      else if (is_lang(cpd, LANG_OC) && is_str(last, "id"))
       {
          detail = " -- Objective-C id";
       }
@@ -2289,7 +2289,7 @@ static void fix_type_cast(chunk_t* start)
       if (is_type_and_level(pc, CT_ANGLE_CLOSE, start->level))
       {
          pc = get_next_ncnl(pc);
-         if (is_str(pc, "(", 1))
+         if (is_str(pc, "("))
          {
             set_paren_parent(pc, CT_TYPE_CAST);
          }
@@ -2807,7 +2807,7 @@ static void fix_fcn_def_params(chunk_t* start)
    /* ensure start chunk holds a single '(' character */
    size_t len        = start->len();
    char   first_char = start->str[0]; /*lint !e734 */
-   assert( (len == 1) && (first_char == '(' ));
+   assert((len == 1) && (first_char == '(' ));
 
    ChunkStack cs;
    size_t     level = start->level + 1;
@@ -2837,7 +2837,7 @@ static void fix_fcn_def_params(chunk_t* start)
          cs.Push_Back(pc);
       }
       else if (is_type(pc, CT_AMP) ||
-               (is_lang(cpd, LANG_CPP) && is_str(pc, "&&", 2)))
+               (is_lang(cpd, LANG_CPP) && is_str(pc, "&&")))
       {
          set_type(pc, CT_BYREF);
          cs.Push_Back(pc);
@@ -2861,7 +2861,7 @@ static void fix_fcn_def_params(chunk_t* start)
 static chunk_t* skip_to_next_statement(chunk_t* pc)
 {
    while ( not_type (pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
-          !is_semicolon(pc                         ) )
+          !is_semicolon(pc                            ) )
    {
       pc = get_next_ncnl(pc);
    }
@@ -3124,8 +3124,8 @@ static bool can_be_full_param(chunk_t* start, chunk_t* end)
                chunk_t* tmp2 = get_next_ncnl(tmp1, scope_e::PREPROC);
                chunk_t* tmp3 = get_next_ncnl(tmp2, scope_e::PREPROC);
 
-               if (!is_str     (tmp3, ")", 1 ) ||
-                   !is_str     (tmp1, "*", 1 ) ||
+               if (!is_str  (tmp3, ")"    ) ||
+                   !is_str  (tmp1, "*"    ) ||
                     not_type(tmp2, CT_WORD) )
                {
                   LOG_FMT(LFPARAM, " <== [%s] not fcn type!\n", get_token_name(pc->type));
@@ -3133,7 +3133,7 @@ static bool can_be_full_param(chunk_t* start, chunk_t* end)
                }
                LOG_FMT(LFPARAM, " <skip fcn type>");
                tmp1 = get_next_ncnl(tmp3, scope_e::PREPROC);
-               if (is_str(tmp1, "(", 1))
+               if (is_str(tmp1, "("))
                {
                   tmp3 = chunk_skip_to_match(tmp1, scope_e::PREPROC);
                }
@@ -3168,7 +3168,7 @@ static bool can_be_full_param(chunk_t* start, chunk_t* end)
             }
             else if ((word_cnt == 1) &&
                   is_lang(cpd, LANG_CPP) &&
-                is_str(pc, "&&", 2))
+                is_str(pc, "&&"))
             {
                /* ignore possible 'move' operator */
             }
@@ -3321,7 +3321,7 @@ exit_loop:
     *
     * Otherwise, it must be chained function calls. */
    tmp = get_next_ncnl(pclose);
-   if (is_str(tmp, "(", 1))
+   if (is_str(tmp, "("))
    {
       chunk_t* tmp2;
       chunk_t* tmp3;
@@ -3331,13 +3331,13 @@ exit_loop:
       while (is_valid(tmp1))
       {
          tmp2 = get_next_ncnl(tmp1);
-         break_if (!is_word(tmp1        ) ||
+         break_if (!is_word(tmp1              ) ||
                    !is_type(tmp2, CT_DC_MEMBER) );
          tmp1 = get_next_ncnl(tmp2);
       }
 
       tmp2 = get_next_ncnl(tmp1);
-      if (is_str(tmp2, ")", 1))
+      if (is_str(tmp2, ")"))
       {
          tmp3 = tmp2;
          tmp2 = nullptr;
@@ -3347,7 +3347,7 @@ exit_loop:
          tmp3 = get_next_ncnl(tmp2);
       }
 
-      if ( is_str(tmp3, ")", 1) &&
+      if ( is_str(tmp3, ")") &&
           (is_star (tmp1) ||
            is_msref(tmp1) ||
            (is_lang(cpd, LANG_OC) && is_type(tmp1, CT_CARET))) &&
@@ -3698,7 +3698,7 @@ exit_loop:
          {
             /* Do a check to see if the level is right */
             prev = get_prev_ncnl(pc);
-            if (!is_str(prev, "*", 1) && !is_str(prev, "&", 1))
+            if (!is_str(prev, "*") && !is_str(prev, "&"))
             {
                chunk_t* p_op = get_prev_type(pc, CT_BRACE_OPEN, (int)pc->brace_level - 1);
                if (not_ptype(p_op, 3, CT_CLASS, CT_STRUCT, CT_NAMESPACE))
@@ -3778,7 +3778,7 @@ static void mark_cpp_constructor(chunk_t* pc)
            pc->text(), get_token_name(pc->type), tmp->text(), get_token_name(tmp->type));
 
    chunk_t* paren_open = skip_template_next(get_next_ncnl(pc));
-   if (!is_str(paren_open, "(", 1))
+   if (!is_str(paren_open, "("))
    {
       assert(is_valid(paren_open));
       LOG_FMT(LWARN, "%s:%zu Expected '(', got: [%s]\n", cpd.filename,
@@ -3802,7 +3802,7 @@ static void mark_cpp_constructor(chunk_t* pc)
       set_flags(tmp, PCF_IN_CONST_ARGS);
       tmp = get_next_ncnl(tmp);
       assert(are_valid(paren_open, tmp));
-      if (is_str(tmp, ":", 1) && is_level(tmp, paren_open->level))
+      if (is_str(tmp, ":") && is_level(tmp, paren_open->level))
       {
          set_type(tmp, CT_CONSTR_COLON);
          hit_colon = true;
@@ -3891,7 +3891,7 @@ static void mark_class_ctor(chunk_t* start)
    {
       LOG_FMT(LFTOR, " [%s]", pc->text());
 
-      if (is_str(pc, ":", 1))
+      if (is_str(pc, ":"))
       {
          set_type(pc, CT_CLASS_COLON);
          flags |= PCF_IN_CLASS_BASE;
@@ -4199,14 +4199,14 @@ static void handle_cpp_lambda(chunk_t* sq_o)
 
    /* Check if keyword 'mutable' is before '->' */
    chunk_t* br_o = get_next_ncnl(pa_c);
-   if (is_str(br_o, "mutable", 7))
+   if (is_str(br_o, "mutable"))
    {
       br_o = get_next_ncnl(br_o);
    }
 
    /* Make sure a '{' or '->' is next */
    chunk_t* ret = nullptr;
-   if (is_str(br_o, "->", 2))
+   if (is_str(br_o, "->"))
    {
       ret = br_o;
       /* REVISIT: really should check the stuff we are skipping */
@@ -4369,7 +4369,7 @@ static void mark_template_func(chunk_t* pc, chunk_t* pc_next)
    chunk_t* after       = get_next_ncnl(angle_close);
    if (is_valid(after))
    {
-      if (is_str(after, "(", 1))
+      if (is_str(after, "("))
       {
          assert(is_valid(angle_close));
          if (is_flag(angle_close, PCF_IN_FCN_CALL))
@@ -4529,7 +4529,7 @@ static void handle_oc_class(chunk_t* pc)
       {
          passed_name = true;
       }
-      if (is_str(tmp, "<", 1))
+      if (is_str(tmp, "<"))
       {
          set_type(tmp, CT_ANGLE_OPEN);
          if (passed_name)
@@ -4543,7 +4543,7 @@ static void handle_oc_class(chunk_t* pc)
          }
          as = angle_state_e::OPEN;
       }
-      if (is_str(tmp, ">", 1))
+      if (is_str(tmp, ">"))
       {
          set_type(tmp, CT_ANGLE_CLOSE);
          if (passed_name)
@@ -4561,7 +4561,7 @@ static void handle_oc_class(chunk_t* pc)
             }
          }
       }
-      if (is_str(tmp, ">>", 2))
+      if (is_str(tmp, ">>"))
       {
          set_type_and_ptype(tmp, CT_ANGLE_CLOSE, CT_OC_GENERIC_SPEC);
          split_off_angle_close(tmp);
@@ -4593,8 +4593,8 @@ static void handle_oc_class(chunk_t* pc)
             set_ptype(tmp, CT_OC_CLASS);
          }
       }
-      else if (is_str(tmp, "-", 1) ||
-               is_str(tmp, "+", 1) )
+      else if (is_str(tmp, "-") ||
+               is_str(tmp, "+") )
       {
          as = angle_state_e::CLOSE;
          if (is_nl(chunk_get_prev(tmp)))
@@ -4748,7 +4748,7 @@ static void handle_oc_block_type(chunk_t* pc)
          chunk_t*  aft = get_next_ncnl(apc);
          c_token_t pt;
 
-         if (is_str(nam, "^", 1))
+         if (is_str(nam, "^"))
          {
             set_type(nam, CT_PTR_TYPE);
             pt = CT_FUNC_TYPE;
@@ -4854,7 +4854,7 @@ static void handle_oc_message_decl(chunk_t* pc)
             pc = get_next_ncnl(pc);
          }
          /* a colon must be next */
-         break_if (!is_str(pc, ":", 1));
+         break_if (!is_str(pc, ":"));
 
          set_type_and_ptype(pc, CT_OC_COLON, pt);
          pc = get_next_ncnl(pc);
@@ -4946,7 +4946,7 @@ static void handle_oc_message_send(chunk_t* os)
 
    /* handle '< protocol >' */
    tmp = get_next_ncnl(tmp);
-   if (is_str(tmp, "<", 1))
+   if (is_str(tmp, "<"))
    {
       chunk_t* ao = tmp;
       assert(is_valid(ao));
@@ -5055,29 +5055,29 @@ static void handle_oc_property_decl(chunk_t* os)
             if (is_type(next, CT_WORD))
             {
                ChunkGroup chunkGroup;
-               if      (is_str(next, "atomic",    6) ||
-                        is_str(next, "nonatomic", 9) )
+               if      (is_str(next, "atomic"   ) ||
+                        is_str(next, "nonatomic") )
                {
                   chunkGroup.push_back(next);
                   thread_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "readonly",  8) ||
-                        is_str(next, "readwrite", 9) )
+               else if (is_str(next, "readonly" ) ||
+                        is_str(next, "readwrite") )
                {
                   chunkGroup.push_back(next);
                   readwrite_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "assign",             6) ||
-                        is_str(next, "retain",             6) ||
-                        is_str(next, "copy",               4) ||
-                        is_str(next, "strong",             6) ||
-                        is_str(next, "weak",               4) ||
-                        is_str(next, "unsafe_unretained", 17) )
+               else if (is_str(next, "assign"           ) ||
+                        is_str(next, "retain"           ) ||
+                        is_str(next, "copy"             ) ||
+                        is_str(next, "strong"           ) ||
+                        is_str(next, "weak"             ) ||
+                        is_str(next, "unsafe_unretained") )
                {
                   chunkGroup.push_back(next);
                   ref_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "getter", 6))
+               else if (is_str(next, "getter"))
                {
                   do
                   {
@@ -5090,7 +5090,7 @@ static void handle_oc_property_decl(chunk_t* os)
 
                   getter_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "setter", 6))
+               else if (is_str(next, "setter"))
                {
                   do
                   {
@@ -5103,8 +5103,8 @@ static void handle_oc_property_decl(chunk_t* os)
 
                   setter_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "nullable", 8) ||
-                        is_str(next, "nonnull",  7) )
+               else if (is_str(next, "nullable") ||
+                        is_str(next, "nonnull" ) )
                {
                   chunkGroup.push_back(next);
                   nullability_chunks.push_back(chunkGroup);

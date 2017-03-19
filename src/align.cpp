@@ -1854,7 +1854,7 @@ static void align_left_shift(void)
          as.Flush();
          start = nullptr;
       }
-      else if (not_flag(pc, PCF_IN_ENUM) && is_str(pc, "<<", 2))
+      else if (not_flag(pc, PCF_IN_ENUM) && is_str(pc, "<<"))
       {
          if (is_ptype(pc, CT_OPERATOR))
          {

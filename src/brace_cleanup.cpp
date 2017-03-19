@@ -389,8 +389,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
         (frm->expr_count == 0)) &&
        (!is_semicolon(pc)     ) &&
          not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-       (!is_str(pc, ")", 1)   ) &&
-       (!is_str(pc, "]", 1)   ) )
+       (!is_str(pc, ")")   ) &&
+       (!is_str(pc, "]")   ) )
    {
       const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));

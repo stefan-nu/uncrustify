@@ -1568,9 +1568,9 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }
 
-         else if ((is_str(pc, "(", 1) && !cpd.settings[UO_indent_paren_nl ].b) ||
-                  (is_str(pc, "<", 1) && !cpd.settings[UO_indent_paren_nl ].b) || /* TODO: add indent_angle_nl? */
-                  (is_str(pc, "[", 1) && !cpd.settings[UO_indent_square_nl].b) )
+         else if ((is_str(pc, "(") && !cpd.settings[UO_indent_paren_nl ].b) ||
+                  (is_str(pc, "<") && !cpd.settings[UO_indent_paren_nl ].b) || /* TODO: add indent_angle_nl? */
+                  (is_str(pc, "[") && !cpd.settings[UO_indent_square_nl].b) )
          {
             next = get_next_nc(pc);
             break_if(is_invalid(next));
@@ -1774,8 +1774,8 @@ void indent_text(void)
          chunk_t* tmp = pc;
          do // \todo DRY see below
          {
-            if (is_str(tmp, "<<", 2) ||
-                is_str(tmp, ">>", 2) )
+            if (is_str(tmp, "<<") ||
+                is_str(tmp, ">>") )
             {
                in_shift = true;
                tmp = get_prev_ncnl(tmp);
@@ -1791,8 +1791,8 @@ void indent_text(void)
          do
          {
             tmp = get_next_ncnl(tmp);
-            if (is_str(tmp, "<<", 2) ||
-                is_str(tmp, ">>", 2) )
+            if (is_str(tmp, "<<") ||
+                is_str(tmp, ">>") )
             {
                in_shift = true;
                tmp = get_prev_ncnl(tmp);

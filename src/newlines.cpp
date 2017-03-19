@@ -761,9 +761,9 @@ void newline_del_between(chunk_t* start, chunk_t* end)
       pc = next;
    } while (pc != end);
 
-   if (!start_removed                      &&
-       is_str  (end,   "{", 1          )   &&
-       (is_str (start, ")", 1          ) ||
+   if (!start_removed                    &&
+       is_str  (end,   "{"           )   &&
+       (is_str (start, ")"           ) ||
         is_type(start, CT_DO, CT_ELSE) ) )
    {
       chunk_move_after(end, start);
@@ -2013,7 +2013,7 @@ static void newline_func_def(chunk_t* start)
    }
 
    chunk_t* pc = get_next_ncnl(start);
-   if (is_str(pc, ")", 1))
+   if (is_str(pc, ")"))
    {
       atmp = cpd.settings[is_def ? UO_nl_func_def_empty : UO_nl_func_decl_empty].a;
       if (atmp != AV_IGNORE) { newline_iarf(start, atmp); }
