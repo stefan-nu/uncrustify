@@ -134,40 +134,33 @@ static void process_if_chain(
    chunk_t *br_start /**< [in]  */
 );
 
-/* defines to make checking options easier \todo can be  */
-#define is_opt(option, value) is_option_set(cpd.settings[option].a, (value)  )
-#define is_opt_add   (option) is_option_set(cpd.settings[option].a, AV_ADD   )
-#define is_opt_remove(option) is_option_set(cpd.settings[option].a, AV_REMOVE)
-#define is_opt_force (option) is_option_set(cpd.settings[option].a, AV_FORCE )
-#define is_opt_ignore(option) is_option_set(cpd.settings[option].a, AV_IGNORE)
-
 
 void do_braces(void)
 {
    LOG_FUNC_ENTRY();
 
-   if (cpd.settings[UO_mod_full_brace_if_chain     ].b ||
-       cpd.settings[UO_mod_full_brace_if_chain_only].b)
+   if (is_true(UO_mod_full_brace_if_chain     ) ||
+       is_true(UO_mod_full_brace_if_chain_only) )
    {
       mod_full_brace_if_chain();
    }
 
-   if (is_opt(UO_mod_full_brace_if   , AV_REMOVE) ||
-       is_opt(UO_mod_full_brace_do   , AV_REMOVE) ||
-       is_opt(UO_mod_full_brace_for  , AV_REMOVE) ||
-       is_opt(UO_mod_full_brace_using, AV_REMOVE) ||
-       is_opt(UO_mod_full_brace_while, AV_REMOVE) )
+   if (is_opt_set(UO_mod_full_brace_if   , AV_REMOVE) ||
+       is_opt_set(UO_mod_full_brace_do   , AV_REMOVE) ||
+       is_opt_set(UO_mod_full_brace_for  , AV_REMOVE) ||
+       is_opt_set(UO_mod_full_brace_using, AV_REMOVE) ||
+       is_opt_set(UO_mod_full_brace_while, AV_REMOVE) )
    {
       examine_braces();
    }
 
    /* convert vbraces if needed */
-   if ( is_opt(UO_mod_full_brace_if      , AV_ADD) ||
-        is_opt(UO_mod_full_brace_do      , AV_ADD) ||
-        is_opt(UO_mod_full_brace_for     , AV_ADD) ||
-        is_opt(UO_mod_full_brace_function, AV_ADD) ||
-        is_opt(UO_mod_full_brace_using   , AV_ADD) ||
-        is_opt(UO_mod_full_brace_while   , AV_ADD) )
+   if ( is_opt_set(UO_mod_full_brace_if   , AV_ADD) ||
+        is_opt_set(UO_mod_full_brace_do   , AV_ADD) ||
+        is_opt_set(UO_mod_full_brace_for  , AV_ADD) ||
+        is_opt_set(UO_mod_full_brace_fct  , AV_ADD) ||
+        is_opt_set(UO_mod_full_brace_using, AV_ADD) ||
+        is_opt_set(UO_mod_full_brace_while, AV_ADD) )
    {
       convert_all_vbrace_to_brace();
    }
@@ -203,7 +196,7 @@ void do_braces(void)
    }
 
    if (cpd.settings[UO_mod_case_brace].a != AV_IGNORE) { mod_case_brace();  }
-   if (cpd.settings[UO_mod_move_case_break].b        ) { move_case_break(); }
+   if (is_true(UO_mod_move_case_break)) { move_case_break(); }
 }
 
 
@@ -541,7 +534,8 @@ static void examine_brace(chunk_t *bopen)
                chunk_del(bopen);
                chunk_del(pc   );
                newline_del_between(prev, next);
-               if (is_option_set(cpd.settings[UO_nl_else_if].a, AV_ADD))
+
+               if (is_opt_set(UO_nl_else_if, AV_ADD))
                {
                   newline_add_between(prev, next);
                }
@@ -637,23 +631,22 @@ static void convert_vbrace(chunk_t *vbr)
 }
 
 
-static void convert_vbrace_to_brace(chunk_t *pc)
+static void convert_vbrace_to_brace(chunk_t* pc)
 {
    bool in_preproc = is_preproc(pc);
 
    /* Find the matching vbrace close */
-   chunk_t *vbc = nullptr;
-   chunk_t *tmp = pc;
+   chunk_t* vbc = nullptr;
+   chunk_t* tmp = pc;
    while ((tmp = chunk_get_next(tmp)) != nullptr)
    {
       /* Can't leave a preprocessor */
-      break_if ((in_preproc == true  ) &&
-                !is_preproc(tmp) )
+      break_if((in_preproc) && !is_preproc(tmp))
 
       if ((pc->brace_level == tmp->brace_level) &&
            is_type (tmp, CT_VBRACE_CLOSE      ) &&
            is_ptype(pc,  tmp->ptype           ) &&
-           are_same_pp(tmp, pc           ) )
+           are_same_pp(tmp, pc                ) )
       {
          vbc = tmp;
          break;
@@ -672,37 +665,38 @@ static void convert_all_vbrace_to_brace(void)
    LOG_FUNC_ENTRY();
 
    /* Find every vbrace open */
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       continue_if(not_type(pc, CT_VBRACE_OPEN));
 
-#if 0 /* \todo fix this */
+#if 0 /* \todo fails many tests, fix this */
       switch(pc->ptype)
       {
          case(CT_IF        ): /* fallthrough */
          case(CT_ELSE      ): /* fallthrough */
-         case(CT_ELSEIF    ): if(is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
-         case(CT_DO        ): if(is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
-         case(CT_FOR       ): if(is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
-         case(CT_WHILE     ): if(is_option_set(cpd.settings[UO_mod_full_brace_while   ].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
-         case(CT_USING_STMT): if(is_option_set(cpd.settings[UO_mod_full_brace_using   ].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
-         case(CT_FUNC_DEF  ): if(is_option_set(cpd.settings[UO_mod_full_brace_function].a, AV_ADD)) convert_vbrace_to_brace(pc); break;
+         case(CT_ELSEIF    ): if(is_opt_set(UO_mod_full_brace_if      , AV_ADD) &&
+                                 is_false(UO_mod_full_brace_if_chain)) convert_vbrace_to_brace(pc); break;
+         case(CT_DO        ): if(is_opt_set(UO_mod_full_brace_do      , AV_ADD)) convert_vbrace_to_brace(pc); break;
+         case(CT_FOR       ): if(is_opt_set(UO_mod_full_brace_for     , AV_ADD)) convert_vbrace_to_brace(pc); break;
+         case(CT_WHILE     ): if(is_opt_set(UO_mod_full_brace_while   , AV_ADD)) convert_vbrace_to_brace(pc); break;
+         case(CT_USING_STMT): if(is_opt_set(UO_mod_full_brace_using   , AV_ADD)) convert_vbrace_to_brace(pc); break;
+         case(CT_FUNC_DEF  ): if(is_opt_set(UO_mod_full_brace_fct, AV_ADD)) convert_vbrace_to_brace(pc); break;
          default:             /* do nothing */ break;
       }
 #else
       bool in_preproc = is_preproc(pc);
 
       if ((is_ptype(pc, CT_IF,
-                    CT_ELSE, CT_ELSEIF ) && (is_option_set(cpd.settings[UO_mod_full_brace_if      ].a, AV_ADD)) &&  !cpd.settings[UO_mod_full_brace_if_chain].b) ||
-           ((pc->ptype == CT_FOR       ) && (is_option_set(cpd.settings[UO_mod_full_brace_for     ].a, AV_ADD))) ||
-           ((pc->ptype == CT_DO        ) && (is_option_set(cpd.settings[UO_mod_full_brace_do      ].a, AV_ADD))) ||
-           ((pc->ptype == CT_WHILE     ) && (is_option_set(cpd.settings[UO_mod_full_brace_while   ].a, AV_ADD))) ||
-           ((pc->ptype == CT_USING_STMT) && (is_option_set(cpd.settings[UO_mod_full_brace_using   ].a, AV_ADD))) ||
-           ((pc->ptype == CT_FUNC_DEF  ) && (is_option_set(cpd.settings[UO_mod_full_brace_function].a, AV_ADD))) )
+                    CT_ELSE, CT_ELSEIF ) && is_opt_set(UO_mod_full_brace_if      , AV_ADD) &&  is_false(UO_mod_full_brace_if_chain)) ||
+           ((pc->ptype == CT_FOR       ) && is_opt_set(UO_mod_full_brace_for     , AV_ADD)) ||
+           ((pc->ptype == CT_DO        ) && is_opt_set(UO_mod_full_brace_do      , AV_ADD)) ||
+           ((pc->ptype == CT_WHILE     ) && is_opt_set(UO_mod_full_brace_while   , AV_ADD)) ||
+           ((pc->ptype == CT_USING_STMT) && is_opt_set(UO_mod_full_brace_using   , AV_ADD)) ||
+           ((pc->ptype == CT_FUNC_DEF  ) && is_opt_set(UO_mod_full_brace_fct, AV_ADD)) )
       {
          /* Find the matching vbrace close */
-         chunk_t *vbc = nullptr;
-         chunk_t *tmp = pc;
+         chunk_t* vbc = nullptr;
+         chunk_t* tmp = pc;
          while ((tmp = chunk_get_next(tmp)) != nullptr)
          {
             /* Can't leave a preprocessor */
@@ -711,7 +705,7 @@ static void convert_all_vbrace_to_brace(void)
             if ((pc->brace_level == tmp->brace_level) &&
                  is_type (tmp, CT_VBRACE_CLOSE      ) &&
                  is_ptype(pc,  tmp->ptype           ) &&
-                 are_same_pp(tmp, pc           ) )
+                 are_same_pp(tmp, pc                ) )
             {
                vbc = tmp;
                break;
@@ -806,7 +800,6 @@ void add_long_closebrace_comment(void)
 
    for (chunk_t *pc = chunk_get_head(); pc; pc = get_next_ncnl(pc))
    {
-#if 1
       switch(pc->type)
       {
          case(CT_FUNC_DEF   ):  /* fallthrough */
@@ -816,14 +809,6 @@ void add_long_closebrace_comment(void)
          case(CT_CLASS      ): cl_pc  = pc; break;
          default: /* unexpected type */     break;
       }
-#else
-      if(is_type(pc, CT_FUNC_DEF, CT_OC_MSG_DECL)) { fcn_pc = pc; }
-      /* kind of pointless, since it always has the text "switch" */
-      else if (is_type(pc, CT_SWITCH            )) { sw_pc = pc; }
-      else if (is_type(pc, CT_NAMESPACE         )) { ns_pc = pc; }
-      else if (is_type(pc, CT_CLASS             )) { cl_pc = pc; }
-#endif
-
       continue_if(not_type(pc, CT_BRACE_OPEN) || is_preproc(pc));
 
       size_t   nl_count = 0;
@@ -943,7 +928,7 @@ static void move_case_break(void)
 static chunk_t *mod_case_brace_remove(chunk_t *br_open)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *next = get_next_ncnl(br_open, scope_e::PREPROC);
+   chunk_t* next = get_next_ncnl(br_open, scope_e::PREPROC);
 
    LOG_FMT(LMCB, "%s: line %zu", __func__, br_open->orig_line);
 
@@ -956,7 +941,7 @@ static chunk_t *mod_case_brace_remove(chunk_t *br_open)
    }
 
    /* Make sure 'break', 'return', 'goto', 'case' or '}' is after the close brace */
-   chunk_t *pc = get_next_ncnl(br_close, scope_e::PREPROC);
+   chunk_t* pc = get_next_ncnl(br_close, scope_e::PREPROC);
    if (not_type(pc, 5, CT_CASE, CT_BREAK, CT_BRACE_CLOSE, CT_GOTO, CT_RETURN))
    {
       LOG_FMT(LMCB, " - after '%s'\n", (is_invalid(pc)) ? "<null>" : get_token_name(pc->type));
@@ -993,7 +978,7 @@ static chunk_t *mod_case_brace_add(chunk_t *cl_colon)
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(cl_colon), cl_colon);
 
-   chunk_t *pc = cl_colon;
+   chunk_t* pc = cl_colon;
    LOG_FMT(LMCB, "%s: line %zu", __func__, pc->orig_line);
 
    chunk_t *last = nullptr;
@@ -1065,7 +1050,7 @@ static void mod_case_brace(void)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
@@ -1076,9 +1061,9 @@ static void mod_case_brace(void)
       {
          pc = mod_case_brace_remove(pc);
       }
-      else if ((is_option_set(cpd.settings[UO_mod_case_brace].a, AV_ADD) ) &&
-                is_type      (pc,   CT_CASE_COLON                        ) &&
-                not_type  (next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE  ) )
+      else if (is_opt_set   (UO_mod_case_brace, AV_ADD) &&
+               is_type (pc,   CT_CASE_COLON) &&
+               not_type(next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE  ) )
       {
          pc = mod_case_brace_add(pc);
       }
@@ -1095,11 +1080,11 @@ static void process_if_chain(chunk_t *br_start)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(br_start));
 
-   chunk_t *braces[256];
-   int     br_cnt           = 0;
-   bool    must_have_braces = false;
+   chunk_t* braces[256];
+   int      br_cnt           = 0;
+   bool     must_have_braces = false;
 
-   chunk_t *pc = br_start;
+   chunk_t* pc = br_start;
 
    LOG_FMT(LBRCH, "%s: if starts on line %zu\n", __func__, br_start->orig_line);
 
@@ -1131,7 +1116,7 @@ static void process_if_chain(chunk_t *br_start)
       pc = get_next_ncnl(br_close, scope_e::PREPROC);
       break_if(is_invalid_or_not_type(pc, CT_ELSE));
 
-      if (cpd.settings[UO_mod_full_brace_if_chain_only].b)
+      if (is_true(UO_mod_full_brace_if_chain_only))
       {
          // There is an 'else' - we want full braces.
          must_have_braces = true;
@@ -1168,10 +1153,11 @@ static void process_if_chain(chunk_t *br_start)
       }
       LOG_FMT(LBRCH, "\n");
    }
-   else if (cpd.settings[UO_mod_full_brace_if_chain].b)
+   else if (is_true(UO_mod_full_brace_if_chain))
    {
-      // This might run because either UO_mod_full_brace_if_chain or UO_mod_full_brace_if_chain_only is used.
-      // We only want to remove braces if the first one is active.
+      /* This might run because either UO_mod_full_brace_if_chain or
+       * UO_mod_full_brace_if_chain_only is used.
+       * We only want to remove braces if the first one is active. */
       LOG_FMT(LBRCH, "%s: remove braces on lines[%d]:", __func__, br_cnt);
       while (--br_cnt >= 0)
       {
@@ -1191,7 +1177,7 @@ static void mod_full_brace_if_chain(void)
 {
    LOG_FUNC_ENTRY();
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       if(is_type (pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
          is_ptype(pc, CT_IF))

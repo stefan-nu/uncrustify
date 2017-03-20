@@ -772,7 +772,7 @@ enum uo_t
    // group: UG_codemodify, "Code modifying options (non-whitespace)"                               9
    UO_mod_full_brace_do,                         // add or remove braces on single-line do
    UO_mod_full_brace_for,                        // add or remove braces on single-line for
-   UO_mod_full_brace_function,                   // add optional braces on Pawn functions
+   UO_mod_full_brace_fct,                        // add optional braces on Pawn functions
    UO_mod_full_brace_if,                         // add or remove braces on single-line if
    UO_mod_full_brace_if_chain,                   // make all if/elseif/else statements in a chain
                                                  // be braced or not
@@ -866,43 +866,52 @@ enum uo_t
 struct group_map_value_t
 {
    ug_t                      id;
-   const char                *short_desc;
-   const char                *long_desc;
+   const char*               short_desc;
+   const char*               long_desc;
    group_map_value_options_t options;
 };
 
 
 struct option_map_value_t
 {
-   uo_t       id;
-   ug_t       group_id;
-   argtype_t  type;
-   int        min_val;
-   int        max_val;
-   const char *name;
-   const char *short_desc;
-   const char *long_desc;
+   uo_t        id;
+   ug_t        group_id;
+   argtype_t   type;
+   int         min_val;
+   int         max_val;
+   const char* name;
+   const char* short_desc;
+   const char* long_desc;
 };
 
 
 /**
  * tbd
  */
-const option_map_value_t *unc_find_option(
-   const char *name
+const option_map_value_t* unc_find_option(
+   const char* name
 );
 
 
 /**
- * tbd
+ * \brief provides the inverse option for a given uncrustify option
+ *
+ * the following option combinations are known:
+ *  UO_nl_before_if           <=> UO_nl_after_if
+ *  UO_nl_before_for          <=> UO_nl_after_for
+ *  UO_nl_before_while        <=> UO_nl_after_while
+ *  UO_nl_before_switch       <=> UO_nl_after_switch
+ *  UO_nl_before_synchronized <=> UO_nl_after_synchronized
+ *  UO_nl_before_do           <=> UO_nl_after_do
  */
 uo_t get_inverse_uo(
-   uo_t option
+   uo_t option /**< [in] uncrustify option to invert */
 );
 
 
 /**
- * \brief check if a given option is set in a variable
+ * \brief check if a given option is set in an option variable
+ *
  * In contrast to is_option it is sufficient if the required
  * option flag is set. The remaining flags are ignored.
  *
@@ -911,9 +920,30 @@ uo_t get_inverse_uo(
  * @retval true  if variable has all required option flags set
  * @retval false if at least one option was not set
  */
-bool is_option_set(
-   argval_t var, /**< [in] variable to check */
-   argval_t opt  /**< [in] Option combination to check for */
+bool is_opt_set(
+   argval_t opt, /**< [in] option variable to check */
+   argval_t val  /**< [in] option value combination to check for */
+);
+
+
+/** check if a uncrustify option has a give value
+ *
+ * \note there are several overloaded versions of this function */
+bool is_opt_set(
+   uo_t     opt, /**< [in] uncrustify option to check */
+   argval_t val /**< [in] option value to check for */
+);
+
+
+/** check if an uncrustify option is set true */
+bool is_true(
+   uo_t opt /**< [in] uncrustify option to check */
+);
+
+
+/** check if an uncrustify option is set false */
+bool is_false(
+   uo_t opt /**< [in] uncrustify option to check */
 );
 
 
@@ -923,8 +953,8 @@ bool is_option_set(
  * @return argument value with addition option added
  */
 argval_t add_option(
-   argval_t var,  /**< [in] argument value */
-   argval_t opt   /**< [in] option to add */
+   argval_t opt,  /**< [in] option variable to operate on */
+   argval_t val   /**< [in] option value to add */
 );
 
 
@@ -937,8 +967,8 @@ argval_t add_option(
  * @retval false if at least one      of the given options is set
  */
 bool is_option_unset(
-   argval_t var,  /**< [in] variable to operate with */
-   argval_t opt   /**< [in] option to check for */
+   argval_t opt,  /**< [in] option variable to check */
+   argval_t val   /**< [in] option value to check for */
 );
 
 
@@ -953,8 +983,8 @@ bool is_option_unset(
  * @retval false if option is not equal to the given value
  */
 bool is_option(
-   argval_t var, /**< [in] variable to check */
-   argval_t opt  /**< [in] Option combination to check for */
+   argval_t opt, /**< [in] option variable to check */
+   argval_t val  /**< [in] option combination to check for */
 );
 
 
@@ -967,8 +997,8 @@ bool is_option(
  * @retval false if option value is     equal to the given value
  */
 bool not_option(
-   argval_t var,  /**< [in] variable to operate with */
-   argval_t opt   /**< [in] option value to check for */
+   argval_t opt,  /**< [in] option variable to check */
+   argval_t val   /**< [in] option value to check for */
 );
 
 
@@ -981,8 +1011,8 @@ bool not_option(
  * @retval false if at least one     of the given options is not set
  */
 bool is_token_set(
-   tokenpos_t var, /**< [in] variable to check */
-   tokenpos_t opt  /**< [in] Token combination to check for */
+   tokenpos_t tok, /**< [in] token variable to check */
+   tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -995,8 +1025,8 @@ bool is_token_set(
  * @retval false if at least one      of the given options is set
  */
 bool is_token_unset(
-   tokenpos_t var, /**< [in] variable to check */
-   tokenpos_t opt  /**< [in] Token combination to check for */
+   tokenpos_t tok, /**< [in] token variable to check */
+   tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -1009,8 +1039,8 @@ bool is_token_unset(
  * @retval false if token is not equal to the given value
  */
 bool is_token(
-   tokenpos_t var, /**< [in] variable to check */
-   tokenpos_t opt  /**< [in] Token combination to check for */
+   tokenpos_t tok, /**< [in] token variable to check */
+   tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -1023,8 +1053,8 @@ bool is_token(
  * @retval false if token is     equal to the given value
  */
 bool not_token(
-   tokenpos_t var, /**< [in] variable to check */
-   tokenpos_t opt  /**< [in] Token combination to check for */
+   tokenpos_t tok, /**< [in] token variable to check */
+   tokenpos_t val  /**< [in] Token combination to check for */
 );
 
 
@@ -1037,8 +1067,8 @@ bool not_token(
  * @retval false at least one of the expected bits is missing
  */
 bool is_bit_set(
-   uint64_t var, /**< [in] variable to operate with */
-   uint64_t flag /**< [in] bit mask to check for */
+   uint64_t var, /**< [in] flag variable to check */
+   uint64_t bit  /**< [in] bit mask to check for */
 );
 
 
@@ -1051,8 +1081,8 @@ bool is_bit_set(
  * @retval false at least one of the bits in the bit mask is set
  */
 bool is_bit_unset(
-   uint64_t var, /**> [in] variable to operate with */
-   uint64_t flag /**< [in] bit mask to check for */
+   uint64_t var, /**< [in] flag variable to check */
+   uint64_t bit  /**< [in] bit mask to check for */
 );
 
 

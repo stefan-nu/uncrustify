@@ -189,7 +189,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
       LOG_FMT(LPF, " <In> ");
       pf_log(LPF, frm);
 
-      if (pc->ptype == CT_PP_IF)
+      if (is_ptype(pc, CT_PP_IF))
       {
          /* An #if pushes a copy of the current frame on the stack */
          cpd.pp_level++;
@@ -197,7 +197,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          frm->in_ifdef = CT_PP_IF;
          txt           = "if-push";
       }
-      else if (pc->ptype == CT_PP_ELSE)
+      else if (is_ptype(pc, CT_PP_ELSE))
       {
          pp_level--;
 
@@ -217,7 +217,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
          frm->in_ifdef = CT_PP_ELSE;
          txt           = "else-push";
       }
-      else if (pc->ptype == CT_PP_ENDIF)
+      else if (is_ptype(pc, CT_PP_ENDIF))
       {
          /* we may have [...] [base] [if]-[else] or [...] [base]-[if].
           * Throw out the [else]. */

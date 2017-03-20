@@ -126,7 +126,7 @@ bool is_invalid(
 
 
 /**
- * check if a chunk is invalid or has a given type
+ * check if a chunk is invalid or is valid and has a given type
  */
 bool is_invalid_or_type(
    const chunk_t* const pc, /**< [in] chunk to check */
@@ -135,7 +135,17 @@ bool is_invalid_or_type(
 
 
 /**
- * check if a chunk is invalid or has a given flag combination set
+ * check if a chunk is invalid or is valid and has a given parent type
+ */
+bool is_invalid_or_ptype(
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t ptype    /**< [in] parent type to check for */
+);
+
+
+
+/**
+ * check if a chunk is invalid or is valid and has a given flag combination set
  */
 bool is_invalid_or_flag(
    const chunk_t* const pc,
@@ -144,7 +154,7 @@ bool is_invalid_or_flag(
 
 
 /**
- * check if a chunk is invalid or has not a given type
+ * check if a chunk is invalid or is valid has not a given type
  */
 bool is_invalid_or_not_type(
    const chunk_t* const pc, /**< [in] chunk to check */
@@ -1270,9 +1280,8 @@ bool not_flag(
  * The case of the string is considered.
  */
 bool is_str(
-   chunk_t*    pc,  /**< [in] chunk to check */
-   const char* str, /**< [in] string to compare with */
-   size_t      len  /**< [in] number of characters in string to compare */
+   chunk_t*    pc, /**< [in] chunk to check */
+   const char* str /**< [in] string to compare with */
 );
 
 
@@ -1281,9 +1290,8 @@ bool is_str(
  * The case of the string is ignored.
  */
 bool is_str_case(
-   chunk_t*    pc,  /**< [in] chunk to check */
-   const char* str, /**< [in] string to compare with */
-   size_t      len  /**< [in] number of characters in string to compare */
+   chunk_t*    pc, /**< [in] chunk to check */
+   const char* str /**< [in] string to compare with */
 );
 
 

@@ -389,8 +389,8 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
         (frm->expr_count == 0)) &&
        (!is_semicolon(pc)     ) &&
          not_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-       (!is_str(pc, ")", 1)   ) &&
-       (!is_str(pc, "]", 1)   ) )
+       (!is_str(pc, ")")   ) &&
+       (!is_str(pc, "]")   ) )
    {
       const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
@@ -739,8 +739,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
    {
       if (is_type(pc, CT_IF))
       {
-         if (!cpd.settings[UO_indent_else_if].b ||
-             !is_nl(get_prev_nc(pc)))
+         if (is_false(UO_indent_else_if) || !is_nl(get_prev_nc(pc)))
          {
             /* Replace CT_ELSE with CT_IF */
             set_type(pc, CT_ELSEIF);
@@ -821,7 +820,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
       if (is_lang(cpd, LANG_CS) && is_type(pc, CT_USING_STMT) &&
-          (!cpd.settings[UO_indent_using_block].b))
+          (is_false(UO_indent_using_block)))
       {
          // don't indent the using block
       }

@@ -355,10 +355,7 @@ static void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t
 {
    LOG_FUNC_ENTRY();
 
-   if (cpd.settings[UO_align_on_tabstop].b)
-   {
-      col = align_tab_column(col);
-   }
+   if (is_true(UO_align_on_tabstop)) { col = align_tab_column(col); }
 
    if ( (cs.Len()  > 1) ||
        ((cs.Len() == 1) && align_single))
@@ -473,7 +470,7 @@ void align_all(void)
 {
    LOG_FUNC_ENTRY();
    if (cpd.settings[UO_align_typedef_span     ].u > 0) { align_typedefs(cpd.settings[UO_align_typedef_span].u); }
-   if (cpd.settings[UO_align_left_shift       ].b    ) { align_left_shift();                                    }
+   if (is_true(UO_align_left_shift)                  ) { align_left_shift();                                    }
    if (cpd.settings[UO_align_oc_msg_colon_span].u > 0) { align_oc_msg_colons();                                 }
 
    /* Align variable definitions */
@@ -495,18 +492,18 @@ void align_all(void)
 
    /* Align function prototypes */
    if ((cpd.settings[UO_align_func_proto_span].u > 0) &&
-       !cpd.settings[UO_align_mix_var_proto       ].b) { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
+       is_false(UO_align_mix_var_proto       )) { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
 
    /* Align function prototypes */
    if (cpd.settings[UO_align_oc_msg_spec_span].u > 0)  { align_oc_msg_spec(cpd.settings[UO_align_oc_msg_spec_span].u); }
 
    /* Align OC colons */
-   if (cpd.settings[UO_align_oc_decl_colon        ].b) { align_oc_decl_colon(); }
-   if (cpd.settings[UO_align_asm_colon            ].b) { align_asm_colon(); }
+   if (is_true(UO_align_oc_decl_colon)) { align_oc_decl_colon(); }
+   if (is_true(UO_align_asm_colon    )) { align_asm_colon();     }
 
    /* Align variable definitions in function prototypes */
-   if (cpd.settings[UO_align_func_params          ].b) { align_func_params(); }
-   if (cpd.settings[UO_align_same_func_call_params].b) { align_same_func_call_params(); }
+   if (is_true(UO_align_func_params          )) { align_func_params();           }
+   if (is_true(UO_align_same_func_call_params)) { align_same_func_call_params(); }
 
    /* Just in case something was aligned out of order... do it again */
    quick_align_again();
@@ -661,7 +658,7 @@ void align_preprocessor(void)
       cur_as = &as;
       if (is_type(pc, CT_MACRO_FUNC))
       {
-         if (!cpd.settings[UO_align_pp_define_together].b)
+         if (is_false(UO_align_pp_define_together))
          {
             cur_as = &asf;
          }
@@ -709,7 +706,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
    /* If we are aligning on a tabstop, we shouldn't right-align */
    AlignStack as;    // regular assigns
    as.Start(span, thresh);
-   as.m_right_align = !cpd.settings[UO_align_on_tabstop].b;
+   as.m_right_align = is_false(UO_align_on_tabstop);
 
    AlignStack vdas;  // variable def assigns
    vdas.Start(span, thresh);
@@ -1033,12 +1030,12 @@ static void align_same_func_call_params(void)
             {
                as.resize(idx + 1);
                as[idx].Start(3);
-               if (!cpd.settings[UO_align_number_left].b)
+               if (is_false(UO_align_number_left))
                {
                   if (is_type(chunks[idx], CT_NUMBER_FP, CT_POS,
                                            CT_NUMBER,    CT_NEG) )
                   {
-                     as[idx].m_right_align = !cpd.settings[UO_align_on_tabstop].b;
+                     as[idx].m_right_align = is_false(UO_align_on_tabstop);
                   }
                }
             }
@@ -1100,10 +1097,9 @@ static void align_func_proto(size_t span)
          as_br.NewLines(pc->nl_count);
       }
       else if ( is_type(pc, CT_FUNC_PROTO) ||
-               (is_type(pc, CT_FUNC_DEF  ) && cpd.settings[UO_align_single_line_func].b))
+               (is_type(pc, CT_FUNC_DEF  ) && is_true(UO_align_single_line_func)))
       {
-         if (is_ptype(pc, CT_OPERATOR) &&
-             cpd.settings[UO_align_on_operator].b)
+         if (is_ptype(pc, CT_OPERATOR) && is_true(UO_align_on_operator))
          {
             toadd = get_prev_ncnl(pc);
          }
@@ -1112,8 +1108,7 @@ static void align_func_proto(size_t span)
             toadd = pc;
          }
          as.Add(step_back_over_member(toadd));
-         look_bro = (is_type(pc, CT_FUNC_DEF) &&
-                    cpd.settings[UO_align_single_line_brace].b);
+         look_bro = (is_type(pc, CT_FUNC_DEF) && is_true(UO_align_single_line_brace));
       }
       else if ((look_bro == true) &&
                is_type(pc, CT_BRACE_OPEN) &&
@@ -1167,7 +1162,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
            start->text(), get_token_name(start->type), start->orig_line);
 
    uint64_t align_mask = PCF_IN_FCN_DEF | PCF_VAR_1ST;
-   if (!cpd.settings[UO_align_var_def_inline].b)
+   if (is_false(UO_align_var_def_inline))
    {
       align_mask |= PCF_VAR_INLINE;
    }
@@ -1194,7 +1189,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
    bool       fp_look_bro   = false;
    bool       did_this_line = false;
-   const bool fp_active     = cpd.settings[UO_align_mix_var_proto].b;
+   const bool fp_active     = is_true(UO_align_mix_var_proto);
    chunk_t    *pc           = chunk_get_next(start);
    while ((is_valid(pc)) &&
           ((pc->level >= start->level) || (pc->level == 0)))
@@ -1217,15 +1212,13 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
       if ((fp_active == true) &&
          !is_flag(pc, PCF_IN_CLASS_BASE))
       {
-         if (is_type(pc, CT_FUNC_PROTO, CT_FUNC_DEF) &&
-              cpd.settings[UO_align_single_line_func].b)
+         if (is_type(pc, CT_FUNC_PROTO, CT_FUNC_DEF) && is_true(UO_align_single_line_func))
          {
             LOG_FMT(LAVDB, "    add=[%s] line=%zu col=%zu level=%zu\n",
                     pc->text(), pc->orig_line, pc->orig_col, pc->level);
 
             as.Add(pc);
-            fp_look_bro = (is_type(pc, CT_FUNC_DEF)) &&
-                          cpd.settings[UO_align_single_line_brace].b;
+            fp_look_bro = (is_type(pc, CT_FUNC_DEF)) && is_true(UO_align_single_line_brace);
          }
          else if ((fp_look_bro == true     ) &&
                   is_type(pc, CT_BRACE_OPEN) &&
@@ -1314,7 +1307,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 
             as.Add(step_back_over_member(pc));
 
-            if (cpd.settings[UO_align_var_def_colon].b)
+            if (is_true(UO_align_var_def_colon))
             {
                next = get_next_nc(pc);
                if (is_type(next, CT_BIT_COLON))
@@ -1322,7 +1315,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
                   as_bc.Add(next);
                }
             }
-            if (cpd.settings[UO_align_var_def_attribute].b)
+            if (is_true(UO_align_var_def_attribute))
             {
                next = pc;
                while ((next = get_next_nc(next)) != nullptr)
@@ -1400,7 +1393,7 @@ static comment_align_e get_comment_align_type(chunk_t *cmt)
    chunk_t         *prev;
    comment_align_e cmt_type = comment_align_e::REGULAR;
 
-   if (!cpd.settings[UO_align_right_cmt_mix].b &&
+   if (is_false(UO_align_right_cmt_mix) &&
        ((prev = chunk_get_prev(cmt)) != nullptr))
    {
       if(is_type(prev, CT_PP_ENDIF, CT_PP_ELSE, CT_ELSE, CT_BRACE_CLOSE))
@@ -1662,9 +1655,9 @@ static void align_init_brace(chunk_t *start)
    /* debug dump the current frame */
    align_log_al(LALBR, start->orig_line);
 
-   if (cpd.settings[UO_align_on_tabstop].b &&
-       (cpd.al_cnt >= 1                  ) &&
-       (cpd.al[0].type == CT_ASSIGN      ) )
+   if (is_true(UO_align_on_tabstop ) &&
+       (cpd.al_cnt >= 1            ) &&
+       (cpd.al[0].type == CT_ASSIGN) )
    {
       cpd.al[0].col = align_tab_column(cpd.al[0].col);
    }
@@ -1728,7 +1721,7 @@ static void align_init_brace(chunk_t *start)
                   //        next->text(), cpd.al[idx].col, cpd.al[idx].len);
 
                   if ((idx < (cpd.al_cnt - 1)) &&
-                      cpd.settings[UO_align_number_left].b &&
+                      is_true(UO_align_number_left) &&
                       (is_type(next, CT_NUMBER_FP, CT_NUMBER, CT_POS, CT_NEG)))
                   {
                      /* Need to wait until the next match to indent numbers */
@@ -1748,8 +1741,7 @@ static void align_init_brace(chunk_t *start)
                set_flags(pc, (uint64_t)PCF_WAS_ALIGNED);
 
                /* see if we need to right-align a number */
-               if ((idx < (cpd.al_cnt - 1)) &&
-                   cpd.settings[UO_align_number_left].b)
+               if ((idx < (cpd.al_cnt - 1)) && is_true(UO_align_number_left))
                {
                   next = chunk_get_next(pc);
                   if (!is_nl(next) &&
@@ -1854,7 +1846,7 @@ static void align_left_shift(void)
          as.Flush();
          start = nullptr;
       }
-      else if (not_flag(pc, PCF_IN_ENUM) && is_str(pc, "<<", 2))
+      else if (not_flag(pc, PCF_IN_ENUM) && is_str(pc, "<<"))
       {
          if (is_ptype(pc, CT_OPERATOR))
          {
@@ -1913,7 +1905,7 @@ static void align_oc_msg_colon(chunk_t *so)
 
    AlignStack nas;   /* for the parameter tag */
    nas.Reset();
-   nas.m_right_align = !cpd.settings[UO_align_on_tabstop].b;
+   nas.m_right_align = is_false(UO_align_on_tabstop);
 
    AlignStack cas;   /* for the colons */
    const size_t     span = cpd.settings[UO_align_oc_msg_colon_span].u;
@@ -1955,8 +1947,8 @@ static void align_oc_msg_colon(chunk_t *so)
       pc = chunk_get_next(pc, scope_e::PREPROC);
    }
 
-   nas.m_skip_first = !cpd.settings[UO_align_oc_msg_colon_first].b;
-   cas.m_skip_first = !cpd.settings[UO_align_oc_msg_colon_first].b;
+   nas.m_skip_first = is_false(UO_align_oc_msg_colon_first);
+   cas.m_skip_first = is_false(UO_align_oc_msg_colon_first);
 
    /* find the longest args that isn't the first one */
    size_t  first_len = 0;
@@ -1984,7 +1976,7 @@ static void align_oc_msg_colon(chunk_t *so)
    const size_t indent_size = cpd.settings[UO_indent_columns].u;
    /* Align with first colon if possible by removing spaces */
    if (is_valid(longest) &&
-       cpd.settings[UO_indent_oc_msg_prioritize_first_colon].b &&
+       is_true(UO_indent_oc_msg_prioritize_first_colon) &&
        (len_diff > 0) &&
        ((longest->column - len_diff) > (longest->brace_level * indent_size)))
    {
@@ -2035,7 +2027,7 @@ static void align_oc_decl_colon(void)
    AlignStack nas;   /* for the parameter label */
    cas.Start(4);
    nas.Start(4);
-   nas.m_right_align = !cpd.settings[UO_align_on_tabstop].b;
+   nas.m_right_align = is_false(UO_align_on_tabstop);
 
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))

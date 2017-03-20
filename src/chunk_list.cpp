@@ -265,6 +265,12 @@ bool is_invalid_or_type(const chunk_t* const pc, const c_token_t type)
 }
 
 
+bool is_invalid_or_ptype(const chunk_t* const pc, const c_token_t ptype)
+{
+   return (is_invalid(pc) || is_ptype(pc, ptype));
+}
+
+
 bool is_invalid_or_flag(const chunk_t* const pc, const uint64_t flags)
 {
    return (is_invalid(pc) || is_flag(pc, flags));
@@ -919,16 +925,16 @@ bool is_forin(chunk_t* pc)
 bool is_type_and_ptype(const chunk_t* const pc, const c_token_t type,
                                                 const c_token_t ptype)
 {
-   return( is_valid(pc) && (pc->type  == type ) &&
-                           (pc->ptype == ptype) );
+   return(is_valid(pc) && (pc->type  == type ) &&
+                          (pc->ptype == ptype) );
 }
 
 
 bool is_type_and_not_ptype(const chunk_t* const pc, const c_token_t type,
                                                     const c_token_t ptype)
 {
-   return( is_valid(pc) && (pc->type  == type ) &&
-                           (pc->ptype != ptype) );
+   return(is_valid(pc) && (pc->type  == type ) &&
+                          (pc->ptype != ptype) );
 }
 
 
@@ -1029,8 +1035,7 @@ bool is_type(const chunk_t* const pc, const c_token_t type)
 bool is_type(const chunk_t* const pc, const c_token_t type1,
                                       const c_token_t type2)
 {
-   return( is_valid(pc) &&
-          ((pc->type == type1) || (pc->type == type2)) );
+   return(is_valid(pc) && ((pc->type == type1) || (pc->type == type2)));
 }
 
 
@@ -1077,8 +1082,7 @@ bool is_ptype(const chunk_t* const pc, const c_token_t type1,
 bool is_only_first_type(const chunk_t* pc1, const c_token_t type1,
                         const chunk_t* pc2, const c_token_t type2)
 {
-   return(is_type (pc1, type1) &&
-          not_type(pc2, type2) );
+   return(is_type (pc1, type1) && not_type(pc2, type2));
 
 }
 
@@ -1413,17 +1417,20 @@ bool is_paren_close(chunk_t* pc)
 }
 
 
-bool is_str(chunk_t* pc, const char *str, const size_t len)
+bool is_str(chunk_t* pc, const char* str)
 {
-   return(is_valid(pc) &&  (pc->len() == len) && /* token size equals size parameter */
+   retval_if(ptrs_are_invalid(pc, str), false);
+   size_t len = strlen(str);
+   return((pc->len() == len) && /* string length has to be equal */
           (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
 
 
-/* \todo determine string size and remove len parameter */
-bool is_str_case(chunk_t* pc, const char *str, const size_t len)
+bool is_str_case(chunk_t* pc, const char* str)
 {
-   return(is_valid(pc) &&  (pc->len() == len) && /* token size equals size parameter */
+   retval_if(ptrs_are_invalid(pc, str), false);
+   size_t len = strlen(str);
+   return((pc->len() == len) && /* string length has to be equal */
           (strncasecmp(pc->text(), str, len) == 0)); /* strings are equal ignoring case */
 }
 
@@ -1456,7 +1463,7 @@ bool is_addr(chunk_t* pc)
        ( (pc->type   == CT_BYREF ) ||
         ((pc->len()  ==  1       ) &&
          (pc->str[0] == '&'      ) &&
-         (pc->type   != CT_OPERATOR_VAL) )))
+         not_type(pc, CT_OPERATOR_VAL) )))
    {
       chunk_t* prev = chunk_get_prev(pc);
 
@@ -1472,14 +1479,15 @@ bool is_addr(chunk_t* pc)
 }
 
 
-// ms compilers for C++/CLI and WinRT use '^' instead of '*' for marking up reference types vs pointer types
+/* ms compilers for C++/CLI and WinRT use '^' instead of '*'
+ * for marking up reference types vs pointer types */
 bool is_msref(chunk_t* pc)
 {
-   return(is_lang(cpd, LANG_CPP) &&
-          (is_valid(pc)) &&
-          (pc->len() == 1) &&
-          (pc->str[0] == '^'            ) &&
-          (pc->type   != CT_OPERATOR_VAL) );
+   return(is_lang(cpd, LANG_CPP       ) &&
+          (is_valid(pc)               ) &&
+          (pc->len()  == 1            ) &&
+          (pc->str[0] == '^'          ) &&
+          not_type(pc, CT_OPERATOR_VAL) );
 }
 
 

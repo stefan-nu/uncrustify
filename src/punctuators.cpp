@@ -142,7 +142,7 @@ const chunk_tag_t *find_punctuator(const char *str, lang_t lang_flags)
          if ((p_tab->tag != nullptr) &&
              (p_tab->tag->lang_flags & lang_flags) &&
              (((p_tab->tag->lang_flags & FLAG_DIG) == 0) ||
-              cpd.settings[UO_enable_digraphs].b))
+              is_true(UO_enable_digraphs)))
          {
             p_match = p_tab->tag;
          }

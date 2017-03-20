@@ -129,8 +129,7 @@ void AlignStack::Add(chunk_t* start, size_t seqnum)
        * The '*' and '&' can float between the two.
        *
        * If align_on_tabstop=true, then SS_DANGLE is changed to SS_INCLUDE. */
-      if (cpd.settings[UO_align_on_tabstop].b &&
-          (m_star_style == SS_DANGLE))
+      if (is_true(UO_align_on_tabstop) && (m_star_style == SS_DANGLE))
       {
          m_star_style = SS_INCLUDE;
       }
@@ -183,7 +182,7 @@ void AlignStack::Add(chunk_t* start, size_t seqnum)
 
       chunk_t* tmp;
       /* Tighten down the spacing between ref and start */
-      if (cpd.settings[UO_align_keep_extra_space].b == false)
+      if (is_false(UO_align_keep_extra_space))
       {
          size_t tmp_col = ref->column;
          tmp = ref;
@@ -367,8 +366,7 @@ void AlignStack::Flush(void)
       if (endcol > m_max_col) { m_max_col = endcol;    }
    }
 
-   if (cpd.settings[UO_align_on_tabstop].b &&
-       (m_aligned.Len() > 1))
+   if (is_true(UO_align_on_tabstop) && (m_aligned.Len() > 1))
    {
       m_max_col = align_tab_column(m_max_col);
    }

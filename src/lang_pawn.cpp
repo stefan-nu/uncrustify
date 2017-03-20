@@ -80,7 +80,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 
    chunk_t chunk     = *pc;
    chunk.type        = CT_VSEMICOLON;
-   chunk.str         = cpd.settings[UO_mod_pawn_semicolon].b ? ";" : "";
+   chunk.str         = is_true(UO_mod_pawn_semicolon) ? ";" : "";
    chunk.column     += pc->len();
    chunk.ptype = CT_NONE;
 
@@ -94,7 +94,7 @@ chunk_t *pawn_add_vsemi_after(chunk_t *pc)
 void pawn_scrub_vsemi(void)
 {
    LOG_FUNC_ENTRY();
-   return_if(!cpd.settings[UO_mod_pawn_semicolon].b);
+   return_if(is_false(UO_mod_pawn_semicolon));
 
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
@@ -124,9 +124,9 @@ static bool pawn_continued(chunk_t *pc, size_t br_level)
          is_ptype(pc, 9, CT_IF,    CT_ELSE,   CT_ELSEIF,   CT_FUNC_DEF,
                          CT_FOR,   CT_WHILE,  CT_SWITCH,   CT_DO, CT_ENUM) ||
        is_flag(pc, (PCF_IN_ENUM | PCF_IN_STRUCT)) ||
-       is_str(pc, ":", 1) ||
-       is_str(pc, "+", 1) ||
-       is_str(pc, "-", 1) )
+       is_str(pc, ":") ||
+       is_str(pc, "+") ||
+       is_str(pc, "-") )
    {
       return(true);
    }
@@ -165,8 +165,8 @@ static chunk_t *pawn_process_line(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
 
-   if(is_type(start, CT_NEW    ) ||
-      is_str (start, "const", 5) )
+   if(is_type(start, CT_NEW ) ||
+      is_str (start, "const") )
    {
       return(pawn_process_variable(start));
    }
@@ -179,7 +179,7 @@ static chunk_t *pawn_process_line(chunk_t *start)
    }
    chunk_t *pc = start;
    while (((pc = get_next_nc(pc)) != nullptr) &&
-          !is_str(pc, "(", 1) &&
+          !is_str(pc, "(") &&
           not_type(pc, CT_ASSIGN, CT_NEWLINE))
    {
       if ((pc->level == 0) &&
@@ -320,14 +320,14 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    }
 
    /* See if there is a state clause after the function */
-   if (is_str(last, "<", 1))
+   if (is_str(last, "<"))
    {
       LOG_FMT(LPFUNC, "%s: %zu] '%s' has state angle open %s\n",
               __func__, pc->orig_line, pc->text(), get_token_name(last->type));
 
       set_type_and_ptype(last, CT_ANGLE_OPEN, CT_FUNC_DEF);
       while (((last = chunk_get_next(last)) != nullptr) &&
-             !is_str(last, ">", 1))
+             !is_str(last, ">"))
       {
          /* do nothing just search, \todo use search_chunk */
       }
