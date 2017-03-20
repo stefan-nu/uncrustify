@@ -191,28 +191,32 @@ void log_str(log_sev_t sev, const char *str, size_t len)
 }
 
 
-void log_fmt(log_sev_t sev, const char *fmt, ...)
+void log_fmt(log_sev_t sev, const char* fmt, ...)
 {
    return_if(ptr_is_invalid(fmt) || !log_sev_on(sev));
 
-   /* Some implementation of vsnprintf() return the number of characters
-    * that would have been stored if the buffer was large enough instead of
-    * the number of characters actually stored. */
+   /* get number of characters that fit into log buffer */
    size_t cap = log_start(sev);
 
    /* Add on the variable log parameters to the log string */
-   va_list args;
-   va_start(args, fmt);
-   size_t  len = static_cast<size_t>(vsnprintf(&g_log.buf[g_log.buf_len], cap, fmt, args));
-   va_end(args);
-
+   va_list args;        /* determine list of arguments ... */
+   va_start(args, fmt); /* ... that follow after parameter fmt */
+   int len = vsnprintf(&g_log.buf[g_log.buf_len], cap, fmt, args);
    if (len > 0)
    {
-      len = min(len, cap);
-      g_log.buf_len           += len;
-      g_log.buf[g_log.buf_len] = 0;  /* add string termination character */
+      /* Some implementation of vsnprintf() return the number of characters
+       * that would have been stored if the buffer was large enough instead
+       * of the number of characters actually stored. Thus limit the len
+       * value to the maximal number of written characters */
+      len = min(len, (int)cap);
+      g_log.buf_len += len;            /* update the buffer usage count */
+      g_log.buf[g_log.buf_len] = '\0'; /* ensure string is terminated */
    }
-
+   else if (len < 0)
+   {
+      /* writing the log message failed */
+   }
+   va_end(args);
    log_end();
 }
 

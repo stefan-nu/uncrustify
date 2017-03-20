@@ -22,78 +22,64 @@
 /**
  * Initializes the log subsystem - call this first.
  * This function sets the log stream and enables the top 3 sevs (0-2).
- *
- * @param log_file   nullptr for stderr or the FILE stream for logs.
  */
 void log_init(
-   FILE *log_file /**< [in]  */
+   FILE* log_file /**< [in] nullptr for stderr or the FILE stream for logs */
 );
 
 
 /**
  * Show or hide the severity prefix "<1>"
- *
- * @param true=show  false=hide
  */
 void log_show_sev(
-   bool show /**< [in]  */
+   bool show /**< [in] true=show  false=hide */
 );
 
 
 /**
  * Returns whether a log severity is active.
  *
- * @param sev  The severity
  * @return     true/false
  */
 bool log_sev_on(
-   log_sev_t sev /**< [in]  */
+   log_sev_t sev /**< [in] severity log level */
 );
 
 
 /**
  * Sets a log sev on or off
  *
- * @param sev  The severity
  * @return     true/false
  */
 void log_set_sev(
-   log_sev_t sev, /**< [in]  */
-   bool value     /**< [in]  */
+   log_sev_t sev, /**< [in] severity log level to modify */
+   bool value     /**< [in] new value for severity log level */
 );
 
 
 /**
  * Sets the log mask
- *
- * @param mask The mask to copy
  */
 void log_set_mask(
-   const log_mask_t &mask /**< [in]  */
+   const log_mask_t &mask /**< [in] The mask to copy */
 );
 
 
 /**
  * Gets the log mask
- *
- * @param mask Where to copy the mask
  */
 void log_get_mask(
-   log_mask_t &mask /**< [in]  */
+   log_mask_t &mask /**< [in] Where to copy the mask */
 );
 
 
 /**
  * Logs a string of known length
- *
- * @param sev  The severity
- * @param str  The pointer to the string
- * @param len  The length of the string from strlen(str)
  */
 void log_str(
-   log_sev_t sev,   /**< [in]  */
-   const char *str, /**< [in]  */
-   size_t len       /**< [in]  */
+   log_sev_t   sev, /**< [in] severity */
+   const char* str, /**< [in] pointer to the string */
+   size_t      len  /**< [in] length of the string from strlen(str) */
 );
 
 
@@ -108,14 +94,12 @@ void log_str(
 
 /**
  * Logs a formatted string -- similar to printf()
- *
- * @param sev     The severity
- * @param fmt     The format string
- * @param ...     Additional arguments
  */
 void log_fmt(
-   log_sev_t sev,
-   const char *fmt, ...)
+   log_sev_t   sev, /**< [in] severity */
+   const char* fmt, /**< [in] format string */
+   ...              /**< [in] Additional arguments */
+)
 __attribute__((format(printf, 2, 3)));
 
 #ifdef NO_MACRO_VARARG
@@ -129,15 +113,11 @@ __attribute__((format(printf, 2, 3)));
 
 /**
  * Dumps hex characters inline, no newlines inserted
- *
- * @param sev     The severity
- * @param data    The data to log
- * @param len     The number of bytes to log
  */
 void log_hex(
-   log_sev_t sev,     /**< [in]  */
-   const void *vdata, /**< [in]  */
-   size_t len         /**< [in]  */
+   log_sev_t sev,     /**< [in] severity */
+   const void *vdata, /**< [in] data to log */
+   size_t len         /**< [in] number of bytes to log */
 );
 
 
@@ -154,15 +134,11 @@ void log_hex(
  *  0     ^6                                            54^ ^56           72^
  *
  *  nnn is the line number or index/16
- *
- * @param sev     The severity
- * @param data    The data to log
- * @param len     The number of bytes to log
  */
 void log_hex_blk(
-   log_sev_t sev,    /**< [in]  */
-   const void *data, /**< [in]  */
-   size_t len        /**< [in]  */
+   log_sev_t sev,    /**< [in] severity */
+   const void *data, /**< [in] data to log */
+   size_t len        /**< [in] number of bytes to log */
 );
 
 
@@ -181,7 +157,6 @@ void log_hex_blk(
 static inline char to_hex_char(int nibble)
 {
    const char *hex_string = "0123456789abcdef";
-
    return(hex_string[nibble & 0x0F]);
 }
 
@@ -232,10 +207,10 @@ void log_func_call(
  * tbd
  */
 void log_func_stack(
-   log_sev_t sev,
-   const char *prefix = "",
-   const char *suffix = "\n",
-   size_t skip_cnt = 0
+   log_sev_t   sev,           /**< [in]  */
+   const char* prefix = "",   /**< [in]  */
+   const char* suffix = "\n", /**< [in]  */
+   size_t      skip_cnt = 0   /**< [in]  */
 );
 
 
