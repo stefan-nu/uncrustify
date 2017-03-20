@@ -55,7 +55,7 @@ void align_struct_initializers(void);
  * @return        pointer the last item looked at (nullptr/newline/comment)
  */
 chunk_t *align_nl_cont(
-   chunk_t *start /**< [in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -66,11 +66,11 @@ chunk_t *align_nl_cont(
  * For variable definitions, only consider the '=' for the first variable.
  * Otherwise, only look at the first '=' on the line.
  */
-chunk_t *align_assign(
-   chunk_t* first,     /**< [in]  */
-   size_t   span,      /**< [in]  */
-   size_t   thresh,    /**< [in]  */
-   size_t*  p_nl_count /**< [in]  */
+chunk_t* align_assign(
+   chunk_t*  first,     /**< [in]  */
+   uint32_t  span,      /**< [in]  */
+   uint32_t  thresh,    /**< [in]  */
+   uint32_t* p_nl_count /**< [in]  */
 );
 
 

@@ -257,8 +257,8 @@ void sort_imports(void)
          p_imp  = nullptr;
          p_last = nullptr;
       }
-      else if( (is_type(pc, CT_IMPORT) && is_true(UO_mod_sort_import)) ||
-               (is_type(pc, CT_USING ) && is_true(UO_mod_sort_using )) )
+      else if((is_type(pc, CT_IMPORT) && is_true(UO_mod_sort_import)) ||
+              (is_type(pc, CT_USING ) && is_true(UO_mod_sort_using )) )
       {
          p_imp = chunk_get_next(pc);
       }

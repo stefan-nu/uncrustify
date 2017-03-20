@@ -88,7 +88,7 @@ struct chunk_t;   /**< forward declaration */
 struct indent_ptr_t
 {
    chunk_t* ref;   /**<  */
-   int      delta;  /**<  */
+   int32_t  delta;  /**<  */
 };
 
 
@@ -99,12 +99,12 @@ struct paren_stack_entry_t
    size_t        level;        /**< Level of opening type */
    size_t        open_line;    /**< line that opening symbol is on */
    chunk_t*      pc;           /**< Chunk that opened the level */
-   int           brace_indent; /**< indent for braces - may not relate to indent */
+   int32_t       brace_indent; /**< indent for braces - may not relate to indent */
    size_t        indent;       /**< indent level (depends on use) */
    size_t        indent_tmp;   /**< temporary indent level (depends on use) */
    size_t        indent_tab;   /**< the 'tab' indent (always <= real column) */
    bool          indent_cont;  /**< indent_continue was applied */
-   int           ref;          /**<  */
+   int32_t       ref;          /**<  */
    c_token_t     parent;       /**< if, for, function, etc */
    brace_stage_e stage;        /**<  */
    bool          in_preproc;   /**< whether this was created in a preprocessor */
@@ -117,20 +117,20 @@ struct paren_stack_entry_t
 /* TODO: put this on a linked list */
 struct parse_frame_t
 {
-   int                 ref_no;
+   int32_t             ref_no;
    size_t              level;           /**< level of parens/square/angle/brace */
    size_t              brace_level;     /**< level of brace/vbrace */
    size_t              pp_level;        /**< level of preproc #if stuff */
 
-   int                 sparen_count;    /**<  */
+   int32_t             sparen_count;    /**<  */
 
    paren_stack_entry_t pse[128];        /**<  */
    size_t              pse_tos;         /**<  */
-   int                 paren_count;     /**<  */
+   int32_t             paren_count;     /**<  */
 
    c_token_t           in_ifdef;        /**<  */
-   int                 stmt_count;      /**<  */
-   int                 expr_count;      /**<  */
+   int32_t             stmt_count;      /**<  */
+   int32_t             expr_count;      /**<  */
 
    bool                maybe_decl;      /**<  */
    bool                maybe_cast;      /**<  */
@@ -206,7 +206,7 @@ typedef struct align_ptr_s
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
     * A right-aligned word would be a positive value. */
-   int         col_adj;     /**<  */
+   int32_t     col_adj;     /**<  */
    chunk_t*    ref;         /**<  */
    chunk_t*    start;       /**<  */
 }align_ptr_t;
@@ -265,19 +265,19 @@ struct chunk_t
    indent_ptr_t indent;        /**<  */
    c_token_t    type;          /**< type of the chunk itself */
    c_token_t    ptype;         /**< type of the parent chunk usually CT_NONE */
-   size_t       orig_line;     /**< line number of chunk in input file */
-   size_t       orig_col;      /**< column where chunk started in input file, is always > 0 */
+   uint32_t     orig_line;     /**< line number of chunk in input file */
+   uint32_t     orig_col;      /**< column where chunk started in input file, is always > 0 */
    uint32_t     orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
    uint32_t     orig_prev_sp;  /**< whitespace before this token */
    uint64_t     flags;         /**< see PCF_xxx */
-   size_t       column;        /**< column of chunk */
-   size_t       column_indent; /**< if 1st on a line, set to the 'indent'
+   uint32_t     column;        /**< column of chunk */
+   uint32_t     column_indent; /**< if 1st on a line, set to the 'indent'
                                 *   column, which may be less than the real column
                                 *   used to indent with tabs */
-   size_t       nl_count;      /**< number of newlines in CT_NEWLINE */
-   size_t       level;         /**< nest level in {, (, or [ */
-   size_t       brace_level;   /**< nest level in braces only */
-   size_t       pp_level;      /**< nest level in preprocessor */
+   uint32_t     nl_count;      /**< number of newlines in CT_NEWLINE */
+   uint32_t     level;         /**< nest level in {, (, or [ */
+   uint32_t     brace_level;   /**< nest level in braces only */
+   uint32_t     pp_level;      /**< nest level in preprocessor */
    bool         after_tab;     /**< whether this token was after a tab */
    unc_text     str;           /**< the token text */
 };
@@ -394,9 +394,9 @@ struct lookup_entry_t
 
 struct align_t
 {
-   size_t    col;    /**<  */
+   uint32_t  col;    /**<  */
    c_token_t type;   /**<  */
-   size_t    len;    /**< of the token + space */
+   uint32_t  len;    /**< of the token + space */
 };
 
 
@@ -432,10 +432,10 @@ struct cp_data_t
 {
    deque<uint8_t>* bout;           /**<  */
    FILE*           fout;           /**<  */
-   int             last_char;      /**<  */
+   int32_t         last_char;      /**<  */
    bool            do_check;       /**<  */
    unc_stage_e     unc_stage;      /**<  */
-   int             check_fail_cnt; /**< total failures */
+   int32_t         check_fail_cnt; /**< total failures */
    bool            if_changed;     /**<  */
 
    uint32_t        error_count;    /**< counts how many errors occurred so far */
@@ -456,7 +456,7 @@ struct cp_data_t
    uint32_t        column;         /**< column for parsing */
    uint32_t        spaces;         /**< space count on output */
 
-   int             ifdef_over_whole_file;
+   int32_t         ifdef_over_whole_file;
 
    bool            frag;           /**< activates code fragment option */
    uint32_t        frag_cols;      /**<  */
@@ -469,7 +469,7 @@ struct cp_data_t
 
    bool            did_newline;         /**< flag indicates if a newline was added or converted */
    c_token_t       is_preproc;          /**<  */
-   int             preproc_ncnl_count;  /**<  */
+   int32_t         preproc_ncnl_count;  /**<  */
    bool            output_trailspace;   /**<  */
    bool            output_tab_as_space; /**<  */
 
@@ -477,8 +477,8 @@ struct cp_data_t
    char_encoding_e enc;                 /**<  */
 
    /* bumped up when a line is split or indented */
-   int             changes;             /**<  */
-   int             pass_count;          /**<  */
+   int32_t         changes;             /**<  */
+   int32_t         pass_count;          /**<  */
 
    align_t         al[80];              /**<  */
    size_t          al_cnt;              /**<  */
@@ -490,7 +490,7 @@ struct cp_data_t
    op_val_t        settings[UO_option_count]; /**< array with all uncrustify options */
 
    parse_frame_t   frames[16];                /**<  */
-   int             frame_count;               /**<  */
+   int32_t         frame_count;               /**<  */
    size_t          pp_level;                  /**< \todo can this ever be -1 */
 
    /* the default values for settings */

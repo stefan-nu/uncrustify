@@ -18,13 +18,13 @@ class AlignStack
 public:
    ChunkStack   m_aligned;     /**< contains the token that is aligned */
    ChunkStack   m_skipped;     /**< contains the tokens sent to Add() */
-   size_t       m_max_col;     /**<  */
-   size_t       m_min_col;     /**<  */
-   size_t       m_span;        /**<  */
-   size_t       m_thresh;      /**<  */
-   size_t       m_seqnum;      /**<  */
-   size_t       m_nl_seqnum;   /**<  */
-   size_t       m_gap;         /**<  */
+   uint32_t     m_max_col;     /**<  */
+   uint32_t     m_min_col;     /**<  */
+   uint32_t     m_span;        /**<  */
+   uint32_t     m_thresh;      /**<  */
+   uint32_t     m_seqnum;      /**<  */
+   uint32_t     m_nl_seqnum;   /**<  */
+   uint32_t     m_gap;         /**<  */
    bool         m_right_align; /**<  */
    StarStyle_t  m_star_style;  /**<  */
    StarStyle_t  m_amp_style;   /**<  */
@@ -72,8 +72,8 @@ public:
     * Resets the two ChunkLists and zeroes local variables
     */
    void Start(
-      size_t span,         /**< [in] the row span limit */
-      size_t threshold = 0 /**< [in] column threshold */
+      uint32_t span,         /**< [in] the row span limit */
+      uint32_t threshold = 0 /**< [in] column threshold */
    );
 
 
@@ -81,8 +81,8 @@ public:
     * Adds an entry to the appropriate stack
     */
    void Add(
-      chunk_t *pc,       /**< [in] chunk to add */
-      size_t  seqnum = 0 /**< [in] Optional sequence number (0=assign one) */
+      chunk_t* pc,        /**< [in] chunk to add */
+      uint32_t seqnum = 0 /**< [in] Optional sequence number (0=assign one) */
    );
 
 
@@ -90,7 +90,7 @@ public:
     * Adds some newline and calls Flush() if needed
     */
    void NewLines(
-      size_t cnt  /**< [in]  */
+      uint32_t cnt  /**< [in]  */
    );
 
 
@@ -114,7 +114,7 @@ public:
 
 
 protected:
-   size_t     m_last_added; /**< 0=none, 1=aligned, 2=skipped */
+   uint32_t   m_last_added; /**< 0=none, 1=aligned, 2=skipped */
    ChunkStack m_scratch;    /**< used in ReAddSkipped() */
 
    /**

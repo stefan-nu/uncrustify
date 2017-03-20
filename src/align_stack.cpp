@@ -14,7 +14,7 @@
 #include "tabulator.h"
 
 
-void AlignStack::Start(size_t span, size_t thresh)
+void AlignStack::Start(uint32_t span, uint32_t thresh)
 {
    LOG_FMT(LAS, "Start(%zu, %zu)\n", span, thresh);
 
@@ -56,7 +56,7 @@ void AlignStack::ReAddSkipped(void)
 }
 
 
-void AlignStack::Add(chunk_t* start, size_t seqnum)
+void AlignStack::Add(chunk_t* start, uint32_t seqnum)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(start));
@@ -184,7 +184,7 @@ void AlignStack::Add(chunk_t* start, size_t seqnum)
       /* Tighten down the spacing between ref and start */
       if (is_false(UO_align_keep_extra_space))
       {
-         size_t tmp_col = ref->column;
+         uint32_t tmp_col = ref->column;
          tmp = ref;
          while (tmp != start)
          {
@@ -200,8 +200,8 @@ void AlignStack::Add(chunk_t* start, size_t seqnum)
       }
 
       /* Set the column adjust and gap */
-      size_t col_adj = 0; /* Amount the column is shifted for 'dangle' mode */
-      size_t gap     = 0;
+      uint32_t col_adj = 0; /* Amount the column is shifted for 'dangle' mode */
+      uint32_t gap     = 0;
       if (ref != ali)
       {
          gap = ali->column - (ref->column + ref->len());
@@ -326,8 +326,8 @@ void AlignStack::Flush(void)
       pc = m_aligned.Get(idx)->m_pc;
 
       /* Set the column adjust and gap */
-      int    col_adj = 0;
-      size_t gap     = 0u;
+      int      col_adj = 0;
+      uint32_t gap     = 0u;
       if (pc != pc->align.ref)
       {
          gap = pc->column - (pc->align.ref->column + pc->align.ref->len());
@@ -379,7 +379,7 @@ void AlignStack::Flush(void)
       assert(ptr_is_valid(ce));
       pc = ce->m_pc;
 
-      const size_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
+      const uint32_t tmp_col = (size_t)((int)m_max_col - pc->align.col_adj);
       if (idx == 0)
       {
          if ((m_skip_first == true   ) &&
@@ -408,7 +408,7 @@ void AlignStack::Flush(void)
       align_to_column(pc, tmp_col);
    }
 
-   size_t last_seqnum = 0;
+   uint32_t last_seqnum = 0;
    if (ptr_is_valid(ce))
    {
       last_seqnum = ce->m_seqnum;

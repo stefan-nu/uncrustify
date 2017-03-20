@@ -437,9 +437,6 @@ static bool sp_cond_0211(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE) && 
 static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW, CT_DELETE) || is_type_and_ptype(c->a, CT_TSQUARE, CT_DELETE); }
 static bool sp_cond_0237(chunks_t* c) { return is_type(c->a, CT_ANNOTATION) && is_paren_open(c->b); }
 
-static bool sp_cond_0249(chunks_t* c) { return false; }
-static bool sp_cond_0250(chunks_t* c) { return false; }
-
 
 /* \todo make min_sp a size_t */
 /* Note that the order of the if statements is VERY important. */
@@ -1171,7 +1168,7 @@ void space_text_balance_nested_parens(void)
 }
 
 
-size_t space_needed(chunk_t *first, chunk_t *second)
+uint32_t space_needed(chunk_t* first, chunk_t* second)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPACE, "%s\n", __func__);
@@ -1180,7 +1177,7 @@ size_t space_needed(chunk_t *first, chunk_t *second)
    switch (do_space(first, second, min_sp))
    {
       case AV_ADD:    /* fallthrough */
-      case AV_FORCE:  return((size_t)(max(1, min_sp)));
+      case AV_FORCE:  return((uint32_t)(max(1, min_sp)));
       case AV_REMOVE: return(0);
       case AV_IGNORE: /* fallthrough */
       default:        return(second->orig_col > (first->orig_col + first->len()));
@@ -1188,7 +1185,7 @@ size_t space_needed(chunk_t *first, chunk_t *second)
 }
 
 
-size_t space_col_align(chunk_t *first, chunk_t *second)
+uint32_t space_col_align(chunk_t* first, chunk_t* second)
 {
    LOG_FUNC_ENTRY();
    assert(are_valid(first, second));
@@ -1205,7 +1202,7 @@ size_t space_col_align(chunk_t *first, chunk_t *second)
    argval_t av = do_space(first, second, min_sp);
 
    LOG_FMT(LSPACE, "%s: av=%d, ", __func__, av);
-   size_t coldiff;
+   uint32_t coldiff;
    if (first->nl_count > 0)
    {
       LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%u", first->nl_count, first->orig_col_end);

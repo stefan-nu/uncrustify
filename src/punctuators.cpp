@@ -124,10 +124,10 @@ static const chunk_tag_t symbols1[] =
 #include "punc_table.h"
 
 
-const chunk_tag_t *find_punctuator(const char *str, lang_t lang_flags)
+const chunk_tag_t* find_punctuator(const char* str, lang_t lang_flags)
 {
-   const chunk_tag_t    *p_match = nullptr;
-   const lookup_entry_t *p_tab   = punc_table;
+   const chunk_tag_t*    p_match = nullptr;
+   const lookup_entry_t* p_tab   = punc_table;
 
    /* REVISIT: it might be faster to do a bsearch() on the first char.
     * the rest of the group have at most 5 entries, so it wouldn't help */

@@ -181,7 +181,7 @@ argval_t add_option(argval_t var, argval_t opt)
 }
 
 
-uo_t get_inverse_uo(uo_t option)
+uo_t get_inverse_uo(const uo_t option)
 {
    switch(option)
    {
@@ -208,78 +208,90 @@ uo_t get_inverse_uo(uo_t option)
 }
 
 
-bool is_opt_set(argval_t opt, argval_t val)
+bool is_opt_set(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == val); /*lint !e655 */
 }
 
 
-bool is_opt_set(uo_t opt, argval_t val)
+bool is_opt_set(const uo_t opt, const argval_t val)
 {
    return(is_opt_set(cpd.settings[opt].a, val));
 }
 
 
-bool is_true(uo_t opt)
+bool is_val(const uo_t opt, const uint32_t val)
+{
+   return(cpd.settings[opt].u == val);
+}
+
+
+bool is_val(const uo_t opt, const int32_t val)
+{
+   return(cpd.settings[opt].n == val);
+}
+
+
+bool is_true(const uo_t opt)
 {
    return(cpd.settings[opt].b == true);
 }
 
 
-bool is_false(uo_t opt)
+bool is_false(const uo_t opt)
 {
    return(cpd.settings[opt].b == false);
 }
 
 
-bool is_opt_unset(argval_t opt, argval_t val)
+bool is_opt_unset(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == 0); /*lint !e655 !e641*/
 }
 
 
-bool is_option(argval_t var, argval_t val)
+bool is_option(const argval_t var, const argval_t val)
 {
    return (var == val);
 }
 
 
-bool not_option(argval_t opt, argval_t val)
+bool not_option(const argval_t opt, const argval_t val)
 {
    return (opt != val);
 }
 
 
-bool is_token_set(tokenpos_t tok, tokenpos_t val)
+bool is_token_set(const tokenpos_t tok, const tokenpos_t val)
 {
    return ((tok & val) == val); /*lint !e655 */
 }
 
 
-bool is_token_unset(tokenpos_t tok, tokenpos_t val)
+bool is_token_unset(const tokenpos_t tok, const tokenpos_t val)
 {
    return ((tok & val) == 0); /*lint !e655 !e641*/
 }
 
-bool is_token(tokenpos_t tok, tokenpos_t val)
+bool is_token(const tokenpos_t tok, const tokenpos_t val)
 {
    return (tok == val);
 }
 
 
-bool not_token(tokenpos_t tok, tokenpos_t val)
+bool not_token(const tokenpos_t tok, const tokenpos_t val)
 {
    return (tok != val);
 }
 
 
-bool is_bit_set(uint64_t var, uint64_t bit)
+bool is_bit_set(const uint64_t var, const uint64_t bit)
 {
    return ((var & bit) == bit);
 }
 
 
-bool is_bit_unset(uint64_t var, uint64_t bit)
+bool is_bit_unset(const uint64_t var, const uint64_t bit)
 {
    return ((var & bit) == 0);
 }
@@ -1955,25 +1967,24 @@ int set_option_value(const char *name, const char *value)
 bool is_path_relative(const char *path)
 {
 #ifdef WIN32
-   // X:\path\to\file style absolute disk path
-   if (isalpha(path[0]) && (path[1] == ':'))
-   {
-      return(false);
-   }
+   /* Check for partition labels as indication for an absolute path
+    * X:\path\to\file style absolute disk path */
+   retval_if(isalpha(path[0]) &&
+             (path[1] == ':'), false);
 
-   // \\server\path\to\file style absolute UNC path
-   if ((path[0] == '\\') && (path[1] == '\\'))
-   {
-      return(false);
-   }
+   /* Check for double backslashs as indication for a network path
+   * \\server\path\to\file style absolute UNC path */
+   retval_if((path[0] == BACKSLASH) &&
+             (path[1] == BACKSLASH), false);
 #endif
 
-   // /path/to/file style absolute path
+   /* check fo a slash as indication for a filename with leading path
+    * /path/to/file style absolute path */
    return(path[0] != '/');
 }
 
 
-void process_option_line(char *configLine, const char *filename)
+void process_option_line(char* configLine, const char* filename)
 {
    cpd.line_number++;
    char *ptr;
@@ -2371,7 +2382,7 @@ const char* get_encoding_name(const char_encoding_e enc)
       case(char_encoding_e::UTF8    ): return ("UTF-8"    );
       case(char_encoding_e::UTF16_LE): return ("UTF-16-LE");
       case(char_encoding_e::UTF16_BE): return ("UTF-16-BE");
-      default:                         return ("Error"    );
+      default:                         return ("unknown enc");
    }
 }
 
@@ -2414,7 +2425,7 @@ string argval2str(argval_t argval)
 
 string number2str(int number)
 {
-   char buffer[12]; // 11 + 1
+   char buffer[12]; /* 11 + termination */
    sprintf(buffer, "%d", number);
 
    /* NOTE: this creates a std:string class from the char array.

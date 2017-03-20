@@ -2795,7 +2795,7 @@ static void fix_fcn_def_params(chunk_t* start)
          __func__, start->text(), get_token_name(start->type),
          start->orig_line, start->level);
 
-   while ( is_valid(start) && !is_paren_open(start) )
+   while (is_valid(start) && !is_paren_open(start))
    {
       start = get_next_ncnl(start);
    }
@@ -2805,7 +2805,7 @@ static void fix_fcn_def_params(chunk_t* start)
    /* ensure start chunk holds a single '(' character */
    size_t len        = start->len();
    char   first_char = start->str[0]; /*lint !e734 */
-   assert((len == 1) && (first_char == '(' ));
+   return_if((len != 1) || (first_char != '(' ));
 
    ChunkStack cs;
    size_t     level = start->level + 1;
@@ -3261,8 +3261,7 @@ static void mark_function(chunk_t* pc)
          }
 
 exit_loop:
-         if (is_valid   (tmp             ) &&
-             not_type(pc, CT_FUNC_CALL) )
+         if (is_valid(tmp) && not_type(pc, CT_FUNC_CALL))
          {
             while ((tmp = get_next_ncnl(tmp)) != pc)
             {

@@ -23,15 +23,15 @@ private:
    /**
     * \brief calculates how many bytes are required to store a given number of bits
     */
-   static size_t NumberOfBits(
+   static uint32_t NumberOfBits(
       const int argc /**< [in] number of arguments */
    );
 
 
 protected:
-   size_t  m_count;      /**< number of command line arguments */
-   char    **m_values;    /**< pointer array to each argument */
-   uint8_t *m_used;       /**< bit array with one flag per argument */
+   uint32_t m_count;  /**< number of command line arguments */
+   char**   m_values; /**< pointer array to each argument */
+   uint8_t* m_used;   /**< bit array with one flag per argument */
 
 public:
 
@@ -41,8 +41,8 @@ public:
     * This keeps a reference to argv, so don't change it.
     */
    Args(
-      int  argc,  /**< [in] number of command line parameter passed to main() */
-      char **argv /**< [in] pointer array to command line parameters */
+      int    argc, /**< [in] number of command line parameter passed to main() */
+      char** argv  /**< [in] pointer array to command line parameters */
    );
 
    /** Standard destructor */
@@ -78,7 +78,7 @@ public:
     *   "-c", "all" returns "all"
     *   "-c=", "all" returns ""
     *
-    * @return        nullptr or the pointer to the string
+    * @return nullptr or the pointer to the string
     */
    const char *Param(
       const char *token /**< [in] The token string to match */
@@ -89,11 +89,11 @@ public:
     * Similar to arg_param, but can iterate over all matches.
     * Set index to 0 before the first call.
     *
-    * @return        nullptr or the pointer to the string.
+    * @return nullptr or the pointer to the string.
     */
-   const char *Params(
+   const char* Params(
       const char *token, /**< [in] The token string to match */
-      size_t     &index  /**< [in] Pointer to the index that you initialized to 0 */
+      uint32_t   &index  /**< [in] Pointer to the index that you initialized to 0 */
    );
 
 
@@ -101,7 +101,7 @@ public:
     * Marks an argument as being used.
     */
    void SetUsed(
-      size_t idx /**< [in] The index of the argument */
+      uint32_t idx /**< [in] The index of the argument */
    );
 
 
@@ -109,7 +109,7 @@ public:
     * Gets whether an argument has been used, by index.
     */
    bool GetUsed(
-      size_t idx /**< [in] The index of the argument */
+      uint32_t idx /**< [in] The index of the argument */
    ) const;
 
 
@@ -120,8 +120,8 @@ public:
     *
     * @return nullptr (done) or the pointer to the string
     */
-   const char *Unused(
-      size_t &idx /**< [in] Pointer to the index */
+   const char* Unused(
+      uint32_t &idx /**< [in] Pointer to the index */
    ) const;
 
 
@@ -134,10 +134,10 @@ public:
     *
     * @return The number of arguments parsed (always <= num_args)
     */
-   static size_t SplitLine(
-      char   *text,    /**< [in]  text to split, gets modified */
-      char   *args[],  /**< [out] array of pointers to be populated */
-      size_t num_args  /**< [in]  number of items in input string */
+   static uint32_t SplitLine(
+      char*    text,    /**< [in]  text to split, gets modified */
+      char*    args[],  /**< [out] array of pointers to be populated */
+      uint32_t num_args /**< [in]  number of items in input string */
    );
 };
 

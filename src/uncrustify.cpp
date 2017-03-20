@@ -268,12 +268,12 @@ bool load_all_header_files(void);
 
 
 /** tbd */
-static const char *make_output_filename(
-   char* buf,                   /**< [in]  */
-   const size_t       buf_size, /**< [in]  */
-   const char * const filename, /**< [in]  */
-   const char * const prefix,   /**< [in]  */
-   const char * const suffix    /**< [in]  */
+static const char* make_output_filename(
+   char* buf,                  /**< [in]  */
+   const uint32_t    buf_size, /**< [in]  */
+   const char* const filename, /**< [in]  */
+   const char* const prefix,   /**< [in]  */
+   const char* const suffix    /**< [in]  */
 );
 
 
@@ -587,9 +587,11 @@ int main(int argc, char *argv[])
    if (argc == 1) { usage_exit(nullptr, argv[0], EXIT_SUCCESS); }
 
    /* make sure we have token_names.h in sync with token_enum.h */
+#ifdef DEBUG
    const size_t token_name_count = ARRAY_SIZE(token_names);
    const size_t ct_token_count   = CT_TOKEN_COUNT_;
    assert(token_name_count == ct_token_count);
+#endif
 
    /* Build options map */
    register_options();
@@ -1209,7 +1211,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 #endif
 
    /* Try to read in the file */
-   FILE *p_file = fopen(filename, "rb");
+   FILE* p_file = fopen(filename, "rb");
    retval_if(ptr_is_invalid(p_file), false);
 
    bool success = false;
@@ -1247,7 +1249,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 }
 
 
-static bool load_mem_file_config(const char * const filename, file_mem_t &fm)
+static bool load_mem_file_config(const char* const filename, file_mem_t &fm)
 {
    char buf[1024];
    snprintf(buf, sizeof(buf), "%.*s%s", (int)path_dirname_len(cpd.filename), cpd.filename, filename);
@@ -1291,8 +1293,8 @@ bool load_all_header_files(void)
 }
 
 
-static const char *make_output_filename(char *buf, const size_t buf_size,
-       const char * const filename, const char * const prefix, const char * const suffix)
+static const char* make_output_filename(char* buf, const uint32_t buf_size,
+       const char* const filename, const char* const prefix, const char* const suffix)
 {
    int len = 0;
 
@@ -1303,7 +1305,7 @@ static const char *make_output_filename(char *buf, const size_t buf_size,
    }
 
 
-   snprintf(&buf[len], buf_size - (size_t)len, "%s%s", filename,
+   snprintf(&buf[len], buf_size - (uint32_t)len, "%s%s", filename,
             (ptr_is_valid(suffix)) ? suffix : "");
 
    return(buf);
@@ -2033,7 +2035,7 @@ bool is_valid_token_name(c_token_t token)
 }
 
 
-const char *get_token_name(c_token_t token)
+const char* get_token_name(c_token_t token)
 {
    return (is_valid_token_name(token) ? token_names[token] : "unknown");
 }
