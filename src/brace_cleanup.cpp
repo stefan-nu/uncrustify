@@ -191,8 +191,8 @@ static void print_stack(log_sev_t logsev, const char *str,
       {
          if (frm->pse[idx].stage != brace_stage_e::NONE)
          {
-            LOG_FMT(logsev, " [%s - %d]", get_token_name(frm->pse[idx].type),
-                    (unsigned int)frm->pse[idx].stage);
+            LOG_FMT(logsev, " [%s - %u]",
+                    get_token_name(frm->pse[idx].type), (unsigned int)frm->pse[idx].stage);
          }
          else
          {
@@ -952,7 +952,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
    else
    {
       /* PROBLEM */
-      LOG_FMT(LWARN, "%s:%zu Error: TOS.type='%s' TOS.stage=%d\n",
+      LOG_FMT(LWARN, "%s:%zu Error: TOS.type='%s' TOS.stage=%u\n",
               cpd.filename, pc->orig_line,
               get_token_name(frm->pse[frm->pse_tos].type),
               (unsigned int)frm->pse[frm->pse_tos].stage);
@@ -1020,7 +1020,7 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
    assert(is_valid(pc));
    chunk_t* vbc = pc;
 
-   LOG_FMT(LTOK, "%s:%zu] %s '%s' type %s stage %d\n", __func__,
+   LOG_FMT(LTOK, "%s:%zu] %s '%s' type %s stage %u\n", __func__,
            pc->orig_line, get_token_name(pc->type), pc->text(),
            get_token_name(frm->pse[frm->pse_tos].type ),
            (unsigned int)(frm->pse[frm->pse_tos].stage));

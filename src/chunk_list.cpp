@@ -502,7 +502,7 @@ static void chunk_log(chunk_t* pc, const char* text)
       else if (is_valid(next))   { chunk_log_msg(next, log, " @ before" ); }
       else if (is_valid(prev))   { chunk_log_msg(prev, log, " @ after"  ); }
 
-      LOG_FMT(log, " stage=%d", cpd.unc_stage);
+      LOG_FMT(log, " stage=%d", (int)cpd.unc_stage);
       log_func_stack_inline(log);
    }
 }
