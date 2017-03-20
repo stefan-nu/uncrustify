@@ -479,10 +479,14 @@ void align_all(void)
    }
 
    /* Align assignments */
-   align_assign(chunk_get_head(),
-                cpd.settings[UO_align_assign_span  ].u,
-                cpd.settings[UO_align_assign_thresh].u,
-                nullptr);
+   if ((cpd.settings[UO_align_enum_equ_span].u > 0) ||
+       (cpd.settings[UO_align_assign_span  ].u > 0))
+   {
+      align_assign(chunk_get_head(),
+                   cpd.settings[UO_align_assign_span  ].u,
+                   cpd.settings[UO_align_assign_thresh].u,
+                   nullptr);
+   }
 
    /* Align structure initializers */
    if (cpd.settings[UO_align_struct_init_span].u > 0)  { align_struct_initializers(); }

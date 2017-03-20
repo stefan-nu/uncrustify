@@ -1720,10 +1720,18 @@ static void mark_function_return_type(chunk_t* fname, chunk_t* start, c_token_t 
       /* Step backwards from pc and mark the parent of the return type */
       LOG_FMT(LFCNR, "%s: (backwards) return type for '%s' @ %zu:%zu",
               __func__, fname->text(), fname->orig_line, fname->orig_col);
+#ifdef DEBUG
+      LOG_FMT(LFCN, "\n");
+#endif
 
       chunk_t* first = pc;
+      chunk_t* save;
       while (is_valid(pc))
       {
+         LOG_FMT(LFCNR, "%s(%d): pc: %s, type is %s\n", __func__, __LINE__, pc->text(), get_token_name(pc->type));
+#ifdef DEBUG
+         log_pcf_flags(LFCNR, pc->flags);
+#endif
          break_if((!is_var_type(pc) &&
                    not_type(pc, CT_OPERATOR, CT_WORD, CT_ADDR)) ||
                    is_preproc(pc));
@@ -1732,7 +1740,32 @@ static void mark_function_return_type(chunk_t* fname, chunk_t* start, c_token_t 
          {
             first = pc;
          }
-         pc = get_prev_ncnl(pc);
+         save = pc; // keep a copy
+         pc   = get_prev_ncnl(pc);
+         if (pc != nullptr)
+         {
+            log_pcf_flags(LFCNR, pc->flags);
+            // Issue #1027
+            if ((pc->flags & PCF_IN_TEMPLATE) &&
+                (pc->type == CT_ANGLE_CLOSE))
+            {
+               // look for the opening angle
+               pc = get_prev_type(pc, CT_ANGLE_OPEN, save->level);
+               if (pc != nullptr)
+               {
+                  // get the prev
+                  pc = chunk_get_prev(pc);
+                  if (pc != nullptr)
+                  {
+                     if (pc->type == CT_TYPE)
+                     {
+                        first = save;
+                        break;
+                     }
+                  }
+               }
+            }
+         }
       }
 
       pc = first;
@@ -3458,6 +3491,9 @@ exit_loop:
    {
       LOG_FMT(LFCN, "  Checking func call: prev=%s", (is_invalid(prev)) ?
             "<null>" : get_token_name(prev->type));
+#ifdef DEBUG
+      LOG_FMT(LFCN, "\n");
+#endif
 
       /* REVISIT:
        * a function def can only occur at brace level, but not inside an
