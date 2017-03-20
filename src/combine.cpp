@@ -3536,7 +3536,7 @@ exit_loop:
          }
 
          if (not_type(prev, 6, CT_OPERATOR,  CT_TSQUARE,     CT_WORD,
-                                  CT_QUALIFIER, CT_ANGLE_CLOSE, CT_TYPE) &&
+                               CT_QUALIFIER, CT_ANGLE_CLOSE, CT_TYPE) &&
              !is_ptr_operator(prev))
          {
             LOG_FMT(LFCN, " --> Stopping on %s [%s]\n",
@@ -3662,7 +3662,7 @@ exit_loop:
       while (tmp != pclose)
       {
          tmp2 = get_next_ncnl(tmp);
-         if (is_type(tmp, CT_COMMA           ) &&
+         if (is_type(tmp, CT_COMMA            ) &&
              (tmp->level == (popen->level + 1)) )
          {
             if (!can_be_full_param(ref, tmp))
@@ -3838,8 +3838,7 @@ static void mark_class_ctor(chunk_t* start)
    LOG_FUNC_ENTRY();
 
    chunk_t* pclass = get_next_ncnl(start, scope_e::PREPROC);
-   return_if(is_invalid(pclass                ) ||
-             not_type(pclass, CT_TYPE, CT_WORD) );
+   return_if(is_invalid(pclass) || not_type(pclass, CT_TYPE, CT_WORD));
 
    chunk_t* next = get_next_ncnl(pclass, scope_e::PREPROC);
    while (is_type(next, CT_TYPE, CT_WORD, CT_DC_MEMBER))
