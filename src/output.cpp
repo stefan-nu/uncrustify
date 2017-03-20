@@ -1184,7 +1184,7 @@ static chunk_t *output_comment_c(chunk_t *first)
    cmt.cont_text = is_true(UO_cmt_star_cont) ? " *" : "  ";
    LOG_CONTTEXT();
 
-   add_text("/*"); /* comment start */
+   add_text("/*"); /* comment start */  /*lint !e602 */
    if (is_true(UO_cmt_c_nl_start))
    {
       add_comment_text("\n", cmt, false);
@@ -1207,7 +1207,7 @@ static chunk_t *output_comment_c(chunk_t *first)
       LOG_CONTTEXT();
       add_comment_text("\n", cmt, false);
    }
-   add_comment_text("*/", cmt, false); /* comment end */
+   add_comment_text("*/", cmt, false); /* comment end */ /*lint !e689 */
    return(pc);
 }
 

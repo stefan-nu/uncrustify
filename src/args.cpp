@@ -145,10 +145,10 @@ const char *Args::Unused(size_t &index) const
 }
 
 
-size_t Args::SplitLine(char *text, char *args[], size_t num_args)
+uint32_t Args::SplitLine(char* text, char* args[], uint32_t num_args)
 {
-   size_t argc      = 0;
-   char   *dest     = text;
+   uint32_t argc = 0;
+   char*    dest = text;
 
    while ((*text != 0      ) &&  /* end of string not reached yet */
           (argc <= num_args) )   /* maximal number of arguments not reached yet */

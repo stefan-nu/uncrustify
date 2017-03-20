@@ -116,7 +116,7 @@ enum class comment_align_e : unsigned int
  */
 static void align_stack(
    ChunkStack &cs,          /**< [in]  */
-   size_t     col,          /**< [in] the column */
+   uint32_t   col,          /**< [in] the column */
    bool       align_single, /**< [in] indicates if to align even if there is only one item on the stack */
    log_sev_t  sev           /**< [in]  */
 );
@@ -128,9 +128,9 @@ static void align_stack(
  */
 static void align_add(
    ChunkStack &cs,      /**< [in]  */
-   chunk_t    *pc,      /**< [in] the item to add */
-   size_t     &max_col, /**< [in] pointer to the column variable */
-   size_t     min_pad,  /**< [in]  */
+   chunk_t*   pc,      /**< [in] the item to add */
+   uint32_t   &max_col, /**< [in] pointer to the column variable */
+   uint32_t   min_pad,  /**< [in]  */
    bool       squeeze   /**< [in]  */
 );
 
@@ -140,15 +140,15 @@ static void align_add(
  * variable def align column.  Also aligns bit-colons, but that assumes that
  * bit-types are the same! But that should always be the case...
  */
-static chunk_t *align_var_def_brace(
-   chunk_t *pc,       /**< [in]  */
-   size_t  span,      /**< [in]  */
-   size_t  *nl_count  /**< [in]  */
+static chunk_t* align_var_def_brace(
+   chunk_t*  pc,       /**< [in]  */
+   uint32_t  span,      /**< [in]  */
+   uint32_t* nl_count  /**< [in]  */
 );
 
 
 static comment_align_e get_comment_align_type(
-   chunk_t *cmt  /**< [in]  */
+   chunk_t* cmt  /**< [in]  */
 );
 
 
@@ -167,20 +167,17 @@ static comment_align_e get_comment_align_type(
  * @param start   Start point
  * @return        pointer the last item looked at
  */
-static chunk_t *align_trailing_comments(
-   chunk_t *start  /**< [in]  */
+static chunk_t* align_trailing_comments(
+   chunk_t* start  /**< [in]  */
 );
 
 
 /**
  * Shifts out all columns by a certain amount.
- *
- * @param idx  The index to start shifting
- * @param num  The number of columns to shift
  */
 static void ib_shift_out(
-   size_t idx,  /**< [in]  */
-   size_t num   /**< [in]  */
+   uint32_t idx,  /**< [in] index to start shifting */
+   uint32_t num   /**< [in] number of columns to shift */
 );
 
 
@@ -188,8 +185,8 @@ static void ib_shift_out(
  * If sq_open is CT_SQUARE_OPEN and the matching close is followed by '=',
  * then return the chunk after the '='.  Otherwise, return nullptr.
  */
-static chunk_t *skip_c99_array(
-   chunk_t *sq_open  /**< [in]  */
+static chunk_t* skip_c99_array(
+   chunk_t* sq_open  /**< [in]  */
 );
 
 
@@ -200,8 +197,8 @@ static chunk_t *skip_c99_array(
  * We want to align the NEXT item.
  */
 static chunk_t *scan_ib_line(
-   chunk_t *start,     /**< [in]  */
-   bool    first_pass  /**< [in]  */
+   chunk_t* start,     /**< [in]  */
+   bool     first_pass  /**< [in]  */
 );
 
 
@@ -210,7 +207,7 @@ static chunk_t *scan_ib_line(
  */
 static void align_log_al(
    log_sev_t sev,  /**< [in]  */
-   size_t    line  /**< [in]  */
+   uint32_t  line  /**< [in]  */
 );
 
 
@@ -247,7 +244,7 @@ static void align_log_al(
  * @param start   Points to the open brace chunk
  */
 static void align_init_brace(
-   chunk_t *start  /**< [in]  */
+   chunk_t* start  /**< [in]  */
 );
 
 
@@ -257,7 +254,7 @@ static void align_func_params(void);
 
 /**  */
 static void align_params(
-   chunk_t          *start,  /**< [in]  */
+   chunk_t*         start,   /**< [in]  */
    deque<chunk_t *> &chunks  /**< [in]  */
 );
 
@@ -268,7 +265,7 @@ static void align_same_func_call_params(void);
 
 /**  */
 static chunk_t *step_back_over_member(
-   chunk_t *pc  /**< [in]  */
+   chunk_t* pc  /**< [in]  */
 );
 
 
@@ -276,7 +273,7 @@ static chunk_t *step_back_over_member(
  * Aligns all function prototypes in the file.
  */
 static void align_func_proto(
-   size_t span  /**< [in]  */
+   uint32_t span  /**< [in]  */
 );
 
 
@@ -284,7 +281,7 @@ static void align_func_proto(
  * Aligns all function prototypes in the file.
  */
 static void align_oc_msg_spec(
-   size_t span  /**< [in]  */
+   uint32_t span  /**< [in]  */
 );
 
 
@@ -292,7 +289,7 @@ static void align_oc_msg_spec(
  * tbd
  */
 static chunk_t *align_func_param(
-   chunk_t *start  /**< [in]  */
+   chunk_t* start  /**< [in]  */
 );
 
 
@@ -305,7 +302,7 @@ static chunk_t *align_func_param(
  * typedef const char cc_t;
  */
 static void align_typedefs(
-   size_t span  /**< [in]  */
+   uint32_t span  /**< [in]  */
 );
 
 
@@ -327,7 +324,7 @@ static void align_oc_msg_colons(void);
  * @param so   the square open of the message
  */
 static void align_oc_msg_colon(
-   chunk_t *so  /**< [in]  */
+   chunk_t* so  /**< [in]  */
 );
 
 
@@ -351,7 +348,7 @@ static void align_oc_decl_colon(void);
 static void align_asm_colon(void);
 
 
-static void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t sev)
+static void align_stack(ChunkStack &cs, uint32_t col, bool align_single, log_sev_t sev)
 {
    LOG_FUNC_ENTRY();
 
@@ -375,12 +372,12 @@ static void align_stack(ChunkStack &cs, size_t col, bool align_single, log_sev_t
 }
 
 
-static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_pad, bool squeeze)
+static void align_add(ChunkStack &cs, chunk_t* pc, uint32_t &max_col, uint32_t min_pad, bool squeeze)
 {
    LOG_FUNC_ENTRY();
 
-   size_t  min_col;
-   chunk_t *prev = chunk_get_prev(pc);
+   uint32_t min_col;
+   chunk_t* prev = chunk_get_prev(pc);
    if (is_invalid (prev) || is_nl(prev) )
    {
       min_col = squeeze ? 1 : pc->column;
@@ -453,7 +450,7 @@ void quick_indent_again(void)
       {
          if (is_nl(chunk_get_prev(pc)))
          {
-            const size_t col = (size_t)((int)pc->indent.ref->column + pc->indent.delta);
+            const uint32_t col = (size_t)((int32_t)pc->indent.ref->column + pc->indent.delta);
 
             indent_to_column(pc, col);
             LOG_FMT(LINDENTAG, "%s: [%zu] indent [%s] to %zu based on [%s] @ %zu:%zu\n",
@@ -692,12 +689,12 @@ void align_preprocessor(void)
 }
 
 
-chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_count)
+chunk_t* align_assign(chunk_t *first, uint32_t span, uint32_t thresh, uint32_t* p_nl_count)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(first), first);
 
-   const size_t my_level = first->level;
+   const uint32_t my_level = first->level;
    retval_if(span == 0, chunk_get_next(first));
 
    LOG_FMT(LALASS, "%s[%zu]: checking %s on line %zu - span=%zu threshold=%zu\n",
@@ -712,10 +709,10 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
    vdas.Start(span, thresh);
    vdas.m_right_align = as.m_right_align;
 
-   size_t  var_def_cnt = 0;
-   size_t  equ_count   = 0;
-   size_t  tmp;
-   chunk_t *pc = first;
+   uint32_t var_def_cnt = 0;
+   uint32_t equ_count   = 0;
+   uint32_t tmp;
+   chunk_t* pc = first;
    while (is_valid(pc))
    {
       /* Don't check inside parenthesis or SQUARE groups */
@@ -739,9 +736,9 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
          const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
          const uo_t thresh_type = is_enum ? UO_align_enum_equ_thresh : UO_align_assign_thresh;
 
-         size_t myspan   = cpd.settings[span_type  ].u;
-         size_t mythresh = cpd.settings[thresh_type].u;
-         size_t sub_nl_count = 0;
+         uint32_t myspan   = cpd.settings[span_type  ].u;
+         uint32_t mythresh = cpd.settings[thresh_type].u;
+         uint32_t sub_nl_count = 0;
 
          pc = align_assign(get_next_ncnl(pc), myspan, mythresh, &sub_nl_count);
          if (sub_nl_count > 0)
@@ -798,16 +795,16 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
    as.End();
    vdas.End();
 
-   const bool   valid = is_valid(pc);
-   const char*  str   = valid ? pc->text()    : "nullptr";
-   const size_t line  = valid ? pc->orig_line : 0;
+   const bool     valid = is_valid(pc);
+   const char*    str   = valid ? pc->text()    : "nullptr";
+   const uint32_t line  = valid ? pc->orig_line : 0u;
    LOG_FMT(LALASS, "%s: done on %s on line %zu\n", __func__, str, line);
 
    return(pc);
 }
 
 
-static chunk_t* align_func_param(chunk_t *start)
+static chunk_t* align_func_param(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
 
@@ -816,9 +813,9 @@ static chunk_t* align_func_param(chunk_t *start)
    as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
    as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style ].u);
 
-   bool    did_this_line = false;
-   size_t  comma_count   = 0;
-   size_t  chunk_count   = 0;
+   bool     did_this_line = false;
+   uint32_t comma_count   = 0;
+   uint32_t chunk_count   = 0;
 
    chunk_t *pc = start;
    while ((pc = chunk_get_next(pc)) != nullptr)
@@ -858,7 +855,7 @@ static chunk_t* align_func_param(chunk_t *start)
 static void align_func_params(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       continue_if(not_type (pc,    CT_FPAREN_OPEN) ||
@@ -876,8 +873,8 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
 
    chunks.clear();
 
-   bool    hit_comma = true;
-   chunk_t *pc       = get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
+   bool     hit_comma = true;
+   chunk_t* pc        = get_next_type(start, CT_FPAREN_OPEN, (int)start->level);
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       break_if(is_type(pc, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
@@ -905,17 +902,17 @@ static void log_align(const uint32_t line, const char* str)
 static void align_same_func_call_params(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t           *pc;
-   chunk_t           *align_root = nullptr;
-   chunk_t           *align_cur  = nullptr;
+   chunk_t*          pc;
+   chunk_t*          align_root = nullptr;
+   chunk_t*          align_cur  = nullptr;
    size_t            align_len   = 0;
-   chunk_t           *align_fcn;
+   chunk_t*          align_fcn;
    unc_text          align_fcn_name;
    unc_text          align_root_name;
    deque<chunk_t *>  chunks;
    deque<AlignStack> as;
    AlignStack        fcn_as;
-   const char        *add_str;
+   const char*       add_str;
 
    fcn_as.Start(3);
 
@@ -1063,7 +1060,7 @@ static void align_same_func_call_params(void)
 }
 
 
-static chunk_t *step_back_over_member(chunk_t *pc)
+static chunk_t* step_back_over_member(chunk_t* pc)
 {
    /* Skip over any class stuff: bool CFoo::bar() */
    chunk_t *tmp;
@@ -1091,10 +1088,10 @@ static void align_func_proto(size_t span)
    as_br.Start(span, 0);
    as_br.m_gap = cpd.settings[UO_align_single_line_brace_gap].u;
 
-   bool    look_bro = false;
-   chunk_t *toadd;
+   bool     look_bro = false;
+   chunk_t* toadd;
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       if (is_nl(pc))
       {
@@ -1129,15 +1126,15 @@ static void align_func_proto(size_t span)
 }
 
 
-static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_count)
+static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_nl_count)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(start), start);
 
-   chunk_t *next;
-   size_t  myspan   = span;
-   size_t  mythresh = 0;
-   size_t  mygap    = 0;
+   chunk_t* next;
+   uint32_t myspan   = span;
+   uint32_t mythresh = 0;
+   uint32_t mygap    = 0;
 
    /* Override the span, if this is a struct/union */
    switch(start->ptype)
@@ -1154,13 +1151,13 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    }
 
    /* can't be any variable definitions in a "= {" block */
-   chunk_t *prev = get_prev_ncnl(start);
+   chunk_t* prev = get_prev_ncnl(start);
    if(is_type(prev, CT_ASSIGN))
    {
       LOG_FMT(LAVDB, "%s: start=%s [%s] on line %zu (abort due to assign)\n", __func__,
               start->text(), get_token_name(start->type), start->orig_line);
 
-      chunk_t *pc = get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
+      chunk_t* pc = get_next_type(start, CT_BRACE_CLOSE, (int)start->level);
       return(get_next_ncnl(pc));
    }
 
@@ -1196,7 +1193,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
    bool       fp_look_bro   = false;
    bool       did_this_line = false;
    const bool fp_active     = is_true(UO_align_mix_var_proto);
-   chunk_t    *pc           = chunk_get_next(start);
+   chunk_t*   pc            = chunk_get_next(start);
    while ((is_valid(pc)) &&
           ((pc->level >= start->level) || (pc->level == 0)))
    {
@@ -1361,7 +1358,7 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 }
 
 
-chunk_t *align_nl_cont(chunk_t *start)
+chunk_t* align_nl_cont(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LALNLC, "%s: start on [%s] on line %zu\n", __func__,
@@ -1369,8 +1366,8 @@ chunk_t *align_nl_cont(chunk_t *start)
 
    /* Find the max column */
    ChunkStack cs;
-   size_t     max_col = 0;
-   chunk_t    *pc     = start;
+   uint32_t   max_col = 0;
+   chunk_t*   pc      = start;
 
    while(not_type(pc, CT_NEWLINE, CT_COMMENT_MULTI) )
    {
@@ -1393,9 +1390,9 @@ chunk_t *align_nl_cont(chunk_t *start)
 }
 
 
-static comment_align_e get_comment_align_type(chunk_t *cmt)
+static comment_align_e get_comment_align_type(chunk_t* cmt)
 {
-   chunk_t         *prev;
+   chunk_t*        prev;
    comment_align_e cmt_type = comment_align_e::REGULAR;
 
    if (is_false(UO_align_right_cmt_mix) &&
@@ -1418,12 +1415,12 @@ static comment_align_e get_comment_align_type(chunk_t *cmt)
 static chunk_t *align_trailing_comments(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   size_t          min_col  = 0;
-   size_t          min_orig = 0;
+   uint32_t        min_col  = 0;
+   uint32_t        min_orig = 0;
    chunk_t         *pc      = start;
-   size_t          nl_count = 0;
+   uint32_t        nl_count = 0;
    ChunkStack      cs;
-   size_t          col;
+   uint32_t        col;
    const size_t         intended_col = cpd.settings[UO_align_right_cmt_at_col].u;
    comment_align_e cmt_type_cur;
    comment_align_e cmt_type_start = get_comment_align_type(pc);
@@ -1432,8 +1429,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
            __func__, pc->orig_line);
 
    /* Find the max column */
-   while ((is_valid(pc)) &&
-           (nl_count < cpd.settings[UO_align_right_cmt_span].u))
+   while (is_valid(pc) && (nl_count < cpd.settings[UO_align_right_cmt_span].u))
    {
       if (is_flag(pc, PCF_RIGHT_COMMENT) && (pc->column > 1))
       {
@@ -1489,7 +1485,7 @@ static chunk_t *align_trailing_comments(chunk_t *start)
 }
 
 
-static void ib_shift_out(size_t idx, size_t num)
+static void ib_shift_out(uint32_t idx, uint32_t num)
 {
    while (idx < cpd.al_cnt)
    {
@@ -1499,7 +1495,7 @@ static void ib_shift_out(size_t idx, size_t num)
 }
 
 
-static chunk_t *skip_c99_array(chunk_t *sq_open)
+static chunk_t* skip_c99_array(chunk_t* sq_open)
 {
    if (is_type(sq_open, CT_SQUARE_OPEN))
    {
@@ -1513,7 +1509,7 @@ static chunk_t *skip_c99_array(chunk_t *sq_open)
 }
 
 
-static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
+static chunk_t* scan_ib_line(chunk_t* start, bool first_pass)
 {
    UNUSED(first_pass);
    LOG_FUNC_ENTRY();
@@ -1521,7 +1517,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
    retval_if(is_invalid(start), start);
 
    const chunk_t *prev_match = nullptr;
-   size_t        idx         = 0;
+   uint32_t      idx         = 0;
 
    /* Skip past C99 "[xx] =" stuff */
    chunk_t *tmp = skip_c99_array(start);
@@ -1554,7 +1550,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
       }
       else if(is_type(pc, CT_ASSIGN, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_COMMA))
       {
-         const size_t token_width = space_col_align(pc, next);
+         const uint32_t token_width = space_col_align(pc, next);
 
          /* Is this a new entry? */
          if (idx >= cpd.al_cnt)
@@ -1611,7 +1607,7 @@ static chunk_t *scan_ib_line(chunk_t *start, bool first_pass)
 }
 
 
-static void align_log_al(log_sev_t sev, size_t line)
+static void align_log_al(log_sev_t sev, uint32_t line)
 {
    if (log_sev_on(sev))
    {
@@ -1626,11 +1622,11 @@ static void align_log_al(log_sev_t sev, size_t line)
 }
 
 
-static void align_init_brace(chunk_t *start)
+static void align_init_brace(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *num_token = nullptr;
+   chunk_t* num_token = nullptr;
    cpd.al_cnt         = 0;
    cpd.al_c99_array   = false;
 
@@ -1668,10 +1664,10 @@ static void align_init_brace(chunk_t *start)
    }
 
    pc = chunk_get_next(start);
-   size_t idx = 0;
+   uint32_t idx = 0;
    do
    {
-      chunk_t *tmp;
+      chunk_t* tmp;
       if ((idx == 0) &&
           ((tmp = skip_c99_array(pc)) != nullptr))
       {
@@ -1956,9 +1952,9 @@ static void align_oc_msg_colon(chunk_t *so)
    cas.m_skip_first = is_false(UO_align_oc_msg_colon_first);
 
    /* find the longest args that isn't the first one */
-   size_t  first_len = 0;
-   size_t  mlen      = 0;
-   chunk_t *longest  = nullptr;
+   uint32_t first_len = 0;
+   uint32_t mlen      = 0;
+   chunk_t* longest   = nullptr;
 
    size_t  len = nas.m_aligned.Len();
    for (size_t idx = 0; idx < len; idx++)
@@ -1977,8 +1973,8 @@ static void align_oc_msg_colon(chunk_t *so)
 
    /* add spaces before the longest arg */
    len = cpd.settings[UO_indent_oc_msg_colon].u;
-   const size_t len_diff    = mlen - first_len;
-   const size_t indent_size = cpd.settings[UO_indent_columns].u;
+   const uint32_t len_diff    = mlen - first_len;
+   const uint32_t indent_size = cpd.settings[UO_indent_columns].u;
    /* Align with first colon if possible by removing spaces */
    if (is_valid(longest) &&
        is_true(UO_indent_oc_msg_prioritize_first_colon) &&
@@ -2013,7 +2009,7 @@ static void align_oc_msg_colons(void)
 {
    LOG_FUNC_ENTRY();
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       if (is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_MSG))
       {
@@ -2034,7 +2030,7 @@ static void align_oc_decl_colon(void)
    nas.Start(4);
    nas.m_right_align = is_false(UO_align_on_tabstop);
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       if (not_type(pc, CT_OC_SCOPE))
@@ -2046,13 +2042,12 @@ static void align_oc_decl_colon(void)
       nas.Reset();
       cas.Reset();
 
-      const size_t level = pc->level;
+      const uint32_t level = pc->level;
       pc = get_next_ncnl(pc, scope_e::PREPROC);
 
       did_line = false;
 
-      while (is_valid(pc) &&
-             (pc->level >= level))
+      while (is_valid(pc) && (pc->level >= level))
       {
          /* The declaration ends with an open brace or semicolon */
          break_if (is_type(pc, CT_BRACE_OPEN) || is_semicolon(pc));
@@ -2068,8 +2063,8 @@ static void align_oc_decl_colon(void)
          {
             cas.Add(pc);
 
-            chunk_t *tmp  = chunk_get_prev(pc, scope_e::PREPROC);
-            chunk_t *tmp2 = get_prev_ncnl(tmp, scope_e::PREPROC);
+            chunk_t* tmp  = chunk_get_prev(pc, scope_e::PREPROC);
+            chunk_t* tmp2 = get_prev_ncnl(tmp, scope_e::PREPROC);
 
             /* Check for an un-labeled parameter */
             if (is_type(tmp,  CT_WORD, CT_TYPE, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
@@ -2095,7 +2090,7 @@ static void align_asm_colon(void)
    AlignStack cas;   /* for the colons */
    cas.Start(4);
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       if (not_type(pc, CT_ASM_COLON))
@@ -2107,7 +2102,7 @@ static void align_asm_colon(void)
       cas.Reset();
 
       pc = get_next_ncnl(pc, scope_e::PREPROC);
-      const size_t level = pc ? pc->level : 0;
+      const uint32_t level = pc ? pc->level : 0;
       did_nl = true;
       while (is_valid(pc) &&
              (pc->level >= level))

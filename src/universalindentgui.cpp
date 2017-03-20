@@ -16,18 +16,18 @@
 #include <stdio.h>
 
 
-void print_universal_indent_cfg(FILE *pfile)
+void print_universal_indent_cfg(FILE* pfile)
 {
    const group_map_value_t *p_grp;
    const char              *p_name;
 
    /* Add all the categories */
    char   ch = '=';
-   size_t idx;
+   uint32_t idx;
 
    /* Dump the header and the categories */
    fprintf(pfile, "[header]\ncategories");
-   for (idx = 0; idx < (size_t)UG_group_count; idx++)
+   for (idx = 0; idx < UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (ptr_is_valid(p_grp))
@@ -72,7 +72,7 @@ void print_universal_indent_cfg(FILE *pfile)
    uint32_t optionNumber = 0;
 #endif
    /* Now add each option */
-   for (idx = 0; idx < (size_t)UG_group_count; idx++)
+   for (idx = 0; idx < UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       continue_if(ptr_is_invalid(p_grp));
