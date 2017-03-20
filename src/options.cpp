@@ -226,7 +226,7 @@ bool is_option(argval_t var, argval_t opt)
 }
 
 
-bool is_not_option(argval_t var, argval_t opt)
+bool not_option(argval_t var, argval_t opt)
 {
    return (var != opt);
 }
@@ -249,7 +249,7 @@ bool is_token(tokenpos_t var, tokenpos_t opt)
 }
 
 
-bool is_not_token(tokenpos_t var, tokenpos_t opt)
+bool not_token(tokenpos_t var, tokenpos_t opt)
 {
    return (var != opt);
 }
@@ -293,17 +293,17 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
    /* Calculate the max/min values */
    switch (type)
    {
-   case AT_BOOL:   value.max_val = 1;                                break;
-   case AT_IARF:   value.max_val = 3;                                break;
-   case AT_LINE:   value.max_val = 3;                                break;
-   case AT_POS:    value.max_val = 2;                                break;
-   case AT_STRING: value.max_val = 0;                                break;
-   case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
-   case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
+      case AT_BOOL:   value.max_val = 1;                                break;
+      case AT_IARF:   value.max_val = 3;                                break;
+      case AT_LINE:   value.max_val = 3;                                break;
+      case AT_POS:    value.max_val = 2;                                break;
+      case AT_STRING: value.max_val = 0;                                break;
+      case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
+      case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
-   default:
-      fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
-      exit(EX_SOFTWARE);
+      default:
+         fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
+         exit(EX_SOFTWARE);
    }
 
    option_name_map[id] = value;

@@ -52,7 +52,7 @@ static void do_the_sort(
 
 /** tbd */
 static int get_chunk_priority(
-   chunk_t *pc
+   chunk_t *pc /**< [in]  */
 );
 
 

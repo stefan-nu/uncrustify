@@ -18,9 +18,9 @@
  * See if all characters are ASCII (0-127)
  */
 static bool is_ascii(
-   const  vector<uint8_t> &data,
-   size_t &non_ascii_cnt,
-   size_t &zero_cnt
+   const  vector<uint8_t> &data, /**< [in]  */
+   size_t &non_ascii_cnt,        /**< [in]  */
+   size_t &zero_cnt              /**< [in]  */
 );
 
 
@@ -28,8 +28,8 @@ static bool is_ascii(
  * Convert the array of bytes into an array of ints
  */
 static bool decode_bytes(
-   const vector<uint8_t> &in_data,
-   deque<int> &out_data
+   const vector<uint8_t> &in_data, /**< [in]  */
+   deque<int> &out_data            /**< [in]  */
 );
 
 
@@ -38,8 +38,8 @@ static bool decode_bytes(
  * If there are any decoding errors, then return false.
  */
 static bool decode_utf8(
-   const vector<uint8_t> &in_data,
-   deque<int> &out_data
+   const vector<uint8_t> &in_data, /**< [in]  */
+   deque<int> &out_data            /**< [in]  */
 );
 
 
@@ -47,9 +47,9 @@ static bool decode_utf8(
  * Extract 2 bytes from the stream and increment idx by 2
  */
 static int get_word(
-   const  vector<uint8_t> &in_data,
-   size_t &idx,
-   bool   be
+   const  vector<uint8_t> &in_data, /**< [in]  */
+   size_t &idx,  /**< [in]  */
+   bool   be     /**< [in]  */
 );
 
 
@@ -59,9 +59,9 @@ static int get_word(
  * Must have the BOM as the first two bytes.
  */
 static bool decode_utf16(
-   const vector<uint8_t> &in_data,
-   deque<int> &out_data,
-   char_encoding_e &enc
+   const vector<uint8_t> &in_data, /**< [in]  */
+   deque<int> &out_data, /**< [in]  */
+   char_encoding_e &enc  /**< [in]  */
 );
 
 
@@ -71,8 +71,8 @@ static bool decode_utf16(
  * Sets enc to char_encoding_e::ASCII and returns false if not found.
  */
 static bool decode_bom(
-   const vector<uint8_t> &in_data,
-   char_encoding_e &enc
+   const vector<uint8_t> &in_data, /**< [in]  */
+   char_encoding_e &enc  /**< [in]  */
 );
 
 
@@ -80,7 +80,7 @@ static bool decode_bom(
  * Write for ASCII and BYTE encoding
  */
 static void write_byte(
-   uint32_t ch
+   uint32_t ch /**< [in]  */
 );
 
 
@@ -88,13 +88,14 @@ static void write_byte(
  * Writes a single character to a file using UTF-8 encoding
  */
 static void write_utf8(
-   uint32_t ch
+   uint32_t ch /**< [in]  */
 );
 
 
+/**  */
 static void write_utf16(
-   uint32_t ch,
-   bool   be
+   uint32_t ch, /**< [in]  */
+   bool     be  /**< [in]  */
 );
 
 

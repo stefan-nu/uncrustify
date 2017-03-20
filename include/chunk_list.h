@@ -692,7 +692,7 @@ void update_flags(
  */
 chunk_t* chunk_skip_to_match(
    chunk_t*      cur,                 /**< [in] chunk to operate on */
-   const scope_e scope = scope_e::ALL
+   const scope_e scope = scope_e::ALL /**< [in]  */
 );
 
 
@@ -701,7 +701,7 @@ chunk_t* chunk_skip_to_match(
  */
 chunk_t* chunk_skip_to_match_rev(
    chunk_t*      cur,                 /**< [in] chunk to operate on */
-   const scope_e scope = scope_e::ALL
+   const scope_e scope = scope_e::ALL /**< [in]  */
 );
 
 
@@ -930,10 +930,10 @@ bool any_is_type(
  * given type
  */
 bool is_only_first_type(
-   const chunk_t*  pc1,   /**< [in] chunk1 to check */
-   const c_token_t type1, /**< [in] token1 type to check for */
-   const chunk_t*  pc2,   /**< [in] chunk2 to check */
-   const c_token_t type2  /**< [in] token2 type to check for */
+   const chunk_t* const  pc1,   /**< [in] chunk1 to check */
+   const c_token_t       type1, /**< [in] token1 type to check for */
+   const chunk_t* const  pc2,   /**< [in] chunk2 to check */
+   const c_token_t       type2  /**< [in] token2 type to check for */
 );
 
 
@@ -953,9 +953,9 @@ bool are_types(
  * same given parent token type
  */
 bool are_ptypes(
-   const chunk_t*  pc1, /**< [in] chunk1 to check */
-   const chunk_t*  pc2, /**< [in] chunk2 to check */
-   const c_token_t type /**< [in] token type to check for */
+   const chunk_t* const pc1, /**< [in] chunk1 to check */
+   const chunk_t* const pc2, /**< [in] chunk2 to check */
+   const c_token_t      type /**< [in] token type to check for */
 );
 
 
@@ -964,10 +964,10 @@ bool are_ptypes(
  * token type
  */
 bool are_types(
-   const chunk_t*  pc1,   /**< [in] chunk1 to check */
-   const c_token_t type1, /**< [in] token1 type to check for */
-   const chunk_t*  pc2,   /**< [in] chunk2 to check */
-   const c_token_t type2  /**< [in] token2 type to check for */
+   const chunk_t*  const pc1,   /**< [in] chunk1 to check */
+   const c_token_t       type1, /**< [in] token1 type to check for */
+   const chunk_t*  const pc2,   /**< [in] chunk2 to check */
+   const c_token_t       type2  /**< [in] token2 type to check for */
 );
 
 
@@ -976,10 +976,10 @@ bool are_types(
  * parent token type
  */
 bool are_ptypes(
-   const chunk_t* pc1,   /**< [in] chunk1 to check */
-   c_token_t      type1, /**< [in] token1 type to check for */
-   const chunk_t* pc2,   /**< [in] chunk2 to check */
-   c_token_t      type2  /**< [in] token2 type to check for */
+   const chunk_t* const pc1,   /**< [in] chunk1 to check */
+   c_token_t            type1, /**< [in] token1 type to check for */
+   const chunk_t* const pc2,   /**< [in] chunk2 to check */
+   c_token_t            type2  /**< [in] token2 type to check for */
 );
 
 
@@ -987,8 +987,8 @@ bool are_ptypes(
  * check if the given chunk is valid and holds a given token type
  */
 bool is_type(
-   const chunk_t*  pc,   /**< [in] chunk to check */
-   const c_token_t type  /**< [in] token type to check for */
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t type     /**< [in] token type to check for */
 );
 
 
@@ -1159,9 +1159,9 @@ bool not_type(
  * part of a given list
  */
 bool is_type(
-   const chunk_t*pc, /**< [in] chunk to check */
-   int count,        /**< [in] number of token types to check */
-   ...               /**< [in] list of token types to check for */
+   const chunk_t* const pc, /**< [in] chunk to check */
+   int count,               /**< [in] number of token types to check */
+   ...                      /**< [in] list of token types to check for */
 );
 
 
@@ -1184,6 +1184,39 @@ bool not_type(
    const chunk_t* const pc, /**< [in] chunk to check */
    int count,               /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and holds a parent token
+ * type which is different from the given type
+ */
+bool not_ptype(
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t ptype    /**< [in] token type to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and has a parent token type
+ * different than ptoken1 and ptoken2
+ */
+bool not_type(
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t ptype1,  /**< [in] token type1 to check for */
+   const c_token_t ptype2   /**< [in] token type2 to check for */
+);
+
+
+/**
+ * check if the given chunk is valid and has a parent token type
+ * different than ptoken1, ptoken2, and ptoken3
+ */
+bool not_ptype(
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t ptype1,  /**< [in] token type1 to check for */
+   const c_token_t ptype2,  /**< [in] token type2 to check for */
+   const c_token_t ptype3   /**< [in] token type3 to check for */
 );
 
 
@@ -1239,7 +1272,7 @@ bool not_flag(
 bool is_str(
    chunk_t*    pc,  /**< [in] chunk to check */
    const char* str, /**< [in] string to compare with */
-   size_t len       /**< [in] number of characters in string to compare */
+   size_t      len  /**< [in] number of characters in string to compare */
 );
 
 
@@ -1248,9 +1281,9 @@ bool is_str(
  * The case of the string is ignored.
  */
 bool is_str_case(
-   chunk_t* pc,     /**< [in] chunk to check */
+   chunk_t*    pc,  /**< [in] chunk to check */
    const char* str, /**< [in] string to compare with */
-   size_t len       /**< [in] number of characters in string to compare */
+   size_t      len  /**< [in] number of characters in string to compare */
 );
 
 
@@ -1296,7 +1329,7 @@ bool chunk_is_member(
 
 
 /**
- * tbd
+ * check if a chunk is a real or virtual closing brace
  */
 bool is_closing_brace(
    chunk_t* pc /**< [in] chunk to check */
@@ -1304,7 +1337,7 @@ bool is_closing_brace(
 
 
 /**
- * tbd
+ * check if a chunk is a real or virtual opening brace
  */
 bool is_opening_brace(
    chunk_t* pc /**< [in] chunk to check */
@@ -1312,7 +1345,7 @@ bool is_opening_brace(
 
 
 /**
- * tbd
+ * check if a chunk is a opening or closing virtual brace
  */
 bool is_vbrace(
    chunk_t* pc /**< [in] chunk to check */
@@ -1320,7 +1353,7 @@ bool is_vbrace(
 
 
 /**
- * tbd
+ * check if a chunk is a function opening parenthese
  */
 bool is_fparen_open(
    chunk_t* pc /**< [in] chunk to check */
@@ -1328,7 +1361,7 @@ bool is_fparen_open(
 
 
 /**
- * tbd
+ * check if a chunk is any kind of opening parenthesis
  */
 bool is_paren_open(
    chunk_t* pc /**< [in] chunk to check */
@@ -1336,7 +1369,7 @@ bool is_paren_open(
 
 
 /**
- * tbd
+ * check if a chunk is any kind of closing parenthesis
  */
 bool is_paren_close(
    chunk_t* pc /**< [in] chunk to check */
@@ -1348,7 +1381,7 @@ bool is_paren_close(
  * flag. Thus if both are either part of a preprocessor block or both are not
  * part of a preprocessor block.
  */
-bool are_same_preproc(
+bool are_same_pp(
    const chunk_t* const pc1, /**< [in] chunk 1 to compare */
    const chunk_t* const pc2  /**< [in] chunk 2 to compare */
 );
@@ -1358,7 +1391,7 @@ bool are_same_preproc(
  * Check if both chunks are valid and have not the same preprocessor state.
  * Thus either chunk is part of a preprocessor block the other one not.
  */
-bool are_different_preproc(
+bool are_different_pp(
    const chunk_t* const pc1, /**< [in] chunk 1 to compare */
    const chunk_t* const pc2  /**< [in] chunk 2 to compare */
 );
@@ -1370,7 +1403,7 @@ bool are_different_preproc(
  * the newline can't be after a C++ comment.
  */
 bool is_safe_to_del_nl(
-   chunk_t* nl
+   chunk_t* nl /**< [in] newline chunk to check */
 );
 
 

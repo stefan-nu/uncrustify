@@ -251,18 +251,22 @@ static void align_init_brace(
 );
 
 
+/**  */
 static void align_func_params(void);
 
 
+/**  */
 static void align_params(
    chunk_t          *start,  /**< [in]  */
    deque<chunk_t *> &chunks  /**< [in]  */
 );
 
 
+/**  */
 static void align_same_func_call_params(void);
 
 
+/**  */
 static chunk_t *step_back_over_member(
    chunk_t *pc  /**< [in]  */
 );
@@ -450,8 +454,7 @@ void quick_indent_again(void)
    {
       if (pc->indent.ref)
       {
-         chunk_t *tmp = chunk_get_prev(pc);
-         if (is_nl(tmp))
+         if (is_nl(chunk_get_prev(pc)))
          {
             const size_t col = (size_t)((int)pc->indent.ref->column + pc->indent.delta);
 
@@ -1825,7 +1828,7 @@ static void align_left_shift(void)
    chunk_t *pc = chunk_get_head();
    while (is_valid(pc))
    {
-      if(are_different_preproc(pc, start))
+      if(are_different_pp(pc, start))
       {
          /* a change in preproc status restarts the aligning */
          as.Flush();

@@ -73,16 +73,16 @@
 /** type to map a programming language to a typically used filename extension */
 struct lang_ext_t
 {
-   const char *ext;  /**< filename extension typically used for ... */
-   const char *name; /**< a programming language */
+   const char* ext;  /**< filename extension typically used for ... */
+   const char* name; /**< a programming language */
 };
 
 
 /** struct links a language type with a human readable language name */
 struct lang_name_t
 {
-   const char *name;  /**< human readable identification string */
-   lang_t     lang;   /**< language identifier */
+   const char* name; /**< human readable identification string */
+   lang_t      lang; /**< language identifier */
 };
 
 
@@ -127,16 +127,14 @@ const struct lang_ext_t language_exts[] =
    { ".di",   "D"    },
    { ".m",    "OC"   },
    { ".mm",   "OC+"  },
-   { ".sqc",  "C"    }, // embedded SQL
+   { ".sqc",  "C"    }, /**< embedded SQL */
    { ".es",   "ECMA" },
 };
 
 
-/**
- * tbd
- */
+/** tbd */
 static lang_t language_flags_from_name(
-   const char *tag /**< [in]  */
+   const char* tag /**< [in]  */
 );
 
 
@@ -159,7 +157,7 @@ static bool load_header_file(
  * @return  LANG_xxx
  */
 static lang_t language_flags_from_filename(
-   const char *filenme  /**< [in] The name of the file */
+   const char* filenme  /**< [in] The name of the file */
 );
 
 
@@ -173,9 +171,7 @@ const char *language_name_from_flags(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool read_stdin(
    file_mem_t &fm  /**< [out] file description to update */
 );
@@ -191,37 +187,29 @@ static void make_folders(
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void uncrustify_start(
    const deque<int> &data  /**< [in]  */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void uncrustify_end(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool ends_with(
-   const char *filename, /**< [in]  */
-   const char *tag,      /**< [in]  */
+   const char* filename, /**< [in]  */
+   const char* tag,      /**< [in]  */
    bool case_sensitive   /**< [in]  */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 void uncrustify_file(
    const file_mem_t &fm,             /**< [out] file description to update */
-   FILE             *pfout,          /**< [in]  */
-   const char       *parsed_file,    /**< [in]  */
+   FILE*             pfout,          /**< [in]  */
+   const char*       parsed_file,    /**< [in]  */
    bool defer_uncrustify_end = false /**< [in]  */
 );
 
@@ -230,53 +218,43 @@ void uncrustify_file(
  * Does a source file.
  */
 static void do_source_file(
-   const char *filename_in,  /**< [in] the file to read */
-   const char *filename_out, /**< [in] nullptr (stdout) or the file to write */
-   const char *parsed_file,  /**< [in] nullptr or the filename for the parsed debug info */
-   bool       no_backup,     /**< [in] don't create a backup, if filename_out == filename_in */
-   bool       keep_mtime     /**< [in] don't change the mtime (dangerous) */
+   const char* filename_in,  /**< [in] the file to read */
+   const char* filename_out, /**< [in] nullptr (stdout) or the file to write */
+   const char* parsed_file,  /**< [in] nullptr or the filename for the parsed debug info */
+   bool        no_backup,    /**< [in] don't create a backup, if filename_out == filename_in */
+   bool        keep_mtime    /**< [in] don't change the mtime (dangerous) */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_file_header(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_file_footer(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_func_header(
    c_token_t        type, /**< [in]  */
    const file_mem_t &fm   /**< [out] file description to update */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void add_msg_header(
    c_token_t        type, /**< [in]  */
    const file_mem_t &fm   /**< [out] file description to update */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static void process_source_list(
-   const char * const source_list, /**< [in]  */
-   const char         *prefix,     /**< [in]  */
-   const char         *suffix,     /**< [in]  */
-   bool               no_backup,   /**< [in]  */
-   bool               keep_mtime   /**< [in]  */
+   const char* const source_list, /**< [in]  */
+   const char*       prefix,     /**< [in]  */
+   const char*       suffix,     /**< [in]  */
+   bool              no_backup,   /**< [in]  */
+   bool              keep_mtime   /**< [in]  */
 );
 
 
@@ -289,11 +267,9 @@ static void process_source_list(
 bool load_all_header_files(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static const char *make_output_filename(
-   char *buf,
+   char* buf,                   /**< [in]  */
    const size_t       buf_size, /**< [in]  */
    const char * const filename, /**< [in]  */
    const char * const prefix,   /**< [in]  */
@@ -302,28 +278,26 @@ static const char *make_output_filename(
 
 
 /**
- * file comparison function
+ * compare the content of two files
  */
 static bool file_content_matches(
-   const string &filename1, /**< [in]  */
-   const string &filename2  /**< [in]  */
+   const string &filename1, /**< [in] file1 to compare */
+   const string &filename2  /**< [in] file2 to compare */
 );
 
 
 /**
  * create the output file name by appending a fixed ending to the input file name
  *
- * typically the ending is ".uncrustify" used
- * thus "source.c" -> "source.c.uncrustify"
+ * typically the ending ".uncrustify" is used
+ * example: "source.c" -> "source.c.uncrustify"
  */
 static string create_out_filename(
    const char * const filename /**< [in]  */
 );
 
 
-/**
- * tbd
- */
+/** tbd */
 static bool bout_content_matches(
    const file_mem_t &fm,          /**< [out] file description to update */
    const bool       report_status /**< [in]  */
@@ -360,9 +334,7 @@ static bool load_mem_file_config(
 static void version_exit(void);
 
 
-/**
- * tbd
- */
+/** tbd */
 static void redir_stdout(
    const char *output_file /**< [in]  */
 );
@@ -449,12 +421,11 @@ bool is_lang(cp_data_t &cpd, lang_t lang)
 }
 
 
-const char *path_basename(const char *path)
+const char* path_basename(const char* path)
 {
-   if (ptr_is_invalid(path)) { return(""); }
+   retval_if(ptr_is_invalid(path), "");
 
    const char *last_path = path;
-
    while (*path != 0) /* check for end of string */ /*lint !e661 */
    {
       /* Check both slash types to support Linux and Windows */
@@ -470,19 +441,19 @@ const char *path_basename(const char *path)
 }
 
 
-size_t path_dirname_len(const char *full_name)
+size_t path_dirname_len(const char* full_name)
 {
-   if (full_name == nullptr) { return(0); }
+   retval_if((full_name == nullptr), 0);
 
    const char* const file_name = path_basename(full_name);
    /* subtracting addresses like this works only on big endian systems */
-   const size_t len       = (size_t)file_name - (size_t)full_name;
+   const size_t len = (size_t)file_name - (size_t)full_name;
 
    return (len);
 }
 
 
-void usage_exit(const char *msg, const char *argv0, int code)
+void usage_exit(const char* msg, const char* argv0, int code)
 {
    if (ptr_is_valid(msg))
    {
@@ -1819,7 +1790,7 @@ static void uncrustify_start(const deque<int> &data)
 
 void set_newline_chunk_pos(uo_t check, uo_t set, c_token_t token)
 {
-   if (is_not_token(cpd.settings[check].tp, TP_IGNORE))
+   if (not_token(cpd.settings[check].tp, TP_IGNORE))
    {
       newlines_chunk_pos(token, cpd.settings[set].tp);
    }

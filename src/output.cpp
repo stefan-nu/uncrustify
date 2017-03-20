@@ -1289,7 +1289,7 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (!cpd.settings[UO_cmt_cpp_to_c].b)
    {
       cmt.cont_text = leadin;
-      if (is_not_option(sp_cmt_cpp_start, AV_REMOVE))
+      if (not_option(sp_cmt_cpp_start, AV_REMOVE))
       {
          cmt.cont_text += SPACE;
       }

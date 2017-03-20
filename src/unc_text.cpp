@@ -32,14 +32,7 @@ static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
    else
    {
       size_t left = size - idx;
-#if 1
       len = min(len, left);
-#else
-      if (len > left)
-      {
-         len = left;
-      }
-#endif
    }
 }
 

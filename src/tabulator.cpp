@@ -1,10 +1,11 @@
 /**
  * @file tabulator.cpp
- * Handling of tabstops
+ * Calculation of tabstop columns
  *
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #include "tabulator.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
@@ -12,16 +13,12 @@
 
 size_t calc_next_tab_column(size_t col, size_t tabsize)
 {
-   if (col == 0) { col = 1; }
-   if (cpd.frag_cols > 0)
-   {
-      col += cpd.frag_cols - 1;
-   }
-   col = 1 + ((((col - 1) / tabsize) + 1) * tabsize);
-   if (cpd.frag_cols > 0)
-   {
-      col -= cpd.frag_cols - 1;
-   }
+   col = max(col, 1u); /* ensure column >= 1 */
+
+   /* \todo explain this calculation */
+   if (cpd.frag_cols > 0) { col += cpd.frag_cols-1; }
+   col = 1 + ((( (col-1) / tabsize) + 1) * tabsize);
+   if (cpd.frag_cols > 0) { col -= cpd.frag_cols-1; }
    return(col);
 }
 
@@ -34,10 +31,12 @@ size_t next_tab_column(size_t col)
 
 size_t align_tab_column(size_t col)
 {
-   if (col == 0) { col = 1; }
+   col = max(col, 1u); /* ensure column >= 1 */
+
+   /* if the current position is not a tab column ... */
    if ((col % cpd.settings[UO_output_tab_size].u) != 1)
    {
-      col = next_tab_column(col);
+      col = next_tab_column(col); /* ... advance to next tab column */
    }
    return(col);
 }

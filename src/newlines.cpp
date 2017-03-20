@@ -17,6 +17,7 @@
  *          October 2015, 2016
  * @license GPL v2+
  */
+
 #include "newlines.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
@@ -36,7 +37,7 @@
 
 /** tbd */
 static void mark_change(
-   const char *func,  /**< [in]  */
+   const char* func,  /**< [in]  */
    size_t      line   /**< [in]  */
 );
 
@@ -82,7 +83,7 @@ static void setup_newline_add(
  * Make sure there is a blank line after a commented group of values
  */
 static void newlines_double_space_struct_enum_union(
-   chunk_t* open_brace  /**< [in]  */
+   chunk_t* open_brace /**< [in]  */
 );
 
 
@@ -90,20 +91,20 @@ static void newlines_double_space_struct_enum_union(
  * If requested, make sure each entry in an enum is on its own line
  */
 static void newlines_enum_entries(
-   chunk_t* open_brace,  /**< [in]  */
-   argval_t av           /**< [in]  */
+   chunk_t* open_brace, /**< [in]  */
+   argval_t av          /**< [in]  */
 );
 
 
 /**
  * Checks to see if it is OK to add a newline around the chunk.
  * Don't want to break one-liners...
- * return value:
- *  true: a new line may be added
- * false: a new line may NOT be added
+ *
+ * @retval true:  a new line may     be added
+ * @retval false: a new line may NOT be added
  */
 static bool one_liner_nl_ok(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -111,7 +112,7 @@ static bool one_liner_nl_ok(
  * tbd
  */
 static void nl_create_one_liner(
-   chunk_t* vbrace_open  /**< [in]  */
+   chunk_t* vbrace_open /**< [in]  */
 );
 
 
@@ -119,21 +120,17 @@ static void nl_create_one_liner(
  * Find the next newline or nl_cont
  */
 static void nl_handle_define(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
 /**
  * Does the Ignore, Add, Remove, or Force thing between two chunks
- *
- * @param before The first chunk
- * @param after  The second chunk
- * @param av     The IARF value
  */
 static void newline_iarf_pair(
-   chunk_t* before,  /**< [in]  */
-   chunk_t* after,   /**< [in]  */
-   argval_t av       /**< [in]  */
+   chunk_t* before, /**< [in] The first chunk */
+   chunk_t* after,  /**< [in] The second chunk */
+   argval_t av      /**< [in] The IARF value */
 );
 
 
@@ -202,6 +199,7 @@ static void newlines_if_for_while_switch_pre_blank_lines(
 );
 
 
+/**   */
 static void _blank_line_set(
    chunk_t*    pc,    /**< [in]  */
    const char* text,  /**< [in]  */
@@ -221,6 +219,7 @@ static void newlines_func_pre_blank_lines(
 );
 
 
+/**   */
 static chunk_t* get_closing_brace(
    chunk_t* start  /**< [in]  */
 );
@@ -263,14 +262,17 @@ static void newlines_struct_enum_union(
 );
 
 
-static void newlines_enum(chunk_t* start);
+/**   */
+static void newlines_enum(
+   chunk_t* start /**< [in]  */
+);
 
 
 /**
  * Cuddles or uncuddles a chunk with a previous close brace
  *
  * "} while" vs "} \n while"
- * "} else" vs "} \n else"
+ * "} else"  vs "} \n else"
  *
  * @param start   The chunk - should be CT_ELSE or CT_WHILE_OF_DO
  */
@@ -721,7 +723,7 @@ void newline_del_between(chunk_t* start, chunk_t* end)
    log_func_stack_inline(LNEWLINE);
 
    /* Can't remove anything if the preproc status differs */
-   return_if(!are_same_preproc(start, end));
+   return_if(!are_same_pp(start, end));
 
    chunk_t* pc           = start;
    bool    start_removed = false;

@@ -25,6 +25,10 @@ using namespace std;
 #include <utime.h>
 #endif
 
+/** abbreviations used
+ *
+ * SS = star style
+ */
 
 /** special strings to mark a part of the input file where
  *  uncrustify shall not change anything */
@@ -48,18 +52,18 @@ using namespace std;
 /** Brace stage enum used in brace_cleanup */
 enum class brace_stage_e : unsigned int
 {
-   NONE,
-   PAREN1,     /**< if/for/switch/while/synchronized */
-   OP_PAREN1,  /**< optional parenthesis: catch () { */
-   WOD_PAREN,  /**< while of do parenthesis */
-   WOD_SEMI,   /**< semicolon after while of do */
-   BRACE_DO,   /**< do */
-   BRACE2,     /**< if/else/for/switch/while */
-   ELSE,       /**< expecting 'else' after 'if' */
-   ELSEIF,     /**< expecting 'if' after 'else' */
-   WHILE,      /**< expecting 'while' after 'do' */
-   CATCH,      /**< expecting 'catch' or 'finally' after 'try' */
-   CATCH_WHEN  /**< optional 'when' after 'catch' */
+   NONE,                                                         //!< NONE
+   PAREN1,     /**< if/for/switch/while/synchronized */          //!< PAREN1
+   OP_PAREN1,  /**< optional parenthesis: catch () { */          //!< OP_PAREN1
+   WOD_PAREN,  /**< while of do parenthesis */                   //!< WOD_PAREN
+   WOD_SEMI,   /**< semicolon after while of do */               //!< WOD_SEMI
+   BRACE_DO,   /**< do */                                        //!< BRACE_DO
+   BRACE2,     /**< if/else/for/switch/while */                  //!< BRACE2
+   ELSE,       /**< expecting 'else' after 'if' */               //!< ELSE
+   ELSEIF,     /**< expecting 'if' after 'else' */               //!< ELSEIF
+   WHILE,      /**< expecting 'while' after 'do' */              //!< WHILE
+   CATCH,      /**< expecting 'catch' or 'finally' after 'try' *///!< CATCH
+   CATCH_WHEN  /**< optional 'when' after 'catch' */             //!< CATCH_WHEN
 };
 
 
@@ -202,9 +206,9 @@ typedef struct align_ptr_s
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
     * A right-aligned word would be a positive value. */
-   int      col_adj;        /**<  */
-   chunk_t* ref;            /**<  */
-   chunk_t* start;          /**<  */
+   int         col_adj;     /**<  */
+   chunk_t*    ref;         /**<  */
+   chunk_t*    start;       /**<  */
 }align_ptr_t;
 
 
@@ -373,9 +377,9 @@ enum class pattern_class_e : unsigned int
 
 struct chunk_tag_t
 {
-   const char* tag;         /**<  */
-   c_token_t   type;         /**<  */
-   lang_t      lang_flags;   /**<  */
+   const char* tag;        /**<  */
+   c_token_t   type;       /**<  */
+   lang_t      lang_flags; /**<  */
 };
 
 
@@ -426,8 +430,8 @@ enum class unc_stage_e : unsigned int
 
 struct cp_data_t
 {
-   deque<uint8_t>* bout;          /**<  */
-   FILE*           fout;          /**<  */
+   deque<uint8_t>* bout;           /**<  */
+   FILE*           fout;           /**<  */
    int             last_char;      /**<  */
    bool            do_check;       /**<  */
    unc_stage_e     unc_stage;      /**<  */
@@ -435,7 +439,7 @@ struct cp_data_t
    bool            if_changed;     /**<  */
 
    uint32_t        error_count;    /**< counts how many errors occurred so far */
-   const char*     filename;      /**<  */
+   const char*     filename;       /**<  */
 
    file_mem_t      file_hdr;       /**< for cmt_insert_file_header */
    file_mem_t      file_ftr;       /**< for cmt_insert_file_footer */
@@ -457,7 +461,7 @@ struct cp_data_t
    bool            frag;           /**< activates code fragment option */
    uint32_t        frag_cols;      /**<  */
 
-   // stuff to auto-detect line endings
+   /* stuff to auto-detect line endings */
    uint32_t        le_counts[LE_AUTO];  /**<  */
    unc_text        newline;             /**<  */
 
@@ -472,7 +476,7 @@ struct cp_data_t
    bool            bom;                 /**<  */
    char_encoding_e enc;                 /**<  */
 
-   // bumped up when a line is split or indented
+   /* bumped up when a line is split or indented */
    int             changes;             /**<  */
    int             pass_count;          /**<  */
 
@@ -480,17 +484,17 @@ struct cp_data_t
    size_t          al_cnt;              /**<  */
    bool            al_c99_array;        /**<  */
 
-   bool            warned_unable_string_replace_tab_chars;    /**<  */
+   bool            warned_unable_string_replace_tab_chars; /**<  */
 
-   // Here are all the settings
-   op_val_t        settings[UO_option_count]; /**<  */
+   /* Here are all the settings */
+   op_val_t        settings[UO_option_count]; /**< array with all uncrustify options */
 
    parse_frame_t   frames[16];                /**<  */
    int             frame_count;               /**<  */
    size_t          pp_level;                  /**< \todo can this ever be -1 */
 
-   // the default values for settings
-   op_val_t        defaults[UO_option_count];   /**<  */
+   /* the default values for settings */
+   op_val_t        defaults[UO_option_count]; /**<  */
 };
 
 

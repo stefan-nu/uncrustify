@@ -78,18 +78,19 @@ enum tokenpos_t
 };
 
 
-/** uncrustify options are configured with a parameter of this type
- * depending on the option the type of the parameter varies. Therefore
- * we use a union. */
+/** Uncrustify options are configured with a parameter of this type.
+ *  Depending on the option the meaning (and thus type) of the
+ *  parameter varies. Therefore we use a union that provides all
+ *  possible types. */
 union op_val_t
 {
-   argval_t   a;
-   int        n;
-   bool       b;
-   lineends_t le;
-   tokenpos_t tp;
-   const char *str;
-   size_t     u;
+   argval_t    a;   /**<  */
+   int         n;   /**< value is a signed numbers */
+   bool        b;   /**< value is a flags */
+   lineends_t  le;  /**<  */
+   tokenpos_t  tp;  /**<  */
+   const char* str; /**< value is a string */
+   size_t      u;   /**< value is an unsigned numbers */
 };
 
 
@@ -121,23 +122,23 @@ enum ug_t
 enum uo_t
 {
    /* Keep this enum grouped by functionality */
-   UO_newlines,                 // Set to AUTO, LF, CRLF, or CR
+   UO_newlines,                 /**< Set to AUTO, LF, CRLF, or CR */
 
    /*
     * Basic Indenting stuff
     */
-   UO_input_tab_size,           // tab size on input file: usually 8
-   UO_output_tab_size,          // tab size for output: usually 8
-   UO_string_escape_char,       // the string escape char to use
-   UO_string_escape_char2,      // the string escape char to use
-   UO_string_replace_tab_chars, // replace tab chars found in strings to the escape sequence \t
-   UO_tok_split_gte,            // allow split of '>>=' in template detection
-   UO_disable_processing_cmt,   // override UNCRUSTIFY_DEFAULT_OFF_TEXT
-   UO_enable_processing_cmt,    // override UNCRUSTIFY_DEFAULT_ON_TEXT
-   UO_enable_digraphs,
-   UO_utf8_bom,
-   UO_utf8_byte,
-   UO_utf8_force,
+   UO_input_tab_size,           /**< tab size on input file: usually 8 */
+   UO_output_tab_size,          /**< tab size for output: usually 8 */
+   UO_string_escape_char,       /**< the string escape char to use */
+   UO_string_escape_char2,      /**< the string escape char to use */
+   UO_string_replace_tab_chars, /**< replace tab chars found in strings to the escape sequence \t */
+   UO_tok_split_gte,            /**< allow split of '>>=' in template detection */
+   UO_disable_processing_cmt,   /**< override UNCRUSTIFY_DEFAULT_OFF_TEXT */
+   UO_enable_processing_cmt,    /**< override UNCRUSTIFY_DEFAULT_ON_TEXT */
+   UO_enable_digraphs,          /**<  */
+   UO_utf8_bom,                 /**<  */
+   UO_utf8_byte,                /**<  */
+   UO_utf8_force,               /**<  */
 
    // group: UG_space, "Spacing options"                                                        1
    UO_sp_arith,                    // space around + - / * etc
@@ -965,7 +966,7 @@ bool is_option(
  * @retval true  if option value is not equal to the given value
  * @retval false if option value is     equal to the given value
  */
-bool is_not_option(
+bool not_option(
    argval_t var,  /**< [in] variable to operate with */
    argval_t opt   /**< [in] option value to check for */
 );
@@ -1021,7 +1022,7 @@ bool is_token(
  * @retval true  if token is not equal to the given value
  * @retval false if token is     equal to the given value
  */
-bool is_not_token(
+bool not_token(
    tokenpos_t var, /**< [in] variable to check */
    tokenpos_t opt  /**< [in] Token combination to check for */
 );

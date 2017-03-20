@@ -171,8 +171,8 @@ static void indent_comment(
  * Starts a new entry
  */
 static void indent_pse_push(
-   parse_frame_t &frm,  /**< [in] The parse frame */
-   chunk_t       *pc    /**< [in] The chunk causing the push */
+   parse_frame_t &frm, /**< [in] The parse frame */
+   chunk_t*      pc    /**< [in] The chunk causing the push */
 );
 
 
@@ -180,8 +180,8 @@ static void indent_pse_push(
  * Removes the top entry
  */
 static void indent_pse_pop(
-   parse_frame_t &frm,  /**< [in] The parse frame */
-   chunk_t       *pc    /**< [in] The chunk causing the push */
+   parse_frame_t &frm, /**< [in] The parse frame */
+   chunk_t*      pc    /**< [in] The chunk causing the push */
 );
 
 
@@ -207,11 +207,11 @@ static size_t calc_indent_continue(
  * find the column of the param tag
  */
 static chunk_t* oc_msg_block_indent(
-   chunk_t* pc,       /**< [in]  */
-   bool from_brace,   /**< [in]  */
-   bool from_caret,   /**< [in]  */
-   bool from_colon,   /**< [in]  */
-   bool from_keyword  /**< [in]  */
+   chunk_t* pc,      /**< [in]  */
+   bool from_brace,  /**< [in]  */
+   bool from_caret,  /**< [in]  */
+   bool from_colon,  /**< [in]  */
+   bool from_keyword /**< [in]  */
 );
 
 
@@ -219,7 +219,7 @@ static chunk_t* oc_msg_block_indent(
  * We are on a '{' that has parent = OC_BLOCK_EXPR
  */
 static chunk_t* oc_msg_prev_colon(
-   chunk_t* pc   /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -229,7 +229,7 @@ static chunk_t* oc_msg_prev_colon(
  * false if next thing hit is a closing brace, also if 2 newlines in a row
  */
 static bool single_line_comment_indent_rule_applies(
-   chunk_t* start  /**< [in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -237,9 +237,9 @@ static bool single_line_comment_indent_rule_applies(
  * tbd
  */
 void log_and_reindent(
-   chunk_t      *pc,   /**< [in] chunk to operate with */
-   const size_t val,   /**< [in] value to print */
-   const char   *str   /**< [in] string to print */
+   chunk_t*     pc,  /**< [in] chunk to operate with */
+   const size_t val, /**< [in] value to print */
+   const char*  str  /**< [in] string to print */
 );
 
 
@@ -247,16 +247,19 @@ void log_and_reindent(
  * tbd
  */
 void log_and_indent_comment(
-   chunk_t      *pc,   /**< [in] chunk to operate with */
-   const size_t val,   /**< [in] value to print */
-   const char   *str   /**< [in] string to print */
+   chunk_t*      pc, /**< [in] chunk to operate with */
+   const size_t val, /**< [in] value to print */
+   const char*  str  /**< [in] string to print */
 );
 
 
-static const char *get_align_mode_name(const align_mode_e align_mode);
+/**   */
+static const char* get_align_mode_name(
+   const align_mode_e align_mode /**< [in]  */
+);
 
 
-static const char *get_align_mode_name(const align_mode_e align_mode)
+static const char* get_align_mode_name(const align_mode_e align_mode)
 {
    switch(align_mode)
    {
@@ -305,31 +308,26 @@ void align_to_column(chunk_t* pc, size_t column)
       {
          almod = (is_single_line_cmt(pc) &&
                   cpd.settings[UO_indent_rel_single_line_comments].b) ?
-                 align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
+                  align_mode_e::KEEP_REL : align_mode_e::KEEP_ABS;
       }
 
       switch(almod)
       {
-         case(align_mode_e::KEEP_ABS):
-            /* Keep same absolute column */
+         case(align_mode_e::KEEP_ABS): /* Keep same absolute column */
             pc->column = pc->orig_col;
             pc->column = max(min_col, pc->column);
-            break;
+         break;
 
-         case(align_mode_e::KEEP_REL):
-         {
-            /* Keep same relative column */
+         case(align_mode_e::KEEP_REL): { /* Keep same relative column */
             int orig_delta = (int)pc->orig_col - (int)prev->orig_col;
             orig_delta = max(min_delta, orig_delta);
-            pc->column = (size_t)((int)prev->column + orig_delta);
-            break;
-         }
+            pc->column = (size_t)((int)prev->column + orig_delta); }
+         break;
 
-         case(align_mode_e::SHIFT):
-            /* Shift by the same amount */
+         case(align_mode_e::SHIFT): /* Shift by the same amount */
             pc->column += col_delta;
             pc->column = max(min_col, pc->column);
-            break;
+         break;
 
          default: /* unknown enum, do nothing */ break;
       }
@@ -338,15 +336,14 @@ void align_to_column(chunk_t* pc, size_t column)
       LOG_FMT(LINDLINED, "   %s set column of %s on line %zu to col %zu (orig %zu)\n",
             get_align_mode_name(almod), get_token_name(pc->type), pc->orig_line,
             pc->column, pc->orig_col);
-   } while ( is_valid(pc) &&
-            (pc->nl_count == 0) );
+   } while (is_valid(pc) && (pc->nl_count == 0));
 }
 
 
 void reindent_line(chunk_t* pc, size_t column)
 {
    LOG_FUNC_ENTRY();
-   assert(is_valid(pc));
+   return_if(is_invalid(pc));
    LOG_FMT(LINDLINE, "%s(%d): %zu] col %zu on '%s' [%s/%s] => %zu",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), get_token_name(pc->ptype), column);
@@ -583,9 +580,9 @@ static chunk_t* oc_msg_prev_colon(chunk_t* pc)
 void indent_text(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t       *pc;
-   chunk_t       *next;
-   chunk_t       *prev       = nullptr;
+   chunk_t*      pc;
+   chunk_t*      next;
+   chunk_t*      prev       = nullptr;
    bool          my_did_newline = true;
    int           idx;
    size_t        vardefcol    = 0;
@@ -1812,7 +1809,7 @@ void indent_text(void)
          if (is_type(prev_nonl, 8, CT_SEMICOLON,  CT_VBRACE_CLOSE,
                    CT_BRACE_OPEN,  CT_VSEMICOLON, CT_BRACE_CLOSE,
                    CT_VBRACE_OPEN, CT_CASE_COLON, CT_COMMA) ||
-               are_different_preproc(prev_nonl, pc) ||
+               are_different_pp(prev_nonl, pc) ||
               (is_operator == true) )
          {
             in_shift = false;

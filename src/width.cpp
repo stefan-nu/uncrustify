@@ -62,7 +62,7 @@ static size_t get_split_pri(
 
 /**
  * Checks to see if pc is a better spot to split.
- * This should only be called going BACKWARDS (ie prev)
+ * This should only be called going BACKWARDS (i.e. prev)
  * A lower level wins
  *
  * Splitting Preference:
@@ -105,7 +105,7 @@ static bool split_line(
  *     + if it doesn't have a newline right after it
  *       * see if all parameters will fit individually after the paren
  *       * if not, throw a newline after the open paren & return
- *   - scan backwards to the open fparen or comma
+ *   - scan backwards to the open function parenthesis or comma
  *     + if there isn't a newline after that item, add one & return
  *     + otherwise, add a newline before the start token
  *
@@ -119,7 +119,8 @@ static void split_fcn_params(
 
 
 /**
- * Splits the parameters at every comma that is at the fparen level.
+ * Splits the parameters at every comma that is at the
+ * function parenthesis level.
  *
  * @param start   the offending token
  */

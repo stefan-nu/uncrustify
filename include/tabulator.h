@@ -12,38 +12,34 @@
 
 
 /**
- * Advances to the next tab stop.
+ * Calculate the column of the the next tab stop.
  * Column 1 is the left-most column.
  *
- * @param col     The current column
- * @param tabsize The tabsize
  * @return the next tabstop column
  */
 size_t calc_next_tab_column(
-   size_t col,
-   size_t tabsize
+   size_t col,    /**< [in] current column */
+   size_t tabsize /**< [in] tabsize to use */
 );
 
 
 /**
  * Advances to the next tab stop for output.
  *
- * @param col  The current column
  * @return the next tabstop column
  */
 size_t next_tab_column(
-   size_t col
+   size_t col /**< [in] current column */
 );
 
 
 /**
  * Advances to the next tab stop if not currently on one.
  *
- * @param col  The current column
  * @return the next tabstop column
  */
 size_t align_tab_column(
-   size_t col
+   size_t col /**< [in] current column */
 );
 
 

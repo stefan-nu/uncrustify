@@ -22,10 +22,10 @@ static void detect_space_options(void);
 class sp_votes
 {
 protected:
-   size_t   m_add;
-   size_t   m_remove;
-   size_t   m_force;
-   argval_t *m_av;
+   size_t   m_add;    /**<  */
+   size_t   m_remove; /**<  */
+   size_t   m_force;  /**<  */
+   argval_t *m_av;    /**<  */
 
 public:
    explicit sp_votes(argval_t &av)
@@ -36,7 +36,7 @@ public:
       m_av     = &av;
    }
 
-   ~sp_votes();
+   ~sp_votes(void);
 
    void vote(chunk_t *first, chunk_t *second);
 };
@@ -59,7 +59,7 @@ void sp_votes::vote(chunk_t *first, chunk_t *second)
 /**
  * Figure out the result of the vote and maybe update *m_av
  */
-sp_votes::~sp_votes()
+sp_votes::~sp_votes(void)
 {
    /* no change if no items were added */
    return_if((m_remove == 0) &&
@@ -219,8 +219,8 @@ static void detect_space_options(void)
          {
             if (is_type(pc, CT_FOR))
             {
-               if      (is_type(prev, CT_SPAREN_OPEN )) { vote_sp_before_semi_for_empty.vote(prev, pc); } /* empty, ie for (;;) */
-               else if (is_type(next, CT_SPAREN_CLOSE)) { vote_sp_after_semi_for_empty.vote (pc, next); } /* empty, ie for (;;) */
+               if      (is_type(prev, CT_SPAREN_OPEN )) { vote_sp_before_semi_for_empty.vote(prev, pc); } /* empty, i.e. for (;;) */
+               else if (is_type(next, CT_SPAREN_CLOSE)) { vote_sp_after_semi_for_empty.vote (pc, next); } /* empty, i.e. for (;;) */
                else if (not_type(prev, CT_SEMICOLON  )) { vote_sp_before_semi_for.vote      (prev, pc); }
             }
             else if (is_type(prev, CT_VBRACE_OPEN)) { vote_sp_special_semi.vote(chunk_get_prev(prev), pc); }
