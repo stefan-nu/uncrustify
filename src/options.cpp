@@ -222,13 +222,13 @@ bool is_opt_set(uo_t opt, argval_t val)
 
 bool is_true(uo_t opt)
 {
-   return(is_true(opt) == true);
+   return(cpd.settings[opt].b == true);
 }
 
 
 bool is_false(uo_t opt)
 {
-   return(is_true(opt) == false);
+   return(cpd.settings[opt].b == false);
 }
 
 
