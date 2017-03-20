@@ -10,6 +10,10 @@
 #ifndef TOKEN_ENUM_H_INCLUDED
 #define TOKEN_ENUM_H_INCLUDED
 
+/**
+ * abbreviations use:
+ * CT = chunk type
+ */
 
 /**
  * This is an enum of all the different chunks/tokens/elements that the

@@ -15,9 +15,13 @@
 /** list of available log levels
  *  At start the user defines which log level is active using the
  *  -L or -log option. All messages which have a level that is active
- *  will be stored to the log file. All other messages will be
+ *  will be stored to the log file. All other log messages will be
  *  discarded.
- *  By default only system messages are logged. */
+ *  Different parts of the software use different log levels.
+ *  This allows to log only operations of a specific operation.
+ *  This eases debugging.
+ *  To get all log messages use the option -La
+ *  By default only system messages (level=LSYS) are logged. */
 enum log_sev_t
 {
    LSYS      = 0,  /**< system messages */
@@ -114,7 +118,7 @@ enum log_sev_t
    LSETTYP   = 92, /**< set_chunk_type() */
    LSETFLG   = 93, /**< set_chunk_flags() */
    LNLFUNCT  = 94, /**< newlines before function */
-   LCHUNK    = 95, /**< Add or del chunk */
+   LCHUNK    = 95, /**< Add or delete chunk */
    LGUY98    = 98, /**< for guy-test */
    LGUY      = 99, /**< for guy-test */
 };

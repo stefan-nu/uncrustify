@@ -27,6 +27,7 @@
  * rel    = relative
  */
 
+/** tbd */
 enum argtype_t
 {
    AT_BOOL,    /**< true / false */
@@ -46,34 +47,34 @@ enum argval_t
    AV_ADD         = (1u << 0),
    AV_REMOVE      = (1u << 1),
    AV_FORCE       = (AV_ADD | AV_REMOVE),
-   AV_NOT_DEFINED = (1u << 2)  /* to be used with QT, SIGNAL SLOT macros */
+   AV_NOT_DEFINED = (1u << 2)  /**< to be used with QT, SIGNAL SLOT macros */
 };
 
 
 /** Line endings */
 enum lineends_t
 {
-   LE_LF,      /* "\n"   */
-   LE_CRLF,    /* "\r\n" */
-   LE_CR,      /* "\r"   */
-   LE_AUTO     /* keep last */
+   LE_LF,      /**< "\n"   */
+   LE_CRLF,    /**< "\r\n" */
+   LE_CR,      /**< "\r"   */
+   LE_AUTO     /**< keep last */
 };
 
 
 /** Token position - these are bit fields */
 enum tokenpos_t
 {
-   TP_IGNORE          = 0,                    /* don't change it */
-   TP_BREAK           = (1u << 0),            /* add a newline before or after the if not present */
-   TP_FORCE           = (1u << 1),            /* force a newline on one side and not the other */
+   TP_IGNORE          = 0,                    /**< don't change it */
+   TP_BREAK           = (1u << 0),            /**< add a newline before or after the if not present */
+   TP_FORCE           = (1u << 1),            /**< force a newline on one side and not the other */
    TP_FORCE_BREAK     = (TP_BREAK | TP_FORCE),
-   TP_LEAD            = (1u << 2),            /* at the start of a line or leading if wrapped line */
+   TP_LEAD            = (1u << 2),            /**< at the start of a line or leading if wrapped line */
    TP_LEAD_BREAK      = (TP_LEAD  | TP_BREAK),
    TP_LEAD_FORCE      = (TP_LEAD  | TP_FORCE),
-   TP_TRAIL           = (1u << 3),            /* at the end of a line or trailing if wrapped line */
+   TP_TRAIL           = (1u << 3),            /**< at the end of a line or trailing if wrapped line */
    TP_TRAIL_BREAK     = (TP_TRAIL | TP_BREAK),
    TP_TRAIL_FORCE     = (TP_TRAIL | TP_FORCE),
-   TP_JOIN            = (1u << 4),            /* remove newlines on both sides */
+   TP_JOIN            = (1u << 4),            /**< remove newlines on both sides */
    TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL | TP_JOIN)
 };
 
@@ -85,12 +86,12 @@ enum tokenpos_t
 union op_val_t
 {
    argval_t    a;   /**<  */
-   int         n;   /**< value is a signed numbers */
+   int32_t     n;   /**< value is a signed numbers */
    bool        b;   /**< value is a flags */
    lineends_t  le;  /**<  */
    tokenpos_t  tp;  /**<  */
    const char* str; /**< value is a string */
-   size_t      u;   /**< value is an unsigned numbers */
+   uint32_t    u;   /**< value is an unsigned numbers */
 };
 
 
@@ -115,18 +116,14 @@ enum ug_t
 };
 
 
-/**
- * lists all options that uncrustify knows about
- * The order here must be the same as in the file options.cpp
- */
+/** lists all options that uncrustify knows about
+ *  The order here must be the same as in the file options.cpp */
 enum uo_t
 {
-   /* Keep this enum grouped by functionality */
+   /* Keep this enum grouped by functionality 0 */
    UO_newlines,                 /**< Set to AUTO, LF, CRLF, or CR */
 
-   /*
-    * Basic Indenting stuff
-    */
+   /* Basic Indenting stuff */
    UO_input_tab_size,           /**< tab size on input file: usually 8 */
    UO_output_tab_size,          /**< tab size for output: usually 8 */
    UO_string_escape_char,       /**< the string escape char to use */
@@ -140,7 +137,7 @@ enum uo_t
    UO_utf8_byte,                /**<  */
    UO_utf8_force,               /**<  */
 
-   // group: UG_space, "Spacing options"                                                        1
+   /* group: UG_space, "Spacing options"  1 */
    UO_sp_arith,                    // space around + - / * etc
                                    // also ">>>" "<<" ">>" "%" "|"
    UO_sp_assign,                   // space around =, +=, etc
@@ -331,7 +328,7 @@ enum uo_t
    UO_sp_skip_vbrace_tokens,       //
    UO_force_tab_after_define,      // force <TAB> after #define, Issue # 876
 
-   // group: UG_indent, "Indenting"                                                                2
+   /* group: UG_indent, "Indenting" 2 */
    UO_indent_columns,                       // ie 3 or 8
    UO_indent_continue,                      //
    UO_indent_param,                         // indent value of indent_*_param
@@ -412,11 +409,11 @@ enum uo_t
    UO_indent_cpp_lambda_body,               // indent cpp lambda or not
    UO_indent_using_block,                   // indent (or not) an using block if no braces are used,
    UO_indent_ternary_operator,              // indent continuation of ternary operator
-   // UO_indent_brace_struct,      TODO: spaces to indent brace after struct/enum/union def
-   // UO_indent_paren,             TODO: indent for open paren on next line (1)
-   // UO_indent,                   TODO: 0=don't change indentation, 1=change indentation
+   // UO_indent_brace_struct,               TODO: spaces to indent brace after struct/enum/union def
+   // UO_indent_paren,                      TODO: indent for open paren on next line (1)
+   // UO_indent,                            TODO: 0=don't change indentation, 1=change indentation
 
-   // group: UG_newline, "Newline adding and removing options"                                  3
+   /* group: UG_newline, "Newline adding and removing options"  3 */
    UO_nl_collapse_empty_body,         // change '{ \n }' into '{}'
    UO_nl_assign_leave_one_liners,     // leave one-line assign bodies in 'foo_t f = { a, b, c };'
    UO_nl_class_leave_one_liners,      // leave one-line function bodies in 'class xx { here }'
@@ -584,7 +581,7 @@ enum uo_t
    UO_nl_split_while_one_liner,       // Change a one-liner if statement into simple unbraced if
                                       // 'while (i<5) foo(i++);' => 'while (i<5)\n foo(i++);'
 
-   // group: UG_blankline, "Blank line options", "Note that it takes 2 newlines to get a blank line"      4
+   /* group: UG_blankline, "Blank line options", "Note that it takes 2 newlines to get a blank line" 4 */
    UO_nl_max,                          // maximum consecutive newlines (3 = 2 blank lines)
    UO_nl_max_blank_in_func,            // maximum n-1 consecutive newlines in function (n <= 0 = No change)
                                        // Will not change the newline count if after a brace open (0 = No change)
@@ -644,12 +641,12 @@ enum uo_t
    UO_nl_between_annotation,           // Controls the newline between two annotations
    // UO_nl_after_ifdef,                 after #if or #ifdef - but not if covers whole file
    // UO_nl_after_func_class_def,         newline after 'func_class_def'
-   // UO_ls_before_bool_op,    TODO: break line before or after boolean op
-   // UO_ls_before_paren,      TODO: break before open paren
-   // UO_ls_after_arith,       TODO: break after arith op '+', etc
-   // UO_ls_honor_newlines,    TODO: don't remove newlines on split lines
+   // UO_ls_before_bool_op,               TODO: break line before or after boolean op
+   // UO_ls_before_paren,                 TODO: break before open paren
+   // UO_ls_after_arith,                  TODO: break after arith op '+', etc
+   // UO_ls_honor_newlines,               TODO: don't remove newlines on split lines
 
-   // group: UG_position, "Positioning options"                                                           5
+   /* group: UG_position, "Positioning options"  5 */
    UO_pos_arith,                      // position of trailing/leading arithmetic ops
    UO_pos_assign,                     // position of trailing/leading =
    UO_pos_bool,                       // position of trailing/leading &&/||
@@ -668,13 +665,13 @@ enum uo_t
                                       //   (tied to UO_nl_constr_colon, UO_nl_constr_init_args,
                                       // UO_pos_constr_colon,
 
-   // group: UG_linesplit, "Line Splitting options"                                                       6
-   UO_code_width,           // ie 80 columns
-   UO_ls_for_split_full,    // try to split long 'for' statements at semi-colons
-   UO_ls_func_split_full,   // try to split long func proto/def at comma
-   UO_ls_code_width,        // try to split at code_width
+   /* group: UG_linesplit, "Line Splitting options"  6 */
+   UO_code_width,                  // ie 80 columns
+   UO_ls_for_split_full,           // try to split long 'for' statements at semi-colons
+   UO_ls_func_split_full,          // try to split long func proto/def at comma
+   UO_ls_code_width,               // try to split at code_width
 
-   // group: UG_align, "Code alignment (not left column spaces/tabs)"                                     7
+   /* group: UG_align, "Code alignment (not left column spaces/tabs)" 7 */
    UO_align_keep_tabs,             // keep non-indenting tabs
    UO_align_with_tabs,             // use tabs for aligning (0/1)
    UO_align_on_tabstop,            // always align on tabstops
@@ -739,7 +736,7 @@ enum uo_t
    // UO_align_struct_array_brace,   TODO: align array of structure initializers
    UO_mod_enum_last_comma,        // add or remove comma after last item in enum
 
-   // group: UG_comment, "Comment modifications"                                                    8
+   /* group: UG_comment, "Comment modifications" 8 */
    UO_cmt_width,                   // column to wrap comments
    UO_cmt_reflow_mode,             // comment reflow style
    UO_cmt_convert_tab_to_spaces,   //
@@ -769,7 +766,7 @@ enum uo_t
    UO_cmt_insert_before_inlines,   //
    UO_cmt_insert_before_ctor_dtor, //
 
-   // group: UG_codemodify, "Code modifying options (non-whitespace)"                               9
+   /* group: UG_codemodify, "Code modifying options (non-whitespace)"  9 */
    UO_mod_full_brace_do,                         // add or remove braces on single-line do
    UO_mod_full_brace_for,                        // add or remove braces on single-line for
    UO_mod_full_brace_fct,                        // add optional braces on Pawn functions
@@ -807,7 +804,7 @@ enum uo_t
    UO_mod_sort_oc_property_setter_weight,        // Determines weight of setter type (setter=)
    UO_mod_sort_oc_property_nullability_weight,   // Determines weight of nullability type (nullable/nonnull)
 
-   // group: UG_preprocessor, "Preprocessor options"                                                10
+   /* group: UG_preprocessor, "Preprocessor options"  10 */
    UO_pp_indent,             // indent preproc 1 space per level (add/ignore/remove)
    UO_pp_indent_at_level,    // indent #if, #else, #endif at brace level
    UO_pp_indent_count,       //
@@ -820,12 +817,12 @@ enum uo_t
    UO_pp_define_at_level,    // indent #define at brace level
    UO_pp_ignore_define_body, // "Whether to ignore the '#define' body while formatting."
 
-   // group: UG_sort_includes, "Sort includes options"                                              11
+   /* group: UG_sort_includes, "Sort includes options" 11 */
    UO_include_category_0,  //
    UO_include_category_1,  //
    UO_include_category_2,  //
 
-   // group: UG_Use_Ext, "Use or Do not Use options", "G"                                           12
+   /* group: UG_Use_Ext, "Use or Do not Use options", "G" 12 */
    UO_use_indent_func_call_param,           // use/don't use indent_func_call_param Guy 2015-09-24
    UO_use_indent_continue_only_once,        // The value of the indentation for a continuation line is calculate
                                             // differently if the line is:
@@ -839,20 +836,20 @@ enum uo_t
    UO_use_options_overriding_for_qt_macros, // SIGNAL/SLOT Qt macros have special formatting options.
                                             // See options_for_QT.cpp for details.
 
-   // group: UG_warnlevels, "Warn levels - 1: error, 2: warning (default), 3: note"                 13
+   /*  group: UG_warnlevels, "Warn levels - 1: error, 2: warning (default), 3: note" 13 */
    // Levels to attach to warnings (log_sev_t; default : LWARN)
    UO_warn_level_tabs_found_in_verbatim_string_literals, // if UO_string_replace_tab_chars is set,
                                                          // then we should warn about cases we can't
                                                          // do the replacement
 
 
-   //UO_dont_protect_xcode_code_placeholders,
+   /* UO_dont_protect_xcode_code_placeholders, */
 
-   // This is used to get the enumeration count
+   /*  This is used to get the enumeration count */
    UO_option_count
 };
 
-// for helping by sort
+/* for helping by sort */
 #define   UO_include_category_first    UO_include_category_0
 #define   UO_include_category_last     UO_include_category_2
 
@@ -905,14 +902,14 @@ const option_map_value_t* unc_find_option(
  *  UO_nl_before_do           <=> UO_nl_after_do
  */
 uo_t get_inverse_uo(
-   uo_t option /**< [in] uncrustify option to invert */
+   const uo_t option /**< [in] uncrustify option to invert */
 );
 
 
 /**
  * \brief check if a given option is set in an option variable
  *
- * In contrast to is_option it is sufficient if the required
+ * In contrast to is_option it is sufficient if any of the give
  * option flag is set. The remaining flags are ignored.
  *
  * The check can be done with one or several options
@@ -921,8 +918,8 @@ uo_t get_inverse_uo(
  * @retval false if at least one option was not set
  */
 bool is_opt_set(
-   argval_t opt, /**< [in] option variable to check */
-   argval_t val  /**< [in] option value combination to check for */
+   const argval_t opt, /**< [in] option variable to check */
+   const argval_t val  /**< [in] option value combination to check for */
 );
 
 
@@ -930,20 +927,34 @@ bool is_opt_set(
  *
  * \note there are several overloaded versions of this function */
 bool is_opt_set(
-   uo_t     opt, /**< [in] uncrustify option to check */
-   argval_t val /**< [in] option value to check for */
+   const uo_t     opt, /**< [in] uncrustify option to check */
+   const argval_t val  /**< [in] option value to check for */
+);
+
+
+/** check if an uncrustify option has a given signed integer value */
+bool is_val(
+   const uo_t     opt, /**< [in] uncrustify option to check */
+   const uint32_t val  /**< [in] option value to check for */
+);
+
+
+/** check if an uncrustify option has a given unsigned integer value */
+bool is_val(
+   const uo_t    opt, /**< [in] uncrustify option to check */
+   const int32_t val  /**< [in] option value to check for */
 );
 
 
 /** check if an uncrustify option is set true */
 bool is_true(
-   uo_t opt /**< [in] uncrustify option to check */
+   const uo_t opt /**< [in] uncrustify option to check */
 );
 
 
 /** check if an uncrustify option is set false */
 bool is_false(
-   uo_t opt /**< [in] uncrustify option to check */
+   const uo_t opt /**< [in] uncrustify option to check */
 );
 
 
@@ -953,8 +964,8 @@ bool is_false(
  * @return argument value with addition option added
  */
 argval_t add_option(
-   argval_t opt,  /**< [in] option variable to operate on */
-   argval_t val   /**< [in] option value to add */
+   const argval_t opt, /**< [in] option variable to operate on */
+   const argval_t val  /**< [in] option value to add */
 );
 
 
@@ -967,8 +978,8 @@ argval_t add_option(
  * @retval false if at least one      of the given options is set
  */
 bool is_option_unset(
-   argval_t opt,  /**< [in] option variable to check */
-   argval_t val   /**< [in] option value to check for */
+   const argval_t opt, /**< [in] option variable to check */
+   const argval_t val  /**< [in] option value to check for */
 );
 
 
@@ -983,8 +994,8 @@ bool is_option_unset(
  * @retval false if option is not equal to the given value
  */
 bool is_option(
-   argval_t opt, /**< [in] option variable to check */
-   argval_t val  /**< [in] option combination to check for */
+   const argval_t opt, /**< [in] option variable to check */
+   const argval_t val  /**< [in] option combination to check for */
 );
 
 
@@ -997,8 +1008,8 @@ bool is_option(
  * @retval false if option value is     equal to the given value
  */
 bool not_option(
-   argval_t opt,  /**< [in] option variable to check */
-   argval_t val   /**< [in] option value to check for */
+   const argval_t opt, /**< [in] option variable to check */
+   const argval_t val  /**< [in] option value to check for */
 );
 
 
@@ -1011,8 +1022,8 @@ bool not_option(
  * @retval false if at least one     of the given options is not set
  */
 bool is_token_set(
-   tokenpos_t tok, /**< [in] token variable to check */
-   tokenpos_t val  /**< [in] token combination to check for */
+   const tokenpos_t tok, /**< [in] token variable to check */
+   const tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -1025,8 +1036,8 @@ bool is_token_set(
  * @retval false if at least one      of the given options is set
  */
 bool is_token_unset(
-   tokenpos_t tok, /**< [in] token variable to check */
-   tokenpos_t val  /**< [in] token combination to check for */
+   const tokenpos_t tok, /**< [in] token variable to check */
+   const tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -1039,8 +1050,8 @@ bool is_token_unset(
  * @retval false if token is not equal to the given value
  */
 bool is_token(
-   tokenpos_t tok, /**< [in] token variable to check */
-   tokenpos_t val  /**< [in] token combination to check for */
+      const tokenpos_t tok, /**< [in] token variable to check */
+      const tokenpos_t val  /**< [in] token combination to check for */
 );
 
 
@@ -1053,8 +1064,8 @@ bool is_token(
  * @retval false if token is     equal to the given value
  */
 bool not_token(
-   tokenpos_t tok, /**< [in] token variable to check */
-   tokenpos_t val  /**< [in] Token combination to check for */
+   const tokenpos_t tok, /**< [in] token variable to check */
+   const tokenpos_t val  /**< [in] Token combination to check for */
 );
 
 
@@ -1067,8 +1078,8 @@ bool not_token(
  * @retval false at least one of the expected bits is missing
  */
 bool is_bit_set(
-   uint64_t var, /**< [in] flag variable to check */
-   uint64_t bit  /**< [in] bit mask to check for */
+   const uint64_t var, /**< [in] flag variable to check */
+   const uint64_t bit  /**< [in] bit mask to check for */
 );
 
 
@@ -1081,8 +1092,8 @@ bool is_bit_set(
  * @retval false at least one of the bits in the bit mask is set
  */
 bool is_bit_unset(
-   uint64_t var, /**< [in] flag variable to check */
-   uint64_t bit  /**< [in] bit mask to check for */
+   const uint64_t var, /**< [in] flag variable to check */
+   const uint64_t bit  /**< [in] bit mask to check for */
 );
 
 
@@ -1114,9 +1125,9 @@ void register_options(void);
  * tbd
  */
 void unc_begin_group(
-   ug_t       id,                  /**< [in]  */
-   const char *short_desc,         /**< [in]  */
-   const char *long_desc = nullptr /**< [in]  */
+   ug_t        id,                 /**< [in]  */
+   const char* short_desc,         /**< [in]  */
+   const char* long_desc = nullptr /**< [in]  */
 );
 
 
@@ -1129,8 +1140,8 @@ void unc_begin_group(
  *                  extracted
  */
 void process_option_line(
-   char       *configLine, /**< [in]  */
-   const char *filename    /**< [in]  */
+   char*       configLine, /**< [in]  */
+   const char* filename    /**< [in]  */
 );
 
 
@@ -1138,7 +1149,7 @@ void process_option_line(
  * tbd
  */
 int load_option_file(
-   const char *filename /**< [in]  */
+   const char* filename /**< [in]  */
 );
 
 
@@ -1146,8 +1157,8 @@ int load_option_file(
  * tbd
  */
 int save_option_file(
-   FILE *pfile, /**< [in]  */
-   bool withDoc /**< [in]  */
+   FILE* pfile,  /**< [in]  */
+   bool  withDoc /**< [in]  */
 );
 
 
@@ -1155,9 +1166,9 @@ int save_option_file(
  * tbd
  */
 int save_option_file_kernel(
-   FILE *pfile,           /**< [in]  */
-   bool withDoc,          /**< [in]  */
-   bool only_not_default  /**< [in]  */
+   FILE* pfile,           /**< [in]  */
+   bool  withDoc,         /**< [in]  */
+   bool  only_not_default /**< [in]  */
 );
 
 
@@ -1168,32 +1179,35 @@ int save_option_file_kernel(
  * @retval -1   entry was not found
  */
 int set_option_value(
-   const char *name, /**< [in]  */
-   const char *value /**< [in]  */
+   const char* name, /**< [in]  */
+   const char* value /**< [in]  */
 );
 
 
 /**
- * tbd
+ * check if a path/filename uses a relative or absolute path
+ *
+ * @retval false path is an absolute one
+ * @retval true  path is a  relative one
  */
 bool is_path_relative(
-   const char *path /**< [in]  */
+   const char *path /**< [in] path/filename to check */
 );
 
 
 /**
  * tbd
  */
-const group_map_value_t *get_group_name(
-   size_t ug /**< [in]  */
+const group_map_value_t* get_group_name(
+   size_t ug /**< [in] */
 );
 
 
 /**
  * tbd
  */
-const option_map_value_t *get_option_name(
-   uo_t uo /**< [in]  */
+const option_map_value_t* get_option_name(
+   uo_t uo /**< [in] */
 );
 
 
@@ -1201,7 +1215,7 @@ const option_map_value_t *get_option_name(
  * tbd
  */
 void print_options(
-   FILE *pfile /**< [in]  */
+   FILE* pfile /**< [in]  */
 );
 
 
@@ -1225,7 +1239,7 @@ string bool2str(
  * convert an argument value to a C++ string
  */
 string argval2str(
-   argval_t argval  /**< [in] argument value to convert */
+   argval_t argval /**< [in] argument value to convert */
 );
 
 
@@ -1233,7 +1247,7 @@ string argval2str(
  * convert an integer number to a string
  */
 string number2str(
-   int number  /**< [integer number to convert */
+   int number /**< [integer number to convert */
 );
 
 
@@ -1241,7 +1255,7 @@ string number2str(
  * convert a line ending type to a string
  */
 string lineends2str(
-   lineends_t linends   /**< [in] line ending type to convert */
+   lineends_t linends /**< [in] line ending type to convert */
 );
 
 
@@ -1249,7 +1263,7 @@ string lineends2str(
  * convert a token to a string
  */
 string tokenpos2str(
-   tokenpos_t tokenpos  /**< [in] token to convert */
+   tokenpos_t tokenpos /**< [in] token to convert */
 );
 
 
@@ -1257,8 +1271,8 @@ string tokenpos2str(
  * convert an argument of a given type to a string
  */
 string op_val2str(
-   const argtype_t argtype,   /**< [in] type of argument */
-   const op_val_t  &op_val    /**< [in] value of argument */
+   const argtype_t argtype, /**< [in] type of argument */
+   const op_val_t  &op_val  /**< [in] value of argument */
 );
 
 
@@ -1269,15 +1283,15 @@ string op_val2str(
  * @retval false - path is absolute
  */
 bool is_path_relative(
-   const char *path  /**> [in] path to check */
+   const char* path /**< [in] path to check */
 );
 
 
 /**
  * tbd
  */
-const option_map_value_t *unc_find_option(
-   const char *name /**< [in]  */
+const option_map_value_t* unc_find_option(
+   const char* name /**< [in]  */
 );
 
 

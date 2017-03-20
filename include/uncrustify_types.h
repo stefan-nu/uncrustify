@@ -265,19 +265,19 @@ struct chunk_t
    indent_ptr_t indent;        /**<  */
    c_token_t    type;          /**< type of the chunk itself */
    c_token_t    ptype;         /**< type of the parent chunk usually CT_NONE */
-   size_t       orig_line;     /**< line number of chunk in input file */
-   size_t       orig_col;      /**< column where chunk started in input file, is always > 0 */
+   uint32_t     orig_line;     /**< line number of chunk in input file */
+   uint32_t     orig_col;      /**< column where chunk started in input file, is always > 0 */
    uint32_t     orig_col_end;  /**< column where chunk ended in input file, is always > 1 */
    uint32_t     orig_prev_sp;  /**< whitespace before this token */
    uint64_t     flags;         /**< see PCF_xxx */
-   size_t       column;        /**< column of chunk */
-   size_t       column_indent; /**< if 1st on a line, set to the 'indent'
+   uint32_t     column;        /**< column of chunk */
+   uint32_t     column_indent; /**< if 1st on a line, set to the 'indent'
                                 *   column, which may be less than the real column
                                 *   used to indent with tabs */
-   size_t       nl_count;      /**< number of newlines in CT_NEWLINE */
-   size_t       level;         /**< nest level in {, (, or [ */
-   size_t       brace_level;   /**< nest level in braces only */
-   size_t       pp_level;      /**< nest level in preprocessor */
+   uint32_t     nl_count;      /**< number of newlines in CT_NEWLINE */
+   uint32_t     level;         /**< nest level in {, (, or [ */
+   uint32_t     brace_level;   /**< nest level in braces only */
+   uint32_t     pp_level;      /**< nest level in preprocessor */
    bool         after_tab;     /**< whether this token was after a tab */
    unc_text     str;           /**< the token text */
 };

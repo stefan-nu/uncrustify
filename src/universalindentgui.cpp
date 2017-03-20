@@ -69,7 +69,7 @@ void print_universal_indent_cfg(FILE *pfile)
            UNCRUSTIFY_VERSION);
 
 #ifdef DEBUG
-   size_t optionNumber = 0;
+   uint32_t optionNumber = 0;
 #endif
    /* Now add each option */
    for (idx = 0; idx < (size_t)UG_group_count; idx++)
@@ -102,9 +102,9 @@ void print_universal_indent_cfg(FILE *pfile)
          }
 
          fprintf(pfile, "\n[%s]\n", optionNameReadable);
-         fprintf(pfile, "Category=%zu\n", idx);
+         fprintf(pfile, "Category=%u\n", idx);
 #ifdef DEBUG
-         fprintf(pfile, "Description=\"<html>(%zu)", optionNumber);
+         fprintf(pfile, "Description=\"<html>(%u)", optionNumber);
          optionNumber++;
 #else
          fprintf(pfile, "Description=\"<html>");
@@ -207,7 +207,7 @@ void print_universal_indent_cfg(FILE *pfile)
                fprintf(pfile, "CallName=\"%s=\"\n", option->name);
                fprintf(pfile, "MinVal=%d\n", option->min_val);
                fprintf(pfile, "MaxVal=%d\n", option->max_val);
-               fprintf(pfile, "ValueDefault=%zu\n", cpd.settings[option->id].u);
+               fprintf(pfile, "ValueDefault=%u\n", cpd.settings[option->id].u);
                break;
 
             case AT_LINE:

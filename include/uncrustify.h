@@ -26,7 +26,7 @@ int main(
 /**
  * tbd
  */
-const char *get_token_name(
+const char* get_token_name(
    c_token_t token /**< [in]  */
 );
 

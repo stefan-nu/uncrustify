@@ -587,9 +587,11 @@ int main(int argc, char *argv[])
    if (argc == 1) { usage_exit(nullptr, argv[0], EXIT_SUCCESS); }
 
    /* make sure we have token_names.h in sync with token_enum.h */
+#ifdef DEBUG
    const size_t token_name_count = ARRAY_SIZE(token_names);
    const size_t ct_token_count   = CT_TOKEN_COUNT_;
    assert(token_name_count == ct_token_count);
+#endif
 
    /* Build options map */
    register_options();
@@ -2033,7 +2035,7 @@ bool is_valid_token_name(c_token_t token)
 }
 
 
-const char *get_token_name(c_token_t token)
+const char* get_token_name(c_token_t token)
 {
    return (is_valid_token_name(token) ? token_names[token] : "unknown");
 }

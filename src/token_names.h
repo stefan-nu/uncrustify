@@ -7,7 +7,7 @@
 /* \todo better add the names directly to the token enum
  * this token_names list is error prone and adds unnecessary
  * redundancy */
-const char *const token_names[] =
+const char* const token_names[] =
 {
    "NONE",
    "EOF",

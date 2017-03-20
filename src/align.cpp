@@ -390,12 +390,12 @@ static void align_add(ChunkStack &cs, chunk_t *pc, size_t &max_col, size_t min_p
    else
    {
       if (is_type(prev, CT_COMMENT_MULTI)) { min_col = prev->orig_col_end +               min_pad; }
-      else                                       { min_col = prev->column       + prev->len() + min_pad; }
+      else                                 { min_col = prev->column       + prev->len() + min_pad; }
 
       if (squeeze == false) { min_col = max(min_col, pc->column); }
 
-      const bool is_multi = is_type(prev, CT_COMMENT_MULTI);
-      const char *type = (is_multi) ? "Y" : "N";
+      const bool  is_multi = is_type(prev, CT_COMMENT_MULTI);
+      const char* type = (is_multi) ? "Y" : "N";
       const size_t col = (is_multi) ? prev->orig_col_end : (uint32_t)prev->column;
 
       LOG_FMT(LALADD, "%s: pc->orig_line=%zu, pc->col=%zu max_col=%zu min_pad=%zu \
@@ -492,7 +492,7 @@ void align_all(void)
 
    /* Align function prototypes */
    if ((cpd.settings[UO_align_func_proto_span].u > 0) &&
-       is_false(UO_align_mix_var_proto       )) { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
+       is_false(UO_align_mix_var_proto)) { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
 
    /* Align function prototypes */
    if (cpd.settings[UO_align_oc_msg_spec_span].u > 0)  { align_oc_msg_spec(cpd.settings[UO_align_oc_msg_spec_span].u); }
@@ -622,12 +622,12 @@ void align_preprocessor(void)
 {
    LOG_FUNC_ENTRY();
 
-   AlignStack as;    // value macros
+   AlignStack as;    /* value macros */
    as.Start(  cpd.settings[UO_align_pp_define_span].u);
    as.m_gap = cpd.settings[UO_align_pp_define_gap ].u;
    AlignStack *cur_as = &as;
 
-   AlignStack asf;   // function macros
+   AlignStack asf;   /* function macros */
    asf.Start(  cpd.settings[UO_align_pp_define_span].u);
    asf.m_gap = cpd.settings[UO_align_pp_define_gap ].u;
 
@@ -784,8 +784,8 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
          /* we hit the second variable def - don't look for assigns, don't align */
          vdas.Reset();
       }
-      else if ((equ_count == 0                ) &&
-               is_type    (pc, CT_ASSIGN      ) &&
+      else if ((equ_count == 0             ) &&
+               is_type    (pc, CT_ASSIGN   ) &&
                not_flag(pc, PCF_IN_TEMPLATE) )
       {
          equ_count++;
@@ -807,7 +807,7 @@ chunk_t *align_assign(chunk_t *first, size_t span, size_t thresh, size_t *p_nl_c
 }
 
 
-static chunk_t *align_func_param(chunk_t *start)
+static chunk_t* align_func_param(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
 
@@ -896,6 +896,12 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
 }
 
 
+static void log_align(const uint32_t line, const char* str)
+{
+   LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", line, str);
+}
+
+
 static void align_same_func_call_params(void)
 {
    LOG_FUNC_ENTRY();
@@ -962,18 +968,18 @@ static void align_same_func_call_params(void)
       prev      = chunk_get_next(prev);
       align_fcn = prev;
       align_fcn_name.clear();
-      LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
+      log_align(__LINE__, align_fcn_name.c_str());
       while (prev != pc)
       {
-         LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
+         log_align(__LINE__, align_fcn_name.c_str());
          assert(is_valid(prev));
          align_fcn_name += prev->str;
-         LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
+         log_align(__LINE__, align_fcn_name.c_str());
          prev = chunk_get_next(prev);
       }
-      LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
+      log_align(__LINE__, align_fcn_name.c_str());
       align_fcn_name += pc->str;
-      LOG_FMT(LASFCP, "(%d) align_fnc_name [%s]\n", __LINE__, align_fcn_name.c_str());
+      log_align(__LINE__, align_fcn_name.c_str());
       assert(is_valid(align_fcn));
       LOG_FMT(LASFCP, "Func Call @ %zu:%zu [%s]\n", align_fcn->orig_line,
             align_fcn->orig_col, align_fcn_name.c_str());
@@ -1358,7 +1364,6 @@ static chunk_t *align_var_def_brace(chunk_t *start, size_t span, size_t *p_nl_co
 chunk_t *align_nl_cont(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-
    LOG_FMT(LALNLC, "%s: start on [%s] on line %zu\n", __func__,
            get_token_name(start->type), start->orig_line);
 

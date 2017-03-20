@@ -521,8 +521,7 @@ static void add_text(const unc_text &text, bool is_ignored = false)
    {
       int ch = text[idx];
 
-      if( (is_ignored == true) &&
-          (ch         >= 0   ) )
+      if((is_ignored == true) && (ch >= 0))
       {
          write_char((uint32_t)ch);
       }
@@ -559,9 +558,9 @@ static bool next_word_exceeds_limit(const unc_text &text, size_t idx)
 
 static void cmt_output_indent(size_t brace_col, size_t base_col, size_t column)
 {
-   size_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 :
-                            (cpd.settings[UO_indent_with_tabs    ].n ? 1 :
-                                                                       0);
+   size_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs)    ? 2 :
+                            (cpd.settings[UO_indent_with_tabs].n ? 1 :
+                                                                   0);
 
    size_t tab_col = (indent_with_tabs == 0) ? 0 :
                     (indent_with_tabs == 1) ? brace_col :
@@ -587,7 +586,7 @@ void output_parsed(FILE *pfile)
    fprintf(pfile, "# Line              Tag           Parent          Columns Br/Lvl/pp     Flag   Nl  Text");
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
-      fprintf(pfile, "\n# %3zu> %16.16s[%16.16s][%3zu/%3zu/%3u/%3u][%zu/%zu/%zu][%10" PRIx64 "][%zu-%d]",
+      fprintf(pfile, "\n# %3u> %16.16s[%16.16s][%3u/%3u/%3u/%3u][%u/%u/%u][%10" PRIx64 "][%u-%d]",
               pc->orig_line,   get_token_name(pc->type),
               get_token_name(pc->ptype),         pc->column,
               pc->orig_col,    pc->orig_col_end, pc->orig_prev_sp,
@@ -750,8 +749,7 @@ void output_text(FILE *pfile)
                      size_t lvlcol;
                      /* FIXME: it would be better to properly set column_indent in
                       * indent_text(), but this hack for '}' and ':' seems to work. */
-                     if( (is_type(pc, CT_BRACE_CLOSE, CT_PREPROC)) ||
-                         (is_str(pc, ":")                        ) )
+                     if(is_type(pc, CT_BRACE_CLOSE, CT_PREPROC) || is_str (pc, ":"))
                      {
                         lvlcol = pc->column;
                      }
@@ -844,9 +842,9 @@ static size_t cmt_parse_lead(const unc_text &line, bool is_last)
 
    retval_if(len > 30, 1);
 
-   if(((len >  0) && ((len >= line.size()) || unc_isspace(line[len])) ) ||
-      ((len >  0) && (is_last == true                               ) ) ||
-      ((len == 1) && (line[0] == '*'                                ) ) )
+   if(((len >  0) && ((len >= line.size()) || unc_isspace(line[len]))) ||
+      ((len >  0) && (is_last == true                               )) ||
+      ((len == 1) && (line[0] == '*'                                )) )
    {
       return(len);
    }
@@ -891,9 +889,7 @@ static void calculate_comment_body_indent(cmt_reflow_t &cmt, const unc_text &str
          if(is_part_of_newline(str[idx]))
          {
             idx++;
-            while ( (idx      <  len    )   &&
-                   ((str[idx] == SPACE  ) ||
-                    (str[idx] == TABSTOP) ) )
+            while ( (idx < len) && is_space_or_tab(str[idx]) )
             {
                idx++;
             }
@@ -910,8 +906,7 @@ static void calculate_comment_body_indent(cmt_reflow_t &cmt, const unc_text &str
       if(is_part_of_newline(str[idx]))
       {
          first_len = idx;
-         while ((str[first_len - 1] == SPACE  ) ||
-                (str[first_len - 1] == TABSTOP) )
+         while (is_space_or_tab(str[first_len-1]))
          {
             first_len--;
          }
@@ -935,8 +930,7 @@ static void calculate_comment_body_indent(cmt_reflow_t &cmt, const unc_text &str
    size_t width = 0;
    for ( ; idx < len - 1; idx++)
    {
-      if ((str[idx] == SPACE  ) ||
-          (str[idx] == TABSTOP) )
+      if (is_space_or_tab(str[idx]))
       {
          break_if(width > 0);
          continue;
@@ -1598,8 +1592,6 @@ static void output_comment_multi(chunk_t *pc)
             line.pop_back();
             cmt_trim_whitespace(line, is_preproc(pc));
          }
-
-         // LOG_FMT(LSYS, "[%3d]%s\n", ccol, line);
 
          if (line_count == 1)
          {

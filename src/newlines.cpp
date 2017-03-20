@@ -136,7 +136,7 @@ static void newline_iarf_pair(
 
 /**
  * Adds newlines to multi-line function call/decl/def
- * Start points to the open paren
+ * Start points to the open parenthesis
  */
 static void newline_func_multi_line(
    chunk_t* start  /**< [in]  */
@@ -145,7 +145,7 @@ static void newline_func_multi_line(
 
 /**
  * Formats a function declaration
- * Start points to the open paren
+ * Start points to the open parenthesis
  */
 static void newline_func_def(
    chunk_t* start  /**< [in]  */
@@ -237,7 +237,8 @@ static void remove_next_newlines(
 /**
  * Add or remove extra newline after end of the block started in chunk.
  * Doesn't do anything if close brace after it
- * Interesting issue is that at this point, nls can be before or after vbraces
+ * Interesting issue is that at this point, newlines can be before or after
+ * virtual braces
  * VBraces will stay VBraces, conversion to real ones should have already happened
  * "if (...)\ncode\ncode" or "if (...)\ncode\n\ncode"
  */
@@ -424,22 +425,16 @@ static bool can_increase_nl(chunk_t* nl)
       }
    }
 
-   if (is_true(UO_eat_blanks_before_close_brace))
+   if (is_true(UO_eat_blanks_before_close_brace) && is_type(next, CT_BRACE_CLOSE))
    {
-      if (is_type(next, CT_BRACE_CLOSE))
-      {
-         LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %zu\n", __func__, nl->orig_line);
-         return(false);
-      }
+      LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %zu\n", __func__, nl->orig_line);
+      return(false);
    }
 
-   if (is_true(UO_eat_blanks_after_open_brace))
+   if (is_true(UO_eat_blanks_after_open_brace) && is_type(prev, CT_BRACE_OPEN))
    {
-      if(is_type(prev, CT_BRACE_OPEN))
-      {
-         LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %zu\n", __func__, nl->orig_line);
-         return(false);
-      }
+      LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %zu\n", __func__, nl->orig_line);
+      return(false);
    }
 
    if (!pcmt && (cpd.settings[UO_nl_start_of_file].a != AV_IGNORE))
@@ -518,14 +513,13 @@ static void setup_newline_add(chunk_t* prev, chunk_t* nl, chunk_t* next)
 }
 
 
+/* \todo DRY with newline_add_after */
 chunk_t* newline_add_before(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   assert(is_valid(pc));
-   chunk_t  nl;
-   chunk_t* prev;
+   retval_if(is_invalid(pc), pc);
 
-   prev = get_prev_nvb(pc);
+   chunk_t* prev = get_prev_nvb(pc);
 
    /* Already has a newline before this chunk */
    retval_if(is_nl(prev), prev);
@@ -534,6 +528,7 @@ chunk_t* newline_add_before(chunk_t* pc)
            __func__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
    log_func_stack_inline(LNEWLINE);
 
+   chunk_t  nl;
    setup_newline_add(prev, &nl, pc);
    LOG_FMT(LNEWLINE, "%s: '%s' on line %zu, col %zu, nl.column=%zu\n",
            __func__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
@@ -543,19 +538,7 @@ chunk_t* newline_add_before(chunk_t* pc)
 }
 
 
-chunk_t* newline_force_before(chunk_t* pc)
-{
-   LOG_FUNC_ENTRY();
-   chunk_t* nl = newline_add_before(pc);
-   if (is_valid(nl) && (nl->nl_count > 1))
-   {
-      nl->nl_count = 1;
-      MARK_CHANGE();
-   }
-   return(nl);
-}
-
-
+/* \todo DRY with newline_add_before */
 chunk_t* newline_add_after(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
@@ -566,21 +549,40 @@ chunk_t* newline_add_after(chunk_t* pc)
    /* Already has a newline after this chunk */
    retval_if(is_nl(next), next);
 
-   LOG_FMT(LNEWLINE, "%s: '%s' on line %zu", __func__, pc->text(), pc->orig_line);
+   LOG_FMT(LNEWLINE, "%s: '%s' on line %zu, col %zu, pc->column=%zu",
+           __func__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
    log_func_stack_inline(LNEWLINE);
 
    chunk_t nl;
    setup_newline_add(pc, &nl, next);
+   LOG_FMT(LNEWLINE, "%s: '%s' on line %zu, col %zu, nl.column=%zu\n",
+           __func__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
 
    MARK_CHANGE();
    return(chunk_add_after(&nl, pc));
 }
 
 
+/* \todo DRY with newline_force_before */
 chunk_t* newline_force_after(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t* nl = newline_add_after(pc);
+
+   chunk_t* nl = newline_add_after(pc);   /* add a newline */
+   if (is_valid(nl) && (nl->nl_count > 1))/* check if there are more than 1 newline */
+   {
+      nl->nl_count = 1;                   /* if so change the newline count back to 1 */
+      MARK_CHANGE();
+   }
+   return(nl);
+}
+
+
+/* \todo DRY with newline_force_after */
+chunk_t* newline_force_before(chunk_t* pc)
+{
+   LOG_FUNC_ENTRY();
+   chunk_t* nl = newline_add_before(pc);
    if (is_valid(nl) && (nl->nl_count > 1))
    {
       nl->nl_count = 1;
@@ -2875,7 +2877,7 @@ void newlines_functions_remove_extra_blank_lines(void)
       while (is_valid(pc))
       {
          break_if(is_type_and_level(pc, CT_BRACE_CLOSE, startMoveLevel));
-         // delete newlines
+         /* delete newlines */
          if (pc->nl_count > nl_max_blank_in_func)
          {
             pc->nl_count = nl_max_blank_in_func;
@@ -2951,18 +2953,31 @@ void newlines_squeeze_ifdef(void)
 }
 
 
+/** remove empty newlines at start of a file */
+static void newlines_eat_start(void);
+
+/** remove empty newlines at end of a file */
+static void newlines_eat_end(void);
+
+
 void newlines_eat_start_end(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t* pc;
+   newlines_eat_start();
+   newlines_eat_end();
 
+}
+
+
+/* \todo DRY with newlines_eat_end */
+static void newlines_eat_start(void)
+{
    /* Process newlines at the start of the file */
    if ((cpd.frag_cols == 0) &&
-       (is_opt_set(UO_nl_start_of_file, AV_REMOVE) ||
-       (is_opt_set(UO_nl_start_of_file, AV_ADD   ) &&
-       (cpd.settings[UO_nl_start_of_file_min].u > 0))))
+       ( is_opt_set(UO_nl_start_of_file, AV_REMOVE) ||
+        (is_opt_set(UO_nl_start_of_file, AV_ADD   ) && (cpd.settings[UO_nl_start_of_file_min].u > 0))))
    {
-      pc = chunk_get_head();
+      chunk_t* pc = chunk_get_head();
       if (is_valid(pc))
       {
          if (is_type(pc, CT_NEWLINE))
@@ -2995,14 +3010,17 @@ void newlines_eat_start_end(void)
          }
       }
    }
+}
 
+/* \todo DRY with newlines_eat_start */
+static void newlines_eat_end(void)
+{
    /* Process newlines at the end of the file */
    if ((cpd.frag_cols == 0) &&
         (is_opt_set(UO_nl_end_of_file, AV_REMOVE) ||
-        (is_opt_set(UO_nl_end_of_file, AV_ADD   ) &&
-        (cpd.settings[UO_nl_end_of_file_min].u > 0))))
+        (is_opt_set(UO_nl_end_of_file, AV_ADD   ) && (cpd.settings[UO_nl_end_of_file_min].u > 0))))
    {
-      pc = chunk_get_tail();
+      chunk_t* pc = chunk_get_tail();
       if (is_valid(pc))
       {
          if (is_type(pc, CT_NEWLINE))
@@ -3053,15 +3071,15 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
       if (is_type(pc, chunk_type))
       {
          tokenpos_t mode_local;
-         if (chunk_type == CT_COMMA)
+         if (is_type(chunk_type, CT_COMMA))
          {
-            // for chunk_type == CT_COMMA
-            // we get 'mode' from cpd.settings[UO_pos_comma].tp
-            // BUT we must take care of cpd.settings[UO_pos_class_comma].tp
-            // TODO and cpd.settings[UO_pos_constr_comma].tp
+            /* for chunk_type == CT_COMMA
+             * we get 'mode' from cpd.settings[UO_pos_comma].tp
+             * BUT we must take care of cpd.settings[UO_pos_class_comma].tp
+             * TODO and cpd.settings[UO_pos_constr_comma].tp */
             if (is_flag(pc, PCF_IN_CLASS_BASE))
             {
-               // change mode
+               /*  change mode */
                mode_local = cpd.settings[UO_pos_class_comma].tp;
             }
             else if (is_flag(pc, PCF_IN_ENUM))
@@ -3090,19 +3108,17 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
                /* remove newline if not preceded by a comment */
                chunk_t* prev2 = chunk_get_prev(prev);
 
-               if ( is_valid  (prev2) &&
-                   !is_cmt(prev2) )
+               if (is_valid(prev2) && !is_cmt(prev2))
                {
                   remove_next_newlines(prev2);
                }
             }
             if (nl_flag & 2)
             {
-               /* remove nl if not followed by a comment */
+               /* remove newline if not followed by a comment */
                chunk_t* next2 = chunk_get_next(next);
 
-               if (is_valid  (next2) &&
-                  !is_cmt(next2) )
+               if (is_valid(next2) && !is_cmt(next2))
                {
                   remove_next_newlines(pc);
                }
@@ -3110,15 +3126,15 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
             continue;
          }
 
-         if ( ( (nl_flag == 0) && is_token_unset(mode_local, TP_FORCE_BREAK) ) ||
-              ( (nl_flag == 3) && is_token_unset(mode_local, TP_FORCE      ) ) )
+         if ( ((nl_flag == 0) && is_token_unset(mode_local, TP_FORCE_BREAK)) ||
+              ((nl_flag == 3) && is_token_unset(mode_local, TP_FORCE      )) )
          {
             /* No newlines and not adding any or both and not forcing */
             continue;
          }
 
-         if ( ( (nl_flag == 1) && is_token_set(mode_local, TP_LEAD ) ) ||
-              ( (nl_flag == 2) && is_token_set(mode_local, TP_TRAIL) ) )
+         if ( ((nl_flag == 1) && is_token_set(mode_local, TP_LEAD )) ||
+              ((nl_flag == 2) && is_token_set(mode_local, TP_TRAIL)) )
          {
             /* Already a newline before (lead) or after (trail) */
             continue;
@@ -3157,7 +3173,7 @@ void newlines_chunk_pos(c_token_t chunk_type, tokenpos_t mode)
          {
             const chunk_t* next2 = chunk_get_next(next);
             continue_if(is_type(next2, CT_PREPROC   ) ||
-                       (is_type(next2, CT_BRACE_OPEN) && (chunk_type  == CT_ASSIGN)) );
+                       (is_type(next2, CT_BRACE_OPEN) && is_type(chunk_type, CT_ASSIGN)) );
 
             assert(is_valid(next));
             if (next->nl_count == 1)

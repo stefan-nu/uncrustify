@@ -437,9 +437,6 @@ static bool sp_cond_0211(chunks_t* c) { return is_type(c->a, CT_BRACE_CLOSE) && 
 static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW, CT_DELETE) || is_type_and_ptype(c->a, CT_TSQUARE, CT_DELETE); }
 static bool sp_cond_0237(chunks_t* c) { return is_type(c->a, CT_ANNOTATION) && is_paren_open(c->b); }
 
-static bool sp_cond_0249(chunks_t* c) { return false; }
-static bool sp_cond_0250(chunks_t* c) { return false; }
-
 
 /* \todo make min_sp a size_t */
 /* Note that the order of the if statements is VERY important. */

@@ -2805,7 +2805,7 @@ static void fix_fcn_def_params(chunk_t* start)
    /* ensure start chunk holds a single '(' character */
    size_t len        = start->len();
    char   first_char = start->str[0]; /*lint !e734 */
-   assert((len == 1) && (first_char == '(' ));
+   return_if((len == 1) && (first_char == '(' ));
 
    ChunkStack cs;
    size_t     level = start->level + 1;
