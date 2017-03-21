@@ -81,8 +81,8 @@ map<ug_t, group_map_value_t>  group_map;
 static ug_t                   current_group;
 
 #ifdef DEBUG
-static int checkGroupNumber  = -1;
-static int checkOptionNumber = -1;
+static int32_t checkGroupNumber  = -1;
+static int32_t checkOptionNumber = -1;
 #endif
 
 
@@ -116,8 +116,8 @@ static void unc_add_option(
    argtype_t  type,   /**< [in]  */
    const char *short_desc = nullptr, /**< [in]  */
    const char *long_desc  = nullptr, /**< [in]  */
-   int        min_val     =  0, /**< [in]  */
-   int        max_val     = 16  /**< [in]  */
+   int32_t        min_val     =  0, /**< [in]  */
+   int32_t        max_val     = 16  /**< [in]  */
 );
 
 #if 0
@@ -138,7 +138,7 @@ static void unc_add_option(
    }
 #endif // DEBUG
 #define OptionMaxLength    60
-   int lengthOfTheOption = strlen(name);
+   int32_t lengthOfTheOption = strlen(name);
    if (lengthOfTheOption > OptionMaxLength)
    {
 #endif
@@ -177,7 +177,7 @@ void unc_begin_group(ug_t id, const char *short_desc,
 
 argval_t add_option(argval_t var, argval_t opt)
 {
-   return (argval_t)((int)var | (int)opt);
+   return (argval_t)((int32_t)var | (int32_t)opt);
 }
 
 
@@ -298,14 +298,14 @@ bool is_bit_unset(const uint64_t var, const uint64_t bit)
 
 
 static void unc_add_option(const char *name, uo_t id, argtype_t type,
-      const char *short_desc, const char *long_desc, int min_val, int max_val)
+      const char *short_desc, const char *long_desc, int32_t min_val, int32_t max_val)
 {
-   const size_t option_max_length = 60;
-   size_t lengthOfTheOption = strlen(name);
+   const uint32_t option_max_length = 60;
+   uint32_t lengthOfTheOption = strlen(name);
    if (lengthOfTheOption > option_max_length)
    {
-      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%zu)\n", name, lengthOfTheOption);
-      fprintf(stderr, "FATAL: the maximal length of an option name is %zu characters\n", option_max_length);
+      fprintf(stderr, "FATAL: length of the option name (%s) is too big (%u)\n", name, lengthOfTheOption);
+      fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", option_max_length);
       exit(EX_SOFTWARE);
    }
    group_map[current_group].options.push_back(id);
@@ -342,7 +342,7 @@ static void unc_add_option(const char *name, uo_t id, argtype_t type,
 
 static bool match_text(const char *str1, const char *str2)
 {
-   int matches = 0;
+   int32_t matches = 0;
    while ((*str1 != 0) && (*str2 != 0))
    {
       if (!unc_isalnum(*str1)) { str1++; continue; }
@@ -567,7 +567,7 @@ void register_options(void)
    unc_add_option("sp_after_operator_sym_empty", UO_sp_after_operator_sym_empty, AT_IARF,
                   "Add or remove space between the operator symbol and the open paren when the operator has no arguments, as in 'operator *()'");
    unc_add_option("sp_after_cast", UO_sp_after_cast, AT_IARF,
-                  "Add or remove space after C/D cast, i.e. 'cast(int)a' vs 'cast(int) a' or '(int)a' vs '(int) a'");
+                  "Add or remove space after C/D cast, i.e. 'cast(int32_t)a' vs 'cast(int32_t) a' or '(int32_t)a' vs '(int32_t) a'");
    unc_add_option("sp_inside_paren_cast", UO_sp_inside_paren_cast, AT_IARF,
                   "Add or remove spaces inside cast parens");
    unc_add_option("sp_cpp_cast_paren", UO_sp_cpp_cast_paren, AT_IARF,
@@ -695,13 +695,13 @@ void register_options(void)
    unc_add_option("sp_before_nl_cont", UO_sp_before_nl_cont, AT_IARF,
                   "Add or remove space before a backslash-newline at the end of a line. Default=Add");
    unc_add_option("sp_after_oc_scope", UO_sp_after_oc_scope, AT_IARF,
-                  "Add or remove space after the scope '+' or '-', as in '-(void) foo;' or '+(int) bar;'");
+                  "Add or remove space after the scope '+' or '-', as in '-(void) foo;' or '+(int32_t) bar;'");
    unc_add_option("sp_after_oc_colon", UO_sp_after_oc_colon, AT_IARF,
                   "Add or remove space after the colon in message specs\n"
-                  "'-(int) f:(int) x;' vs '-(int) f: (int) x;'");
+                  "'-(int32_t) f:(int32_t) x;' vs '-(int32_t) f: (int32_t) x;'");
    unc_add_option("sp_before_oc_colon", UO_sp_before_oc_colon, AT_IARF,
                   "Add or remove space before the colon in message specs\n"
-                  "'-(int) f: (int) x;' vs '-(int) f : (int) x;'");
+                  "'-(int32_t) f: (int32_t) x;' vs '-(int32_t) f : (int32_t) x;'");
    unc_add_option("sp_after_oc_dict_colon", UO_sp_after_oc_dict_colon, AT_IARF,
                   "Add or remove space after the colon in immutable dictionary expression\n"
                   "'NSDictionary *test = @{@\"foo\" :@\"bar\"};'");
@@ -716,10 +716,10 @@ void register_options(void)
                   "'[object setValue:1];' vs '[object setValue :1];'");
    unc_add_option("sp_after_oc_type", UO_sp_after_oc_type, AT_IARF,
                   "Add or remove space after the (type) in message specs\n"
-                  "'-(int)f: (int) x;' vs '-(int)f: (int)x;'");
+                  "'-(int32_t)f: (int32_t) x;' vs '-(int32_t)f: (int32_t)x;'");
    unc_add_option("sp_after_oc_return_type", UO_sp_after_oc_return_type, AT_IARF,
                   "Add or remove space after the first (type) in message specs\n"
-                  "'-(int) f:(int)x;' vs '-(int)f:(int)x;'");
+                  "'-(int32_t) f:(int32_t)x;' vs '-(int32_t)f:(int32_t)x;'");
    unc_add_option("sp_after_oc_at_sel", UO_sp_after_oc_at_sel, AT_IARF,
                   "Add or remove space between '@selector' and '('\n"
                   "'@selector(msgName)' vs '@selector (msgName)'\n"
@@ -1763,11 +1763,11 @@ void register_options(void)
 }
 
 
-const group_map_value_t *get_group_name(size_t ug)
+const group_map_value_t *get_group_name(uint32_t ug)
 {
    for (const auto &it : group_map)
    {
-      if ((size_t)it.second.id == ug)
+      if ((uint32_t)it.second.id == ug)
       {
          return(&it.second);
       }
@@ -1843,7 +1843,7 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
       else
       {
          /* Try to see if it is a variable */
-         int mult = 1;
+         int32_t mult = 1;
          if (*val == '-')
          {
             mult = -1;
@@ -1950,14 +1950,14 @@ static void convert_value(const option_map_value_t *entry, const char *val, op_v
 }
 
 
-int set_option_value(const char *name, const char *value)
+int32_t set_option_value(const char *name, const char *value)
 {
    const option_map_value_t *entry;
 
    if ((entry = unc_find_option(name)) != nullptr)
    {
       convert_value(entry, value, &cpd.settings[entry->id]);
-      return((int)entry->id);
+      return((int32_t)entry->id);
    }
    return(-1);
 }
@@ -1999,7 +1999,7 @@ void process_option_line(char* configLine, const char* filename)
 
    /* Split the line */
    char   *args[32];
-   size_t argc = Args::SplitLine(configLine, args, size_t(ARRAY_SIZE(args) - 1u));
+   uint32_t argc = Args::SplitLine(configLine, args, uint32_t(ARRAY_SIZE(args) - 1u));
    if (argc < 2)
    {
       if (argc > 0)
@@ -2014,7 +2014,7 @@ void process_option_line(char* configLine, const char* filename)
 
    if (strcasecmp(args[0], "type") == 0)
    {
-      for (size_t idx = 1; idx < argc; idx++)
+      for (uint32_t idx = 1; idx < argc; idx++)
       {
          add_keyword(args[idx], CT_TYPE);
       }
@@ -2036,7 +2036,7 @@ void process_option_line(char* configLine, const char* filename)
          if (token != CT_NONE)
          {
             LOG_FMT(LNOTE, "%s:%d set '%s':", filename, cpd.line_number, args[1]);
-            for (size_t idx = 2; idx < argc; idx++)
+            for (uint32_t idx = 2; idx < argc; idx++)
             {
                LOG_FMT(LNOTE, " '%s'", args[idx]);
                add_keyword(args[idx], token);
@@ -2052,7 +2052,7 @@ void process_option_line(char* configLine, const char* filename)
 #ifndef EMSCRIPTEN
    else if (strcasecmp(args[0], "include") == 0)
    {
-      size_t save_line_no = cpd.line_number;
+      uint32_t save_line_no = cpd.line_number;
       if (is_path_relative(args[1]))
       {
          /* include is a relative path to the current config file */
@@ -2077,7 +2077,7 @@ void process_option_line(char* configLine, const char* filename)
       }
       else
       {
-         for (size_t idx = 2; idx < argc; idx++)
+         for (uint32_t idx = 2; idx < argc; idx++)
          {
             const char *lang_name = extension_add(args[idx], args[1]);
             if (lang_name)
@@ -2096,7 +2096,7 @@ void process_option_line(char* configLine, const char* filename)
    else
    {
       /* must be a regular option = value */
-      const int id = set_option_value(args[0], args[1]);
+      const int32_t id = set_option_value(args[0], args[1]);
       if (id < 0)
       {
          fprintf(stderr, "%s:%u Unknown symbol '%s'\n",
@@ -2107,7 +2107,7 @@ void process_option_line(char* configLine, const char* filename)
 }
 
 
-int load_option_file(const char *filename)
+int32_t load_option_file(const char *filename)
 {
 #ifdef WIN32
    /* "/dev/null" not understood by "fopen" in Windows */
@@ -2135,9 +2135,9 @@ int load_option_file(const char *filename)
 }
 
 
-int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
+int32_t save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 {
-   int count_the_not_default_options = 0;
+   int32_t count_the_not_default_options = 0;
 
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
 
@@ -2162,7 +2162,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             (*option->short_desc != 0))
          {
             fprintf(pfile, "%s# ", first ? "" : "\n");
-            int idx;
+            int32_t idx;
             for (idx = 0; option->short_desc[idx] != 0; idx++)
             {
                fputc(option->short_desc[idx], pfile);
@@ -2180,8 +2180,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          first = false;
          string      val_string = op_val2str(option->type, cpd.settings[option->id]);
          const char* val_str    = val_string.c_str();
-         size_t      val_len    = strlen(val_str);
-         size_t      name_len   = strlen(option->name);
+         uint32_t      val_len    = strlen(val_str);
+         uint32_t      name_len   = strlen(option->name);
 
          bool print_option = true;
          if (only_not_default)
@@ -2202,8 +2202,8 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          }
          if (print_option)
          {
-            size_t pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1u;
-            fprintf(pfile, "%s%*.s= ", option->name, (int)pad, " ");
+            uint32_t pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1u;
+            fprintf(pfile, "%s%*.s= ", option->name, (int32_t)pad, " ");
             if (option->type == AT_STRING)
             {
                fprintf(pfile, "\"%s\"", val_str);
@@ -2215,7 +2215,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             if (withDoc)
             {
                fprintf(pfile, "%*.s # %s",
-                       (int)(8 - val_len), " ",
+                       (int32_t)(8 - val_len), " ",
                        argtype2string(option->type).c_str());
             }
             fputs("\n", pfile);
@@ -2238,7 +2238,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 }
 
 
-int save_option_file(FILE *pfile, bool withDoc)
+int32_t save_option_file(FILE *pfile, bool withDoc)
 {
    return(save_option_file_kernel(pfile, withDoc, false));
 }
@@ -2267,9 +2267,9 @@ void print_options(FILE *pfile)
       {
          const option_map_value_t *option = get_option_name(option_id);
          assert(ptr_is_valid(option));
-         size_t cur = strlen(option->name);
-         size_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
-         fprintf(pfile, "%s%*c%s\n", option->name, (int)pad, ' ', names[option->type]);
+         uint32_t cur = strlen(option->name);
+         uint32_t pad = (cur < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - cur) : 1;
+         fprintf(pfile, "%s%*c%s\n", option->name, (int32_t)pad, ' ', names[option->type]);
 
          const char *text = option->short_desc;
 
@@ -2345,11 +2345,11 @@ void set_option_defaults(void)
    cpd.defaults[UO_string_escape_char                               ].n = '\\';
    cpd.defaults[UO_use_indent_func_call_param                       ].b = true;
    cpd.defaults[UO_use_options_overriding_for_qt_macros             ].b = true;
-   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int)LWARN;
+   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int32_t)LWARN;
 
    /* copy all the default values to settings array */
-   const size_t option_count = (size_t)UO_option_count;
-   for (size_t i = 0; i < option_count; i++)
+   const uint32_t option_count = (uint32_t)UO_option_count;
+   for (uint32_t i = 0; i < option_count; i++)
    {
       cpd.settings[i].a = cpd.defaults[i].a;
    }
@@ -2422,7 +2422,7 @@ string argval2str(argval_t argval)
    }
 }
 
-string number2str(int number)
+string number2str(int32_t number)
 {
    char buffer[12]; /* 11 + termination */
    sprintf(buffer, "%d", number);
@@ -2472,7 +2472,7 @@ string op_val2str(const argtype_t argtype, const op_val_t &op_val)
       case AT_BOOL:   return(bool2str       (op_val.b ));
       case AT_IARF:   return(argval2str     (op_val.a ));
       case AT_NUM:    return(number2str     (op_val.n ));
-      case AT_UNUM:   return(number2str((int)op_val.u ));
+      case AT_UNUM:   return(number2str((int32_t)op_val.u ));
       case AT_LINE:   return(lineends2str   (op_val.le));
       case AT_POS:    return(tokenpos2str   (op_val.tp));
       case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");

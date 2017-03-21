@@ -35,7 +35,7 @@ static void check_unknown_brace_close(
 static void remove_semicolon(chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LDELSEMI, "%s: Removed semicolon at line %zu, col %zu",
+   LOG_FMT(LDELSEMI, "%s: Removed semicolon at line %u, col %u",
            __func__, pc->orig_line, pc->orig_col);
    log_func_stack_inline(LDELSEMI);
    /* TODO: do we want to shift stuff back a column? */
@@ -56,7 +56,7 @@ void remove_extra_semicolons(void)
           !is_preproc(pc) &&
           ((prev = get_prev_ncnl(pc)) != nullptr))
       {
-         LOG_FMT(LSCANSEMI, "Semicolon on %zu:%zu parent=%s, prev = '%s' [%s/%s]\n",
+         LOG_FMT(LSCANSEMI, "Semicolon on %u:%u parent=%s, prev = '%s' [%s/%s]\n",
             pc->orig_line, pc->orig_col, get_token_name(pc->ptype), prev->text(),
             get_token_name(prev->type),  get_token_name(prev->ptype));
 
@@ -92,7 +92,7 @@ void remove_extra_semicolons(void)
 static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *pc = get_prev_type(brace_close, CT_BRACE_OPEN, (int)brace_close->level);
+   chunk_t *pc = get_prev_type(brace_close, CT_BRACE_OPEN, (int32_t)brace_close->level);
    pc = get_prev_ncnl(pc);
 
    if (not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,

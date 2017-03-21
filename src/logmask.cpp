@@ -13,21 +13,21 @@
 #include "unc_ctype.h"
 
 
-char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
+char *logmask_to_str(const log_mask_t &mask, char *buf, uint32_t size)
 {
    retval_if((ptr_is_invalid(buf) || (size == 0)), buf);
 
-   int  last_sev = -1;
+   int32_t  last_sev = -1;
    bool is_range = false;
-   size_t len    = 0;
+   uint32_t len    = 0;
 
-   for (int sev = 0; sev < 256; sev++)
+   for (int32_t sev = 0; sev < 256; sev++)
    {
       if (logmask_test(mask, static_cast<log_sev_t>(sev)))
       {
          if (last_sev == -1)
          {
-            len += (size_t)snprintf(&buf[len], size - len, "%d,", sev);
+            len += (uint32_t)snprintf(&buf[len], size - len, "%d,", sev);
          }
          else
          {
@@ -40,7 +40,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
          if (is_range)
          {
             buf[len - 1] = '-';  /* change last comma to a dash */
-            len         += (size_t)snprintf(&buf[len], size - len, "%d,", last_sev);
+            len         += (uint32_t)snprintf(&buf[len], size - len, "%d,", last_sev);
             is_range     = false;
          }
          last_sev = -1;
@@ -51,7 +51,7 @@ char *logmask_to_str(const log_mask_t &mask, char *buf, size_t size)
    if (is_range && (last_sev != -1))
    {
       buf[len - 1] = '-';  /* change last comma to a dash */
-      len         += (size_t)snprintf(&buf[len], size - len, "%d", last_sev);
+      len         += (uint32_t)snprintf(&buf[len], size - len, "%d", last_sev);
    }
    else
    {
@@ -79,7 +79,7 @@ void logmask_from_string(const char* str, log_mask_t &mask)
    }
 
    bool  was_dash   = false;
-   int   last_level = -1;
+   int32_t   last_level = -1;
    while (*str != 0) /* check string until termination character */
    {
       if (unc_isspace(*str)) /* ignore spaces */
@@ -91,20 +91,20 @@ void logmask_from_string(const char* str, log_mask_t &mask)
       if (unc_isdigit(*str))
       {
          char* ptmp;
-         size_t level = strtoul(str, &ptmp, 10);
+         uint32_t level = strtoul(str, &ptmp, 10);
          str = ptmp;
 
          logmask_set_sev(mask, static_cast<log_sev_t>(level), true);
          if (was_dash)
          {
-            for (size_t idx = (size_t)(last_level + 1); idx < level; idx++)
+            for (uint32_t idx = (uint32_t)(last_level + 1); idx < level; idx++)
             {
                logmask_set_sev(mask, static_cast<log_sev_t>(idx), true);
             }
             was_dash = false;
          }
 
-         last_level = (int)level;
+         last_level = (int32_t)level;
       }
       else if (*str == '-') /* a dash marks all bits */
       {                     /* until the next number */

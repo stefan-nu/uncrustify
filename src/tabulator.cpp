@@ -11,7 +11,7 @@
 #include "chunk_list.h"
 
 
-size_t calc_next_tab_column(size_t col, size_t tabsize)
+uint32_t calc_next_tab_column(uint32_t col, uint32_t tabsize)
 {
    col = max(col, 1u); /* ensure column >= 1 */
 
@@ -23,13 +23,13 @@ size_t calc_next_tab_column(size_t col, size_t tabsize)
 }
 
 
-size_t next_tab_column(size_t col)
+uint32_t next_tab_column(uint32_t col)
 {
    return(calc_next_tab_column(col, cpd.settings[UO_output_tab_size].u));
 }
 
 
-size_t align_tab_column(size_t col)
+uint32_t align_tab_column(uint32_t col)
 {
    col = max(col, 1u); /* ensure column >= 1 */
 

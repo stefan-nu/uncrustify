@@ -26,7 +26,7 @@ void tokenize_cleanup(void);
  * tbd
  */
 void split_off_angle_close(
-   chunk_t *pc
+   chunk_t* pc
 );
 
 

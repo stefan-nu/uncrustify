@@ -58,8 +58,8 @@ void newlines_eat_start_end(void);
  * We can't remove a newline if it is right before a preprocessor.
  */
 void newlines_chunk_pos(
-   c_token_t chunk_type, /**< [in]  */
-   tokenpos_t mode       /**< [in]  */
+   c_token_t  chunk_type, /**< [in]  */
+   tokenpos_t mode        /**< [in]  */
 );
 
 
@@ -111,7 +111,7 @@ void do_blank_lines(void);
  * Done right before inserting a newline.
  */
 void undo_one_liner(
-   chunk_t *pc /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -122,7 +122,7 @@ void undo_one_liner(
  * @param av   The IARF value
  */
 void newline_iarf(
-   chunk_t *pc, /**< [in]  */
+   chunk_t* pc, /**< [in]  */
    argval_t av  /**< [in]  */
 );
 
@@ -131,16 +131,16 @@ void newline_iarf(
  * Add a newline before the chunk if there isn't already a newline present.
  * Virtual braces are skipped, as they do not contribute to the output.
  */
-chunk_t *newline_add_before(
-   chunk_t *pc /**< [in]  */
+chunk_t* newline_add_before(
+   chunk_t* pc /**< [in]  */
 );
 
 
 /**
  * tbd
  */
-chunk_t *newline_force_before(
-   chunk_t *pc /**< [in]  */
+chunk_t* newline_force_before(
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -148,16 +148,16 @@ chunk_t *newline_force_before(
  * Add a newline after the chunk if there isn't already a newline present.
  * Virtual braces are skipped, as they do not contribute to the output.
  */
-chunk_t *newline_add_after(
-   chunk_t *pc /**< [in]  */
+chunk_t* newline_add_after(
+   chunk_t* pc /**< [in]  */
 );
 
 
 /**
  * tbd
  */
-chunk_t *newline_force_after(
-   chunk_t *pc /**< [in]  */
+chunk_t* newline_force_after(
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -172,8 +172,8 @@ chunk_t *newline_force_after(
  * @return        true/false - removed something
  */
 void newline_del_between(
-   chunk_t *start, /**< [in]  */
-   chunk_t *end    /**< [in]  */
+   chunk_t* start, /**< [in]  */
+   chunk_t* end    /**< [in]  */
 );
 
 
@@ -192,9 +192,9 @@ void newline_del_between(
  *    if (...)   //comment
  *    {
  */
-chunk_t *newline_add_between(
-   chunk_t *start, /**< [in]  */
-   chunk_t *end    /**< [in]  */
+chunk_t* newline_add_between(
+   chunk_t* start, /**< [in]  */
+   chunk_t* end    /**< [in]  */
 );
 
 

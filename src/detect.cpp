@@ -22,9 +22,9 @@ static void detect_space_options(void);
 class sp_votes
 {
 protected:
-   size_t   m_add;    /**<  */
-   size_t   m_remove; /**<  */
-   size_t   m_force;  /**<  */
+   uint32_t   m_add;    /**<  */
+   uint32_t   m_remove; /**<  */
+   uint32_t   m_force;  /**<  */
    argval_t *m_av;    /**<  */
 
 public:
@@ -48,7 +48,7 @@ void sp_votes::vote(chunk_t *first, chunk_t *second)
               is_nl(first ) ||
               is_nl(second) );
 
-   int col_dif = (int)second->column - (int)(first->column + first->len());
+   int32_t col_dif = (int32_t)second->column - (int32_t)(first->column + first->len());
 
    if      (col_dif == 0) { m_remove++; }
    else if (col_dif == 1) { m_force++;  }
@@ -181,7 +181,7 @@ static void detect_space_options(void)
             if      (is_type (prev, CT_PTR_TYPE))       { vote_sp_between_pstar.vote       (prev, pc); }
             else if (not_type(next, CT_WORD    ))       { vote_sp_before_unnamed_pstar.vote(prev, pc); }
             else                                        { vote_sp_before_ptr_star.vote     (prev, pc); }
-            if (CharTable::IsKW1((size_t)next->str[0])) { vote_sp_after_pstar.vote         (pc, next); }
+            if (CharTable::IsKW1((uint32_t)next->str[0])) { vote_sp_after_pstar.vote         (pc, next); }
          break;
 
          case(CT_BYREF):
@@ -199,7 +199,7 @@ static void detect_space_options(void)
          case(CT_ANGLE_CLOSE):
                                                   vote_sp_inside_angle.vote(prev, pc);
             if      (is_paren_open(next))       { vote_sp_angle_paren.vote (prev, pc); }
-            else if (is_type(next, CT_WORD) || CharTable::IsKW1((size_t)next->str[0]))
+            else if (is_type(next, CT_WORD) || CharTable::IsKW1((uint32_t)next->str[0]))
                                                 { vote_sp_angle_word.vote  (prev, pc); }
             else                                { vote_sp_after_angle.vote (pc, next); }
          break;

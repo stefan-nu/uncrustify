@@ -18,8 +18,8 @@
  * tbd
  */
 int main(
-   int argc,    /**< [in]  */
-   char *argv[] /**< [in]  */
+   int   argc,  /**< [in]  */
+   char* argv[] /**< [in]  */
 );
 
 
@@ -36,7 +36,7 @@ const char* get_token_name(
  * returns CT_NONE on failure to match
  */
 c_token_t find_token_name(
-   const char *text /**< [in]  */
+   const char* text /**< [in]  */
 );
 
 
@@ -44,8 +44,8 @@ c_token_t find_token_name(
  * tbd
  */
 void log_pcf_flags(
-   log_sev_t sev, /**< [in]  */
-   uint64_t flags /**< [in]  */
+   log_sev_t sev,  /**< [in]  */
+   uint64_t  flags /**< [in]  */
 );
 
 
@@ -72,8 +72,8 @@ bool is_lang(
  * @param path The path to look at
  * @return     Pointer to the character after the last path separator
  */
-const char *path_basename(
-   const char *path /**< [in]  */
+const char* path_basename(
+   const char* path /**< [in]  */
 );
 
 
@@ -82,8 +82,8 @@ const char *path_basename(
  *
  * @return character size of path
  */
-size_t path_dirname_len(
-   const char *full_name /**< [in] filename including full path */
+uint32_t path_dirname_len(
+   const char* full_name /**< [in] filename including full path */
 );
 
 
@@ -91,8 +91,8 @@ size_t path_dirname_len(
  * Set idx = 0 before the first call.
  * Done when returns nullptr
  */
-const char *get_file_extension(
-   size_t &idx /**< [in]  */
+const char* get_file_extension(
+   uint32_t &idx /**< [in]  */
 );
 
 
@@ -100,7 +100,7 @@ const char *get_file_extension(
  * Prints custom file extensions to the file
  */
 void print_extensions(
-   FILE *pfile /**< [in]  */
+   FILE* pfile /**< [in]  */
 );
 
 
@@ -108,9 +108,9 @@ void print_extensions(
  * tbd
  */
 void usage_exit(
-   const char *msg,   /**< [in]  */
-   const char *argv0, /**< [in]  */
-   int        code    /**< [in]  */
+   const char* msg,   /**< [in]  */
+   const char* argv0, /**< [in]  */
+   int32_t     code   /**< [in]  */
 );
 
 
@@ -118,8 +118,8 @@ void usage_exit(
  * tbd
  */
 const char *extension_add(
-   const char *ext_text, /**< [in]  */
-   const char *lang_text /**< [in]  */
+   const char* ext_text, /**< [in]  */
+   const char* lang_text /**< [in]  */
 );
 
 
@@ -127,9 +127,9 @@ const char *extension_add(
  * tbd
  */
 void usage_exit(
-   const char *msg,   /**< [in]  */
-   const char *argv0, /**< [in]  */
-   int        code    /**< [in]  */
+   const char* msg,   /**< [in]  */
+   const char* argv0, /**< [in]  */
+   int32_t     code   /**< [in]  */
 );
 
 

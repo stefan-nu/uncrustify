@@ -40,17 +40,17 @@
 
 void md5_to_string(
    char         *md5_str,
-   const size_t str_len,
+   const uint32_t str_len,
    uint8_t        dig[16]
 );
 
 
-void md5_to_string(char *md5_str, const size_t str_len, uint8_t dig[16])
+void md5_to_string(char *md5_str, const uint32_t str_len, uint8_t dig[16])
 {
-   for(size_t i = 0; i < MD5_CHAR_COUNT; i++)
+   for(uint32_t i = 0; i < MD5_CHAR_COUNT; i++)
    {
-      static int pos = 0;
-      if(pos < (int)(str_len - MD5_CHAR_SIZE))
+      static int32_t pos = 0;
+      if(pos < (int32_t)(str_len - MD5_CHAR_SIZE))
       {
          pos += snprintf(&md5_str[pos], MD5_CHAR_SIZE, "%02X", dig[i]);
       }
@@ -58,7 +58,7 @@ void md5_to_string(char *md5_str, const size_t str_len, uint8_t dig[16])
 }
 
 
-int backup_copy_file(const char *filename, const vector<uint8_t> &data)
+int32_t backup_copy_file(const char *filename, const vector<uint8_t> &data)
 {
    char  md5_str_in[MD5_STR_SIZE];
    md5_str_in[0] = 0;
@@ -79,7 +79,7 @@ int backup_copy_file(const char *filename, const vector<uint8_t> &data)
       char buffer[128];
       if (fgets(buffer, sizeof(buffer), thefile) != nullptr)
       {
-         for (int i = 0; buffer[i] != 0; i++)
+         for (int32_t i = 0; buffer[i] != 0; i++)
          {
             if (unc_isxdigit(buffer[i]))
             {
@@ -110,8 +110,8 @@ int backup_copy_file(const char *filename, const vector<uint8_t> &data)
    thefile = fopen(newpath, "wb");
    if (ptr_is_valid(thefile))
    {
-      const size_t retval   = fwrite(&data[0], data.size(), 1, thefile);
-      const int    my_errno = errno;
+      const uint32_t retval   = fwrite(&data[0], data.size(), 1, thefile);
+      const int32_t    my_errno = errno;
 
       fclose(thefile);
       retval_if((retval == 1), EX_OK);
@@ -145,7 +145,7 @@ void backup_create_md5_file(const char *filename)
    MD5 md5;
    md5.Init();
    uint8_t  buf[FILE_CHUNK];
-   size_t len;
+   uint32_t len;
    while ((len = fread(buf, 1, sizeof(buf), thefile)) > 0)
    {
       md5.Update(buf, len);

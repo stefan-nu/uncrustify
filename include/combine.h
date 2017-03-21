@@ -33,9 +33,9 @@ void fix_symbols(void);
 
 
 /**
- * Examines the whole file and changes CT_COLON to
- * CT_Q_COLON, CT_LABEL_COLON, or CT_CASE_COLON.
- * It also changes the CT_WORD before CT_LABEL_COLON into CT_LABEL.
+ * Examines the whole file and changes
+ * CT_COLON => CT_Q_COLON, CT_LABEL_COLON, or CT_CASE_COLON.
+ * CT_WORD before CT_LABEL_COLON => CT_LABEL.
  *
  * Look at all colons ':' and mark labels, :? sequences, etc.
  */
@@ -51,9 +51,9 @@ void combine_labels(void);
  * it is not necessary to test.
  */
 void do_symbol_check(
-   chunk_t *prev, /**< [in]  */
-   chunk_t *pc,   /**< [in]  */
-   chunk_t *next  /**< [in]  */
+   chunk_t* prev, /**< [in]  */
+   chunk_t* pc,   /**< [in]  */
+   chunk_t* next  /**< [in]  */
 );
 
 
@@ -61,8 +61,8 @@ void do_symbol_check(
  * help function for mark_variable_definition...
  */
 bool go_on(
-   chunk_t *pc,   /**< [in]  */
-   chunk_t *start /**< [in]  */
+   chunk_t* pc,   /**< [in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -75,8 +75,8 @@ bool go_on(
  * @param parent  The type to assign as the parent
  * @return        The chunk after the close parenthesis
  */
-chunk_t *set_paren_parent(
-   chunk_t   *start, /**< [in]  */
+chunk_t* set_paren_parent(
+   chunk_t*  start, /**< [in]  */
    c_token_t parent  /**< [in]  */
 );
 
@@ -91,7 +91,7 @@ void mark_comments(void);
  * tbd
  */
 void make_type(
-   chunk_t *pc /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -99,8 +99,8 @@ void make_type(
  * tbd
  */
 void flag_series(
-   chunk_t  *start,            /**< [in]  */
-   chunk_t  *end,              /**< [in]  */
+   chunk_t* start,             /**< [in]  */
+   chunk_t* end,               /**< [in]  */
    uint64_t set_flags,         /**< [in]  */
    uint64_t clr_flags = 0,     /**< [in]  */
    scope_e  nav = scope_e::ALL /**< [in]  */
@@ -116,8 +116,8 @@ void flag_series(
  * @param parent  The type to assign as the parent
  * @return        The chunk after the close parenthesis
  */
-chunk_t *set_paren_parent(
-   chunk_t   *start, /**< [in]  */
+chunk_t* set_paren_parent(
+   chunk_t*  start, /**< [in]  */
    c_token_t parent  /**< [in]  */
 );
 
@@ -131,9 +131,9 @@ chunk_t *set_paren_parent(
  * it is not necessary to test.
  */
 void do_symbol_check(
-   chunk_t *prev, /**< [in]  */
-   chunk_t *pc,   /**< [in]  */
-   chunk_t *next  /**< [in]  */
+   chunk_t* prev, /**< [in]  */
+   chunk_t* pc,   /**< [in]  */
+   chunk_t* next  /**< [in]  */
 );
 
 
@@ -142,8 +142,8 @@ void do_symbol_check(
  * Points to the chunk after the CT_ANGLE_CLOSE.
  * If the chunk isn't an CT_ANGLE_OPEN, then it is returned.
  */
-chunk_t *skip_template_next(
-   chunk_t *ang_open /**< [in]  */
+chunk_t* skip_template_next(
+   chunk_t* ang_open /**< [in]  */
 );
 
 
@@ -152,8 +152,8 @@ chunk_t *skip_template_next(
  * Points to the chunk before the CT_ANGLE_OPEN
  * If the chunk isn't an CT_ANGLE_CLOSE, then it is returned.
  */
-chunk_t *skip_template_prev(
-   chunk_t *ang_close /**< [in]  */
+chunk_t* skip_template_prev(
+   chunk_t* ang_close /**< [in]  */
 );
 
 
@@ -161,8 +161,8 @@ chunk_t *skip_template_prev(
  * Skips the rest of the array definitions if ary_def is indeed a
  * CT_TSQUARE or CT_SQUARE_OPEN
  */
-chunk_t *skip_tsquare_next(
-   chunk_t *ary_def /**< [in]  */
+chunk_t* skip_tsquare_next(
+   chunk_t* ary_def /**< [in]  */
 );
 
 
@@ -171,8 +171,8 @@ chunk_t *skip_tsquare_next(
  * after the CT_FPAREN_CLOSE.
  * If the chunk isn't an CT_ATTRIBUTE, then it is returned.
  */
-chunk_t *skip_attribute_next(
-   chunk_t *attr /**< [in]  */
+chunk_t* skip_attribute_next(
+   chunk_t* attr /**< [in]  */
 );
 
 
@@ -181,8 +181,8 @@ chunk_t *skip_attribute_next(
  * and the '__attribute__' thingy and return the chunk before CT_ATTRIBUTE.
  * Otherwise return fp_close.
  */
-chunk_t *skip_attribute_prev(
-   chunk_t *fp_close /**< [in]  */
+chunk_t* skip_attribute_prev(
+   chunk_t* fp_close /**< [in]  */
 );
 
 

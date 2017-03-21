@@ -16,7 +16,7 @@
  * This renders the chunk list to a file.
  */
 void output_text(
-   FILE *pfile  /**< [in]  */
+   FILE* pfile  /**< [in]  */
 );
 
 
@@ -24,7 +24,7 @@ void output_text(
  * tbd
  */
 void output_parsed(
-   FILE *pfile  /**< [in]  */
+   FILE* pfile  /**< [in]  */
 );
 
 
@@ -53,17 +53,17 @@ void add_long_preprocessor_conditional_block_comment(void);
  * \todo parameter should not be int type
  */
 bool is_part_of_newline(
-   const int character /**< [in] character to check */
+   const int32_t character /**< [in] character to check */
 );
 
 
 /**
  * check if a given character is either a space or a tabstop character
  *
- * \todo parameter should not be int type
+ * \todo parameter should not be int32_t type
  */
 bool is_space_or_tab(
-   const int character /**< [in] character to check */
+   const int32_t character /**< [in] character to check */
 );
 
 

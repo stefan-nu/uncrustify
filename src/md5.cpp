@@ -22,7 +22,7 @@
 #include "uncrustify_types.h"
 
 
-void MD5::reverse_u32(uint8_t *buf, size_t n_u32) const
+void MD5::reverse_u32(uint8_t *buf, uint32_t n_u32) const
 {
    if (m_big_endian)
    {

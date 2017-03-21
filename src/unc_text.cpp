@@ -17,13 +17,13 @@
  * tbd
  */
 static void fix_len_idx(
-   size_t       size, /**< [in]  */
-   const size_t &idx, /**< [in]  */
-   size_t       &len  /**< [in]  */
+   uint32_t       size, /**< [in]  */
+   const uint32_t &idx, /**< [in]  */
+   uint32_t       &len  /**< [in]  */
 );
 
 
-static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
+static void fix_len_idx(uint32_t size, const uint32_t &idx, uint32_t &len)
 {
    if (idx >= size)
    {
@@ -31,7 +31,7 @@ static void fix_len_idx(size_t size, const size_t &idx, size_t &len)
    }
    else
    {
-      size_t left = size - idx;
+      uint32_t left = size - idx;
       len = min(len, left);
    }
 }
@@ -44,7 +44,7 @@ void unc_text::update_logtext()
       /* make a pessimistic guess at the size */
       m_logtext.clear();
       m_logtext.reserve(m_chars.size() * 3);
-      for (int m_char : m_chars)
+      for (int32_t m_char : m_chars)
       {
          if      (m_char == LINEFEED      ) { m_char = 0x2424; }
          else if (m_char == CARRIAGERETURN) { m_char = 0x240d; }
@@ -56,12 +56,12 @@ void unc_text::update_logtext()
 }
 
 
-int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
+int32_t unc_text::compare(const unc_text &ref1, const unc_text &ref2, uint32_t len)
 {
-   size_t len1 = ref1.size();
-   size_t len2 = ref2.size();
+   uint32_t len1 = ref1.size();
+   uint32_t len2 = ref2.size();
 
-   size_t idx;
+   uint32_t idx;
    for (idx = 0;
         (idx < len1) && (idx < len2) && (idx < len);
         idx++)
@@ -69,7 +69,7 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
       /*  exactly the same character ? */
       continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
 
-      int diff = unc_tolower(ref1.m_chars[idx]) - unc_tolower(ref2.m_chars[idx]);
+      int32_t diff = unc_tolower(ref1.m_chars[idx]) - unc_tolower(ref2.m_chars[idx]);
       if (diff == 0)
       {
          /* if we're comparing the same character but in different case
@@ -83,16 +83,16 @@ int unc_text::compare(const unc_text &ref1, const unc_text &ref2, size_t len)
          return(diff);
       }
    }
-   return (idx == len) ? 0 : ((int)(len1 - len2));
+   return (idx == len) ? 0 : ((int32_t)(len1 - len2));
 }
 
 
 bool unc_text::equals(const unc_text &ref) const
 {
-   size_t len = size();
+   uint32_t len = size();
    retval_if((ref.size() != len), false);
 
-   for (size_t idx = 0; idx < len; idx++)
+   for (uint32_t idx = 0; idx < len; idx++)
    {
       retval_if((m_chars[idx] != ref.m_chars[idx]), false);
    }
@@ -107,7 +107,7 @@ const char *unc_text::c_str()
 }
 
 
-void unc_text::set(int ch)
+void unc_text::set(int32_t ch)
 {
    m_chars.clear();
    m_chars.push_back(ch);
@@ -122,9 +122,9 @@ void unc_text::set(const unc_text &ref)
 }
 
 
-void unc_text::set(const unc_text &ref, size_t idx, size_t len)
+void unc_text::set(const unc_text &ref, uint32_t idx, uint32_t len)
 {
-   size_t ref_size = ref.size();
+   uint32_t ref_size = ref.size();
 
    fix_len_idx(ref_size, idx, len);
    m_logok = false;
@@ -135,7 +135,7 @@ void unc_text::set(const unc_text &ref, size_t idx, size_t len)
    else
    {
       m_chars.resize(len);
-      size_t di = 0;
+      uint32_t di = 0;
       while (len-- > 0)
       {
          m_chars[di] = ref.m_chars[idx];
@@ -148,10 +148,10 @@ void unc_text::set(const unc_text &ref, size_t idx, size_t len)
 
 void unc_text::set(const string &ascii_text)
 {
-   size_t len = ascii_text.size();
+   uint32_t len = ascii_text.size();
 
-   m_chars.resize((size_t)len);
-   for (size_t idx = 0; idx < len; idx++)
+   m_chars.resize((uint32_t)len);
+   for (uint32_t idx = 0; idx < len; idx++)
    {
       m_chars[idx] = ascii_text[idx];
    }
@@ -161,10 +161,10 @@ void unc_text::set(const string &ascii_text)
 
 void unc_text::set(const char *ascii_text)
 {
-   size_t len = strlen(ascii_text);
+   uint32_t len = strlen(ascii_text);
 
-   m_chars.resize((size_t)len);
-   for (size_t idx = 0; idx < len; idx++)
+   m_chars.resize((uint32_t)len);
+   for (uint32_t idx = 0; idx < len; idx++)
    {
       m_chars[idx] = *ascii_text++;
    }
@@ -172,13 +172,13 @@ void unc_text::set(const char *ascii_text)
 }
 
 
-void unc_text::set(const int_list_t &data, size_t idx, size_t len)
+void unc_text::set(const int_list_t &data, uint32_t idx, uint32_t len)
 {
-   size_t data_size = data.size();
+   uint32_t data_size = data.size();
 
    fix_len_idx(data_size, idx, len);
    m_chars.resize(len);
-   size_t di = 0;
+   uint32_t di = 0;
    while (len-- > 0)
    {
       m_chars[di] = data[idx];
@@ -189,7 +189,7 @@ void unc_text::set(const int_list_t &data, size_t idx, size_t len)
 }
 
 
-void unc_text::resize(size_t new_size)
+void unc_text::resize(uint32_t new_size)
 {
    if (size() != new_size)
    {
@@ -206,21 +206,21 @@ void unc_text::clear()
 }
 
 
-void unc_text::insert(size_t idx, int ch)
+void unc_text::insert(uint32_t idx, int32_t ch)
 {
-   m_chars.insert(m_chars.begin() + static_cast<int>(idx), ch);
+   m_chars.insert(m_chars.begin() + static_cast<int32_t>(idx), ch);
    m_logok = false;
 }
 
 
-void unc_text::insert(size_t idx, const unc_text &ref)
+void unc_text::insert(uint32_t idx, const unc_text &ref)
 {
-   m_chars.insert(m_chars.begin() + static_cast<int>(idx), ref.m_chars.begin(), ref.m_chars.end());
+   m_chars.insert(m_chars.begin() + static_cast<int32_t>(idx), ref.m_chars.begin(), ref.m_chars.end());
    m_logok = false;
 }
 
 
-void unc_text::append(int ch)
+void unc_text::append(int32_t ch)
 {
    m_chars.push_back(ch);
    m_logok = false;
@@ -270,14 +270,14 @@ void unc_text::append(const char* const msg, ...)
 }
 
 
-void unc_text::append(const int_list_t &data, size_t idx, size_t len)
+void unc_text::append(const int_list_t &data, uint32_t idx, uint32_t len)
 {
    unc_text tmp(data, idx, len);
    append(tmp);
 }
 
 
-bool unc_text::startswith(const char *text, size_t idx) const
+bool unc_text::startswith(const char *text, uint32_t idx) const
 {
    bool match = false;
 
@@ -295,10 +295,10 @@ bool unc_text::startswith(const char *text, size_t idx) const
 }
 
 
-bool unc_text::startswith(const unc_text &text, size_t idx) const
+bool unc_text::startswith(const unc_text &text, uint32_t idx) const
 {
    bool   match = false;
-   size_t si    = 0;
+   uint32_t si    = 0;
 
    while ((idx < size()) && (si < text.size()))
    {
@@ -314,21 +314,21 @@ bool unc_text::startswith(const unc_text &text, size_t idx) const
 }
 
 
-int unc_text::find(const char *text, size_t sidx) const
+int32_t unc_text::find(const char *text, uint32_t sidx) const
 {
-   size_t len = strlen(text); /**< the length of 'text' we are looking for */
-   size_t si  = size();       /**< the length of the string we are looking in */
+   uint32_t len = strlen(text); /**< the length of 'text' we are looking for */
+   uint32_t si  = size();       /**< the length of the string we are looking in */
 
    if (si < len)              /* not enough place for 'text' */
    {
       return(-1);
    }
-   size_t midx = size() - len;
+   uint32_t midx = size() - len;
 
-   for (size_t idx = sidx; idx <= midx; idx++)
+   for (uint32_t idx = sidx; idx <= midx; idx++)
    {
       bool match = true;
-      for (size_t ii = 0; ii < len; ii++)
+      for (uint32_t ii = 0; ii < len; ii++)
       {
          if (m_chars[idx + ii] != text[ii])
          {
@@ -338,23 +338,23 @@ int unc_text::find(const char *text, size_t sidx) const
       }
       if (match) // found at position 'idx'
       {
-         return((int)idx);
+         return((int32_t)idx);
       }
    }
    return(-1);  // 'text' not found
 }
 
 
-int unc_text::rfind(const char *text, size_t sidx) const
+int32_t unc_text::rfind(const char *text, uint32_t sidx) const
 {
-   size_t len  = strlen(text);
-   size_t midx = size() - len;
+   uint32_t len  = strlen(text);
+   uint32_t midx = size() - len;
 
    sidx = min(sidx, midx);
-   for (size_t idx = sidx; idx != 0; idx--)
+   for (uint32_t idx = sidx; idx != 0; idx--)
    {
       bool match = true;
-      for (size_t ii = 0; ii < len; ii++)
+      for (uint32_t ii = 0; ii < len; ii++)
       {
          if (m_chars[idx + ii] != text[ii])
          {
@@ -362,34 +362,34 @@ int unc_text::rfind(const char *text, size_t sidx) const
             break;
          }
       }
-      if (match) { return((int)idx); }
+      if (match) { return((int32_t)idx); }
    }
    return(-1);
 }
 
 
-void unc_text::erase(size_t idx, size_t len)
+void unc_text::erase(uint32_t idx, uint32_t len)
 {
    if (len >= 1)
    {
-      m_chars.erase(m_chars.begin() + static_cast<int>(idx), m_chars.begin() + static_cast<int>(idx) + static_cast<int>(len));
+      m_chars.erase(m_chars.begin() + static_cast<int32_t>(idx), m_chars.begin() + static_cast<int32_t>(idx) + static_cast<int32_t>(len));
    }
 }
 
 
-int unc_text::replace(const char *oldtext, const unc_text &newtext)
+int32_t unc_text::replace(const char *oldtext, const unc_text &newtext)
 {
-   int    fidx         = find(oldtext);
-   size_t olen         = strlen(oldtext);
-   size_t rcnt         = 0;
-   size_t newtext_size = newtext.size();
+   int32_t    fidx         = find(oldtext);
+   uint32_t olen         = strlen(oldtext);
+   uint32_t rcnt         = 0;
+   uint32_t newtext_size = newtext.size();
 
    while (fidx >= 0)
    {
       rcnt++;
-      erase(static_cast<size_t>(fidx), olen);
-      insert(static_cast<size_t>(fidx), newtext);
-      fidx = find(oldtext, static_cast<size_t>(fidx) + newtext_size - olen + 1);
+      erase(static_cast<uint32_t>(fidx), olen);
+      insert(static_cast<uint32_t>(fidx), newtext);
+      fidx = find(oldtext, static_cast<uint32_t>(fidx) + newtext_size - olen + 1);
    }
-   return((int)rcnt);
+   return((int32_t)rcnt);
 }

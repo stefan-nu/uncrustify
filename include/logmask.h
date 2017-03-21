@@ -69,7 +69,7 @@ static inline void logmask_set_all(
 char *logmask_to_str(
    const log_mask_t &mask, /**< [in] the mask to convert */
    char*            buf,   /**< [in] buffer to hold the string */
-   size_t           size   /**< [in] size of the buffer */
+   uint32_t         size   /**< [in] size of the buffer */
 );
 
 

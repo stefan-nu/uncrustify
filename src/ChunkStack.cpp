@@ -15,7 +15,7 @@
 void ChunkStack::Set(const ChunkStack &cs)
 {
    m_cse.resize(cs.m_cse.size());
-   for (size_t idx = 0; idx < m_cse.size(); idx++)
+   for (uint32_t idx = 0; idx < m_cse.size(); idx++)
    {
       m_cse[idx].m_pc     = cs.m_cse[idx].m_pc;
       m_cse[idx].m_seqnum = cs.m_cse[idx].m_seqnum;
@@ -30,13 +30,13 @@ const ChunkStack::Entry *ChunkStack::Top() const
 }
 
 
-const ChunkStack::Entry *ChunkStack::Get(size_t idx) const
+const ChunkStack::Entry *ChunkStack::Get(uint32_t idx) const
 {
    return (idx < m_cse.size()) ? (&m_cse[idx]) : (nullptr);
 }
 
 
-chunk_t *ChunkStack::GetChunk(size_t idx) const
+chunk_t *ChunkStack::GetChunk(uint32_t idx) const
 {
    return (idx < m_cse.size()) ? (m_cse[idx].m_pc) : (nullptr);
 }
@@ -68,7 +68,7 @@ chunk_t *ChunkStack::Pop_Back()
 }
 
 
-void ChunkStack::Push_Back(chunk_t *pc, size_t seqnum)
+void ChunkStack::Push_Back(chunk_t *pc, uint32_t seqnum)
 {
    m_cse.push_back(Entry(seqnum, pc));
    if (m_seqnum < seqnum)
@@ -78,7 +78,7 @@ void ChunkStack::Push_Back(chunk_t *pc, size_t seqnum)
 }
 
 
-void ChunkStack::Zap(size_t idx)
+void ChunkStack::Zap(uint32_t idx)
 {
    if (idx < m_cse.size())
    {
@@ -89,9 +89,9 @@ void ChunkStack::Zap(size_t idx)
 
 void ChunkStack::Collapse()
 {
-   size_t wr_idx = 0;
+   uint32_t wr_idx = 0;
 
-   for (size_t rd_idx = 0; rd_idx < m_cse.size(); rd_idx++)
+   for (uint32_t rd_idx = 0; rd_idx < m_cse.size(); rd_idx++)
    {
       if (is_valid(m_cse[rd_idx].m_pc))
       {

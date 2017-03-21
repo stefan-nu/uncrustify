@@ -12,11 +12,11 @@
 #include "unc_ctype.h"
 
 
-Args::Args(int argc, char **argv)
+Args::Args(int32_t argc, char **argv)
 {
-   m_count  = (size_t)argc;
+   m_count  = (uint32_t)argc;
    m_values = argv;
-   const size_t len = NumberOfBits(argc);
+   const uint32_t len = NumberOfBits(argc);
    m_used = new uint8_t[len];
    if (ptr_is_valid(m_used))
    {
@@ -33,7 +33,7 @@ Args::Args(const Args &ref)
 #endif
 
 
-size_t Args::NumberOfBits(const int argc)
+uint32_t Args::NumberOfBits(const int32_t argc)
 {
    const uint32_t bits_per_byte = 8;
    return ((uint32_t)argc / bits_per_byte) + 1;
@@ -51,7 +51,7 @@ bool Args::Present(const char *token)
 {
    if (ptr_is_valid(token))
    {
-      for (size_t idx = 0; idx < m_count; idx++)
+      for (uint32_t idx = 0; idx < m_count; idx++)
       {
          if (strcmp(token, m_values[idx]) == 0)
          {
@@ -66,20 +66,20 @@ bool Args::Present(const char *token)
 
 const char *Args::Param(const char *token)
 {
-   size_t idx = 0;
+   uint32_t idx = 0;
    return(Params(token, idx));
 }
 
 
-const char *Args::Params(const char *token, size_t &index)
+const char *Args::Params(const char *token, uint32_t &index)
 {
    retval_if(ptr_is_invalid(token), token);
 
-   size_t token_len = strlen(token);
+   uint32_t token_len = strlen(token);
 
-   for (size_t idx = index; idx < m_count; idx++)
+   for (uint32_t idx = index; idx < m_count; idx++)
    {
-      const size_t arg_len = strlen(m_values[idx]);
+      const uint32_t arg_len = strlen(m_values[idx]);
 
       if ((arg_len >= token_len) &&
           (memcmp(token, m_values[idx], token_len) == 0))
@@ -109,7 +109,7 @@ const char *Args::Params(const char *token, size_t &index)
 }
 
 
-bool Args::GetUsed(size_t idx) const
+bool Args::GetUsed(uint32_t idx) const
 {
    if (ptr_is_valid(m_used) && (idx > 0) && (idx < m_count))   // DRY
    {
@@ -119,7 +119,7 @@ bool Args::GetUsed(size_t idx) const
 }
 
 
-void Args::SetUsed(size_t idx)
+void Args::SetUsed(uint32_t idx)
 {
    if (ptr_is_valid(m_used) && (idx > 0) && (idx < m_count))   // DRY
    {
@@ -128,11 +128,11 @@ void Args::SetUsed(size_t idx)
 }
 
 
-const char *Args::Unused(size_t &index) const
+const char *Args::Unused(uint32_t &index) const
 {
    retval_if(ptr_is_invalid(m_used), nullptr);
 
-   for (size_t idx = index; idx < m_count; idx++)
+   for (uint32_t idx = index; idx < m_count; idx++)
    {
       if (!GetUsed(idx))
       {

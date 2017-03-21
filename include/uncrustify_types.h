@@ -50,7 +50,7 @@ using namespace std;
 
 
 /** Brace stage enum used in brace_cleanup */
-enum class brace_stage_e : unsigned int
+enum class brace_stage_e : uint32_t
 {
    NONE,                                                         //!< NONE
    PAREN1,     /**< if/for/switch/while/synchronized */          //!< PAREN1
@@ -67,7 +67,7 @@ enum class brace_stage_e : unsigned int
 };
 
 
-enum class char_encoding_e : unsigned int
+enum class char_encoding_e : uint32_t
 {
    ASCII,      /**< 0-127 */
    BYTE,       /**< 0-255, not UTF-8 */
@@ -96,19 +96,19 @@ struct indent_ptr_t
 struct paren_stack_entry_t
 {
    c_token_t     type;         /**< the type that opened the entry */
-   size_t        level;        /**< Level of opening type */
-   size_t        open_line;    /**< line that opening symbol is on */
+   uint32_t      open_line;    /**< line that opening symbol is on */
+   uint32_t      level;        /**< Level of opening type */
    chunk_t*      pc;           /**< Chunk that opened the level */
    int32_t       brace_indent; /**< indent for braces - may not relate to indent */
-   size_t        indent;       /**< indent level (depends on use) */
-   size_t        indent_tmp;   /**< temporary indent level (depends on use) */
-   size_t        indent_tab;   /**< the 'tab' indent (always <= real column) */
+   uint32_t      indent;       /**< indent level (depends on use) */
+   uint32_t      indent_tmp;   /**< temporary indent level (depends on use) */
+   uint32_t      indent_tab;   /**< the 'tab' indent (always <= real column) */
    bool          indent_cont;  /**< indent_continue was applied */
    int32_t       ref;          /**<  */
    c_token_t     parent;       /**< if, for, function, etc */
    brace_stage_e stage;        /**<  */
    bool          in_preproc;   /**< whether this was created in a preprocessor */
-   size_t        ns_cnt;       /**<  */
+   uint32_t      ns_cnt;       /**<  */
    bool          non_vardef;   /**< Hit a non-vardef line */
    indent_ptr_t  ip;           /**<  */
 };
@@ -118,14 +118,14 @@ struct paren_stack_entry_t
 struct parse_frame_t
 {
    int32_t             ref_no;
-   size_t              level;           /**< level of parens/square/angle/brace */
-   size_t              brace_level;     /**< level of brace/vbrace */
-   size_t              pp_level;        /**< level of preproc #if stuff */
+   uint32_t            level;           /**< level of parens/square/angle/brace */
+   uint32_t            brace_level;     /**< level of brace/vbrace */
+   uint32_t            pp_level;        /**< level of preproc #if stuff */
 
    int32_t             sparen_count;    /**<  */
 
    paren_stack_entry_t pse[128];        /**<  */
-   size_t              pse_tos;         /**<  */
+   uint32_t            pse_tos;         /**<  */
    int32_t             paren_count;     /**<  */
 
    c_token_t           in_ifdef;        /**<  */
@@ -201,7 +201,7 @@ typedef struct align_ptr_s
    bool        right_align; /**< AlignStack.m_right_align */
    StarStyle_t star_style;  /**< AlignStack.m_star_style */
    StarStyle_t amp_style;   /**< AlignStack.m_amp_style */
-   size_t      gap;         /**< AlignStack.m_gap */
+   uint32_t    gap;         /**< AlignStack.m_gap */
 
    /* col_adj is the amount to alter the column for the token.
     * For example, a dangling '*' would be set to -1.
@@ -247,7 +247,7 @@ struct chunk_t
 
 
    /** provides the number of characters of string */
-   size_t len(void)
+   uint32_t len(void)
    {
       return(str.size());
    }
@@ -354,7 +354,7 @@ typedef enum lang_e
 
 
 /** Pattern classes for special keywords */
-enum class pattern_class_e : unsigned int
+enum class pattern_class_e : uint32_t
 {
    NONE,
    BRACED,   // keyword + braced statement:
@@ -385,18 +385,18 @@ struct chunk_tag_t
 
 struct lookup_entry_t
 {
-   char               ch;              /**<  */
-   char               left_in_group;   /**<  */
-   uint16_t           next_idx;        /**<  */
-   const chunk_tag_t* tag;            /**<  */
+   char               ch;            /**<  */
+   char               left_in_group; /**<  */
+   uint16_t           next_idx;      /**<  */
+   const chunk_tag_t* tag;           /**<  */
 };
 
 
 struct align_t
 {
-   uint32_t  col;    /**<  */
-   c_token_t type;   /**<  */
-   uint32_t  len;    /**< of the token + space */
+   uint32_t  col;  /**<  */
+   c_token_t type; /**<  */
+   uint32_t  len;  /**< of the token + space */
 };
 
 
@@ -404,7 +404,7 @@ struct align_t
 struct file_mem_t
 {
    vector<uint8_t> raw;   /**< raw content of file  */
-   deque<int>      data;  /**< processed content of file  */
+   deque<int32_t>      data;  /**< processed content of file  */
    bool            bom;   /**<  */
    char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
 #ifdef HAVE_UTIME_H
@@ -412,7 +412,7 @@ struct file_mem_t
 #endif
 };
 
-enum class unc_stage_e : unsigned int
+enum class unc_stage_e : uint32_t
 {
    TOKENIZE,
    HEADER,
@@ -481,7 +481,7 @@ struct cp_data_t
    int32_t         pass_count;          /**<  */
 
    align_t         al[80];              /**<  */
-   size_t          al_cnt;              /**<  */
+   uint32_t          al_cnt;              /**<  */
    bool            al_c99_array;        /**<  */
 
    bool            warned_unable_string_replace_tab_chars; /**<  */
@@ -491,7 +491,7 @@ struct cp_data_t
 
    parse_frame_t   frames[16];                /**<  */
    int32_t         frame_count;               /**<  */
-   size_t          pp_level;                  /**< \todo can this ever be -1 */
+   uint32_t          pp_level;                  /**< \todo can this ever be -1 */
 
    /* the default values for settings */
    op_val_t        defaults[UO_option_count]; /**<  */

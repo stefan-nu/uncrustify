@@ -34,7 +34,7 @@
  *
  * @return
  */
-static size_t preproc_start(
+static uint32_t preproc_start(
    parse_frame_t* frm, /**< [in]  */
    chunk_t*       pc   /**< [in]  */
 );
@@ -141,11 +141,11 @@ static bool handle_complex_close(
 );
 
 
-static size_t preproc_start(parse_frame_t *frm, chunk_t* pc)
+static uint32_t preproc_start(parse_frame_t *frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
-   size_t  pp_level = cpd.pp_level;
+   uint32_t  pp_level = cpd.pp_level;
 
    /* Get the type of preprocessor and handle it */
    chunk_t* next = get_next_ncnl(pc);
@@ -187,12 +187,12 @@ static void print_stack(log_sev_t logsev, const char *str,
    {
       log_fmt(logsev, "%8.8s", str);
 
-      for (size_t idx = 1; idx <= frm->pse_tos; idx++)
+      for (uint32_t idx = 1; idx <= frm->pse_tos; idx++)
       {
          if (frm->pse[idx].stage != brace_stage_e::NONE)
          {
             LOG_FMT(logsev, " [%s - %u]",
-                    get_token_name(frm->pse[idx].type), (unsigned int)frm->pse[idx].stage);
+                    get_token_name(frm->pse[idx].type), (uint32_t)frm->pse[idx].stage);
          }
          else
          {
@@ -233,7 +233,7 @@ void brace_cleanup(void)
       }
 
       /* Check for a preprocessor start */
-      size_t pp_level = cpd.pp_level;
+      uint32_t pp_level = cpd.pp_level;
       if(is_type(pc, CT_PREPROC))
       {
          pp_level = preproc_start(&frm, pc);
@@ -304,7 +304,7 @@ static void push_fmr_pse(parse_frame_t *frm, chunk_t* pc,
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
 
-   if (frm->pse_tos < ((int)ARRAY_SIZE(frm->pse) - 1))
+   if (frm->pse_tos < ((int32_t)ARRAY_SIZE(frm->pse) - 1))
    {
       frm->pse_tos++;
       frm->pse[frm->pse_tos].type  = pc->type;
@@ -381,10 +381,10 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
    LOG_FUNC_ENTRY();
 
    assert(is_valid(pc));
-   LOG_FMT(LTOK, "%s:%zu] %16s - tos:%zu/%16s TOS.stage:%d\n",
+   LOG_FMT(LTOK, "%s:%u] %16s - tos:%u/%16s TOS.stage:%d\n",
            __func__, pc->orig_line, get_token_name(pc->type),
            frm->pse_tos, get_token_name(frm->pse[frm->pse_tos].type),
-           (unsigned int)frm->pse[frm->pse_tos].stage);
+           (uint32_t)frm->pse[frm->pse_tos].stage);
 
    /* Mark statement starts */
    if (((frm->stmt_count == 0) || (frm->expr_count == 0)) &&
@@ -395,7 +395,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
    {
       const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
-      LOG_FMT(LSTMT, "%zu] 1.marked %s as %s start st:%d ex:%d\n",
+      LOG_FMT(LSTMT, "%u] 1.marked %s as %s start st:%d ex:%d\n",
             pc->orig_line, pc->text(), type, frm->stmt_count, frm->expr_count);
    }
    frm->stmt_count++;
@@ -406,7 +406,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
       set_flags(pc, PCF_IN_SPAREN);
 
       /* Mark everything in the for statement */
-      for (int tmp = (int)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative do not use size_t */
+      for (int32_t tmp = (int32_t)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative do not use uint32_t */
       {
          if (frm->pse[tmp].type == CT_FOR)
          {
@@ -466,7 +466,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
 
       /* Make sure the open / close match */
 #if 1
-      if (pc->type != (c_token_t)((int)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
+      if (pc->type != (c_token_t)((int32_t)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
 #else
     if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type)) // \todo fails 30016 30017 30720 fix it
 #endif
@@ -475,7 +475,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
          if ((my_type != CT_NONE     ) &&
              (my_type != CT_PP_DEFINE) )
          {
-            LOG_FMT(LWARN, "%s: %s:%zu Error: Unexpected '%s' for '%s', which was on line %zu\n",
+            LOG_FMT(LWARN, "%s: %s:%u Error: Unexpected '%s' for '%s', which was on line %u\n",
                     __func__, cpd.filename, pc->orig_line, pc->text(),
                     get_token_name(frm->pse[frm->pse_tos].pc->type),
                     frm->pse[frm->pse_tos].pc->orig_line);
@@ -541,7 +541,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
          }
          else
          {
-            LOG_FMT(LWARN, "%s:%zu: Error: Expected a semicolon for WHILE_OF_DO, but got '%s'\n",
+            LOG_FMT(LWARN, "%s:%u: Error: Expected a semicolon for WHILE_OF_DO, but got '%s'\n",
                     cpd.filename, pc->orig_line, get_token_name(pc->type));
             cpd.error_count++;
          }
@@ -670,7 +670,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
        (is_semicolon(pc) &&
         not_type(my_type, CT_PAREN_OPEN, CT_FPAREN_OPEN, CT_SPAREN_OPEN) ) )
    {
-      LOG_FMT(LSTMT, "%s: %zu> reset1 statement on %s\n",
+      LOG_FMT(LSTMT, "%s: %u> reset1 statement on %s\n",
               __func__, pc->orig_line, pc->text());
       frm->stmt_count = 0;
       frm->expr_count = 0;
@@ -688,7 +688,7 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
        (is_type(pc, CT_STAR) && not_type(tmp, CT_STAR)))
    {
       frm->expr_count = 0;
-      LOG_FMT(LSTMT, "%s: %zu> reset expr on %s\n", __func__, pc->orig_line, pc->text());
+      LOG_FMT(LSTMT, "%s: %u> reset expr on %s\n", __func__, pc->orig_line, pc->text());
    }
 
    else if (is_type(pc, CT_BRACE_CLOSE) &&
@@ -807,7 +807,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
          return(true);
       }
 
-      LOG_FMT(LWARN, "%s:%zu Error: Expected 'while', got '%s'\n",
+      LOG_FMT(LWARN, "%s:%u Error: Expected 'while', got '%s'\n",
               cpd.filename, pc->orig_line, pc->text());
       frm->pse_tos--;
       print_stack(LBCSPOP, "-Error  ", frm, pc);
@@ -847,7 +847,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
          set_flags(pc, PCF_STMT_START | PCF_EXPR_START);
          frm->stmt_count = 1;
          frm->expr_count = 1;
-         LOG_FMT(LSTMT, "%zu] 2.marked %s as statement start\n", pc->orig_line, pc->text());
+         LOG_FMT(LSTMT, "%u] 2.marked %s as statement start\n", pc->orig_line, pc->text());
       }
    }
 
@@ -856,7 +856,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )
    {
-      LOG_FMT(LWARN, "%s:%zu Error: Expected '(', got '%s' for '%s'\n",
+      LOG_FMT(LWARN, "%s:%u Error: Expected '(', got '%s' for '%s'\n",
               cpd.filename, pc->orig_line, pc->text(),
               get_token_name(frm->pse[frm->pse_tos].type));
 
@@ -952,10 +952,10 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
    else
    {
       /* PROBLEM */
-      LOG_FMT(LWARN, "%s:%zu Error: TOS.type='%s' TOS.stage=%u\n",
+      LOG_FMT(LWARN, "%s:%u Error: TOS.type='%s' TOS.stage=%u\n",
               cpd.filename, pc->orig_line,
               get_token_name(frm->pse[frm->pse_tos].type),
-              (unsigned int)frm->pse[frm->pse_tos].stage);
+              (uint32_t)frm->pse[frm->pse_tos].stage);
       cpd.error_count++;
    }
    return(false);
@@ -1020,16 +1020,16 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
    assert(is_valid(pc));
    chunk_t* vbc = pc;
 
-   LOG_FMT(LTOK, "%s:%zu] %s '%s' type %s stage %u\n", __func__,
+   LOG_FMT(LTOK, "%s:%u] %s '%s' type %s stage %u\n", __func__,
            pc->orig_line, get_token_name(pc->type), pc->text(),
            get_token_name(frm->pse[frm->pse_tos].type ),
-           (unsigned int)(frm->pse[frm->pse_tos].stage));
+           (uint32_t)(frm->pse[frm->pse_tos].stage));
 
    if (cpd.consumed)
    {
       frm->stmt_count = 0;
       frm->expr_count = 0;
-      LOG_FMT(LSTMT, "%s: %zu> reset2 statement on %s\n",
+      LOG_FMT(LSTMT, "%s: %u> reset2 statement on %s\n",
               __func__, pc->orig_line, pc->text());
    }
 

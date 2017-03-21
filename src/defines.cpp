@@ -46,7 +46,7 @@ void add_define(const char* tag, const char* value)
 
 
 /* \todo DRY with load_keyword_file */
-int load_define_file(const char* filename, const size_t max_line_size)
+int32_t load_define_file(const char* filename, const uint32_t max_line_size)
 {
    retval_if(ptr_is_invalid(filename), EX_CONFIG);
 
@@ -59,7 +59,7 @@ int load_define_file(const char* filename, const size_t max_line_size)
    }
 
    char   buf[max_line_size];
-   size_t line_no = 0;
+   uint32_t line_no = 0;
 
    /* read file line by line */
    while (fgets(buf, sizeof(buf), pf) != nullptr)
@@ -73,9 +73,9 @@ int load_define_file(const char* filename, const size_t max_line_size)
          *ptr = 0; /* set string end where comment begins */
       }
 
-      const size_t arg_parts = 2;  /**< each define argument consists of three parts */
+      const uint32_t arg_parts = 2;  /**< each define argument consists of three parts */
       char *args[arg_parts+1];
-      size_t argc = Args::SplitLine(buf, args, arg_parts);
+      uint32_t argc = Args::SplitLine(buf, args, arg_parts);
       args[arg_parts] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
@@ -83,12 +83,12 @@ int load_define_file(const char* filename, const size_t max_line_size)
          if ((argc < arg_parts           ) &&
              (CharTable::IsKW1(*args[0]) ) )
          {
-            LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
+            LOG_FMT(LDEFVAL, "%s: line %u - %s\n", filename, line_no, args[0]);
             add_define(args[0], args[1]);
          }
          else
          {
-            LOG_FMT(LWARN, "%s line %zu invalid (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s line %u invalid (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }

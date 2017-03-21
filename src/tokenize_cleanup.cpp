@@ -115,7 +115,7 @@ void tokenize_cleanup(void)
            is_preproc(pc) &&
           !get_next_ncnl(pc, scope_e::PREPROC))
       {
-         LOG_FMT(LNOTE, "%s:%zu Detected a macro that ends with a semicolon. Possible failures if used.\n",
+         LOG_FMT(LNOTE, "%s:%u Detected a macro that ends with a semicolon. Possible failures if used.\n",
                  cpd.filename, pc->orig_line);
       }
    }
@@ -142,7 +142,7 @@ void tokenize_cleanup(void)
          {
             if (not_type(next, CT_ASSIGN))
             {
-               LOG_FMT(LERR, "%s:%zu %s: version: Unexpected token %s\n",
+               LOG_FMT(LERR, "%s:%u %s: version: Unexpected token %s\n",
                        cpd.filename, pc->orig_line, __func__, get_token_name(next->type));
                cpd.error_count++;
             }
@@ -363,7 +363,7 @@ void tokenize_cleanup(void)
 
                /* Change tmp into a type so that space_needed() works right */
                make_type(tmp);
-               size_t num_sp = space_needed(tmp2, tmp);
+               uint32_t num_sp = space_needed(tmp2, tmp);
                while (num_sp-- > 0)
                {
                   next->str.append(" ");
@@ -382,7 +382,7 @@ void tokenize_cleanup(void)
          }
          set_ptype(next, CT_OPERATOR);
 
-         LOG_FMT(LOPERATOR, "%s: %zu:%zu operator '%s'\n",
+         LOG_FMT(LOPERATOR, "%s: %u:%u operator '%s'\n",
                  __func__, pc->orig_line, pc->orig_col, next->text());
       }
 
@@ -530,7 +530,7 @@ void tokenize_cleanup(void)
             set_flags(tmp, PCF_STMT_START | PCF_EXPR_START);
          }
 
-         tmp = get_next_type(pc, CT_OC_END, (int)pc->level);
+         tmp = get_next_type(pc, CT_OC_END, (int32_t)pc->level);
          if (is_valid(tmp))
          {
             set_ptype(tmp, pc->type);
@@ -544,7 +544,7 @@ void tokenize_cleanup(void)
          {
             if (get_token_pattern_class(tmp->type) != pattern_class_e::NONE)
             {
-               LOG_FMT(LOBJCWORD, "@interface %zu:%zu change '%s' (%s) to CT_WORD\n",
+               LOG_FMT(LOBJCWORD, "@interface %u:%u change '%s' (%s) to CT_WORD\n",
                        pc->orig_line, pc->orig_col, tmp->text(),
                        get_token_name(tmp->type));
                set_type(tmp, CT_WORD);
@@ -578,7 +578,7 @@ void tokenize_cleanup(void)
             }
          }
 
-         tmp = get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
+         tmp = get_next_type(pc, CT_PAREN_CLOSE, (int32_t)pc->level);
          set_ptype(tmp, pc->ptype);
       }
 
@@ -596,7 +596,7 @@ void tokenize_cleanup(void)
          {
             set_ptype(next, pc->type);
 
-            chunk_t *tmp = get_next_type(pc, CT_PAREN_CLOSE, (int)pc->level);
+            chunk_t *tmp = get_next_type(pc, CT_PAREN_CLOSE, (int32_t)pc->level);
             if (is_valid(tmp))
             {
                set_ptype(tmp, pc->type);
@@ -605,7 +605,7 @@ void tokenize_cleanup(void)
                {
                   set_flags(tmp, PCF_STMT_START | PCF_EXPR_START);
 
-                  tmp = get_next_type(tmp, CT_SEMICOLON, (int)pc->level);
+                  tmp = get_next_type(tmp, CT_SEMICOLON, (int32_t)pc->level);
                   if (is_valid(tmp))
                   {
                      set_ptype(tmp, pc->type);
@@ -727,7 +727,7 @@ void tokenize_cleanup(void)
       }
 
       /* HACK: treat try followed by a colon as a qualifier to handle this:
-       *   A::A(int) try : B() { } catch (...) { } */
+       *   A::A(int32_t) try : B() { } catch (...) { } */
       if ( are_types(pc, CT_TRY, next, CT_COLON) && is_str (pc, "try"))
       {
          set_type(pc, CT_QUALIFIER);
@@ -758,7 +758,7 @@ void tokenize_cleanup(void)
 
 static void check_template(chunk_t* start)
 {
-   LOG_FMT(LTEMPL, "%s: Line %zu, col %zu:",
+   LOG_FMT(LTEMPL, "%s: Line %u, col %u:",
          __func__, start->orig_line, start->orig_col);
 
    chunk_t *prev = get_prev_ncnl(start, scope_e::PREPROC);
@@ -771,16 +771,16 @@ static void check_template(chunk_t* start)
       LOG_FMT(LTEMPL, " CT_TEMPLATE:");
 
       /* We have: "template< ... >", which is a template declaration */
-      size_t level = 1;
+      uint32_t level = 1;
       for (pc = get_next_ncnl(start, scope_e::PREPROC);
            is_valid(pc);
            pc = get_next_ncnl(pc,    scope_e::PREPROC))
       {
-         LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), level);
+         LOG_FMT(LTEMPL, " [%s,%u]", get_token_name(pc->type), level);
 
          if ((pc->str[0] == '>') && (pc->len() > 1))
          {
-            LOG_FMT(LTEMPL, " {split '%s' at %zu:%zu}",
+            LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
             split_off_angle_close(pc);
          }
@@ -841,21 +841,21 @@ static void check_template(chunk_t* start)
        * If we have a comparison in there, then it can't be a template. */
 #define MAX_NUMBER_OF_TOKEN    1024
       c_token_t tokens[MAX_NUMBER_OF_TOKEN];
-      size_t    num_tokens = 1;
+      uint32_t    num_tokens = 1;
 
       tokens[0] = CT_ANGLE_OPEN;
       for (pc = get_next_ncnl(start, scope_e::PREPROC);
            is_valid(pc);
            pc = get_next_ncnl(pc, scope_e::PREPROC))
       {
-         LOG_FMT(LTEMPL, " [%s,%zu]", get_token_name(pc->type), num_tokens);
+         LOG_FMT(LTEMPL, " [%s,%u]", get_token_name(pc->type), num_tokens);
 
          if ((tokens[num_tokens - 1] == CT_ANGLE_OPEN) &&
              (pc->str[0] == '>') &&
              (pc->len() > 1    ) &&
              (is_true(UO_tok_split_gte) || (is_str(pc, ">>") && (num_tokens >= 2))))
          {
-            LOG_FMT(LTEMPL, " {split '%s' at %zu:%zu}",
+            LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
             split_off_angle_close(pc);
          }

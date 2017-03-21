@@ -39,7 +39,7 @@ void log_show_sev(
 /**
  * Returns whether a log severity is active.
  *
- * @return     true/false
+ * @return true/false
  */
 bool log_sev_on(
    log_sev_t sev /**< [in] severity log level */
@@ -49,11 +49,11 @@ bool log_sev_on(
 /**
  * Sets a log sev on or off
  *
- * @return     true/false
+ * @return true/false
  */
 void log_set_sev(
    log_sev_t sev, /**< [in] severity log level to modify */
-   bool value     /**< [in] new value for severity log level */
+   bool      val  /**< [in] new value for severity log level */
 );
 
 
@@ -79,7 +79,7 @@ void log_get_mask(
 void log_str(
    log_sev_t   sev, /**< [in] severity */
    const char* str, /**< [in] pointer to the string */
-   size_t      len  /**< [in] length of the string from strlen(str) */
+   uint32_t    len  /**< [in] length of the string from strlen(str) */
 );
 
 
@@ -104,6 +104,7 @@ __attribute__((format(printf, 2, 3)));
 
 #ifdef NO_MACRO_VARARG
 #define LOG_FMT    log_fmt
+// \todo during debugging add source file and line number
 #else
 #define LOG_FMT(sev, args...)                           \
    do { if (log_sev_on(sev)) { log_fmt(sev, ## args); } \
@@ -115,9 +116,9 @@ __attribute__((format(printf, 2, 3)));
  * Dumps hex characters inline, no newlines inserted
  */
 void log_hex(
-   log_sev_t sev,     /**< [in] severity */
-   const void *vdata, /**< [in] data to log */
-   size_t len         /**< [in] number of bytes to log */
+   log_sev_t   sev,   /**< [in] severity */
+   const void* vdata, /**< [in] data to log */
+   uint32_t    len    /**< [in] number of bytes to log */
 );
 
 
@@ -136,9 +137,9 @@ void log_hex(
  *  nnn is the line number or index/16
  */
 void log_hex_blk(
-   log_sev_t sev,    /**< [in] severity */
-   const void *data, /**< [in] data to log */
-   size_t len        /**< [in] number of bytes to log */
+   log_sev_t   sev,  /**< [in] severity */
+   const void* data, /**< [in] data to log */
+   uint32_t    len   /**< [in] number of bytes to log */
 );
 
 
@@ -154,7 +155,7 @@ void log_hex_blk(
  * @return        '0', '1', '2', '3', '4', '5', '6', '7',
  *                '8', '9', 'a', 'b', 'c', 'd', 'e', or 'f'
  */
-static inline char to_hex_char(int nibble)
+static inline char to_hex_char(int32_t nibble)
 {
    const char *hex_string = "0123456789abcdef";
    return(hex_string[nibble & 0x0F]);
@@ -190,7 +191,7 @@ static inline char to_hex_char(int nibble)
 class log_func
 {
 public:
-   log_func(const char *name, int line);
+   log_func(const char *name, int32_t line);
    ~log_func(); /**< [in]  */
 };
 
@@ -199,7 +200,7 @@ public:
  * tbd
  */
 void log_func_call(
-   int line /**< [in]  */
+   int32_t line /**< [in]  */
 );
 
 
@@ -210,7 +211,7 @@ void log_func_stack(
    log_sev_t   sev,           /**< [in]  */
    const char* prefix = "",   /**< [in]  */
    const char* suffix = "\n", /**< [in]  */
-   size_t      skip_cnt = 0   /**< [in]  */
+   uint32_t      skip_cnt = 0   /**< [in]  */
 );
 
 

@@ -29,9 +29,9 @@ using namespace std;
 using namespace emscripten;
 
 extern void process_option_line(char *configLine, const char *filename);
-extern void usage_exit(const char *msg, const char *argv0, int code);
-extern int load_header_files();
-extern const char *language_name_from_flags(int lang);
+extern void usage_exit(const char *msg, const char *argv0, int32_t code);
+extern int32_t load_header_files();
+extern const char *language_name_from_flags(int32_t lang);
 extern void uncrustify_file(const file_mem &fm, FILE *pfout, const char *parsed_file, bool defer_uncrustify_end = false);
 extern const option_map_value *unc_find_option(const char *name);
 
@@ -48,7 +48,7 @@ extern map<uncrustify_groups, group_map_value>   group_map;
  * @param configString char array that holds the whole config
  * @return EXIT_SUCCESS on success
  */
-int load_option_fileChar(char *configString)
+int32_t load_option_fileChar(char *configString)
 {
    char *delimPos       = &configString[0];
    char *subStringStart = &configString[0];
@@ -133,7 +133,7 @@ int load_option_fileChar(char *configString)
 // string get_option_value(op_val_t option_id )
 
 
-enum class lang_flags : int
+enum class lang_flags : int32_t
 {
    LANG_C_    = LANG_C,
    LANG_CPP_  = LANG_CPP,
@@ -162,7 +162,7 @@ enum class lang_flags : int
  */
 void set_language(lang_flags langIDX)
 {
-   cpd.lang_flags = static_cast<int>(langIDX);
+   cpd.lang_flags = static_cast<int32_t>(langIDX);
 }
 
 
@@ -267,7 +267,7 @@ void set_quiet()
  * @param value: value that is going to be set
  * @return options enum value of the found option or -1 if option was not found
  */
-int set_option(string name, string value)
+int32_t set_option(string name, string value)
 {
    if (name.empty())
    {
@@ -313,7 +313,7 @@ string get_option(string name)
 string show_options()
 {
    char   *buf;
-   size_t len;
+   uint32_t len;
 
    // TODO (upstream): see uncrustify()
    FILE *stream = open_memstream(&buf, &len);
@@ -351,7 +351,7 @@ string show_options()
 string show_config(bool withDoc, bool only_not_default)
 {
    char   *buf;
-   size_t len;
+   uint32_t len;
 
    // TODO (upstream): see uncrustify()
    FILE *stream = open_memstream(&buf, &len);
@@ -424,7 +424,7 @@ void destruct()
  *
  * @return returns EXIT_SUCCESS on success
  */
-int loadConfig(string _cfg)
+int32_t loadConfig(string _cfg)
 {
    if (_cfg.empty())
    {
@@ -509,13 +509,13 @@ string uncrustify(string file, bool frag)
 
    /* Done reading from stdin */
    LOG_FMT(LSYS, "Parsing: %d bytes (%d chars) from stdin as language %s\n",
-           (int)fm.raw.size(), (int)fm.data.size(),
+           (int32_t)fm.raw.size(), (int32_t)fm.data.size(),
            language_name_from_flags(cpd.lang_flags));
 
    cpd.frag = frag;
 
    char   *buf;
-   size_t len;
+   uint32_t len;
 
    // TODO (upstream): uncrustify uses FILE instead of streams for its outputs
    // to redirect FILE writes into a char* open_memstream is used
@@ -574,7 +574,7 @@ string uncrustify(string file, bool frag, lang_flags langIDX)
 {
    auto tmpLang = cpd.lang_flags;
 
-   cpd.lang_flags = static_cast<int>(langIDX);
+   cpd.lang_flags = static_cast<int32_t>(langIDX);
 
    auto ret = uncrustify(file, frag);
 

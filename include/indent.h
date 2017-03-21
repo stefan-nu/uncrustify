@@ -31,8 +31,8 @@ void indent_preproc(void);
  * tbd
  */
 void indent_to_column(
-   chunk_t *pc,   /**< [in] chunk at the start of the line */
-   size_t  column /**< [in] desired column */
+   chunk_t* pc,    /**< [in] chunk at the start of the line */
+   uint32_t column /**< [in] desired column */
 );
 
 
@@ -40,8 +40,8 @@ void indent_to_column(
  * Same as indent_to_column, except we can move both ways
  */
 void align_to_column(
-   chunk_t *pc,   /**< [in] chunk at the start of the line */
-   size_t  column /**< [in] desired column */
+   chunk_t* pc,    /**< [in] chunk at the start of the line */
+   uint32_t column /**< [in] desired column */
 );
 
 
@@ -55,8 +55,8 @@ bool ifdef_over_whole_file(void);
  * Changes the initial indent for a line to the given column
  */
 void reindent_line(
-   chunk_t *pc,   /**< [in] chunk at the start of the line */
-   size_t  column /**< [in] desired column */
+   chunk_t* pc,    /**< [in] chunk at the start of the line */
+   uint32_t column /**< [in] desired column */
 );
 
 

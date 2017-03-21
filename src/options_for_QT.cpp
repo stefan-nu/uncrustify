@@ -13,7 +13,7 @@
 
 // for the modification of options within the SIGNAL/SLOT call.
 bool     QT_SIGNAL_SLOT_found      = false;
-size_t   QT_SIGNAL_SLOT_level      = 0;
+uint32_t   QT_SIGNAL_SLOT_level      = 0;
 bool     restoreValues             = false;
 argval_t SaveUO_sp_inside_fparen_A = AV_NOT_DEFINED;
 
@@ -29,11 +29,11 @@ argval_t SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEFINED;
 argval_t SaveUO_sp_after_type_A           = AV_NOT_DEFINED;
 
 
-void save_set_options_for_QT(size_t level)
+void save_set_options_for_QT(uint32_t level)
 {
    assert(is_true(UO_use_options_overriding_for_qt_macros));
 
-   LOG_FMT(LGUY, "save values, level=%zu\n", level);
+   LOG_FMT(LGUY, "save values, level=%u\n", level);
    // save the values
    QT_SIGNAL_SLOT_level             = level;
    SaveUO_sp_inside_fparen_A        = cpd.settings[UO_sp_inside_fparen].a;

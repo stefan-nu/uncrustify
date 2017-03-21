@@ -44,7 +44,7 @@ static void add_parens_between(
 static void check_bool_parens(
    chunk_t *popen,  /**< [in]  */
    chunk_t *pclose, /**< [in]  */
-   int     nest     /**< [in]  */
+   int32_t     nest     /**< [in]  */
 );
 
 
@@ -61,7 +61,7 @@ void do_parens(void)
                       not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
-         chunk_t *pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int)pc->level, scope_e::PREPROC);
+         chunk_t *pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int32_t)pc->level, scope_e::PREPROC);
          if (is_valid(pclose))
          {
             check_bool_parens(pc, pclose, 0);
@@ -79,7 +79,7 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
    if (is_invalid(first) ||
        is_invalid(last ) ) { return; }
 
-   LOG_FMT(LPARADD, "%s: line %zu between %s [lvl=%zu] and %s [lvl=%zu]\n",
+   LOG_FMT(LPARADD, "%s: line %u between %s [lvl=%u] and %s [lvl=%u]\n",
            __func__, first->orig_line,
            first->text(), first->level, last->text(),  last->level);
 
@@ -119,14 +119,14 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 }
 
 
-static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
+static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int32_t nest)
 {
    LOG_FUNC_ENTRY();
 
    chunk_t *ref        = popen;
    bool    hit_compare = false;
 
-   LOG_FMT(LPARADD, "%s(%d): popen on %zu, col %zu, pclose on %zu, col %zu, level=%zu\n",
+   LOG_FMT(LPARADD, "%s(%d): popen on %u, col %u, pclose on %u, col %u, level=%u\n",
            __func__, nest, popen->orig_line, popen->orig_col,
            pclose->orig_line, pclose->orig_col, popen->level);
 
@@ -135,7 +135,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
    {
       if (is_preproc(pc))
       {
-         LOG_FMT(LPARADD2, " -- bail on PP %s [%s] at line %zu col %zu, level %zu\n",
+         LOG_FMT(LPARADD2, " -- bail on PP %s [%s] at line %u col %u, level %u\n",
                  get_token_name(pc->type),
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
          return;
@@ -143,7 +143,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
 
       if (is_type(pc, CT_BOOL, CT_QUESTION, CT_COND_COLON, CT_COMMA))
       {
-         LOG_FMT(LPARADD2, " -- %s [%s] at line %zu col %zu, level %zu\n",
+         LOG_FMT(LPARADD2, " -- %s [%s] at line %u col %u, level %u\n",
                  get_token_name(pc->type),
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
          if (hit_compare)
@@ -155,7 +155,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int nest)
       }
       else if (is_type(pc, CT_COMPARE))
       {
-         LOG_FMT(LPARADD2, " -- compare [%s] at line %zu col %zu, level %zu\n",
+         LOG_FMT(LPARADD2, " -- compare [%s] at line %u col %u, level %u\n",
                  pc->text(), pc->orig_line, pc->orig_col, pc->level);
          hit_compare = true;
       }

@@ -17,8 +17,8 @@
 /**
  * Truncate anything except EOF (-1) to 0-255
  */
-static inline int unc_fix_ctype(
-   int ch /**< [in]  */
+static inline int32_t unc_fix_ctype(
+   int32_t ch /**< [in]  */
 )
 {
    return((ch == -1) ? -1 : (ch & 0xff));
@@ -28,8 +28,8 @@ static inline int unc_fix_ctype(
 /**
  * check if a character is a space
  */
-static inline int unc_isspace(
-   int ch /**< [in] character to check */
+static inline int32_t unc_isspace(
+   int32_t ch /**< [in] character to check */
 )
 {
    return(isspace(unc_fix_ctype(ch)));
@@ -39,8 +39,8 @@ static inline int unc_isspace(
 /**
  * tbd
  */
-static inline int unc_isprint(
-   int ch /**< [in]  */
+static inline int32_t unc_isprint(
+   int32_t ch /**< [in]  */
 )
 {
    return(isprint(unc_fix_ctype(ch)));
@@ -50,8 +50,8 @@ static inline int unc_isprint(
 /**
  * tbd
  */
-static inline int unc_isalpha(
-   int ch /**< [in]  */
+static inline int32_t unc_isalpha(
+   int32_t ch /**< [in]  */
 )
 {
    return(isalpha(unc_fix_ctype(ch)));
@@ -61,8 +61,8 @@ static inline int unc_isalpha(
 /**
  * tbd
  */
-static inline int unc_isalnum(
-   int ch /**< [in]  */
+static inline int32_t unc_isalnum(
+   int32_t ch /**< [in]  */
 )
 {
    return(isalnum(unc_fix_ctype(ch)));
@@ -72,8 +72,8 @@ static inline int unc_isalnum(
 /**
  * convert a character to upper case
  */
-static inline int unc_toupper(
-   int ch /**< [in] character to convert */
+static inline int32_t unc_toupper(
+   int32_t ch /**< [in] character to convert */
 )
 {
    return(toupper(unc_fix_ctype(ch)));
@@ -83,8 +83,8 @@ static inline int unc_toupper(
 /**
  * convert a character to lower case
  */
-static inline int unc_tolower(
-   int ch /**< [in] character to convert */
+static inline int32_t unc_tolower(
+   int32_t ch /**< [in] character to convert */
 )
 {
    return(tolower(unc_fix_ctype(ch)));
@@ -94,8 +94,8 @@ static inline int unc_tolower(
 /**
  * tbd
  */
-static inline int unc_isxdigit(
-   int ch /**< [in] character to convert */
+static inline int32_t unc_isxdigit(
+   int32_t ch /**< [in] character to convert */
 )
 {
    return(isxdigit(unc_fix_ctype(ch)));
@@ -105,8 +105,8 @@ static inline int unc_isxdigit(
 /**
  * tbd
  */
-static inline int unc_isdigit(
-   int ch /**< [in] character to convert */
+static inline int32_t unc_isdigit(
+   int32_t ch /**< [in] character to convert */
 )
 {
    return(isdigit(unc_fix_ctype(ch)));
@@ -116,11 +116,11 @@ static inline int unc_isdigit(
 /**
  * tbd
  */
-static inline int unc_isupper(
-   int ch /**< [in] character to convert */
+static inline int32_t unc_isupper(
+   int32_t ch /**< [in] character to convert */
 )
 {
-   int character = unc_fix_ctype(ch);
+   int32_t character = unc_fix_ctype(ch);
    return(isalpha(character) &&  unc_toupper(character) == ch);
 }
 

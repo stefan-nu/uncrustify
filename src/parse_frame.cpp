@@ -41,11 +41,11 @@ static void pf_copy_2nd_tos(
  */
 void pf_log(log_sev_t logsev, parse_frame_t *pf)
 {
-   LOG_FMT(logsev, "[%s] BrLevel=%zu Level=%zu PseTos=%zu\n",
+   LOG_FMT(logsev, "[%s] BrLevel=%u Level=%u PseTos=%u\n",
          get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
-   for (size_t idx = 1; idx <= pf->pse_tos; idx++)
+   for (uint32_t idx = 1; idx <= pf->pse_tos; idx++)
    {
       LOG_FMT(logsev, " [%s-%d]", get_token_name(pf->pse[idx].type), pf->pse[idx].stage);
    }
@@ -56,7 +56,7 @@ void pf_log(log_sev_t logsev, parse_frame_t *pf)
 static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
 {
    LOG_FMT(logsev, "%s Parse Frames(%d):", txt, cpd.frame_count);
-   for (int idx = 0; idx < cpd.frame_count; idx++)
+   for (int32_t idx = 0; idx < cpd.frame_count; idx++)
    {
       LOG_FMT(logsev, " [%s-%d]", get_token_name(cpd.frames[idx].in_ifdef),
               cpd.frames[idx].ref_no);
@@ -69,7 +69,7 @@ static void pf_log_all(log_sev_t logsev)
 {
    LOG_FMT(logsev, "##=- Parse Frame : %d entries\n", cpd.frame_count);
 
-   for (int idx = 0; idx < cpd.frame_count; idx++)
+   for (int32_t idx = 0; idx < cpd.frame_count; idx++)
    {
       LOG_FMT(logsev, "##  <%d> ", idx);
       pf_log(logsev, &cpd.frames[idx]);
@@ -86,9 +86,9 @@ void pf_copy(parse_frame_t *dst, const parse_frame_t *src)
 
 void pf_push(parse_frame_t *pf)
 {
-   if (cpd.frame_count < static_cast<int> ARRAY_SIZE(cpd.frames))
+   if (cpd.frame_count < static_cast<int32_t> ARRAY_SIZE(cpd.frames))
    {
-      static int ref_no = 1;
+      static int32_t ref_no = 1;
       pf_copy(&cpd.frames[cpd.frame_count], pf);
       cpd.frame_count++;
 
@@ -102,7 +102,7 @@ void pf_push_under(parse_frame_t *pf)
 {
    LOG_FMT(LPF, "%s(%d): before count = %d\n", __func__, __LINE__, cpd.frame_count);
 
-   if ((cpd.frame_count < static_cast<int> ARRAY_SIZE(cpd.frames)) &&
+   if ((cpd.frame_count < static_cast<int32_t> ARRAY_SIZE(cpd.frames)) &&
        (cpd.frame_count >= 1))
    {
       parse_frame_t *npf1 = &cpd.frames[cpd.frame_count-1];
@@ -161,11 +161,11 @@ void pf_pop(parse_frame_t *pf)
 }
 
 
-size_t pf_check(parse_frame_t *frm, chunk_t *pc)
+uint32_t pf_check(parse_frame_t *frm, chunk_t *pc)
 {
-   int    in_ifdef = (int)frm->in_ifdef;
-   int    b4_cnt   = cpd.frame_count;
-   size_t pp_level = cpd.pp_level;
+   int32_t    in_ifdef = (int32_t)frm->in_ifdef;
+   int32_t    b4_cnt   = cpd.frame_count;
+   uint32_t pp_level = cpd.pp_level;
 
    if (not_type(pc, CT_PREPROC)) { return(pp_level); }
    chunk_t *next = chunk_get_next(pc);
@@ -173,13 +173,13 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 
    if (not_ptype(pc, next->type))
    {
-      LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %zu: got %s expected %s\n",
+      LOG_FMT(LNOTE, "%s(%d): Preproc parent not set correctly on line %u: got %s expected %s\n",
               __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype),
               get_token_name(next->type));
       set_ptype(pc, next->type);
    }
 
-   LOG_FMT(LPFCHK, "%s(%d): %zu] %s\n",
+   LOG_FMT(LPFCHK, "%s(%d): %u] %s\n",
            __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype));
    pf_log_frms(LPFCHK, "TOP", frm);
 
@@ -251,7 +251,7 @@ size_t pf_check(parse_frame_t *frm, chunk_t *pc)
 
    if (ptr_is_valid(txt))
    {
-      LOG_FMT(LPF, "%s(%d): %zu> %s: %s in_ifdef=%d/%d counts=%d/%d\n", __func__, __LINE__,
+      LOG_FMT(LPF, "%s(%d): %u> %s: %s in_ifdef=%d/%d counts=%d/%d\n", __func__, __LINE__,
               pc->orig_line, get_token_name(pc->ptype), txt,
               in_ifdef, frm->in_ifdef, b4_cnt, cpd.frame_count);
       pf_log_all(LPF);

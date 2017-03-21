@@ -26,8 +26,8 @@
 template<class T> class ListManager
 {
 protected:
-   T *first; /**< pointer to the head of list */
-   T *last;  /**> pointer to tail of list */
+   T* first; /**< pointer to the head of list */
+   T* last;  /**> pointer to tail of list */
 
 private:
    /* Hide copy constructor */
@@ -40,7 +40,7 @@ private:
 public:
    /** use this enum to define in what direction or location an
     *  operation shall be performed. */
-   enum class dir_e : unsigned int
+   enum class dir_e : uint32_t
    {
       BEFORE, /**< indicates a position or direction upwards   (=prev) */
       AFTER,  /**< indicates a position or direction downwards (=next) */
@@ -152,8 +152,8 @@ public:
          else if (obj2->prev == obj1) { Pop(obj2); AddBefore(obj2, obj1); }
          else
          {
-            T *prev1 = obj1->prev; Pop(obj1);
-            T *prev2 = obj2->prev; Pop(obj2);
+            T* prev1 = obj1->prev; Pop(obj1);
+            T* prev2 = obj2->prev; Pop(obj2);
             AddAfter(obj1, prev2);
             AddAfter(obj2, prev1);
          }
@@ -178,15 +178,15 @@ public:
          Pop(obj); /* \todo is this necessary? */
          obj->next = (after) ? ref->next  : ref;
          obj->prev = (after) ? ref        : ref->prev;
-         T **ins   = (after) ? &ref->next : &ref->prev;
+         T** ins   = (after) ? &ref->next : &ref->prev;
          if (ptr_is_valid(*ins))
          {
-            T **add = (after) ? &ref->next->prev : &ref->prev->next;
+            T** add = (after) ? &ref->next->prev : &ref->prev->next;
             *add    = obj;
          }
          else
          {
-            T **end = (after) ? &last : &first;
+            T** end = (after) ? &last : &first;
             *end    = obj;
          }
          *ins = obj;

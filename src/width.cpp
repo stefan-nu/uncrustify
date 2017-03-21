@@ -24,7 +24,7 @@
 struct cw_entry
 {
    chunk_t *pc;  /**<  */
-   size_t  pri;  /**<  */
+   uint32_t  pri;  /**<  */
 };
 
 
@@ -32,7 +32,7 @@ struct cw_entry
 struct token_pri
 {
    c_token_t tok;  /**<  */
-   size_t    pri;  /**<  */
+   uint32_t    pri;  /**<  */
 };
 
 
@@ -55,7 +55,7 @@ static void split_before_chunk(
 /**
  * tbd
  */
-static size_t get_split_pri(
+static uint32_t get_split_pri(
    c_token_t tok  /**< in]  */
 );
 
@@ -191,7 +191,7 @@ static void split_before_chunk(chunk_t *pc)
       newline_add_before(pc);
       /* reindent needs to include the indent_continue value and was off by one */
       reindent_line(pc, pc->brace_level * cpd.settings[UO_indent_columns].u +
-                    (size_t)abs(cpd.settings[UO_indent_continue].n) + 1u);
+                    (uint32_t)abs(cpd.settings[UO_indent_continue].n) + 1u);
       cpd.changes++;
    }
 }
@@ -210,7 +210,7 @@ void do_code_width(void)
       {
          if (split_line(pc) == false)
          {
-            LOG_FMT(LSPLIT, "%s: Bailed on %zu:%zu %s\n",
+            LOG_FMT(LSPLIT, "%s: Bailed on %u:%u %s\n",
                     __func__, pc->orig_line, pc->orig_col, pc->text());
             break;
          }
@@ -219,7 +219,7 @@ void do_code_width(void)
 }
 
 
-static size_t get_split_pri(c_token_t tok)
+static uint32_t get_split_pri(c_token_t tok)
 {
    for (auto token : pri_table)
    {
@@ -233,7 +233,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 {
    LOG_FUNC_ENTRY();
 
-   size_t pc_pri = get_split_pri(pc->type);
+   uint32_t pc_pri = get_split_pri(pc->type);
    return_if(pc_pri == 0);
 
    /* Can't split after a newline */
@@ -293,7 +293,7 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
 static bool split_line(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LSPLIT, "%s: line %zu, col %zu token: '%s' [%s] (IN_FUNC=%d) ",
+   LOG_FMT(LSPLIT, "%s: line %u, col %u token: '%s' [%s] (IN_FUNC=%d) ",
            __func__, start->orig_line, start->column, start->text(),
            get_token_name(start->type),
            is_flag(start, (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)));
@@ -345,7 +345,7 @@ static bool split_line(chunk_t *start)
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
            (!is_nl(pc)) )
    {
-      LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
+      LOG_FMT(LSPLIT, "%s: at %s, col=%u\n", __func__, pc->text(), pc->orig_col);
       if (not_type(pc, CT_SPACE))
       {
          try_split_here(ent, pc);
@@ -356,14 +356,14 @@ static bool split_line(chunk_t *start)
 
    if (is_invalid(ent.pc))
    {
-      LOG_FMT(LSPLIT, "\n%s:    TRY_SPLIT yielded NO SOLUTION for line %zu at %s [%s]\n",
+      LOG_FMT(LSPLIT, "\n%s:    TRY_SPLIT yielded NO SOLUTION for line %u at %s [%s]\n",
               __func__, start->orig_line, start->text(), get_token_name(start->type));
    }
    else
    {
-      LOG_FMT(LSPLIT, "\n%s:    TRY_SPLIT yielded '%s' [%s] on line %zu\n",
+      LOG_FMT(LSPLIT, "\n%s:    TRY_SPLIT yielded '%s' [%s] on line %u\n",
               __func__, ent.pc->text(), get_token_name(ent.pc->type), ent.pc->orig_line);
-      LOG_FMT(LSPLIT, "%s: ent at %s, col=%zu\n",
+      LOG_FMT(LSPLIT, "%s: ent at %s, col=%u\n",
               __func__, ent.pc->text(), ent.pc->orig_col);
    }
 
@@ -382,7 +382,7 @@ static bool split_line(chunk_t *start)
       else { pc = chunk_get_next(ent.pc); }
 
       assert(is_valid(pc));
-      LOG_FMT(LSPLIT, "%s: at %s, col=%zu\n", __func__, pc->text(), pc->orig_col);
+      LOG_FMT(LSPLIT, "%s: at %s, col=%u\n", __func__, pc->text(), pc->orig_col);
    }
 
    if (is_invalid(pc))
@@ -425,12 +425,12 @@ static void split_for_statement(chunk_t *start)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(start));
 
-   LOG_FMT(LSPLIT, "%s: starting on %s, line %zu\n",
+   LOG_FMT(LSPLIT, "%s: starting on %s, line %u\n",
            __func__, start->text(), start->orig_line);
 
-   size_t  max_cnt     = is_true(UO_ls_for_split_full) ? 2 : 1;
+   uint32_t  max_cnt     = is_true(UO_ls_for_split_full) ? 2 : 1;
    chunk_t *open_paren = nullptr;
-   size_t  nl_cnt      = 0;
+   uint32_t  nl_cnt      = 0;
 
    /* Find the open paren so we know the level and count newlines */
    chunk_t *pc = start;
@@ -450,7 +450,7 @@ static void split_for_statement(chunk_t *start)
    }
 
    /* see if we started on the semicolon */
-   int     count = 0;
+   int32_t     count = 0;
    chunk_t *st[2];
    st[0] = nullptr;
    st[1] = nullptr;
@@ -468,14 +468,14 @@ static void split_for_statement(chunk_t *start)
       }
       // DRY2 end
    }
-   while ( (count < (int)max_cnt                ) &&
+   while ( (count < (int32_t)max_cnt                ) &&
            ((pc = chunk_get_prev(pc)) != nullptr) &&
             get_flags(pc, PCF_IN_SPAREN         ) );
 
 
    /* And now scan forward */
    pc = start;
-   while (( count < (int)max_cnt               ) &&
+   while (( count < (int32_t)max_cnt               ) &&
           ((pc = chunk_get_next(pc)) != nullptr) &&
           is_flag(pc, PCF_IN_SPAREN)             )
    {
@@ -526,7 +526,7 @@ static void split_for_statement(chunk_t *start)
  * scan through the chunk list and count the number
  * of chunks of a given type
  */
-void scan_for_type(chunk_t* pc, int* count, size_t  max_cnt, dir_e dir)
+void scan_for_type(chunk_t* pc, int32_t* count, uint32_t  max_cnt, dir_e dir)
 {
    const search_t search_function = select_search_fct(dir);
 
@@ -538,7 +538,7 @@ void scan_for_type(chunk_t* pc, int* count, size_t  max_cnt, dir_e dir)
          count++;
       }
    }
-   while ( (count < (int)max_cnt                ) &&
+   while ( (count < (int32_t)max_cnt                ) &&
            ((pc = chunk_get_prev(pc)) != nullptr) &&
            is_flag(pc, PCF_IN_SPAREN           ) );
 }
@@ -580,13 +580,13 @@ static void split_fcn_params(chunk_t *start)
    chunk_t *pc = get_next_ncnl(fpopen);
    assert(is_valid(pc));
 
-   size_t  min_col = pc->column;
+   uint32_t  min_col = pc->column;
 
-   LOG_FMT(LSPLIT, " mincol=%zu, max_width=%zu ",
+   LOG_FMT(LSPLIT, " mincol=%u, max_width=%u ",
            min_col, cpd.settings[UO_code_width].u - min_col);
 
-   int cur_width =  0;
-   int last_col  = -1;
+   int32_t cur_width =  0;
+   int32_t last_col  = -1;
    while (is_valid(pc))
    {
       if (is_nl(pc))
@@ -596,15 +596,15 @@ static void split_fcn_params(chunk_t *start)
       }
       else
       {
-         last_col   = max(last_col, (int)pc->column);
-         cur_width += (int) pc->column + (int)pc->len() - last_col;
-         last_col   = (int)(pc->column +      pc->len());
+         last_col   = max(last_col, (int32_t)pc->column);
+         cur_width += (int32_t) pc->column + (int32_t)pc->len() - last_col;
+         last_col   = (int32_t)(pc->column +      pc->len());
 
          if(is_type(pc, CT_COMMA, CT_FPAREN_CLOSE))
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
-            break_if (((last_col - 1) > static_cast<int>(cpd.settings[UO_code_width].u)) ||
+            break_if (((last_col - 1) > static_cast<int32_t>(cpd.settings[UO_code_width].u)) ||
                   is_type(pc, CT_FPAREN_CLOSE));
          }
       }
@@ -618,7 +618,7 @@ static void split_fcn_params(chunk_t *start)
       break_if(is_type(prev, CT_COMMA, CT_NEWLINE, CT_NL_CONT));
 
       assert(is_valid(pc));
-      last_col -= (int)pc->len();
+      last_col -= (int32_t)pc->len();
       if (is_type(prev, CT_FPAREN_OPEN))
       {
          pc = chunk_get_next(prev);
@@ -632,12 +632,12 @@ static void split_fcn_params(chunk_t *start)
             }
             else
             {
-               min_col += (size_t)abs(cpd.settings[UO_indent_continue].n);
+               min_col += (uint32_t)abs(cpd.settings[UO_indent_continue].n);
             }
          }
 
          /* Don't split "()" */
-         break_if((int)pc->type != ((int)prev->type + 1u));
+         break_if((int32_t)pc->type != ((int32_t)prev->type + 1)); /* \todo make clearer */
       }
    }
 

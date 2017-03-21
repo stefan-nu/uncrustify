@@ -25,8 +25,8 @@
  * at the end of the list.  Line numbers are relative to the start of the data.
  */
 void tokenize(
-   const deque<int> &data,
-   chunk_t          *ref
+   const deque<int32_t> &data,
+   chunk_t*             ref
 );
 
 

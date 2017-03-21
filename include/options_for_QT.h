@@ -19,7 +19,7 @@
  * tbd
  */
 void save_set_options_for_QT(
-   size_t level /**< [in]  */
+   uint32_t level /**< [in]  */
 );
 
 
@@ -30,9 +30,9 @@ void restore_options_for_QT(void);
 
 
 /* \todo can we avoid those extern variables */
-extern bool   QT_SIGNAL_SLOT_found;
-extern size_t QT_SIGNAL_SLOT_level;
-extern bool   restoreValues;
+extern bool     QT_SIGNAL_SLOT_found;
+extern uint32_t QT_SIGNAL_SLOT_level;
+extern bool     restoreValues;
 
 
 #endif /* OPTIONS_FOR_QT_H_INCLUDED */

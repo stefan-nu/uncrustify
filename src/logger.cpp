@@ -21,14 +21,14 @@
 
 struct log_fcn_info
 {
-   log_fcn_info(const char *name_, int line_)
+   log_fcn_info(const char *name_, int32_t line_)
       : name(name_)
       , line(line_)
    {
    }
 
    const char *name;
-   int        line;
+   int32_t        line;
 };
 static std::deque<log_fcn_info> g_fq;
 
@@ -50,7 +50,7 @@ struct log_buf_t
    log_sev_t  sev;               /** log level determines which messages are logged */
    bool       in_log;            /** flag indicates if a log operation is going on */
    char       buf[LOG_BUF_SIZE]; /** buffer holds the log message */
-   size_t     buf_len;           /** number of characters currently stored in buffer */
+   uint32_t     buf_len;           /** number of characters currently stored in buffer */
    log_mask_t mask;              /**  */
    bool       show_hdr;          /** flag determine if a header gets added to log message */
 };
@@ -71,7 +71,7 @@ static void log_flush(
  *
  * @return The number of bytes available
  */
-static size_t log_start(
+static uint32_t log_start(
    log_sev_t sev /**< [in] The log severity */
 );
 
@@ -107,9 +107,9 @@ bool log_sev_on(log_sev_t sev)
 }
 
 
-void log_set_sev(log_sev_t sev, bool value)
+void log_set_sev(log_sev_t sev, bool val)
 {
-   logmask_set_sev(g_log.mask, sev, value);
+   logmask_set_sev(g_log.mask, sev, val);
 }
 
 
@@ -144,7 +144,7 @@ static void log_flush(bool force_nl)
 }
 
 
-static size_t log_start(log_sev_t sev)
+static uint32_t log_start(log_sev_t sev)
 {
    if (sev != g_log.sev)
    {
@@ -156,10 +156,10 @@ static size_t log_start(log_sev_t sev)
    /* If not in a log, the buffer is empty. Add the header, if enabled. */
    if (!g_log.in_log && g_log.show_hdr)
    {
-      g_log.buf_len = static_cast<size_t>(snprintf(g_log.buf, sizeof(g_log.buf), "<%d>", sev));
+      g_log.buf_len = static_cast<uint32_t>(snprintf(g_log.buf, sizeof(g_log.buf), "<%d>", sev));
    }
 
-   size_t cap = (sizeof(g_log.buf) - 2) - g_log.buf_len;
+   uint32_t cap = (sizeof(g_log.buf) - 2) - g_log.buf_len;
 
    return((cap > 0) ? cap : 0);
 }
@@ -168,18 +168,18 @@ static size_t log_start(log_sev_t sev)
 static void log_end(void)
 {
    g_log.in_log = (g_log.buf[g_log.buf_len - 1] != '\n');
-   if (!g_log.in_log || (g_log.buf_len > static_cast<int>(sizeof(g_log.buf) / 2)))
+   if (!g_log.in_log || (g_log.buf_len > static_cast<int32_t>(sizeof(g_log.buf) / 2)))
    {
       log_flush(false);
    }
 }
 
 
-void log_str(log_sev_t sev, const char *str, size_t len)
+void log_str(log_sev_t sev, const char *str, uint32_t len)
 {
    return_if(ptr_is_invalid(str) || (len == 0) || !log_sev_on(sev));
 
-   size_t cap = log_start(sev);
+   uint32_t cap = log_start(sev);
    if (cap > 0)
    {
       len = min(len, cap);
@@ -196,19 +196,19 @@ void log_fmt(log_sev_t sev, const char* fmt, ...)
    return_if(ptr_is_invalid(fmt) || !log_sev_on(sev));
 
    /* get number of characters that fit into log buffer */
-   size_t cap = log_start(sev);
+   uint32_t cap = log_start(sev);
 
    /* Add on the variable log parameters to the log string */
    va_list args;        /* determine list of arguments ... */
    va_start(args, fmt); /* ... that follow after parameter fmt */
-   int len = vsnprintf(&g_log.buf[g_log.buf_len], cap, fmt, args);
+   int32_t len = vsnprintf(&g_log.buf[g_log.buf_len], cap, fmt, args);
    if (len > 0)
    {
       /* Some implementation of vsnprintf() return the number of characters
        * that would have been stored if the buffer was large enough instead
        * of the number of characters actually stored. Thus limit the len
        * value to the maximal number of written characters */
-      len = min(len, (int)cap);
+      len = min(len, (int32_t)cap);
       g_log.buf_len += len;            /* update the buffer usage count */
       g_log.buf[g_log.buf_len] = '\0'; /* ensure string is terminated */
    }
@@ -221,13 +221,13 @@ void log_fmt(log_sev_t sev, const char* fmt, ...)
 }
 
 
-void log_hex(log_sev_t sev, const void *vdata, size_t len)
+void log_hex(log_sev_t sev, const void *vdata, uint32_t len)
 {
    return_if(ptr_is_invalid(vdata) || !log_sev_on(sev));
 
    char        buf[80];
    const uint8_t *dat = static_cast<const uint8_t *>(vdata);
-   size_t      idx  = 0;
+   uint32_t      idx  = 0;
    while (len-- > 0)
    {
       buf[idx++] = to_hex_char(*dat >> 4);
@@ -250,22 +250,22 @@ void log_hex(log_sev_t sev, const void *vdata, size_t len)
 }
 
 
-void log_hex_blk(log_sev_t sev, const void *data, size_t len)
+void log_hex_blk(log_sev_t sev, const void *data, uint32_t len)
 {
    return_if(ptr_is_invalid(data) || !log_sev_on(sev));
 
    static char buf[80] = "nnn | XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX | cccccccccccccccc\n";
-   const uint8_t *dat    = static_cast<const uint8_t *>(data);
-   int         str_idx = 0;
-   int         chr_idx = 0;
+   const uint8_t* dat     = static_cast<const uint8_t *>(data);
+   int32_t        str_idx = 0;
+   int32_t        chr_idx = 0;
 
    /* Dump the specified number of bytes in hex, 16 byte per line by
     * creating a string and then calling log_str() */
 
    /* Loop through the data of the current iov */
-   int count = 0;
+   int32_t  count = 0;
    uint32_t total = 0;
-   for (size_t idx = 0; idx < len; idx++)
+   for (uint32_t idx = 0; idx < len; idx++)
    {
       if (count == 0)
       {
@@ -311,7 +311,7 @@ void log_hex_blk(log_sev_t sev, const void *data, size_t len)
 }
 
 
-log_func::log_func(const char *name, int line)
+log_func::log_func(const char *name, int32_t line)
 {
    g_fq.push_back(log_fcn_info(name, line));
 }
@@ -323,7 +323,7 @@ log_func::~log_func()
 }
 
 
-void log_func_call(int line)
+void log_func_call(int32_t line)
 {
    /* REVISIT: pass the __func__ and verify it matches the top entry? */
    if (!g_fq.empty())
@@ -333,7 +333,7 @@ void log_func_call(int line)
 }
 
 
-void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, size_t skip_cnt)
+void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, uint32_t skip_cnt)
 {
    UNUSED(skip_cnt);
 
@@ -342,13 +342,13 @@ void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, size_
       LOG_FMT(sev, "%s", prefix);
    }
 #ifdef DEBUG
-   size_t     g_fq_size = g_fq.size();
+   uint32_t     g_fq_size = g_fq.size();
    if (g_fq_size > (skip_cnt + 1) )
    {
-      size_t     begin_with;
+      uint32_t     begin_with;
       const char *sep = "";
       begin_with = g_fq_size - (skip_cnt + 1);
-      for (size_t idx = begin_with; idx != 0; idx--)
+      for (uint32_t idx = begin_with; idx != 0; idx--)
       {
          LOG_FMT(sev, "%s %s:%d", sep, g_fq[idx].name, g_fq[idx].line);
          sep = ",";

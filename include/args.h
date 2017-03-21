@@ -24,7 +24,7 @@ private:
     * \brief calculates how many bytes are required to store a given number of bits
     */
    static uint32_t NumberOfBits(
-      const int argc /**< [in] number of arguments */
+      const int32_t argc /**< [in] number of arguments */
    );
 
 
@@ -41,8 +41,8 @@ public:
     * This keeps a reference to argv, so don't change it.
     */
    Args(
-      int    argc, /**< [in] number of command line parameter passed to main() */
-      char** argv  /**< [in] pointer array to command line parameters */
+      int32_t argc, /**< [in] number of command line parameter passed to main() */
+      char**  argv  /**< [in] pointer array to command line parameters */
    );
 
    /** Standard destructor */
@@ -62,7 +62,7 @@ public:
     * @return  true/false - Whether the argument was present
     */
    bool Present(
-      const char *token /**< [in] The token string to match */
+      const char* token /**< [in] The token string to match */
    );
 
 
@@ -80,8 +80,8 @@ public:
     *
     * @return nullptr or the pointer to the string
     */
-   const char *Param(
-      const char *token /**< [in] The token string to match */
+   const char* Param(
+      const char* token /**< [in] The token string to match */
    );
 
 
@@ -92,7 +92,7 @@ public:
     * @return nullptr or the pointer to the string.
     */
    const char* Params(
-      const char *token, /**< [in] The token string to match */
+      const char* token, /**< [in] The token string to match */
       uint32_t   &index  /**< [in] Pointer to the index that you initialized to 0 */
    );
 

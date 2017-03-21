@@ -28,18 +28,18 @@ public:
       { }
 
 
-      Entry(size_t sn, chunk_t *pc)
+      Entry(uint32_t sn, chunk_t *pc)
          : m_seqnum(sn)
          , m_pc(pc)
       { }
-      size_t  m_seqnum;
+      uint32_t  m_seqnum;
       chunk_t *m_pc;
    };
 
 
 protected:
    deque<Entry> m_cse;    /**<   */
-   size_t       m_seqnum; /**< current sequence number */
+   uint32_t       m_seqnum; /**< current sequence number */
 
 
 public:
@@ -83,7 +83,7 @@ public:
 
 
    /** tbd */
-   size_t Len(void) const
+   uint32_t Len(void) const
    {
       return(m_cse.size());
    }
@@ -95,13 +95,13 @@ public:
 
    /** tbd */
    const Entry *Get(
-      size_t idx /**< [in]  */
+      uint32_t idx /**< [in]  */
    ) const;
 
 
    /** tbd */
    chunk_t *GetChunk(
-      size_t idx /**< [in]  */
+      uint32_t idx /**< [in]  */
    ) const;
 
 
@@ -112,7 +112,7 @@ public:
    /** tbd */
    void Push_Back(
       chunk_t *pc,   /**< [in]  */
-      size_t  seqnum /**< [in]  */
+      uint32_t  seqnum /**< [in]  */
    );
 
 
@@ -129,7 +129,7 @@ public:
 
    /** Mark an entry to be removed by Collapse() */
    void Zap(
-      size_t idx /**< [in] item to remove */
+      uint32_t idx /**< [in] item to remove */
    );
 
 

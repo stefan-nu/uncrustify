@@ -24,7 +24,7 @@ using namespace std;
 class unc_text
 {
 public:
-   typedef deque<int> int_list_t;   /* double encoded list of int values */
+   typedef deque<int32_t> int_list_t;   /* double encoded list of int32_t values */
 
 public:
    unc_text(void)
@@ -44,7 +44,7 @@ public:
    }
 
 
-   unc_text(const unc_text &ref, size_t idx, size_t len = 0)
+   unc_text(const unc_text &ref, uint32_t idx, uint32_t len = 0)
    {
       set(ref, idx, len);
    }
@@ -62,7 +62,7 @@ public:
    }
 
 
-   unc_text(const int_list_t &data, size_t idx = 0, size_t len = 0)
+   unc_text(const int_list_t &data, uint32_t idx = 0, uint32_t len = 0)
    {
       set(data, idx, len);
    }
@@ -72,7 +72,7 @@ public:
     * tbd
     */
    void resize(
-      size_t new_size
+      uint32_t new_size
    );
 
 
@@ -85,7 +85,7 @@ public:
    /**
     * grab the number of characters
     */
-   size_t size(void) const
+   uint32_t size(void) const
    {
       return(m_chars.size());
    }
@@ -95,7 +95,7 @@ public:
     * tbd
     */
    void set(
-      int ch
+      int32_t ch
    );
 
 
@@ -106,8 +106,8 @@ public:
 
    void set(
       const unc_text &ref,
-      size_t idx,
-      size_t len = 0
+      uint32_t idx,
+      uint32_t len = 0
    );
 
 
@@ -117,21 +117,21 @@ public:
 
 
    void set(
-      const char *ascii_text
+      const char* ascii_text
    );
 
 
    void set(
       const int_list_t &data,
-      size_t idx = 0,
-      size_t len = 0
+      uint32_t idx = 0,
+      uint32_t len = 0
    );
 
 
    /**
     * tbd
     */
-   unc_text &operator =(int ch)
+   unc_text &operator =(int32_t ch)
    {
       set(ch);
       return(*this);
@@ -152,7 +152,7 @@ public:
    }
 
 
-   unc_text &operator =(const char *ascii_text)
+   unc_text &operator =(const char* ascii_text)
    {
       set(ascii_text);
       return(*this);
@@ -163,20 +163,20 @@ public:
     * tbd
     */
    void insert(
-      size_t idx,
-      int ch
+      uint32_t idx,
+      int32_t ch
    );
 
 
    void insert(
-      size_t idx,
+      uint32_t idx,
       const unc_text &ref
    );
 
 
    void erase(
-      size_t idx,
-      size_t len = 1
+      uint32_t idx,
+      uint32_t len = 1
    );
 
 
@@ -184,7 +184,7 @@ public:
     * Add a single character to an unc_text
     */
    void append(
-      int ch
+      int32_t ch
    );
 
 
@@ -229,15 +229,15 @@ public:
 
    void append(
       const int_list_t &data,
-      size_t idx = 0,
-      size_t len = 0
+      uint32_t idx = 0,
+      uint32_t len = 0
    );
 
 
    /**
     * tbd
     */
-   unc_text &operator +=(int ch)
+   unc_text &operator +=(int32_t ch)
    {
       append(ch);
       return(*this);
@@ -267,7 +267,7 @@ public:
    /**
     *  get the UTF-8 string for logging
     */
-   const char *c_str(void);
+   const char* c_str(void);
 
    /**
     * compares the content of two unc_text instances
@@ -277,10 +277,10 @@ public:
     * @retval  > 0 - tbd
     * @retval  < 0 - tbd
     */
-   static int compare(
+   static int32_t compare(
       const  unc_text &ref1,  /**< [in] first  instance to compare */
       const  unc_text &ref2,  /**< [in] second instance to compare */
-      size_t len = 0          /**< [in] number of character to compare */
+      uint32_t len = 0          /**< [in] number of character to compare */
    );
 
 
@@ -307,7 +307,7 @@ public:
    }
 
 
-   int operator[](size_t idx) const
+   int32_t operator[](uint32_t idx) const
    {
       return((idx < m_chars.size()) ? m_chars[idx] : 0);
    }
@@ -316,13 +316,13 @@ public:
    /**
     * throws an exception if out of bounds
     */
-   int &at(size_t idx)
+   int32_t &at(uint32_t idx)
    {
       return(m_chars.at(idx));
    }
 
 
-   const int &at(size_t idx) const
+   const int32_t &at(uint32_t idx) const
    {
       return(m_chars.at(idx));
    }
@@ -331,7 +331,7 @@ public:
    /**
     * tbd
     */
-   const int &back(void) const
+   const int32_t &back(void) const
    {
       return(m_chars.back());
    }
@@ -340,7 +340,7 @@ public:
    /*
     * returns the last element of the character list
     */
-   int &back(void)
+   int32_t &back(void)
    {
       /* \todo returning a temporary via a reference
        * this has to be checked and probably changed */
@@ -351,7 +351,7 @@ public:
    /**
     * tbd
     */
-   void push_back(int ch)
+   void push_back(int32_t ch)
    {
       append(ch);
    }
@@ -388,13 +388,13 @@ public:
     */
    bool startswith(
       const unc_text &text,
-      size_t idx = 0
+      uint32_t idx = 0
    ) const;
 
 
    bool startswith(
       const char *text,
-      size_t idx = 0
+      uint32_t idx = 0
    ) const;
 
 
@@ -404,25 +404,25 @@ public:
     * @retval == -1 if not found
     * @retval >=  0 if found gives position
     */
-   int find(
+   int32_t find(
       const char *text,  /**< [in] text to search for */
-      size_t idx = 0     /**< [in] position to start search */
+      uint32_t idx = 0     /**< [in] position to start search */
    ) const;
 
 
    /**
     * tbd
     */
-   int rfind(
+   int32_t rfind(
       const char *text,
-      size_t idx = 0
+      uint32_t idx = 0
    ) const;
 
 
    /**
     * tbd
     */
-   int replace(
+   int32_t replace(
       const char *oldtext,
       const unc_text &newtext
    );

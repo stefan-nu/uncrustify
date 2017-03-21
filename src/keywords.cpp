@@ -32,7 +32,7 @@ static dkwmap dkwm;
  * @retval < 0 - p1 is smaller than p2
  * @retval > 0 - p2 is smaller than p1
  */
-static int kw_compare(
+static int32_t kw_compare(
    const void *p1,  /**< [in] The 'left'  entry */
    const void *p2   /**< [in] The 'right' entry */
 );
@@ -317,7 +317,7 @@ void init_keywords(void)
 }
 
 
-static int kw_compare(const void *p1, const void *p2)
+static int32_t kw_compare(const void *p1, const void *p2)
 {
    const chunk_tag_t *t1 = static_cast<const chunk_tag_t *>(p1);
    const chunk_tag_t *t2 = static_cast<const chunk_tag_t *>(p2);
@@ -328,11 +328,11 @@ static int kw_compare(const void *p1, const void *p2)
 
 bool keywords_are_sorted(void)
 {
-   for (size_t idx = 1; idx < ARRAY_SIZE(keywords); idx++)
+   for (uint32_t idx = 1; idx < ARRAY_SIZE(keywords); idx++)
    {
       if (kw_compare(&keywords[idx - 1], &keywords[idx]) > 0)
       {
-         fprintf(stderr, "%s: bad sort order at idx %zu, words '%s' and '%s'\n",
+         fprintf(stderr, "%s: bad sort order at idx %u, words '%s' and '%s'\n",
                  __func__, idx - 1, keywords[idx - 1].tag, keywords[idx].tag);
          cpd.error_count++;
          return(false);
@@ -367,7 +367,7 @@ static const chunk_tag_t* kw_static_first(const chunk_tag_t *tag)
    const chunk_tag_t *prev = tag - 1;
 
    /* loop over static keyword array while */
-   while (((size_t)prev >= (size_t)&keywords[0]) && /* not at beginning of keyword array */
+   while (((uint32_t)prev >= (uint32_t)&keywords[0]) && /* not at beginning of keyword array */
           (strcmp(prev->tag, tag->tag) == 0    ) )  /* tags match */
    {
       tag = prev;
@@ -383,7 +383,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 
    const chunk_tag_t *end_adr = &keywords[ARRAY_SIZE(keywords)];
    const chunk_tag_t *iter    = kw_static_first(tag);
-   for (; (size_t)iter < (size_t)end_adr; iter++)
+   for (; (uint32_t)iter < (uint32_t)end_adr; iter++)
    {
       bool pp_iter = (iter->lang_flags & FLAG_PP) != 0;
       if ((strcmp(iter->tag, tag->tag) == 0 ) &&
@@ -397,7 +397,7 @@ static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
 }
 
 
-c_token_t find_keyword_type(const char *word, size_t len)
+c_token_t find_keyword_type(const char *word, uint32_t len)
 {
    retval_if((len == 0), CT_NONE);
 
@@ -422,7 +422,7 @@ c_token_t find_keyword_type(const char *word, size_t len)
 
 
 /* \todo DRY with load_define_file */
-int load_keyword_file(const char* filename, const size_t max_line_size)
+int32_t load_keyword_file(const char* filename, const uint32_t max_line_size)
 {
    retval_if(ptr_is_invalid(filename), EX_CONFIG);
 
@@ -435,7 +435,7 @@ int load_keyword_file(const char* filename, const size_t max_line_size)
    }
 
    char   buf[max_line_size];
-   size_t line_no = 0;
+   uint32_t line_no = 0;
 
    /* read file line by line */
    while (fgets(buf, sizeof(buf), pf) != nullptr)
@@ -449,9 +449,9 @@ int load_keyword_file(const char* filename, const size_t max_line_size)
          *ptr = 0; /* set string end where comment begins */
       }
 
-      const size_t arg_parts = 2;  /**< each define argument consists of three parts */
+      const uint32_t arg_parts = 2;  /**< each define argument consists of three parts */
       char *args[arg_parts+1];
-      size_t argc = Args::SplitLine(buf, args, arg_parts);
+      uint32_t argc = Args::SplitLine(buf, args, arg_parts);
       args[arg_parts] = 0; /* third element of defines is not used currently */
 
       if (argc > 0)
@@ -459,12 +459,12 @@ int load_keyword_file(const char* filename, const size_t max_line_size)
          if ((argc < arg_parts           ) &&
              (CharTable::IsKW1(*args[0]) ) )
          {
-            LOG_FMT(LDEFVAL, "%s: line %zu - %s\n", filename, line_no, args[0]);
+            LOG_FMT(LDEFVAL, "%s: line %u - %s\n", filename, line_no, args[0]);
             add_keyword(args[0], CT_TYPE);
          }
          else
          {
-            LOG_FMT(LWARN, "%s line %zu invalid (starts with '%s')\n",
+            LOG_FMT(LWARN, "%s line %u invalid (starts with '%s')\n",
                     filename, line_no, args[0]);
             cpd.error_count++;
          }
@@ -490,7 +490,7 @@ void print_keywords(FILE *pfile)
       else
       {
          const char *tn = get_token_name(tt);
-         fprintf(pfile, "set %s %*.s%s\n", tn, int(MAX_OPTION_NAME_LEN - (4 + strlen(tn))), " ", keyword_pair.first.c_str());
+         fprintf(pfile, "set %s %*.s%s\n", tn, int32_t(MAX_OPTION_NAME_LEN - (4 + strlen(tn))), " ", keyword_pair.first.c_str());
       }
    }
 }

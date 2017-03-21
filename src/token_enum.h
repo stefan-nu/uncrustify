@@ -72,7 +72,7 @@ typedef enum
    CT_UNION,               /**<  */
    CT_GOTO,                /**<  */
    CT_CONTINUE,            /**<  */
-   CT_C_CAST,              /* C-style cast:   "(int)5.6" */
+   CT_C_CAST,              /* C-style cast:   "(int32_t)5.6" */
    CT_CPP_CAST,            /* C++-style cast: "int(5.6)" */
    CT_D_CAST,              /* D-style cast:   "cast(type)" and "const(type)" */
    CT_TYPE_CAST,           /* static_cast<type>(exp) */
@@ -241,13 +241,13 @@ typedef enum
    CT_OC_CLASS,            /* ObjC: the name after @interface or @implementation */
    CT_OC_CLASS_EXT,        /* ObjC: a pair of empty parens after the class name in a @interface or @implementation */
    CT_OC_CATEGORY,         /* ObjC: the category name in parens after the class name in a @interface or @implementation */
-   CT_OC_SCOPE,            /* ObjC: the '-' or '+' in '-(void) func: (int) i;' */
+   CT_OC_SCOPE,            /* ObjC: the '-' or '+' in '-(void) func: (int32_t) i;' */
    CT_OC_MSG,              /* ObjC: parent type to '[', ']' and ';' in '[class func : param name: param];' */
    CT_OC_MSG_CLASS,        /* ObjC: 'class' in  '[class func : param name: param];' (see also PCF_IN_OC_MSG) */
    CT_OC_MSG_FUNC,         /* ObjC: 'func' in  '[class func : param name: param];' (see also PCF_IN_OC_MSG) */
    CT_OC_MSG_NAME,         /* ObjC: 'name' in  '[class func : param name: param];' (see also PCF_IN_OC_MSG) */
-   CT_OC_MSG_SPEC,         /* ObjC: msg spec '-(void) func: (int) i;' */
-   CT_OC_MSG_DECL,         /* ObjC: msg decl '-(void) func: (int) i { }' */
+   CT_OC_MSG_SPEC,         /* ObjC: msg spec '-(void) func: (int32_t) i;' */
+   CT_OC_MSG_DECL,         /* ObjC: msg decl '-(void) func: (int32_t) i { }' */
    CT_OC_RTYPE,            /* ObjC: marks parens of the return type after scope */
    CT_OC_ATYPE,            /* ObjC: marks parens of the arg type after scope */
    CT_OC_COLON,            /* ObjC: the colon in a msg spec */

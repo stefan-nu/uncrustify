@@ -35,8 +35,8 @@ public:
     * the transform routine.
     */
    void Update(
-      const void *data, /**< [in]  */
-      uint32_t   len    /**< [in]  */
+      const void* data, /**< [in]  */
+      uint32_t    len   /**< [in]  */
    );
 
 
@@ -64,7 +64,7 @@ public:
     * Calculates MD5 for a block of data
     */
    static void Calc(
-      const void     *data,     /**< [in] data to calculate MD5 for */
+      const void*    data,      /**< [in] data to calculate MD5 for */
       const uint32_t length,    /**< [in] number of bytes in data */
       uint8_t        digest[16] /**< [out] calculated MD5 checksum */
    );
@@ -74,16 +74,16 @@ private:
    uint32_t m_buf [M_BUF_SIZE];
    uint32_t m_bits[M_BITS_SIZE];
    uint8_t  m_in  [M_IN_SIZE];
-   bool   m_need_byteswap;
-   bool   m_big_endian;
+   bool     m_need_byteswap;
+   bool     m_big_endian;
 
    /**
     * Reverse the bytes in 32-bit chunks.
     * 'buf' might not be word-aligned.
     */
    void reverse_u32(
-      uint8_t *buf, /**< [in] The byte array to reverse */
-      size_t  n_u32 /**< [in] The number of uint32_t's in the data */
+      uint8_t* buf,  /**< [in] The byte array to reverse */
+      uint32_t n_u32 /**< [in] The number of uint32_t's in the data */
    ) const;
 };
 

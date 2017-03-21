@@ -15,7 +15,7 @@
  * tbd
  */
 bool unc_getenv(
-   const char *name, /**< [in]  */
+   const char* name, /**< [in]  */
    std::string &str  /**< [in]  */
 );
 

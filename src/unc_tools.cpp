@@ -16,7 +16,7 @@ static void log_newline(
 );
 
 
-void prot_the_line(int theLine, unsigned int actual_line)
+void prot_the_line(int32_t theLine, uint32_t actual_line)
 {
    LOG_FMT(LGUY, "Prot_the_line:(%d) \n", theLine);
    for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = pc->next)
@@ -27,12 +27,12 @@ void prot_the_line(int theLine, unsigned int actual_line)
          switch(pc->type)
          {  /* \todo combine into a single log line */
             case(CT_VBRACE_OPEN ): LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break;
-            case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%zu)\n", pc->nl_count); break;
+            case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%u)\n", pc->nl_count); break;
             case(CT_VBRACE_CLOSE): LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break;
             case(CT_SPACE       ): LOG_FMT(LGUY, "<CT_SPACE>\n");              break;
             default:
             {
-               LOG_FMT(LGUY, "text() %s, type %s, orig_col=%zu, column=%zu\n",
+               LOG_FMT(LGUY, "text() %s, type %s, orig_col=%u, column=%u\n",
                        pc->text(), get_token_name(pc->type), pc->orig_col, pc->column);
                break;
             }
@@ -47,18 +47,18 @@ static void log_newline(chunk_t *pc)
 {
    if (is_type(pc, CT_NEWLINE))
    {
-      LOG_FMT(LGUY, "(%zu)<NL> col=%zu\n\n", pc->orig_line, pc->orig_col);
+      LOG_FMT(LGUY, "(%u)<NL> col=%u\n\n", pc->orig_line, pc->orig_col);
    }
    else
    {
-      LOG_FMT(LGUY, "(%zu)%s %s, col=%zu, column=%zu\n", pc->orig_line, pc->text(),
+      LOG_FMT(LGUY, "(%u)%s %s, col=%u, column=%u\n", pc->orig_line, pc->text(),
             get_token_name(pc->type), pc->orig_col, pc->column);
    }
 }
 
 
 /* \todo examine_Data seems not to be used, is it still required? */
-void examine_Data(const char *func_name, int theLine, int what)
+void examine_Data(const char *func_name, int32_t theLine, int32_t what)
 {
    LOG_FMT(LGUY, "\n%s:", func_name);
 
@@ -72,7 +72,7 @@ void examine_Data(const char *func_name, int theLine, int what)
          {
             LOG_FMT(LGUY, "\n");
             LOG_FMT(LGUY, "1:(%d),", theLine);
-            LOG_FMT(LGUY, "%s, orig_col=%zu, orig_col_end=%u\n", pc->text(), pc->orig_col, pc->orig_col_end);
+            LOG_FMT(LGUY, "%s, orig_col=%u, orig_col_end=%u\n", pc->text(), pc->orig_col, pc->orig_col_end);
          }
       }
       break;

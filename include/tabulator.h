@@ -17,9 +17,9 @@
  *
  * @return the next tabstop column
  */
-size_t calc_next_tab_column(
-   size_t col,    /**< [in] current column */
-   size_t tabsize /**< [in] tabsize to use */
+uint32_t calc_next_tab_column(
+   uint32_t col,    /**< [in] current column */
+   uint32_t tabsize /**< [in] tabsize to use */
 );
 
 
@@ -28,8 +28,8 @@ size_t calc_next_tab_column(
  *
  * @return the next tabstop column
  */
-size_t next_tab_column(
-   size_t col /**< [in] current column */
+uint32_t next_tab_column(
+   uint32_t col /**< [in] current column */
 );
 
 
@@ -38,8 +38,8 @@ size_t next_tab_column(
  *
  * @return the next tabstop column
  */
-size_t align_tab_column(
-   size_t col /**< [in] current column */
+uint32_t align_tab_column(
+   uint32_t col /**< [in] current column */
 );
 
 

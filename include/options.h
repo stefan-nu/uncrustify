@@ -874,8 +874,8 @@ struct option_map_value_t
    uo_t        id;
    ug_t        group_id;
    argtype_t   type;
-   int         min_val;
-   int         max_val;
+   int32_t     min_val;
+   int32_t     max_val;
    const char* name;
    const char* short_desc;
    const char* long_desc;
@@ -1097,7 +1097,7 @@ bool is_bit_unset(
 );
 
 
-enum class char_encoding_e : unsigned int; /* forward declaration of enum */
+enum class char_encoding_e : uint32_t; /* forward declaration of enum */
 
 /**
  * provides a string that names a given encoding enum
@@ -1148,7 +1148,7 @@ void process_option_line(
 /**
  * tbd
  */
-int load_option_file(
+int32_t load_option_file(
    const char* filename /**< [in]  */
 );
 
@@ -1156,7 +1156,7 @@ int load_option_file(
 /**
  * tbd
  */
-int save_option_file(
+int32_t save_option_file(
    FILE* pfile,  /**< [in]  */
    bool  withDoc /**< [in]  */
 );
@@ -1165,7 +1165,7 @@ int save_option_file(
 /**
  * tbd
  */
-int save_option_file_kernel(
+int32_t save_option_file_kernel(
    FILE* pfile,           /**< [in]  */
    bool  withDoc,         /**< [in]  */
    bool  only_not_default /**< [in]  */
@@ -1178,7 +1178,7 @@ int save_option_file_kernel(
  * @retval >= 0 entry was found
  * @retval -1   entry was not found
  */
-int set_option_value(
+int32_t set_option_value(
    const char* name, /**< [in]  */
    const char* value /**< [in]  */
 );
@@ -1199,7 +1199,7 @@ bool is_path_relative(
  * tbd
  */
 const group_map_value_t* get_group_name(
-   size_t ug /**< [in] */
+   uint32_t ug /**< [in] */
 );
 
 
@@ -1247,7 +1247,7 @@ string argval2str(
  * convert an integer number to a string
  */
 string number2str(
-   int number /**< [integer number to convert */
+   int32_t number /**< [integer number to convert */
 );
 
 

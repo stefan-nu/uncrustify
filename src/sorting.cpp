@@ -33,7 +33,7 @@ enum
  * @retval  > 0 - tbd
  * @retval  < 0 - tbd
  */
-static int compare_chunks(
+static int32_t compare_chunks(
    chunk_t *pc1,  /**< [in] chunk 1 to compare */
    chunk_t *pc2   /**< [in] chunk 2 to compare */
 );
@@ -46,12 +46,12 @@ static int compare_chunks(
  */
 static void do_the_sort(
    chunk_t      **chunks,  /**< [in]  */
-   const size_t num_chunks /**< [in]  */
+   const uint32_t num_chunks /**< [in]  */
 );
 
 
 /** tbd */
-static int get_chunk_priority(
+static int32_t get_chunk_priority(
    chunk_t *pc /**< [in]  */
 );
 
@@ -69,7 +69,7 @@ include_category *include_categories[kIncludeCategoriesCount];
 
 static void prepare_categories(void)
 {
-   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
+   for (uint32_t i = 0; i < kIncludeCategoriesCount; i++)
    {
       if (cpd.settings[UO_include_category_first + i].str != nullptr)
       {
@@ -94,15 +94,15 @@ static void cleanup_categories(void)
 }
 
 
-static int get_chunk_priority(chunk_t *pc)
+static int32_t get_chunk_priority(chunk_t *pc)
 {
-   for (size_t i = 0; i < kIncludeCategoriesCount; i++)
+   for (uint32_t i = 0; i < kIncludeCategoriesCount; i++)
    {
       if (ptr_is_valid(include_categories[i]))
       {
          if (std::regex_match(pc->text(), include_categories[i]->regex))
          {
-            return((int)i);
+            return((int32_t)i);
          }
       }
    }
@@ -110,23 +110,23 @@ static int get_chunk_priority(chunk_t *pc)
 }
 
 
-static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
+static int32_t compare_chunks(chunk_t *pc1, chunk_t *pc2)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LSORT, "\n@begin pc1->len=%zu, line=%zu, column=%zu\n", pc1->len(), pc1->orig_line, pc1->orig_col);
-   LOG_FMT(LSORT,   "@begin pc2->len=%zu, line=%zu, column=%zu\n", pc2->len(), pc2->orig_line, pc2->orig_col);
+   LOG_FMT(LSORT, "\n@begin pc1->len=%u, line=%u, column=%u\n", pc1->len(), pc1->orig_line, pc1->orig_col);
+   LOG_FMT(LSORT,   "@begin pc2->len=%u, line=%u, column=%u\n", pc2->len(), pc2->orig_line, pc2->orig_col);
    retval_if((pc1 == pc2), 0); /* same chunk is always identical thus return 0 differences */
    while (are_valid(pc1, pc2)) /* ensure there are two valid pointers */
    {
-      const int ppc1 = get_chunk_priority(pc1);
-      const int ppc2 = get_chunk_priority(pc2);
+      const int32_t ppc1 = get_chunk_priority(pc1);
+      const int32_t ppc2 = get_chunk_priority(pc2);
 
       if (ppc1 != ppc2) { return(ppc1 - ppc2); }
 
-      LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
-      LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-      const size_t min_len = min(pc1->len(), pc2->len());
-      const int    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
+      LOG_FMT(LSORT, "text=%s, pc1->len=%u, line=%u, column=%u\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
+      LOG_FMT(LSORT, "text=%s, pc2->len=%u, line=%u, column=%u\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
+      const uint32_t min_len = min(pc1->len(), pc2->len());
+      const int32_t    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
       LOG_FMT(LSORT, "ret_val=%d\n", ret_val);
 
       if (ret_val    != 0         ) { return(ret_val); }
@@ -136,25 +136,25 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
       pc1 = chunk_get_next(pc1);
       if (is_valid(pc1))
       {
-         LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
+         LOG_FMT(LSORT, "text=%s, pc1->len=%u, line=%u, column=%u\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
          if (is_type(pc1, CT_MEMBER))
          {
             pc1 = chunk_get_next(pc1);
             if(is_valid(pc1))
             {
-               LOG_FMT(LSORT, "text=%s, pc1->len=%zu, line=%zu, column=%zu\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
+               LOG_FMT(LSORT, "text=%s, pc1->len=%u, line=%u, column=%u\n",    pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
             }
          }
       }
       pc2 = chunk_get_next(pc2);
       if(is_valid(pc2))
       {
-         LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
+         LOG_FMT(LSORT, "text=%s, pc2->len=%u, line=%u, column=%u\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          if (is_type(pc2, CT_MEMBER))
          {
             pc2 = chunk_get_next(pc2);
             assert(is_valid(pc2));
-            LOG_FMT(LSORT, "text=%s, pc2->len=%zu, line=%zu, column=%zu\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
+            LOG_FMT(LSORT, "text=%s, pc2->len=%u, line=%u, column=%u\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
          }
       }
 
@@ -170,23 +170,23 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2)
 }
 
 
-static void do_the_sort(chunk_t **chunks, const size_t num_chunks)
+static void do_the_sort(chunk_t **chunks, const uint32_t num_chunks)
 {
    LOG_FUNC_ENTRY();
 
-   LOG_FMT(LSORT, "%s: %zu chunks:", __func__, num_chunks);
-   for (size_t idx = 0; idx < num_chunks; idx++)
+   LOG_FMT(LSORT, "%s: %u chunks:", __func__, num_chunks);
+   for (uint32_t idx = 0; idx < num_chunks; idx++)
    {
       LOG_FMT(LSORT, " [%s]", chunks[idx]->text());
    }
    LOG_FMT(LSORT, "\n");
 
-   size_t start_idx;
+   uint32_t start_idx;
    for (start_idx = 0; start_idx < (num_chunks - 1); start_idx++)
    {
       /* Find the index of the minimum value */
-      size_t min_idx = start_idx;
-      for (size_t idx = start_idx + 1; idx < num_chunks; idx++)
+      uint32_t min_idx = start_idx;
+      for (uint32_t idx = start_idx + 1; idx < num_chunks; idx++)
       {
          if (compare_chunks(chunks[idx], chunks[min_idx]) < 0)
          {
@@ -211,7 +211,7 @@ void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
-   size_t  num_chunks = 0;
+   uint32_t  num_chunks = 0;
    chunk_t *p_last    = nullptr;
    chunk_t *p_imp     = nullptr;
 

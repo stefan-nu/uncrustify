@@ -38,7 +38,7 @@
  *  - If not in a preprocessor, skip over any encountered preprocessor stuff
  *  - If in a preprocessor, fail to leave (return nullptr)
  */
-enum class scope_e : unsigned int
+enum class scope_e : uint32_t
 {
    ALL,      /**< search in all kind of chunks */
    PREPROC,  /**< search only in preprocessor chunks */
@@ -435,8 +435,8 @@ chunk_t* get_next_nnl(
  * Gets the next non-NEWLINE and non-comment chunk, non-preprocessor chunk
  */
 chunk_t* get_next_ncnl(
-   chunk_t* cur,           /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL  /**< [in] code region to search in */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -542,8 +542,8 @@ chunk_t* get_prev_ncnlnp(
 chunk_t* get_next_type(
    chunk_t*        cur,   /**< [in] Starting chunk */
    const c_token_t type,  /**< [in] The type to look for */
-   const int       level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   const int32_t   level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const scope_e   scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -555,8 +555,8 @@ chunk_t* get_next_type(
 chunk_t* get_prev_type(
    chunk_t*        cur,   /**< [in] Starting chunk */
    const c_token_t type,  /**< [in] The type to look for */
-   const int       level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   const int32_t   level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const scope_e   scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -570,11 +570,11 @@ chunk_t* get_prev_type(
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t* get_next_str(
-   chunk_t*     cur,   /**< [in] Starting chunk */
-   const char*  str,   /**< [in] string to search for */
-   const size_t len,   /**< [in] length of string */
-   const int    level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   chunk_t*       cur,   /**< [in] Starting chunk */
+   const char*    str,   /**< [in] string to search for */
+   const uint32_t len,   /**< [in] length of string */
+   const int32_t  level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const scope_e  scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -588,11 +588,11 @@ chunk_t* get_next_str(
  * @retval chunk_t - pointer to the found chunk
  */
 chunk_t* get_prev_str(
-   chunk_t*      cur,   /**< [in] Starting chunk */
-   const char*   str,   /**< [in] string to search for */
-   const size_t  len,   /**< [in] length of string */
-   const int     level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
-   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   chunk_t*       cur,   /**< [in] Starting chunk */
+   const char*    str,   /**< [in] string to search for */
+   const uint32_t len,   /**< [in] length of string */
+   const int32_t  level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const scope_e  scope = scope_e::ALL /**< [in] code region to search in */
 );
 
 
@@ -720,7 +720,7 @@ chunk_t* chunk_skip_to_match_rev(
  */
 bool is_level(
    const chunk_t* pc,   /**< [in] chunk to check */
-   const size_t   level /**< [in] expected level */
+   const uint32_t level /**< [in] expected level */
 );
 
 
@@ -730,7 +730,7 @@ bool is_level(
  */
 bool exceeds_level(
    const chunk_t* pc, /**< [in] chunk to check */
-   const size_t   ref /**< [in] reference level to be exceeded */
+   const uint32_t ref /**< [in] reference level to be exceeded */
 );
 
 
@@ -740,7 +740,7 @@ bool exceeds_level(
 bool is_type_and_level(
    const chunk_t*  pc,   /**< [in] chunk to check */
    const c_token_t type, /**< [in] expected type */
-   const int       level /**< [in] expected level or -1 to ignore level */
+   const int32_t   level /**< [in] expected level or -1 to ignore level */
 );
 
 
@@ -1170,7 +1170,7 @@ bool not_type(
  */
 bool is_type(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int count,               /**< [in] number of token types to check */
+   int32_t count,               /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1181,7 +1181,7 @@ bool is_type(
  */
 bool is_ptype(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int count,               /**< [in] number of token types to check */
+   int32_t count,               /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1192,7 +1192,7 @@ bool is_ptype(
  */
 bool not_type(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int count,               /**< [in] number of token types to check */
+   int32_t count,               /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1236,7 +1236,7 @@ bool not_ptype(
  */
 bool not_ptype(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int count,               /**< [in] number of token types to check */
+   int32_t count,               /**< [in] number of token types to check */
    ...                      /**< [in] list of parent token types to check for */
 );
 

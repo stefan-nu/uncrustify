@@ -167,7 +167,7 @@ static lang_t language_flags_from_filename(
  * @return  A string
  */
 const char *language_name_from_flags(
-   size_t lang  /**< [in] The LANG_xxx enum */
+   uint32_t lang  /**< [in] The LANG_xxx enum */
 );
 
 
@@ -189,7 +189,7 @@ static void make_folders(
 
 /** tbd */
 static void uncrustify_start(
-   const deque<int> &data  /**< [in]  */
+   const deque<int32_t> &data  /**< [in]  */
 );
 
 
@@ -441,19 +441,19 @@ const char* path_basename(const char* path)
 }
 
 
-size_t path_dirname_len(const char* full_name)
+uint32_t path_dirname_len(const char* full_name)
 {
    retval_if((full_name == nullptr), 0);
 
    const char* const file_name = path_basename(full_name);
    /* subtracting addresses like this works only on big endian systems */
-   const size_t len = (size_t)file_name - (size_t)full_name;
+   const uint32_t len = (uint32_t)file_name - (uint32_t)full_name;
 
    return (len);
 }
 
 
-void usage_exit(const char* msg, const char* argv0, int code)
+void usage_exit(const char* msg, const char* argv0, int32_t code)
 {
    if (ptr_is_valid(msg))
    {
@@ -588,8 +588,8 @@ int main(int argc, char *argv[])
 
    /* make sure we have token_names.h in sync with token_enum.h */
 #ifdef DEBUG
-   const size_t token_name_count = ARRAY_SIZE(token_names);
-   const size_t ct_token_count   = CT_TOKEN_COUNT_;
+   const uint32_t token_name_count = ARRAY_SIZE(token_names);
+   const uint32_t ct_token_count   = CT_TOKEN_COUNT_;
    assert(token_name_count == ct_token_count);
 #endif
 
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
 
    if (arg_list.Present("--decode"))
    {
-      size_t idx = 1;
+      uint32_t idx = 1;
       while ((p_arg = arg_list.Unused(idx)) != nullptr)
       {
          log_pcf_flags(LSYS, strtoul(p_arg, nullptr, 16));
@@ -695,10 +695,10 @@ int main(int argc, char *argv[])
    set_option_defaults();
 
    /* Load type files */
-   size_t idx = 0;
+   uint32_t idx = 0;
    while ((p_arg = arg_list.Params("-t", idx)) != nullptr)
    {
-      const int return_code = load_keyword_file(p_arg, 256);
+      const int32_t return_code = load_keyword_file(p_arg, 256);
       retval_if(return_code != EX_OK, return_code);
    }
 
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
    idx = 0;
    while ((p_arg = arg_list.Params("-d", idx)) != nullptr)
    {
-      const int return_code = load_define_file(p_arg, 160);
+      const int32_t return_code = load_define_file(p_arg, 160);
       retval_if(return_code != EX_OK, return_code);
    }
 
@@ -754,9 +754,9 @@ int main(int argc, char *argv[])
       // not using a file list, source_list is nullptr
    }
 
-   const char * const prefix   = arg_list.Param  ("--prefix");
-   const char *       suffix   = arg_list.Param  ("--suffix");
-   const char * const assume   = arg_list.Param  ("--assume");
+   const char* const prefix    = arg_list.Param  ("--prefix");
+   const char*       suffix    = arg_list.Param  ("--suffix");
+   const char* const assume    = arg_list.Param  ("--assume");
    const bool no_backup        = arg_list.Present("--no-backup");
    const bool replace          = arg_list.Present("--replace");
    const bool keep_mtime       = arg_list.Present("--mtime");
@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
    const bool detect           = arg_list.Present("--detect");
 
    /* Grab the output override */
-   const char *output_file = arg_list.Param("-o");
+   const char* output_file = arg_list.Param("-o");
 
    LOG_FMT(LDATA, "config_file = %s\n", cfg_file.c_str());
    LOG_FMT(LDATA, "output_file = %s\n", (output_file != nullptr) ? output_file : "null");
@@ -845,7 +845,7 @@ int main(int argc, char *argv[])
    idx = 0;
    while ((p_arg = arg_list.Params("--set", idx)) != nullptr)
    {
-      const size_t argLength = strlen(p_arg);
+      const uint32_t argLength = strlen(p_arg);
 #define MAXLENGTHFORARG    256
       if (argLength > MAXLENGTHFORARG)
       {
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
 
       /* Done reading from stdin */
       LOG_FMT(LSYS, "Parsing: %d bytes (%d chars) from stdin as language %s\n",
-              (int)fm.raw.size(), (int)fm.data.size(),
+              (int32_t)fm.raw.size(), (int32_t)fm.data.size(),
               language_name_from_flags(cpd.lang_flags));
 
       uncrustify_file(fm, stdout, parsed_file);
@@ -1052,7 +1052,7 @@ int main(int argc, char *argv[])
 static void process_source_list(const char * const source_list, const char *prefix,
       const char *suffix, const bool no_backup, const bool keep_mtime)
 {
-   int  from_stdin = strcmp(source_list, "-") == 0;
+   int32_t  from_stdin = strcmp(source_list, "-") == 0;
    FILE *p_file    = from_stdin ? stdin : fopen(source_list, "r");
 
    if (ptr_is_invalid(p_file))
@@ -1064,13 +1064,13 @@ static void process_source_list(const char * const source_list, const char *pref
    }
 
    char linebuf[256];
-   int  line = 0;
+   int32_t  line = 0;
 
    while (fgets(linebuf, sizeof(linebuf), p_file) != nullptr)
    {
       line++;
       char   *fname = linebuf;
-      size_t len    = strlen(fname);
+      uint32_t len    = strlen(fname);
       while ((len > 0) && unc_isspace(*fname))
       {
          fname++;
@@ -1115,8 +1115,8 @@ static bool read_stdin(file_mem_t &fm)
 
    while (!feof(stdin))
    {
-      const size_t len = fread(buf, 1, sizeof(buf), stdin);
-      for (size_t idx = 0; idx < len; idx++)
+      const uint32_t len = fread(buf, 1, sizeof(buf), stdin);
+      for (uint32_t idx = 0; idx < len; idx++)
       {
          dq.push_back(buf[idx]);
       }
@@ -1154,8 +1154,8 @@ static void make_folders(const string &filename)
    char   outname[4096];
    snprintf(outname, sizeof(outname), "%s", filename.c_str());
 
-   size_t start_of_subpath = 0;
-   for (size_t idx = 0; outname[idx] != 0; idx++)
+   uint32_t start_of_subpath = 0;
+   for (uint32_t idx = 0; outname[idx] != 0; idx++)
    {
       /* use the path separation symbol that corresponds to the
        * system uncrustify was build for */
@@ -1173,7 +1173,7 @@ static void make_folders(const string &filename)
          if ((strcmp(&outname[start_of_subpath], "." ) != 0) &&
              (strcmp(&outname[start_of_subpath], "..") != 0) )
          {
-            int status = mkdir(outname, FOLDER_RIGHTS);
+            int32_t status = mkdir(outname, FOLDER_RIGHTS);
             if ((status != 0     ) &&
                 (errno  != EEXIST) )
             {
@@ -1215,7 +1215,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
    retval_if(ptr_is_invalid(p_file), false);
 
    bool success = false;
-   fm.raw.resize((size_t)my_stat.st_size);
+   fm.raw.resize((uint32_t)my_stat.st_size);
    if (my_stat.st_size == 0) /* check if file is empty */
    {
       success = true;
@@ -1252,7 +1252,7 @@ static bool load_mem_file(const char * const filename, file_mem_t &fm)
 static bool load_mem_file_config(const char* const filename, file_mem_t &fm)
 {
    char buf[1024];
-   snprintf(buf, sizeof(buf), "%.*s%s", (int)path_dirname_len(cpd.filename), cpd.filename, filename);
+   snprintf(buf, sizeof(buf), "%.*s%s", (int32_t)path_dirname_len(cpd.filename), cpd.filename, filename);
 
    bool success = load_mem_file(buf, fm);
    if (success == false)
@@ -1296,7 +1296,7 @@ bool load_all_header_files(void)
 static const char* make_output_filename(char* buf, const uint32_t buf_size,
        const char* const filename, const char* const prefix, const char* const suffix)
 {
-   int len = 0;
+   int32_t len = 0;
 
    /* if we got a prefix add it before the filename with a slash */
    if (ptr_is_valid(prefix))
@@ -1326,25 +1326,25 @@ static bool file_content_matches(const string &filename1, const string &filename
       return(false);
    }
 
-   int fd1, fd2;
+   int32_t fd1, fd2;
    if((fd1 = open(filename1.c_str(), O_RDONLY)) < 0) {             return(false); }
    if((fd2 = open(filename2.c_str(), O_RDONLY)) < 0) { close(fd1); return(false); }
 
-   size_t len1 = 0;
-   size_t len2 = 0;
+   uint32_t len1 = 0;
+   uint32_t len2 = 0;
    uint8_t  buf1[FILE_CHUNK_SIZE];
    uint8_t  buf2[FILE_CHUNK_SIZE];
    memset(buf1, 0, sizeof(buf1));
    memset(buf2, 0, sizeof(buf2));
    while (true)
    {
-      if (len1 == 0) { len1 = (size_t)read(fd1, buf1, sizeof(buf1)); }
-      if (len2 == 0) { len2 = (size_t)read(fd2, buf2, sizeof(buf2)); }
+      if (len1 == 0) { len1 = (uint32_t)read(fd1, buf1, sizeof(buf1)); }
+      if (len2 == 0) { len2 = (uint32_t)read(fd2, buf2, sizeof(buf2)); }
 
       break_if((len1 == 0) || (len2 == 0)); /* reached end of either files */
       /* \todo what is if one file is longer than the other, do we miss that? */
 
-      const size_t minlen = min(len1, len2);
+      const uint32_t minlen = min(len1, len2);
       break_if(memcmp(buf1, buf2, minlen) != 0); /* found a difference */
 
       len1 -= minlen;
@@ -1359,7 +1359,7 @@ static bool file_content_matches(const string &filename1, const string &filename
 static string create_out_filename(const char * const filename)
 {
    const char file_ending[]  = ".uncrustify";
-   const size_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
+   const uint32_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
    char *new_filename = new char[new_name_len];
    if(ptr_is_invalid(new_filename))
    {
@@ -1387,20 +1387,20 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
    {
       if (report_status)
       {
-         fprintf(stderr, "FAIL: %s (File size changed from %zu to %zu)\n",
-                 cpd.filename, fm.raw.size(), cpd.bout->size());
+         fprintf(stderr, "FAIL: %s (File size changed from %u to %u)\n",
+                 cpd.filename, (uint32_t)fm.raw.size(), (uint32_t)cpd.bout->size());
       }
       is_same = false;
    }
    else
    {
-      for (size_t idx = 0; idx < fm.raw.size(); idx++)
+      for (uint32_t idx = 0; idx < fm.raw.size(); idx++)
       {
          if (fm.raw[idx] != (*cpd.bout)[idx])
          {
             if (report_status)
             {
-               fprintf(stderr, "FAIL: %s (Difference at byte %zu)\n",
+               fprintf(stderr, "FAIL: %s (Difference at byte %u)\n",
                        cpd.filename, idx);
             }
             is_same = false;
@@ -1411,7 +1411,7 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
    if ((is_same       == true) &&
        (report_status == true) )
    {
-      fprintf(stdout, "PASS: %s (%zu bytes)\n", cpd.filename, fm.raw.size());
+      fprintf(stdout, "PASS: %s (%u bytes)\n", cpd.filename, (uint32_t)fm.raw.size());
    }
 
    return(is_same);
@@ -1642,7 +1642,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
       ref = pc;
       if(is_type_and_ptype(ref, CT_FUNC_DEF, CT_NONE))
       {
-         int found_brace = 0; // Set if a close brace is found before a newline
+         int32_t found_brace = 0; // Set if a close brace is found before a newline
          while (not_type(ref, CT_NEWLINE))
          {
             ref = ref->next;
@@ -1672,14 +1672,14 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          /* If we hit an angle close, back up to the angle open */
          if (is_type(ref, CT_ANGLE_CLOSE))
          {
-            ref = get_prev_type(ref, CT_ANGLE_OPEN, (int)ref->level, scope_e::PREPROC);
+            ref = get_prev_type(ref, CT_ANGLE_OPEN, (int32_t)ref->level, scope_e::PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (is_preproc(ref))
          {
-            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int)ref->level);
+            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int32_t)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
@@ -1727,14 +1727,14 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
          /* If we hit a parentheses around return type, back up to the open parentheses */
          if (is_type(ref, CT_PAREN_CLOSE))
          {
-            ref = get_prev_type(ref, CT_PAREN_OPEN, (int)ref->level, scope_e::PREPROC);
+            ref = get_prev_type(ref, CT_PAREN_OPEN, (int32_t)ref->level, scope_e::PREPROC);
             continue;
          }
 
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (is_preproc(ref))
          {
-            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int)ref->level);
+            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int32_t)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
@@ -1761,7 +1761,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 }
 
 
-static void uncrustify_start(const deque<int> &data)
+static void uncrustify_start(const deque<int32_t> &data)
 {
    /* Parse the text into chunks */
    tokenize(data, nullptr);
@@ -1802,7 +1802,7 @@ void set_newline_chunk_pos(uo_t check, uo_t set, c_token_t token)
 void uncrustify_file(const file_mem_t &fm, FILE *pfout,
                      const char *parsed_file, bool defer_uncrustify_end)
 {
-   const deque<int> &data = fm.data;
+   const deque<int32_t> &data = fm.data;
 
    /* Save off the encoding and whether a BOM is required */
    cpd.bom = fm.bom;
@@ -1825,7 +1825,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    else if (av != AV_IGNORE) { cpd.bom = true;  }
 
    /* Check for embedded 0's (represents a decoding failure or corrupt file) */
-   for (size_t idx = 0; idx < data.size() - 1; idx++)
+   for (uint32_t idx = 0; idx < data.size() - 1; idx++)
    {
       if (data[idx] == 0)
       {
@@ -1864,7 +1864,7 @@ void uncrustify_file(const file_mem_t &fm, FILE *pfout,
    if (cpd.settings[UO_nl_remove_extra_newlines].u == 2) { newlines_remove_newlines(); }
 
    bool first = true;
-   int  old_changes;
+   int32_t  old_changes;
    cpd.pass_count = 3;
    do
    {
@@ -2030,7 +2030,7 @@ static void uncrustify_end(void)
 
 bool is_valid_token_name(c_token_t token)
 {
-   return ( ((size_t)token < ARRAY_SIZE(token_names)) &&
+   return ( ((uint32_t)token < ARRAY_SIZE(token_names)) &&
              ptr_is_valid(token_names[token]        ) );
 }
 
@@ -2052,7 +2052,7 @@ c_token_t find_token_name(const char *text)
 {
    if (is_nonempty_string(text))
    {
-      for (int idx = 1; idx < static_cast<int> ARRAY_SIZE(token_names); idx++)
+      for (int32_t idx = 1; idx < static_cast<int32_t> ARRAY_SIZE(token_names); idx++)
       {
          if (strcasecmp(text, token_names[idx]) == 0)
          {
@@ -2066,8 +2066,8 @@ c_token_t find_token_name(const char *text)
 
 static bool ends_with(const char *filename, const char *tag, bool case_sensitive = true)
 {
-   size_t len1 = strlen(filename);
-   size_t len2 = strlen(tag     );
+   uint32_t len1 = strlen(filename);
+   uint32_t len2 = strlen(tag     );
 
    return((len2 <= len1) &&
           (((case_sensitive == true ) && (strcmp    (&filename[len1 - len2], tag) == 0)) ||
@@ -2088,7 +2088,7 @@ static lang_t language_flags_from_name(const char *name)
 }
 
 
-const char *language_name_from_flags(size_t lang)
+const char *language_name_from_flags(uint32_t lang)
 {
    /* Check for an exact match first */
    for (auto &language_name : language_names)
@@ -2111,7 +2111,7 @@ const char *language_name_from_flags(size_t lang)
 }
 
 
-const char *get_file_extension(size_t &idx)
+const char *get_file_extension(uint32_t &idx)
 {
    const char *val = nullptr;
 
@@ -2132,7 +2132,7 @@ static extension_map_t g_ext_map;
 
 const char *extension_add(const char *ext_text, const char *lang_text)
 {
-   size_t lang_flags = language_flags_from_name(lang_text);
+   uint32_t lang_flags = language_flags_from_name(lang_text);
    if (lang_flags != 0)
    {
       const char *lang_name = language_name_from_flags(lang_flags);
@@ -2215,7 +2215,7 @@ void log_pcf_flags(log_sev_t sev, uint64_t flags)
    log_fmt(sev, "[0x%" PRIx64 ":", flags);
 
    const char *tolog = nullptr;
-   for (size_t i = 0; i < ARRAY_SIZE(pcf_names); i++)
+   for (uint32_t i = 0; i < ARRAY_SIZE(pcf_names); i++)
    {
       if (flags & (1ULL << i))
       {

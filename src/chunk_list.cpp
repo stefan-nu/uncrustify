@@ -114,7 +114,7 @@ chunk_t* chunk_search_typelevel(
    const c_token_t type,                 /**< [in] category to search for */
    const scope_e   scope = scope_e::ALL, /**< [in] code parts to consider for search */
    const dir_e     dir   = dir_e::AFTER, /**< [in] search direction */
-   const int       level = -1            /**< {in] -1 or ANY_LEVEL or the level to match */
+   const int32_t       level = -1            /**< {in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -146,10 +146,10 @@ static chunk_t* get_ncnlnp(
 chunk_t* chunk_search_str(
    chunk_t*      cur,   /**< [in] chunk to start search at */
    const char*   str,   /**< [in] string to search for */
-   const size_t  len,   /**< [in] length of string */
+   const uint32_t  len,   /**< [in] length of string */
    const scope_e scope, /**< [in] code parts to consider for search */
    const dir_e   dir,   /**< [in] search direction */
-   const int     level  /**< [in] -1 or ANY_LEVEL or the level to match */
+   const int32_t     level  /**< [in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -185,8 +185,8 @@ static void chunk_log(
 static bool is_expected_string_and_level(
    chunk_t*     pc,    /**< [in]  */
    const char*  str,   /**< [in]  */
-   const int    level, /**< [in]  */
-   const size_t len    /**< [in]  */
+   const int32_t    level, /**< [in]  */
+   const uint32_t len    /**< [in]  */
 );
 
 
@@ -335,7 +335,7 @@ static chunk_t* chunk_search_type(chunk_t* cur, const c_token_t type,
 
 
 chunk_t* chunk_search_typelevel(chunk_t* cur, const c_token_t type,
-      const scope_e scope, const dir_e dir, const int level)
+      const scope_e scope, const dir_e dir, const int32_t level)
 {
    chunk_t* pc = cur;
    do /* loop over the chunk list */
@@ -347,8 +347,8 @@ chunk_t* chunk_search_typelevel(chunk_t* cur, const c_token_t type,
 }
 
 
-chunk_t* chunk_search_str(chunk_t* cur, const char* str, const size_t len,
-      const scope_e scope, const dir_e dir, const int level)
+chunk_t* chunk_search_str(chunk_t* cur, const char* str, const uint32_t len,
+      const scope_e scope, const dir_e dir, const int32_t level)
 {
    chunk_t* pc = cur;
    do /* loop over the chunk list */
@@ -373,32 +373,32 @@ static chunk_t* chunk_search(chunk_t* cur, const check_t check_fct,
 }
 
 
-bool is_level(const chunk_t* pc, const size_t level)
+bool is_level(const chunk_t* pc, const uint32_t level)
 {
    return (is_valid(pc) && pc->level == level);
 }
 
 
-bool exceeds_level(const chunk_t* pc, const size_t ref)
+bool exceeds_level(const chunk_t* pc, const uint32_t ref)
 {
    return (is_valid(pc) && pc->level > ref);
 }
 
 
-bool is_type_and_level(const chunk_t* pc, const c_token_t type, const int level)
+bool is_type_and_level(const chunk_t* pc, const c_token_t type, const int32_t level)
 {
    return (is_type(pc, type) && /* the chunk is valid and has the expected type */
-           ((pc->level == (size_t)level) || /* the level is as expected or */
+           ((pc->level == (uint32_t)level) || /* the level is as expected or */
             (level     <             0)) ); /* we don't care about the level */
 }
 
 
 static bool is_expected_string_and_level(chunk_t* pc, const char* str,
-      const int level, const size_t len)
+      const int32_t level, const uint32_t len)
 {
    return ((pc->len()  == len                ) &&  /* the length is as expected and */
            (memcmp(str, pc->text(), len) == 0) &&  /* the strings equals */
-           ((pc->level     == (size_t)level  )||   /* the level is as expected or */
+           ((pc->level     == (uint32_t)level  )||   /* the level is as expected or */
             (level          <             0) ) );  /* we don't care about the level */
 }
 
@@ -479,7 +479,7 @@ chunk_t* chunk_dup(const chunk_t* const pc_in)
 
 static void chunk_log_msg(chunk_t* chunk, const log_sev_t log, const char* str)
 {
-   LOG_FMT(log, "%s %zu:%zu '%s' [%s]",
+   LOG_FMT(log, "%s %u:%u '%s' [%s]",
            str, chunk->orig_line, chunk->orig_col, chunk->text(),
            get_token_name(chunk->type));
 }
@@ -502,7 +502,7 @@ static void chunk_log(chunk_t* pc, const char* text)
       else if (is_valid(next))   { chunk_log_msg(next, log, " @ before" ); }
       else if (is_valid(prev))   { chunk_log_msg(prev, log, " @ after"  ); }
 
-      LOG_FMT(log, " stage=%d", (int)cpd.unc_stage);
+      LOG_FMT(log, " stage=%d", (int32_t)cpd.unc_stage);
       log_func_stack_inline(log);
    }
 }
@@ -699,29 +699,29 @@ chunk_t* get_prev_nvb(chunk_t* cur, const scope_e scope)
 }
 
 
-chunk_t* get_next_type(chunk_t* cur, const c_token_t type, const int level,
+chunk_t* get_next_type(chunk_t* cur, const c_token_t type, const int32_t level,
       const scope_e scope)
 {
    return(chunk_search_typelevel(cur, type, scope, dir_e::AFTER, level));
 }
 
 
-chunk_t* get_prev_type(chunk_t* cur, const c_token_t type, const int level,
+chunk_t* get_prev_type(chunk_t* cur, const c_token_t type, const int32_t level,
       const scope_e scope)
 {
    return(chunk_search_typelevel(cur, type, scope, dir_e::BEFORE, level));
 }
 
 
-chunk_t* get_next_str(chunk_t* cur, const char* str, const size_t len,
-                      const int level, const scope_e scope)
+chunk_t* get_next_str(chunk_t* cur, const char* str, const uint32_t len,
+                      const int32_t level, const scope_e scope)
 {
    return(chunk_search_str(cur, str, len, scope, dir_e::AFTER, level));
 }
 
 
-chunk_t* get_prev_str(chunk_t* cur, const char* str, const size_t len,
-                      const int level, const scope_e scope)
+chunk_t* get_prev_str(chunk_t* cur, const char* str, const uint32_t len,
+                      const int32_t level, const scope_e scope)
 {
    return(chunk_search_str(cur, str, len, scope, dir_e::BEFORE, level));
 }
@@ -811,7 +811,7 @@ static void set_chunk(chunk_t* pc, c_token_t token, log_sev_t val, const char* s
 
    if (*what != token)
    {
-      LOG_FMT(val, "set %s: %zu:%zu '%s' %s:%s => %s:%s",
+      LOG_FMT(val, "set %s: %u:%u '%s' %s:%s => %s:%s",
               str, pc->orig_line, pc->orig_col, pc->text(),
               get_token_name(pc->type), get_token_name(pc->ptype),
               get_token_name(*newt), get_token_name(*newp));
@@ -884,7 +884,7 @@ void update_flags(chunk_t* pc, const uint64_t clr_bits, const uint64_t set_bits)
    const uint64_t new_flags = (pc->flags & ~clr_bits) | set_bits;
    if (pc->flags != new_flags)
    {
-      LOG_FMT(LSETFLG, "set_chunk_flags: %016" PRIx64 "^%016" PRIx64 "=%016" PRIx64 " %zu:%zu '%s' %s:%s",
+      LOG_FMT(LSETFLG, "set_chunk_flags: %016" PRIx64 "^%016" PRIx64 "=%016" PRIx64 " %u:%u '%s' %s:%s",
               pc->flags, pc->flags ^ new_flags, new_flags, pc->orig_line, pc->orig_col, pc->text(),
               get_token_name(pc->type), get_token_name(pc->ptype));
       log_func_stack_inline(LSETFLG);
@@ -1133,7 +1133,7 @@ bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
 }
 
 
-bool is_type(const chunk_t* const pc, int count, ... )
+bool is_type(const chunk_t* const pc, int32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1143,7 +1143,7 @@ bool is_type(const chunk_t* const pc, int count, ... )
    {
       for( ; count > 0; --count)
       {
-         c_token_t type = (c_token_t)va_arg(args, int); /* get next argument */
+         c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
 
          if(pc->type == type)
          {
@@ -1158,7 +1158,7 @@ bool is_type(const chunk_t* const pc, int count, ... )
 
 
 /* todo combine with is_type */
-bool is_ptype(const chunk_t* const pc, int count, ... )
+bool is_ptype(const chunk_t* const pc, int32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1168,7 +1168,7 @@ bool is_ptype(const chunk_t* const pc, int count, ... )
    {
       for( ; count > 0; --count)
       {
-         c_token_t type = (c_token_t)va_arg(args, int); /* get next argument */
+         c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->ptype == type)
          {
             result = true;
@@ -1182,7 +1182,7 @@ bool is_ptype(const chunk_t* const pc, int count, ... )
 
 
 /* \todo combine with chunk_is_not_parent_type */
-bool not_type(const chunk_t* const pc, int count, ... )
+bool not_type(const chunk_t* const pc, int32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1193,7 +1193,7 @@ bool not_type(const chunk_t* const pc, int count, ... )
       result = true;
       for( ; count > 0; --count)
       {
-         c_token_t type = (c_token_t)va_arg(args, int); /* get next argument */
+         c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->type == type)
          {
            result = false;
@@ -1206,7 +1206,7 @@ bool not_type(const chunk_t* const pc, int count, ... )
 }
 
 
-bool not_ptype(const chunk_t* const pc, int count, ... )
+bool not_ptype(const chunk_t* const pc, int32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1217,7 +1217,7 @@ bool not_ptype(const chunk_t* const pc, int count, ... )
       result = true;
       for( ; count > 0; --count)
       {
-         c_token_t type = (c_token_t)va_arg(args, int); /* get next argument */
+         c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->ptype == type)
          {
             result = false;
@@ -1258,7 +1258,7 @@ chunk_t* chunk_skip_to_match(chunk_t* cur, const scope_e scope)
                       CT_ANGLE_OPEN,  CT_SQUARE_OPEN))
    {
       return(get_next_type(cur, get_inverse_type(cur->type),
-                                 (int)cur->level, scope));
+                                 (int32_t)cur->level, scope));
    }
    return(cur);
 }
@@ -1272,7 +1272,7 @@ chunk_t* chunk_skip_to_match_rev(chunk_t* cur, const scope_e scope)
                       CT_ANGLE_CLOSE,  CT_SQUARE_CLOSE))
    {
       return(get_prev_type(cur, get_inverse_type(cur->type),
-                                 (int)cur->level, scope));
+                                 (int32_t)cur->level, scope));
    }
    return(cur);
 }
@@ -1420,7 +1420,7 @@ bool is_paren_close(chunk_t* pc)
 bool is_str(chunk_t* pc, const char* str)
 {
    retval_if(ptrs_are_invalid(pc, str), false);
-   size_t len = strlen(str);
+   uint32_t len = strlen(str);
    return((pc->len() == len) && /* string length has to be equal */
           (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
@@ -1429,7 +1429,7 @@ bool is_str(chunk_t* pc, const char* str)
 bool is_str_case(chunk_t* pc, const char* str)
 {
    retval_if(ptrs_are_invalid(pc, str), false);
-   size_t len = strlen(str);
+   uint32_t len = strlen(str);
    return((pc->len() == len) && /* string length has to be equal */
           (strncasecmp(pc->text(), str, len) == 0)); /* strings are equal ignoring case */
 }
@@ -1438,7 +1438,7 @@ bool is_str_case(chunk_t* pc, const char* str)
 bool is_word(chunk_t* pc)
 {
    return(is_valid(pc) && (pc->len() >= 1u) &&
-          (CharTable::IsKW1((size_t)pc->str[0])) );
+          (CharTable::IsKW1((uint32_t)pc->str[0])) );
 }
 
 #if 0

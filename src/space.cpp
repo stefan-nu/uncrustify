@@ -41,7 +41,7 @@ typedef struct chunks_s
 
 
 static void log_space(
-   size_t      line,    /**< [in]  */
+   uint32_t      line,    /**< [in]  */
    const char* rule,    /**< [in]  */
    chunks_t*   c,       /**< [in]  */
    bool        complete /**< [in]  */
@@ -56,7 +56,7 @@ static void log_space(
 static argval_t do_space(
    chunk_t* pc1,    /**< [in]  The first chunk */
    chunk_t* pc2,    /**< [in]  The second chunk */
-   int     &min_sp, /**< [out] minimal required space */
+   int32_t     &min_sp, /**< [out] minimal required space */
    bool    complete /**< [in]  */
 );
 
@@ -132,7 +132,7 @@ const no_space_table_t no_space_table[] =
    } while (0)
 
 
-static void log_space(size_t line, const char* rule, chunks_t* c, bool complete)
+static void log_space(uint32_t line, const char* rule, chunks_t* c, bool complete)
 {
    LOG_FUNC_ENTRY();
    if (log_sev_on(LSPACE))
@@ -142,7 +142,7 @@ static void log_space(size_t line, const char* rule, chunks_t* c, bool complete)
       assert(are_valid(pc1, pc2));
       if (not_type(pc2, CT_NEWLINE))
       {
-         LOG_FMT(LSPACE, "Spacing: line %zu [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%zu]%s",
+         LOG_FMT(LSPACE, "Spacing: line %u [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%u]%s",
                  pc1->orig_line, get_token_name(pc1->type),
                  get_token_name(pc1->ptype), pc1->text(),
                  get_token_name(pc2->type), get_token_name(pc2->ptype),
@@ -234,18 +234,18 @@ static bool sp_cond_0167(chunks_t* c) { return is_type(c->b, CT_PAREN_OPEN  ) &&
 static bool sp_cond_0113(chunks_t* c) { return is_type(c->a, CT_PAREN_CLOSE ) && is_type(c->b, CT_PAREN_OPEN,   CT_FPAREN_OPEN); }
 static bool sp_cond_0246(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE    ) && is_type(c->b, CT_FPAREN_OPEN,  CT_TPAREN_OPEN); }
 static bool sp_cond_0187(chunks_t* c) { return is_type(c->a, CT_ARITH, CT_CARET) || is_type(c->b, CT_ARITH, CT_CARET) ; }
-static bool sp_cond_0192(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((size_t)(c->b->str[0])); }
+static bool sp_cond_0192(chunks_t* c) { return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((uint32_t)(c->b->str[0])); }
 static bool sp_cond_0101(chunks_t* c) { return is_type(c->b, CT_FPAREN_OPEN ) && is_ptype(c->a, CT_OPERATOR); }
 static bool sp_cond_0039(chunks_t* c) { return is_type(c->a, CT_NEG,  CT_POS,  CT_ARITH) && is_type(c->b, CT_NEG, CT_POS, CT_ARITH); }
 static bool sp_cond_0215(chunks_t* c) { return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
-static bool sp_cond_0059(chunks_t* c) { return is_type(c->a, CT_ELLIPSIS   ) &&  CharTable::IsKW1((size_t)(c->b->str[0])); }
-static bool sp_cond_0014(chunks_t* c) { return is_type(c->a, CT_CASE       ) && (CharTable::IsKW1((size_t)(c->b->str[0])) || is_type(c->b, CT_NUMBER)); }
+static bool sp_cond_0059(chunks_t* c) { return is_type(c->a, CT_ELLIPSIS   ) &&  CharTable::IsKW1((uint32_t)(c->b->str[0])); }
+static bool sp_cond_0014(chunks_t* c) { return is_type(c->a, CT_CASE       ) && (CharTable::IsKW1((uint32_t)(c->b->str[0])) || is_type(c->b, CT_NUMBER)); }
 static bool sp_cond_0005(chunks_t* c) { return is_type(c->b, CT_POUND      ) && is_preproc(c->b) && not_ptype(c->a, CT_MACRO_FUNC); }
 static bool sp_cond_0123(chunks_t* c) { return is_type(c->a, CT_CLASS      ) && not_flag(c->a, PCF_IN_OC_MSG); }
-static bool sp_cond_0096(chunks_t* c) { return is_type(c->a, CT_BYREF      ) && CharTable::IsKW1((size_t)(c->b->str[0])); }
-static bool sp_cond_0089(chunks_t* c) { return is_type(c->b, CT_WORD       ) || CharTable::IsKW1((size_t)(c->b->str[0])); }
+static bool sp_cond_0096(chunks_t* c) { return is_type(c->a, CT_BYREF      ) && CharTable::IsKW1((uint32_t)(c->b->str[0])); }
+static bool sp_cond_0089(chunks_t* c) { return is_type(c->b, CT_WORD       ) || CharTable::IsKW1((uint32_t)(c->b->str[0])); }
 static bool sp_cond_0117(chunks_t* c) { return is_type(c->a, CT_FUNC_PROTO ) || is_type_and_ptype(c->b, CT_FPAREN_OPEN, CT_FUNC_PROTO ); }
-static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((size_t)(c->a->str[0])); }
+static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((uint32_t)(c->a->str[0])); }
 static bool sp_cond_0077(chunks_t* c) { return is_type(c->a, CT_BIT_COLON   ) && is_flag(c->a, PCF_IN_ENUM); }
 static bool sp_cond_0078(chunks_t* c) { return is_type(c->b, CT_BIT_COLON   ) && is_flag(c->b, PCF_IN_ENUM); }
 static bool sp_cond_0082(chunks_t* c) { return is_type(c->b, CT_SQUARE_OPEN ) && not_ptype(c->b, CT_OC_MSG     ); }
@@ -438,9 +438,9 @@ static bool sp_cond_0236(chunks_t* c) { return is_type(c->a, CT_NEW, CT_DELETE) 
 static bool sp_cond_0237(chunks_t* c) { return is_type(c->a, CT_ANNOTATION) && is_paren_open(c->b); }
 
 
-/* \todo make min_sp a size_t */
+/* \todo make min_sp a uint32_t */
 /* Note that the order of the if statements is VERY important. */
-static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete = true)
+static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
    assert(are_valid(pc1, pc2));
@@ -448,7 +448,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    chunks_t chunks = {pc1, pc2};
    chunks_t* pc = &chunks;
 
-   LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n", __func__, pc1->orig_line,
+   LOG_FMT(LSPACE, "%s: %u:%u %s %s\n", __func__, pc1->orig_line,
          pc1->orig_col, pc1->text(), get_token_name(pc1->type));
 
    min_sp = 1;
@@ -540,7 +540,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    else                 { log_arg_return(AV_FORCE          ); }
    }
    if(sp_cond_0044(pc)) { log_opt_return(UO_sp_after_dc    ); } /* handle '::' */
-   if(sp_cond_0045(pc)) { log_arg_return(AV_REMOVE         ); } /* mapped_file_source abc((int) ::CW2A(sTemp)); */
+   if(sp_cond_0045(pc)) { log_arg_return(AV_REMOVE         ); } /* mapped_file_source abc((int32_t) ::CW2A(sTemp)); */
    if(sp_cond_0046(pc)) {
       /* '::' at the start of an identifier is not member access,
        * but global scope operator. Detect if previous chunk is keyword */
@@ -664,7 +664,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    if(sp_cond_0111(pc)) { log_opt_return(UO_sp_cpp_cast_paren); }
    if(sp_cond_0112(pc)) { log_arg_return(AV_FORCE            ); } /* TODO: make this configurable? */
    if(sp_cond_0113(pc)) {
-      if(sp_cond_0114(pc)) { log_opt_return(UO_sp_after_cast); } /* "(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
+      if(sp_cond_0114(pc)) { log_opt_return(UO_sp_after_cast); } /* "(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
 
       /* Must be an indirect/chained function call? */
       log_arg_return(AV_REMOVE); /* TODO: make this configurable? */
@@ -743,8 +743,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
    }
    if(sp_cond_0166(pc) && cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE) { log_opt_return(UO_sp_inside_oc_at_sel_parens); }
    if(sp_cond_0167(pc))                                                               { log_opt_return(UO_sp_after_oc_at_sel        ); }
-   /* C cast:   "(int)"      vs "( int )"
-    * D cast:   "cast(int)"  vs "cast( int )"
+   /* C cast:   "(int32_t)"      vs "( int )"
+    * D cast:   "cast(int32_t)"  vs "cast( int )"
     * CPP cast: "int(a + 3)" vs "int( a + 3 )" */
    if(sp_cond_0168(pc)) {
       if(sp_cond_0169(pc))   { log_opt_return(UO_sp_inside_paren_cast  ); }
@@ -826,7 +826,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
         log_rule("sp_type_func|ADD");
         return(add_option(cpd.settings[UO_sp_type_func].a, AV_ADD)); }
      log_opt_return(UO_sp_type_func);}
-   /*"(int)a" vs "(int) a" or "cast(int)a" vs "cast(int) a" */
+   /*"(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
    if     (sp_cond_0199(pc)) { log_opt_return(UO_sp_after_cast           ); }
    if     (sp_cond_0200(pc)) {
    if     (sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else           ); }
@@ -895,9 +895,9 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int &min_sp, bool complete 
          log_arg_return(AV_REMOVE);
        }
    }
-   if(sp_cond_0248(pc)) { log_arg_return(AV_REMOVE); } /* mapped_file_source abc((int) A::CW2A(sTemp)); */
+   if(sp_cond_0248(pc)) { log_arg_return(AV_REMOVE); } /* mapped_file_source abc((int32_t) A::CW2A(sTemp)); */
 #ifdef DEBUG
-   LOG_FMT(LSPACE, "\n\n(%d) %s: WARNING: unrecognized do_space: first: %zu:%zu %s %s and second: %zu:%zu %s %s\n\n\n",
+   LOG_FMT(LSPACE, "\n\n(%d) %s: WARNING: unrecognized do_space: first: %u:%u %s %s and second: %u:%u %s %s\n\n\n",
            __LINE__, __func__, pc1->orig_line, pc1->orig_col, pc1->text(), get_token_name(pc1->type),
            pc2->orig_line, pc2->orig_col, pc2->text(), get_token_name(pc2->type));
 #endif
@@ -913,17 +913,17 @@ void space_text(void)
    return_if(is_invalid(pc));
 
    chunk_t *next;
-   size_t  prev_column;
-   size_t  column = pc->column;
+   uint32_t  prev_column;
+   uint32_t  column = pc->column;
    while (is_valid(pc))
    {
-      LOG_FMT(LSPACE, "%s: %zu:%zu %s %s\n",
+      LOG_FMT(LSPACE, "%s: %u:%u %s %s\n",
               __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
       if ((is_true(UO_use_options_overriding_for_qt_macros)) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
       {
-         LOG_FMT(LSPACE, "%zu: [%d] type %s SIGNAL/SLOT found\n",
+         LOG_FMT(LSPACE, "%u: [%d] type %s SIGNAL/SLOT found\n",
                  pc->orig_line, __LINE__, get_token_name(pc->type));
          set_flags(pc, PCF_IN_QT_MACRO); /* flag the chunk for a second processing */
 
@@ -937,7 +937,7 @@ void space_text(void)
                  is_type(next, CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
          {
             assert(is_valid(next));
-            LOG_FMT(LSPACE, "%s: %zu:%zu Skip %s (%zu+%zu)\n",
+            LOG_FMT(LSPACE, "%s: %u:%u Skip %s (%u+%u)\n",
                     __func__, next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
             next->column = pc->column + pc->str.size();
@@ -993,8 +993,8 @@ void space_text(void)
             if ((is_valid(tmp)) &&
                 (tmp->len() > 0))
             {
-               bool kw1 = CharTable::IsKW2((size_t)(pc->str[pc->len()-1]));
-               bool kw2 = CharTable::IsKW1((size_t)(next->str[0]));
+               bool kw1 = CharTable::IsKW2((uint32_t)(pc->str[pc->len()-1]));
+               bool kw2 = CharTable::IsKW1((uint32_t)(next->str[0]));
                if ((kw1 == true) &&
                    (kw2 == true) )
                {
@@ -1039,7 +1039,7 @@ void space_text(void)
             }
          }
 
-         int      min_sp;
+         int32_t      min_sp;
          argval_t av = do_space(pc, next, min_sp, false);
          if (is_flag(pc, PCF_FORCE_SPACE))
          {
@@ -1051,20 +1051,20 @@ void space_text(void)
          {
             case AV_FORCE:
                /* add exactly the specified # of spaces */
-               column = (size_t)((int)column + min_sp);
+               column = (uint32_t)((int32_t)column + min_sp);
             break;
 
             case AV_ADD:
                {
-                  int delta = min_sp;
+                  int32_t delta = min_sp;
                   if ((next->orig_col >= pc->orig_col_end) &&
                       (pc->orig_col_end != 0))
                   {
                      /* Keep the same relative spacing, minimum 1 */
-                     delta = (int)next->orig_col - (int)pc->orig_col_end;
+                     delta = (int32_t)next->orig_col - (int32_t)pc->orig_col_end;
                      delta = max(delta, min_sp);
                   }
-                  column = (size_t)((int)column + delta);
+                  column = (uint32_t)((int32_t)column + delta);
                }
             break;
 
@@ -1102,7 +1102,7 @@ void space_text(void)
                {
                   /* If there was a space, we need to force one, otherwise
                    * try to keep the comment in the same column. */
-                  size_t col_min = pc->column + pc->len() + ((next->orig_prev_sp > 0) ? 1 : 0);
+                  uint32_t col_min = pc->column + pc->len() + ((next->orig_prev_sp > 0) ? 1 : 0);
                   column = next->orig_col;
                   column = max(column, col_min);
                   LOG_FMT(LSPACE, " <relative set>");
@@ -1111,7 +1111,7 @@ void space_text(void)
          }
          next->column = column;
 
-         LOG_FMT(LSPACE, " = %s @ %zu => %zu\n", argval2str(av).c_str(),
+         LOG_FMT(LSPACE, " = %s @ %u => %u\n", argval2str(av).c_str(),
                  column - prev_column, next->column);
          if (restoreValues) { restore_options_for_QT(); }
       }
@@ -1173,7 +1173,7 @@ uint32_t space_needed(chunk_t* first, chunk_t* second)
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPACE, "%s\n", __func__);
 
-   int min_sp;
+   int32_t min_sp;
    switch (do_space(first, second, min_sp))
    {
       case AV_ADD:    /* fallthrough */
@@ -1190,7 +1190,7 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
    LOG_FUNC_ENTRY();
    assert(are_valid(first, second));
 
-   LOG_FMT(LSPACE, "%s: %zu:%zu [%s/%s] '%s' <==> %zu:%zu [%s/%s] '%s'",
+   LOG_FMT(LSPACE, "%s: %u:%u [%s/%s] '%s' <==> %u:%u [%s/%s] '%s'",
            __func__, first->orig_line, first->orig_col,
            get_token_name(first->type), get_token_name(first->ptype),
            first->text(), second->orig_line, second->orig_col,
@@ -1198,19 +1198,19 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
            second->text());
    log_func_stack_inline(LSPACE);
 
-   int      min_sp;
+   int32_t      min_sp;
    argval_t av = do_space(first, second, min_sp);
 
    LOG_FMT(LSPACE, "%s: av=%d, ", __func__, av);
    uint32_t coldiff;
    if (first->nl_count > 0)
    {
-      LOG_FMT(LSPACE, "nl_count=%zu, orig_col_end=%u", first->nl_count, first->orig_col_end);
+      LOG_FMT(LSPACE, "nl_count=%u, orig_col_end=%u", first->nl_count, first->orig_col_end);
       coldiff = first->orig_col_end - 1u;
    }
    else
    {
-      LOG_FMT(LSPACE, "len=%zu", first->len());
+      LOG_FMT(LSPACE, "len=%u", first->len());
       coldiff = first->len();
    }
    switch (av)
@@ -1231,13 +1231,13 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
       case AV_NOT_DEFINED: /* fallthrough */
       default:             /* do nothing */ break;
    }
-   LOG_FMT(LSPACE, " => %zu\n", coldiff);
+   LOG_FMT(LSPACE, " => %u\n", coldiff);
    return(coldiff);
 }
 
 
 #define MAX_SPACE_COUNT 16u
-void space_add_after(chunk_t *pc, size_t count)
+void space_add_after(chunk_t *pc, uint32_t count)
 {
    LOG_FUNC_ENTRY();
    // return_if(count == 0);

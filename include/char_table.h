@@ -31,7 +31,7 @@
 #define CHAR_TABLE_SIZE 128
 struct CharTable
 {
-   static size_t chars[CHAR_TABLE_SIZE];
+   static uint32_t chars[CHAR_TABLE_SIZE];
 
    enum
    {
@@ -40,7 +40,7 @@ struct CharTable
    };
 
 
-   static inline size_t Get(size_t idx)
+   static inline uint32_t Get(uint32_t idx)
    {
       if (idx < CHAR_TABLE_SIZE)
       {
@@ -58,12 +58,12 @@ struct CharTable
    }
 
 
-   static inline bool IsKW1(size_t idx)
+   static inline bool IsKW1(uint32_t idx)
    {
       return((Get(idx) & KEYWORD1) != 0);
    }
 
-   static inline bool IsKW2(size_t idx)
+   static inline bool IsKW2(uint32_t idx)
    {
       return((Get(idx) & KEYWORD2) != 0);
    }
@@ -71,7 +71,7 @@ struct CharTable
 
 
 #ifdef DEFINE_CHAR_TABLE
-size_t CharTable::chars[] =
+uint32_t CharTable::chars[] =
 {
    0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000,   /* [........] */
    0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000, 0x000,   /* [........] */

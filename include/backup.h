@@ -44,7 +44,7 @@
  * @retval           EX_OK    - successfully created backup file
  * @retval           EX_IOERR - could not create backup file
  */
-int backup_copy_file(
+int32_t backup_copy_file(
    const char            *filename, /**< [in]  */
    const vector<uint8_t> &data      /**< [in]  */
 );

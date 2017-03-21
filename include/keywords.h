@@ -23,9 +23,9 @@ void init_keywords(void);
  * @retval EX_OK    - successfully read keywords from file
  * @retval EX_IOERR - reading keywords file failed
  */
-int load_keyword_file(
-   const char*  filename,     /**< [in] path to file to read from */
-   const size_t max_line_size /**< [in] maximal allowed characters per line */
+int32_t load_keyword_file(
+   const char*    filename,     /**< [in] path to file to read from */
+   const uint32_t max_line_size /**< [in] maximal allowed characters per line */
 );
 
 
@@ -35,8 +35,8 @@ int load_keyword_file(
  * @return        CT_WORD (no match) or the keyword token
  */
 c_token_t find_keyword_type(
-   const char *word, /**< [in] Pointer to the text -- NOT zero terminated */
-   size_t     len    /**< [in] The length of the text */
+   const char* word, /**< [in] Pointer to the text -- NOT zero terminated */
+   uint32_t    len   /**< [in] The length of the text */
 );
 
 
@@ -44,8 +44,8 @@ c_token_t find_keyword_type(
  * Adds a keyword to the list of dynamic keywords
  */
 void add_keyword(
-   const char *tag, /**< [in] The tag (string) must be zero terminated */
-   c_token_t  type  /**< [in] The type, usually CT_TYPE */
+   const char* tag,  /**< [in] The tag (string) must be zero terminated */
+   c_token_t   type  /**< [in] The type, usually CT_TYPE */
 );
 
 
@@ -53,7 +53,7 @@ void add_keyword(
  * tbd
  */
 void print_keywords(
-   FILE *pfile /**< [in]  */
+   FILE* pfile /**< [in]  */
 );
 
 
