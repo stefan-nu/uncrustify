@@ -19,10 +19,10 @@ void write_bom(void);
 
 
 /**
- * @param ch the 31-bit char value
+ * tbd
  */
 void write_char(
-   uint32_t ch
+   uint32_t ch /**< [in] the 31-bit char value */
 );
 
 
@@ -30,7 +30,7 @@ void write_char(
  * tbd
  */
 void write_string(
-   const unc_text &text
+   const unc_text &text /**< [in]  */
 );
 
 
@@ -38,10 +38,10 @@ void write_string(
  * Figure out the encoding and convert to an int sequence
  */
 bool decode_unicode(
-   const vector<uint8_t> &in_data,
-   deque<int> &out_data,
-   char_encoding_e &enc,
-   bool &has_bom
+   const vector<uint8_t> &in,     /**< [in]  */
+   deque<int>            &out,    /**< [in]  */
+   char_encoding_e       &enc,    /**< [in]  */
+   bool                  &has_bom /**< [in]  */
 );
 
 
@@ -49,8 +49,8 @@ bool decode_unicode(
  * tbd
  */
 void encode_utf8(
-   uint32_t ch,
-   vector<uint8_t> &res
+   uint32_t        ch,  /**< [in]  */
+   vector<uint8_t> &res /**< [in]  */
 );
 
 
