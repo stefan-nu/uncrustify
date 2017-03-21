@@ -262,6 +262,12 @@ bool not_opt(const argval_t opt, const argval_t val)
 }
 
 
+bool is_opt(const uo_t opt, const argval_t val)
+{
+   return is_opt(cpd.settings[opt].a, val);
+}
+
+
 bool not_opt(const uo_t opt, const argval_t val)
 {
    return not_opt(cpd.settings[opt].a, val);
@@ -1774,7 +1780,7 @@ void register_options(void)
 }
 
 
-const group_map_value_t *get_group_name(uint32_t ug)
+const group_map_value_t* get_group_name(uint32_t ug)
 {
    for (const auto &it : group_map)
    {
@@ -1787,7 +1793,7 @@ const group_map_value_t *get_group_name(uint32_t ug)
 }
 
 
-const option_map_value_t *get_option_name(uo_t option)
+const option_map_value_t* get_option_name(uo_t option)
 {
    const option_name_map_it it = option_name_map.find(option);
 
@@ -1795,7 +1801,7 @@ const option_map_value_t *get_option_name(uo_t option)
 }
 
 
-static void convert_value(const option_map_value_t *entry, const char *val, op_val_t *dest)
+static void convert_value(const option_map_value_t* entry, const char* val, op_val_t* dest)
 {
    if (entry->type == AT_LINE)
    {

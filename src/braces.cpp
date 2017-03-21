@@ -215,11 +215,11 @@ static void examine_braces(void)
          {
             case(CT_IF        ): /* fallthrough */
             case(CT_ELSE      ): /* fallthrough */
-            case(CT_ELSEIF    ): if(is_opt(cpd.settings[UO_mod_full_brace_if   ].a, AV_REMOVE)) examine_brace(pc); break;
-            case(CT_DO        ): if(is_opt(cpd.settings[UO_mod_full_brace_do   ].a, AV_REMOVE)) examine_brace(pc); break;
-            case(CT_FOR       ): if(is_opt(cpd.settings[UO_mod_full_brace_for  ].a, AV_REMOVE)) examine_brace(pc); break;
-            case(CT_USING_STMT): if(is_opt(cpd.settings[UO_mod_full_brace_using].a, AV_REMOVE)) examine_brace(pc); break;
-            case(CT_WHILE     ): if(is_opt(cpd.settings[UO_mod_full_brace_while].a, AV_REMOVE)) examine_brace(pc); break;
+            case(CT_ELSEIF    ): if(is_opt(UO_mod_full_brace_if   , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_DO        ): if(is_opt(UO_mod_full_brace_do   , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_FOR       ): if(is_opt(UO_mod_full_brace_for  , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_USING_STMT): if(is_opt(UO_mod_full_brace_using, AV_REMOVE)) examine_brace(pc); break;
+            case(CT_WHILE     ): if(is_opt(UO_mod_full_brace_while, AV_REMOVE)) examine_brace(pc); break;
             default:             /* do nothing */ break;
          }
       }

@@ -637,8 +637,7 @@ void output_text(FILE *pfile)
    {
       LOG_FMT(LOUTIND, "text() %s, type %s, col=%u\n",
               pc->text(), get_token_name(pc->type), pc->orig_col);
-      cpd.output_tab_as_space = (is_true(UO_cmt_convert_tab_to_spaces) &&
-                                 is_cmt(pc));
+      cpd.output_tab_as_space = (is_true(UO_cmt_convert_tab_to_spaces) && is_cmt(pc));
 
       switch(pc->type)
       {

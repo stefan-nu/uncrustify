@@ -1000,6 +1000,20 @@ bool is_opt(
 
 
 /**
+ * \brief check if an uncrustify option equals a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if option value is not equal to the given value
+ * @retval false if option value is     equal to the given value
+ */
+bool is_opt(
+   const uo_t     opt, /**< [in] uncrustify option to check */
+   const argval_t val  /**< [in] option value to check for */
+);
+
+
+/**
  * \brief check if a option value is different from a given value
  *
  * The check can be done with one or several options
