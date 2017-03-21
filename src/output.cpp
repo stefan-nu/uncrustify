@@ -678,11 +678,11 @@ void output_text(FILE *pfile)
                      {
                         fprintf(stderr, "FATAL: negative value.\n   pc->orig_col=%u prev->orig_col_end=%u\n",
                                          pc->orig_col, prev->orig_col_end);
-                        exit(EX_SOFTWARE);
+                     //   exit(EX_SOFTWARE);
                      }
 
                      pc->column = (size_t)((int)cpd.column + orig_sp);
-                     // the value might be negative --> use an int
+                     /* the value might be negative --> use an int */
                      int columnDiff = (int)cpd.column + orig_sp;
                      if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
                          (columnDiff < (int)(cpd.column + 1u) ))
