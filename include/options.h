@@ -993,7 +993,7 @@ bool is_option_unset(
  * @retval true  if option is     equal to the given value
  * @retval false if option is not equal to the given value
  */
-bool is_option(
+bool is_opt(
    const argval_t opt, /**< [in] option variable to check */
    const argval_t val  /**< [in] option combination to check for */
 );
@@ -1007,9 +1007,29 @@ bool is_option(
  * @retval true  if option value is not equal to the given value
  * @retval false if option value is     equal to the given value
  */
-bool not_option(
+bool not_opt(
    const argval_t opt, /**< [in] option variable to check */
    const argval_t val  /**< [in] option value to check for */
+);
+
+
+/**
+ * \brief check if an uncrustify option is different from a given value
+ *
+ * The check can be done with one or several options
+ *
+ * @retval true  if option value is not equal to the given value
+ * @retval false if option value is     equal to the given value
+ */
+bool not_opt(
+   const uo_t     opt, /**< [in] uncrustify option to check */
+   const argval_t val  /**< [in] option value to check for */
+);
+
+
+/** \brief check if an uncrustify options is not set to AV_IGNORE */
+bool not_ignore(
+   const uo_t opt /**< [in] uncrustify option to check */
 );
 
 
@@ -1035,7 +1055,7 @@ bool is_token_set(
  * @retval true  if variable has none of the given options    set
  * @retval false if at least one      of the given options is set
  */
-bool is_token_unset(
+bool is_tok_unset(
    const tokenpos_t tok, /**< [in] token variable to check */
    const tokenpos_t val  /**< [in] token combination to check for */
 );
@@ -1049,7 +1069,7 @@ bool is_token_unset(
  * @retval true  if token is     equal to the given value
  * @retval false if token is not equal to the given value
  */
-bool is_token(
+bool is_tok(
       const tokenpos_t tok, /**< [in] token variable to check */
       const tokenpos_t val  /**< [in] token combination to check for */
 );

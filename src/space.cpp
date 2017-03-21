@@ -469,21 +469,21 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    if(sp_cond_0014(pc)) { log_rule("sp_case_label"); return(add_option(cpd.settings[UO_sp_case_label].a, AV_ADD)); }
    if(sp_cond_0015(pc)) { log_opt_return(UO_sp_after_for_colon    ); }
    if(sp_cond_0016(pc)) { log_opt_return(UO_sp_before_for_colon   ); }
-   if(sp_cond_0017(pc) && not_option(cpd.settings[UO_sp_cond_ternary_short  ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_ternary_short  ); }
+   if(sp_cond_0017(pc) && not_ignore(UO_sp_cond_ternary_short  )) { log_opt_return(UO_sp_cond_ternary_short  ); }
    if(sp_cond_0018(pc)) {
-   if(sp_cond_0019(pc) && not_option(cpd.settings[UO_sp_cond_question_before].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_before); }
-   if(sp_cond_0020(pc) && not_option(cpd.settings[UO_sp_cond_question_after ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question_after ); }
-   if(                    not_option(cpd.settings[UO_sp_cond_question       ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_question       ); }
+   if(sp_cond_0019(pc) && not_ignore(UO_sp_cond_question_before)) { log_opt_return(UO_sp_cond_question_before); }
+   if(sp_cond_0020(pc) && not_ignore(UO_sp_cond_question_after )) { log_opt_return(UO_sp_cond_question_after ); }
+   if(                    not_ignore(UO_sp_cond_question       )) { log_opt_return(UO_sp_cond_question       ); }
    }
    if(sp_cond_0021(pc)) {
-   if(sp_cond_0027(pc) && not_option(cpd.settings[UO_sp_cond_colon_before   ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_before   ); }
-   if(sp_cond_0028(pc) && not_option(cpd.settings[UO_sp_cond_colon_after    ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon_after    ); }
-   if(                    not_option(cpd.settings[UO_sp_cond_colon          ].a, AV_IGNORE)) { log_opt_return(UO_sp_cond_colon          ); }
+   if(sp_cond_0027(pc) && not_ignore(UO_sp_cond_colon_before   )) { log_opt_return(UO_sp_cond_colon_before   ); }
+   if(sp_cond_0028(pc) && not_ignore(UO_sp_cond_colon_after    )) { log_opt_return(UO_sp_cond_colon_after    ); }
+   if(                    not_ignore(UO_sp_cond_colon          )) { log_opt_return(UO_sp_cond_colon          ); }
    }
    if(sp_cond_0022(pc)) { log_opt_return(UO_sp_range); }
    if(sp_cond_0023(pc)) { log_arg_return(AV_REMOVE  ); }
-   if(sp_cond_0024(pc)) { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); } /* Macro stuff can only return IGNORE, ADD, or FORCE */
-   if(sp_cond_0025(pc)) { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = not_option(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
+   if(sp_cond_0024(pc)) { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); } /* Macro stuff can only return IGNORE, ADD, or FORCE */
+   if(sp_cond_0025(pc)) { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
 
    if(sp_cond_0026(pc)) {/* Remove spaces, unless we are ignoring. See indent_preproc() */
    if (cpd.settings[UO_pp_space].a == AV_IGNORE) { log_arg_return(AV_IGNORE); }
@@ -491,8 +491,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    }
    if(sp_cond_0029(pc)) {
       if(sp_cond_0030(pc)) {
-      if(not_option(cpd.settings[UO_sp_before_semi_for_empty].a, AV_IGNORE) && sp_cond_0031(pc)) { log_opt_return(UO_sp_before_semi_for_empty); }
-      if(not_option(cpd.settings[UO_sp_before_semi_for      ].a, AV_IGNORE)                    ) { log_opt_return(UO_sp_before_semi_for      ); }
+      if(not_ignore(UO_sp_before_semi_for_empty) && sp_cond_0031(pc)) { log_opt_return(UO_sp_before_semi_for_empty); }
+      if(not_ignore(UO_sp_before_semi_for      )                    ) { log_opt_return(UO_sp_before_semi_for      ); }
       }
       argval_t arg = cpd.settings[UO_sp_before_semi].a;
 
@@ -504,12 +504,12 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
       return(arg);
    }
 
-   if(sp_cond_0033(pc) && not_option(cpd.settings[UO_sp_endif_cmt].a, AV_IGNORE)) {
+   if(sp_cond_0033(pc) && not_ignore(UO_sp_endif_cmt)) {
       set_type(pc2, CT_COMMENT_ENDIF);
       log_opt_return(UO_sp_endif_cmt);
    }
 
-   if(sp_cond_0034(pc) && not_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE)) {
+   if(sp_cond_0034(pc) && not_ignore(UO_sp_before_tr_emb_cmt)) {
       min_sp = cpd.settings[UO_sp_num_before_tr_emb_cmt].n;
       log_opt_return(UO_sp_before_tr_emb_cmt);
    }
@@ -524,8 +524,8 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    /* "for (;;)" vs "for (;; )" and "for (a;b;c)" vs "for (a; b; c)" */
    if(sp_cond_0036(pc)) {
    if(sp_cond_0037(pc)) {
-   if(sp_cond_0038(pc) && not_option(cpd.settings[UO_sp_after_semi_for_empty].a, AV_IGNORE)) { log_opt_return(UO_sp_after_semi_for_empty); }
-   if(                    not_option(cpd.settings[UO_sp_after_semi_for      ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_semi_for      ); }
+   if(sp_cond_0038(pc) && not_ignore(UO_sp_after_semi_for_empty)) { log_opt_return(UO_sp_after_semi_for_empty); }
+   if(                    not_ignore(UO_sp_after_semi_for      )) { log_opt_return(UO_sp_after_semi_for      ); }
    }
    else if(sp_cond_0242(pc)) { log_opt_return(UO_sp_after_semi); }
    /* Let the comment spacing rules handle this */
@@ -549,11 +549,11 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    }
 
    if(sp_cond_0048(pc)) { /* "a,b" vs "a, b" */
-      if(sp_cond_0049(pc)) { /* C# multidimensional array type: ',,' vs ', ,' or ',]' vs ', ]' */
-         if(sp_cond_0050(pc)) { log_opt_return(UO_sp_between_mdatype_commas); }
-         else                 { log_opt_return(UO_sp_after_mdatype_commas  ); }
-      }
-      else                    { log_opt_return(UO_sp_after_comma           ); }
+   if(sp_cond_0049(pc)) { /* C# multidimensional array type: ',,' vs ', ,' or ',]' vs ', ]' */
+   if(sp_cond_0050(pc)) { log_opt_return(UO_sp_between_mdatype_commas); }
+   else                 { log_opt_return(UO_sp_after_mdatype_commas  ); }
+   }
+   else                 { log_opt_return(UO_sp_after_comma           ); }
    }
    /* test if we are within a SIGNAL/SLOT call */
    if(QT_SIGNAL_SLOT_found) {
@@ -564,45 +564,45 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
       }
    }
    if(sp_cond_0053(pc)) {
-   if(sp_cond_0054(pc))                                                                 { log_opt_return(UO_sp_before_mdatype_commas); }
-   if(sp_cond_0055(pc) && cpd.settings[UO_sp_paren_comma].a != AV_IGNORE)               { log_opt_return(UO_sp_paren_comma          ); }
-   else                                                                                 { log_opt_return(UO_sp_before_comma         ); }
+   if(sp_cond_0054(pc))                                            { log_opt_return(UO_sp_before_mdatype_commas); }
+   if(sp_cond_0055(pc) && not_ignore(UO_sp_paren_comma))           { log_opt_return(UO_sp_paren_comma          ); }
+   else                                                            { log_opt_return(UO_sp_before_comma         ); }
    }
    if(sp_cond_0056(pc)) {  /* non-punc followed by a ellipsis */
-   if(sp_cond_0057(pc) && not_option(cpd.settings[UO_sp_before_ellipsis].a, AV_IGNORE)) { log_opt_return(UO_sp_before_ellipsis      ); }
-   if(sp_cond_0058(pc))                                                                 { log_arg_return(AV_FORCE                   ); }
+   if(sp_cond_0057(pc) && not_ignore(UO_sp_before_ellipsis))       { log_opt_return(UO_sp_before_ellipsis      ); }
+   if(sp_cond_0058(pc))                                            { log_arg_return(AV_FORCE                   ); }
    }
-   if(sp_cond_0059(pc))                                                                 { log_arg_return(AV_FORCE                   ); }
-   if(sp_cond_0060(pc))                                                                 { log_opt_return(UO_sp_after_tag            ); }
-   if(sp_cond_0061(pc))                                                                 { log_arg_return(AV_REMOVE                  ); }
-   if(sp_cond_0062(pc))                                                                 { log_arg_return(AV_REMOVE                  ); } /* handle '~' */
-   if(sp_cond_0063(pc) && (not_option(cpd.settings[UO_sp_catch_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_catch_paren          ); }
-   if(sp_cond_0064(pc) && (not_option(cpd.settings[UO_sp_version_paren].a, AV_IGNORE))) { log_opt_return(UO_sp_version_paren        ); }
-   if(sp_cond_0065(pc) && (not_option(cpd.settings[UO_sp_scope_paren  ].a, AV_IGNORE))) { log_opt_return(UO_sp_scope_paren          ); }
-   if(sp_cond_0066(pc))                                                                 { log_opt_return(UO_sp_before_sparen        ); } /* "if (" vs "if(" */
-   if(sp_cond_0067(pc))                                                                 { log_opt_return(UO_sp_assign               ); }
-   if(sp_cond_0068(pc) && (cpd.settings[UO_sp_cpp_lambda_assign].a != AV_IGNORE))       { log_opt_return(UO_sp_cpp_lambda_assign    ); } /* Handle the special lambda case for C++11: [=](Something arg){.....} */
-   if(sp_cond_0069(pc) && (cpd.settings[UO_sp_cpp_lambda_paren ].a != AV_IGNORE))       { log_opt_return(UO_sp_cpp_lambda_paren     ); } /* Handle the special lambda case for C++11: [](Something arg){.....} */
+   if(sp_cond_0059(pc))                                            { log_arg_return(AV_FORCE                   ); }
+   if(sp_cond_0060(pc))                                            { log_opt_return(UO_sp_after_tag            ); }
+   if(sp_cond_0061(pc))                                            { log_arg_return(AV_REMOVE                  ); }
+   if(sp_cond_0062(pc))                                            { log_arg_return(AV_REMOVE                  ); } /* handle '~' */
+   if(sp_cond_0063(pc) && (not_ignore(UO_sp_catch_paren  )))       { log_opt_return(UO_sp_catch_paren          ); }
+   if(sp_cond_0064(pc) && (not_ignore(UO_sp_version_paren)))       { log_opt_return(UO_sp_version_paren        ); }
+   if(sp_cond_0065(pc) && (not_ignore(UO_sp_scope_paren  )))       { log_opt_return(UO_sp_scope_paren          ); }
+   if(sp_cond_0066(pc))                                            { log_opt_return(UO_sp_before_sparen        ); } /* "if (" vs "if(" */
+   if(sp_cond_0067(pc))                                            { log_opt_return(UO_sp_assign               ); }
+   if(sp_cond_0068(pc) && not_ignore(UO_sp_cpp_lambda_assign))     { log_opt_return(UO_sp_cpp_lambda_assign    ); } /* Handle the special lambda case for C++11: [=](Something arg){.....} */
+   if(sp_cond_0069(pc) && not_ignore(UO_sp_cpp_lambda_paren ))     { log_opt_return(UO_sp_cpp_lambda_paren     ); } /* Handle the special lambda case for C++11: [](Something arg){.....} */
    if(sp_cond_0070(pc)) {
-   if(                    not_option(cpd.settings[UO_sp_enum_paren        ].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_paren        ); }
+   if(                    not_ignore(UO_sp_enum_paren       ))     { log_opt_return(UO_sp_enum_paren           ); }
    }
    if(sp_cond_0071(pc)) {
    if(sp_cond_0072(pc)) {
-   if(                    not_option(cpd.settings[UO_sp_enum_before_assign].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_before_assign); }
-   else                                                                                    { log_opt_return(UO_sp_enum_assign       ); }
+   if(                    not_ignore(UO_sp_enum_before_assign))    { log_opt_return(UO_sp_enum_before_assign   ); }
+   else                                                            { log_opt_return(UO_sp_enum_assign          ); }
    }
-   if(sp_cond_0073(pc) && not_option(cpd.settings[UO_sp_assign_default    ].a, AV_IGNORE)) { log_opt_return(UO_sp_assign_default    ); }
-   if(                    not_option(cpd.settings[UO_sp_before_assign     ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_assign     ); }
-   else                                                                                    { log_opt_return(UO_sp_assign            ); }
+   if(sp_cond_0073(pc) && not_ignore(UO_sp_assign_default    ))    { log_opt_return(UO_sp_assign_default       ); }
+   if(                    not_ignore(UO_sp_before_assign     ))    { log_opt_return(UO_sp_before_assign        ); }
+   else                                                            { log_opt_return(UO_sp_assign               ); }
    }
    if(sp_cond_0074(pc)) {
    if(sp_cond_0075(pc)) {
-   if(                    not_option(cpd.settings[UO_sp_enum_after_assign].a, AV_IGNORE)) { log_opt_return(UO_sp_enum_after_assign  ); }
-   else                                                                                   { log_opt_return(UO_sp_enum_assign        ); }
+   if(                    not_ignore(UO_sp_enum_after_assign))     { log_opt_return(UO_sp_enum_after_assign     ); }
+   else                                                            { log_opt_return(UO_sp_enum_assign           ); }
    }
-   if(sp_cond_0076(pc) && not_option(cpd.settings[UO_sp_assign_default   ].a, AV_IGNORE)) { log_opt_return(UO_sp_assign_default     ); }
-   if(                    not_option(cpd.settings[UO_sp_after_assign     ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_assign       ); }
-   else                                                                                   { log_opt_return(UO_sp_assign             ); }
+   if(sp_cond_0076(pc) && not_ignore(UO_sp_assign_default   ))     { log_opt_return(UO_sp_assign_default        ); }
+   if(                    not_ignore(UO_sp_after_assign     ))     { log_opt_return(UO_sp_after_assign          ); }
+   else                                                            { log_opt_return(UO_sp_assign                ); }
    }
    if(sp_cond_0077(pc)) { log_opt_return(UO_sp_enum_colon           ); }
    if(sp_cond_0078(pc)) { log_opt_return(UO_sp_enum_colon           ); }
@@ -611,75 +611,73 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    if(sp_cond_0081(pc)) { log_opt_return(UO_sp_after_oc_msg_receiver); }
    if(sp_cond_0082(pc)) { log_opt_return(UO_sp_before_square        ); } /* "a [x]" vs "a[x]" */
    if(sp_cond_0083(pc)) { log_opt_return(UO_sp_before_squares       ); } /* "byte[]" vs "byte []" */
-   if(sp_cond_0084(pc) && (cpd.settings[UO_sp_angle_shift].a != AV_IGNORE)) { log_opt_return(UO_sp_angle_shift); }
-   if(sp_cond_0085(pc)) { log_opt_return(UO_sp_inside_angle); }  /* spacing around template < > stuff */
+   if(sp_cond_0084(pc) && not_ignore(UO_sp_angle_shift))           { log_opt_return(UO_sp_angle_shift); }
+   if(sp_cond_0085(pc)) { log_opt_return(UO_sp_inside_angle); }      /* spacing around template < > stuff */
    if(sp_cond_0086(pc)) {
-   if(sp_cond_0087(pc) && not_option(cpd.settings[UO_sp_template_angle].a, AV_IGNORE)) { log_opt_return(UO_sp_template_angle); }
-   else                                                                                { log_opt_return(UO_sp_before_angle); }
+   if(sp_cond_0087(pc) && not_ignore(UO_sp_template_angle))        { log_opt_return(UO_sp_template_angle); }
+   else                                                            { log_opt_return(UO_sp_before_angle  ); }
    }
    if(sp_cond_0088(pc)) {
    if(sp_cond_0089(pc)) {
-   if(not_option(cpd.settings[UO_sp_angle_word].a, AV_IGNORE)) { log_opt_return(UO_sp_angle_word); }
+   if(not_ignore(UO_sp_angle_word))                                { log_opt_return(UO_sp_angle_word); }
    }
    if(sp_cond_0090(pc)) {
-   if(sp_cond_0245(pc)) { log_opt_return(UO_sp_angle_paren_empty); }
-   else                 { log_opt_return(UO_sp_angle_paren      ); }
+   if(sp_cond_0245(pc))                                            { log_opt_return(UO_sp_angle_paren_empty); }
+   else                                                            { log_opt_return(UO_sp_angle_paren      ); }
    }
-   if(sp_cond_0092(pc)) { log_opt_return(UO_sp_before_dc  ); }
-   if(sp_cond_0093(pc)) { log_opt_return(UO_sp_after_angle); }
+   if(sp_cond_0092(pc))                                            { log_opt_return(UO_sp_before_dc  ); }
+   if(sp_cond_0093(pc))                                            { log_opt_return(UO_sp_after_angle); }
    }
-   if(sp_cond_0094(pc) && sp_cond_0095(pc) && not_option(cpd.settings[UO_sp_after_byref_func].a, AV_IGNORE)) { log_opt_return(UO_sp_after_byref_func); }
-   if(sp_cond_0096(pc)) { log_opt_return(UO_sp_after_byref     ); }
+   if(sp_cond_0094(pc) && sp_cond_0095(pc) && not_ignore(UO_sp_after_byref_func)) { log_opt_return(UO_sp_after_byref_func); }
+   if(sp_cond_0096(pc))                                            { log_opt_return(UO_sp_after_byref     ); }
    if(sp_cond_0097(pc)) {
-      if(not_option(cpd.settings[UO_sp_before_byref_func].a, AV_IGNORE)) {
-         if(sp_cond_0243(pc)) { return(cpd.settings[UO_sp_before_byref_func].a); }
-      }
-      if(sp_cond_0244(pc) && not_option(cpd.settings[UO_sp_before_unnamed_byref].a, AV_IGNORE)) { log_opt_return(UO_sp_before_unnamed_byref); }
-      else                                                                                      { log_opt_return(UO_sp_before_byref        ); }
+   if(not_ignore(UO_sp_before_byref_func)) {
+   if(sp_cond_0243(pc)) { return(cpd.settings[UO_sp_before_byref_func].a); }
+   }
+   if(sp_cond_0244(pc) && not_ignore(UO_sp_before_unnamed_byref))  { log_opt_return(UO_sp_before_unnamed_byref); }
+   else                                                            { log_opt_return(UO_sp_before_byref        ); }
    }
    if(sp_cond_0098(pc)) {
-   if(sp_cond_0099(pc) && (cpd.settings[UO_sp_sparen_brace].a != AV_IGNORE)) { log_opt_return(UO_sp_sparen_brace); }
-   if(sp_cond_0100(pc) && (cpd.settings[UO_sp_after_sparen].a != AV_IGNORE)) { log_opt_return(UO_sp_after_sparen); }
+   if(sp_cond_0099(pc) && not_ignore(UO_sp_sparen_brace))          { log_opt_return(UO_sp_sparen_brace); }
+   if(sp_cond_0100(pc) && not_ignore(UO_sp_after_sparen))          { log_opt_return(UO_sp_after_sparen); }
    }
-   if(sp_cond_0101(pc) && not_option(cpd.settings[UO_sp_after_operator_sym].a, AV_IGNORE)) {
-      if(sp_cond_0102(pc) && not_option(cpd.settings[UO_sp_after_operator_sym_empty].a, AV_IGNORE)) {
-         if(sp_cond_0135(pc)) { log_opt_return(UO_sp_after_operator_sym_empty); }
-      }
-      log_opt_return(UO_sp_after_operator_sym);
+   if(sp_cond_0101(pc) && not_ignore(UO_sp_after_operator_sym)) {
+   if(sp_cond_0102(pc) && not_ignore(UO_sp_after_operator_sym_empty)) {
+   if(sp_cond_0135(pc))                                            { log_opt_return(UO_sp_after_operator_sym_empty); }
    }
-   if(sp_cond_0104(pc)) { /* spaces between function and open paren */
-      if(sp_cond_0110(pc) && not_option(cpd.settings[UO_sp_func_call_paren_empty].a, AV_IGNORE)) {
-         if(sp_cond_0103(pc)) { log_opt_return(UO_sp_func_call_paren_empty); }
-      }
-      log_opt_return(UO_sp_func_call_paren);
+   log_opt_return(UO_sp_after_operator_sym);
    }
-   if(sp_cond_0105(pc)) { log_opt_return(UO_sp_func_call_user_paren); }
-   if(sp_cond_0106(pc)) { log_opt_return(UO_sp_attribute_paren     ); }
+   if(sp_cond_0104(pc))                                            { /* spaces between function and open parenthesis */
+   if(sp_cond_0110(pc) && not_ignore(UO_sp_func_call_paren_empty)) {
+   if(sp_cond_0103(pc))                                            { log_opt_return(UO_sp_func_call_paren_empty); }
+   }
+   log_opt_return(UO_sp_func_call_paren);
+   }
+   if(sp_cond_0105(pc))                                            { log_opt_return(UO_sp_func_call_user_paren); }
+   if(sp_cond_0106(pc))                                            { log_opt_return(UO_sp_attribute_paren     ); }
    if(sp_cond_0107(pc)) {
-   if(sp_cond_0108(pc) && not_option(cpd.settings[UO_sp_func_def_paren_empty].a, AV_IGNORE)) {
-   if(sp_cond_0109(pc)) { log_opt_return(UO_sp_func_def_paren_empty); }
+   if(sp_cond_0108(pc) && not_ignore(UO_sp_func_def_paren_empty)) {
+   if(sp_cond_0109(pc))                                            { log_opt_return(UO_sp_func_def_paren_empty); }
    }
    log_rule("sp_func_def_paren"); return(cpd.settings[UO_sp_func_def_paren].a);
    }
    if(sp_cond_0111(pc)) { log_opt_return(UO_sp_cpp_cast_paren); }
    if(sp_cond_0112(pc)) { log_arg_return(AV_FORCE            ); } /* TODO: make this configurable? */
    if(sp_cond_0113(pc)) {
-      if(sp_cond_0114(pc)) { log_opt_return(UO_sp_after_cast); } /* "(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
-
-      /* Must be an indirect/chained function call? */
-      log_arg_return(AV_REMOVE); /* TODO: make this configurable? */
+   if(sp_cond_0114(pc)) { log_opt_return(UO_sp_after_cast); } /* "(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
+   else                 { log_arg_return(AV_REMOVE       ); }  /* Must be an indirect/chained function call? */
    }
-   if(sp_cond_0115(pc)) { log_opt_return(UO_sp_after_tparen_close     ); } /* handle the space between parens in fcn type 'void (*f)(void)' */
+   if(sp_cond_0115(pc)) { log_opt_return(UO_sp_after_tparen_close     ); } /* handle the space between parenthesis in fcn type 'void (*f)(void)' */
    if(sp_cond_0116(pc)) { log_opt_return(UO_sp_cparen_oparen          ); } /* ")(" vs ") (" */
 
    if(sp_cond_0117(pc)) {
-   if(sp_cond_0118(pc) && not_option(cpd.settings[UO_sp_func_proto_paren_empty].a, AV_IGNORE)) {
+   if(sp_cond_0118(pc) && not_ignore(UO_sp_func_proto_paren_empty)) {
    if(sp_cond_0119(pc)) { log_opt_return(UO_sp_func_proto_paren_empty ); }
    }
    /* error30928 else */{ log_opt_return(UO_sp_func_proto_paren       ); }
    }
    if(sp_cond_0120(pc)) {
-   if(sp_cond_0121(pc) && not_option(cpd.settings[UO_sp_func_class_paren_empty].a, AV_IGNORE)) {
+   if(sp_cond_0121(pc) && not_ignore(UO_sp_func_class_paren_empty)) {
    if(sp_cond_0122(pc)) { log_opt_return(UO_sp_func_class_paren_empty ); }
    }
    else                 { log_opt_return(UO_sp_func_class_paren       ); }
@@ -741,7 +739,7 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    else if(sp_cond_0164(pc)) { log_opt_return(UO_sp_after_oc_type          ); }
    else if(sp_cond_0165(pc)) { log_opt_return(UO_sp_after_oc_at_sel_parens ); }
    }
-   if(sp_cond_0166(pc) && cpd.settings[UO_sp_inside_oc_at_sel_parens].a != AV_IGNORE) { log_opt_return(UO_sp_inside_oc_at_sel_parens); }
+   if(sp_cond_0166(pc) && not_ignore(UO_sp_inside_oc_at_sel_parens)) { log_opt_return(UO_sp_inside_oc_at_sel_parens); }
    if(sp_cond_0167(pc))                                                               { log_opt_return(UO_sp_after_oc_at_sel        ); }
    /* C cast:   "(int32_t)"      vs "( int )"
     * D cast:   "cast(int32_t)"  vs "cast( int )"
@@ -749,35 +747,35 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    if(sp_cond_0168(pc)) {
       if(sp_cond_0169(pc))   { log_opt_return(UO_sp_inside_paren_cast  ); }
       if(sp_cond_0170(pc))   {
-         if(cpd.settings[UO_sp_inside_newop_paren_open].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren_open); }
-         if(cpd.settings[UO_sp_inside_newop_paren     ].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren     ); }
+         if(not_ignore(UO_sp_inside_newop_paren_open))           { log_opt_return(UO_sp_inside_newop_paren_open); }
+         if(not_ignore(UO_sp_inside_newop_paren     ))           { log_opt_return(UO_sp_inside_newop_paren     ); }
       }
-                                                                          log_opt_return(UO_sp_inside_paren           );
+                                                                   log_opt_return(UO_sp_inside_paren           );
    }
    if(sp_cond_0171(pc)) {
       if(sp_cond_0172(pc))   { log_opt_return(UO_sp_inside_paren_cast  ); }
       if(sp_cond_0173(pc))   {
-         if(cpd.settings[UO_sp_inside_newop_paren_close].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren_close); }
-         if(cpd.settings[UO_sp_inside_newop_paren      ].a != AV_IGNORE) { log_opt_return(UO_sp_inside_newop_paren      ); }
+         if(not_ignore(UO_sp_inside_newop_paren_close))          { log_opt_return(UO_sp_inside_newop_paren_close); }
+         if(not_ignore(UO_sp_inside_newop_paren      ))          { log_opt_return(UO_sp_inside_newop_paren      ); }
       }
-                                                                           log_opt_return(UO_sp_inside_paren            );
+                                                                   log_opt_return(UO_sp_inside_paren            );
    }
-   if(sp_cond_0174(pc))                                                                     { log_opt_return(UO_sp_inside_square      ); } /* "[3]" vs "[ 3 ]" */
-   if(sp_cond_0175(pc))                                                                     { log_opt_return(UO_sp_square_fparen      ); }
-   if(sp_cond_0176(pc) && not_option(cpd.settings[UO_sp_inside_sparen_close].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_close); } /* "if(...)" vs "if( ... )" */
-   if(sp_cond_0177(pc) && not_option(cpd.settings[UO_sp_inside_sparen_open ].a, AV_IGNORE)) { log_opt_return(UO_sp_inside_sparen_open ); }
+   if(sp_cond_0174(pc))                                          { log_opt_return(UO_sp_inside_square      ); } /* "[3]" vs "[ 3 ]" */
+   if(sp_cond_0175(pc))                                          { log_opt_return(UO_sp_square_fparen      ); }
+   if(sp_cond_0176(pc) && not_ignore(UO_sp_inside_sparen_close)) { log_opt_return(UO_sp_inside_sparen_close); } /* "if(...)" vs "if( ... )" */
+   if(sp_cond_0177(pc) && not_ignore(UO_sp_inside_sparen_open )) { log_opt_return(UO_sp_inside_sparen_open ); }
    if(sp_cond_0178(pc))                                                                     { log_opt_return(UO_sp_inside_sparen      ); }
-   if(sp_cond_0179(pc) && not_option(cpd.settings[UO_sp_after_class_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_class_colon  ); }
-   if(sp_cond_0180(pc) && not_option(cpd.settings[UO_sp_before_class_colon ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_class_colon ); }
-   if(sp_cond_0181(pc) && not_option(cpd.settings[UO_sp_after_constr_colon ].a, AV_IGNORE))
-   { min_sp = cpd.settings[UO_indent_ctor_init_leading].n - 1; // default indent is 1 space
+   if(sp_cond_0179(pc) && not_ignore(UO_sp_after_class_colon  )) { log_opt_return(UO_sp_after_class_colon  ); }
+   if(sp_cond_0180(pc) && not_ignore(UO_sp_before_class_colon )) { log_opt_return(UO_sp_before_class_colon ); }
+   if(sp_cond_0181(pc) && not_ignore(UO_sp_after_constr_colon ))
+   { min_sp = cpd.settings[UO_indent_ctor_init_leading].n - 1; /* default indent is 1 space */
      log_opt_return(UO_sp_after_constr_colon); }
-   if(sp_cond_0182(pc) && not_option(cpd.settings[UO_sp_before_constr_colon].a, AV_IGNORE)) { log_opt_return(UO_sp_before_constr_colon); }
-   if(sp_cond_0183(pc) && not_option(cpd.settings[UO_sp_before_case_colon  ].a, AV_IGNORE)) { log_opt_return(UO_sp_before_case_colon  ); }
-   if(sp_cond_0184(pc))                                                                     { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0185(pc))                                                                     { log_arg_return(AV_ADD                   ); }
-   if(sp_cond_0186(pc))                                                                     { log_opt_return(UO_sp_member             ); }
-   if(sp_cond_0187(pc))                                                                     { log_opt_return(UO_sp_arith              ); }
+   if(sp_cond_0182(pc) && not_ignore(UO_sp_before_constr_colon)) { log_opt_return(UO_sp_before_constr_colon); }
+   if(sp_cond_0183(pc) && not_ignore(UO_sp_before_case_colon  )) { log_opt_return(UO_sp_before_case_colon  ); }
+   if(sp_cond_0184(pc))                                          { log_arg_return(AV_REMOVE                ); }
+   if(sp_cond_0185(pc))                                          { log_arg_return(AV_ADD                   ); }
+   if(sp_cond_0186(pc))                                          { log_opt_return(UO_sp_member             ); }
+   if(sp_cond_0187(pc))                                          { log_opt_return(UO_sp_arith              ); }
    if(sp_cond_0188(pc)) {
       argval_t arg = cpd.settings[UO_sp_bool].a;
       if (not_token(cpd.settings[UO_pos_bool].tp, TP_IGNORE) &&
@@ -786,20 +784,20 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
          log_rule("sp_bool");
       return(arg);
    }
-   if(sp_cond_0189(pc))                                                                       { log_opt_return(UO_sp_compare              ); }
-   if(sp_cond_0190(pc))                                                                       { log_arg_return(AV_REMOVE                  ); }
-   if(sp_cond_0246(pc) && not_option(cpd.settings[UO_sp_ptr_star_paren       ].a, AV_IGNORE)) { log_opt_return(UO_sp_ptr_star_paren       ); }
-   if(sp_cond_0191(pc) && not_option(cpd.settings[UO_sp_between_pstar        ].a, AV_IGNORE)) { log_opt_return(UO_sp_between_pstar        ); }
-   if(sp_cond_0241(pc) && not_option(cpd.settings[UO_sp_after_ptr_star_func  ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_ptr_star_func  ); }
+   if(sp_cond_0189(pc))                                            { log_opt_return(UO_sp_compare              ); }
+   if(sp_cond_0190(pc))                                            { log_arg_return(AV_REMOVE                  ); }
+   if(sp_cond_0246(pc) && not_ignore(UO_sp_ptr_star_paren       )) { log_opt_return(UO_sp_ptr_star_paren       ); }
+   if(sp_cond_0191(pc) && not_ignore(UO_sp_between_pstar        )) { log_opt_return(UO_sp_between_pstar        ); }
+   if(sp_cond_0241(pc) && not_ignore(UO_sp_after_ptr_star_func  )) { log_opt_return(UO_sp_after_ptr_star_func  ); }
    if(sp_cond_0192(pc)) {
-   if(sp_cond_0194(pc))                                                                       { log_opt_return(UO_sp_deref                ); }
-   if(sp_cond_0195(pc) && not_option(cpd.settings[UO_sp_after_pstar_qualifier].a, AV_IGNORE)) { log_opt_return(UO_sp_after_pstar_qualifier); }
-   else if               (not_option(cpd.settings[UO_sp_after_pstar          ].a, AV_IGNORE)) { log_opt_return(UO_sp_after_pstar          ); }
+   if(sp_cond_0194(pc))                                            { log_opt_return(UO_sp_deref                ); }
+   if(sp_cond_0195(pc) && not_ignore(UO_sp_after_pstar_qualifier)) { log_opt_return(UO_sp_after_pstar_qualifier); }
+   else if               (not_ignore(UO_sp_after_pstar          )) { log_opt_return(UO_sp_after_pstar          ); }
    }
    if(sp_cond_0193(pc)) {
-      if(not_option(cpd.settings[UO_sp_before_ptr_star_func].a, AV_IGNORE))
+      if(not_ignore(UO_sp_before_ptr_star_func))
       {
-         chunk_t *next = pc2; /* Find the next non-'*' chunk */
+         chunk_t* next = pc2; /* Find the next non-'*' chunk */
          do
          {
             next = chunk_get_next(next);
@@ -810,17 +808,17 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
             //return(cpd.settings[UO_sp_before_ptr_star_func].a);
          }
       }
-      if(not_option(cpd.settings[UO_sp_before_unnamed_pstar].a, AV_IGNORE))
+      if(not_ignore(UO_sp_before_unnamed_pstar))
       {
-         chunk_t *next = get_next_nc(pc2);
+         chunk_t* next = get_next_nc(pc2);
          while (is_type(next, CT_PTR_TYPE) )
          {
             next = get_next_nc(next);
          }
          if(not_type(next, CT_WORD)) { log_opt_return(UO_sp_before_unnamed_pstar); }
       }
-      if(not_option(cpd.settings[UO_sp_before_ptr_star].a, AV_IGNORE)) { log_opt_return(UO_sp_before_ptr_star     ); }}
-   if(sp_cond_0196(pc)) { log_opt_return(UO_sp_after_operator      ); }
+      if(not_ignore(UO_sp_before_ptr_star)) { log_opt_return(UO_sp_before_ptr_star     ); }}
+   if(sp_cond_0196(pc))                     { log_opt_return(UO_sp_after_operator      ); }
    if(sp_cond_0197(pc)) {
      if(sp_cond_0198(pc)) {
         log_rule("sp_type_func|ADD");
@@ -1089,8 +1087,8 @@ void space_text(void)
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
              * sp_endif_cmt did not apply. */
-            if ((is_option(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE) || not_ptype(next, 2, CT_COMMENT_END, CT_COMMENT_EMBED) ) &&
-                (is_option(cpd.settings[UO_sp_endif_cmt        ].a, AV_IGNORE) || not_type (pc,      CT_PP_ELSE,     CT_PP_ENDIF     ) ) )
+            if ((is_opt(cpd.settings[UO_sp_before_tr_emb_cmt].a, AV_IGNORE) || not_ptype(next, 2, CT_COMMENT_END, CT_COMMENT_EMBED) ) &&
+                (is_opt(cpd.settings[UO_sp_endif_cmt        ].a, AV_IGNORE) || not_type (pc,      CT_PP_ELSE,     CT_PP_ENDIF     ) ) )
             {
                if (is_true(UO_indent_rel_single_line_comments))
                {

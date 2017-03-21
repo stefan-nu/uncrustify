@@ -2397,7 +2397,7 @@ void indent_preproc(void)
       }
 
       /* Add spacing by adjusting the length */
-      if ((cpd.settings[UO_pp_space].a != AV_IGNORE) &&  (is_valid(next)))
+      if (not_ignore(UO_pp_space) &&  (is_valid(next)))
       {
          if (is_opt_set(UO_pp_space, AV_ADD))
          {

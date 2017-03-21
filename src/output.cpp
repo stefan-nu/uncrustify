@@ -658,7 +658,7 @@ void output_text(FILE *pfile)
             {
                if (is_opt_set(UO_sp_before_nl_cont, AV_REMOVE))
                {
-                  pc->column = cpd.column + (is_option(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
+                  pc->column = cpd.column + (is_opt(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
                }
                else
                {
@@ -684,7 +684,7 @@ void output_text(FILE *pfile)
                      pc->column = (uint32_t)((int32_t)cpd.column + orig_sp);
                      /* the value might be negative --> use an int32_t */
                      int32_t columnDiff = (int32_t)cpd.column + orig_sp;
-                     if ((cpd.settings[UO_sp_before_nl_cont].a != AV_IGNORE) &&
+                     if (not_ignore(UO_sp_before_nl_cont) &&
                          (columnDiff < (int32_t)(cpd.column + 1u) ))
                      {
                         pc->column = cpd.column + 1;
@@ -1283,13 +1283,13 @@ static chunk_t *output_comment_cpp(chunk_t *first)
    if (is_false(UO_cmt_cpp_to_c))
    {
       cmt.cont_text = leadin;
-      if (not_option(sp_cmt_cpp_start, AV_REMOVE))
+      if (not_opt(sp_cmt_cpp_start, AV_REMOVE))
       {
          cmt.cont_text += SPACE;
       }
       LOG_CONTTEXT();
 
-      if (is_option(sp_cmt_cpp_start, AV_IGNORE))
+      if (is_opt(sp_cmt_cpp_start, AV_IGNORE))
       {
          add_comment_text(first->str, cmt, false);
       }

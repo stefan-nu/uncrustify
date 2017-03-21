@@ -1991,7 +1991,7 @@ static chunk_t* process_return(chunk_t* pc)
    chunk_t* next = get_next_ncnl(pc);
    retval_if((is_invalid(next) || is_semicolon(next)), next);
 
-   if (cpd.settings[UO_nl_return_expr].a != AV_IGNORE)
+   if (not_ignore(UO_nl_return_expr))
    {
       newline_iarf(pc, cpd.settings[UO_nl_return_expr].a);
    }
