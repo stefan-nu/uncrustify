@@ -1519,7 +1519,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
             }
          }
          // Issue #322 STDMETHOD(GetValues)(BSTR bsName, REFDATA** pData);
-         if (is_type(pc->next->next, CT_STAR))
+         if (is_type(pc->next->next, CT_STAR) &&
+             is_flag(pc, PCF_IN_CONST_ARGS  ) )
          {
             // change CT_STAR => CT_PTR_TYPE
             set_type(pc->next,       CT_PTR_TYPE);
