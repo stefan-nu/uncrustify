@@ -2028,8 +2028,8 @@ void tokenize(const deque<int> &data, chunk_t *ref)
       }
       else
       {
-         LOG_FMT(LGUY, "%s(%d): text():%s, type:%s, orig_col=%zu, orig_col_end=%u\n",
-                 __func__, __LINE__, pc->text(), get_token_name(pc->type), pc->orig_col, pc->orig_col_end);
+         LOG_FMT(LGUY, "%s(%d): (%u)text():%s, type:%s, orig_col=%zu, orig_col_end=%u\n",
+                 __func__, __LINE__, pc->orig_line, pc->text(), get_token_name(pc->type), pc->orig_col, pc->orig_col_end);
       }
    }
 
