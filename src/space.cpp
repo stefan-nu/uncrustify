@@ -193,8 +193,15 @@ static bool sp_cond_0001(chunks_t* c) { return any_is_type(c->a, c->b, CT_IGNORE
 static bool sp_cond_0003(chunks_t* c) { return any_is_type(c->a, c->b, CT_PP           ); }
 static bool sp_cond_0006(chunks_t* c) { return any_is_type(c->a, c->b, CT_SPACE        ); }
 static bool sp_cond_0013(chunks_t* c) { return any_is_type(c->a, c->b, CT_D_ARRAY_COLON); }
+
 static bool sp_cond_0018(chunks_t* c) { return any_is_type(c->a, c->b, CT_QUESTION     ); }
-static bool sp_cond_0021(chunks_t* c) { return any_is_type(c->a, c->b, CT_COND_COLON   ); }
+
+static bool sp_cond_0019(chunks_t* c) { return any_is_type(c->a, c->b, CT_QUESTION) &&
+                                                   is_type(c->b,       CT_QUESTION); }
+
+static bool sp_cond_0020(chunks_t* c) { return any_is_type(c->a, c->b, CT_QUESTION) &&
+                                                   is_type(c->a,       CT_QUESTION); }
+
 static bool sp_cond_0022(chunks_t* c) { return any_is_type(c->a, c->b, CT_RANGE        ); }
 static bool sp_cond_0141(chunks_t* c) { return any_is_type(c->a, c->b, CT_D_TEMPLATE   ); }
 
@@ -257,10 +264,8 @@ static bool sp_cond_0047(chunks_t* c) { return is_type(c->a, CT_WORD, CT_TYPE, C
 static bool sp_cond_0077(chunks_t* c) { return is_type(c->a, CT_BIT_COLON   ) && is_flag(c->a, PCF_IN_ENUM); }
 static bool sp_cond_0078(chunks_t* c) { return is_type(c->b, CT_BIT_COLON   ) && is_flag(c->b, PCF_IN_ENUM); }
 static bool sp_cond_0082(chunks_t* c) { return is_type(c->b, CT_SQUARE_OPEN ) && not_ptype(c->b, CT_OC_MSG     ); }
-static bool sp_cond_0032(chunks_t* c) { return is_type(c->a, CT_SPAREN_CLOSE) && not_ptype(c->a, CT_WHILE_OF_DO); }
 
 static bool sp_cond_0007(chunks_t* c) { return is_type(c->b, CT_NEWLINE,        CT_VBRACE_OPEN     ); }
-static bool sp_cond_0031(chunks_t* c) { return is_type(c->a, CT_SPAREN_OPEN,    CT_SEMICOLON       ); }
 static bool sp_cond_0155(chunks_t* c) { return is_type(c->b, CT_ARITH,          CT_CARET           ); }
 static bool sp_cond_0111(chunks_t* c) { return is_type(c->a, CT_CPP_CAST,       CT_TYPE_WRAP       ); }
 static bool sp_cond_0104(chunks_t* c) { return is_type(c->a, CT_FUNC_CALL,      CT_FUNC_CTOR_VAR   ); }
@@ -274,13 +279,29 @@ static bool sp_cond_0011(chunks_t* c) { return is_type(c->a, CT_MACRO_FUNC    );
 static bool sp_cond_0012(chunks_t* c) { return is_type(c->b, CT_NL_CONT       ); }
 static bool sp_cond_0015(chunks_t* c) { return is_type(c->a, CT_FOR_COLON     ); }
 static bool sp_cond_0016(chunks_t* c) { return is_type(c->b, CT_FOR_COLON     ); }
-static bool sp_cond_0019(chunks_t* c) { return is_type(c->b, CT_QUESTION      ); }
-static bool sp_cond_0020(chunks_t* c) { return is_type(c->a, CT_QUESTION      ); }
 static bool sp_cond_0024(chunks_t* c) { return is_type(c->a, CT_MACRO         ); }
 static bool sp_cond_0026(chunks_t* c) { return is_type(c->a, CT_PREPROC       ); }
-static bool sp_cond_0027(chunks_t* c) { return is_type(c->b, CT_COND_COLON    ); }
-static bool sp_cond_0028(chunks_t* c) { return is_type(c->a, CT_COND_COLON    ); }
+
+static bool sp_cond_0021(chunks_t* c) { return any_is_type(c->a, c->b, CT_COND_COLON); }
+
+static bool sp_cond_0027(chunks_t* c) { return any_is_type(c->a, c->b, CT_COND_COLON) &&
+                                                   is_type(c->b,       CT_COND_COLON); }
+
+static bool sp_cond_0028(chunks_t* c) { return any_is_type(c->a, c->b, CT_COND_COLON) &&
+                                                   is_type(c->a,       CT_COND_COLON); }
+
 static bool sp_cond_0029(chunks_t* c) { return is_type(c->b, CT_SEMICOLON     ); }
+static bool sp_cond_0032(chunks_t* c) { return is_type  (c->b, CT_SEMICOLON   ) &&
+                                               is_type  (c->a, CT_SPAREN_CLOSE) &&
+                                               not_ptype(c->a, CT_WHILE_OF_DO ); }
+
+static bool sp_cond_0030(chunks_t* c) { return is_type (c->b, CT_SEMICOLON) &&
+                                               is_ptype(c->b, CT_FOR      ); }
+static bool sp_cond_0031(chunks_t* c) { return is_type (c->b, CT_SEMICOLON) &&
+                                               is_ptype(c->b, CT_FOR      ) &&
+                                               is_type (c->a, CT_SPAREN_OPEN, CT_SEMICOLON); }
+
+
 static bool sp_cond_0036(chunks_t* c) { return is_type(c->a, CT_SEMICOLON     ); }
 static bool sp_cond_0038(chunks_t* c) { return is_type(c->b, CT_SPAREN_CLOSE  ); }
 static bool sp_cond_0040(chunks_t* c) { return is_type(c->a, CT_RETURN        ); }
@@ -390,7 +411,6 @@ static bool sp_cond_0210(chunks_t* c) { return is_ptype(c->b, CT_UNION,       CT
 static bool sp_cond_0094(chunks_t* c) { return is_type (c->a, CT_BYREF       ); }
 static bool sp_cond_0139(chunks_t* c) { return is_ptype(c->b, CT_DOUBLE_BRACE); }
 static bool sp_cond_0035(chunks_t* c) { return is_ptype(c->b, CT_COMMENT_END ); }
-static bool sp_cond_0030(chunks_t* c) { return is_ptype(c->b, CT_FOR         ); }
 static bool sp_cond_0037(chunks_t* c) { return is_ptype(c->a, CT_FOR         ); }
 static bool sp_cond_0049(chunks_t* c) { return is_ptype(c->a, CT_TYPE        ); }
 static bool sp_cond_0149(chunks_t* c) { return is_ptype(c->a, CT_NAMESPACE   ); }
@@ -466,30 +486,85 @@ typedef struct space_check_action_s
 {
    uint32_t   id;    /**< [in] identifier of this space check */
    sp_check_t check; /**< [in] a function that checks condition with two chunks */
-   uo_t       opt;   /**< [in] uncrustify option to evaluate */
+   argval_t   arg;   /**< [in] argument to return if check is true */
 }sca_t;
 
 
 /** array of space checks with corresponding actions */
-#define SCA_COUNT 64 /* \todo later use dynamic memory allocation */
-sca_t sca_list[SCA_COUNT];
+#define SCA_COUNT 64          /* \todo later use dynamic memory allocation or a linked list */
+sca_t sca_list[SCA_COUNT];     /**< array that holds all space checks */
+static uint32_t sca_count = 0; /**< number of space checks */
 
-static uint32_t sca_count = 0;
 
-static void add_sca(uint32_t id, sp_check_t check, uo_t opt)
+static void add_sca(sca_t sca)
 {
-   sca_list[sca_count] = {id, check, opt};
+   sca_list[sca_count] = sca;
    sca_count++;
 }
 
 
 void init_space_check_action_array(void)
 {
-   add_sca(1, sp_cond_0001, UO_always_remove          );
-   add_sca(2, sp_cond_0002, UO_always_ignore          );
-   add_sca(3, sp_cond_0003, UO_sp_pp_concat           );
-   add_sca(4, sp_cond_0004, UO_sp_pp_stringify        );
-   add_sca(5, sp_cond_0005, UO_sp_before_pp_stringify );
+      argval_t arg;
+      argval_t add_arg;
+
+      add_sca({  1, sp_cond_0001,            get_arg(UO_always_remove           )       });
+      add_sca({  2, sp_cond_0002,            get_arg(UO_always_ignore           )       });
+      add_sca({  3, sp_cond_0003,            get_arg(UO_sp_pp_concat            )       });
+      add_sca({  4, sp_cond_0004,            get_arg(UO_sp_pp_stringify         )       });
+      add_sca({  5, sp_cond_0005,            get_arg(UO_sp_before_pp_stringify  )       });
+      add_sca({  6, sp_cond_0006,            get_arg(UO_always_remove           )       });
+      add_sca({  7, sp_cond_0007,            get_arg(UO_always_remove           )       });
+      add_sca({  8, sp_cond_0008,            get_arg(UO_always_force            )       });
+      add_sca({  9, sp_cond_0009,            get_arg(UO_always_remove           )       });
+      add_sca({ 10, sp_cond_0010,            get_arg(UO_always_remove           )       });
+      add_sca({ 11, sp_cond_0011,            get_arg(UO_always_remove           )       });
+      add_sca({ 12, sp_cond_0012,            get_arg(UO_sp_before_nl_cont       )       });
+      add_sca({ 13, sp_cond_0013,            get_arg(UO_sp_d_array_colon        )       });
+      add_sca({ 14, sp_cond_0014, add_option(get_arg(UO_sp_case_label          ),AV_ADD)});
+      add_sca({ 15, sp_cond_0015,            get_arg(UO_sp_after_for_colon      )       });
+      add_sca({ 16, sp_cond_0016,            get_arg(UO_sp_before_for_colon     )       });
+   if (not_ignore(UO_sp_cond_ternary_short)) {
+      add_sca({ 17, sp_cond_0017,            get_arg(UO_sp_cond_ternary_short   )       }); }
+   if (not_ignore(UO_sp_cond_question_before)) {
+      add_sca({ 18, sp_cond_0019,            get_arg(UO_sp_cond_question_before )       }); }
+   if (not_ignore(UO_sp_cond_question_after)) {
+      add_sca({ 19, sp_cond_0020,            get_arg(UO_sp_cond_question_after  )       }); }
+   if (not_ignore(UO_sp_cond_question)) {
+      add_sca({ 20, sp_cond_0018,            get_arg(UO_sp_cond_question        )       }); }
+   if (not_ignore(UO_sp_cond_colon_before)) {
+      add_sca({ 21, sp_cond_0027,            get_arg(UO_sp_cond_colon_before    )       }); }
+   if (not_ignore(UO_sp_cond_colon_after)) {
+      add_sca({ 22, sp_cond_0028,            get_arg(UO_sp_cond_colon_after     )       }); }
+   if (not_ignore(UO_sp_cond_colon)) {
+      add_sca({ 23, sp_cond_0021,            get_arg(UO_sp_cond_colon           )       }); }
+      add_sca({ 24, sp_cond_0022,            get_arg(UO_sp_range                )       });
+      add_sca({ 25, sp_cond_0023,            get_arg(UO_always_remove           )       });
+
+      /* Macro stuff can only return IGNORE, ADD, or FORCE but not REMOVE */
+      arg     = cpd.settings[UO_sp_macro].a; /* \todo can this be done easier? */
+      add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE;
+      add_sca({ 26, sp_cond_0024,            add_option(arg, add_arg)                   });
+
+      arg     = cpd.settings[UO_sp_macro_func].a;
+      add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE;
+      add_sca({ 27, sp_cond_0025,            add_option(arg, add_arg)                   });
+
+      /* Remove spaces, unless we are ignoring. See indent_preproc() */
+      if (cpd.settings[UO_pp_space].a == AV_IGNORE) {
+      add_sca({ 28, sp_cond_0026,            get_arg(UO_always_ignore           )       }); }
+      else {
+      add_sca({ 29, sp_cond_0026,            get_arg(UO_always_remove           )       }); }
+
+      if (not_ignore(UO_sp_before_semi_for_empty)) {
+      add_sca({ 30, sp_cond_0031,            get_arg(UO_sp_before_semi_for_empty)       }); }
+
+      if (not_ignore(UO_sp_before_semi_for)) {
+      add_sca({ 31, sp_cond_0030,            get_arg(UO_sp_before_semi_for      )       }); }
+
+      arg = get_arg(UO_sp_before_semi);
+      add_sca({ 32, sp_cond_0032,            add_option(arg, get_arg(UO_sp_special_semi)) });
+      add_sca({ 33, sp_cond_0029,            arg                                          });
 }
 
 
@@ -508,72 +583,22 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
 
    min_sp = 1;
 
-#if 1
    sca_t* sca = sca_list;
    for(uint32_t i=0; i < sca_count; i++)
    {
       const bool cond = sca_list[i].check(pc);
       if(cond)
       {
-         const argval_t arg = (cpd.settings[sca->opt].a);
-         const option_map_value_t* my_uo = get_option_name(sca->opt);
-         log_space(sca->id, (my_uo->name), pc, complete);
-         return(arg);
+         const char* str = argval2str(sca->arg).c_str();
+         log_space(sca->id, str, pc, complete);
+         return(sca->arg);
       }
       sca++;
    }
-#else
-   if(sp_cond_0001(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0002(pc))                                               { log_arg_return(AV_IGNORE                ); } /* Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD) */
-   if(sp_cond_0003(pc))                                               { log_opt_return(UO_sp_pp_concat          ); }
-   if(sp_cond_0004(pc))                                               { log_opt_return(UO_sp_pp_stringify       ); }
-   if(sp_cond_0005(pc))                                               { log_opt_return(UO_sp_before_pp_stringify); }
+
+#if 0
+
 #endif
-   if(sp_cond_0006(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0007(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0008(pc))                                               { log_arg_return(AV_FORCE                 ); }
-   if(sp_cond_0009(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0010(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0011(pc))                                               { log_arg_return(AV_REMOVE                ); }
-   if(sp_cond_0012(pc))                                               { log_opt_return(UO_sp_before_nl_cont     ); }
-   if(sp_cond_0013(pc))                                               { log_opt_return(UO_sp_d_array_colon      ); }
-   if(sp_cond_0014(pc))                                               { log_rule("sp_case_label"); return(add_option(cpd.settings[UO_sp_case_label].a, AV_ADD)); }
-   if(sp_cond_0015(pc))                                               { log_opt_return(UO_sp_after_for_colon    ); }
-   if(sp_cond_0016(pc))                                               { log_opt_return(UO_sp_before_for_colon   ); }
-   if(sp_cond_0017(pc) && not_ignore(UO_sp_cond_ternary_short  ))     { log_opt_return(UO_sp_cond_ternary_short  ); }
-   if(sp_cond_0018(pc))                                               {
-   if(sp_cond_0019(pc) && not_ignore(UO_sp_cond_question_before))     { log_opt_return(UO_sp_cond_question_before); }
-   if(sp_cond_0020(pc) && not_ignore(UO_sp_cond_question_after ))     { log_opt_return(UO_sp_cond_question_after ); }
-   if(                    not_ignore(UO_sp_cond_question       ))     { log_opt_return(UO_sp_cond_question       ); }
-   }
-   if(sp_cond_0021(pc))                                               {
-   if(sp_cond_0027(pc) && not_ignore(UO_sp_cond_colon_before   ))     { log_opt_return(UO_sp_cond_colon_before   ); }
-   if(sp_cond_0028(pc) && not_ignore(UO_sp_cond_colon_after    ))     { log_opt_return(UO_sp_cond_colon_after    ); }
-   if(                    not_ignore(UO_sp_cond_colon          ))     { log_opt_return(UO_sp_cond_colon          ); }
-   }
-   if(sp_cond_0022(pc))                                               { log_opt_return(UO_sp_range); }
-   if(sp_cond_0023(pc))                                               { log_arg_return(AV_REMOVE  ); }
-   if(sp_cond_0024(pc))                                               { log_rule("sp_macro"     ); argval_t arg = cpd.settings[UO_sp_macro     ].a; argval_t add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); } /* Macro stuff can only return IGNORE, ADD, or FORCE */
-   if(sp_cond_0025(pc))                                               { log_rule("sp_macro_func"); argval_t arg = cpd.settings[UO_sp_macro_func].a; argval_t add_arg = not_opt(arg, AV_IGNORE) ? AV_ADD : AV_IGNORE; return (add_option(arg, add_arg)); }
-
-   if(sp_cond_0026(pc)) {/* Remove spaces, unless we are ignoring. See indent_preproc() */
-   if (cpd.settings[UO_pp_space].a == AV_IGNORE)                      { log_arg_return(AV_IGNORE); }
-   else                                                               { log_arg_return(AV_REMOVE); }
-   }
-   if(sp_cond_0029(pc)) {
-      if(sp_cond_0030(pc)) {
-      if(not_ignore(UO_sp_before_semi_for_empty) && sp_cond_0031(pc)) { log_opt_return(UO_sp_before_semi_for_empty); }
-      if(not_ignore(UO_sp_before_semi_for      )                    ) { log_opt_return(UO_sp_before_semi_for      ); }
-      }
-      argval_t arg = cpd.settings[UO_sp_before_semi].a;
-
-      if (sp_cond_0032(pc)) {
-         log_rule("sp_before_semi|sp_special_semi");
-         arg = (add_option(arg, cpd.settings[UO_sp_special_semi].a));
-      }
-      else { log_rule("sp_before_semi"); }
-      return(arg);
-   }
 
    if(sp_cond_0033(pc) && not_ignore(UO_sp_endif_cmt)) {
       set_type(pc2, CT_COMMENT_ENDIF);
@@ -979,12 +1004,12 @@ void space_text(void)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    return_if(is_invalid(pc));
 
-   chunk_t *next;
-   uint32_t  prev_column;
-   uint32_t  column = pc->column;
+   chunk_t* next;
+   uint32_t prev_column;
+   uint32_t column = pc->column;
    while (is_valid(pc))
    {
       LOG_FMT(LSPACE, "%s: %u:%u %s %s\n",

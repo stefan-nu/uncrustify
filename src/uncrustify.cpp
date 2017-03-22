@@ -1049,11 +1049,11 @@ int main(int argc, char *argv[])
 }
 
 
-static void process_source_list(const char * const source_list, const char *prefix,
-      const char *suffix, const bool no_backup, const bool keep_mtime)
+static void process_source_list(const char* const source_list, const char* prefix,
+      const char* suffix, const bool no_backup, const bool keep_mtime)
 {
-   int32_t  from_stdin = strcmp(source_list, "-") == 0;
-   FILE *p_file    = from_stdin ? stdin : fopen(source_list, "r");
+   int32_t from_stdin = strcmp(source_list, "-") == 0;
+   FILE*   p_file     = from_stdin ? stdin : fopen(source_list, "r");
 
    if (ptr_is_invalid(p_file))
    {
@@ -1063,14 +1063,14 @@ static void process_source_list(const char * const source_list, const char *pref
       return;
    }
 
-   char linebuf[256];
-   int32_t  line = 0;
+   char    linebuf[256];
+   int32_t line = 0;
 
    while (fgets(linebuf, sizeof(linebuf), p_file) != nullptr)
    {
       line++;
-      char   *fname = linebuf;
-      uint32_t len    = strlen(fname);
+      char*    fname = linebuf;
+      uint32_t len   = strlen(fname);
       while ((len > 0) && unc_isspace(*fname))
       {
          fname++;
@@ -1164,8 +1164,8 @@ static void make_folders(const string &filename)
          outname[idx] = PATH_SEP;
       }
 
-      if ((idx          > start_of_subpath ) && /* search until end of subpath */
-          (outname[idx] == PATH_SEP) )  /* is found */
+      if ((idx          > start_of_subpath) && /* search until end of subpath */
+          (outname[idx] == PATH_SEP       ) )  /* is found */
       {
          outname[idx] = 0; /* mark the end of the subpath */
 
@@ -1194,7 +1194,7 @@ static void make_folders(const string &filename)
 }
 
 
-static bool load_mem_file(const char * const filename, file_mem_t &fm)
+static bool load_mem_file(const char* const filename, file_mem_t &fm)
 {
    fm.raw.clear();
    fm.data.clear();
@@ -1356,11 +1356,11 @@ static bool file_content_matches(const string &filename1, const string &filename
 }
 
 
-static string create_out_filename(const char * const filename)
+static string create_out_filename(const char* const filename)
 {
    const char file_ending[]  = ".uncrustify";
    const uint32_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
-   char *new_filename = new char[new_name_len];
+   char* new_filename = new char[new_name_len];
    if(ptr_is_invalid(new_filename))
    {
       LOG_FMT(LERR, "Failed to allocate memory in %s \n", __func__);
@@ -1418,7 +1418,7 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
 }
 
 
-static void rename_file(const char *old_name, const char *new_name)
+static void rename_file(const char* old_name, const char* new_name)
 {
 #ifdef WIN32
    /* Atomic rename in windows can't go through stdio rename() func because
@@ -1434,13 +1434,13 @@ static void rename_file(const char *old_name, const char *new_name)
 }
 
 
-static void do_source_file(const char *filename_in, const char *filename_out,
+static void do_source_file(const char* filename_in, const char* filename_out,
       const char *parsed_file, bool no_backup, bool keep_mtime)
 {
    UNUSED(keep_mtime);
 
    /* Do some simple language detection based on the filename extension */
-   if ((cpd.lang_forced == false) ||
+   if ((cpd.lang_forced == false    ) ||
        (cpd.lang_flags  == LANG_NONE) )
    {
       cpd.lang_flags = language_flags_from_filename(filename_in);
@@ -1481,7 +1481,7 @@ static void do_source_file(const char *filename_in, const char *filename_out,
    string filename_tmp;
    bool   need_backup = false;   /* define if we want a backup copy */
    bool   did_open    = false;
-   FILE   *pfout      = nullptr;
+   FILE*  pfout       = nullptr;
    if (cpd.do_check == false)
    {
       if (ptr_is_invalid(filename_out)) { pfout = stdout; }
@@ -1582,7 +1582,7 @@ static void add_file_header(void)
 
 static void add_file_footer(void)
 {
-   chunk_t *pc = chunk_get_tail();
+   chunk_t* pc = chunk_get_tail();
 
    /* Back up if the file ends with a newline */
    if (is_nl(pc))
@@ -1602,12 +1602,12 @@ static void add_file_footer(void)
 }
 
 
-static void perform_insert(chunk_t *ref, const file_mem_t &fm)
+static void perform_insert(chunk_t* ref, const file_mem_t &fm)
 {
    /* Insert between after and ref */
-   chunk_t *after = get_next_ncnl(ref);
+   chunk_t* after = get_next_ncnl(ref);
    tokenize(fm.data, after);
-   for (chunk_t *tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
+   for (chunk_t* tmp = chunk_get_next(ref); tmp != after; tmp = chunk_get_next(tmp))
    {
       assert(are_valid(tmp, after));
       tmp->level = after->level;
@@ -1617,8 +1617,8 @@ static void perform_insert(chunk_t *ref, const file_mem_t &fm)
 
 static void add_func_header(c_token_t type, const file_mem_t &fm)
 {
-   chunk_t *pc;
-   bool    do_insert;
+   chunk_t* pc;
+   bool     do_insert;
 
    for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnlnp(pc))
    {
@@ -1627,7 +1627,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
           (is_false(UO_cmt_insert_before_inlines)) );
 
       // Check for one liners for classes. Declarations only. Walk down the chunks.
-      chunk_t *ref = pc;
+      chunk_t* ref = pc;
       if(is_type_and_ptype(ref, CT_CLASS, CT_NONE))
       {
          ref = ref->next;
@@ -1679,7 +1679,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
          /* Bail if we hit a preprocessor and cmt_insert_before_preproc is false */
          if (is_preproc(ref))
          {
-            chunk_t *tmp = get_prev_type(ref, CT_PREPROC, (int32_t)ref->level);
+            chunk_t* tmp = get_prev_type(ref, CT_PREPROC, (int32_t)ref->level);
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
@@ -1706,8 +1706,8 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
 static void add_msg_header(c_token_t type, const file_mem_t &fm)
 {
-   chunk_t *pc;
-   bool    do_insert;
+   chunk_t* pc;
+   bool     do_insert;
 
    for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnlnp(pc))
    {
@@ -1776,7 +1776,7 @@ static void uncrustify_start(const deque<int32_t> &data)
    /* Get the column for the fragment indent */
    if (cpd.frag)
    {
-      const chunk_t *pc = chunk_get_head();
+      const chunk_t* pc = chunk_get_head();
       cpd.frag_cols = (uint16_t)((is_valid(pc)) ? pc->orig_col : 0);
    }
 
@@ -1804,8 +1804,8 @@ void set_newline_chunk_pos(uo_t check, uo_t set, c_token_t token)
 }
 
 
-void uncrustify_file(const file_mem_t &fm, FILE *pfout,
-                     const char *parsed_file, bool defer_uncrustify_end)
+void uncrustify_file(const file_mem_t &fm, FILE* pfout,
+                     const char* parsed_file, bool defer_uncrustify_end)
 {
    const deque<int32_t> &data = fm.data;
 
@@ -2009,7 +2009,7 @@ static void uncrustify_end(void)
    /* Free all the memory */
    cpd.unc_stage = unc_stage_e::CLEANUP;
 
-   chunk_t *pc;
+   chunk_t* pc;
    while ( (pc = chunk_get_head()) != nullptr)
    {
       chunk_del(pc);
@@ -2046,14 +2046,14 @@ const char* get_token_name(c_token_t token)
 }
 
 
-bool is_nonempty_string(const char *str)
+bool is_nonempty_string(const char* str)
 {
    return (ptr_is_valid(str) &&  /* pointer is not null */
           (*str != 0       ) );  /* first character is no termination character */
 }
 
 
-c_token_t find_token_name(const char *text)
+c_token_t find_token_name(const char* text)
 {
    if (is_nonempty_string(text))
    {
@@ -2069,7 +2069,7 @@ c_token_t find_token_name(const char *text)
 }
 
 
-static bool ends_with(const char *filename, const char *tag, bool case_sensitive = true)
+static bool ends_with(const char* filename, const char* tag, bool case_sensitive = true)
 {
    uint32_t len1 = strlen(filename);
    uint32_t len2 = strlen(tag     );
@@ -2093,7 +2093,7 @@ static lang_t language_flags_from_name(const char *name)
 }
 
 
-const char *language_name_from_flags(uint32_t lang)
+const char* language_name_from_flags(uint32_t lang)
 {
    /* Check for an exact match first */
    for (auto &language_name : language_names)
@@ -2116,9 +2116,9 @@ const char *language_name_from_flags(uint32_t lang)
 }
 
 
-const char *get_file_extension(uint32_t &idx)
+const char* get_file_extension(uint32_t &idx)
 {
-   const char *val = nullptr;
+   const char* val = nullptr;
 
    if (idx < ARRAY_SIZE(language_exts))
    {
@@ -2135,12 +2135,12 @@ typedef std::map<string, string> extension_map_t;
 static extension_map_t g_ext_map;
 
 
-const char *extension_add(const char *ext_text, const char *lang_text)
+const char* extension_add(const char* ext_text, const char* lang_text)
 {
    uint32_t lang_flags = language_flags_from_name(lang_text);
    if (lang_flags != 0)
    {
-      const char *lang_name = language_name_from_flags(lang_flags);
+      const char* lang_name = language_name_from_flags(lang_flags);
       g_ext_map[string(ext_text)] = lang_name;
       return(lang_name);
    }
@@ -2151,7 +2151,7 @@ const char *extension_add(const char *ext_text, const char *lang_text)
 }
 
 
-void print_extensions(FILE *pfile)
+void print_extensions(FILE* pfile)
 {
    for (auto &language : language_names)
    {
@@ -2174,7 +2174,7 @@ void print_extensions(FILE *pfile)
 }
 
 /* \todo better use enum lang_t for source file language */
-static lang_t language_flags_from_filename(const char *filename)
+static lang_t language_flags_from_filename(const char* filename)
 {
    /* check custom extensions first */
    for (const auto &extension_val : g_ext_map)
@@ -2219,7 +2219,7 @@ void log_pcf_flags(log_sev_t sev, uint64_t flags)
 
    log_fmt(sev, "[0x%" PRIx64 ":", flags);
 
-   const char *tolog = nullptr;
+   const char* tolog = nullptr;
    for (uint32_t i = 0; i < ARRAY_SIZE(pcf_names); i++)
    {
       if (flags & (1ULL << i))

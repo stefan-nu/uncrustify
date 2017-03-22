@@ -22,10 +22,10 @@ static void detect_space_options(void);
 class sp_votes
 {
 protected:
-   uint32_t   m_add;    /**<  */
-   uint32_t   m_remove; /**<  */
-   uint32_t   m_force;  /**<  */
-   argval_t *m_av;    /**<  */
+   uint32_t  m_add;    /**<  */
+   uint32_t  m_remove; /**<  */
+   uint32_t  m_force;  /**<  */
+   argval_t* m_av;     /**<  */
 
 public:
    explicit sp_votes(argval_t &av)

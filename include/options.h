@@ -842,10 +842,10 @@ enum uo_t
                                                          // then we should warn about cases we can't
                                                          // do the replacement
 
-   UO_always_ignore,  /**< this option is always AV_IGNORE */
-   UO_always_add,     /**< this option is always AV_ADD */
-   UO_always_remove,  /**< this option is always AV_REMOVE */
-   UO_always_force,   /**< this option is always AV_FORCE */
+   UO_always_ignore,                        /**< this option is always AV_IGNORE */
+   UO_always_add,                           /**< this option is always AV_ADD */
+   UO_always_remove,                        /**< this option is always AV_REMOVE */
+   UO_always_force,                         /**< this option is always AV_FORCE */
 
    /* UO_dont_protect_xcode_code_placeholders, */
 
@@ -929,6 +929,11 @@ bool is_opt_set(
    const argval_t val  /**< [in] option value to check for */
 );
 
+
+/** \brief getter function for uncrustify argument option */
+argval_t get_arg(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
 
 /** check if an uncrustify option has a given signed integer value */
 bool is_val(

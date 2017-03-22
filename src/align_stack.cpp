@@ -71,7 +71,7 @@ void AlignStack::Add(chunk_t* start, uint32_t seqnum)
         (m_thresh  == 0) ||
         (( (start->column + m_gap) <= (m_thresh + m_max_col)) && /* don't use subtraction here to prevent underflow */
          (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
-           (start->column                     >= m_min_col )) ) )
+           (start->column                     >=  m_min_col)) ) )
    {
       /* we are adding it, so update the newline seqnum */
       if (seqnum > m_nl_seqnum) { m_nl_seqnum = seqnum; }
