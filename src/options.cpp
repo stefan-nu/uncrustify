@@ -78,7 +78,7 @@ static const char * const DOC_TEXT_END =
 
 map<uo_t, option_map_value_t> option_name_map;
 map<ug_t, group_map_value_t>  group_map;
-static ug_t                   current_group;
+static ug_t                   current_group; /**< defines the currently active options group */
 
 #ifdef DEBUG
 static int32_t checkGroupNumber  = -1;
@@ -86,7 +86,7 @@ static int32_t checkOptionNumber = -1;
 #endif
 
 
-const char *get_argtype_name(
+const char* get_argtype_name(
    argtype_t argtype /**< [in]  */
 );
 
@@ -104,21 +104,25 @@ static bool match_text(
  * Convert the value string to the correct type in dest.
  */
 static void convert_value(
-   const option_map_value_t *entry, /**< [in]  */
-   const char* val, /**< [in]  */
-   op_val_t*   dest /**< [in]  */
+   const option_map_value_t* entry, /**< [in]  */
+   const char*               val,   /**< [in]  */
+   op_val_t*                 dest   /**< [in]  */
 );
 
 
+/** \brief adds an uncrustify option to the global option list
+ *
+ * The option group is taken from the global 'current_group' variable */
 static void unc_add_opt(
-   const char* name,  /**< [in]  */
-   uo_t        id,     /**< [in]  */
-   argtype_t   type,   /**< [in]  */
-   const char* short_desc = nullptr, /**< [in]  */
-   const char* long_desc  = nullptr, /**< [in]  */
-   int32_t     min_val     =  0, /**< [in]  */
-   int32_t     max_val     = 16  /**< [in]  */
+   const char* name,                 /**< [in] name of the option, maximal 60 characters */
+   uo_t        id,                   /**< [in] ENUM value of the option  */
+   argtype_t   type,                 /**< [in] kind of option r.g. AT_IARF, AT_NUM, etc. */
+   const char* short_desc = nullptr, /**< [in] short human readable description */
+   const char* long_desc  = nullptr, /**< [in] long  human readable description */
+   int32_t     min_val    =  0,      /**< [in] minimal value, only used for integer values */
+   int32_t     max_val    = 16       /**< [in] maximal value, only used for integer values */
 );
+
 
 #if 0
 #ifdef DEBUG
@@ -321,7 +325,6 @@ static void unc_add_opt(const char *name, uo_t id, argtype_t type,
    group_map[current_group].options.push_back(id);
 
    option_map_value_t value;
-
    value.id         = id;
    value.group_id   = current_group;
    value.type       = type;
@@ -332,7 +335,7 @@ static void unc_add_opt(const char *name, uo_t id, argtype_t type,
 
    /* Calculate the max/min values */
    switch (type)
-   {
+   { /* \todo avoid magic numbers as max values */
       case AT_BOOL:   value.max_val = 1;                                break;
       case AT_IARF:   value.max_val = 3;                                break;
       case AT_LINE:   value.max_val = 3;                                break;
@@ -347,7 +350,7 @@ static void unc_add_opt(const char *name, uo_t id, argtype_t type,
    }
 
    option_name_map[id] = value;
-} // unc_add_option
+}
 
 
 static bool match_text(const char* str1, const char* str2)
@@ -1770,6 +1773,11 @@ void register_options(void)
    unc_begin_group(UG_warnlevels, "Warn levels - 1: error, 2: warning (default), 3: note");
    unc_add_opt("warn_level_tabs_found_in_verbatim_string_literals", UO_warn_level_tabs_found_in_verbatim_string_literals, AT_UNUM,
                   "Warning is given if doing tab-to-\\t replacement and we have found one in a C# verbatim string literal.", "", 1, 3);
+
+   unc_add_opt("always_ignore", UO_always_ignore, AT_IARF, "this option is always AV_IGNORE", "", AV_IGNORE, AV_IGNORE);
+   unc_add_opt("always_add",    UO_always_add,    AT_IARF, "this option is always AV_ADD"   , "", AV_ADD,    AV_ADD   );
+   unc_add_opt("always_remove", UO_always_remove, AT_IARF, "this option is always AV_REMOVE", "", AV_REMOVE, AV_REMOVE);
+   unc_add_opt("always_force",  UO_always_force,  AT_IARF, "this option is always AV_FORCE" , "", AV_FORCE,  AV_FORCE );
 }
 
 
@@ -2352,10 +2360,15 @@ void set_option_defaults(void)
    cpd.defaults[UO_sp_this_paren                                    ].a = AV_REMOVE;
    cpd.defaults[UO_sp_word_brace                                    ].a = AV_ADD;
    cpd.defaults[UO_sp_word_brace_ns                                 ].a = AV_ADD;
-   cpd.defaults[UO_string_escape_char                               ].n = '\\';
+   cpd.defaults[UO_string_escape_char                               ].n = BACKSLASH;
    cpd.defaults[UO_use_indent_func_call_param                       ].b = true;
    cpd.defaults[UO_use_options_overriding_for_qt_macros             ].b = true;
    cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int32_t)LWARN;
+   cpd.defaults[UO_always_ignore                                    ].a = AV_IGNORE;
+   cpd.defaults[UO_always_add                                       ].a = AV_ADD;
+   cpd.defaults[UO_always_remove                                    ].a = AV_REMOVE;
+   cpd.defaults[UO_always_force                                     ].a = AV_FORCE;
+
 
    /* copy all the default values to settings array */
    const uint32_t option_count = (uint32_t)UO_option_count;

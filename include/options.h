@@ -43,20 +43,20 @@ enum argtype_t
 /** Arg values - these are bit fields */
 enum argval_t
 {
-   AV_IGNORE      = 0,
-   AV_ADD         = (1u << 0),
-   AV_REMOVE      = (1u << 1),
-   AV_FORCE       = (AV_ADD | AV_REMOVE),
-   AV_NOT_DEFINED = (1u << 2)  /**< to be used with QT, SIGNAL SLOT macros */
+   AV_IGNORE      = 0,                    /**< option ignores a given feature */
+   AV_ADD         = (1u << 0),            /**< option adds a given feature */
+   AV_REMOVE      = (1u << 1),            /**< option removes a given feature */
+   AV_FORCE       = (AV_ADD | AV_REMOVE), /**< option forces the usage of a given feature */
+   AV_NOT_DEFINED = (1u << 2)             /**< to be used with QT, SIGNAL SLOT macros */
 };
 
 
 /** Line endings */
 enum lineends_t
 {
-   LE_LF,      /**< "\n"   */
-   LE_CRLF,    /**< "\r\n" */
-   LE_CR,      /**< "\r"   */
+   LE_LF,      /**< "\n"   typically used on Unix/Linux system */
+   LE_CRLF,    /**< "\r\n" typically used on Windows systems*/
+   LE_CR,      /**< "\r"   carriage return without newline */
    LE_AUTO     /**< keep last */
 };
 
@@ -85,34 +85,34 @@ enum tokenpos_t
  *  possible types. */
 union op_val_t
 {
-   argval_t    a;   /**<  */
+   argval_t    a;   /**< ignore/add/remove/force */
    int32_t     n;   /**< value is a signed numbers */
    bool        b;   /**< value is a flags */
-   lineends_t  le;  /**<  */
-   tokenpos_t  tp;  /**<  */
+   lineends_t  le;  /**< line ending type */
+   tokenpos_t  tp;  /**< token position type  */
    const char* str; /**< value is a string */
    uint32_t    u;   /**< value is an unsigned numbers */
 };
 
 
-/** uncrustify groups for uncrustify options */
+/** lists all group identifiers that are used to group uncrustify options */
 enum ug_t
 {
-   UG_general,
-   UG_space,
-   UG_indent,
-   UG_newline,
-   UG_blankline,
-   UG_position,
-   UG_linesplit,
-   UG_align,
-   UG_comment,
-   UG_codemodify,
-   UG_preprocessor,
-   UG_sort_includes,
-   UG_Use_Ext,
-   UG_warnlevels,
-   UG_group_count
+   UG_general,        /**< group for options that do not fit into other groups */
+   UG_space,          /**< group for options that modify spaces */
+   UG_indent,         /**< group for options that handle indentation */
+   UG_newline,        /**< group for options that modify newlines */
+   UG_blankline,      /**< group for options that modify blank lines */
+   UG_position,       /**< group for options that modify positions */
+   UG_linesplit,      /**< group for options that split lines */
+   UG_align,          /**< group for alignment options */
+   UG_comment,        /**< group for comment related options */
+   UG_codemodify,     /**< group for options that modify the code */
+   UG_preprocessor,   /**< group for all preprocessor related options */
+   UG_sort_includes,  /**< group for all sorting options */
+   UG_Use_Ext,        /**<  */
+   UG_warnlevels,     /**<  */
+   UG_group_count     /**<  */
 };
 
 
@@ -842,6 +842,10 @@ enum uo_t
                                                          // then we should warn about cases we can't
                                                          // do the replacement
 
+   UO_always_ignore,  /**< this option is always AV_IGNORE */
+   UO_always_add,     /**< this option is always AV_ADD */
+   UO_always_remove,  /**< this option is always AV_REMOVE */
+   UO_always_force,   /**< this option is always AV_FORCE */
 
    /* UO_dont_protect_xcode_code_placeholders, */
 
@@ -1123,13 +1127,16 @@ void set_option_defaults(void);
 
 
 /**
- * tbd
+ * \brief Add all uncrustify options to the global option list
  */
 void register_options(void);
 
 
 /**
- * tbd
+ * \brief defines a new group of uncrustify options
+ *
+ * the current group is stored as global variable which
+ * will be used whenever a new option is added.
  */
 void unc_begin_group(
    ug_t        id,                 /**< [in]  */

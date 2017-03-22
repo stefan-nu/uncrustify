@@ -31,6 +31,14 @@
 #include "uncrustify.h"
 
 
+/**
+ * used abbreviations:
+ * SCA = space check action
+ * CT  = chunk type
+ * ID  = identifier
+ */
+
+
 /** type that combines two chunk pointers
  * this is used to keep the function prototypes short */
 typedef struct chunks_s
@@ -41,9 +49,9 @@ typedef struct chunks_s
 
 
 static void log_space(
-   uint32_t    line,    /**< [in]  */
-   const char* rule,    /**< [in]  */
-   chunks_t*   c,       /**< [in]  */
+   uint32_t    id,      /**< [in] id of space modification rule */
+   const char* rule,    /**< [in] name of space modification rule  */
+   chunks_t*   c,       /**< [in] two chunks to operate with */
    bool        complete /**< [in]  */
 );
 
@@ -132,7 +140,7 @@ const no_space_table_t no_space_table[] =
    } while (0)
 
 
-static void log_space(uint32_t line, const char* rule, chunks_t* c, bool complete)
+static void log_space(uint32_t id, const char* rule, chunks_t* c, bool complete)
 {
    LOG_FUNC_ENTRY();
    if (log_sev_on(LSPACE))
@@ -142,11 +150,11 @@ static void log_space(uint32_t line, const char* rule, chunks_t* c, bool complet
       assert(are_valid(pc1, pc2));
       if (not_type(pc2, CT_NEWLINE))
       {
-         LOG_FMT(LSPACE, "Spacing: line %u [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%u]%s",
+         LOG_FMT(LSPACE, "Spacing: id %u [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%u]%s",
                  pc1->orig_line, get_token_name(pc1->type),
                  get_token_name(pc1->ptype), pc1->text(),
                  get_token_name(pc2->type), get_token_name(pc2->ptype),
-                 pc2->text(), rule, line, complete ? "\n" : "");
+                 pc2->text(), rule, id, complete ? "\n" : "");
       }
    }
 }
@@ -450,27 +458,38 @@ typedef bool (*sp_check_t)(chunks_t* pc);
  * @brief prototype for a function that determines if a space is to be
  * added or removed between two chunks
  ******************************************************************************/
-typedef void (*sp_action_t)(uint32_t line, const char* rule, chunks_t* c, bool complete);
+typedef void (*sp_log_t)(uint32_t line, const char* rule, chunks_t* c, bool complete);
 
 
 /** combines a check with an action function */
 typedef struct space_check_action_s
 {
-   sp_check_t  check;   /**< [in] a function that checks condition with two chunks */
-   sp_action_t action;  /**< [in] a function that does an action */
-   uint32_t    arg;     /**< [in] argument for action function */
-}space_check_action_t;
+   uint32_t   id;    /**< [in] identifier of this space check */
+   sp_check_t check; /**< [in] a function that checks condition with two chunks */
+   uo_t       opt;   /**< [in] uncrustify option to evaluate */
+}sca_t;
 
 
 /** array of space checks with corresponding actions */
-#define SCA_COUNT 2
-space_check_action_t sca[SCA_COUNT];
+#define SCA_COUNT 64 /* \todo later use dynamic memory allocation */
+sca_t sca_list[SCA_COUNT];
+
+static uint32_t sca_count = 0;
+
+static void add_sca(uint32_t id, sp_check_t check, uo_t opt)
+{
+   sca_list[sca_count] = {id, check, opt};
+   sca_count++;
+}
+
 
 void init_space_check_action_array(void)
 {
-   uint32_t i = 0;
-   sca[i++] = {sp_cond_0001, log_space, AV_REMOVE};
-   sca[i++] = {sp_cond_0002, log_space, AV_IGNORE};
+   add_sca(1, sp_cond_0001, UO_always_remove          );
+   add_sca(2, sp_cond_0002, UO_always_ignore          );
+   add_sca(3, sp_cond_0003, UO_sp_pp_concat           );
+   add_sca(4, sp_cond_0004, UO_sp_pp_stringify        );
+   add_sca(5, sp_cond_0005, UO_sp_before_pp_stringify );
 }
 
 
@@ -490,20 +509,26 @@ static argval_t do_space(chunk_t *pc1, chunk_t *pc2, int32_t &min_sp, bool compl
    min_sp = 1;
 
 #if 1
-   for(uint32_t i=0; i < SCA_COUNT; i++)
+   sca_t* sca = sca_list;
+   for(uint32_t i=0; i < sca_count; i++)
    {
-      argval_t arg = (argval_t)(sca[i].arg);
-      const string str = argval2str((arg));
-      const bool cond  = sca[i].check(pc);
-      if(cond) { sca[i].action(i, str.c_str(), pc, complete); return(arg);}
+      const bool cond = sca_list[i].check(pc);
+      if(cond)
+      {
+         const argval_t arg = (cpd.settings[sca->opt].a);
+         const option_map_value_t* my_uo = get_option_name(sca->opt);
+         log_space(sca->id, (my_uo->name), pc, complete);
+         return(arg);
+      }
+      sca++;
    }
 #else
    if(sp_cond_0001(pc))                                               { log_arg_return(AV_REMOVE                ); }
    if(sp_cond_0002(pc))                                               { log_arg_return(AV_IGNORE                ); } /* Leave spacing alone between PP_IGNORE tokens as we don't want the default behavior (which is ADD) */
-#endif
    if(sp_cond_0003(pc))                                               { log_opt_return(UO_sp_pp_concat          ); }
    if(sp_cond_0004(pc))                                               { log_opt_return(UO_sp_pp_stringify       ); }
    if(sp_cond_0005(pc))                                               { log_opt_return(UO_sp_before_pp_stringify); }
+#endif
    if(sp_cond_0006(pc))                                               { log_arg_return(AV_REMOVE                ); }
    if(sp_cond_0007(pc))                                               { log_arg_return(AV_REMOVE                ); }
    if(sp_cond_0008(pc))                                               { log_arg_return(AV_FORCE                 ); }

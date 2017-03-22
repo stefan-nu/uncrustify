@@ -758,9 +758,9 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
       /* don't add the suffix if we see L" or L' or S" */
       uint32_t p1 = ctx.peek();
       uint32_t p2 = ctx.peek(1);
-      if (( forstring == true                             ) &&
+      if (( forstring == true                           ) &&
           (((p1 == 'L') && ((p2 == '"') || (p2 == '\''))) ||
-           ((p1 == 'S') &&  (p2 == '"')                 ) ) )
+           ((p1 == 'S') &&  (p2 == '"')               ) ) )
       {
          return;
       }
