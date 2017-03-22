@@ -2391,7 +2391,7 @@ void indent_preproc(void)
       {
          reindent_line(pc, 1 + (uint32_t)pp_level * cpd.settings[UO_pp_indent_count].u);
       }
-      else if (is_opt_set(cpd.settings[UO_pp_indent].a, AV_REMOVE))
+      else if (is_opt_set(UO_pp_indent, AV_REMOVE))
       {
          reindent_line(pc, 1);
       }
@@ -2406,7 +2406,7 @@ void indent_preproc(void)
 
             reindent_line(next, (uint32_t)((int32_t)pc->column + (int32_t)pc->len() + (pp_level * (int32_t)mult)));
          }
-         else if (is_opt_set(cpd.settings[UO_pp_space].a, AV_REMOVE))
+         else if (is_opt_set(UO_pp_space, AV_REMOVE))
          {
             reindent_line(next, pc->column + pc->len());
          }

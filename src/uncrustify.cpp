@@ -856,11 +856,11 @@ int main(int argc, char *argv[])
       strcpy(buffer, p_arg);
 
       /* Tokenize and extract key and value */
-      const char *token  = strtok(buffer, "=");
-      const char * const option = token;
+      const char* token  = strtok(buffer, "=");
+      const char* const option = token;
 
       token = strtok(nullptr, "=");
-      const char * const value = token;
+      const char* const value = token;
 
       if (ptrs_are_valid(option, value) &&
           (strtok(nullptr, "=") == nullptr) )
@@ -1763,6 +1763,11 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 
 static void uncrustify_start(const deque<int32_t> &data)
 {
+   /* the configuration and file type is fix here.
+    * We can setup the function arrays that are
+    * used during the checking and processing */
+   init_space_check_action_array();
+
    /* Parse the text into chunks */
    tokenize(data, nullptr);
 

@@ -11,6 +11,11 @@
 #include "uncrustify_types.h"
 
 
+/** setup the function arrays that are used for
+ * checking and doing the space processing */
+void init_space_check_action_array(void);
+
+
 /**
  * Marches through the whole file and checks to see
  * how many spaces should be between two chunks

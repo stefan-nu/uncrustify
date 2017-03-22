@@ -3676,7 +3676,7 @@ static void newlines_eat_start(void)
                MARK_CHANGE();
             }
          }
-         else if ((is_opt_set(cpd.settings[UO_nl_start_of_file].a, AV_ADD)) &&
+         else if (is_opt_set(UO_nl_start_of_file, AV_ADD) &&
                   (cpd.settings[UO_nl_start_of_file_min].u > 0))
          {
             chunk_t chunk;

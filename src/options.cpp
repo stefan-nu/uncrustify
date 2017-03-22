@@ -212,8 +212,6 @@ bool is_opt_set(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == val); /*lint !e655 */
 }
-
-
 bool is_opt_set(const uo_t opt, const argval_t val)
 {
    return(is_opt_set(cpd.settings[opt].a, val));
@@ -224,8 +222,6 @@ bool is_val(const uo_t opt, const uint32_t val)
 {
    return(cpd.settings[opt].u == val);
 }
-
-
 bool is_val(const uo_t opt, const int32_t val)
 {
    return(cpd.settings[opt].n == val);
@@ -236,8 +232,6 @@ bool is_true(const uo_t opt)
 {
    return(cpd.settings[opt].b == true);
 }
-
-
 bool is_false(const uo_t opt)
 {
    return(cpd.settings[opt].b == false);
@@ -254,25 +248,24 @@ bool is_opt(const argval_t var, const argval_t val)
 {
    return (var == val);
 }
+bool is_opt(const uo_t opt, const argval_t val)
+{
+   return is_opt(cpd.settings[opt].a, val);
+}
+bool is_ignore(const uo_t opt)
+{
+   return is_opt(cpd.settings[opt].a, AV_IGNORE);
+}
 
 
 bool not_opt(const argval_t opt, const argval_t val)
 {
    return (opt != val);
 }
-
-
-bool is_opt(const uo_t opt, const argval_t val)
-{
-   return is_opt(cpd.settings[opt].a, val);
-}
-
-
 bool not_opt(const uo_t opt, const argval_t val)
 {
    return not_opt(cpd.settings[opt].a, val);
 }
-
 bool not_ignore(const uo_t opt)
 {
    return not_opt(cpd.settings[opt].a, AV_IGNORE);

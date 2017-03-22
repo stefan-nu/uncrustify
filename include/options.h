@@ -907,25 +907,19 @@ uo_t get_inverse_uo(
 
 
 /**
- * \brief check if a given option is set in an option variable
+ * \brief check if a option variable has at least one of the
+ * given option flags set
  *
- * In contrast to is_option it is sufficient if any of the give
+ * In contrast to is_opt it is sufficient if any of the give
  * option flag is set. The remaining flags are ignored.
- *
- * The check can be done with one or several options
  *
  * @retval true  if variable has all required option flags set
  * @retval false if at least one option was not set
  */
 bool is_opt_set(
-   const argval_t opt, /**< [in] option variable to check */
+   const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option value combination to check for */
 );
-
-
-/** check if a uncrustify option has a give value
- *
- * \note there are several overloaded versions of this function */
 bool is_opt_set(
    const uo_t     opt, /**< [in] uncrustify option to check */
    const argval_t val  /**< [in] option value to check for */
@@ -937,8 +931,6 @@ bool is_val(
    const uo_t     opt, /**< [in] uncrustify option to check */
    const uint32_t val  /**< [in] option value to check for */
 );
-
-
 /** check if an uncrustify option has a given unsigned integer value */
 bool is_val(
    const uo_t    opt, /**< [in] uncrustify option to check */
@@ -950,7 +942,6 @@ bool is_val(
 bool is_true(
    const uo_t opt /**< [in] uncrustify option to check */
 );
-
 
 /** check if an uncrustify option is set false */
 bool is_false(
@@ -964,7 +955,7 @@ bool is_false(
  * @return argument value with addition option added
  */
 argval_t add_option(
-   const argval_t opt, /**< [in] option variable to operate on */
+   const argval_t opt, /**< [in] argument variable to operate on */
    const argval_t val  /**< [in] option value to add */
 );
 
@@ -978,65 +969,47 @@ argval_t add_option(
  * @retval false if at least one      of the given options is set
  */
 bool is_option_unset(
-   const argval_t opt, /**< [in] option variable to check */
+   const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option value to check for */
 );
 
 
 /**
  * \brief check if a option variable is equal to a given value
- * In contrast to is_option_set all flags have to correspond
- * to the parameter 'opt'.
- *
- * The check can be done with one or several options
+ * In contrast to is_opt_set the option variable has to equal
+ * exactly to the expected value.
  *
  * @retval true  if option is     equal to the given value
  * @retval false if option is not equal to the given value
  */
 bool is_opt(
-   const argval_t opt, /**< [in] option variable to check */
+   const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option combination to check for */
 );
-
-
-/**
- * \brief check if an uncrustify option equals a given value
- *
- * The check can be done with one or several options
- *
- * @retval true  if option value is not equal to the given value
- * @retval false if option value is     equal to the given value
- */
 bool is_opt(
    const uo_t     opt, /**< [in] uncrustify option to check */
    const argval_t val  /**< [in] option value to check for */
+);
+
+
+/** \brief check if an uncrustify option variable has the value AV_IGNORE */
+bool is_ignore(
+   const uo_t opt /**< [in] uncrustify option to check */
 );
 
 
 /**
  * \brief check if a option value is different from a given value
  *
- * The check can be done with one or several options
- *
  * @retval true  if option value is not equal to the given value
  * @retval false if option value is     equal to the given value
  */
 bool not_opt(
-   const argval_t opt, /**< [in] option variable to check */
+   const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option value to check for */
 );
-
-
-/**
- * \brief check if an uncrustify option is different from a given value
- *
- * The check can be done with one or several options
- *
- * @retval true  if option value is not equal to the given value
- * @retval false if option value is     equal to the given value
- */
 bool not_opt(
-   const uo_t     opt, /**< [in] uncrustify option to check */
+   const uo_t     opt, /**< [in] uncrustify option variable to check */
    const argval_t val  /**< [in] option value to check for */
 );
 

@@ -657,7 +657,7 @@ void output_text(FILE *pfile)
             {
                if (is_opt_set(UO_sp_before_nl_cont, AV_REMOVE))
                {
-                  pc->column = cpd.column + (is_opt(cpd.settings[UO_sp_before_nl_cont].a, AV_FORCE) ? 1 :0);
+                  pc->column = cpd.column + (is_opt(UO_sp_before_nl_cont, AV_FORCE) ? 1 :0);
                }
                else
                {
