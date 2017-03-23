@@ -77,7 +77,7 @@ enum class char_encoding_e : uint32_t
 };
 
 
-struct chunk_t;   /**< forward declaration */
+struct chunk_t; /**< forward declaration */
 
 
 /**
@@ -88,7 +88,7 @@ struct chunk_t;   /**< forward declaration */
 struct indent_ptr_t
 {
    chunk_t* ref;   /**<  */
-   int32_t  delta;  /**<  */
+   int32_t  delta; /**<  */
 };
 
 
@@ -117,23 +117,23 @@ struct paren_stack_entry_t
 /* TODO: put this on a linked list */
 struct parse_frame_t
 {
-   int32_t             ref_no;
-   uint32_t            level;           /**< level of parens/square/angle/brace */
-   uint32_t            brace_level;     /**< level of brace/vbrace */
-   uint32_t            pp_level;        /**< level of preproc #if stuff */
+   int32_t             ref_no;       /**<  */
+   uint32_t            level;        /**< level of parens/square/angle/brace */
+   uint32_t            brace_level;  /**< level of brace/vbrace */
+   uint32_t            pp_level;     /**< level of preproc #if stuff */
 
-   int32_t             sparen_count;    /**<  */
+   int32_t             sparen_count; /**<  */
 
-   paren_stack_entry_t pse[128];        /**<  */
-   uint32_t            pse_tos;         /**<  */
-   int32_t             paren_count;     /**<  */
+   paren_stack_entry_t pse[128];     /**<  */
+   uint32_t            pse_tos;      /**<  */
+   int32_t             paren_count;  /**<  */
 
-   c_token_t           in_ifdef;        /**<  */
-   int32_t             stmt_count;      /**<  */
-   int32_t             expr_count;      /**<  */
+   c_token_t           in_ifdef;     /**<  */
+   int32_t             stmt_count;   /**<  */
+   int32_t             expr_count;   /**<  */
 
-   bool                maybe_decl;      /**<  */
-   bool                maybe_cast;      /**<  */
+   bool                maybe_decl;   /**<  */
+   bool                maybe_cast;   /**<  */
 };
 
 
@@ -357,21 +357,21 @@ typedef enum lang_e
 enum class pattern_class_e : uint32_t
 {
    NONE,
-   BRACED,   // keyword + braced statement:
-             //    do, try, finally, body, unittest, unsafe, volatile
-             //    add, get, remove, set
-   PBRACED,  // keyword + parenthesis + braced statement:
-             //    if, elseif, switch, for, while, synchronized,
-             //    using, lock, with, version, CT_D_SCOPE_IF
-   OPBRACED, // keyword + optional parenthesis + braced statement:
-             //    catch, version, debug
-   VBRACED,  // keyword + value + braced statement:
-             //    namespace
-   PAREN,    // keyword + parenthesis:
-             //    while-of-do
-   OPPAREN,  // keyword + optional parenthesis: invariant (D lang)
-   ELSE,     // Special case of pattern_class_e::BRACED for handling CT_IF
-             //    else
+   BRACED,   /**< keyword + braced statement:
+              *    do, try, finally, body, unittest, unsafe, volatile
+              *    add, get, remove, set */
+   PBRACED,  /**< keyword + parenthesis + braced statement:
+              *    if, elseif, switch, for, while, synchronized,
+              *    using, lock, with, version, CT_D_SCOPE_IF */
+   OPBRACED, /**< keyword + optional parenthesis + braced statement:
+              *    catch, version, debug */
+   VBRACED,  /**< keyword + value + braced statement:
+              *    namespace */
+   PAREN,    /**< keyword + parenthesis:
+              *    while-of-do */
+   OPPAREN,  /**< keyword + optional parenthesis: invariant (D language) */
+   ELSE,     /**< Special case of pattern_class_e::BRACED for handling CT_IF
+              *    else */
 };
 
 
@@ -404,7 +404,7 @@ struct align_t
 struct file_mem_t
 {
    vector<uint8_t> raw;   /**< raw content of file  */
-   deque<int32_t>      data;  /**< processed content of file  */
+   deque<int32_t>  data;  /**< processed content of file  */
    bool            bom;   /**<  */
    char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
 #ifdef HAVE_UTIME_H
@@ -414,16 +414,16 @@ struct file_mem_t
 
 enum class unc_stage_e : uint32_t
 {
-   TOKENIZE,
-   HEADER,
-   TOKENIZE_CLEANUP,
-   BRACE_CLEANUP,
-   FIX_SYMBOLS,
-   MARK_COMMENTS,
-   COMBINE_LABELS,
-   OTHER,
+   TOKENIZE,         /**<  */
+   HEADER,           /**<  */
+   TOKENIZE_CLEANUP, /**<  */
+   BRACE_CLEANUP,    /**<  */
+   FIX_SYMBOLS,      /**<  */
+   MARK_COMMENTS,    /**<  */
+   COMBINE_LABELS,   /**<  */
+   OTHER,            /**<  */
 
-   CLEANUP
+   CLEANUP           /**<  */
 };
 
 #define MAX_OPTION_NAME_LEN    32 /* sets a limit to the name padding */
@@ -481,7 +481,7 @@ struct cp_data_t
    int32_t         pass_count;          /**<  */
 
    align_t         al[80];              /**<  */
-   uint32_t          al_cnt;              /**<  */
+   uint32_t        al_cnt;              /**<  */
    bool            al_c99_array;        /**<  */
 
    bool            warned_unable_string_replace_tab_chars; /**<  */
@@ -491,7 +491,7 @@ struct cp_data_t
 
    parse_frame_t   frames[16];                /**<  */
    int32_t         frame_count;               /**<  */
-   uint32_t          pp_level;                  /**< \todo can this ever be -1 */
+   uint32_t        pp_level;                  /**< \todo can this ever be -1 */
 
    /* the default values for settings */
    op_val_t        defaults[UO_option_count]; /**<  */

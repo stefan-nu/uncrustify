@@ -152,10 +152,10 @@ void unc_begin_group(ug_t id, const char *short_desc,
                      const char *long_desc)
 {
 #ifdef DEBUG
-   // The order of the calls of 'unc_begin_group' in the function 'register_options'
-   // is the master over all.
-   // This order must be the same in the declaration of the enum uncrustify_groups
-   // This will be checked here
+   /* The order of the calls of 'unc_begin_group' in the function 'register_options'
+    * is the master over all.
+    * This order must be the same in the declaration of the enum uncrustify_groups
+    * This will be checked here */
    checkGroupNumber++;
    if (checkGroupNumber != id)
    {

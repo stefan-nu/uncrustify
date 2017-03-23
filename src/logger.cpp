@@ -21,7 +21,7 @@
 
 struct log_fcn_info
 {
-   log_fcn_info(const char *name_, int32_t line_)
+   log_fcn_info(const char* name_, int32_t line_)
       : name(name_)
       , line(line_)
    {
@@ -83,7 +83,7 @@ static uint32_t log_start(
 static void log_end(void);
 
 
-void log_init(FILE *log_file)
+void log_init(FILE* log_file)
 {
    /* set the top 3 severities */
    logmask_set_all(g_log.mask, false);
@@ -221,13 +221,13 @@ void log_fmt(log_sev_t sev, const char* fmt, ...)
 }
 
 
-void log_hex(log_sev_t sev, const void *vdata, uint32_t len)
+void log_hex(log_sev_t sev, const void* vdata, uint32_t len)
 {
    return_if(ptr_is_invalid(vdata) || !log_sev_on(sev));
 
    char        buf[80];
-   const uint8_t *dat = static_cast<const uint8_t *>(vdata);
-   uint32_t      idx  = 0;
+   const uint8_t* dat = static_cast<const uint8_t *>(vdata);
+   uint32_t       idx = 0;
    while (len-- > 0)
    {
       buf[idx++] = to_hex_char(*dat >> 4);
@@ -250,7 +250,7 @@ void log_hex(log_sev_t sev, const void *vdata, uint32_t len)
 }
 
 
-void log_hex_blk(log_sev_t sev, const void *data, uint32_t len)
+void log_hex_blk(log_sev_t sev, const void* data, uint32_t len)
 {
    return_if(ptr_is_invalid(data) || !log_sev_on(sev));
 
@@ -311,7 +311,7 @@ void log_hex_blk(log_sev_t sev, const void *data, uint32_t len)
 }
 
 
-log_func::log_func(const char *name, int32_t line)
+log_func::log_func(const char* name, int32_t line)
 {
    g_fq.push_back(log_fcn_info(name, line));
 }
@@ -333,7 +333,7 @@ void log_func_call(int32_t line)
 }
 
 
-void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, uint32_t skip_cnt)
+void log_func_stack(log_sev_t sev, const char* prefix, const char* suffix, uint32_t skip_cnt)
 {
    UNUSED(skip_cnt);
 
@@ -342,11 +342,11 @@ void log_func_stack(log_sev_t sev, const char *prefix, const char *suffix, uint3
       LOG_FMT(sev, "%s", prefix);
    }
 #ifdef DEBUG
-   uint32_t     g_fq_size = g_fq.size();
+   uint32_t g_fq_size = g_fq.size();
    if (g_fq_size > (skip_cnt + 1) )
    {
       uint32_t     begin_with;
-      const char *sep = "";
+      const char* sep = "";
       begin_with = g_fq_size - (skip_cnt + 1);
       for (uint32_t idx = begin_with; idx != 0; idx--)
       {

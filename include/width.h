@@ -12,8 +12,8 @@
 
 
 /**
- * Step forward until a token goes beyond the limit and then call split_line()
- * to split the line at or before that point.
+ * Step forward until a token goes beyond the limit and then call
+ * split_line() to split the line at or before that point.
  */
 void do_code_width(void);
 

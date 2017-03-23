@@ -195,7 +195,7 @@ enum uo_t
    UO_sp_sparen_brace,             // space between ')' and '{' of if, while, etc
    UO_sp_invariant_paren,          //
    UO_sp_after_invariant_paren,    //
-   UO_sp_special_semi,             // space empty stmt ';' on while, if, for
+   UO_sp_special_semi,             // space empty statement ';' on while, if, for
                                    //   example 'while (*p++ = ' ') ;'
    UO_sp_before_semi,              // space before all ';'
    UO_sp_before_semi_for,          // space before the two ';' in a for() - non-empty
@@ -866,23 +866,23 @@ enum uo_t
 
 struct group_map_value_t
 {
-   ug_t                      id;
-   const char*               short_desc;
-   const char*               long_desc;
-   group_map_value_options_t options;
+   ug_t                      id;         /**<  */
+   const char*               short_desc; /**<  */
+   const char*               long_desc;  /**<  */
+   group_map_value_options_t options;    /**<  */
 };
 
 
 struct option_map_value_t
 {
-   uo_t        id;
-   ug_t        group_id;
-   argtype_t   type;
-   int32_t     min_val;
-   int32_t     max_val;
-   const char* name;
-   const char* short_desc;
-   const char* long_desc;
+   uo_t        id;         /**<  */
+   ug_t        group_id;   /**<  */
+   argtype_t   type;       /**<  */
+   int32_t     min_val;    /**<  */
+   int32_t     max_val;    /**<  */
+   const char* name;       /**<  */
+   const char* short_desc; /**<  */
+   const char* long_desc;  /**<  */
 };
 
 
@@ -890,7 +890,7 @@ struct option_map_value_t
  * tbd
  */
 const option_map_value_t* unc_find_option(
-   const char* name
+   const char* name /**<  */
 );
 
 

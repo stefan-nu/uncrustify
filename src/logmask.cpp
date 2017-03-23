@@ -13,13 +13,13 @@
 #include "unc_ctype.h"
 
 
-char *logmask_to_str(const log_mask_t &mask, char *buf, uint32_t size)
+char* logmask_to_str(const log_mask_t &mask, char* buf, uint32_t size)
 {
    retval_if((ptr_is_invalid(buf) || (size == 0)), buf);
 
    int32_t  last_sev = -1;
-   bool is_range = false;
-   uint32_t len    = 0;
+   bool     is_range = false;
+   uint32_t len      = 0;
 
    for (int32_t sev = 0; sev < 256; sev++)
    {

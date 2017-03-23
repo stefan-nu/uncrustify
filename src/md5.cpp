@@ -22,7 +22,7 @@
 #include "uncrustify_types.h"
 
 
-void MD5::reverse_u32(uint8_t *buf, uint32_t n_u32) const
+void MD5::reverse_u32(uint8_t* buf, uint32_t n_u32) const
 {
    if (m_big_endian)
    {
@@ -57,8 +57,8 @@ MD5::MD5()
     *
     * The MD5 stuff is written for little endian. */
 
-   m_need_byteswap = *(uint8_t *)m_buf != 4;
-   m_big_endian    = *(uint8_t *)m_buf == 1;
+   m_need_byteswap = *(uint8_t*)m_buf != 4;
+   m_big_endian    = *(uint8_t*)m_buf == 1;
 
    memset(m_in,   0, M_IN_SIZE);
    memset(m_bits, 0, sizeof(uint32_t)*M_BITS_SIZE);
@@ -85,7 +85,7 @@ void MD5::Init()
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void MD5::Update(const void *data, uint32_t len)
+void MD5::Update(const void* data, uint32_t len)
 {
    uint32_t t = m_bits[0]; /* Update bit count */
 
@@ -97,11 +97,11 @@ void MD5::Update(const void *data, uint32_t len)
 
    t = (t >> 3) & 0x3f;   /* Bytes already in shsInfo->data */
 
-   const uint8_t *buf = (const uint8_t *)data;
+   const uint8_t* buf = (const uint8_t*)data;
    /* Handle any leading odd-sized chunks */
    if (t)
    {
-      uint8_t *p = (uint8_t *)m_in + t;
+      uint8_t* p = (uint8_t*)m_in + t;
 
       t = M_IN_SIZE - t;
       if (len < t)
@@ -114,7 +114,7 @@ void MD5::Update(const void *data, uint32_t len)
       {
          reverse_u32(m_in, 16);
       }
-      Transform(m_buf, (uint32_t *)m_in);
+      Transform(m_buf, (uint32_t*)m_in);
       buf += t;
       len -= t;
    }
@@ -127,7 +127,7 @@ void MD5::Update(const void *data, uint32_t len)
       {
          reverse_u32(m_in, 16);
       }
-      Transform(m_buf, (uint32_t *)m_in);
+      Transform(m_buf, (uint32_t*)m_in);
       buf += M_IN_SIZE; /*lint !e662 */
       len -= M_IN_SIZE;
    }
@@ -144,7 +144,7 @@ void MD5::Final(uint8_t digest[16])
 
    /* Set the first char of padding to 0x80.  This is safe since there is
     * always at least one byte free */
-   uint8_t *p = m_in + count;
+   uint8_t* p = m_in + count;
 
    *p++ = 0x80;
 
@@ -160,7 +160,7 @@ void MD5::Final(uint8_t digest[16])
       {
          reverse_u32(m_in, 16);
       }
-      Transform(m_buf, (uint32_t *)m_in);
+      Transform(m_buf, (uint32_t*)m_in);
 
       /* Now fill the next block with 56 bytes */
       memset(m_in, 0, 56);
@@ -179,10 +179,10 @@ void MD5::Final(uint8_t digest[16])
    memcpy(m_in + 56, &m_bits[0], M_BUF_SIZE);
    memcpy(m_in + 60, &m_bits[1], M_BUF_SIZE);
 
-   Transform(m_buf, (uint32_t *)m_in);
+   Transform(m_buf, (uint32_t*)m_in);
    if (m_need_byteswap)
    {
-      reverse_u32((uint8_t *)m_buf, M_BUF_SIZE);
+      reverse_u32((uint8_t*)m_buf, M_BUF_SIZE);
    }
    memcpy(digest, m_buf, 16);
 }
@@ -283,7 +283,7 @@ void MD5::Transform(uint32_t buf[4], const uint32_t in_data[16])
 }
 
 
-void MD5::Calc(const void *data, const uint32_t length, uint8_t digest[16])
+void MD5::Calc(const void* data, const uint32_t length, uint8_t digest[16])
 {
    MD5 md5;
    md5.Init();

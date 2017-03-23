@@ -355,7 +355,7 @@ void tokenize_cleanup(void)
             /* Replace next with a collection of all tokens that are part of
              * the type. */
             tmp2 = next;
-            chunk_t *tmp;
+            chunk_t* tmp;
             while ((tmp = chunk_get_next(tmp2)) != nullptr)
             {
                break_if(not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,

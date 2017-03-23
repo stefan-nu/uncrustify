@@ -19,7 +19,7 @@
  */
 static bool pawn_continued(
    chunk_t* pc,      /**< [in]  */
-   uint32_t   br_level /**< [in]  */
+   uint32_t br_level /**< [in]  */
 );
 
 
@@ -39,17 +39,17 @@ static bool pawn_continued(
  *
  * Variable definitions start with 'stock', 'static', 'new', or 'public'.
  */
-static chunk_t *pawn_process_line(
-   chunk_t *start /**< [in]  */
+static chunk_t* pawn_process_line(
+   chunk_t* start /**< [in]  */
 );
 
 
 /**
  * We are on a level 0 function proto of def
  */
-static chunk_t *pawn_mark_function0(
-   chunk_t *start, /**< [in]  */
-   chunk_t *fcn    /**< [in]  */
+static chunk_t* pawn_mark_function0(
+   chunk_t* start, /**< [in]  */
+   chunk_t* fcn    /**< [in]  */
 );
 
 
@@ -57,25 +57,25 @@ static chunk_t *pawn_mark_function0(
  * follows a variable definition at level 0 until the end.
  * Adds a semicolon at the end, if needed.
  */
-static chunk_t *pawn_process_variable(
-   chunk_t *start /**< [in]  */
+static chunk_t* pawn_process_variable(
+   chunk_t* start /**< [in]  */
 );
 
 
 /**
  * tbd
  */
-static chunk_t *pawn_process_func_def(
-   chunk_t *pc /**< [in]  */
+static chunk_t* pawn_process_func_def(
+   chunk_t* pc /**< [in]  */
 );
 
 
-chunk_t *pawn_add_vsemi_after(chunk_t *pc)
+chunk_t* pawn_add_vsemi_after(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    retval_if((is_invalid(pc) || is_semicolon(pc)), pc);
 
-   chunk_t *next = get_next_nc(pc);
+   chunk_t* next = get_next_nc(pc);
    retval_if(is_semicolon(next), pc);
 
    chunk_t chunk     = *pc;
@@ -96,10 +96,10 @@ void pawn_scrub_vsemi(void)
    LOG_FUNC_ENTRY();
    return_if(is_false(UO_mod_pawn_semicolon));
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       continue_if(not_type(pc, CT_VSEMICOLON));
-      chunk_t *prev = get_prev_ncnl(pc);
+      chunk_t* prev = get_prev_ncnl(pc);
 
       if (is_type (prev,    CT_BRACE_CLOSE) &&
           is_ptype(prev, 5, CT_ELSE, CT_IF, CT_SWITCH,
@@ -111,7 +111,7 @@ void pawn_scrub_vsemi(void)
 }
 
 
-static bool pawn_continued(chunk_t *pc, uint32_t br_level)
+static bool pawn_continued(chunk_t* pc, uint32_t br_level)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(pc), false);
@@ -141,7 +141,7 @@ void pawn_prescan(void)
    /* Start at the beginning and step through the entire file, and clean up
     * any questionable stuff */
    bool    did_nl = true;
-   chunk_t *pc    = chunk_get_head();
+   chunk_t* pc    = chunk_get_head();
    while (is_valid(pc))
    {
       if( (did_nl == true) && is_level(pc, 0) &&
@@ -161,7 +161,7 @@ void pawn_prescan(void)
 }
 
 
-static chunk_t *pawn_process_line(chunk_t *start)
+static chunk_t* pawn_process_line(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
 
@@ -172,12 +172,12 @@ static chunk_t *pawn_process_line(chunk_t *start)
    }
 
    /* if a open paren is found before an assign, then this is a function */
-   chunk_t *fcn = nullptr;
+   chunk_t* fcn = nullptr;
    if(is_type(start, CT_WORD))
    {
       fcn = start;
    }
-   chunk_t *pc = start;
+   chunk_t* pc = start;
    while (((pc = get_next_nc(pc)) != nullptr) &&
           !is_str(pc, "(") &&
           not_type(pc, CT_ASSIGN, CT_NEWLINE))
@@ -206,15 +206,15 @@ static chunk_t *pawn_process_line(chunk_t *start)
 }
 
 
-static chunk_t *pawn_process_variable(chunk_t *start)
+static chunk_t* pawn_process_variable(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *prev = nullptr;
-   chunk_t *pc   = start;
+   chunk_t* prev = nullptr;
+   chunk_t* pc   = start;
    while ((pc = get_next_nc(pc)) != nullptr)
    {
-      if (is_type (pc, CT_NEWLINE                          ) &&
+      if (is_type (pc, CT_NEWLINE                              ) &&
           (pawn_continued(prev, (int32_t)start->level) == false) )
       {
          if(not_type(prev, CT_SEMICOLON, CT_VSEMICOLON))
