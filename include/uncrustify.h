@@ -15,7 +15,7 @@
 
 
 /**
- * tbd
+ * start of the program
  */
 int main(
    int   argc,  /**< [in]  */

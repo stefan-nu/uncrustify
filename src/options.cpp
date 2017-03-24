@@ -228,6 +228,12 @@ argval_t get_arg(const uo_t opt)
 }
 
 
+void set_arg(const uo_t opt, argval_t val)
+{
+   cpd.settings[opt].a = val;
+}
+
+
 bool is_val(const uo_t opt, const uint32_t val)
 {
    return(cpd.settings[opt].u == val);

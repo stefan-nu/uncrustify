@@ -575,7 +575,7 @@ static void redir_stdout(const char *output_file)
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
    /* initialize the global data */
    cpd.unc_off_used = false;

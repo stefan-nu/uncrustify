@@ -258,8 +258,8 @@ enum uo_t
    UO_sp_scope_paren,              //
    UO_sp_super_paren,              //
    UO_sp_this_paren,               //
-   UO_sp_macro,                    // space between macro and value, ie '#define a 6'
-   UO_sp_macro_func,               // space between macro and value, ie '#define a 6'
+   UO_sp_macro,                    // space between macro and value, i.e. '#define a 6'
+   UO_sp_macro_func,               // space between macro and value, i.e. '#define a 6'
    UO_sp_else_brace,               //
    UO_sp_brace_else,               //
    UO_sp_brace_typedef,            //
@@ -934,6 +934,14 @@ bool is_opt_set(
 argval_t get_arg(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+
+
+/** \brief setter function for uncrustify option */
+void set_arg(
+   const uo_t opt, /**< [in] uncrustify option to set */
+   argval_t   val  /**< [in] new value for option */
+);
+
 
 /** check if an uncrustify option has a given signed integer value */
 bool is_val(
