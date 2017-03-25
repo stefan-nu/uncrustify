@@ -934,6 +934,12 @@ bool is_opt_set(
 argval_t get_arg(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+uint32_t get_uval(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
+int32_t get_ival(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
 
 
 /** \brief setter function for uncrustify option */
@@ -999,11 +1005,11 @@ bool is_option_unset(
  * @retval true  if option is     equal to the given value
  * @retval false if option is not equal to the given value
  */
-bool is_opt(
+bool is_arg(
    const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option combination to check for */
 );
-bool is_opt(
+bool is_arg(
    const uo_t     opt, /**< [in] uncrustify option to check */
    const argval_t val  /**< [in] option value to check for */
 );
@@ -1021,11 +1027,11 @@ bool is_ignore(
  * @retval true  if option value is not equal to the given value
  * @retval false if option value is     equal to the given value
  */
-bool not_opt(
+bool not_arg(
    const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option value to check for */
 );
-bool not_opt(
+bool not_arg(
    const uo_t     opt, /**< [in] uncrustify option variable to check */
    const argval_t val  /**< [in] option value to check for */
 );
@@ -1126,7 +1132,7 @@ enum class char_encoding_e : uint32_t; /* forward declaration of enum */
 /**
  * provides a string that names a given encoding enum
  */
-const char *get_encoding_name(
+const char* get_encoding_name(
    const char_encoding_e enc  /**< [in] encoding enum to get the name for */
 );
 

@@ -1993,7 +1993,7 @@ static chunk_t* process_return(chunk_t* pc)
 
    if (not_ignore(UO_nl_return_expr))
    {
-      newline_iarf(pc, cpd.settings[UO_nl_return_expr].a);
+      newline_iarf(pc, get_arg(UO_nl_return_expr));
    }
 
    chunk_t* temp;
@@ -2524,11 +2524,11 @@ static void fix_typedef(chunk_t* start)
 
       /* If we are aligning on the open parenthesis, grab that instead */
       if (is_valid(open_paren) &&
-         (cpd.settings[UO_align_typedef_func].u == 1))
+         (get_uval(UO_align_typedef_func) == 1))
       {
          the_type = open_paren;
       }
-      if (cpd.settings[UO_align_typedef_func].u != 0)
+      if (get_uval(UO_align_typedef_func) != 0)
       {
          LOG_FMT(LTYPEDEF, "%s:  -- align anchor on [%s] @ %u:%u\n",
                  __func__, the_type->text(), the_type->orig_line, the_type->orig_col);
@@ -4021,12 +4021,12 @@ static void mark_namespace(chunk_t* pns)
          continue;
       }
 
-      if ((cpd.settings[UO_indent_namespace_limit].u > 0) &&
+      if ((get_uval(UO_indent_namespace_limit) > 0) &&
           ((br_close = chunk_skip_to_match(pc)) != nullptr))
       {
          uint32_t diff = br_close->orig_line - pc->orig_line;
 
-         if (diff > cpd.settings[UO_indent_namespace_limit].u)
+         if (diff > get_uval(UO_indent_namespace_limit))
          {
             set_flags(pc,       PCF_LONG_BLOCK);
             set_flags(br_close, PCF_LONG_BLOCK);
@@ -5140,12 +5140,12 @@ static void handle_oc_property_decl(chunk_t* os)
             next = chunk_get_next(next);
          }
 
-         int32_t thread_w      = cpd.settings[UO_mod_sort_oc_property_thread_safe_weight].n;
-         int32_t readwrite_w   = cpd.settings[UO_mod_sort_oc_property_readwrite_weight  ].n;
-         int32_t ref_w         = cpd.settings[UO_mod_sort_oc_property_reference_weight  ].n;
-         int32_t getter_w      = cpd.settings[UO_mod_sort_oc_property_getter_weight     ].n;
-         int32_t setter_w      = cpd.settings[UO_mod_sort_oc_property_setter_weight     ].n;
-         int32_t nullability_w = cpd.settings[UO_mod_sort_oc_property_nullability_weight].n;
+         int32_t thread_w      = get_ival(UO_mod_sort_oc_property_thread_safe_weight);
+         int32_t readwrite_w   = get_ival(UO_mod_sort_oc_property_readwrite_weight  );
+         int32_t ref_w         = get_ival(UO_mod_sort_oc_property_reference_weight  );
+         int32_t getter_w      = get_ival(UO_mod_sort_oc_property_getter_weight     );
+         int32_t setter_w      = get_ival(UO_mod_sort_oc_property_setter_weight     );
+         int32_t nullability_w = get_ival(UO_mod_sort_oc_property_nullability_weight);
 
          std::multimap<int32_t, std::vector<ChunkGroup>> sorted_chunk_map;
          sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(thread_w,      thread_chunks));
@@ -5333,12 +5333,12 @@ static void handle_wrap(chunk_t* pc)
    assert(are_valid(opp, name, clp));
 
    argval_t pav = (is_type(pc, CT_FUNC_WRAP)) ?
-                  cpd.settings[UO_sp_func_call_paren].a :
-                  cpd.settings[UO_sp_cpp_cast_paren ].a;
+                  get_arg(UO_sp_func_call_paren) :
+                  get_arg(UO_sp_cpp_cast_paren );
 
    const argval_t av = (is_type(pc, CT_FUNC_WRAP)) ?
-                 cpd.settings[UO_sp_inside_fparen    ].a :
-                 cpd.settings[UO_sp_inside_paren_cast].a;
+                 get_arg(UO_sp_inside_fparen    ) :
+                 get_arg(UO_sp_inside_paren_cast);
 
    if (is_type(clp,  CT_PAREN_CLOSE  ) &&
        is_type(opp,  CT_PAREN_OPEN   ) &&

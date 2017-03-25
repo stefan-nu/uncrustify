@@ -175,7 +175,7 @@ static inline bool is_past_width(chunk_t *pc)
 {
    assert(is_valid(pc));
    /* allow char to sit at last column by subtracting 1 */
-   return((pc->column + pc->len() - 1u) > cpd.settings[UO_code_width].u);
+   return((pc->column + pc->len() - 1u) > get_uval(UO_code_width));
 }
 
 
@@ -190,8 +190,8 @@ static void split_before_chunk(chunk_t *pc)
    {
       newline_add_before(pc);
       /* reindent needs to include the indent_continue value and was off by one */
-      reindent_line(pc, pc->brace_level * cpd.settings[UO_indent_columns].u +
-                    (uint32_t)abs(cpd.settings[UO_indent_continue].n) + 1u);
+      reindent_line(pc, pc->brace_level * get_uval(UO_indent_columns) +
+                    (uint32_t)abs(get_ival(UO_indent_continue)) + 1u);
       cpd.changes++;
    }
 }
@@ -583,7 +583,7 @@ static void split_fcn_params(chunk_t *start)
    uint32_t  min_col = pc->column;
 
    LOG_FMT(LSPLIT, " mincol=%u, max_width=%u ",
-           min_col, cpd.settings[UO_code_width].u - min_col);
+           min_col, get_uval(UO_code_width) - min_col);
 
    int32_t cur_width =  0;
    int32_t last_col  = -1;
@@ -604,7 +604,7 @@ static void split_fcn_params(chunk_t *start)
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
-            break_if (((last_col - 1) > static_cast<int32_t>(cpd.settings[UO_code_width].u)) ||
+            break_if (((last_col - 1) > static_cast<int32_t>(get_uval(UO_code_width))) ||
                   is_type(pc, CT_FPAREN_CLOSE));
          }
       }
@@ -625,14 +625,14 @@ static void split_fcn_params(chunk_t *start)
          assert(is_valid(pc));
          if (is_false(UO_indent_paren_nl))
          {
-            min_col = pc->brace_level * cpd.settings[UO_indent_columns].u + 1u;
-            if (cpd.settings[UO_indent_continue].n == 0)
+            min_col = pc->brace_level * get_uval(UO_indent_columns) + 1u;
+            if (get_ival(UO_indent_continue) == 0)
             {
-               min_col += cpd.settings[UO_indent_columns].u;
+               min_col += get_uval(UO_indent_columns);
             }
             else
             {
-               min_col += (uint32_t)abs(cpd.settings[UO_indent_continue].n);
+               min_col += (uint32_t)abs(get_ival(UO_indent_continue));
             }
          }
 

@@ -25,7 +25,7 @@ uint32_t calc_next_tab_column(uint32_t col, uint32_t tabsize)
 
 uint32_t next_tab_column(uint32_t col)
 {
-   return(calc_next_tab_column(col, cpd.settings[UO_output_tab_size].u));
+   return(calc_next_tab_column(col, get_uval(UO_output_tab_size)));
 }
 
 
@@ -34,7 +34,7 @@ uint32_t align_tab_column(uint32_t col)
    col = max(col, 1u); /* ensure column >= 1 */
 
    /* if the current position is not a tab column ... */
-   if ((col % cpd.settings[UO_output_tab_size].u) != 1)
+   if ((col % get_uval(UO_output_tab_size)) != 1)
    {
       col = next_tab_column(col); /* ... advance to next tab column */
    }

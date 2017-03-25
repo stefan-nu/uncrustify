@@ -466,37 +466,37 @@ void quick_indent_again(void)
 void align_all(void)
 {
    LOG_FUNC_ENTRY();
-   if (cpd.settings[UO_align_typedef_span     ].u > 0) { align_typedefs(cpd.settings[UO_align_typedef_span].u); }
-   if (is_true(UO_align_left_shift)                  ) { align_left_shift();                                    }
-   if (cpd.settings[UO_align_oc_msg_colon_span].u > 0) { align_oc_msg_colons();                                 }
+   if (get_uval(UO_align_typedef_span     ) > 0) { align_typedefs(get_uval(UO_align_typedef_span)); }
+   if (is_true (UO_align_left_shift)           ) { align_left_shift();                              }
+   if (get_uval(UO_align_oc_msg_colon_span) > 0) { align_oc_msg_colons();                           }
 
    /* Align variable definitions */
-   if ((cpd.settings[UO_align_var_def_span   ].u > 0) ||
-       (cpd.settings[UO_align_var_struct_span].u > 0) ||
-       (cpd.settings[UO_align_var_class_span ].u > 0) )
+   if ((get_uval(UO_align_var_def_span   ) > 0) ||
+       (get_uval(UO_align_var_struct_span) > 0) ||
+       (get_uval(UO_align_var_class_span ) > 0) )
    {
-      align_var_def_brace(chunk_get_head(), cpd.settings[UO_align_var_def_span].u, nullptr);
+      align_var_def_brace(chunk_get_head(), get_uval(UO_align_var_def_span), nullptr);
    }
 
    /* Align assignments */
-   if ((cpd.settings[UO_align_enum_equ_span].u > 0) ||
-       (cpd.settings[UO_align_assign_span  ].u > 0))
+   if ((get_uval(UO_align_enum_equ_span) > 0) ||
+       (get_uval(UO_align_assign_span  ) > 0))
    {
       align_assign(chunk_get_head(),
-                   cpd.settings[UO_align_assign_span  ].u,
-                   cpd.settings[UO_align_assign_thresh].u,
+                   get_uval(UO_align_assign_span  ),
+                   get_uval(UO_align_assign_thresh),
                    nullptr);
    }
 
    /* Align structure initializers */
-   if (cpd.settings[UO_align_struct_init_span].u > 0)  { align_struct_initializers(); }
+   if (get_uval(UO_align_struct_init_span) > 0)  { align_struct_initializers(); }
 
    /* Align function prototypes */
-   if ((cpd.settings[UO_align_func_proto_span].u > 0) &&
-       is_false(UO_align_mix_var_proto)) { align_func_proto(cpd.settings[UO_align_func_proto_span].u); }
+   if ((get_uval(UO_align_func_proto_span) > 0) &&
+       is_false(UO_align_mix_var_proto)) { align_func_proto(get_uval(UO_align_func_proto_span)); }
 
    /* Align function prototypes */
-   if (cpd.settings[UO_align_oc_msg_spec_span].u > 0)  { align_oc_msg_spec(cpd.settings[UO_align_oc_msg_spec_span].u); }
+   if (get_uval(UO_align_oc_msg_spec_span) > 0)  { align_oc_msg_spec(get_uval(UO_align_oc_msg_spec_span)); }
 
    /* Align OC colons */
    if (is_true(UO_align_oc_decl_colon)) { align_oc_decl_colon(); }
@@ -557,14 +557,14 @@ void align_right_comments(void)
             bool    skip  = false;
             chunk_t *prev = chunk_get_prev(pc);
             assert(is_valid(prev));
-            if (pc->orig_col < (uint32_t)((int32_t)prev->orig_col_end + cpd.settings[UO_align_right_cmt_gap].n))
+            if (pc->orig_col < (uint32_t)((int32_t)prev->orig_col_end + get_ival(UO_align_right_cmt_gap)))
             {
-               // note the use of -5 here (-1 would probably have worked as well) to force
-               // comments which are stuck to the previous token (gap=0) into alignment with the
-               // others. Not the major feature, but a nice find. (min_val/max_val in
-               // options.cpp isn't validated against, it seems; well, I don't mind! :-) )
+               /* note the use of -5 here (-1 would probably have worked as well) to force
+                * comments which are stuck to the previous token (gap=0) into alignment with the
+                * others. Not the major feature, but a nice find. (min_val/max_val in
+                * options.cpp isn't validated against, it seems; well, I don't mind! :-) ) */
                LOG_FMT(LALTC, "NOT changing END comment on line %u (%u <= %u + %d)\n",
-                pc->orig_line, pc->orig_col, prev->orig_col_end, cpd.settings[UO_align_right_cmt_gap].n);
+                pc->orig_line, pc->orig_col, prev->orig_col_end, get_ival(UO_align_right_cmt_gap));
                skip = true;
             }
             if (skip == false)
@@ -578,7 +578,7 @@ void align_right_comments(void)
          /* Change certain WHOLE comments into RIGHT-alignable comments */
          if (is_ptype(pc, CT_COMMENT_WHOLE))
          {
-            const uint32_t max_col = pc->column_indent + cpd.settings[UO_input_tab_size].u;
+            const uint32_t max_col = pc->column_indent + get_uval(UO_input_tab_size);
 
             /* If the comment is further right than the brace level... */
             if (pc->column >= max_col)
@@ -607,7 +607,7 @@ void align_struct_initializers(void)
    chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *prev = get_prev_ncnl(pc);
+      chunk_t* prev = get_prev_ncnl(pc);
       if ( is_type(prev, CT_ASSIGN     ) &&
           (is_type(pc,   CT_BRACE_OPEN ) ||
           (is_type(pc,   CT_SQUARE_OPEN) && is_lang(cpd, LANG_D) )))
@@ -624,13 +624,13 @@ void align_preprocessor(void)
    LOG_FUNC_ENTRY();
 
    AlignStack as;    /* value macros */
-   as.Start(  cpd.settings[UO_align_pp_define_span].u);
-   as.m_gap = cpd.settings[UO_align_pp_define_gap ].u;
+   as.Start(  get_uval(UO_align_pp_define_span));
+   as.m_gap = get_uval(UO_align_pp_define_gap );
    AlignStack* cur_as = &as;
 
    AlignStack asf;   /* function macros */
-   asf.Start(  cpd.settings[UO_align_pp_define_span].u);
-   asf.m_gap = cpd.settings[UO_align_pp_define_gap ].u;
+   asf.Start(  get_uval(UO_align_pp_define_span));
+   asf.m_gap = get_uval(UO_align_pp_define_gap );
 
    chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
@@ -740,8 +740,8 @@ chunk_t* align_assign(chunk_t *first, uint32_t span, uint32_t thresh, uint32_t* 
          const uo_t span_type   = is_enum ? UO_align_enum_equ_span   : UO_align_assign_span;
          const uo_t thresh_type = is_enum ? UO_align_enum_equ_thresh : UO_align_assign_thresh;
 
-         uint32_t myspan   = cpd.settings[span_type  ].u;
-         uint32_t mythresh = cpd.settings[thresh_type].u;
+         uint32_t myspan   = get_uval(span_type  );
+         uint32_t mythresh = get_uval(thresh_type);
          uint32_t sub_nl_count = 0;
 
          pc = align_assign(get_next_ncnl(pc), myspan, mythresh, &sub_nl_count);
@@ -814,8 +814,8 @@ static chunk_t* align_func_param(chunk_t* start)
 
    AlignStack as;
    as.Start(2, 0);
-   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
-   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style ].u);
+   as.m_star_style = static_cast<StarStyle_t>(get_uval(UO_align_var_def_star_style));
+   as.m_amp_style  = static_cast<StarStyle_t>(get_uval(UO_align_var_def_amp_style ));
 
    bool     did_this_line = false;
    uint32_t comma_count   = 0;
@@ -913,7 +913,7 @@ static void align_same_func_call_params(void)
    chunk_t*          align_fcn;
    unc_text          align_fcn_name;
    unc_text          align_root_name;
-   deque<chunk_t *>  chunks;
+   deque<chunk_t*>   chunks;
    deque<AlignStack> as;
    AlignStack        fcn_as;
    const char*       add_str;
@@ -1084,13 +1084,13 @@ static void align_func_proto(uint32_t span)
 
    AlignStack as;
    as.Start(span, 0);
-   as.m_gap        = cpd.settings[UO_align_func_proto_gap].u;
-   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
-   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style ].u);
+   as.m_gap        = get_uval(UO_align_func_proto_gap);
+   as.m_star_style = static_cast<StarStyle_t>(get_uval(UO_align_var_def_star_style));
+   as.m_amp_style  = static_cast<StarStyle_t>(get_uval(UO_align_var_def_amp_style ));
 
    AlignStack as_br;
    as_br.Start(span, 0);
-   as_br.m_gap = cpd.settings[UO_align_single_line_brace_gap].u;
+   as_br.m_gap = get_uval(UO_align_single_line_brace_gap);
 
    bool     look_bro = false;
    chunk_t* toadd;
@@ -1144,14 +1144,14 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    switch(start->ptype)
    {
       case(CT_STRUCT):  /* fallthrough */
-      case(CT_UNION ):  myspan   = cpd.settings[UO_align_var_struct_span  ].u;
-                        mythresh = cpd.settings[UO_align_var_struct_thresh].u;
-                        mygap    = cpd.settings[UO_align_var_struct_gap   ].u; break;
-      case(CT_CLASS):   myspan   = cpd.settings[UO_align_var_class_span   ].u;
-                        mythresh = cpd.settings[UO_align_var_class_thresh ].u;
-                        mygap    = cpd.settings[UO_align_var_class_gap    ].u; break;
-      default:          mythresh = cpd.settings[UO_align_var_def_thresh   ].u;
-                        mygap    = cpd.settings[UO_align_var_def_gap      ].u; break;
+      case(CT_UNION ):  myspan   = get_uval(UO_align_var_struct_span  );
+                        mythresh = get_uval(UO_align_var_struct_thresh);
+                        mygap    = get_uval(UO_align_var_struct_gap   ); break;
+      case(CT_CLASS):   myspan   = get_uval(UO_align_var_class_span   );
+                        mythresh = get_uval(UO_align_var_class_thresh );
+                        mygap    = get_uval(UO_align_var_class_gap    ); break;
+      default:          mythresh = get_uval(UO_align_var_def_thresh   );
+                        mygap    = get_uval(UO_align_var_def_gap      ); break;
    }
 
    /* can't be any variable definitions in a "= {" block */
@@ -1178,13 +1178,13 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    AlignStack as;
    as.Start(myspan, mythresh);
    as.m_gap        = mygap;
-   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_star_style].u);
-   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_var_def_amp_style].u);
+   as.m_star_style = static_cast<StarStyle_t>(get_uval(UO_align_var_def_star_style));
+   as.m_amp_style  = static_cast<StarStyle_t>(get_uval(UO_align_var_def_amp_style));
 
    /* Set up the bit colon aligner */
    AlignStack as_bc;
    as_bc.Start(myspan, 0);
-   as_bc.m_gap = cpd.settings[UO_align_var_def_colon_gap].u;
+   as_bc.m_gap = get_uval(UO_align_var_def_colon_gap);
 
    AlignStack as_at; /* attribute */
    as_at.Start(myspan, 0);
@@ -1192,7 +1192,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    /* Set up the brace open aligner */
    AlignStack as_br;
    as_br.Start(myspan, mythresh);
-   as_br.m_gap = cpd.settings[UO_align_single_line_brace_gap].u;
+   as_br.m_gap = get_uval(UO_align_single_line_brace_gap);
 
    bool       fp_look_bro   = false;
    bool       did_this_line = false;
@@ -1425,7 +1425,7 @@ static chunk_t* align_trailing_comments(chunk_t* start)
    uint32_t        nl_count = 0;
    ChunkStack      cs;
    uint32_t        col;
-   const uint32_t         intended_col = cpd.settings[UO_align_right_cmt_at_col].u;
+   const uint32_t         intended_col = get_uval(UO_align_right_cmt_at_col);
    comment_align_e cmt_type_cur;
    comment_align_e cmt_type_start = get_comment_align_type(pc);
 
@@ -1433,7 +1433,7 @@ static chunk_t* align_trailing_comments(chunk_t* start)
            __func__, pc->orig_line);
 
    /* Find the max column */
-   while (is_valid(pc) && (nl_count < cpd.settings[UO_align_right_cmt_span].u))
+   while (is_valid(pc) && (nl_count < get_uval(UO_align_right_cmt_span)))
    {
       if (is_flag(pc, PCF_RIGHT_COMMENT) && (pc->column > 1))
       {
@@ -1441,7 +1441,7 @@ static chunk_t* align_trailing_comments(chunk_t* start)
 
          if (cmt_type_cur == cmt_type_start)
          {
-            col = 1 + (pc->brace_level * cpd.settings[UO_indent_columns].u);
+            col = 1 + (pc->brace_level * get_uval(UO_indent_columns));
             LOG_FMT(LALADD, "%s: line=%u col=%u min_col=%u pc->col=%u pc->len=%u %s\n",
                     __func__, pc->orig_line, col, min_col, pc->column, pc->len(),
                     get_token_name(pc->type));
@@ -1777,9 +1777,9 @@ static void align_typedefs(uint32_t span)
 
    AlignStack as;
    as.Start(span);
-   as.m_gap        = cpd.settings[UO_align_typedef_gap].u;
-   as.m_star_style = static_cast<StarStyle_t>(cpd.settings[UO_align_typedef_star_style].u);
-   as.m_amp_style  = static_cast<StarStyle_t>(cpd.settings[UO_align_typedef_amp_style ].u);
+   as.m_gap        = get_uval(UO_align_typedef_gap);
+   as.m_star_style = static_cast<StarStyle_t>(get_uval(UO_align_typedef_star_style));
+   as.m_amp_style  = static_cast<StarStyle_t>(get_uval(UO_align_typedef_amp_style ));
 
    const chunk_t *c_typedef = nullptr;
    chunk_t *pc        = chunk_get_head();
@@ -1866,7 +1866,7 @@ static void align_left_shift(void)
             chunk_t *prev = chunk_get_prev(pc);
             if (is_nl(prev))
             {
-               indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
+               indent_to_column(pc, pc->column_indent + get_uval(UO_indent_columns));
                pc->column_indent = pc->column;
                set_flags(pc, PCF_DONT_INDENT);
             }
@@ -1891,7 +1891,7 @@ static void align_left_shift(void)
          chunk_t *prev = chunk_get_prev(pc);
          if (is_nl(prev))
          {
-            indent_to_column(pc, pc->column_indent + cpd.settings[UO_indent_columns].u);
+            indent_to_column(pc, pc->column_indent + get_uval(UO_indent_columns));
             pc->column_indent = pc->column;
             set_flags(pc, PCF_DONT_INDENT);
          }
@@ -1912,7 +1912,7 @@ static void align_oc_msg_colon(chunk_t *so)
    nas.m_right_align = is_false(UO_align_on_tabstop);
 
    AlignStack cas;   /* for the colons */
-   const uint32_t     span = cpd.settings[UO_align_oc_msg_colon_span].u;
+   const uint32_t     span = get_uval(UO_align_oc_msg_colon_span);
    cas.Start(span);
 
    const uint32_t  level = so->level;
@@ -1975,9 +1975,9 @@ static void align_oc_msg_colon(chunk_t *so)
    }
 
    /* add spaces before the longest arg */
-   len = cpd.settings[UO_indent_oc_msg_colon].u;
+   len = get_uval(UO_indent_oc_msg_colon);
    const uint32_t len_diff    = mlen - first_len;
-   const uint32_t indent_size = cpd.settings[UO_indent_columns].u;
+   const uint32_t indent_size = get_uval(UO_indent_columns);
    /* Align with first colon if possible by removing spaces */
    if (is_valid(longest) &&
        is_true(UO_indent_oc_msg_prioritize_first_colon) &&

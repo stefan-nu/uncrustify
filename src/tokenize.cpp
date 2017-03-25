@@ -117,7 +117,7 @@ struct tok_ctx
          switch (ch)
          {
             case TABSTOP:
-               c.col = calc_next_tab_column(c.col, cpd.settings[UO_input_tab_size].u);
+               c.col = calc_next_tab_column(c.col, get_uval(UO_input_tab_size));
                break;
 
             case LINEFEED:
@@ -1017,8 +1017,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 
 static bool parse_string(tok_ctx &ctx, chunk_t &pc, uint32_t quote_idx, bool allow_escape)
 {
-   uint32_t escape_char        = cpd.settings[UO_string_escape_char].u;
-   uint32_t escape_char2       = cpd.settings[UO_string_escape_char2].u;
+   uint32_t escape_char        = get_uval(UO_string_escape_char);
+   uint32_t escape_char2       = get_uval(UO_string_escape_char2);
    bool   should_escape_tabs = is_true(UO_string_replace_tab_chars) && (cpd.lang_flags & LANG_ALLC);
 
    pc.str.clear();
@@ -1115,7 +1115,7 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
          {
             cpd.warned_unable_string_replace_tab_chars = true;
 
-            log_sev_t warnlevel = static_cast<log_sev_t>(cpd.settings[UO_warn_level_tabs_found_in_verbatim_string_literals].u);
+            log_sev_t warnlevel = static_cast<log_sev_t>(get_uval(UO_warn_level_tabs_found_in_verbatim_string_literals));
 
             /* a tab char can't be replaced with \\t because escapes don't work in here-strings. best we can do is warn. */
             LOG_FMT(warnlevel, "%s:%u Detected non-replaceable tab char in literal string\n", cpd.filename, pc.orig_line);
@@ -1416,7 +1416,7 @@ static bool parse_whitespace(tok_ctx &ctx, chunk_t &pc)
             break;
 
          case TABSTOP:
-            pc.orig_prev_sp += calc_next_tab_column(cpd.column, cpd.settings[UO_input_tab_size].u) - cpd.column;
+            pc.orig_prev_sp += calc_next_tab_column(cpd.column, get_uval(UO_input_tab_size)) - cpd.column;
             break;
 
          case SPACE:

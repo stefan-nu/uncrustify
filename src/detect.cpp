@@ -173,14 +173,14 @@ static void detect_space_options(void)
          case(CT_PAREN_CLOSE):  vote_sp_inside_paren.vote(prev, pc); /* fallthrough */
          case(CT_TPAREN_CLOSE): /* fallthrough */
          case(CT_FPAREN_CLOSE):
-            if     (is_paren_close(next))   { vote_sp_paren_paren.vote(pc, next); }
+            if     (is_paren_close(next))         { vote_sp_paren_paren.vote(pc, next); }
             else if(is_type(next, CT_BRACE_OPEN)) { vote_sp_paren_brace.vote(pc, next); }
          break;
 
          case(CT_PTR_TYPE):
-            if      (is_type (prev, CT_PTR_TYPE))       { vote_sp_between_pstar.vote       (prev, pc); }
-            else if (not_type(next, CT_WORD    ))       { vote_sp_before_unnamed_pstar.vote(prev, pc); }
-            else                                        { vote_sp_before_ptr_star.vote     (prev, pc); }
+            if      (is_type (prev, CT_PTR_TYPE))         { vote_sp_between_pstar.vote       (prev, pc); }
+            else if (not_type(next, CT_WORD    ))         { vote_sp_before_unnamed_pstar.vote(prev, pc); }
+            else                                          { vote_sp_before_ptr_star.vote     (prev, pc); }
             if (CharTable::IsKW1((uint32_t)next->str[0])) { vote_sp_after_pstar.vote         (pc, next); }
          break;
 
@@ -197,11 +197,11 @@ static void detect_space_options(void)
          break;
 
          case(CT_ANGLE_CLOSE):
-                                                  vote_sp_inside_angle.vote(prev, pc);
-            if      (is_paren_open(next))       { vote_sp_angle_paren.vote (prev, pc); }
+                                             vote_sp_inside_angle.vote(prev, pc);
+            if      (is_paren_open(next))  { vote_sp_angle_paren.vote (prev, pc); }
             else if (is_type(next, CT_WORD) || CharTable::IsKW1((uint32_t)next->str[0]))
-                                                { vote_sp_angle_word.vote  (prev, pc); }
-            else                                { vote_sp_after_angle.vote (pc, next); }
+                                           { vote_sp_angle_word.vote  (prev, pc); }
+            else                           { vote_sp_after_angle.vote (pc, next); }
          break;
 
          case(CT_SPAREN_OPEN):
@@ -261,7 +261,7 @@ static void detect_space_options(void)
 
          default:
             if (not_type(pc,   CT_PTR_TYPE          ) &&
-                is_type    (prev, CT_QUALIFIER, CT_TYPE) )
+                is_type (prev, CT_QUALIFIER, CT_TYPE) )
             {
                vote_sp_after_type.vote(prev, pc);
             }

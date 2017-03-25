@@ -10,7 +10,7 @@
 
 #include "uncrustify_types.h"
 #include "char_table.h"
-
+#include "ListManager.h"
 
 /* \todo better use a class for all chunk related operations,
  *  then the following functions can be changed into member
@@ -21,13 +21,8 @@
 
 #define ANY_LEVEL    -1
 
-/* some useful defines that perform typical checks and corresponding
- * reactions. */
-#define return_if(cond)          if (cond) {return;        }
-#define retval_if(cond, retval)  if (cond) {return(retval);}
-#define break_if(cond)           if (cond) {break;         }
-#define continue_if(cond)        if (cond) {continue;      }
 
+typedef ListManager<chunk_t>::dir_e dir_e;
 
 /**
  * Specifies which chunks should/should not be found.
@@ -213,6 +208,43 @@ bool chunk_and_next_are_valid(
  */
 bool chunk_and_prev_are_valid(
    const chunk_t* const pc /**< [in] chunk to check */
+);
+
+
+/***************************************************************************//**
+ * @brief prototype for a function that checks a chunk to have a given type
+ *
+ * @note this typedef defines the function type "check_t"
+ * for a function pointer of type
+ * bool function(chunk_t* pc)
+ ******************************************************************************/
+typedef bool (*check_t)(chunk_t* pc);
+
+
+/***************************************************************************//**
+ * \brief search for a chunk that satisfies a condition in a chunk list
+ *
+ * A generic function that traverses a chunks list either
+ * in forward or reverse direction. The traversal continues until a
+ * chunk satisfies the condition defined by the compare function.
+ * Depending on the parameter cond the condition will either be
+ * checked to be true or false.
+ *
+ * Whenever a chunk list traversal is to be performed this function
+ * shall be used. This keeps the code clear and easy to understand.
+ *
+ * If there are performance issues this function might be worth to
+ * be optimized as it is heavily used.
+ *
+ * @retval nullptr - no requested chunk was found or invalid parameters provided
+ * @retval chunk_t - pointer to the found chunk
+ ******************************************************************************/
+static chunk_t* chunk_search(
+   chunk_t*      cur,                  /**< [in] chunk to start search at */
+   const check_t check_fct,            /**< [in] compare function */
+   const scope_e scope = scope_e::ALL, /**< [in] code parts to consider for search */
+   const dir_e   dir   = dir_e::AFTER, /**< [in] search direction */
+   const bool    cond  = true          /**< [in] success condition */
 );
 
 

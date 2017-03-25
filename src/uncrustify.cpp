@@ -830,10 +830,10 @@ int main(int argc, char* argv[])
          usage_exit("Unable to load the config file", argv[0], EX_IOERR);
       }
       /* test if all options are compatible to each other */
-      if (cpd.settings[UO_nl_max].u > 0)
+      if (get_uval(UO_nl_max) > 0)
       {
          /* test if one/some option(s) is/are not too big for that */
-         if (cpd.settings[UO_nl_func_var_def_blk].u >= cpd.settings[UO_nl_max].u)
+         if (get_uval(UO_nl_func_var_def_blk) >= get_uval(UO_nl_max))
          {
             fprintf(stderr, "The option 'nl_func_var_def_blk' is too big against the option 'nl_max'\n");
             exit(EX_CONFIG);
@@ -1820,7 +1820,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    argval_t av;
    switch (cpd.enc)
    {
-      case char_encoding_e::UTF8:      av = cpd.settings[UO_utf8_bom].a; break;
+      case char_encoding_e::UTF8:      av = get_arg(UO_utf8_bom); break;
       case char_encoding_e::UTF16_LE: /* fallthrough */
       case char_encoding_e::UTF16_BE:  av = AV_FORCE;                    break;
       default:                         av = AV_IGNORE;                   break;
@@ -1866,7 +1866,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    if (is_true(UO_mod_remove_extra_semicolon)) { remove_extra_semicolons(); }
    if (is_true(UO_mod_remove_empty_return   )) { remove_extra_returns();    }
    do_parens();
-   if (cpd.settings[UO_nl_remove_extra_newlines].u == 2) { newlines_remove_newlines(); }
+   if (get_uval(UO_nl_remove_extra_newlines) == 2) { newlines_remove_newlines(); }
 
    bool first = true;
    int32_t  old_changes;
@@ -1928,24 +1928,24 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    space_text();
 
    /* Do any aligning of preprocessors */
-   if (cpd.settings[UO_align_pp_define_span].u > 0) { align_preprocessor(); }
+   if (get_uval(UO_align_pp_define_span) > 0) { align_preprocessor(); }
 
    /* Indent the text */
    indent_preproc();
    indent_text();
 
    /* Insert trailing comments after certain close braces */
-   if ((cpd.settings[UO_mod_add_long_switch_closebrace_comment   ].u > 0) ||
-       (cpd.settings[UO_mod_add_long_function_closebrace_comment ].u > 0) ||
-       (cpd.settings[UO_mod_add_long_class_closebrace_comment    ].u > 0) ||
-       (cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u > 0) )
+   if ((get_uval(UO_mod_add_long_switch_closebrace_comment   ) > 0) ||
+       (get_uval(UO_mod_add_long_function_closebrace_comment ) > 0) ||
+       (get_uval(UO_mod_add_long_class_closebrace_comment    ) > 0) ||
+       (get_uval(UO_mod_add_long_namespace_closebrace_comment) > 0) )
    {
       add_long_closebrace_comment();
    }
 
    /* Insert trailing comments after certain preprocessor conditional blocks */
-   if ((cpd.settings[UO_mod_add_long_ifdef_else_comment ].u > 0) ||
-       (cpd.settings[UO_mod_add_long_ifdef_endif_comment].u > 0) )
+   if ((get_uval(UO_mod_add_long_ifdef_else_comment ) > 0) ||
+       (get_uval(UO_mod_add_long_ifdef_endif_comment) > 0) )
    {
       add_long_preprocessor_conditional_block_comment();
    }
@@ -1958,7 +1958,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
       align_all();
       indent_text();
       old_changes = cpd.changes;
-      if (cpd.settings[UO_code_width].u > 0)
+      if (get_uval(UO_code_width) > 0)
       {
          LOG_FMT(LNEWLINE, "Code_width loop start: %d\n", cpd.changes);
          do_code_width();

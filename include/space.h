@@ -34,7 +34,7 @@ void space_text(void);
 
 
 /**
- * Marches through the whole file and adds spaces around nested parens
+ * Marches through the whole file and adds spaces around nested parenthesis
  */
 void space_text_balance_nested_parens(void);
 
@@ -49,8 +49,8 @@ void space_text_balance_nested_parens(void);
  * @return        the column difference between the two chunks
  */
 uint32_t space_col_align(
-   chunk_t* first,
-   chunk_t* second
+   chunk_t* first, /**< [in]  */
+   chunk_t* second /**< [in]  */
 );
 
 
@@ -58,8 +58,8 @@ uint32_t space_col_align(
  * Determines if a space is required between two chunks
  */
 uint32_t space_needed(
-   chunk_t* first,
-   chunk_t* second
+   chunk_t* first, /**< [in]  */
+   chunk_t* second /**< [in]  */
 );
 
 
@@ -67,8 +67,8 @@ uint32_t space_needed(
  * tbd
  */
 void space_add_after(
-   chunk_t* pc,
-   uint32_t count
+   chunk_t* pc,   /**< [in]  */
+   uint32_t count /**< [in]  */
 );
 
 

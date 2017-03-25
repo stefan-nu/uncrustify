@@ -137,7 +137,7 @@ void print_universal_indent_cfg(FILE* pfile)
             fprintf(pfile, "EditorType=multiple\n");
             fprintf(pfile, "Choices=\"%s=0|%s=1|%s=2\"\n", option->name, option->name, option->name);
             fprintf(pfile, "ChoicesReadable=\"Spaces only|Indent with tabs, align with spaces|Indent and align with tabs\"\n");
-            fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+            fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
             break;
 
          // All not specially handled options are created only dependent by their type.
@@ -155,7 +155,7 @@ void print_universal_indent_cfg(FILE* pfile)
                // TrueFalse="align_keep_tabs=true|align_keep_tabs=false"
                fprintf(pfile, "EditorType=boolean\n");
                fprintf(pfile, "TrueFalse=%s=true|%s=false\n", option->name, option->name);
-               fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+               fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
                break;
 
             case AT_IARF:
@@ -164,7 +164,7 @@ void print_universal_indent_cfg(FILE* pfile)
                        option->name, option->name, option->name, option->name);
                fprintf(pfile, "ChoicesReadable=\"Ignore %s|Add %s|Remove %s|Force %s\"\n",
                        optionNameReadable, optionNameReadable, optionNameReadable, optionNameReadable);
-               fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+               fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
                // [nl_after_switch]
                // Category=4
                // Description=<html>Add or remove newline after 'switch'</html>
@@ -190,7 +190,7 @@ void print_universal_indent_cfg(FILE* pfile)
                fprintf(pfile, "CallName=\"%s=\"\n", option->name);
                fprintf(pfile, "MinVal=%d\n", option->min_val);
                fprintf(pfile, "MaxVal=%d\n", option->max_val);
-               fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+               fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
                break;
 
             case AT_UNUM:
@@ -207,7 +207,7 @@ void print_universal_indent_cfg(FILE* pfile)
                fprintf(pfile, "CallName=\"%s=\"\n", option->name);
                fprintf(pfile, "MinVal=%d\n", option->min_val);
                fprintf(pfile, "MaxVal=%d\n", option->max_val);
-               fprintf(pfile, "ValueDefault=%u\n", cpd.settings[option->id].u);
+               fprintf(pfile, "ValueDefault=%u\n", get_uval(option->id));
                break;
 
             case AT_LINE:
@@ -223,7 +223,7 @@ void print_universal_indent_cfg(FILE* pfile)
                fprintf(pfile, "Choices=\"%s=lf|%s=crlf|%s=cr|%s=auto\"\n",
                        option->name, option->name, option->name, option->name);
                fprintf(pfile, "ChoicesReadable=\"Newlines Unix|Newlines Win|Newlines Mac|Newlines Auto\"\n");
-               fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+               fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
                break;
 
             case AT_POS:
@@ -243,7 +243,7 @@ void print_universal_indent_cfg(FILE* pfile)
                        optionNameReadable, optionNameReadable, optionNameReadable,
                        optionNameReadable, optionNameReadable, optionNameReadable,
                        optionNameReadable);
-               fprintf(pfile, "ValueDefault=%d\n", cpd.settings[option->id].n);
+               fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
                break;
 
             case AT_STRING:

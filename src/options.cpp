@@ -218,13 +218,21 @@ bool is_opt_set(const argval_t opt, const argval_t val)
 }
 bool is_opt_set(const uo_t opt, const argval_t val)
 {
-   return(is_opt_set(cpd.settings[opt].a, val));
+   return(is_opt_set(get_arg(opt), val));
 }
 
 
 argval_t get_arg(const uo_t opt)
 {
    return(cpd.settings[opt].a);
+}
+uint32_t get_uval(const uo_t opt)
+{
+   return(cpd.settings[opt].u);
+}
+int32_t get_ival(const uo_t opt)
+{
+   return(cpd.settings[opt].n);
 }
 
 
@@ -236,11 +244,11 @@ void set_arg(const uo_t opt, argval_t val)
 
 bool is_val(const uo_t opt, const uint32_t val)
 {
-   return(cpd.settings[opt].u == val);
+   return(get_uval(opt) == val);
 }
 bool is_val(const uo_t opt, const int32_t val)
 {
-   return(cpd.settings[opt].n == val);
+   return(get_ival(opt) == val);
 }
 
 
@@ -260,31 +268,31 @@ bool is_opt_unset(const argval_t opt, const argval_t val)
 }
 
 
-bool is_opt(const argval_t var, const argval_t val)
+bool is_arg(const argval_t var, const argval_t val)
 {
    return (var == val);
 }
-bool is_opt(const uo_t opt, const argval_t val)
+bool is_arg(const uo_t opt, const argval_t val)
 {
-   return is_opt(cpd.settings[opt].a, val);
+   return is_arg(cpd.settings[opt].a, val);
 }
 bool is_ignore(const uo_t opt)
 {
-   return is_opt(cpd.settings[opt].a, AV_IGNORE);
+   return is_arg(cpd.settings[opt].a, AV_IGNORE);
 }
 
 
-bool not_opt(const argval_t opt, const argval_t val)
+bool not_arg(const argval_t opt, const argval_t val)
 {
    return (opt != val);
 }
-bool not_opt(const uo_t opt, const argval_t val)
+bool not_arg(const uo_t opt, const argval_t val)
 {
-   return not_opt(cpd.settings[opt].a, val);
+   return not_arg(cpd.settings[opt].a, val);
 }
 bool not_ignore(const uo_t opt)
 {
-   return not_opt(cpd.settings[opt].a, AV_IGNORE);
+   return not_arg(cpd.settings[opt].a, AV_IGNORE);
 }
 
 
@@ -1894,9 +1902,9 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
                  get_argtype_name(tmp->type), tmp->name);
          if (( tmp->type == entry->type) ||
              ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
-             ((tmp->type == AT_NUM ) && (entry->type == AT_UNUM) && (cpd.settings[tmp->id].n * mult) > 0))
+             ((tmp->type == AT_NUM ) && (entry->type == AT_UNUM) && (get_ival(tmp->id) * mult) > 0))
          {
-            dest->n = cpd.settings[tmp->id].n * mult;
+            dest->n = get_ival(tmp->id) * mult;
             // is the same as dest->u
             return;
          }
@@ -1969,7 +1977,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
    if (((tmp = unc_find_option(val)) != nullptr) &&
         (tmp->type == entry->type))
    {
-      dest->a = cpd.settings[tmp->id].a;
+      dest->a = get_arg(tmp->id);
       return;
    }
 

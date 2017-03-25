@@ -215,11 +215,11 @@ static void examine_braces(void)
          {
             case(CT_IF        ): /* fallthrough */
             case(CT_ELSE      ): /* fallthrough */
-            case(CT_ELSEIF    ): if(is_opt(UO_mod_full_brace_if   , AV_REMOVE)) examine_brace(pc); break;
-            case(CT_DO        ): if(is_opt(UO_mod_full_brace_do   , AV_REMOVE)) examine_brace(pc); break;
-            case(CT_FOR       ): if(is_opt(UO_mod_full_brace_for  , AV_REMOVE)) examine_brace(pc); break;
-            case(CT_USING_STMT): if(is_opt(UO_mod_full_brace_using, AV_REMOVE)) examine_brace(pc); break;
-            case(CT_WHILE     ): if(is_opt(UO_mod_full_brace_while, AV_REMOVE)) examine_brace(pc); break;
+            case(CT_ELSEIF    ): if(is_arg(UO_mod_full_brace_if   , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_DO        ): if(is_arg(UO_mod_full_brace_do   , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_FOR       ): if(is_arg(UO_mod_full_brace_for  , AV_REMOVE)) examine_brace(pc); break;
+            case(CT_USING_STMT): if(is_arg(UO_mod_full_brace_using, AV_REMOVE)) examine_brace(pc); break;
+            case(CT_WHILE     ): if(is_arg(UO_mod_full_brace_while, AV_REMOVE)) examine_brace(pc); break;
             default:             /* do nothing */ break;
          }
       }
@@ -231,7 +231,7 @@ static void examine_braces(void)
 static bool should_add_braces(chunk_t *vbopen)
 {
    LOG_FUNC_ENTRY();
-   const uint32_t nl_max = cpd.settings[UO_mod_full_brace_nl].u;
+   const uint32_t nl_max = get_uval(UO_mod_full_brace_nl);
    retval_if(nl_max == 0, false);
 
    LOG_FMT(LBRDEL, "%s: start on %u : ", __func__, vbopen->orig_line);
@@ -280,7 +280,7 @@ static bool can_remove_braces(chunk_t *bopen)
    const uint32_t  level      = bopen->level + 1;
    bool          hit_semi   = false;
    bool          was_fcn    = false;
-   const uint32_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
+   const uint32_t  nl_max     = get_uval(UO_mod_full_brace_nl);
    uint32_t        nl_count   = 0;
    uint32_t        if_count   = 0;
    int32_t           br_count   = 0;
@@ -400,7 +400,7 @@ static void examine_brace(chunk_t *bopen)
    const uint32_t  level      = bopen->level + 1;
    bool          hit_semi   = false;
    bool          was_fcn    = false;
-   const uint32_t  nl_max     = cpd.settings[UO_mod_full_brace_nl].u;
+   const uint32_t  nl_max     = get_uval(UO_mod_full_brace_nl);
    uint32_t        nl_count   = 0;
    uint32_t        if_count   = 0;
    int32_t           br_count   = 0;
@@ -849,20 +849,20 @@ void add_long_closebrace_comment(void)
 
                if(is_ptype(br_open, CT_SWITCH))
                {
-                  nl_min = cpd.settings[UO_mod_add_long_switch_closebrace_comment].u;
+                  nl_min = get_uval(UO_mod_add_long_switch_closebrace_comment);
                   tag_pc = sw_pc;
                   xstr   = (is_valid(sw_pc)) ? sw_pc->str : "";
                }
                else if(is_ptype(br_open, CT_FUNC_DEF, CT_OC_MSG_DECL))
                {
-                  nl_min = cpd.settings[UO_mod_add_long_function_closebrace_comment].u;
+                  nl_min = get_uval(UO_mod_add_long_function_closebrace_comment);
                   tag_pc = fcn_pc;
                   xstr.clear();
                   append_tag_name(xstr, tag_pc);
                }
                else if (is_ptype(br_open, CT_NAMESPACE))
                {
-                  nl_min = cpd.settings[UO_mod_add_long_namespace_closebrace_comment].u;
+                  nl_min = get_uval(UO_mod_add_long_namespace_closebrace_comment);
                   tag_pc = ns_pc;
 
                   /* obtain the next chunk, normally this is the name of the namespace
@@ -875,7 +875,7 @@ void add_long_closebrace_comment(void)
                else if ( is_ptype (br_open, CT_CLASS) &&
                          are_valid(cl_pc, cl_semi_pc) )
                {
-                  nl_min = cpd.settings[UO_mod_add_long_class_closebrace_comment].u;
+                  nl_min = get_uval(UO_mod_add_long_class_closebrace_comment);
                   tag_pc = cl_pc;
                   xstr   = tag_pc->str;
                   xstr.append(" ");

@@ -49,6 +49,14 @@ using namespace std;
 #define SWAP(a, b) { __typeof__(a) x = (a); (a) = (b); (b) = x; }
 
 
+/* some useful defines that perform typical checks and corresponding
+ * reactions. */
+#define return_if(cond)          if (cond) {return;        }
+#define retval_if(cond, retval)  if (cond) {return(retval);}
+#define break_if(cond)           if (cond) {break;         }
+#define continue_if(cond)        if (cond) {continue;      }
+
+
 /** Brace stage enum used in brace_cleanup */
 enum class brace_stage_e : uint32_t
 {
