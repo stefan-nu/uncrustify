@@ -466,11 +466,11 @@ void register_options(void)
    unc_add_opt("sp_inside_paren", UO_sp_inside_paren, AT_IARF,
                   "Add or remove space inside '(' and ')'");
    unc_add_opt("sp_paren_paren", UO_sp_paren_paren, AT_IARF,
-                  "Add or remove space between nested parens: '((' vs ') )'");
+                  "Add or remove space between nested parenthesis: '((' vs ') )'");
    unc_add_opt("sp_cparen_oparen", UO_sp_cparen_oparen, AT_IARF,
-                  "Add or remove space between back-to-back parens: ')(' vs ') ('");
+                  "Add or remove space between back-to-back parenthesis: ')(' vs ') ('");
    unc_add_opt("sp_balance_nested_parens", UO_sp_bal_nested_parens, AT_BOOL,
-                  "Whether to balance spaces inside nested parens");
+                  "Whether to balance spaces inside nested parenthesis");
    unc_add_opt("sp_paren_brace", UO_sp_paren_brace, AT_IARF,
                   "Add or remove space between ')' and '{'");
    unc_add_opt("sp_before_ptr_star", UO_sp_before_ptr_star, AT_IARF,
@@ -504,7 +504,7 @@ void register_options(void)
    unc_add_opt("sp_after_type", UO_sp_after_type, AT_IARF,
                   "Add or remove space between type and word. Default=Force");
    unc_add_opt("sp_before_template_paren", UO_sp_before_template_paren, AT_IARF,
-                  "Add or remove space before the paren in the D constructs 'template Foo(' and 'class Foo('.");
+                  "Add or remove space before the parenthesis in the D constructs 'template Foo(' and 'class Foo('.");
    unc_add_opt("sp_template_angle", UO_sp_template_angle, AT_IARF,
                   "Add or remove space in 'template <' vs 'template<'.\n"
                   "If set to ignore, sp_before_angle is used.");
@@ -594,9 +594,9 @@ void register_options(void)
    unc_add_opt("sp_after_cast", UO_sp_after_cast, AT_IARF,
                   "Add or remove space after C/D cast, i.e. 'cast(int32_t)a' vs 'cast(int32_t) a' or '(int32_t)a' vs '(int32_t) a'");
    unc_add_opt("sp_inside_paren_cast", UO_sp_inside_paren_cast, AT_IARF,
-                  "Add or remove spaces inside cast parens");
+                  "Add or remove spaces inside cast parenthesis");
    unc_add_opt("sp_cpp_cast_paren", UO_sp_cpp_cast_paren, AT_IARF,
-                  "Add or remove space between the type and open paren in a C++ cast, i.e. 'int(exp)' vs 'int (exp)'");
+                  "Add or remove space between the type and open parenthesis in a C++ cast, i.e. 'int(exp)' vs 'int (exp)'");
    unc_add_opt("sp_sizeof_paren", UO_sp_sizeof_paren, AT_IARF,
                   "Add or remove space between 'sizeof' and '('");
    unc_add_opt("sp_after_tag", UO_sp_after_tag, AT_IARF,
@@ -816,7 +816,7 @@ void register_options(void)
    unc_add_opt("sp_num_before_tr_emb_cmt", UO_sp_num_before_tr_emb_cmt, AT_UNUM,
                   "Number of spaces before a trailing or embedded comment");
    unc_add_opt("sp_annotation_paren", UO_sp_annotation_paren, AT_IARF,
-                  "Control space between a Java annotation and the open paren.");
+                  "Control space between a Java annotation and the open parenthesis.");
    unc_add_opt("sp_skip_vbrace_tokens", UO_sp_skip_vbrace_tokens, AT_BOOL,
                   "If True, vbrace tokens are dropped to the previous token and skipped.");
    unc_add_opt("force_tab_after_define", UO_force_tab_after_define, AT_BOOL,
@@ -915,9 +915,9 @@ void register_options(void)
    unc_add_opt("indent_func_param_double", UO_indent_func_param_double, AT_BOOL,
                   "Double the indent for indent_func_xxx_param options");
    unc_add_opt("indent_func_const", UO_indent_func_const, AT_UNUM,
-                  "Indentation column for standalone 'const' function decl/proto qualifier");
+                  "Indentation column for standalone 'const' function declaration/prototype qualifier");
    unc_add_opt("indent_func_throw", UO_indent_func_throw, AT_UNUM,
-                  "Indentation column for standalone 'throw' function decl/proto qualifier");
+                  "Indentation column for standalone 'throw' function declaration/prototype qualifier");
    unc_add_opt("indent_member", UO_indent_member, AT_UNUM,
                   "The number of spaces to indent a continued '->' or '.'\n"
                   "Usually set to 0, 1, or indent_columns.");
@@ -952,16 +952,16 @@ void register_options(void)
    unc_add_opt("indent_paren_nl", UO_indent_paren_nl, AT_BOOL,
                   "If an open paren is followed by a newline, indent the next line so that it lines up after the open paren (not recommended)");
    unc_add_opt("indent_paren_close", UO_indent_paren_close, AT_UNUM,
-                  "Controls the indent of a close paren after a newline.\n"
+                  "Controls the indent of a close parenthesis after a newline.\n"
                   "0: Indent to body level\n"
-                  "1: Align under the open paren\n"
+                  "1: Align under the open parenthesis\n"
                   "2: Indent to the brace level", "", 0, 2);
    unc_add_opt("indent_comma_paren", UO_indent_comma_paren, AT_BOOL,
                   "Controls the indent of a comma when inside a paren."
-                  "If True, aligns under the open paren");
+                  "If True, aligns under the open parenthesis");
    unc_add_opt("indent_bool_paren", UO_indent_bool_paren, AT_BOOL,
                   "Controls the indent of a BOOL operator when inside a paren."
-                  "If True, aligns under the open paren");
+                  "If True, aligns under the open parenthesis");
    unc_add_opt("indent_first_bool_expr", UO_indent_first_bool_expr, AT_BOOL,
                   "If 'indent_bool_paren' is True, controls the indent of the first expression. "
                   "If True, aligns the first expression to the following ones");
@@ -993,9 +993,9 @@ void register_options(void)
    unc_add_opt("indent_oc_block_msg_from_brace", UO_indent_oc_block_msg_from_brace, AT_BOOL,
                   "If indent_oc_block_msg and this option are on, blocks will be indented from where the brace is.");
    unc_add_opt("indent_min_vbrace_open", UO_indent_min_vbrace_open, AT_UNUM,
-                  "When identing after virtual brace open and newline add further spaces to reach this min. indent.");
+                  "When indenting after virtual brace open and newline add further spaces to reach this min. indent.");
    unc_add_opt("indent_vbrace_open_on_tabstop", UO_indent_vbrace_open_on_tabstop, AT_BOOL,
-                  "True: When identing after virtual brace open and newline add further spaces "
+                  "True: When indenting after virtual brace open and newline add further spaces "
                   "after regular indent to reach next tabstop.");
    unc_add_opt("indent_token_after_brace", UO_indent_token_after_brace, AT_BOOL,
                   "If True, a brace followed by another token (not a newline) will indent all contained lines to match the token."

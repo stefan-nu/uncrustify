@@ -12,7 +12,17 @@
 
 
 /** setup the function arrays that are used for
- * checking and doing the space processing */
+ * checking and doing the space processing
+ *
+ * When building the array o decisions only those decisions will be
+ * included that are required by the language of the input source file
+ * and the currently active uncrustify options.
+ * This avoids unnecessary checks that always will fail and thus
+ * speeds up the overall speed f the chunk processing
+ *
+ * A drawback is however that at the beginning of each file the
+ * array has to be recalculated.
+ */
 void init_space_check_action_array(void);
 
 
