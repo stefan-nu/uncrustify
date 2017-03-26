@@ -239,7 +239,7 @@ typedef bool (*check_t)(chunk_t* pc);
  * @retval nullptr - no requested chunk was found or invalid parameters provided
  * @retval chunk_t - pointer to the found chunk
  ******************************************************************************/
-static chunk_t* chunk_search(
+chunk_t* chunk_search(
    chunk_t*      cur,                  /**< [in] chunk to start search at */
    const check_t check_fct,            /**< [in] compare function */
    const scope_e scope = scope_e::ALL, /**< [in] code parts to consider for search */

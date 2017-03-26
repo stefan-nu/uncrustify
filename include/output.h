@@ -52,7 +52,7 @@ void add_long_preprocessor_conditional_block_comment(void);
  *
  * \todo parameter should not be int type
  */
-bool is_part_of_newline(
+bool is_part_of_nl(
    const int32_t character /**< [in] character to check */
 );
 

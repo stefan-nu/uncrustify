@@ -509,12 +509,12 @@ static void setup_newline_add(chunk_t* prev, chunk_t* nl, chunk_t* next)
    }
 }
 
-
+#if 0
 chunk_t* newline_add(chunk_t* pc, const dir_e pos)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(pc), pc);
-#if 0
+
    chunk_t* next = chunk_search(pc, is_vbrace, scope_e::ALL, pos, false));
 
    /* if there is already a newline no need to add another one */
@@ -531,8 +531,8 @@ chunk_t* newline_add(chunk_t* pc, const dir_e pos)
 
    MARK_CHANGE();
    return(chunk_add(&nl, pc, pos));
-#endif
 }
+#endif
 
 /* \todo DRY with newline_add_after */
 chunk_t* newline_add_before(chunk_t* pc)

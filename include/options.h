@@ -1083,7 +1083,10 @@ bool is_tok(
       const tokenpos_t tok, /**< [in] token variable to check */
       const tokenpos_t val  /**< [in] token combination to check for */
 );
-
+bool is_tok(
+   const uo_t       opt, /**< [in] uncrustify option variable to check */
+   const tokenpos_t val  /**< [in] token value to check for */
+);
 
 /**
  * \brief check if a token is different from a given value
@@ -1093,9 +1096,13 @@ bool is_tok(
  * @retval true  if token is not equal to the given value
  * @retval false if token is     equal to the given value
  */
-bool not_token(
+bool not_tok(
    const tokenpos_t tok, /**< [in] token variable to check */
    const tokenpos_t val  /**< [in] Token combination to check for */
+);
+bool not_tok(
+   const uo_t       opt, /**< [in] uncrustify option variable to check */
+   const tokenpos_t val  /**< [in] token value to check for */
 );
 
 

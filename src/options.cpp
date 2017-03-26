@@ -311,13 +311,20 @@ bool is_tok(const tokenpos_t tok, const tokenpos_t val)
 {
    return (tok == val);
 }
+bool is_tok(const uo_t opt, const tokenpos_t val)
+{
+   return (cpd.settings[opt].tp == val);
+}
 
 
-bool not_token(const tokenpos_t tok, const tokenpos_t val)
+bool not_tok(const tokenpos_t tok, const tokenpos_t val)
 {
    return (tok != val);
 }
-
+bool not_tok(const uo_t opt, const tokenpos_t val)
+{
+   return (cpd.settings[opt].tp != val);
+}
 
 bool is_bit_set(const uint64_t var, const uint64_t bit)
 {

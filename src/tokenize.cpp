@@ -529,7 +529,7 @@ void parse_char(tok_ctx &ctx, chunk_t &pc)
   uint32_t ch = ctx.get();
   pc.str.append(ch);
 
-  if (is_part_of_newline(ch))
+  if (is_part_of_nl(ch))
   {
      pc.type = CT_COMMENT_MULTI;
      pc.nl_count++;
@@ -586,7 +586,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          while (ctx.more())
          {
             ch = ctx.peek();
-            break_if(is_part_of_newline(ch));
+            break_if(is_part_of_nl(ch));
 
             if ((ch    == BACKSLASH) &&
                 (is_cs == false    ) ) /* backslashes aren't special in comments in C# */
@@ -1104,7 +1104,7 @@ static bool parse_cs_string(tok_ctx &ctx, chunk_t &pc)
       uint32_t ch = ctx.get();
       pc.str.append(ch);
 
-      if(is_part_of_newline(ch))
+      if(is_part_of_nl(ch))
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
@@ -1227,7 +1227,7 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
          break;
       }
 
-      if(is_part_of_newline(ch))
+      if(is_part_of_nl(ch))
       {
          pc.type = CT_STRING_MULTI;
          pc.nl_count++;
@@ -1450,7 +1450,7 @@ static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc)
           unc_isspace(ch = ctx.peek()) )
    {
       ctx.get();
-      if(is_part_of_newline(ch))
+      if(is_part_of_nl(ch))
       {
          if (ch == CARRIAGERETURN)
          {
@@ -1475,7 +1475,7 @@ static bool parse_newline(tok_ctx &ctx)
    /* Eat whitespace */
    while(is_space_or_tab(ctx.peek())) { ctx.get(); }
 
-   if(is_part_of_newline(ctx.peek()))
+   if(is_part_of_nl(ctx.peek()))
    {
       if (ctx.expect(LINEFEED) == false)
       {
@@ -1499,7 +1499,7 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
       if (ctx.peek() == BACKSLASH)
       {
          uint32_t ch = ctx.peek(1);
-         break_if(is_part_of_newline(ch));
+         break_if(is_part_of_nl(ch));
       }
       pc.str.append(ctx.get());
    }
@@ -1620,7 +1620,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       {
          uint32_t ch = ctx.peek();
 
-         if(is_part_of_newline(ch))
+         if(is_part_of_nl(ch))
          {
             /* Back off if this is an escaped newline */
             if (last == BACKSLASH)
