@@ -179,12 +179,6 @@ void unc_begin_group(ug_t id, const char *short_desc,
 }
 
 
-argval_t add_option(argval_t var, argval_t opt)
-{
-   return (argval_t)((int32_t)var | (int32_t)opt);
-}
-
-
 uo_t get_inverse_uo(const uo_t option)
 {
    switch(option)
@@ -212,6 +206,12 @@ uo_t get_inverse_uo(const uo_t option)
 }
 
 
+argval_t add_option(argval_t var, argval_t opt)
+{
+   return (argval_t)((int32_t)var | (int32_t)opt);
+}
+
+
 bool is_opt_set(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == val); /*lint !e655 */
@@ -234,13 +234,19 @@ int32_t get_ival(const uo_t opt)
 {
    return(cpd.settings[opt].n);
 }
-
+tokenpos_t get_tok(const uo_t opt)
+{
+   return(cpd.settings[opt].tp);
+}
 
 void set_arg(const uo_t opt, argval_t val)
 {
    cpd.settings[opt].a = val;
 }
-
+void add_arg(const uo_t opt, argval_t val)
+{
+   cpd.settings[opt].a = add_option(cpd.settings[opt].a, val);
+}
 
 bool is_val(const uo_t opt, const uint32_t val)
 {

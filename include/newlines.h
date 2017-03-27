@@ -48,7 +48,7 @@ void newlines_squeeze_ifdef(void);
 /**
  * tbd
  */
-void newlines_eat_start_end(void);
+void nl_eat_start_end(void);
 
 
 /**
@@ -57,7 +57,7 @@ void newlines_eat_start_end(void);
  * exactly 1 newline before (UO_pos_comma == TRAIL) or after (UO_pos_comma == LEAD).
  * We can't remove a newline if it is right before a preprocessor.
  */
-void newlines_chunk_pos(
+void nl_chunk_pos(
    c_token_t  chunk_type, /**< [in]  */
    tokenpos_t mode        /**< [in]  */
 );
@@ -67,7 +67,7 @@ void newlines_chunk_pos(
  * Searches for CT_CLASS_COLON and moves them, if needed.
  * Also breaks up the args
  */
-void newlines_class_colon_pos(
+void nl_class_colon_pos(
    c_token_t tok /**< [in]  */
 );
 
@@ -81,7 +81,7 @@ void newlines_cleanup_dup(void);
 /**
  * tbd
  */
-void annotations_newlines(void);
+void annotations_nl(void);
 
 
 /**
@@ -121,7 +121,7 @@ void undo_one_liner(
  * @param pc   The chunk
  * @param av   The IARF value
  */
-void newline_iarf(
+void nl_iarf(
    chunk_t* pc, /**< [in]  */
    argval_t av  /**< [in]  */
 );

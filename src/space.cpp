@@ -164,17 +164,15 @@ static void log_space(const uint32_t id, const uo_t opt, chunks_t* c, bool add_n
  * and more efficient. */
 
 static bool sp_cond_0069(chunks_t* c) {return is_type_and_ptype(c->a, CT_SQUARE_CLOSE, CT_CPP_LAMBDA) &&
-                                                                                is_type          (c->b, CT_FPAREN_OPEN); }
+                                              is_type          (c->b, CT_FPAREN_OPEN); }
 static bool sp_cond_0023(chunks_t* c) {return is_type_and_ptype(c->a, CT_COLON,        CT_SQL_EXEC  ); }
 static bool sp_cond_0025(chunks_t* c) {return is_type_and_ptype(c->a, CT_FPAREN_CLOSE, CT_MACRO_FUNC); }
 static bool sp_cond_0151(chunks_t* c) {return is_type_and_ptype(c->b, CT_PAREN_OPEN,   CT_INVARIANT ); }
 
-static bool sp_cond_0193(chunks_t* c) {return is_only_first_type(c->b, CT_PTR_TYPE,     c->a, CT_IN     ); }
 static bool sp_cond_0008(chunks_t* c) {return is_only_first_type(c->a, CT_VBRACE_OPEN,  c->b, CT_NL_CONT); }
 static bool sp_cond_0009(chunks_t* c) {return is_only_first_type(c->a, CT_VBRACE_CLOSE, c->b, CT_NL_CONT); }
 
 static bool sp_cond_0161(chunks_t* c) {return any_is_type(c->a, CT_TPAREN_OPEN,   c->b, CT_TPAREN_CLOSE); }
-
 static bool sp_cond_0178(chunks_t* c) {return any_is_type(c->a, CT_SPAREN_OPEN,   c->b, CT_SPAREN_CLOSE); }
 static bool sp_cond_0174(chunks_t* c) {return any_is_type(c->a, CT_SQUARE_OPEN,   c->b, CT_SQUARE_CLOSE); }
 static bool sp_cond_0223(chunks_t* c) {return any_is_type(c->a, CT_INCDEC_BEFORE, c->b, CT_INCDEC_AFTER); }
@@ -183,6 +181,7 @@ static bool sp_cond_0085(chunks_t* c) {return any_is_type(c->a, CT_ANGLE_OPEN,  
 
 static bool sp_cond_0217(chunks_t* c) {return any_is_type(c->a, c->b, CT_PTR_TYPE     ); }
 static bool sp_cond_0188(chunks_t* c) {return any_is_type(c->a, c->b, CT_BOOL         ); }
+static bool sp_cond_1188(chunks_t* c) {return any_is_type(c->a, c->b, CT_BOOL) && (c->a->orig_line != c->b->orig_line     ); }
 static bool sp_cond_0189(chunks_t* c) {return any_is_type(c->a, c->b, CT_COMPARE      ); }
 static bool sp_cond_0186(chunks_t* c) {return any_is_type(c->a, c->b, CT_NULLCOND     ); }
 static bool sp_cond_0067(chunks_t* c) {return any_is_type(c->a, c->b, CT_LAMBDA       ); }
@@ -194,10 +193,10 @@ static bool sp_cond_0013(chunks_t* c) {return any_is_type(c->a, c->b, CT_D_ARRAY
 static bool sp_cond_0018(chunks_t* c) {return any_is_type(c->a, c->b, CT_QUESTION     ); }
 
 static bool sp_cond_0019(chunks_t* c) {return any_is_type(c->a, c->b, CT_QUESTION) &&
-                                                                                    is_type(c->b,       CT_QUESTION); }
+                                                  is_type(c->b,       CT_QUESTION); }
 
 static bool sp_cond_0020(chunks_t* c) {return any_is_type(c->a, c->b, CT_QUESTION) &&
-                                                                                    is_type(c->a,       CT_QUESTION); }
+                                                  is_type(c->a,       CT_QUESTION); }
 
 static bool sp_cond_0022(chunks_t* c) {return any_is_type(c->a, c->b, CT_RANGE     ); }
 static bool sp_cond_0141(chunks_t* c) {return any_is_type(c->a, c->b, CT_D_TEMPLATE); }
@@ -206,8 +205,6 @@ static bool sp_cond_0084(chunks_t* c) {return are_types(c->a, c->b, CT_ANGLE_CLO
 static bool sp_cond_0002(chunks_t* c) {return are_types(c->a, c->b, CT_PP_IGNORE  ); }
 static bool sp_cond_0191(chunks_t* c) {return are_types(c->a, c->b, CT_PTR_TYPE   ); }
 
-
-//static bool sp_cond_0148(chunks_t* c) {return are_types(c->a, CT_WORD, c->b, CT_BRACE_OPEN); }
 static bool sp_cond_0149(chunks_t* c) {return are_types(c->a, CT_WORD, c->b, CT_BRACE_OPEN) && is_ptype(c->a, CT_NAMESPACE); }
 static bool sp_cond_0150(chunks_t* c) {return are_types(c->a, CT_WORD, c->b, CT_BRACE_OPEN) && are_ptypes(c->a, c->b, CT_NONE); }
 
@@ -215,7 +212,8 @@ static bool sp_cond_0235(chunks_t* c) {return are_types(c->a, CT_NEW,          c
 static bool sp_cond_0190(chunks_t* c) {return are_types(c->a, CT_PAREN_OPEN,   c->b, CT_PTR_TYPE    ); }
 
 static bool sp_cond_0091(chunks_t* c) {return any_is_type(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE); }
-static bool sp_cond_0160(chunks_t* c) {return any_is_type(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE) && are_types(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE); }
+static bool sp_cond_0160(chunks_t* c) {return any_is_type(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE) &&
+                                                are_types(c->a, CT_FPAREN_OPEN, c->b, CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0175(chunks_t* c) {return are_types(c->a, CT_SQUARE_CLOSE, c->b, CT_FPAREN_OPEN ); }
 static bool sp_cond_0063(chunks_t* c) {return are_types(c->a, CT_CATCH,        c->b, CT_SPAREN_OPEN ); }
@@ -239,9 +237,10 @@ static bool sp_cond_0070(chunks_t* c) {return are_types(c->a, CT_ENUM,         c
 static bool sp_cond_0239(chunks_t* c) {return are_types(c->a, CT_EXTERN,       c->b, CT_PAREN_OPEN  ); }
 
 static bool sp_cond_0248(chunks_t* c) {return(are_types(c->a,       CT_PAREN_CLOSE, c->b,             CT_TYPE     ) &&
-                                                                                are_types(c->b->next, CT_DC_MEMBER,   c->b->next->next, CT_FUNC_CALL) ); }
+                                              are_types(c->b->next, CT_DC_MEMBER,   c->b->next->next, CT_FUNC_CALL) ); }
 
-static bool sp_cond_0045(chunks_t* c) {return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_DC_MEMBER) && is_type(c->b->next, CT_FUNC_CALL); }
+static bool sp_cond_0045(chunks_t* c) {return are_types(c->a, CT_PAREN_CLOSE,  c->b, CT_DC_MEMBER) &&
+                                                is_type(c->b->next, CT_FUNC_CALL); }
 
 static bool sp_cond_0241(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE    ) && is_ptype(c->a, CT_FUNC_DEF, CT_FUNC_PROTO, CT_FUNC_VAR); }
 static bool sp_cond_0033(chunks_t* c) {return is_type(c->b, CT_COMMENT     ) && is_type(c->a, CT_PP_ELSE,      CT_PP_ENDIF   ); }
@@ -249,9 +248,7 @@ static bool sp_cond_0051(chunks_t* c) {return is_type(c->a, CT_FPAREN_CLOSE) && 
 static bool sp_cond_0167(chunks_t* c) {return is_type(c->b, CT_PAREN_OPEN  ) && is_type(c->a, CT_OC_PROTOCOL,  CT_OC_SEL     ); }
 static bool sp_cond_0246(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE    ) && is_type(c->b, CT_FPAREN_OPEN,  CT_TPAREN_OPEN); }
 static bool sp_cond_0187(chunks_t* c) {return is_type(c->a, CT_ARITH, CT_CARET) || is_type(c->b, CT_ARITH, CT_CARET) ; }
-static bool sp_cond_0192(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((uint32_t)(c->b->str[0])); }
 static bool sp_cond_0039(chunks_t* c) {return is_type(c->a, CT_NEG,  CT_POS,  CT_ARITH) && is_type(c->b, CT_NEG, CT_POS, CT_ARITH); }
-static bool sp_cond_0215(chunks_t* c) {return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
 static bool sp_cond_0059(chunks_t* c) {return is_type(c->a, CT_ELLIPSIS   ) &&  CharTable::IsKW1((uint32_t)(c->b->str[0])); }
 static bool sp_cond_0014(chunks_t* c) {return is_type(c->a, CT_CASE       ) && (CharTable::IsKW1((uint32_t)(c->b->str[0])) || is_type(c->b, CT_NUMBER)); }
 static bool sp_cond_0005(chunks_t* c) {return is_type(c->b, CT_POUND      ) && is_preproc(c->b) && not_ptype(c->a, CT_MACRO_FUNC); }
@@ -259,11 +256,10 @@ static bool sp_cond_0123(chunks_t* c) {return is_type(c->a, CT_CLASS      ) && n
 static bool sp_cond_0096(chunks_t* c) {return is_type(c->a, CT_BYREF      ) && CharTable::IsKW1((uint32_t)(c->b->str[0])); }
 static bool sp_cond_0077(chunks_t* c) {return(is_type(c->a, CT_BIT_COLON  ) && is_flag(c->a, PCF_IN_ENUM)) ||
                                              (is_type(c->b, CT_BIT_COLON  ) && is_flag(c->b, PCF_IN_ENUM)); }
-static bool sp_cond_0082(chunks_t* c) {return is_type(c->b, CT_SQUARE_OPEN ) && not_ptype(c->b, CT_OC_MSG     ); }
+static bool sp_cond_0082(chunks_t* c) {return is_type(c->b, CT_SQUARE_OPEN) && not_ptype(c->b, CT_OC_MSG     ); }
 
-static bool sp_cond_0007(chunks_t* c) {return is_type(c->b, CT_NEWLINE,        CT_VBRACE_OPEN     ); }
-static bool sp_cond_0111(chunks_t* c) {return is_type(c->a, CT_CPP_CAST,       CT_TYPE_WRAP       ); }
- static bool sp_cond_0197(chunks_t* c) {return is_type(c->b, CT_FUNC_PROTO,     CT_FUNC_DEF        ); }
+static bool sp_cond_0007(chunks_t* c) {return is_type(c->b, CT_NEWLINE,    CT_VBRACE_OPEN); }
+static bool sp_cond_0111(chunks_t* c) {return is_type(c->a, CT_CPP_CAST,   CT_TYPE_WRAP  ); }
 
 static bool sp_cond_0004(chunks_t* c) {return is_type(c->a, CT_POUND         ); }
 static bool sp_cond_0010(chunks_t* c) {return is_type(c->b, CT_VSEMICOLON    ); }
@@ -277,30 +273,28 @@ static bool sp_cond_0026(chunks_t* c) {return is_type(c->a, CT_PREPROC       ); 
 static bool sp_cond_0021(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON); }
 
 static bool sp_cond_0027(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) &&
-                                                                                    is_type(c->b,       CT_COND_COLON); }
+                                                  is_type(c->b,       CT_COND_COLON); }
 
 static bool sp_cond_0028(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) &&
-                                                                                    is_type(c->a,       CT_COND_COLON); }
+                                                  is_type(c->a,       CT_COND_COLON); }
 
 static bool sp_cond_0029(chunks_t* c) {return is_type(c->b, CT_SEMICOLON     ); }
 static bool sp_cond_0032(chunks_t* c) {return is_type  (c->b, CT_SEMICOLON   ) &&
-                                                                                is_type  (c->a, CT_SPAREN_CLOSE) &&
-                                                                                not_ptype(c->a, CT_WHILE_OF_DO ); }
+                                              is_type  (c->a, CT_SPAREN_CLOSE) &&
+                                              not_ptype(c->a, CT_WHILE_OF_DO ); }
 
 static bool sp_cond_0030(chunks_t* c) {return is_type (c->b, CT_SEMICOLON) &&
-                                                                                is_ptype(c->b, CT_FOR      ); }
+                                              is_ptype(c->b, CT_FOR      ); }
 static bool sp_cond_0031(chunks_t* c) {return is_type (c->b, CT_SEMICOLON) &&
-                                                                                is_ptype(c->b, CT_FOR      ) &&
-                                                                                is_type (c->a, CT_SPAREN_OPEN, CT_SEMICOLON); }
+                                              is_ptype(c->b, CT_FOR      ) &&
+                                              is_type (c->a, CT_SPAREN_OPEN, CT_SEMICOLON); }
 
-static bool sp_cond_0044(chunks_t* c) {return is_type(c->a, CT_DC_MEMBER     ); }
+static bool sp_cond_0044(chunks_t* c) {return is_type(c->a, CT_DC_MEMBER); }
 
-
-static bool sp_cond_0048(chunks_t* c) {
-   return is_type (c->a, CT_COMMA);
-}
+static bool sp_cond_0048(chunks_t* c) {return is_type (c->a, CT_COMMA);}
 static bool sp_cond_0049(chunks_t* c) {return is_type (c->a, CT_COMMA) && is_ptype(c->a, CT_TYPE); }
-static bool sp_cond_0050(chunks_t* c) {return is_type (c->a, CT_COMMA) && is_ptype(c->a, CT_TYPE) && is_type (c->b, CT_COMMA); }
+static bool sp_cond_0050(chunks_t* c) {return is_type (c->a, CT_COMMA) && is_ptype(c->a, CT_TYPE) &&
+                                              is_type (c->b, CT_COMMA); }
 
 static bool sp_cond_0060(chunks_t* c) {return is_type(c->a, CT_TAG_COLON     ); }
 static bool sp_cond_0061(chunks_t* c) {return is_type(c->b, CT_TAG_COLON     ); }
@@ -311,12 +305,14 @@ static bool sp_cond_0080(chunks_t* c) {return is_type(c->a, CT_OC_BLOCK_CARET); 
 static bool sp_cond_0081(chunks_t* c) {return is_type(c->b, CT_OC_MSG_FUNC   ); }
 static bool sp_cond_0083(chunks_t* c) {return is_type(c->b, CT_TSQUARE       ); }
 static bool sp_cond_0086(chunks_t* c) {return is_type(c->b, CT_ANGLE_OPEN    ); }
-static bool sp_cond_0087(chunks_t* c) {return is_type(c->b, CT_ANGLE_OPEN) && is_type(c->a, CT_TEMPLATE); }
+static bool sp_cond_0087(chunks_t* c) {return is_type(c->b, CT_ANGLE_OPEN) &&
+                                              is_type(c->a, CT_TEMPLATE); }
 static bool sp_cond_0105(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL_USER); }
 static bool sp_cond_0106(chunks_t* c) {return is_type(c->a, CT_ATTRIBUTE     ); }
 
 static bool sp_cond_0130(chunks_t* c) {return is_type(c->a, CT_THROW); }
-static bool sp_cond_0131(chunks_t* c) {return is_type(c->a, CT_THROW) && is_type(c->b, CT_PAREN_OPEN); }
+static bool sp_cond_0131(chunks_t* c) {return is_type(c->a, CT_THROW) &&
+                                              is_type(c->b, CT_PAREN_OPEN); }
 
 static bool sp_cond_0136(chunks_t* c) {return is_type(c->a, CT_C99_MEMBER    ); }
 static bool sp_cond_0128(chunks_t* c) {return is_type(c->a, CT_D_CAST        ); }
@@ -333,9 +329,8 @@ static bool sp_cond_0225(chunks_t* c) {return is_type(c->a, CT_CS_SQ_COLON   ); 
 static bool sp_cond_0226(chunks_t* c) {return is_type(c->a, CT_OC_SCOPE      ); }
 static bool sp_cond_0227(chunks_t* c) {return is_type(c->a, CT_OC_DICT_COLON ); }
 static bool sp_cond_0228(chunks_t* c) {return is_type(c->b, CT_OC_DICT_COLON ); }
-static bool sp_cond_0229(chunks_t* c) {return is_type(c->a, CT_OC_COLON      ); }
-static bool sp_cond_0231(chunks_t* c) {return is_type(c->b, CT_OC_COLON      ); }
-static bool sp_cond_0216(chunks_t* c) {return is_type(c->b, CT_PAREN_OPEN    ); }
+static bool sp_cond_0215(chunks_t* c) {return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE); }
+static bool sp_cond_0216(chunks_t* c) {return is_type(c->a, CT_MACRO_OPEN, CT_MACRO_CLOSE, CT_MACRO_ELSE) && is_type(c->b, CT_PAREN_OPEN    ); }
 static bool sp_cond_0238(chunks_t* c) {return is_type(c->a, CT_OC_PROPERTY   ); }
 static bool sp_cond_0176(chunks_t* c) {return is_type(c->b, CT_SPAREN_CLOSE  ); }
 static bool sp_cond_0177(chunks_t* c) {return is_type(c->a, CT_SPAREN_OPEN   ); }
@@ -345,50 +340,51 @@ static bool sp_cond_0182(chunks_t* c) {return is_type(c->b, CT_CONSTR_COLON  ); 
 static bool sp_cond_0183(chunks_t* c) {return is_type(c->b, CT_CASE_COLON    ); }
 static bool sp_cond_0184(chunks_t* c) {return is_type(c->a, CT_DOT           ); }
 static bool sp_cond_0185(chunks_t* c) {return is_type(c->b, CT_DOT           ); }
-static bool sp_cond_0200(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE   ); }
-static bool sp_cond_0201(chunks_t* c) {return is_type(c->b, CT_ELSE          ); }
-static bool sp_cond_0202(chunks_t* c) {return is_type(c->b, CT_CATCH         ); }
-static bool sp_cond_0203(chunks_t* c) {return is_type(c->b, CT_FINALLY       ); }
-static bool sp_cond_0204(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN    ); }
-static bool sp_cond_0208(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE   ); }
-static bool sp_cond_0195(chunks_t* c) {return is_type(c->b, CT_QUALIFIER     ); }
+
+static bool sp_cond_0200(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE); }
+static bool sp_cond_0201(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_ELSE   ); }
+static bool sp_cond_0202(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_CATCH  ); }
+static bool sp_cond_0203(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_FINALLY); }
+
 static bool sp_cond_0196(chunks_t* c) {return is_type(c->a, CT_OPERATOR      ); }
 static bool sp_cond_0234(chunks_t* c) {return is_type(c->a, CT_COMMENT       ); }
 
-
-//static bool sp_cond_0088(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE); }
 static bool sp_cond_0089(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE) && (is_type(c->b, CT_WORD) || CharTable::IsKW1((uint32_t)(c->b->str[0]))); }
 static bool sp_cond_0090(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE) && is_type (c->b, CT_FPAREN_OPEN, CT_PAREN_OPEN); }
 static bool sp_cond_0245(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE) && is_type (c->b, CT_FPAREN_OPEN, CT_PAREN_OPEN) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 static bool sp_cond_0092(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE) && is_type (c->b, CT_DC_MEMBER); }
 static bool sp_cond_0093(chunks_t* c) {return is_type(c->a, CT_ANGLE_CLOSE) && not_type(c->b, CT_BYREF, CT_PTR_TYPE); }
 
+static bool sp_cond_0192(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((uint32_t)(c->b->str[0])); }
+static bool sp_cond_0194(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((uint32_t)(c->b->str[0])) && is_type(chunk_get_prev(c->a), CT_IN); }
+static bool sp_cond_0195(chunks_t* c) {return is_type(c->a, CT_PTR_TYPE) && CharTable::IsKW1((uint32_t)(c->b->str[0])) && is_type(c->b, CT_QUALIFIER); }
+
 static bool sp_cond_0097(chunks_t* c) {return is_type(c->b, CT_BYREF); }
 static bool sp_cond_0244(chunks_t* c) {return is_type(c->b, CT_BYREF) && not_type(get_next_nc(c->b), CT_WORD); }
 static bool sp_cond_0243(chunks_t* c) {return is_type(c->b, CT_BYREF) && is_type(chunk_get_next(c->b), CT_FUNC_DEF, CT_FUNC_PROTO); }
-static bool sp_cond_0194(chunks_t* c) {return is_type(chunk_get_prev(c->a), CT_IN          ); }
 
-static bool sp_cond_0104(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR) && is_type(c->b, CT_FPAREN_OPEN) && is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR); }
-//static bool sp_cond_0110(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR) && is_type(c->b, CT_FPAREN_OPEN); }
-static bool sp_cond_0103(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR) && is_type(c->b, CT_FPAREN_OPEN) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0104(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR) &&
+                                              is_type(c->b, CT_FPAREN_OPEN) &&
+                                              is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR); }
+
+static bool sp_cond_0103(chunks_t* c) {return is_type(c->a, CT_FUNC_CALL, CT_FUNC_CTOR_VAR) &&
+                                              is_type(c->b, CT_FPAREN_OPEN) &&
+                                              is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0120(chunks_t* c) {return is_type(c->a, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO); }
-static bool sp_cond_0121(chunks_t* c) {return is_type(c->a, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) && is_type(c->b, CT_FPAREN_OPEN) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-//static bool sp_cond_0122(chunks_t* c) {return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
+static bool sp_cond_0121(chunks_t* c) {return is_type(c->a, CT_FUNC_CLASS_DEF, CT_FUNC_CLASS_PROTO) &&
+                                              is_type(c->b, CT_FPAREN_OPEN) &&
+                                              is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0117(chunks_t* c) {return  is_type(c->a, CT_FUNC_PROTO) || is_type_and_ptype(c->b, CT_FPAREN_OPEN, CT_FUNC_PROTO); }
 static bool sp_cond_0118(chunks_t* c) {return (is_type(c->a, CT_FUNC_PROTO) || is_type_and_ptype(c->b, CT_FPAREN_OPEN, CT_FUNC_PROTO)) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
-//static bool sp_cond_0119(chunks_t* c) {return is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0107(chunks_t* c) {return is_type(c->a, CT_FUNC_DEF); }
-//static bool sp_cond_0108(chunks_t* c) {return is_type(c->a, CT_FUNC_DEF) && is_type(c->b, CT_FPAREN_OPEN); }
 static bool sp_cond_0109(chunks_t* c) {return is_type(c->a, CT_FUNC_DEF) && is_type(c->b, CT_FPAREN_OPEN) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
 static bool sp_cond_0101(chunks_t* c) {return is_type(c->b, CT_FPAREN_OPEN ) && is_ptype(c->a, CT_OPERATOR); }
-//static bool sp_cond_0102(chunks_t* c) {return is_type(c->b, CT_FPAREN_OPEN ); }
 static bool sp_cond_0135(chunks_t* c) {return is_type(c->b, CT_FPAREN_OPEN ) && is_ptype(c->a, CT_OPERATOR) && is_type(get_next_ncnl (c->b), CT_FPAREN_CLOSE); }
 
-//static bool sp_cond_0046(chunks_t* c) {return is_type(c->b, CT_DC_MEMBER     ); }
 static bool sp_cond_0047(chunks_t* c) {return is_type(c->b, CT_DC_MEMBER) &&
       (is_type(c->a, CT_WORD, CT_TYPE, CT_PAREN_CLOSE) || CharTable::IsKW1((uint32_t)(c->a->str[0]))); }
 
@@ -397,8 +393,6 @@ static bool sp_cond_0052(chunks_t* c) {return is_type(c->b, CT_DC_MEMBER) &&
       CT_TYPENAME,  CT_OPERATOR, CT_DELETE, CT_ARITH, CT_ARITH, CT_FRIEND, CT_PRIVATE, CT_UNION,
       CT_NAMESPACE, CT_SCOMPARE, CT_SIZEOF, CT_CLASS, CT_USING, CT_STRUCT, CT_TYPEDEF, CT_THROW); }
 
-
-//static bool sp_cond_0162(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && ; }
 static bool sp_cond_0163(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_flag(c->a, PCF_OC_RTYPE ) && is_ptype(c->a, CT_OC_MSG_DECL, CT_OC_MSG_SPEC); }
 static bool sp_cond_0164(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_OC_MSG_SPEC, CT_OC_MSG_DECL); }
 static bool sp_cond_0165(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_OC_SEL) && not_type(c->b, CT_SQUARE_CLOSE); }
@@ -411,13 +405,10 @@ static bool sp_cond_0199(chunks_t* c) {return is_ptype(c->a, CT_C_CAST,      CT_
 
 static bool sp_cond_0113(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_type(c->b, CT_PAREN_OPEN, CT_FPAREN_OPEN); }
 static bool sp_cond_0114(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_type(c->b, CT_PAREN_OPEN, CT_FPAREN_OPEN) && is_ptype(c->a, CT_C_CAST,      CT_D_CAST); }
-static bool sp_cond_0206(chunks_t* c) {return is_ptype(c->a, CT_UNION,       CT_STRUCT); }
-static bool sp_cond_0210(chunks_t* c) {return is_ptype(c->b, CT_UNION,       CT_STRUCT); }
 
 static bool sp_cond_0138(chunks_t* c) {return are_types(c->a, CT_FPAREN_CLOSE, c->b, CT_BRACE_OPEN); }
 static bool sp_cond_0139(chunks_t* c) {return are_types(c->a, CT_FPAREN_CLOSE, c->b, CT_BRACE_OPEN) && is_ptype(c->b, CT_DOUBLE_BRACE); }
 
-//static bool sp_cond_0152(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE); }
 static bool sp_cond_0153(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_D_TEMPLATE); }
 static bool sp_cond_0154(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_INVARIANT); }
 static bool sp_cond_0155(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_type(c->b, CT_ARITH, CT_CARET); }
@@ -434,18 +425,22 @@ static bool sp_cond_0171(chunks_t* c) {return is_type(c->b, CT_PAREN_CLOSE); }
 static bool sp_cond_0172(chunks_t* c) {return is_type(c->b, CT_PAREN_CLOSE) && is_ptype(c->b, CT_C_CAST, CT_CPP_CAST, CT_D_CAST); }
 static bool sp_cond_0173(chunks_t* c) {return is_type(c->b, CT_PAREN_CLOSE) && is_ptype(c->b, CT_NEW); }
 
-static bool sp_cond_0205(chunks_t* c) {return is_ptype(c->a, CT_ENUM        ); }
-static bool sp_cond_0209(chunks_t* c) {return is_ptype(c->b, CT_ENUM        ); }
+static bool sp_cond_0208(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE); }
+static bool sp_cond_0209(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_ENUM); }
+static bool sp_cond_0210(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_UNION, CT_STRUCT); }
 
-static bool sp_cond_0232(chunks_t* c) {return is_flag(c->a, PCF_IN_OC_MSG) && is_type (c->a, CT_OC_MSG_FUNC, CT_OC_MSG_NAME); }
-static bool sp_cond_0230(chunks_t* c) {return is_flag(c->a, PCF_IN_OC_MSG); }
+static bool sp_cond_0231(chunks_t* c) {return is_type(c->b, CT_OC_COLON); }
+static bool sp_cond_0232(chunks_t* c) {return is_type(c->b, CT_OC_COLON) && is_flag(c->a, PCF_IN_OC_MSG) && is_type (c->a, CT_OC_MSG_FUNC, CT_OC_MSG_NAME); }
+
+static bool sp_cond_0229(chunks_t* c) {return is_type(c->a, CT_OC_COLON); }
+static bool sp_cond_0230(chunks_t* c) {return is_type(c->a, CT_OC_COLON) && is_flag(c->a, PCF_IN_OC_MSG); }
 
 static bool sp_cond_0071(chunks_t* c) {return is_type(c->b, CT_ASSIGN); }
 static bool sp_cond_0072(chunks_t* c) {return is_type(c->b, CT_ASSIGN) && is_flag(c->b, PCF_IN_ENUM  ); }
 static bool sp_cond_0073(chunks_t* c) {return is_type(c->b, CT_ASSIGN) && is_ptype(c->b, CT_FUNC_PROTO); }
 
-
-static bool sp_cond_0198(chunks_t* c) {return not_type(c->a, CT_PTR_TYPE); }
+static bool sp_cond_0197(chunks_t* c) {return is_type(c->b, CT_FUNC_PROTO, CT_FUNC_DEF); }
+static bool sp_cond_0198(chunks_t* c) {return is_type(c->b, CT_FUNC_PROTO, CT_FUNC_DEF) && not_type(c->a, CT_PTR_TYPE); }
 static bool sp_cond_0214(chunks_t* c) {return not_type(c->b, CT_PTR_TYPE) && is_type(c->a, CT_QUALIFIER, CT_TYPE); }
 
 static bool sp_cond_0247(chunks_t* c) {return   is_type_and_ptype(c->b, CT_COMMENT,      CT_COMMENT_EMBED); }
@@ -453,7 +448,11 @@ static bool sp_cond_0213(chunks_t* c) {return   is_type_and_ptype(c->b, CT_PAREN
 static bool sp_cond_0068(chunks_t* c) {return ((is_type_and_ptype(c->a, CT_SQUARE_OPEN,  CT_CPP_LAMBDA) && is_type(c->b, CT_ASSIGN)) ||
                                                (is_type_and_ptype(c->b, CT_SQUARE_CLOSE, CT_CPP_LAMBDA) && is_type(c->a, CT_ASSIGN)) ); }
 
-static bool sp_cond_0207(chunks_t* c) {return !is_cmt(c->b); }
+static bool sp_cond_0204(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN); }
+static bool sp_cond_0205(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && is_ptype(c->a, CT_ENUM); }
+static bool sp_cond_0206(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && is_ptype(c->a, CT_UNION, CT_STRUCT); }
+static bool sp_cond_0207(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && !is_cmt(c->b); }
+
 static bool sp_cond_0233(chunks_t* c) {return  is_cmt(c->b); }
 
 static bool sp_cond_0240(chunks_t* c) {return ((is_str(c->a, "(") && is_str(c->b, "(")) ||
@@ -500,6 +499,13 @@ static bool sp_cond_0095(chunks_t* c) {return is_type (c->a, CT_BYREF) && is_pty
 
 static bool sp_cond_0099(chunks_t* c) {return is_type(c->a, CT_SPAREN_CLOSE) && is_type(c->b, CT_BRACE_OPEN    ); }
 static bool sp_cond_0100(chunks_t* c) {return is_type(c->a, CT_SPAREN_CLOSE) && !is_cmt(c->b); }
+
+static bool sp_cond_0193(chunks_t* c) {return is_only_first_type(c->b, CT_PTR_TYPE, c->a, CT_IN); }
+
+static bool sp_cond_0250(chunks_t* c) {return is_only_first_type(c->b, CT_PTR_TYPE, c->a, CT_IN) && is_type(get_next_nptr(c->b), CT_FUNC_DEF, CT_FUNC_PROTO); }
+static bool sp_cond_0251(chunks_t* c) {return is_only_first_type(c->b, CT_PTR_TYPE, c->a, CT_IN) && not_type(get_next_nptr(c->b), CT_WORD); }
+
+
 
 static bool sp_qt_check(chunks_t* c)
 {
@@ -592,6 +598,9 @@ void init_space_check_action_array(void)
 {
    /* the formatting of this function aims to keep the code compact
     * but to make the similarities and conditions as clear as possible */
+
+   /* \todo better compile all invariant tests into the binary. This avoids
+    * the lengths initialization during short tests */
 
    /* \note the order of the if statements is VERY important. */
    add_sca({  1, sp_cond_0001, UO_always_remove          });
@@ -707,7 +716,7 @@ void init_space_check_action_array(void)
       add_sca({ 56, sp_cond_0055, UO_sp_paren_comma } ); }
    add_sca({ 57, sp_cond_0053, UO_sp_before_comma} );
 
-   /* non-punc followed by a ellipsis */
+   /* non-punctuator followed by a ellipsis */
    if(not_ignore(UO_sp_before_ellipsis)) {
       add_sca({ 58, sp_cond_0057, UO_sp_before_ellipsis} ); }
    add_sca({ 59, sp_cond_0058, UO_always_force } );
@@ -962,13 +971,51 @@ void init_space_check_action_array(void)
    add_sca({184, sp_cond_0186, UO_sp_member    });
    add_sca({185, sp_cond_0187, UO_sp_arith     });
 
+   if(not_tok(UO_pos_bool, TP_IGNORE)) {
+      /* if UP_pos_bool is different from ignore its AV_ADD option is required */
+      if(not_arg(UO_sp_bool, AV_REMOVE)) { add_arg(UO_sp_bool, AV_ADD); }
+      add_sca({186, sp_cond_1188, UO_sp_bool}); }
+   add_sca({187, sp_cond_0188, UO_sp_bool});
+
+   add_sca({188, sp_cond_0189, UO_sp_compare});
+   add_sca({189, sp_cond_0190, UO_always_remove});
+
+   if(not_ignore(UO_sp_ptr_star_paren)) {
+         add_sca({190, sp_cond_0246, UO_sp_ptr_star_paren}); }
+   if(not_ignore(UO_sp_between_pstar)) {
+         add_sca({191, sp_cond_0191, UO_sp_between_pstar}); }
+   if(not_ignore(UO_sp_after_ptr_star_func)) {
+         add_sca({192, sp_cond_0241, UO_sp_after_ptr_star_func}); }
+
+   add_sca({193, sp_cond_0194, UO_sp_deref});
+
+   if(not_ignore(UO_sp_after_pstar_qualifier)) {
+         add_sca({194, sp_cond_0195, UO_sp_after_pstar_qualifier}); }
+   if(not_ignore(UO_sp_after_pstar)) {
+         add_sca({195, sp_cond_0192, UO_sp_after_pstar}); }
+
+   /* Find the next non-'*' chunk */
+   if(not_ignore(UO_sp_before_ptr_star_func)) {
+            add_sca({196, sp_cond_0250, UO_sp_before_ptr_star_func}); }
+
+   if(not_ignore(UO_sp_before_unnamed_pstar)) {
+            add_sca({197, sp_cond_0251, UO_sp_before_unnamed_pstar}); }
+
+   if(not_ignore(UO_sp_before_ptr_star)) {
+            add_sca({198, sp_cond_0193, UO_sp_before_ptr_star}); }
+
+   add_sca({199, sp_cond_0196, UO_sp_after_operator});
+
+   set_arg(UO_sp_type_func_add, add_option(get_arg(UO_sp_type_func), AV_ADD));
+   add_sca({200, sp_cond_0198, UO_sp_type_func_add});
+   add_sca({201, sp_cond_0197, UO_sp_type_func});
 
 }
 
 
 /* this function is called for every chunk in the input file.
  * Thus it is important to keep this function efficient */
-static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t &min_sp, bool complete = true)
+static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t& min_sp, bool complete = true)
 {
    LOG_FUNC_ENTRY();
    min_sp = 1; /* default space count is 1 */
@@ -992,147 +1039,78 @@ static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t &min_sp, bool comp
    }
 
 #if 0
-   if(sp_cond_0181(pc) && not_ignore(UO_sp_after_constr_colon )) { min_sp = get_ival(UO_indent_ctor_init_leading) - 1; /* default indent is 1 space */
-                                                                           log_opt_return(UO_sp_after_constr_colon); }
-
-   if(sp_cond_0182(pc) && not_ignore(UO_sp_before_constr_colon)) { log_opt_return(UO_sp_before_constr_colon); }
-   if(sp_cond_0183(pc) && not_ignore(UO_sp_before_case_colon  )) { log_opt_return(UO_sp_before_case_colon  ); }
-   if(sp_cond_0184(pc))                                          { log_opt_return(UO_always_remove         ); }
-   if(sp_cond_0185(pc))                                          { log_opt_return(UO_always_add            ); }
-   if(sp_cond_0186(pc))                                          { log_opt_return(UO_sp_member             ); }
-   if(sp_cond_0187(pc))                                          { log_opt_return(UO_sp_arith              ); }
+   if(sp_cond_0198(pc))
+   {
+//      log_rule(UO_sp_type_func); return(add_option(get_arg(UO_sp_type_func), AV_ADD));
+//        add_arg(UO_sp_type_func, AV_ADD);
+        set_arg(UO_sp_type_func_add, add_option(get_arg(UO_sp_type_func), AV_ADD));
+        log_opt_return(UO_sp_type_func_add);
+   }
+   if(sp_cond_0197(pc))  { log_opt_return(UO_sp_type_func); }
 #endif
 
-
-   if(sp_cond_0188(pc))
-   {
-      argval_t arg = get_arg(UO_sp_bool);
-      if (not_tok(UO_pos_bool, TP_IGNORE) &&
-          (pc1->orig_line != pc2->orig_line) &&
-          (arg != AV_REMOVE))
-      {
-         arg = static_cast<argval_t>(arg | AV_ADD);
-      }
-      log_rule(UO_sp_bool);
-      return(arg);
-   }
-
-   if(sp_cond_0189(pc))                                            { log_opt_return(UO_sp_compare              ); }
-   if(sp_cond_0190(pc))                                            { log_opt_return(UO_always_remove           ); }
-   if(sp_cond_0246(pc) && not_ignore(UO_sp_ptr_star_paren       )) { log_opt_return(UO_sp_ptr_star_paren       ); }
-   if(sp_cond_0191(pc) && not_ignore(UO_sp_between_pstar        )) { log_opt_return(UO_sp_between_pstar        ); }
-   if(sp_cond_0241(pc) && not_ignore(UO_sp_after_ptr_star_func  )) { log_opt_return(UO_sp_after_ptr_star_func  ); }
-
-   if(sp_cond_0192(pc))
-   {
-      if(sp_cond_0194(pc))                                            { log_opt_return(UO_sp_deref                ); }
-      if(sp_cond_0195(pc) && not_ignore(UO_sp_after_pstar_qualifier)) { log_opt_return(UO_sp_after_pstar_qualifier); }
-      else if               (not_ignore(UO_sp_after_pstar          )) { log_opt_return(UO_sp_after_pstar          ); }
-   }
-
-   if(sp_cond_0193(pc))
-   {
-      if(not_ignore(UO_sp_before_ptr_star_func))
-      {
-         chunk_t* next = pc2; /* Find the next non-'*' chunk */
-         do
-         {
-            next = chunk_get_next(next);
-         } while (is_type(next, CT_PTR_TYPE) );
-
-         if(is_type(next, CT_FUNC_DEF, CT_FUNC_PROTO)) {
-            log_opt_return(UO_sp_before_ptr_star_func);
-            //return(get_arg(UO_sp_before_ptr_star_func));
-         }
-      }
-      if(not_ignore(UO_sp_before_unnamed_pstar))
-      {
-         chunk_t* next = get_next_nc(pc2);
-         while (is_type(next, CT_PTR_TYPE) )
-         {
-            next = get_next_nc(next);
-         }
-         if(not_type(next, CT_WORD))        { log_opt_return(UO_sp_before_unnamed_pstar); }
-      }
-      if(not_ignore(UO_sp_before_ptr_star)) { log_opt_return(UO_sp_before_ptr_star     ); }
-   }
-
-   if(sp_cond_0196(pc))                     { log_opt_return(UO_sp_after_operator      ); }
-   if(sp_cond_0197(pc))
-   {
-     if(sp_cond_0198(pc))
-     {
-        log_rule(UO_sp_type_func); return(add_option(get_arg(UO_sp_type_func), AV_ADD));
-     }
-     log_opt_return(UO_sp_type_func);
-   }
    /*"(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
-   if (sp_cond_0199(pc))        { log_opt_return(UO_sp_after_cast           ); }
-   if (sp_cond_0200(pc))
-   {
-      if     (sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else           ); }
-      else if(sp_cond_0202(pc)) { log_opt_return(UO_sp_brace_catch          ); }
-      else if(sp_cond_0203(pc)) { log_opt_return(UO_sp_brace_finally        ); }
-   }
-   if(sp_cond_0204(pc))
-   {
-      if     (sp_cond_0205(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
-      else if(sp_cond_0206(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-      else if(sp_cond_0207(pc)) { log_opt_return(UO_sp_inside_braces        ); }
-   }
-   if(sp_cond_0208(pc))
-   {
-      if     (sp_cond_0209(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
-      else if(sp_cond_0210(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-      else                      { log_opt_return(UO_sp_inside_braces        ); }
-   }
-   if(sp_cond_0211(pc))         { log_opt_return(UO_sp_brace_typedef        ); }
-   if(sp_cond_0212(pc))         { log_opt_return(UO_sp_before_sparen        ); }
-   if(sp_cond_0213(pc))         { log_opt_return(UO_sp_before_template_paren); }
+   if(sp_cond_0199(pc)) { log_opt_return(UO_sp_after_cast   ); }
+
+   if(sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else   ); }
+   if(sp_cond_0202(pc)) { log_opt_return(UO_sp_brace_catch  ); }
+   if(sp_cond_0203(pc)) { log_opt_return(UO_sp_brace_finally); }
+
+   if(sp_cond_0205(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
+   if(sp_cond_0206(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
+   if(sp_cond_0207(pc)) { log_opt_return(UO_sp_inside_braces        ); }
+
+   if(sp_cond_0209(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
+   if(sp_cond_0210(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
+   if(sp_cond_0208(pc)) { log_opt_return(UO_sp_inside_braces        ); }
+
+   if(sp_cond_0211(pc)) { log_opt_return(UO_sp_brace_typedef        ); }
+   if(sp_cond_0212(pc)) { log_opt_return(UO_sp_before_sparen        ); }
+   if(sp_cond_0213(pc)) { log_opt_return(UO_sp_before_template_paren); }
+
    if(sp_cond_0214(pc))
    {
       argval_t arg = get_arg(UO_sp_after_type);
       log_rule(UO_sp_after_type); return((arg != AV_REMOVE) ? arg : AV_FORCE);
    }
-   if(sp_cond_0215(pc))
-   {
-      if(sp_cond_0216(pc)) { log_opt_return(UO_sp_func_call_paren     ); }
-      if(sp_cond_0215(pc)) { log_opt_return(UO_always_ignore          ); }
-   }
-   if(sp_cond_0217(pc))    { log_opt_return(UO_always_ignore          ); } /* If nothing claimed the PTR_TYPE, then return ignore */
-   if(sp_cond_0218(pc))    { log_opt_return(UO_sp_not                 ); }
-   if(sp_cond_0219(pc))    { log_opt_return(UO_sp_inv                 ); }
-   if(sp_cond_0220(pc))    { log_opt_return(UO_sp_addr                ); }
-   if(sp_cond_0221(pc))    { log_opt_return(UO_sp_deref               ); }
-   if(sp_cond_0222(pc))    { log_opt_return(UO_sp_sign                ); }
-   if(sp_cond_0223(pc))    { log_opt_return(UO_sp_incdec              ); }
-   if(sp_cond_0224(pc))    { log_opt_return(UO_always_remove          ); }
-   if(sp_cond_0225(pc))    { log_opt_return(UO_always_force           ); }
-   if(sp_cond_0226(pc))    { log_opt_return(UO_sp_after_oc_scope      ); }
-   if(sp_cond_0227(pc))    { log_opt_return(UO_sp_after_oc_dict_colon ); }
-   if(sp_cond_0228(pc))    { log_opt_return(UO_sp_before_oc_dict_colon); }
 
-   if(sp_cond_0229(pc))
-   {
-      if(sp_cond_0230(pc)) { log_opt_return(UO_sp_after_send_oc_colon ); }
-      if(sp_cond_0229(pc)) { log_opt_return(UO_sp_after_oc_colon      ); }
-   }
+   if(sp_cond_0216(pc)) { log_opt_return(UO_sp_func_call_paren     ); }
+   if(sp_cond_0215(pc)) { log_opt_return(UO_always_ignore          ); }
 
-   if(sp_cond_0231(pc))
-   {
-      if(sp_cond_0232(pc)) { log_opt_return(UO_sp_before_send_oc_colon); }
-      if(sp_cond_0231(pc)) { log_opt_return(UO_sp_before_oc_colon     ); }
-   }
+   /* If nothing claimed the PTR_TYPE, then return ignore */
+   if(sp_cond_0217(pc)) { log_opt_return(UO_always_ignore          ); }
+   if(sp_cond_0218(pc)) { log_opt_return(UO_sp_not                 ); }
+   if(sp_cond_0219(pc)) { log_opt_return(UO_sp_inv                 ); }
+   if(sp_cond_0220(pc)) { log_opt_return(UO_sp_addr                ); }
+   if(sp_cond_0221(pc)) { log_opt_return(UO_sp_deref               ); }
+   if(sp_cond_0222(pc)) { log_opt_return(UO_sp_sign                ); }
+   if(sp_cond_0223(pc)) { log_opt_return(UO_sp_incdec              ); }
+   if(sp_cond_0224(pc)) { log_opt_return(UO_always_remove          ); }
+   if(sp_cond_0225(pc)) { log_opt_return(UO_always_force           ); }
+   if(sp_cond_0226(pc)) { log_opt_return(UO_sp_after_oc_scope      ); }
+   if(sp_cond_0227(pc)) { log_opt_return(UO_sp_after_oc_dict_colon ); }
+   if(sp_cond_0228(pc)) { log_opt_return(UO_sp_before_oc_dict_colon); }
 
-   if(sp_cond_0247(pc))    { log_opt_return(UO_always_force           ); }
-   if(sp_cond_0233(pc))    { log_opt_return(UO_always_ignore          ); }
-   if(sp_cond_0234(pc))    { log_opt_return(UO_always_force           ); }
-   if(sp_cond_0235(pc))    { log_opt_return(UO_sp_between_new_paren   ); } /* c# new Constraint, c++ new operator */
-   if(sp_cond_0236(pc))    { log_opt_return(UO_sp_after_new           ); }
-   if(sp_cond_0237(pc))    { log_opt_return(UO_sp_annotation_paren    ); }
-   if(sp_cond_0238(pc))    { log_opt_return(UO_sp_after_oc_property   ); }
-   if(sp_cond_0239(pc))    { log_opt_return(UO_sp_extern_paren        ); }
-   if(sp_cond_0240(pc))    { log_opt_return(UO_sp_paren_paren         ); } /* "((" vs "( (" or "))" vs ") )" */
+   if(sp_cond_0230(pc)) { log_opt_return(UO_sp_after_send_oc_colon ); }
+   if(sp_cond_0229(pc)) { log_opt_return(UO_sp_after_oc_colon      ); }
+
+   if(sp_cond_0232(pc)) { log_opt_return(UO_sp_before_send_oc_colon); }
+   if(sp_cond_0231(pc)) { log_opt_return(UO_sp_before_oc_colon     ); }
+
+
+   if(sp_cond_0247(pc)) { log_opt_return(UO_always_force           ); }
+   if(sp_cond_0233(pc)) { log_opt_return(UO_always_ignore          ); }
+   if(sp_cond_0234(pc)) { log_opt_return(UO_always_force           ); }
+
+   /* c# new Constraint, c++ new operator */
+   if(sp_cond_0235(pc)) { log_opt_return(UO_sp_between_new_paren   ); }
+   if(sp_cond_0236(pc)) { log_opt_return(UO_sp_after_new           ); }
+   if(sp_cond_0237(pc)) { log_opt_return(UO_sp_annotation_paren    ); }
+   if(sp_cond_0238(pc)) { log_opt_return(UO_sp_after_oc_property   ); }
+   if(sp_cond_0239(pc)) { log_opt_return(UO_sp_extern_paren        ); }
+
+   /* "((" vs "( (" or "))" vs ") )" */
+   if(sp_cond_0240(pc)) { log_opt_return(UO_sp_paren_paren         ); }
 
    /* this table lists out all combos where a space should NOT be present CT_UNKNOWN is a wildcard. */
    for (auto it : no_space_table)

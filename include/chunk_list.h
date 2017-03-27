@@ -640,14 +640,24 @@ chunk_t* get_next_nvb(
 /**
  * \brief Gets the next non-vbrace chunk
  *
- * \brief Gets the previous non-vbrace chunk
- *
  * @return pointer to found chunk or nullptr if no chunk was found
  */
 chunk_t* get_prev_nvb(
    chunk_t*      cur,                 /**< [in] chunk to start search */
    const scope_e scope = scope_e::ALL /**< [in] chunk section to consider */
 );
+
+
+/**
+ * \brief Gets the next non-pointer chunk
+ *
+ * @return pointer to found chunk or nullptr if no chunk was found
+ */
+chunk_t* get_next_nptr(
+   chunk_t*      cur,                 /**< [in] chunk to start search */
+   const scope_e scope = scope_e::ALL /**< [in] chunk section to consider */
+);
+
 
 
 /**
@@ -805,6 +815,14 @@ bool is_nl(
  * check if a chunk is valid and holds a comma
  */
 bool is_comma(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is a pointer
+ */
+bool is_ptr(
    chunk_t* pc /**< [in] chunk to check */
 );
 

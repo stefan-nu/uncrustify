@@ -842,6 +842,7 @@ enum uo_t
                                                          // then we should warn about cases we can't
                                                          // do the replacement
 
+   UO_sp_type_func_add,                     /**< value of UO_sp_type_func plus AV_ADD */
    UO_always_ignore,                        /**< this option is always AV_IGNORE */
    UO_always_add,                           /**< this option is always AV_ADD */
    UO_always_remove,                        /**< this option is always AV_REMOVE */
@@ -940,6 +941,9 @@ uint32_t get_uval(
 int32_t get_ival(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+tokenpos_t get_tok(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
 
 
 /** \brief setter function for uncrustify option */
@@ -948,6 +952,11 @@ void set_arg(
    argval_t   val  /**< [in] new value for option */
 );
 
+/** \brief adds an argument bit to an uncrustify option */
+void add_arg(
+   const uo_t opt, /**< [in] uncrustify option to update */
+   argval_t   val  /**< [in] bitmask to add to option */
+);
 
 /** check if an uncrustify option has a given signed integer value */
 bool is_val(

@@ -1738,8 +1738,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
             if (is_ptype(tmp, CT_PP_IF))
             {
                tmp = get_prev_nnl(tmp);
-               break_if(is_cmt(tmp) &&
-                   (is_false(UO_cmt_insert_before_preproc)) );
+               break_if(is_cmt(tmp) && (is_false(UO_cmt_insert_before_preproc)));
             }
          }
          if (is_level(ref, pc->level) &&
@@ -1795,11 +1794,11 @@ static void uncrustify_start(const deque<int32_t> &data)
 }
 
 
-void set_newline_chunk_pos(uo_t check, uo_t set, c_token_t token)
+void set_nl_chunk_pos(uo_t check, uo_t set, c_token_t token)
 {
    if (not_tok(cpd.settings[check].tp, TP_IGNORE))
    {
-      newlines_chunk_pos(token, cpd.settings[set].tp);
+      nl_chunk_pos(token, cpd.settings[set].tp);
    }
 }
 
@@ -1822,8 +1821,8 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    {
       case char_encoding_e::UTF8:      av = get_arg(UO_utf8_bom); break;
       case char_encoding_e::UTF16_LE: /* fallthrough */
-      case char_encoding_e::UTF16_BE:  av = AV_FORCE;                    break;
-      default:                         av = AV_IGNORE;                   break;
+      case char_encoding_e::UTF16_BE:  av = AV_FORCE;             break;
+      default:                         av = AV_IGNORE;            break;
    }
 
    if      (av == AV_REMOVE) { cpd.bom = false; }
@@ -1849,7 +1848,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    /* Done with detection. Do the rest only if the file will go somewhere.
     * The detection code needs as few changes as possible. */
 
-   /* Add comments before function defs and classes */
+   /* Add comments before function definitions and classes */
    if (cpd.func_hdr.data.empty() == false)
    {
       add_func_header(CT_FUNC_DEF, cpd.func_hdr);
@@ -1858,8 +1857,8 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
          add_func_header(CT_FUNC_CLASS_DEF, cpd.func_hdr);
       }
    }
-   if (cpd.class_hdr.data.empty()  == false) { add_func_header(CT_CLASS,       cpd.class_hdr ); }
-   if (cpd.oc_msg_hdr.data.empty() == false) { add_msg_header (CT_OC_MSG_DECL, cpd.oc_msg_hdr); }
+   if (!cpd.class_hdr.data.empty() ) { add_func_header(CT_CLASS,       cpd.class_hdr ); }
+   if (!cpd.oc_msg_hdr.data.empty()) { add_msg_header (CT_OC_MSG_DECL, cpd.oc_msg_hdr); }
 
    do_braces(); /* Change virtual braces into real braces... */
 
@@ -1877,7 +1876,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
 
       LOG_FMT(LNEWLINE, "Newline loop start: %d\n", cpd.changes);
 
-      annotations_newlines();
+      annotations_nl();
       newlines_cleanup_dup();
       newlines_cleanup_braces(first);
 
@@ -1886,23 +1885,23 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
 
       newlines_insert_blank_lines();
 
-      set_newline_chunk_pos(UO_pos_bool,        UO_pos_bool,        CT_BOOL      );
-      set_newline_chunk_pos(UO_pos_compare,     UO_pos_compare,     CT_COMPARE   );
-      set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_COND_COLON);
-      set_newline_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_QUESTION  );
-      set_newline_chunk_pos(UO_pos_comma,       UO_pos_comma,       CT_COMMA     );
-      set_newline_chunk_pos(UO_pos_enum_comma,  UO_pos_comma,       CT_COMMA     );
-      set_newline_chunk_pos(UO_pos_assign,      UO_pos_assign,      CT_ASSIGN    );
-      set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_ARITH     );
-      set_newline_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_CARET     );
+      set_nl_chunk_pos(UO_pos_bool,        UO_pos_bool,        CT_BOOL      );
+      set_nl_chunk_pos(UO_pos_compare,     UO_pos_compare,     CT_COMPARE   );
+      set_nl_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_COND_COLON);
+      set_nl_chunk_pos(UO_pos_conditional, UO_pos_conditional, CT_QUESTION  );
+      set_nl_chunk_pos(UO_pos_comma,       UO_pos_comma,       CT_COMMA     );
+      set_nl_chunk_pos(UO_pos_enum_comma,  UO_pos_comma,       CT_COMMA     );
+      set_nl_chunk_pos(UO_pos_assign,      UO_pos_assign,      CT_ASSIGN    );
+      set_nl_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_ARITH     );
+      set_nl_chunk_pos(UO_pos_arith,       UO_pos_arith,       CT_CARET     );
 
-      newlines_class_colon_pos(CT_CLASS_COLON );
-      newlines_class_colon_pos(CT_CONSTR_COLON);
+      nl_class_colon_pos(CT_CLASS_COLON );
+      nl_class_colon_pos(CT_CONSTR_COLON);
 
       if (is_true(UO_nl_squeeze_ifdef)) { newlines_squeeze_ifdef(); }
 
       do_blank_lines();
-      newlines_eat_start_end();
+      nl_eat_start_end();
       newlines_functions_remove_extra_blank_lines();
       newlines_cleanup_dup();
       first = false;

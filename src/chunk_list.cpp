@@ -75,7 +75,7 @@ chunk_t* chunk_search_typelevel(
    const c_token_t type,                 /**< [in] category to search for */
    const scope_e   scope = scope_e::ALL, /**< [in] code parts to consider for search */
    const dir_e     dir   = dir_e::AFTER, /**< [in] search direction */
-   const int32_t       level = -1            /**< {in] -1 or ANY_LEVEL or the level to match */
+   const int32_t   level = -1            /**< {in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -105,12 +105,12 @@ static chunk_t* get_ncnlnp(
  * @retval chunk_t - pointer to the found chunk
  ******************************************************************************/
 chunk_t* chunk_search_str(
-   chunk_t*      cur,   /**< [in] chunk to start search at */
-   const char*   str,   /**< [in] string to search for */
-   const uint32_t  len,   /**< [in] length of string */
-   const scope_e scope, /**< [in] code parts to consider for search */
-   const dir_e   dir,   /**< [in] search direction */
-   const int32_t     level  /**< [in] -1 or ANY_LEVEL or the level to match */
+   chunk_t*       cur,   /**< [in] chunk to start search at */
+   const char*    str,   /**< [in] string to search for */
+   const uint32_t len,   /**< [in] length of string */
+   const scope_e  scope, /**< [in] code parts to consider for search */
+   const dir_e    dir,   /**< [in] search direction */
+   const int32_t  level  /**< [in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -144,9 +144,9 @@ static void chunk_log(
 
 
 static bool is_expected_string_and_level(
-   chunk_t*     pc,    /**< [in]  */
-   const char*  str,   /**< [in]  */
-   const int32_t    level, /**< [in]  */
+   chunk_t*       pc,    /**< [in]  */
+   const char*    str,   /**< [in]  */
+   const int32_t  level, /**< [in]  */
    const uint32_t len    /**< [in]  */
 );
 
@@ -657,6 +657,12 @@ chunk_t* get_next_nvb(chunk_t* cur, const scope_e scope)
 chunk_t* get_prev_nvb(chunk_t* cur, const scope_e scope)
 {
    return(chunk_search(cur, is_vbrace, scope, dir_e::BEFORE, false));
+}
+
+
+chunk_t* get_next_nptr(chunk_t* cur, const scope_e scope)
+{
+   return(chunk_search(cur, is_ptr, scope, dir_e::AFTER, false));
 }
 
 
@@ -1265,6 +1271,12 @@ bool is_comma(chunk_t* pc)
 }
 
 
+bool is_ptr(chunk_t* pc)
+{
+   return(is_type(pc, CT_PTR_TYPE));
+}
+
+
 bool chunk_empty(chunk_t* pc)
 {
    return(is_valid(pc) && (pc->len() == 0));
@@ -1340,6 +1352,7 @@ bool chunk_is_member(chunk_t* pc)
    return(is_type(pc, CT_DC_MEMBER, CT_MEMBER));
 }
 
+
 bool is_closing_brace(chunk_t* pc)
 {
    return(is_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
@@ -1356,7 +1369,6 @@ bool is_vbrace(chunk_t* pc)
 {
    return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN));
 }
-
 
 bool is_fparen_open(chunk_t* pc)
 {

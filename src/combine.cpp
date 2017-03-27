@@ -1993,7 +1993,7 @@ static chunk_t* process_return(chunk_t* pc)
 
    if (not_ignore(UO_nl_return_expr))
    {
-      newline_iarf(pc, get_arg(UO_nl_return_expr));
+      nl_iarf(pc, get_arg(UO_nl_return_expr));
    }
 
    chunk_t* temp;
