@@ -45,41 +45,41 @@ void save_set_options_for_QT(uint32_t level)
    SaveUO_sp_before_unnamed_byref_A = get_arg(UO_sp_before_unnamed_byref);
    SaveUO_sp_after_type_A           = get_arg(UO_sp_after_type);
    /* set values for SIGNAL/SLOT */
-   cpd.settings[UO_sp_inside_fparen].a        = AV_REMOVE;
-   cpd.settings[UO_sp_inside_fparens].a       = AV_REMOVE;
-   cpd.settings[UO_sp_paren_paren].a          = AV_REMOVE;
-   cpd.settings[UO_sp_before_comma].a         = AV_REMOVE;
-   cpd.settings[UO_sp_after_comma].a          = AV_REMOVE;
-   cpd.settings[UO_sp_before_byref].a         = AV_REMOVE;
-   cpd.settings[UO_sp_before_unnamed_byref].a = AV_REMOVE;
-   cpd.settings[UO_sp_after_type].a           = AV_REMOVE;
-   QT_SIGNAL_SLOT_found                       = true;
+   set_arg(UO_sp_inside_fparen,        AV_REMOVE);
+   set_arg(UO_sp_inside_fparens,       AV_REMOVE);
+   set_arg(UO_sp_paren_paren,          AV_REMOVE);
+   set_arg(UO_sp_before_comma,         AV_REMOVE);
+   set_arg(UO_sp_after_comma,          AV_REMOVE);
+   set_arg(UO_sp_before_byref,         AV_REMOVE);
+   set_arg(UO_sp_before_unnamed_byref, AV_REMOVE);
+   set_arg(UO_sp_after_type,           AV_REMOVE);
+   QT_SIGNAL_SLOT_found = true;
 }
 
 
 void restore_options_for_QT(void)
 {
    assert(is_true(UO_use_options_overriding_for_qt_macros));
-
    LOG_FMT(LGUY, "restore values\n");
-   // restore the values we had before SIGNAL/SLOT
-   QT_SIGNAL_SLOT_level                       = 0;
-   cpd.settings[UO_sp_inside_fparen].a        = SaveUO_sp_inside_fparen_A;
-   cpd.settings[UO_sp_inside_fparens].a       = SaveUO_sp_inside_fparens_A;
-   cpd.settings[UO_sp_paren_paren].a          = SaveUO_sp_paren_paren_A;
-   cpd.settings[UO_sp_before_comma].a         = SaveUO_sp_before_comma_A;
-   cpd.settings[UO_sp_after_comma].a          = SaveUO_sp_after_comma_A;
-   cpd.settings[UO_sp_before_byref].a         = SaveUO_sp_before_byref_A;
-   cpd.settings[UO_sp_before_unnamed_byref].a = SaveUO_sp_before_unnamed_byref_A;
-   cpd.settings[UO_sp_after_type].a           = SaveUO_sp_after_type_A;
-   SaveUO_sp_inside_fparen_A                  = AV_NOT_DEFINED;
-   SaveUO_sp_inside_fparens_A                 = AV_NOT_DEFINED;
-   SaveUO_sp_paren_paren_A                    = AV_NOT_DEFINED;
-   SaveUO_sp_before_comma_A                   = AV_NOT_DEFINED;
-   SaveUO_sp_after_comma_A                    = AV_NOT_DEFINED;
-   SaveUO_sp_before_byref_A                   = AV_NOT_DEFINED;
-   SaveUO_sp_before_unnamed_byref_A           = AV_NOT_DEFINED;
-   SaveUO_sp_after_type_A                     = AV_NOT_DEFINED;
-   QT_SIGNAL_SLOT_found                       = false;
-   restoreValues                              = false;
+   /* restore the values we had before SIGNAL/SLOT */
+
+   QT_SIGNAL_SLOT_level = 0;
+   set_arg(UO_sp_inside_fparen,        SaveUO_sp_inside_fparen_A       );
+   set_arg(UO_sp_inside_fparens,       SaveUO_sp_inside_fparens_A      );
+   set_arg(UO_sp_paren_paren,          SaveUO_sp_paren_paren_A         );
+   set_arg(UO_sp_before_comma,         SaveUO_sp_before_comma_A        );
+   set_arg(UO_sp_after_comma,          SaveUO_sp_after_comma_A         );
+   set_arg(UO_sp_before_byref,         SaveUO_sp_before_byref_A        );
+   set_arg(UO_sp_before_unnamed_byref, SaveUO_sp_before_unnamed_byref_A);
+   set_arg(UO_sp_after_type,           SaveUO_sp_after_type_A          );
+   SaveUO_sp_inside_fparen_A        = AV_NOT_DEFINED;
+   SaveUO_sp_inside_fparens_A       = AV_NOT_DEFINED;
+   SaveUO_sp_paren_paren_A          = AV_NOT_DEFINED;
+   SaveUO_sp_before_comma_A         = AV_NOT_DEFINED;
+   SaveUO_sp_after_comma_A          = AV_NOT_DEFINED;
+   SaveUO_sp_before_byref_A         = AV_NOT_DEFINED;
+   SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEFINED;
+   SaveUO_sp_after_type_A           = AV_NOT_DEFINED;
+   QT_SIGNAL_SLOT_found             = false;
+   restoreValues                    = false;
 }

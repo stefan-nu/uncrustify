@@ -87,7 +87,7 @@ void annotations_nl(void);
 /**
  * tbd
  */
-void newline_after_multiline_comment(void);
+void nl_after_multiline_cmt(void);
 
 
 /**

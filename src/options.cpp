@@ -86,8 +86,9 @@ static int32_t checkOptionNumber = -1;
 #endif
 
 
+/** returns the name of an argument type as zero terminated string */
 const char* get_argtype_name(
-   argtype_t argtype /**< [in]  */
+   argtype_t argtype /**< [in] argument to get name for */
 );
 
 
@@ -1874,21 +1875,20 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
    }
 
    const option_map_value_t *tmp;
-   if ((entry->type == AT_NUM) ||
+   if ((entry->type == AT_NUM ) ||
        (entry->type == AT_UNUM) )
    {
       if (unc_isdigit(*val) ||
          (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
       {
-         if ((entry->type == AT_UNUM) &&
-             (*val == '-'))
+         if ((entry->type == AT_UNUM) && (*val == '-'))
          {
             fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
             exit(EX_CONFIG);
          }
          dest->n = strtol(val, nullptr, 0);
-         // is the same as dest->u
+         /* is the same as dest->u */
          return;
       }
       else
@@ -2432,11 +2432,11 @@ const char* get_encoding_name(const char_encoding_e enc)
 {
    switch(enc)
    {
-      case(char_encoding_e::ASCII   ): return ("ASCII"    );
-      case(char_encoding_e::BYTE    ): return ("BYTE"     );
-      case(char_encoding_e::UTF8    ): return ("UTF-8"    );
-      case(char_encoding_e::UTF16_LE): return ("UTF-16-LE");
-      case(char_encoding_e::UTF16_BE): return ("UTF-16-BE");
+      case(char_encoding_e::ASCII   ): return ("ASCII"      );
+      case(char_encoding_e::BYTE    ): return ("BYTE"       );
+      case(char_encoding_e::UTF8    ): return ("UTF-8"      );
+      case(char_encoding_e::UTF16_LE): return ("UTF-16-LE"  );
+      case(char_encoding_e::UTF16_BE): return ("UTF-16-BE"  );
       default:                         return ("unknown enc");
    }
 }
@@ -2525,12 +2525,12 @@ string op_val2str(const argtype_t argtype, const op_val_t &op_val)
 {
    switch (argtype)
    {
-      case AT_BOOL:   return(bool2str       (op_val.b ));
-      case AT_IARF:   return(argval2str     (op_val.a ));
-      case AT_NUM:    return(number2str     (op_val.n ));
+      case AT_BOOL:   return(bool2str           (op_val.b ));
+      case AT_IARF:   return(argval2str         (op_val.a ));
+      case AT_NUM:    return(number2str         (op_val.n ));
       case AT_UNUM:   return(number2str((int32_t)op_val.u ));
-      case AT_LINE:   return(lineends2str   (op_val.le));
-      case AT_POS:    return(tokenpos2str   (op_val.tp));
+      case AT_LINE:   return(lineends2str       (op_val.le));
+      case AT_POS:    return(tokenpos2str       (op_val.tp));
       case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
                       return("");

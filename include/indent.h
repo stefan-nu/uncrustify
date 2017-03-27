@@ -12,8 +12,8 @@
 
 
 /**
- * Change the top-level indentation only by changing the column member in
- * the chunk structures.
+ * Change the top-level indentation only by changing the column
+ * member in the chunk structures.
  * The level indicator must already be set.
  */
 void indent_text(void);

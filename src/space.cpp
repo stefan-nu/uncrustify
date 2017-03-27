@@ -341,7 +341,7 @@ static bool sp_cond_0183(chunks_t* c) {return is_type(c->b, CT_CASE_COLON    ); 
 static bool sp_cond_0184(chunks_t* c) {return is_type(c->a, CT_DOT           ); }
 static bool sp_cond_0185(chunks_t* c) {return is_type(c->b, CT_DOT           ); }
 
-static bool sp_cond_0200(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE); }
+//static bool sp_cond_0200(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE); }
 static bool sp_cond_0201(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_ELSE   ); }
 static bool sp_cond_0202(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_CATCH  ); }
 static bool sp_cond_0203(chunks_t* c) {return is_type(c->a, CT_BRACE_CLOSE) && is_type(c->b, CT_FINALLY); }
@@ -448,7 +448,6 @@ static bool sp_cond_0213(chunks_t* c) {return   is_type_and_ptype(c->b, CT_PAREN
 static bool sp_cond_0068(chunks_t* c) {return ((is_type_and_ptype(c->a, CT_SQUARE_OPEN,  CT_CPP_LAMBDA) && is_type(c->b, CT_ASSIGN)) ||
                                                (is_type_and_ptype(c->b, CT_SQUARE_CLOSE, CT_CPP_LAMBDA) && is_type(c->a, CT_ASSIGN)) ); }
 
-static bool sp_cond_0204(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN); }
 static bool sp_cond_0205(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && is_ptype(c->a, CT_ENUM); }
 static bool sp_cond_0206(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && is_ptype(c->a, CT_UNION, CT_STRUCT); }
 static bool sp_cond_0207(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN) && !is_cmt(c->b); }
@@ -473,7 +472,6 @@ static bool sp_cond_0035(chunks_t* c) {return is_ptype(c->b, CT_COMMENT_END ) &&
 static bool sp_cond_1035(chunks_t* c) {return is_ptype(c->b, CT_COMMENT_END ) && (c->b->orig_prev_sp == 1); }
 static bool sp_cond_2035(chunks_t* c) {return is_ptype(c->b, CT_COMMENT_END ) && (c->b->orig_prev_sp == 2); }
 
-//static bool sp_cond_0036(chunks_t* c) {return is_type(c->a, CT_SEMICOLON); }
 static bool sp_cond_0037(chunks_t* c) {return is_type (c->a, CT_SEMICOLON) && is_ptype(c->a, CT_FOR); }
 static bool sp_cond_0038(chunks_t* c) {return is_type (c->a, CT_SEMICOLON) && is_ptype(c->a, CT_FOR) && is_type(c->b, CT_SPAREN_CLOSE); }
 static bool sp_cond_0242(chunks_t* c) {return is_type(c->a, CT_SEMICOLON) && !is_cmt(c->b) && not_type(c->b, CT_BRACE_CLOSE); }
@@ -1010,6 +1008,67 @@ void init_space_check_action_array(void)
    add_sca({200, sp_cond_0198, UO_sp_type_func_add});
    add_sca({201, sp_cond_0197, UO_sp_type_func});
 
+   /*"(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
+   add_sca({202, sp_cond_0199, UO_sp_after_cast});
+
+   add_sca({203, sp_cond_0201, UO_sp_brace_else});
+   add_sca({204, sp_cond_0202, UO_sp_brace_catch});
+   add_sca({205, sp_cond_0203, UO_sp_brace_finally});
+
+   add_sca({206, sp_cond_0205, UO_sp_inside_braces_enum});
+   add_sca({207, sp_cond_0206, UO_sp_inside_braces_struct});
+   add_sca({208, sp_cond_0207, UO_sp_inside_braces});
+
+   add_sca({209, sp_cond_0209, UO_sp_inside_braces_enum});
+   add_sca({210, sp_cond_0210, UO_sp_inside_braces_struct});
+   add_sca({211, sp_cond_0208, UO_sp_inside_braces});
+
+   add_sca({212, sp_cond_0211, UO_sp_brace_typedef});
+   add_sca({213, sp_cond_0212, UO_sp_before_sparen});
+   add_sca({214, sp_cond_0213, UO_sp_before_template_paren});
+
+   if(not_arg(UO_sp_after_type, AV_REMOVE)) {
+      add_sca({215, sp_cond_0214, UO_sp_after_type}); }
+   else {
+      add_sca({216, sp_cond_0214, UO_always_force}); }
+
+   add_sca({217, sp_cond_0216, UO_sp_func_call_paren});
+   add_sca({218, sp_cond_0215, UO_always_ignore});
+
+   /* If nothing claimed the PTR_TYPE, then return ignore */
+   add_sca({219, sp_cond_0217, UO_always_ignore});
+   add_sca({220, sp_cond_0218, UO_sp_not});
+   add_sca({221, sp_cond_0219, UO_sp_inv});
+   add_sca({222, sp_cond_0220, UO_sp_addr});
+   add_sca({223, sp_cond_0221, UO_sp_deref});
+   add_sca({224, sp_cond_0222, UO_sp_sign});
+   add_sca({225, sp_cond_0223, UO_sp_incdec});
+   add_sca({226, sp_cond_0224, UO_always_remove});
+   add_sca({227, sp_cond_0225, UO_always_force});
+   add_sca({228, sp_cond_0226, UO_sp_after_oc_scope});
+   add_sca({229, sp_cond_0227, UO_sp_after_oc_dict_colon});
+   add_sca({230, sp_cond_0228, UO_sp_before_oc_dict_colon});
+
+   add_sca({231, sp_cond_0230, UO_sp_after_send_oc_colon});
+   add_sca({232, sp_cond_0229, UO_sp_after_oc_colon});
+   add_sca({233, sp_cond_0232, UO_sp_before_send_oc_colon});
+   add_sca({234, sp_cond_0231, UO_sp_before_oc_colon});
+   add_sca({235, sp_cond_0247, UO_always_force});
+   add_sca({236, sp_cond_0233, UO_always_ignore});
+   add_sca({237, sp_cond_0234, UO_always_force});
+
+   /* c# new Constraint, c++ new operator */
+   add_sca({238, sp_cond_0235, UO_sp_between_new_paren});
+   add_sca({239, sp_cond_0236, UO_sp_after_new});
+   add_sca({240, sp_cond_0237, UO_sp_annotation_paren});
+   add_sca({241, sp_cond_0238, UO_sp_after_oc_property});
+   add_sca({242, sp_cond_0239, UO_sp_extern_paren});
+
+   /* "((" vs "( (" or "))" vs ") )" */
+   add_sca({243, sp_cond_0240, UO_sp_paren_paren});
+
+   /* mapped_file_source abc((int32_t) A::CW2A(sTemp)); */
+   add_sca({244, sp_cond_0248, UO_always_remove});
 }
 
 
@@ -1038,81 +1097,8 @@ static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t& min_sp, bool comp
       sca++;
    }
 
-#if 0
-   if(sp_cond_0198(pc))
-   {
-//      log_rule(UO_sp_type_func); return(add_option(get_arg(UO_sp_type_func), AV_ADD));
-//        add_arg(UO_sp_type_func, AV_ADD);
-        set_arg(UO_sp_type_func_add, add_option(get_arg(UO_sp_type_func), AV_ADD));
-        log_opt_return(UO_sp_type_func_add);
-   }
-   if(sp_cond_0197(pc))  { log_opt_return(UO_sp_type_func); }
-#endif
-
-   /*"(int32_t)a" vs "(int32_t) a" or "cast(int32_t)a" vs "cast(int32_t) a" */
-   if(sp_cond_0199(pc)) { log_opt_return(UO_sp_after_cast   ); }
-
-   if(sp_cond_0201(pc)) { log_opt_return(UO_sp_brace_else   ); }
-   if(sp_cond_0202(pc)) { log_opt_return(UO_sp_brace_catch  ); }
-   if(sp_cond_0203(pc)) { log_opt_return(UO_sp_brace_finally); }
-
-   if(sp_cond_0205(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
-   if(sp_cond_0206(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-   if(sp_cond_0207(pc)) { log_opt_return(UO_sp_inside_braces        ); }
-
-   if(sp_cond_0209(pc)) { log_opt_return(UO_sp_inside_braces_enum   ); }
-   if(sp_cond_0210(pc)) { log_opt_return(UO_sp_inside_braces_struct ); }
-   if(sp_cond_0208(pc)) { log_opt_return(UO_sp_inside_braces        ); }
-
-   if(sp_cond_0211(pc)) { log_opt_return(UO_sp_brace_typedef        ); }
-   if(sp_cond_0212(pc)) { log_opt_return(UO_sp_before_sparen        ); }
-   if(sp_cond_0213(pc)) { log_opt_return(UO_sp_before_template_paren); }
-
-   if(sp_cond_0214(pc))
-   {
-      argval_t arg = get_arg(UO_sp_after_type);
-      log_rule(UO_sp_after_type); return((arg != AV_REMOVE) ? arg : AV_FORCE);
-   }
-
-   if(sp_cond_0216(pc)) { log_opt_return(UO_sp_func_call_paren     ); }
-   if(sp_cond_0215(pc)) { log_opt_return(UO_always_ignore          ); }
-
-   /* If nothing claimed the PTR_TYPE, then return ignore */
-   if(sp_cond_0217(pc)) { log_opt_return(UO_always_ignore          ); }
-   if(sp_cond_0218(pc)) { log_opt_return(UO_sp_not                 ); }
-   if(sp_cond_0219(pc)) { log_opt_return(UO_sp_inv                 ); }
-   if(sp_cond_0220(pc)) { log_opt_return(UO_sp_addr                ); }
-   if(sp_cond_0221(pc)) { log_opt_return(UO_sp_deref               ); }
-   if(sp_cond_0222(pc)) { log_opt_return(UO_sp_sign                ); }
-   if(sp_cond_0223(pc)) { log_opt_return(UO_sp_incdec              ); }
-   if(sp_cond_0224(pc)) { log_opt_return(UO_always_remove          ); }
-   if(sp_cond_0225(pc)) { log_opt_return(UO_always_force           ); }
-   if(sp_cond_0226(pc)) { log_opt_return(UO_sp_after_oc_scope      ); }
-   if(sp_cond_0227(pc)) { log_opt_return(UO_sp_after_oc_dict_colon ); }
-   if(sp_cond_0228(pc)) { log_opt_return(UO_sp_before_oc_dict_colon); }
-
-   if(sp_cond_0230(pc)) { log_opt_return(UO_sp_after_send_oc_colon ); }
-   if(sp_cond_0229(pc)) { log_opt_return(UO_sp_after_oc_colon      ); }
-
-   if(sp_cond_0232(pc)) { log_opt_return(UO_sp_before_send_oc_colon); }
-   if(sp_cond_0231(pc)) { log_opt_return(UO_sp_before_oc_colon     ); }
-
-
-   if(sp_cond_0247(pc)) { log_opt_return(UO_always_force           ); }
-   if(sp_cond_0233(pc)) { log_opt_return(UO_always_ignore          ); }
-   if(sp_cond_0234(pc)) { log_opt_return(UO_always_force           ); }
-
-   /* c# new Constraint, c++ new operator */
-   if(sp_cond_0235(pc)) { log_opt_return(UO_sp_between_new_paren   ); }
-   if(sp_cond_0236(pc)) { log_opt_return(UO_sp_after_new           ); }
-   if(sp_cond_0237(pc)) { log_opt_return(UO_sp_annotation_paren    ); }
-   if(sp_cond_0238(pc)) { log_opt_return(UO_sp_after_oc_property   ); }
-   if(sp_cond_0239(pc)) { log_opt_return(UO_sp_extern_paren        ); }
-
-   /* "((" vs "( (" or "))" vs ") )" */
-   if(sp_cond_0240(pc)) { log_opt_return(UO_sp_paren_paren         ); }
-
-   /* this table lists out all combos where a space should NOT be present CT_UNKNOWN is a wildcard. */
+   /* this table lists out all combos where a space should NOT be
+    * present CT_UNKNOWN is a wildcard. */
    for (auto it : no_space_table)
    {
       if (((it.first  == CT_UNKNOWN) || (it.first  == pc1->type)) &&
@@ -1121,12 +1107,15 @@ static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t& min_sp, bool comp
          log_opt_return(UO_always_remove);
        }
    }
-   if(sp_cond_0248(pc)) { log_opt_return(UO_always_remove); } /* mapped_file_source abc((int32_t) A::CW2A(sTemp)); */
+
 #ifdef DEBUG
    LOG_FMT(LSPACE, "\n\n(%d) %s: WARNING: unrecognized do_space: first: %u:%u %s %s and second: %u:%u %s %s\n\n\n",
-           __LINE__, __func__, pc1->orig_line, pc1->orig_col, pc1->text(), get_token_name(pc1->type),
+           __LINE__, __func__,
+           pc1->orig_line, pc1->orig_col, pc1->text(), get_token_name(pc1->type),
            pc2->orig_line, pc2->orig_col, pc2->text(), get_token_name(pc2->type));
 #endif
+
+   /* if no condition was hit, assume a space shall be added */
    log_opt_return(UO_always_add);
 }
 
@@ -1178,7 +1167,7 @@ void space_text(void)
       {
          if (is_type(next->next, CT_SPACE))
          {
-            chunk_del(next->next); // remove the space
+            chunk_del(next->next); /* remove the space */
          }
       }
 
@@ -1270,25 +1259,23 @@ void space_text(void)
          if (is_flag(pc, PCF_FORCE_SPACE))
          {
             LOG_FMT(LSPACE, " <force between '%s' and '%s'>", pc->text(), next->text());
-            av = (argval_t)(av | AV_ADD); /*lint !e655 */
+            av = add_option(av, AV_ADD);
          }
          switch (av)
          {
             case AV_FORCE:
-               /* add exactly the specified number of spaces */
-//               column = (uint32_t)((int32_t)column + min_sp);
-             column += min_sp;
+               column += min_sp; /* add exactly the specified number of spaces */
             break;
 
             case AV_ADD:
                {
-                  int32_t delta = min_sp;
+                  uint32_t delta = min_sp;
                   if ((next->orig_col >= pc->orig_col_end) &&
                       (pc->orig_col_end != 0))
                   {
                      /* Keep the same relative spacing, minimum 1 */
-                     delta = (int32_t)next->orig_col - (int32_t)pc->orig_col_end;
-                     delta = max(delta, (int32_t)min_sp);
+                     delta = next->orig_col - pc->orig_col_end;
+                     delta = max(delta, min_sp);
                   }
                   column = (uint32_t)((int32_t)column + delta);
                }
@@ -1345,7 +1332,7 @@ void space_text(void)
       pc = next;
       if (QT_SIGNAL_SLOT_found)
       {
-         // flag the chunk for a second processing
+         /* flag the chunk for a second processing */
          set_flags(pc, PCF_IN_QT_MACRO);
       }
    }

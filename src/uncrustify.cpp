@@ -1880,7 +1880,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
       newlines_cleanup_dup();
       newlines_cleanup_braces(first);
 
-      if (is_true(UO_nl_after_multiline_comment)) { newline_after_multiline_comment(); }
+      if (is_true(UO_nl_after_multiline_comment)) { nl_after_multiline_cmt(); }
       if (is_true(UO_nl_after_label_colon      )) { newline_after_label_colon();       }
 
       newlines_insert_blank_lines();
