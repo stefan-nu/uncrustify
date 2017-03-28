@@ -12,16 +12,19 @@
 import argparse
 import sys
 import os
-import string
+import time
+import timeit
 import filecmp
-#import subprocess
 import thread
-from threading import Thread, Lock
+import threading
+from threading import Thread, Lock, current_thread
 from mutex import mutex
-from test import test_dummy_threading
-#from __main__ import name
+from xmllib import starttagend
+
 
 # OK, so I just had way too much fun with the colors..
+
+starttime = timeit.default_timer()
 
 # windows doesn't support ansi sequences (unless using ConEmu and enabled)
 disablecolors = os.name == "nt" and os.environ.get('CONEMUANSI', '') != 'ON'
@@ -89,43 +92,26 @@ else:
     UNSTABLE_COLOR = FGB_CYAN
     SKIP_COLOR     = FGB_YELLOW
 
+# global variables that can be updated by all threads
+# but only if a thread holds the mutex
+pass_count   = 0
+fail_count   = 0
+unst_count   = 0
+test_count   = 0
+thread_count = 0
 mutex = Lock()
 
-def run_test(cmd, test_name, resultname, outputname, args):
-    # execute a single test    
-    a = os.system(cmd)
-    if a != 0:
-        print(FAIL_COLOR + "FAILED2: " + NORMAL + test_name)
-        return -1
-
-    # evaluate if the test output is as expected
-    try:
-        if not filecmp.cmp(resultname, outputname):
-            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name)
-            if args.d:
-                cmd = "git diff --no-index %s %s" % (outputname, resultname)
-                sys.stdout.flush()
-                os.system(cmd)
-            return -2
-    except:
-        # impossible
-        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name)
-        return -1
-
-    if args.p:
-        print(PASS_COLOR + "PASSED: " + NORMAL + test_name)
-        
-        
-    return 0
-
 def run_tests(args, test_name, config_name, input_name, lang):
+    global unst_count
+    global pass_count
+    global thread_count
     
-    mutex.acquire()
-    print("Test:  ", test_name)
+    # mutex.acquire()
+    # print("Test:  ", test_name)
     # print("Config:", config_name)
     # print("Input: ", input_name)
     # print('Output:', expected_name)
-    mutex.release()
+    # mutex.release()
 
     if not os.path.isabs(config_name):
         config_name = os.path.join('config', config_name)
@@ -147,20 +133,66 @@ def run_tests(args, test_name, config_name, input_name, lang):
     cmd = '"%s" -q -c %s -f input/%s %s -o %s %s' % (args.exe, config_name, input_name, lang, resultname, "-LA 2>" + resultname + ".log -p " + resultname + ".unc" if args.g else "-L1,2")
     if args.c:
         print("RUN: " + cmd)
+
+    a = os.system(cmd)
+    if a != 0:
+        mutex.acquire()
+        print(FAIL_COLOR + "FAILED: " + NORMAL + test_name)
+        global fail_count
+        fail_count   += 1
+        thread_count -= 1
+        mutex.release()
+        return -1
+
+    # evaluate if the test output is as expected
+    try:
+        if not filecmp.cmp(resultname, outputname):
+            if args.d:
+                cmd = "git diff --no-index %s %s" % (outputname, resultname)
+                sys.stdout.flush()
+                os.system(cmd)
+                
+            mutex.acquire()   
+            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name) 
+            unst_count   += 1   
+            thread_count -= 1
+            mutex.release()  
+            return -2
+    except:
+        # impossible
+        mutex.acquire()
+        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name)  
+        fail_count   += 1   
+        thread_count -= 1
+        mutex.release() 
+        return -1
+
+    if args.p:
+        print(PASS_COLOR + "PASSED: " + NORMAL + test_name)
         
-    run_test(cmd, test_name, resultname, outputname, args)
-        
+    mutex.acquire()
+    pass_count += 1
+    thread_count -= 1
+    mutex.release()    
     return 0
 
 def process_test_file(args, filename):
+    global thread_count
+    global test_count
+    global unst_count
+    global fail_count
+    global pass_count
+    
+    # usually a good choice for the number of parallel threads is the 
+    # number of available CPU cores plus a few extra threads. This leads
+    # to fast overall test speed but little thread blocking
+    max_threads = 12  
+    
     fd = open(filename, "r")
     if fd == None:
         print("Unable to open " + filename)
         return None
     print("Processing " + filename)
-    pass_count = 0
-    fail_count = 0
-    unst_count = 0
     for line in fd:
         line = line.strip()
         parts = line.split()
@@ -191,25 +223,35 @@ def process_test_file(args, filename):
         if len(parts) > 3:
             lang = "-l " + parts[3]
 
-        # processes.add(subprocess.Popen([command, name]))
-        thread.start_new_thread(run_tests, (args, parts[0], parts[1], parts[2], lang))
-        rt = 1
-        #rt = run_tests(args, parts[0], parts[1], parts[2], lang) # start multiple tests in parallel
+        test_count   += 1
+        thread_count += 1
         
-        # counting the results should be done in the parallel test threads
-        if rt < 0:
-            if rt == -1:
-                fail_count += 1
-            else:
-                unst_count += 1
-        else:
-            pass_count += 1
-    return [pass_count, fail_count, unst_count]
+        #thread.start_new_thread(run_tests, (args, parts[0], parts[1], parts[2], lang))
+        test = threading.Thread(target=run_tests, args=(args, parts[0], parts[1], parts[2], lang))
+        test.start()
+        
+        # Check if we can start another thread
+        while True:
+            mutex.acquire()
+            current_threads = thread_count
+            mutex.release()
+            if current_threads < max_threads:
+                break
+               
+        #print("%d tests started, %d passed" % (test_count, pass_count), end="\r")
+    return               
 
 #
 # entry point
 #
 def main(argv):
+    global pass_count
+    global fail_count
+    global unst_count
+    global test_count
+    global thread_count
+    global starttime
+    
     all_tests = "c-sharp c cpp d java pawn objective-c vala ecma".split()
 
     parser = argparse.ArgumentParser(description='Run uncrustify tests')
@@ -225,7 +267,8 @@ def main(argv):
                         type=str, default=all_tests, nargs='*')
     args = parser.parse_args()
 
-    # Save current working directory from which the script is called to be able to resolve relative --exe paths
+    # Save current working directory from which the script is called to be 
+    # able to resolve relative --exe paths
     cwd = os.getcwd()
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
@@ -258,28 +301,31 @@ def main(argv):
 
     #print args
     print("Tests: " + str(args.tests))
-    pass_count = 0
-    fail_count = 0
-    unst_count = 0
 
     for item in args.tests:
         if not item.endswith('.test'):
             item += '.test'
-        passfail = process_test_file(args, item)
-        if passfail != None:
-            pass_count += passfail[0]
-            fail_count += passfail[1]
-            unst_count += passfail[2]
+        process_test_file(args, item)
 
-    print("Passed %d / %d tests" % (pass_count, pass_count + fail_count))
+    # wait until all started tests have terminated
+    while True:
+        mutex.acquire()
+        current_threads = thread_count
+        mutex.release()
+        #print ("%d remaining" % current_threads, end='\r')
+        if current_threads <= 0:
+            break
+    
+    stoptime = timeit.default_timer()
+    print("Runtime %d seconds" % (stoptime - starttime)) 
+    print("Passed %d / %d tests" % (pass_count, test_count))
     if fail_count > 0:
         print(BOLD + "Failed %d test(s)" % (fail_count) + NORMAL)
         sys.exit(1)
     else:
-        txt = BOLD + "All tests passed" + NORMAL
+        print(BOLD + "All tests passed" + NORMAL)
         if unst_count > 0:
-            txt += ", but some files were unstable"
-        print(txt)
+            print(BOLD + "Unstable tests %d ", unst_count)
         sys.exit(0)
 
 if __name__ == '__main__':
