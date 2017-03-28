@@ -14,6 +14,12 @@ import sys
 import os
 import string
 import filecmp
+#import subprocess
+import thread
+from threading import Thread, Lock
+from mutex import mutex
+from test import test_dummy_threading
+#from __main__ import name
 
 # OK, so I just had way too much fun with the colors..
 
@@ -83,11 +89,43 @@ else:
     UNSTABLE_COLOR = FGB_CYAN
     SKIP_COLOR     = FGB_YELLOW
 
+mutex = Lock()
+
+def run_test(cmd, test_name, resultname, outputname, args):
+    # execute a single test    
+    a = os.system(cmd)
+    if a != 0:
+        print(FAIL_COLOR + "FAILED2: " + NORMAL + test_name)
+        return -1
+
+    # evaluate if the test output is as expected
+    try:
+        if not filecmp.cmp(resultname, outputname):
+            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name)
+            if args.d:
+                cmd = "git diff --no-index %s %s" % (outputname, resultname)
+                sys.stdout.flush()
+                os.system(cmd)
+            return -2
+    except:
+        # impossible
+        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name)
+        return -1
+
+    if args.p:
+        print(PASS_COLOR + "PASSED: " + NORMAL + test_name)
+        
+        
+    return 0
+
 def run_tests(args, test_name, config_name, input_name, lang):
-    # print("Test:  ", test_name)
+    
+    mutex.acquire()
+    print("Test:  ", test_name)
     # print("Config:", config_name)
     # print("Input: ", input_name)
     # print('Output:', expected_name)
+    mutex.release()
 
     if not os.path.isabs(config_name):
         config_name = os.path.join('config', config_name)
@@ -109,48 +147,9 @@ def run_tests(args, test_name, config_name, input_name, lang):
     cmd = '"%s" -q -c %s -f input/%s %s -o %s %s' % (args.exe, config_name, input_name, lang, resultname, "-LA 2>" + resultname + ".log -p " + resultname + ".unc" if args.g else "-L1,2")
     if args.c:
         print("RUN: " + cmd)
-    a = os.system(cmd)
-    if a != 0:
-        print(FAIL_COLOR + "FAILED: " + NORMAL + test_name)
-        return -1
-
-    try:
-        if not filecmp.cmp(resultname, outputname):
-            print(MISMATCH_COLOR + "MISMATCH: " + NORMAL + test_name)
-            if args.d:
-                cmd = "git diff --no-index %s %s" % (outputname, resultname)
-                sys.stdout.flush()
-                os.system(cmd)
-            return -1
-    except:
-        print(MISMATCH_COLOR + "MISSING: " + NORMAL + test_name)
-        return -1
-
-    # The file in results matches the file in output.
-    # Re-run with the output file as the input to check stability.
-    cmd = '"%s" -q -c %s -f %s %s -o %s' % (args.exe, rerun_config, outputname, lang, resultname)
-    if args.c:
-        print("RUN: " + cmd)
-    a = os.system(cmd)
-    if a != 0:
-        print(FAIL_COLOR + "FAILED2: " + NORMAL + test_name)
-        return -1
-
-    try:
-        if not filecmp.cmp(resultname, outputname):
-            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name)
-            if args.d:
-                cmd = "git diff --no-index %s %s" % (outputname, resultname)
-                sys.stdout.flush()
-                os.system(cmd)
-            return -2
-    except:
-        # impossible
-        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name)
-        return -1
-
-    if args.p:
-        print(PASS_COLOR + "PASSED: " + NORMAL + test_name)
+        
+    run_test(cmd, test_name, resultname, outputname, args)
+        
     return 0
 
 def process_test_file(args, filename):
@@ -191,7 +190,13 @@ def process_test_file(args, filename):
         lang = ""
         if len(parts) > 3:
             lang = "-l " + parts[3]
-        rt = run_tests(args, parts[0], parts[1], parts[2], lang)
+
+        # processes.add(subprocess.Popen([command, name]))
+        thread.start_new_thread(run_tests, (args, parts[0], parts[1], parts[2], lang))
+        rt = 1
+        #rt = run_tests(args, parts[0], parts[1], parts[2], lang) # start multiple tests in parallel
+        
+        # counting the results should be done in the parallel test threads
         if rt < 0:
             if rt == -1:
                 fail_count += 1
