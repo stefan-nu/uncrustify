@@ -17,6 +17,7 @@ import timeit
 import filecmp
 import thread
 import threading
+from sys import stdout
 from threading import Thread, Lock, current_thread
 from mutex import mutex
 from xmllib import starttagend
@@ -92,8 +93,9 @@ else:
     UNSTABLE_COLOR = FGB_CYAN
     SKIP_COLOR     = FGB_YELLOW
 
-# global variables that can be updated by all threads
-# but only if a thread holds the mutex
+# global variables that are used to communicate between threads
+# every thread may read and updated those share variables
+# To prevent corruption writing is only allowed when holding the mutex
 pass_count   = 0
 fail_count   = 0
 unst_count   = 0
@@ -180,11 +182,13 @@ def process_test_file(args, filename):
     global thread_count
     global test_count
     
+    # \todo add a command line option verbose to print progress messages
+    # \todo add a command line option to set the maximal number of worker threads
+    
     # usually a good choice for the number of parallel threads is the 
     # number of available CPU cores plus a few extra threads. This leads
     # to fast overall test speed but little thread blocking
-    # The thread count might later become a command line argument
-    max_threads = 8 
+    max_threads = 16 
     
     fd = open(filename, "r")
     if fd == None:
@@ -224,19 +228,20 @@ def process_test_file(args, filename):
         test_count   += 1
         thread_count += 1
         
-        #thread.start_new_thread(run_tests, (args, parts[0], parts[1], parts[2], lang))
+        # start a worker thread that performs the test
         test = threading.Thread(target=run_tests, args=(args, parts[0], parts[1], parts[2], lang))
         test.start()
         
-        # Check if we can start another thread
+        # if the maximal allowed number of worker threads got reached
+        # wait here until at least one worker thread has terminated
         while True:
-            mutex.acquire()
-            current_threads = thread_count
-            mutex.release()
-            if current_threads < max_threads:
+            if thread_count < max_threads:
                 break
-               
-        #print("%d tests started, %d passed" % (test_count, pass_count), end="\r")
+            else:
+                print("\r(%d / %d) tests finished" % (pass_count, test_count)),
+                time.sleep(1)
+                
+    print("\n")                
     return               
 
 #
@@ -307,15 +312,17 @@ def main(argv):
 
     # wait until all started tests have terminated
     while True:
-        mutex.acquire()
-        current_threads = thread_count
-        mutex.release()
-        #print ("%d remaining" % current_threads, end='\r')
-        if current_threads <= 0:
+        if thread_count <= 0:
             break
+        else:
+            print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
+            time.sleep(1)
     
+    # all worker threads have stopped now, so we dont need
+    # to acquire the mutex from now on
+
     stoptime = timeit.default_timer()
-    print("Runtime %d seconds" % (stoptime - starttime)) 
+    print("\nRuntime %d seconds" % (stoptime - starttime)) 
     print("Passed %d / %d tests" % (pass_count, test_count))
     if fail_count > 0:
         print(BOLD + "Failed %d test(s)" % (fail_count) + NORMAL)
