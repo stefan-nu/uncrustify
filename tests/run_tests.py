@@ -179,14 +179,12 @@ def run_tests(args, test_name, config_name, input_name, lang):
 def process_test_file(args, filename):
     global thread_count
     global test_count
-    global unst_count
-    global fail_count
-    global pass_count
     
     # usually a good choice for the number of parallel threads is the 
     # number of available CPU cores plus a few extra threads. This leads
     # to fast overall test speed but little thread blocking
-    max_threads = 12  
+    # The thread count might later become a command line argument
+    max_threads = 8 
     
     fd = open(filename, "r")
     if fd == None:
