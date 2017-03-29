@@ -1209,16 +1209,14 @@ void space_text(void)
             {
                bool kw1 = CharTable::IsKW2((uint32_t)(pc->str[pc->len()-1]));
                bool kw2 = CharTable::IsKW1((uint32_t)(next->str[0]));
-               if ((kw1 == true) &&
-                   (kw2 == true) )
+               if ((kw1 == true) && (kw2 == true) )
                {
                   /* back-to-back words need a space */
                   set_flags(pc, PCF_FORCE_SPACE);
                }
-               else if ( (kw1 == false   ) &&
-                         (kw2 == false   ) &&
-                         (pc->len()   < 4) && /* \todo what is the meaning of 4 */
-                         (next->len() < 4) )
+               /* \todo what is the meaning of 4 */
+               else if ( (kw1 == false) && (pc->len()   < 4) &&
+                         (kw2 == false) && (next->len() < 4) )
                {
                   /* We aren't dealing with keywords. concat and try punctuators */
                   char buf[9];
@@ -1270,14 +1268,13 @@ void space_text(void)
             case AV_ADD:
                {
                   uint32_t delta = min_sp;
-                  if ((next->orig_col >= pc->orig_col_end) &&
-                      (pc->orig_col_end != 0))
+                  if ((next->orig_col >= pc->orig_col_end) && (pc->orig_col_end != 0))
                   {
                      /* Keep the same relative spacing, minimum 1 */
                      delta = next->orig_col - pc->orig_col_end;
                      delta = max(delta, min_sp);
                   }
-                  column = (uint32_t)((int32_t)column + delta);
+                  column += delta;
                }
             break;
 
@@ -1296,9 +1293,8 @@ void space_text(void)
          }
 
 
-         if (is_cmt(next               ) &&
-             is_nl(chunk_get_next(next)) &&
-             (column < next->orig_col  ) )
+         if (is_cmt(next) && is_nl(chunk_get_next(next)) &&
+             (column < next->orig_col) )
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
              * sp_endif_cmt did not apply. */
@@ -1346,11 +1342,11 @@ void space_text_balance_nested_parens(void)
    chunk_t* first = chunk_get_head();
    while (is_valid(first))
    {
-      chunk_t *next = chunk_get_next(first);
+      chunk_t* next = chunk_get_next(first);
       break_if(is_invalid(next));
 
-      if (is_str(first, "(") &&     /* if there are two successive */
-          is_str(next,  "(") )      /* opening parenthesis */
+      if (is_str(first, "(") && /* if there are two successive */
+          is_str(next,  "(") )  /* opening parenthesis */
       {
          space_add_after(first, 1); /* insert a space between them */
 

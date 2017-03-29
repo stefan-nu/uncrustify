@@ -103,6 +103,9 @@ test_count   = 0
 thread_count = 0
 mutex = Lock()
 
+def printf(format, *args):
+    sys.stdout.write(format % args)
+
 def run_tests(args, test_name, config_name, input_name, lang):
     global unst_count
     global pass_count
@@ -233,15 +236,15 @@ def process_test_file(args, filename):
         test.start()
         
         # if the maximal allowed number of worker threads got reached
-        # wait here until at least one worker thread has terminated
+        # wait until at least one worker thread has terminated
         while True:
             if thread_count < max_threads:
                 break
             else:
-                print("\r(%d / %d) tests finished" % (pass_count, test_count)),
+                #print("\r(%d / %d) tests finished" % (pass_count, test_count)),
                 time.sleep(1)
                 
-    print("\n")                
+    #print("\n")                
     return               
 
 #
@@ -315,22 +318,26 @@ def main(argv):
         if thread_count <= 0:
             break
         else:
-            print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
+            #print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
             time.sleep(1)
     
-    # all worker threads have stopped now, so we dont need
-    # to acquire the mutex from now on
-
+    # all worker threads have stopped by now, 
+    # so we dont need to acquire the mutex from now on
+    
     stoptime = timeit.default_timer()
-    print("\nRuntime %d seconds" % (stoptime - starttime)) 
-    print("Passed %d / %d tests" % (pass_count, test_count))
+    duration = stoptime - starttime
+    
+    printf(       "\n-------------------------\n") 
+    printf(       "Runtime: %d sec, Time per Test: %2.2fsec \n", duration, (float(duration)/test_count) )
+    printf(       "Tests:    %3d \n", test_count)
+    printf(       "Passed:   %3d (%3.1f%%) \n", pass_count, (float(pass_count)*100)/test_count )
+    printf(BOLD + "Failed:   %3d (%3.1f%%) \n", fail_count, (float(fail_count)*100)/test_count)
+    printf(BOLD + "Unstable: %3d (%3.1f%%) \n", unst_count, (float(unst_count)*100)/test_count)
+    
     if fail_count > 0:
-        print(BOLD + "Failed %d test(s)" % (fail_count) + NORMAL)
         sys.exit(1)
     else:
         print(BOLD + "All tests passed" + NORMAL)
-        if unst_count > 0:
-            print(BOLD + "Unstable tests %d ", unst_count)
         sys.exit(0)
 
 if __name__ == '__main__':

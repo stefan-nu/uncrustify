@@ -130,15 +130,21 @@ static void split_fcn_params_full(
 
 
 /**
- * A for statement is too long.
- * Step backwards and forwards to find the semicolons
- * Try splitting at the semicolons first.
- * If that doesn't work, then look for a comma at paren level.
- * If that doesn't work, then look for an assignment at paren level.
- * If that doesn't work, then give up.
+ * \brief split a for statement in several lines
  */
 static void split_for_statement(
-   chunk_t *start  /**< in]  */
+   chunk_t* start  /**< in] any chunk inside the for statement */
+);
+
+
+
+/** \brief search for semicolons in a for statement */
+void find_semicolons(
+   chunk_t*       start,   /**< [in]  chunk to start search */
+   chunk_t**      semi,    /**< [out] array to store found semicolons  */
+   uint32_t*      count,   /**< [in]  number of semicolons found so far */
+   const uint32_t max_cnt, /**< [in]  maximal required number of semicolons */
+   const dir_e    dir      /**< [in]  search direction */
 );
 
 
@@ -420,7 +426,31 @@ static bool split_line(chunk_t *start)
 }
 
 
-static void split_for_statement(chunk_t *start)
+void find_semicolons(chunk_t* start, chunk_t** semi, uint32_t* count,
+                     const uint32_t max_cnt, const dir_e dir)
+{
+   chunk_t* pc = start;
+   do
+   {
+      if (is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
+      {
+         semi[*count] = pc;
+         (*count)++;
+      }
+   }
+   while ( (*count < max_cnt) &&
+           ((pc = chunk_get(pc, scope_e::ALL, dir)) != nullptr) &&
+            get_flags(pc, PCF_IN_SPAREN) );
+}
+
+
+/* The for statement split algorithm works as follows:
+ * 1. Step backwards and forwards to find the semicolons
+ * 2. Try splitting at the semicolons first.
+ * 3. If that doesn't work, then look for a comma at paren level.
+ * 4. If that doesn't work, then look for an assignment at paren level.
+ * 5. If that doesn't work, then give up. */
+static void split_for_statement(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(start));
@@ -428,9 +458,8 @@ static void split_for_statement(chunk_t *start)
    LOG_FMT(LSPLIT, "%s: starting on %s, line %u\n",
            __func__, start->text(), start->orig_line);
 
-   uint32_t  max_cnt     = is_true(UO_ls_for_split_full) ? 2 : 1;
-   chunk_t *open_paren = nullptr;
-   uint32_t  nl_cnt      = 0;
+   chunk_t* open_paren = nullptr;
+   uint32_t nl_cnt     = 0;
 
    /* Find the open paren so we know the level and count newlines */
    chunk_t *pc = start;
@@ -445,54 +474,30 @@ static void split_for_statement(chunk_t *start)
    }
    if (is_invalid(open_paren))
    {
-      LOG_FMT(LSPLIT, "No open parenthesis\n");
+      LOG_FMT(LSPLIT, "No open parenthesis found, cannot split for() \n");
       return;
    }
 
-   /* see if we started on the semicolon */
-   int32_t     count = 0;
-   chunk_t *st[2];
+   /* how many semicolons (1 or 2) do we need to find */
+   uint32_t max_cnt = is_true(UO_ls_for_split_full) ? 2 : 1;
+
+   /* scan for the semicolons */
+   uint32_t count = 0;
+   chunk_t* st[2];
    st[0] = nullptr;
    st[1] = nullptr;
-   pc = start;
+   /* \todo why no search forward from the open_parenthesis onward ? */
+   find_semicolons(start, &st[0], &count, max_cnt, dir_e::BEFORE);
+   find_semicolons(start, &st[0], &count, max_cnt, dir_e::AFTER );
 
-   /* first scan backwards for the semicolons */
-   /* use a fct count_semicolons(chunk_t *pc, const dir_t dir) */
-   do
+   while (count != 0)
    {
-      // \todo DRY2 start
-      if (is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
+      count--;
+      if(is_valid(st[count]))
       {
-         st[count] = pc;
-         count++;
+         LOG_FMT(LSPLIT, "%s: split before %s\n", __func__, st[count]->text());
+         split_before_chunk(chunk_get_next(st[count]));
       }
-      // DRY2 end
-   }
-   while ( (count < (int32_t)max_cnt                ) &&
-           ((pc = chunk_get_prev(pc)) != nullptr) &&
-            get_flags(pc, PCF_IN_SPAREN         ) );
-
-
-   /* And now scan forward */
-   pc = start;
-   while (( count < (int32_t)max_cnt               ) &&
-          ((pc = chunk_get_next(pc)) != nullptr) &&
-          is_flag(pc, PCF_IN_SPAREN)             )
-   {
-      // \todo DRY2 start
-      if (is_type_and_ptype(pc, CT_SEMICOLON, CT_FOR))
-      {
-         st[count] = pc;
-         count++;
-      }
-      // DRY2 end
-   }
-
-   while (--count >= 0)
-   {
-      assert(is_valid(st[count]));
-      LOG_FMT(LSPLIT, "%s: split before %s\n", __func__, st[count]->text());
-      split_before_chunk(chunk_get_next(st[count]));
    }
 
    return_if(!is_past_width(start) || (nl_cnt > 0));

@@ -597,15 +597,12 @@ int main(int argc, char* argv[])
    register_options();
 
    Args arg_list(argc, argv);
-   if (arg_list.Present("--version") ||
-       arg_list.Present("-v"       ) )
+   if (arg_list.Present("--version") || arg_list.Present("-v"))
    {
       version_exit();
    }
-   if (arg_list.Present("--help" ) ||
-       arg_list.Present("-h"     ) ||
-       arg_list.Present("--usage") ||
-       arg_list.Present("-?"     ) )
+   if (arg_list.Present("--help" ) || arg_list.Present("-h") ||
+       arg_list.Present("--usage") || arg_list.Present("-?") )
    {
       usage_exit(nullptr, argv[0], EXIT_SUCCESS);
    }

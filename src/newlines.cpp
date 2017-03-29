@@ -1267,6 +1267,7 @@ static void nl_struct_enum_union(chunk_t* start, argval_t nl_opt, bool leave_tra
    return_if ((nl_opt == AV_IGNORE) ||
               (is_preproc(start) && is_false(UO_nl_define_macro)));
 
+   // \todo DRY with line 1347
    /* step past any junk between the keyword and the open brace
     * Quit if we hit a semicolon or '=', which are not expected. */
    uint32_t level = start->level;
@@ -1344,6 +1345,7 @@ static void nl_enum(chunk_t* start)
       }
    }
 
+   // \todo DRY with line 1272
    /* step past any junk between the keyword and the open brace
     * Quit if we hit a semicolon or '=', which are not expected. */
    uint32_t level = start->level;
@@ -1352,8 +1354,8 @@ static void nl_enum(chunk_t* start)
            (pc->level >= level))
    {
       break_if (is_level(pc, level) &&
-                is_type (pc, CT_BRACE_OPEN, CT_ASSIGN,
-                             CT_SEMICOLON,  CT_VSEMICOLON));
+                is_type (pc, CT_VSEMICOLON, CT_BRACE_OPEN,
+                             CT_SEMICOLON,  CT_ASSIGN));
       start = pc;
    }
 

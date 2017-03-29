@@ -3669,14 +3669,12 @@ exit_loop:
     * 'parameter list' for items that are not allowed in a prototype.
     * We search backwards and checking the parent of the containing open braces.
     * If the parent is a class or namespace, then it probably is a prototype */
-   if (is_lang  (cpd, LANG_CPP     ) &&
-       is_type  (pc,  CT_FUNC_PROTO) &&
-       not_ptype(pc,  CT_OPERATOR  ) )
+   if (is_lang(cpd, LANG_CPP) &&
+       is_type_and_not_ptype(pc, CT_FUNC_PROTO, CT_OPERATOR))
    {
       LOG_FMT(LFPARAM, "%s :: checking '%s' for constructor variable %s %s\n",
               __func__, pc->text(),
-              get_token_name(popen->type ),
-              get_token_name(pclose->type));
+              get_token_name(popen->type ), get_token_name(pclose->type));
 
       /* Scan the parameters looking for:
        *  - constant strings
@@ -3690,8 +3688,7 @@ exit_loop:
       while (tmp != pclose)
       {
          tmp2 = get_next_ncnl(tmp);
-         if (is_type(tmp, CT_COMMA            ) &&
-             (tmp->level == (popen->level + 1)) )
+         if (is_type_and_level(tmp, CT_COMMA, (popen->level + 1)))
          {
             if (!can_be_full_param(ref, tmp))
             {
@@ -3811,7 +3808,8 @@ static void mark_cpp_constructor(chunk_t* pc)
 
    /* Mark parameters */
    fix_fcn_def_params(paren_open);
-   chunk_t* after = flag_parens(paren_open, PCF_IN_FCN_CALL, CT_FPAREN_OPEN, CT_FUNC_CLASS_PROTO, false);
+   chunk_t* after = flag_parens(paren_open, PCF_IN_FCN_CALL,
+                                CT_FPAREN_OPEN, CT_FUNC_CLASS_PROTO, false);
 
    assert(is_valid(after));
    LOG_FMT(LFTOR, "[%s]\n", after->text());
@@ -3875,8 +3873,8 @@ static void mark_class_ctor(chunk_t* start)
       next   = get_next_ncnl(next, scope_e::PREPROC);
    }
 
-   chunk_t* pc   = get_next_ncnl(pclass, scope_e::PREPROC);
-   uint32_t  level = pclass->brace_level + 1;
+   chunk_t* pc    = get_next_ncnl(pclass, scope_e::PREPROC);
+   uint32_t level = pclass->brace_level + 1;
 
    if (is_invalid(pc))
    {
@@ -3893,17 +3891,14 @@ static void mark_class_ctor(chunk_t* start)
            __func__, pclass->text(), pclass->orig_line, pc->text());
 
    /* detect D template class: "class foo(x) { ... }" */
-   if (is_valid(next))
+   if (is_lang(cpd, LANG_D) && is_type(next, CT_PAREN_OPEN))
    {
-      if (is_lang(cpd, LANG_D) && is_type(next, CT_PAREN_OPEN))
+      set_ptype(next, CT_TEMPLATE);
+
+      next = get_d_template_types(cs, next);
+      if (is_type(next, CT_PAREN_CLOSE))
       {
          set_ptype(next, CT_TEMPLATE);
-
-         next = get_d_template_types(cs, next);
-         if (is_type(next, CT_PAREN_CLOSE))
-         {
-            set_ptype(next, CT_TEMPLATE);
-         }
       }
    }
 
@@ -3952,8 +3947,7 @@ static void mark_class_ctor(chunk_t* start)
          continue;
       }
 
-      if (is_type(pc, CT_BRACE_CLOSE) &&
-          (pc->brace_level < level  ) )
+      if (is_type(pc, CT_BRACE_CLOSE) && (pc->brace_level < level))
       {
          LOG_FMT(LFTOR, "%s: %u] Hit brace close\n", __func__, pc->orig_line);
          pc = get_next_ncnl(pc, scope_e::PREPROC);
@@ -4035,7 +4029,7 @@ static void mark_namespace(chunk_t* pns)
 
 static chunk_t* skip_align(chunk_t* start)
 {
-   assert(is_valid(start));
+   retval_if(is_invalid(start), start);
 
    chunk_t* pc = start;
    if (is_type(pc, CT_ALIGN))
@@ -4046,7 +4040,6 @@ static chunk_t* skip_align(chunk_t* start)
       {
          pc = get_next_type(pc, CT_PAREN_CLOSE, (int32_t)pc->level);
          pc = get_next_ncnl(pc);
-         assert(is_valid(pc));
          if (is_type(pc, CT_COLON))
          {
             pc = get_next_ncnl(pc);
@@ -4062,9 +4055,8 @@ static void mark_struct_union_body(chunk_t* start)
    LOG_FUNC_ENTRY();
 
    chunk_t* pc = start;
-   while (   is_valid(pc)         &&
-            (pc->level >= start->level) &&
-          !((pc->level == start->level) && is_type(pc, CT_BRACE_CLOSE)))
+   while ( is_valid(pc) && (pc->level >= start->level) &&
+         !(is_type_and_level(pc, CT_BRACE_CLOSE, start->level)))
    {
       // LOG_FMT(LSYS, "%s: %d:%d %s:%s\n", __func__, pc->orig_line,
       // pc->orig_col, pc->text(), get_token_name(pc->parent_type));
@@ -4344,7 +4336,7 @@ static void handle_d_template(chunk_t* pc)
    set_ptype         (po,            CT_TEMPLATE);
 
    ChunkStack cs;
-   chunk_t    *tmp = get_d_template_types(cs, po);
+   chunk_t*   tmp = get_d_template_types(cs, po);
 
    if(is_invalid_or_not_type(tmp, CT_PAREN_CLOSE))
    {
@@ -4510,20 +4502,20 @@ chunk_t* skip_attribute_prev(chunk_t* fp_close)
 }
 
 
+enum class angle_state_e : uint32_t
+{
+   NONE  = 0,
+   OPEN  = 1, /**< '<' found */
+   CLOSE = 2  /**< '>' found */
+};
+
 static void handle_oc_class(chunk_t* pc)
 {
-   enum class angle_state_e : uint32_t
-   {
-      NONE  = 0,
-      OPEN  = 1, // '<' found
-      CLOSE = 2  // '>' found
-   };
-
    LOG_FUNC_ENTRY();
    chunk_t* tmp;
    bool    hit_scope     = false;
-   bool    passed_name   = false; // Did we pass the name of the class and now there can be only protocols, not generics
-   int32_t     generic_level = 0;     // level of depth of generic
+   bool    passed_name   = false; /* Did we pass the name of the class and now there can be only protocols, not generics */
+   int32_t generic_level = 0;     /* level of depth of generic */
    angle_state_e as      = angle_state_e::NONE;
 
    LOG_FMT(LOCCLASS, "%s: start [%s] [%s] line %u\n",
@@ -4648,7 +4640,7 @@ static void handle_oc_block_literal(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    const chunk_t* prev = get_prev_ncnl(pc);
-   chunk_t       *next = get_next_ncnl(pc);
+   chunk_t*       next = get_next_ncnl(pc);
    return_if(are_invalid(pc, prev, next));
 
    /* block literal: '^ RTYPE ( ARGS ) { }'
@@ -4671,7 +4663,7 @@ static void handle_oc_block_literal(chunk_t* pc)
          LOG_FMT(LOCBLK, "[DONE]");
          break;
       }
-      if (tmp->level == pc->level)
+      if (is_level(tmp, pc->level))
       {
          if (is_paren_open(tmp))
          {
@@ -4866,7 +4858,6 @@ static void handle_oc_message_decl(chunk_t* pc)
    if (is_type(pc, CT_COLON, CT_OC_COLON))
    {
       pc = label;
-
       while (true)
       {
          /* skip optional label */
@@ -5025,20 +5016,17 @@ static void handle_oc_message_send(chunk_t* os)
    {
       assert(is_valid(tmp));
       set_flags(tmp, PCF_IN_OC_MSG);
-      if (tmp->level == cs->level + 1)
+      if (is_type_and_level(tmp, CT_COLON, cs->level + 1))
       {
-         if (is_type(tmp, CT_COLON))
+         set_type(tmp, CT_OC_COLON);
+         if (is_type(prev, CT_WORD, CT_TYPE))
          {
-            set_type(tmp, CT_OC_COLON);
-            if (is_type(prev, CT_WORD, CT_TYPE))
+            /* Might be a named param, check previous block */
+            chunk_t* pp = chunk_get_prev(prev);
+            if (not_type(pp, CT_OC_COLON, CT_ARITH, CT_CARET) )
             {
-               /* Might be a named param, check previous block */
-               chunk_t* pp = chunk_get_prev(prev);
-               if (not_type(pp, CT_OC_COLON, CT_ARITH, CT_CARET) )
-               {
-                  set_type (prev, CT_OC_MSG_NAME);
-                  set_ptype(tmp,  CT_OC_MSG_NAME);
-               }
+               set_type (prev, CT_OC_MSG_NAME);
+               set_ptype(tmp,  CT_OC_MSG_NAME);
             }
          }
       }
@@ -5101,7 +5089,7 @@ static void handle_oc_property_decl(chunk_t* os)
                }
                else if (is_str(next, "getter"))
                {
-                  do
+                  do // DRY
                   {
                      chunkGroup.push_back(next);
                      next = chunk_get_next(next);
@@ -5114,7 +5102,7 @@ static void handle_oc_property_decl(chunk_t* os)
                }
                else if (is_str(next, "setter"))
                {
-                  do
+                  do // DRY
                   {
                      chunkGroup.push_back(next);
                      next = chunk_get_next(next);
@@ -5246,10 +5234,9 @@ static void handle_cs_property(chunk_t* bro)
    chunk_t* pc      = bro;
    while ((pc = get_prev_ncnl(pc)) != nullptr)
    {
-      if (pc->level == bro->level)
+      if (is_level(pc, bro->level))
       {
-         if ((did_prop == false) &&
-              is_type(pc, CT_WORD, CT_THIS))
+         if ((did_prop == false) && is_type(pc, CT_WORD, CT_THIS))
          {
             set_type(pc, CT_CS_PROPERTY);
             did_prop = true;
@@ -5311,9 +5298,9 @@ void remove_extra_returns(void)
 static void handle_wrap(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   chunk_t  *opp  = chunk_get_next(pc);
-   chunk_t  *name = chunk_get_next(opp);
-   chunk_t  *clp  = chunk_get_next(name);
+   chunk_t* opp  = chunk_get_next(pc);
+   chunk_t* name = chunk_get_next(opp);
+   chunk_t* clp  = chunk_get_next(name);
    assert(are_valid(opp, name, clp));
 
    argval_t pav = (is_type(pc, CT_FUNC_WRAP)) ?
@@ -5396,8 +5383,7 @@ static void handle_java_assert(chunk_t* pc)
    {
       if (is_level(tmp, pc->level))
       {
-         if ((did_colon == false  ) &&
-             is_type(tmp, CT_COLON) )
+         if ((did_colon == false  ) && is_type(tmp, CT_COLON) )
          {
             did_colon = true;
             set_ptype(tmp, pc->type);
