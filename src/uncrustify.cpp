@@ -1901,7 +1901,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
       if (is_true(UO_nl_squeeze_ifdef)) { newlines_squeeze_ifdef(); }
 
       do_blank_lines();
-      nl_eat_start_end();
+      nl_eat_start_and_end();
       newlines_functions_remove_extra_blank_lines();
       newlines_cleanup_dup();
       first = false;

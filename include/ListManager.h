@@ -21,7 +21,7 @@
  */
 
 /* \todo why do we provide this template class? can't we use
- * a double linked list from the standard library ? */
+ * a double linked list deque from the standard library ? */
 
 template<class T> class ListManager
 {

@@ -318,6 +318,18 @@ chunk_t* chunk_get_tail(void);
 
 
 /**
+ * \brief returns the next chunk in either direction of a list of chunks
+ *
+ * @return pointer to next/previous chunk or nullptr if no chunk was found
+ */
+chunk_t* chunk_get(
+   chunk_t*      cur,                  /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL, /**< [in] code region to search in */
+   const dir_e   dir   = dir_e::AFTER  /**< [in] search backward or forward */
+);
+
+
+/**
  * \brief returns the next chunk in a list of chunks
  *
  * @return pointer to next chunk or nullptr if no chunk was found

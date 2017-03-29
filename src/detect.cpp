@@ -44,9 +44,8 @@ public:
 
 void sp_votes::vote(chunk_t *first, chunk_t *second)
 {
-   return_if(!are_valid(first, second) ||
-              is_nl(first ) ||
-              is_nl(second) );
+   return_if(are_invalid(first, second) ||
+             is_nl(first) || is_nl(second) );
 
    int32_t col_dif = (int32_t)second->column - (int32_t)(first->column + first->len());
 

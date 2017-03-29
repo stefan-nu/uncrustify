@@ -933,6 +933,9 @@ bool is_opt_set(
 
 
 /** \brief getter function for uncrustify argument option */
+bool get_bool(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
 argval_t get_arg(
    const uo_t opt /**< [in] uncrustify option to use */
 );

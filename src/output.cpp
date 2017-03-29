@@ -1436,17 +1436,17 @@ static void output_comment_multi(chunk_t* pc)
    cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
 
    uint32_t cmt_col  = cmt.base_col;
-   int32_t    col_diff = (int32_t)pc->orig_col - (int32_t)cmt.base_col;
+   int32_t  col_diff = (int32_t)pc->orig_col - (int32_t)cmt.base_col;
 
    calculate_cmt_body_indent(cmt, pc->str);
 
-   cmt.cont_text =  is_false(UO_cmt_indent_multi) ? ""   :
-                    is_true (UO_cmt_star_cont   ) ? "* " : "  ";
+   cmt.cont_text = is_false(UO_cmt_indent_multi) ? ""   :
+                   is_true (UO_cmt_star_cont   ) ? "* " : "  ";
    LOG_CONTTEXT();
 
-   uint32_t   line_count = 0;
-   uint32_t   cmt_idx    = 0;
-   uint32_t   ccol       = pc->column; /* the col of subsequent comment lines */
+   uint32_t line_count = 0;
+   uint32_t cmt_idx    = 0;
+   uint32_t ccol       = pc->column; /* the col of subsequent comment lines */
    bool     nl_end     = false;
    unc_text line;
    line.clear();
@@ -1514,7 +1514,7 @@ static void output_comment_multi(chunk_t* pc)
             }
          }
 
-         int32_t    next_nonempty_line = -1;
+         int32_t  next_nonempty_line = -1;
          uint32_t remaining = pc->len() - cmt_idx;
          for (uint32_t nxt_len = 0;
               (nxt_len <= remaining    ) &&

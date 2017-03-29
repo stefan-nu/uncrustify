@@ -46,9 +46,9 @@ void newlines_squeeze_ifdef(void);
 
 
 /**
- * tbd
+ * \brief removes unnecessary newlines at start and end of a file
  */
-void nl_eat_start_end(void);
+void nl_eat_start_and_end(void);
 
 
 /**

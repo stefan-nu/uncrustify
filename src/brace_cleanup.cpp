@@ -260,7 +260,7 @@ void brace_cleanup(void)
        * #define bodies get the full formatting treatment
        * Also need to pass in the initial '#' to close out any virtual braces.
        */
-      if (!is_cmt(pc) && !is_nl (pc) &&
+      if (!is_cmt_or_nl(pc) &&
           is_type(cpd.is_preproc, CT_PP_DEFINE, CT_NONE))
       {
          cpd.consumed = false;

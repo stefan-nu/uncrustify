@@ -179,8 +179,8 @@ struct parse_frame_t
 #define PCF_VAR_INLINE         PCF_BIT(25)  /* type was an inline struct/enum/union */
 #define PCF_RIGHT_COMMENT      PCF_BIT(26)  /**<  */
 #define PCF_OLD_FCN_PARAMS     PCF_BIT(27)  /**<  */
-#define PCF_LVALUE             PCF_BIT(28)  /* left of assignment */
-#define PCF_ONE_LINER          PCF_BIT(29)  /**<  */
+#define PCF_LVALUE             PCF_BIT(28)  /**< left of assignment */
+#define PCF_ONE_LINER          PCF_BIT(29)  /**< flag indicates a one-line assignment */
 #define PCF_ONE_CLASS          (PCF_ONE_LINER | PCF_IN_CLASS)
 #define PCF_EMPTY_BODY         PCF_BIT(30)  /**<  */
 #define PCF_ANCHOR             PCF_BIT(31)  /**< aligning anchor */

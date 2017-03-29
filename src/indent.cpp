@@ -851,7 +851,7 @@ void indent_text(void)
          }
          else
          {
-            if (!is_cmt(pc) && !is_nl(pc))
+            if (!is_cmt_or_nl(pc))
             {
                xml_indent = 0;
             }
@@ -869,8 +869,7 @@ void indent_text(void)
          old_pse_tos = frm.pse_tos;
 
          /* End anything that drops a level */
-         if (!is_nl(pc) &&
-             !is_cmt(pc) &&
+         if (!is_cmt_or_nl(pc) &&
              (frm.pse[frm.pse_tos].level > pc->level))
          {
             indent_pse_pop(frm, pc);
@@ -999,7 +998,7 @@ void indent_text(void)
       LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
               __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
 
-      if (!is_nl(pc) && !is_cmt(pc) && log_sev_on(LINDPC))
+      if (!is_cmt_or_nl(pc) && log_sev_on(LINDPC))
       {
          LOG_FMT(LINDPC, " -=[ %u:%u %s ]=-\n",
                  pc->orig_line, pc->orig_col, pc->text());
@@ -1516,8 +1515,7 @@ void indent_text(void)
          bool skipped = false;
 
          indent_pse_push(frm, pc);
-         if (is_nl(chunk_get_prev(pc)) &&
-             (pc->column != indent_column))
+         if (is_nl(chunk_get_prev(pc)) && (pc->column != indent_column))
          {
             LOG_FMT(LINDENT, "%s[line %d]: %u] indent => %u [%s]\n",
                     __func__, __LINE__, pc->orig_line, indent_column, pc->text());
@@ -1592,8 +1590,7 @@ void indent_text(void)
             }
             else
             {
-               if ( is_valid(next) &&
-                   !is_cmt(next) )
+               if ( is_valid(next) && !is_cmt(next))
                {
                   if (is_type(next, CT_SPACE))
                   {
@@ -1658,8 +1655,7 @@ void indent_text(void)
          /* if there is a newline after the '=' or the line starts with a '=',
           * just indent one level,
           * otherwise align on the '='. */
-         if (is_type(pc, CT_ASSIGN) &&
-             is_nl(chunk_get_prev(pc)))
+         if (is_type(pc, CT_ASSIGN) && is_nl(chunk_get_prev(pc)))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent + indent_size;
             LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
@@ -1826,8 +1822,7 @@ void indent_text(void)
             vardefcol                        = calc_indent_continue(frm, frm.pse_tos);
             frm.pse[frm.pse_tos].indent_cont = true;
          }
-         else if (is_true(UO_indent_var_def_cont) ||
-                  is_nl(chunk_get_prev(pc)))
+         else if (is_true(UO_indent_var_def_cont) || is_nl(chunk_get_prev(pc)))
          {
             vardefcol = frm.pse[frm.pse_tos].indent + indent_size;
          }
@@ -1850,9 +1845,7 @@ void indent_text(void)
       }
 
       /* Indent the line if needed */
-      if ((my_did_newline == true ) &&
-          (is_nl(pc)      == false) &&
-          (pc->len()      != 0    ) )
+      if ((my_did_newline == true) && (!is_nl(pc)) && (pc->len() != 0))
       {
          pc->column_indent = frm.pse[frm.pse_tos].indent_tab;
 
@@ -2120,8 +2113,7 @@ void indent_text(void)
       }
 
       /* if we hit a newline, reset indent_tmp */
-      if (is_nl(pc)         ||
-          is_type(pc, CT_COMMENT_MULTI, CT_COMMENT_CPP))
+      if (is_nl(pc) || is_type(pc, CT_COMMENT_MULTI, CT_COMMENT_CPP))
       {
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
          LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",

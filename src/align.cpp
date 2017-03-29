@@ -198,7 +198,7 @@ static chunk_t* skip_c99_array(
  */
 static chunk_t *scan_ib_line(
    chunk_t* start,     /**< [in]  */
-   bool     first_pass  /**< [in]  */
+   bool     first_pass /**< [in]  */
 );
 
 
@@ -1332,8 +1332,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
                      as_at.Add(next);
                      break;
                   }
-                  if (is_type   (next, CT_SEMICOLON) ||
-                      is_nl(next        ) )
+                  if (is_type(next, CT_SEMICOLON) || is_nl(next))
                   {
                      break;
                   }
@@ -1546,8 +1545,7 @@ static chunk_t* scan_ib_line(chunk_t* start, bool first_pass)
       //        pc->text(), pc->column, pc->orig_col, pc->orig_line);
 
       chunk_t *next = chunk_get_next(pc);
-      if (is_invalid(next) ||
-          is_cmt(next) )
+      if (is_invalid(next) || is_cmt(next))
       {
          /* do nothing */
       }
@@ -1760,8 +1758,7 @@ static void align_init_brace(chunk_t* start)
          }
          else { LOG_FMT(LALBR, " no match\n"); }
       }
-      if (is_nl(pc  ) ||
-          is_nl(next) )
+      if (is_nl(pc) || is_nl(next))
       {
          idx = 0;
       }

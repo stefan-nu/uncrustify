@@ -130,13 +130,6 @@ static chunk_t* chunk_add(
 );
 
 
-static chunk_t* chunk_get(
-   chunk_t*      cur,                  /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL, /**< [in] code region to search in */
-   const dir_e   dir   = dir_e::AFTER  /**< [in] insert before or after */
-);
-
-
 static void chunk_log(
    chunk_t*    pc,  /**< [in]  */
    const char* text /**< [in]  */
@@ -376,7 +369,7 @@ chunk_t* get_first_on_line(chunk_t* pc)
 }
 
 
-static chunk_t* chunk_get(chunk_t* cur, const scope_e scope, const dir_e dir)
+chunk_t* chunk_get(chunk_t* cur, const scope_e scope, const dir_e dir)
 {
    retval_if(is_invalid(cur), cur);
 

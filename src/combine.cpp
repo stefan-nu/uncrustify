@@ -1008,8 +1008,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       {
          break_if (is_nl(tmp));
 
-         if (is_type(tmp, CT_SQUARE_CLOSE) &&
-             (next->level == tmp->level))
+         if (is_type(tmp, CT_SQUARE_CLOSE) && is_level(next, tmp->level))
          {
             set_flags(tmp,  PCF_ONE_LINER);
             set_flags(next, PCF_ONE_LINER);
@@ -1277,13 +1276,12 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
     * which means that we are on a function type declaration (C/C++ only?).
     * Note that typedefs are already taken care of. */
    if (not_flag(pc, (PCF_IN_TYPEDEF | PCF_IN_TEMPLATE)) &&
-       not_ptype(pc, 2, CT_CPP_CAST, CT_C_CAST) &&
+       not_ptype(pc, 2, CT_CPP_CAST,    CT_C_CAST     ) &&
        not_ptype(pc, 2, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
        !is_preproc (pc) &&
        !is_oc_block(pc) &&
-
-       is_str(pc,   ")"            ) &&
-       is_str(next, "("            ) )
+       is_str(pc,  ")") &&
+       is_str(next,"(") )
    {
       if (is_lang(cpd, LANG_D))
       {
@@ -1551,10 +1549,10 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
                LOG_FMT(LGUY, "ATTRIBUTE found %s:%s\n", get_token_name(tmp->type), tmp->text());
                LOG_FMT(LGUY, "for token %s:%s\n",       get_token_name(pc->type ), pc->text() );
 
-               set_type(pc,       CT_TYPE    ); // change CT_WORD => CT_TYPE
-               set_type(pc->next, CT_PTR_TYPE); // change CT_STAR => CT_PTR_TYPE
+               set_type(pc,       CT_TYPE    ); /* change CT_WORD => CT_TYPE */
+               set_type(pc->next, CT_PTR_TYPE); /* change CT_STAR => CT_PTR_TYPE */
             }
-            break_if(is_flag(tmp, PCF_STMT_START));  // we are at beginning of the line
+            break_if(is_flag(tmp, PCF_STMT_START));  /* we are at beginning of the line */
 
             tmp = chunk_get_prev(tmp);
          }
@@ -1734,29 +1732,26 @@ static void mark_function_return_type(chunk_t* fname, chunk_t* start, c_token_t 
          log_pcf_flags(LFCNR, pc->flags);
 #endif
          break_if((!is_var_type(pc) &&
-                   not_type(pc, CT_OPERATOR, CT_WORD, CT_ADDR)) ||
-                   is_preproc(pc));
+                   not_type(pc, CT_OPERATOR, CT_WORD, CT_ADDR)) || is_preproc(pc));
 
          if (!is_ptr_operator(pc))
          {
             first = pc;
          }
-         save = pc; // keep a copy
+         save = pc; /* keep a copy */
          pc   = get_prev_ncnl(pc);
-         if (pc != nullptr)
+         if (is_valid(pc))
          {
             log_pcf_flags(LFCNR, pc->flags);
-            // Issue #1027
             if ((pc->flags & PCF_IN_TEMPLATE) &&
                 (pc->type == CT_ANGLE_CLOSE))
             {
-               // look for the opening angle
+               /* search the opening angle */
                pc = get_prev_type(pc, CT_ANGLE_OPEN, save->level);
-               if (pc != nullptr)
+               if (is_valid(pc))
                {
-                  // get the prev
                   pc = chunk_get_prev(pc);
-                  if (pc != nullptr)
+                  if (is_valid(pc))
                   {
                      if (pc->type == CT_TYPE)
                      {
@@ -1792,13 +1787,13 @@ static bool mark_function_type(chunk_t* pc)
            get_token_name(pc->type), pc->text(), pc->orig_line, pc->orig_col);
 
    /* note cannot move variable definitions below due to switch */
-   uint32_t    star_count = 0;
-   uint32_t    word_count = 0;
-   chunk_t   *ptrcnk    = nullptr;
-   chunk_t   *tmp;
-   chunk_t   *apo;
-   chunk_t   *apc;
-   chunk_t   *aft;
+   uint32_t  star_count = 0;
+   uint32_t  word_count = 0;
+   chunk_t*  ptrcnk     = nullptr;
+   chunk_t*  tmp;
+   chunk_t*  apo;
+   chunk_t*  apc;
+   chunk_t*  aft;
    bool      anon = false;
    c_token_t pt, ptp;
 
@@ -1999,7 +1994,7 @@ static chunk_t* process_return(chunk_t* pc)
    chunk_t* temp;
    chunk_t* semi;
    chunk_t* cpar;
-   chunk_t chunk;
+   chunk_t  chunk;
    if (is_type(next, CT_PAREN_OPEN))
    {
       /* See if the return is fully paren'd */
@@ -2057,7 +2052,7 @@ static chunk_t* process_return(chunk_t* pc)
    assert(is_valid(semi));
    if (is_semicolon(semi) && is_level(pc, semi->level))
    {
-      /* add the parens */
+      /* add the parenthesis */
       chunk.type        = CT_PAREN_OPEN;
       chunk.str         = "(";
       chunk.level       = pc->level;
@@ -2086,7 +2081,7 @@ static chunk_t* process_return(chunk_t* pc)
 }
 
 
-static bool is_ucase_str(const char *str, uint32_t len)
+static bool is_ucase_str(const char* str, uint32_t len)
 {
    while (len-- > 0)
    {
@@ -2120,16 +2115,16 @@ static void fix_casts(chunk_t* start)
       return;
    }
 
-   chunk_t*   first;
-   chunk_t*   after;
-   chunk_t*   last = nullptr;
-   chunk_t*   paren_close;
-   const char *verb      = "likely";
-   const char *detail    = "";
-   uint32_t     count      = 0;
-   int        word_count = 0;
-   bool       nope;
-   bool       doubtful_cast = false;
+   chunk_t*    first;
+   chunk_t*    after;
+   chunk_t*    last = nullptr;
+   chunk_t*    paren_close;
+   const char* verb      = "likely";
+   const char* detail    = "";
+   uint32_t    count      = 0;
+   int         word_count = 0;
+   bool        nope;
+   bool        doubtful_cast = false;
 
    /* Make sure there is only WORD, TYPE, and '*' or '^' before the close parenthesis */
    chunk_t* pc = get_next_ncnl(start);
@@ -4103,8 +4098,8 @@ void mark_comments(void)
 
    while (is_valid(cur))
    {
-      chunk_t* next   =  get_next_nvb(cur);
-      bool    next_nl = (is_invalid(next) || is_nl(next));
+      chunk_t* next    =  get_next_nvb(cur);
+      bool     next_nl = (is_invalid(next) || is_nl(next));
 
       if (is_cmt(cur))
       {
