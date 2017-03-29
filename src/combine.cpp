@@ -5272,19 +5272,8 @@ static void handle_cs_property(chunk_t* bro)
 
 static void handle_cs_array_type(chunk_t* pc)
 {
-   chunk_t* prev;
-
-#if 0
-   prev = chunk_get_prev_comma(pc);
-   /* \todo better use search function here */
-#else
-   for (prev = chunk_get_prev(pc);
-        is_type(prev, CT_COMMA);
-        prev = chunk_get_prev(prev))
-   {
-      /* empty */
-   }
-#endif
+   /* get the preceding chunk that is no comma */
+   chunk_t* prev = get_prev_comma(pc, scope_e::ALL, false);
 
    if (is_type(prev, CT_SQUARE_OPEN))
    {

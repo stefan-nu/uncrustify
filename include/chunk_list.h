@@ -522,11 +522,12 @@ chunk_t* get_prev_nl(
 
 
 /**
- * Gets the prev COMMA chunk
+ * Gets the closest preceding chunk that is a comma or no comma
  */
 chunk_t* get_prev_comma(
-   chunk_t*      cur,                 /**< [in] chunk to start with */
-   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+   chunk_t*      cur,                  /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL, /**< [in] code region to search in */
+   const bool    cond  = true          /**< [in] false = search for non comma */
 );
 
 

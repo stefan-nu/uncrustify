@@ -482,7 +482,7 @@ static chunk_t* chunk_add(const chunk_t* pc_in, chunk_t* ref, const dir_e pos)
       }
       chunk_log(pc, "chunk_add");
    }
-   return(pc); /* \todo what is returned here? */
+   return(pc);
 }
 
 
@@ -576,9 +576,9 @@ chunk_t* get_prev_nl(chunk_t* cur, const scope_e scope)
 }
 
 
-chunk_t* get_prev_comma(chunk_t* cur, const scope_e scope)
+chunk_t* get_prev_comma(chunk_t* cur, const scope_e scope, const bool cond)
 {
-   return(chunk_search(cur, is_comma, scope, dir_e::BEFORE, true));
+   return(chunk_search(cur, is_comma, scope, dir_e::BEFORE, cond));
 }
 
 

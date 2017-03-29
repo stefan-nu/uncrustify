@@ -128,7 +128,7 @@ static void align_stack(
  */
 static void align_add(
    ChunkStack &cs,      /**< [in]  */
-   chunk_t*   pc,      /**< [in] the item to add */
+   chunk_t*   pc,       /**< [in] the item to add */
    uint32_t   &max_col, /**< [in] pointer to the column variable */
    uint32_t   min_pad,  /**< [in]  */
    bool       squeeze   /**< [in]  */
@@ -142,7 +142,7 @@ static void align_add(
  */
 static chunk_t* align_var_def_brace(
    chunk_t*  pc,       /**< [in]  */
-   uint32_t  span,      /**< [in]  */
+   uint32_t  span,     /**< [in]  */
    uint32_t* nl_count  /**< [in]  */
 );
 

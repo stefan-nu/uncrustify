@@ -259,6 +259,14 @@ static const char* get_align_mode_name(
 );
 
 
+/** check if a chunk is part of a shift operator */
+static bool is_shift_operator(
+   chunk_t* pc,       /**< [i]      chunk to start search at */
+   bool*    in_shift, /**< [in,out] flag indicates a shift instruction */
+   dir_e    dir       /**< [in]     direction to search */
+);
+
+
 static const char* get_align_mode_name(const align_mode_e align_mode)
 {
    switch(align_mode)
@@ -573,6 +581,29 @@ static chunk_t* oc_msg_block_indent(chunk_t* pc, bool from_brace,
 static chunk_t* oc_msg_prev_colon(chunk_t* pc)
 {
    return(get_prev_type(pc, CT_OC_COLON, (int32_t)pc->level, scope_e::ALL));
+}
+
+
+static bool is_shift_operator(chunk_t* pc, bool* in_shift, dir_e dir)
+{
+   bool is_operator = false;
+   /* Search forward */
+   chunk_t* tmp = pc;
+   do
+   {
+      if (is_str(tmp, "<<") || is_str(tmp, ">>")) /* shift operator */
+      {
+         *in_shift = true;
+         tmp = get_prev_ncnl(tmp);
+         if (is_type(tmp, CT_OPERATOR)) { is_operator = true; }
+         break;
+      }
+      /* get next non comment, non newline chunk in required direction */
+      tmp = chunk_search(tmp, is_cmt_or_nl, scope_e::ALL, dir, false);
+   } while ((*in_shift == false) &&
+         not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_SEMICOLON,
+                          CT_BRACE_OPEN,  CT_SPAREN_OPEN,  CT_COMMA));
+   return is_operator;
 }
 
 
@@ -1730,8 +1761,8 @@ void indent_text(void)
 
       /* Handle shift expression continuation indenting */
       shiftcontcol = 0;
-      if ( (is_true(UO_indent_shift)    ) &&
-            not_flag(pc, PCF_IN_ENUM) &&
+      if ( (is_true(UO_indent_shift) ) &&
+            not_flag(pc, PCF_IN_ENUM ) &&
             not_ptype(pc, CT_OPERATOR) &&
             not_type (pc, 4, CT_COMMENT_CPP, CT_COMMENT_MULTI,
                              CT_BRACE_OPEN,  CT_COMMENT) &&
@@ -1742,37 +1773,8 @@ void indent_text(void)
          bool is_operator = false;
 
          /* Are we in such an expression? Go both forwards and backwards. */
-         chunk_t* tmp = pc;
-         do // \todo DRY see below
-         {
-            if (is_str(tmp, "<<") ||
-                is_str(tmp, ">>") )
-            {
-               in_shift = true;
-               tmp = get_prev_ncnl(tmp);
-               if (is_type(tmp, CT_OPERATOR)) { is_operator = true; }
-               break;
-            }
-            tmp = get_prev_ncnl(tmp);
-         } while ((in_shift == false) &&
-               not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_COMMA,
-                  CT_SEMICOLON, CT_BRACE_OPEN,  CT_SPAREN_OPEN));
-
-         tmp = pc;
-         do
-         {
-            tmp = get_next_ncnl(tmp);
-            if (is_str(tmp, "<<") ||
-                is_str(tmp, ">>") )
-            {
-               in_shift = true;
-               tmp = get_prev_ncnl(tmp);
-               if (is_type(tmp, CT_OPERATOR)) { is_operator = true; }
-               break;
-            }
-         } while ((in_shift == false) &&
-                  not_type(tmp, 6, CT_BRACE_CLOSE, CT_SPAREN_CLOSE, CT_COMMA,
-                     CT_SEMICOLON, CT_BRACE_OPEN,  CT_SPAREN_OPEN));
+         is_operator  = is_shift_operator(pc, &in_shift, dir_e::BEFORE);
+         is_operator |= is_shift_operator(pc, &in_shift, dir_e::AFTER );
 
          chunk_t* prev_nonl = get_prev_ncnl(pc);
          chunk_t* prev2     = get_prev_nc  (pc);
@@ -2191,18 +2193,23 @@ null_pc:
 }
 
 
-void log_and_reindent(chunk_t* pc, const uint32_t val, const char* str)
+void log_indent(chunk_t* pc, const uint32_t val, const char* str)
 {
    LOG_FMT(LINDENT, "%s(%d): %u] %s => %u\n",
-           __func__, __LINE__, pc->orig_line, str, val);
+              __func__, __LINE__, pc->orig_line, str, val);
+}
+
+
+void log_and_reindent(chunk_t* pc, const uint32_t val, const char* str)
+{
+   log_indent(pc, val, str);
    reindent_line(pc, val);
 }
 
 
 void log_and_indent_comment(chunk_t* pc, const uint32_t val, const char* str)
 {
-   LOG_FMT(LINDENT, "%s(%d): %u] %s => %u\n",
-           __func__, __LINE__, pc->orig_line, str, val);
+   log_indent(pc, val, str);
    indent_comment(pc, val);
 }
 
@@ -2272,8 +2279,8 @@ static void indent_comment(chunk_t* pc, uint32_t col)
    if((is_cmt(prev)) && (is_valid(nl)) && (nl->nl_count == 1))
    {
       assert(is_valid(prev));
-      int32_t     coldiff = (int32_t)prev->orig_col - (int32_t)pc->orig_col;
-      chunk_t* pp     = chunk_get_prev(prev);
+      int32_t  coldiff = (int32_t)prev->orig_col - (int32_t)pc->orig_col;
+      chunk_t* pp      = chunk_get_prev(prev);
 
       /* Here we want to align comments that are relatively close one to another
        * but not when the previous comment is on the same line with a preproc */
@@ -2312,7 +2319,7 @@ bool ifdef_over_whole_file(void)
       return(cpd.ifdef_over_whole_file > 0);
    }
 
-   uint32_t         stage   = 0;
+   uint32_t       stage  = 0;
    chunk_t*       end_pp = nullptr;
    const chunk_t* next;
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
@@ -2363,8 +2370,8 @@ void indent_preproc(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t* next;
-   int32_t     pp_level;
-   int32_t     pp_level_sub = 0;
+   int32_t  pp_level;
+   int32_t  pp_level_sub = 0;
 
    /* Scan to see if the whole file is covered by one #ifdef */
    if (ifdef_over_whole_file())
@@ -2400,7 +2407,8 @@ void indent_preproc(void)
             uint32_t mult = get_uval(UO_pp_space_count);
             mult = max(mult, (uint32_t)1u);
 
-            reindent_line(next, (uint32_t)((int32_t)pc->column + (int32_t)pc->len() + (pp_level * (int32_t)mult)));
+            reindent_line(next, (uint32_t)((int32_t)pc->column +
+                  (int32_t)pc->len() + (pp_level * (int32_t)mult)));
          }
          else if (is_opt_set(UO_pp_space, AV_REMOVE))
          {

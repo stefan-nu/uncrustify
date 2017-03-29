@@ -280,7 +280,7 @@ public:
    static int32_t compare(
       const  unc_text &ref1,  /**< [in] first  instance to compare */
       const  unc_text &ref2,  /**< [in] second instance to compare */
-      uint32_t len = 0          /**< [in] number of character to compare */
+      uint32_t        len = 0 /**< [in] number of character to compare */
    );
 
 
@@ -288,7 +288,7 @@ public:
     * tbd
     */
    bool equals(
-      const unc_text &ref
+      const unc_text &ref /**< [in]  */
    ) const;
 
    /**
@@ -307,7 +307,9 @@ public:
    }
 
 
-   int32_t operator[](uint32_t idx) const
+   int32_t operator[](
+      uint32_t idx /**< [in]  */
+   ) const
    {
       return((idx < m_chars.size()) ? m_chars[idx] : 0);
    }
@@ -316,13 +318,15 @@ public:
    /**
     * throws an exception if out of bounds
     */
-   int32_t &at(uint32_t idx)
+   int32_t &at(uint32_t idx) /**< [in]  */
    {
       return(m_chars.at(idx));
    }
 
 
-   const int32_t &at(uint32_t idx) const
+   const int32_t &at(
+      uint32_t idx /**< [in]  */
+   ) const
    {
       return(m_chars.at(idx));
    }
@@ -351,7 +355,7 @@ public:
    /**
     * tbd
     */
-   void push_back(int32_t ch)
+   void push_back(int32_t ch) /**< [in]  */
    {
       append(ch);
    }
@@ -406,7 +410,7 @@ public:
     */
    int32_t find(
       const char *text,  /**< [in] text to search for */
-      uint32_t idx = 0     /**< [in] position to start search */
+      uint32_t idx = 0   /**< [in] position to start search */
    ) const;
 
 
@@ -414,8 +418,8 @@ public:
     * tbd
     */
    int32_t rfind(
-      const char *text,
-      uint32_t idx = 0
+      const char *text, /**< [in]  */
+      uint32_t idx = 0  /**< [in]  */
    ) const;
 
 

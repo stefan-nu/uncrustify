@@ -499,7 +499,7 @@ struct cp_data_t
 
    parse_frame_t   frames[16];                /**<  */
    int32_t         frame_count;               /**<  */
-   uint32_t        pp_level;                  /**< \todo can this ever be -1 */
+   uint32_t        pp_level;                  /**< \todo can this ever be negative */
 
    /* the default values for settings */
    op_val_t        defaults[UO_option_count]; /**<  */
