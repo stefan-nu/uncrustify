@@ -357,12 +357,29 @@ typedef enum
  * return the inverse token of the given token
  *
  * The following token groups are supported
- * '(' <=> ')'
+ *
  * '{' <=> '}'
  * '[' <=> ']'
  * '<' <=> '>'
+ * '(' <=> ')'
  *
- * \note If there is no inverse the same token is returned
+ * CT_SQL_BEGIN   <=> CT_SQL_END
+ * CT_PAREN_OPEN  <=> CT_PAREN_CLOSE
+ * CT_ANGLE_OPEN  <=> CT_ANGLE_CLOSE
+ * CT_SPAREN_OPEN <=> CT_SPAREN_CLOSE
+ * CT_FPAREN_OPEN <=> CT_FPAREN_CLOSE
+ * CT_TPAREN_OPEN <=> CT_TPAREN_CLOSE
+ * CT_BRACE_OPEN  <=> CT_BRACE_CLOSE
+ * CT_VBRACE_OPEN <=> CT_VBRACE_CLOSE
+ * CT_SQUARE_OPEN <=> CT_SQUARE_CLOSE
+ * CT_MACRO_OPEN  <=> CT_MACRO_CLOSE
+ * CT_VSEMICOLON  <=> CT_SEMICOLON
+ * CT_INCDEC_AFTER<=> CT_INCDEC_BEFORE
+ * CT_COMMENT_END <=> CT_COMMENT_START
+ * CT_PLUS        <=> CT_MINUS
+ * CT_NEG         <=> CT_POS
+ *
+ * \note If there is no inverse defined the same token is returned
  */
 c_token_t get_inverse_type(
    c_token_t type /**< [in] type to get inverse for */

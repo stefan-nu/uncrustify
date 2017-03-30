@@ -76,7 +76,7 @@ bool go_on(
  * @return        The chunk after the close parenthesis
  */
 chunk_t* set_paren_parent(
-   chunk_t*  start, /**< [in]  */
+   chunk_t*  start,  /**< [in]  */
    c_token_t parent  /**< [in]  */
 );
 
@@ -117,7 +117,7 @@ void flag_series(
  * @return        The chunk after the close parenthesis
  */
 chunk_t* set_paren_parent(
-   chunk_t*  start, /**< [in]  */
+   chunk_t*  start,  /**< [in]  */
    c_token_t parent  /**< [in]  */
 );
 

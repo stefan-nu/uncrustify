@@ -607,6 +607,38 @@ static bool is_shift_operator(chunk_t* pc, bool* in_shift, dir_e dir)
 }
 
 
+#define log_indent1(pc, val, str)                          \
+   do{                                                     \
+         _log_indent1(__func__, __LINE__, str, pc, (val)); \
+   } while(0)
+
+
+void _log_indent1(const char* func, const uint32_t line, const char* str,
+                 chunk_t* pc, const uint32_t val)
+{
+   LOG_FMT(LINDLINE, "%s(%d): %s orig_line:col %u:%u type: %s text: %s val: %u\n",
+         func, line, str,
+         pc->orig_line, pc->orig_col, get_token_name(pc->type), pc->text(), val);
+}
+
+
+#define log_indent2(frm, val, str)                          \
+   do{                                                      \
+         _log_indent2(__func__, __LINE__, str, frm, (val)); \
+   } while(0)
+
+
+void _log_indent2(const char* func, const uint32_t line, const char* str,
+                  parse_frame_t frm, const uint32_t val)
+{
+   LOG_FMT(LINDLINE, "%s(%d): %s frm.pse_tos=%u, ... indent_tmp=%u val: %u\n",
+           func, line, str,
+           frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp, val);
+}
+
+
+
+
 void indent_text(void)
 {
    LOG_FUNC_ENTRY();
@@ -643,26 +675,22 @@ void indent_text(void)
    {
       if (is_type(pc, CT_NEWLINE))
       {
-         LOG_FMT(LINDLINE, "%s(%d): %u NEWLINE\n",
-                 __func__, __LINE__, pc->orig_line);
+         log_indent1(pc, 0, "NEWLINE");
       }
       else if (pc->type == CT_NL_CONT)
       {
-         LOG_FMT(LINDLINE, "%s(%d): %u CT_NL_CONT\n",
-                 __func__, __LINE__, pc->orig_line);
+         log_indent1(pc, 0, "CT_NL_CONT");
       }
       else
       {
-         LOG_FMT(LINDLINE, "%s(%d): %u:%u pc->text() %s\n",
-                 __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
+         log_indent1(pc, 0, "");
          log_pcf_flags(LINDLINE, get_flags(pc));
       }
       if ((is_true(UO_use_options_overriding_for_qt_macros)) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
       {
-         LOG_FMT(LINDLINE, "%s(%d): orig_line=%u: type %s SIGNAL/SLOT found\n",
-                 __func__, __LINE__, pc->orig_line, get_token_name(pc->type));
+         log_indent1(pc, 0, "SIGNAL/SLOT found");
       }
       /* Handle preprocessor transitions */
       in_preproc = is_preproc(pc);
@@ -745,8 +773,8 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos-1].indent_tab + indent_size;
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos].in_preproc = false;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+
+            log_indent2(frm, 0, "");
          }
 
          /* Indent the body of a #if here */
@@ -767,8 +795,8 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos-1].indent_tab + extra;
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos].in_preproc = false;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+
+            log_indent2(frm, 0, "");
          }
 
          /* Transition into a preproc by creating a dummy indent */
@@ -781,16 +809,14 @@ void indent_text(void)
                                               frm.pse[frm.pse_tos-1].indent_tmp : 1;
             frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos  ].indent_tmp + indent_size;
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
          else if (is_ptype(pc, CT_PP_PRAGMA) && is_true(UO_pp_define_at_level))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos-1].indent_tmp;
             frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos  ].indent_tmp + indent_size;
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
          else
          {
@@ -804,8 +830,7 @@ void indent_text(void)
             {
                frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent;
             }
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent);
+            log_indent2(frm, 0, "");
             if (is_ptype(pc, CT_PP_REGION, CT_PP_ENDREGION))
             {
                int32_t val = get_ival(UO_pp_indent_region);
@@ -831,8 +856,7 @@ void indent_text(void)
                }
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
       }
 
@@ -859,8 +883,7 @@ void indent_text(void)
       }
 
       /* Handle non-brace closures */
-      LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-              __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+      log_indent2(frm, 0, "");
 
       token_used = false;
       uint32_t old_pse_tos;
@@ -995,8 +1018,7 @@ void indent_text(void)
 
       /* Grab a copy of the current indent */
       indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-      LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-              __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+      log_indent2(frm, 0, "");
 
       if (!is_cmt_or_nl(pc) && log_sev_on(LINDPC))
       {
@@ -1072,13 +1094,12 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent     = iNewIndent;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
          frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
 
          /* Always indent on virtual braces */
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
       }
-      else if (is_type    (pc,       CT_BRACE_OPEN) &&
+      else if (is_type (pc,       CT_BRACE_OPEN) &&
                not_type(pc->next, CT_NAMESPACE ) )
       {
          frm.level++;
@@ -1093,8 +1114,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos  ].indent_tmp;
          }
          else if (is_lang(cpd, LANG_CS) &&
@@ -1107,8 +1127,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos].indent_tmp;
          }
          /* any '{' that is inside of a '(' overrides the '(' indent */
@@ -1123,8 +1142,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos].indent_tmp;
          }
          else if (frm.paren_count != 0)
@@ -1220,8 +1238,7 @@ void indent_text(void)
                /* Stuff inside the brace still needs to be indented */
                frm.pse[frm.pse_tos].indent     = indent_column + indent_size;
                frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
-               LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                       __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+               log_indent2(frm, 0, "");
             }
             else if (is_ptype(pc, CT_CLASS) && is_false(UO_indent_class))
             {
@@ -1287,15 +1304,13 @@ void indent_text(void)
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos].open_line  = pc->orig_line;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
 
             /* Update the indent_column if needed */
             if (brace_indent || (parent_token_indent != 0))
             {
                indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-               LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                       __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+               log_indent2(frm, 0, "");
             }
          }
 
@@ -1309,8 +1324,7 @@ void indent_text(void)
             indent_pse_pop(frm, pc);
             frm.level--;
             indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
       }
       else if(is_type(pc, CT_SQL_BEGIN, CT_MACRO_OPEN))
@@ -1320,8 +1334,7 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent + indent_size;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
          frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
       }
       else if (is_type(pc, CT_SQL_EXEC))
       {
@@ -1329,8 +1342,7 @@ void indent_text(void)
          indent_pse_push(frm, pc);
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent + indent_size;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
       }
       else if (is_type(pc, CT_MACRO_ELSE))
       {
@@ -1349,8 +1361,7 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent     = tmp;
          frm.pse[frm.pse_tos].indent_tmp = tmp - indent_size + get_uval(UO_indent_case_shift);
          frm.pse[frm.pse_tos].indent_tab = tmp;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
 
          /* Always set on case statements */
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
@@ -1417,8 +1428,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent     = tmp;
             frm.pse[frm.pse_tos].indent_tmp = tmp - indent_size;
             frm.pse[frm.pse_tos].indent_tab = tmp;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
 
             /* If we are indenting the body, then we must leave the access spec
              * indented at brace level */
@@ -1445,8 +1455,7 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent + indent_size;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
          frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
       }
       else if (is_type(pc, CT_CLASS_COLON, CT_CONSTR_COLON))
       {
@@ -1455,8 +1464,7 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent_tmp + indent_size;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
          frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
 
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
 
@@ -1473,8 +1481,7 @@ void indent_text(void)
                   frm.pse[frm.pse_tos].indent     += get_uval(UO_indent_ctor_init);
                   frm.pse[frm.pse_tos].indent_tmp += get_uval(UO_indent_ctor_init);
                   frm.pse[frm.pse_tos].indent_tab += get_uval(UO_indent_ctor_init);
-                  LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                          __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+                  log_indent2(frm, 0, "");
                   indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
                }
             }
@@ -1494,8 +1501,7 @@ void indent_text(void)
                         frm.pse[frm.pse_tos].indent     += get_uval(UO_indent_ctor_init);
                         frm.pse[frm.pse_tos].indent_tmp += get_uval(UO_indent_ctor_init);
                         frm.pse[frm.pse_tos].indent_tab += get_uval(UO_indent_ctor_init);
-                        LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                                __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+                        log_indent2(frm, 0, "");
                         indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
                      }
                      else if (!is_nl(next))
@@ -1517,8 +1523,7 @@ void indent_text(void)
          indent_pse_push(frm, pc);
          if (is_nl(chunk_get_prev(pc)) && (pc->column != indent_column))
          {
-            LOG_FMT(LINDENT, "%s[line %d]: %u] indent => %u [%s]\n",
-                    __func__, __LINE__, pc->orig_line, indent_column, pc->text());
+            log_indent1(pc, indent_column, "indent");
             reindent_line(pc, indent_column);
          }
          frm.pse[frm.pse_tos].indent = pc->column + pc->len();
@@ -1646,8 +1651,7 @@ void indent_text(void)
             }
          }
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
          frm.paren_count++;
       }
       else if (is_type(pc, CT_ASSIGN, CT_IMPORT, CT_USING ) )
@@ -1658,11 +1662,9 @@ void indent_text(void)
          if (is_type(pc, CT_ASSIGN) && is_nl(chunk_get_prev(pc)))
          {
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent + indent_size;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
             indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-            LOG_FMT(LINDENT, "%s(%d): %u] assign => %u [%s]\n",
-                    __func__, __LINE__, pc->orig_line, indent_column, pc->text());
+            log_indent1(pc, indent_column, "assign");
             reindent_line(pc, frm.pse[frm.pse_tos].indent_tmp);
          }
 
@@ -1709,8 +1711,7 @@ void indent_text(void)
                frm.pse[frm.pse_tos].indent = pc->column + pc->len() + 1;
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
       }
       else if (is_type (pc, CT_RETURN, CT_THROW ) &&
@@ -1729,8 +1730,7 @@ void indent_text(void)
                frm.pse[frm.pse_tos].indent  = frm.pse[frm.pse_tos-1].indent + pc->len() + 1;
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos-1].indent;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
       }
       else if (is_type(pc, CT_OC_SCOPE, CT_TYPEDEF))
@@ -1738,8 +1738,7 @@ void indent_text(void)
          indent_pse_push(frm, pc);
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent;
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
-         LOG_FMT(LINDLINE, "%s(%d): .indent=%u, .indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse[frm.pse_tos].indent, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
          if (get_ival(UO_indent_continue) != 0)
          {
             //frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent +
@@ -1854,9 +1853,7 @@ void indent_text(void)
             pc->indent.ref   = frm.pse[frm.pse_tos].ip.ref;
             pc->indent.delta = frm.pse[frm.pse_tos].ip.delta;
          }
-
-         LOG_FMT(LINDENT2, "%s(%d): %u] %u/%u for %s\n",
-                 __func__, __LINE__, pc->orig_line, pc->column_indent, indent_column, pc->text());
+         log_indent1(pc, indent_column, "for");
 
          /* Check for special continuations.
           * Note that some of these could be done as a stack item like
@@ -1888,8 +1885,7 @@ void indent_text(void)
          else if (is_ptype(pc, CT_SQL_EXEC) && is_true(UO_indent_preserve_sql))
          {
             reindent_line(pc, sql_col + (pc->orig_col - sql_orig_col));
-            LOG_FMT(LINDENT, "Indent SQL: [%s] to %u (%u/%u)\n",
-                                pc->text(), pc->column, sql_col, sql_orig_col);
+            log_indent1(pc, sql_col, "sql");
          }
          else if (not_flag(pc, PCF_STMT_START)           &&
                   (is_type(pc,   CT_MEMBER, CT_DC_MEMBER) ||
@@ -1932,13 +1928,10 @@ void indent_text(void)
          {
             /* This is a big hack. We assume that since we hit a paren close,
              * that we just removed a paren open */
-            LOG_FMT(LINDLINE, "%s(%d): indent_column is %u\n",
-                    __func__, __LINE__, indent_column);
+            log_indent2(frm, indent_column, "indent_column");
             if (frm.pse[frm.pse_tos + 1].type == get_inverse_type(pc->type) )
             {
-               // Issue # 405
-               LOG_FMT(LINDLINE, "%s(%d): [%u:%u] [%s:%s]\n",
-                       __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
+               log_indent1(pc, 0, "");
                chunk_t* ck1 = frm.pse[frm.pse_tos + 1].pc;
                chunk_t* ck2 = chunk_get_prev(ck1);
 
@@ -1947,38 +1940,31 @@ void indent_text(void)
                 * doing mode 1, then put the close paren in the same column */
                if (is_nl(ck2) || (get_uval(UO_indent_paren_close) == 1u))
                {
-                  LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_paren_close is 1\n",
-                          __func__, __LINE__, ck2->orig_line, ck2->orig_col);
+                  log_indent1(ck2, 1, "indent_paren_close is 1");
                   indent_column_set(ck1->column);
-                  LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_column set to %u\n",
-                          __func__, __LINE__, ck2->orig_line, ck2->orig_col, indent_column);
+                  log_indent1(ck2, indent_column, "indent_column set to");
                }
                else
                {
                   if (get_uval(UO_indent_paren_close) != 2)
                   {
                      // 0 or 1
-                     LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_paren_close is 0 or 1\n",
-                             __func__, __LINE__, ck2->orig_line, ck2->orig_col);
+                     log_indent1(ck2, 0, "indent_paren_close is 0 or 1");
                      indent_column_set(frm.pse[frm.pse_tos + 1].indent_tmp);
+                     log_indent1(ck2, indent_column, "indent_column set to");
 
-                     LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_column set to %u\n",
-                             __func__, __LINE__, ck2->orig_line, ck2->orig_col, indent_column);
                      pc->column_indent = frm.pse[frm.pse_tos + 1].indent_tab;
                      if (get_uval(UO_indent_paren_close) == 1)
                      {
-                        LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_paren_close is 1\n",
-                                __func__, __LINE__, ck2->orig_line, ck2->orig_col);
+                        log_indent1(ck2, 1, "indent_paren_close is");
                         indent_column--;
-                        LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_column set to %u\n",
-                                __func__, __LINE__, ck2->orig_line, ck2->orig_col, indent_column);
+                        log_indent1(ck2, indent_column, "indent_column set to");
                      }
                   }
                   else
                   {
                      // 2
-                     LOG_FMT(LINDLINE, "%s(%d): [%u:%u] indent_paren_close is 2\n",
-                             __func__, __LINE__, ck2->orig_line, ck2->orig_col);
+                     log_indent1(ck2, 2, "indent_paren_close is");
                   }
                }
             }
@@ -2003,7 +1989,6 @@ void indent_text(void)
          {
             // indent const - void GetFoo(void)\n const\n { return (m_Foo); }
             indent_column_set(get_uval(UO_indent_func_const));
-
             log_and_reindent(pc, indent_column, "const");
          }
          else if (get_uval(UO_indent_func_throw) &&
@@ -2011,7 +1996,6 @@ void indent_text(void)
          {
             // indent throw - void GetFoo(void)\n throw()\n { return (m_Foo); }
             indent_column_set(get_uval(UO_indent_func_throw));
-
             log_and_reindent(pc, indent_column, "throw");
          }
          else if (is_type(pc, CT_BOOL))
@@ -2056,7 +2040,6 @@ void indent_text(void)
                if (is_ptype(frm.pse[ttidx].pc, CT_FUNC_CALL))
                {
                   LOG_FMT(LINDPC, "FUNC_CALL OK [%d]\n", __LINE__);
-
                   use_ident = is_true(UO_use_indent_func_call_param);
                   LOG_FMT(LINDPC, "use is %s [%d]\n", bool2str(use_ident).c_str(), __LINE__);
                }
@@ -2070,8 +2053,7 @@ void indent_text(void)
                }
                else
                {  // do not indent this line
-                  LOG_FMT(LINDENT, "%s(%d): %u] don't indent this line [%d]\n",
-                          __func__, __LINE__, pc->orig_line, __LINE__);
+                  log_indent1(pc, 0, "don't indent this line");
                }
             }
          }
@@ -2099,8 +2081,7 @@ void indent_text(void)
                   tmp += get_uval(UO_indent_var_def_blk);
                }
                reindent_line(pc, tmp);
-               LOG_FMT(LINDENT, "%s(%d): %u] var_type indent => %u [%s]\n",
-                       __func__, __LINE__, pc->orig_line, tmp, pc->text());
+               log_indent1(pc, tmp, "var_type indent");
             }
          }
          else
@@ -2116,8 +2097,7 @@ void indent_text(void)
       if (is_nl(pc) || is_type(pc, CT_COMMENT_MULTI, CT_COMMENT_CPP))
       {
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
-         LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                 __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+         log_indent2(frm, 0, "");
 
          /* Handle the case of a multi-line #define w/o anything on the
           * first line (indent_tmp will be 1 or 0) */
@@ -2125,8 +2105,7 @@ void indent_text(void)
              (frm.pse[frm.pse_tos].indent_tmp <= indent_size))
          {
             frm.pse[frm.pse_tos].indent_tmp = indent_size + 1;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
-                    __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent_tmp);
+            log_indent2(frm, 0, "");
          }
 
          /* Get ready to indent the next item */
@@ -2185,23 +2164,16 @@ null_pc:
 }
 
 
-void log_indent(chunk_t* pc, const uint32_t val, const char* str)
-{
-   LOG_FMT(LINDENT, "%s(%d): %u] %s => %u\n",
-              __func__, __LINE__, pc->orig_line, str, val);
-}
-
-
 void log_and_reindent(chunk_t* pc, const uint32_t val, const char* str)
 {
-   log_indent(pc, val, str);
+   log_indent1(pc, val, str);
    reindent_line(pc, val);
 }
 
 
 void log_and_indent_comment(chunk_t* pc, const uint32_t val, const char* str)
 {
-   log_indent(pc, val, str);
+   log_indent1(pc, val, str);
    indent_comment(pc, val);
 }
 

@@ -53,8 +53,8 @@ void log_pcf_flags(
  * \brief checks if a file uses any of a given language set
  */
 bool is_lang(
-   cp_data_t &cpd, /**< [in] configuration with language */
-   lang_t    lang  /**< [in] set of languages to check for */
+   cp_data_t& cpd, /**< [in] configuration with language */
+   lang_t     lang /**< [in] set of languages to check for */
 );
 
 
@@ -117,7 +117,7 @@ void usage_exit(
 /**
  * tbd
  */
-const char *extension_add(
+const char* extension_add(
    const char* ext_text, /**< [in]  */
    const char* lang_text /**< [in]  */
 );
