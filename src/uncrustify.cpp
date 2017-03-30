@@ -1611,7 +1611,7 @@ static void perform_insert(chunk_t* ref, const file_mem_t &fm)
    }
 }
 
-
+// \todo DRY with add_msg_header
 static void add_func_header(c_token_t type, const file_mem_t &fm)
 {
    chunk_t* pc;
@@ -1620,7 +1620,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
    for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnlnp(pc))
    {
       continue_if(not_type(pc, type));
-      continue_if(is_flag(pc, PCF_IN_CLASS                      ) &&
+      continue_if(is_flag(pc, PCF_IN_CLASS       ) &&
           (is_false(UO_cmt_insert_before_inlines)) );
 
       // Check for one liners for classes. Declarations only. Walk down the chunks.
@@ -1654,8 +1654,8 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 
       do_insert = false;
 
-      /* On a function proto or def. Back up to a close brace or semicolon on
-       * the same level */
+      /* On a function prototype or def. Back up to a close brace or
+       * semicolon on the same level */
       ref = pc;
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
@@ -1701,6 +1701,7 @@ static void add_func_header(c_token_t type, const file_mem_t &fm)
 }
 
 
+// \todo DRY with add_func_header
 static void add_msg_header(c_token_t type, const file_mem_t &fm)
 {
    chunk_t* pc;

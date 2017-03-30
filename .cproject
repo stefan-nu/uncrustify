@@ -120,6 +120,11 @@
 								<option id="gnu.c.compiler.option.dialect.std.1127076369" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.misc.other.989540791" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -Wno-format -Wshadow -Wpointer-arith -Wcast-qual" valueType="string"/>
 								<option id="gnu.c.compiler.option.warnings.toerrors.571692951" name="Warnings as errors (-Werror)" superClass="gnu.c.compiler.option.warnings.toerrors" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.include.paths.2046409610" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/win32}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1011056340" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.1496088272" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release"/>
@@ -567,6 +572,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release_win"/>
 		<configuration configurationName="GCov"/>
 		<configuration configurationName="test">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
@@ -585,15 +591,16 @@
 		<configuration configurationName="Profile"/>
 		<configuration configurationName="GProf"/>
 		<configuration configurationName="GCov_linux"/>
+		<configuration configurationName="Release_linux"/>
 		<configuration configurationName="pclint">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
 		</configuration>
 		<configuration configurationName="Debug_win"/>
 		<configuration configurationName="pclint_win"/>
+		<configuration configurationName="Debug_linux"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
 		</configuration>
-		<configuration configurationName="Debug_linux"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/uncrustify"/>
 		</configuration>

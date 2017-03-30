@@ -8,13 +8,16 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
+#include <cstring>
+#include <cstdlib>
+#include <map>
 #include "defines.h"
 #include "uncrustify_types.h"
 #include "char_table.h"
 #include "args.h"
-#include <cstring>
-#include <cstdlib>
-#include <map>
+#include "cfg_file.h"
+#include "keywords.h"
 #include "unc_ctype.h"
 #include "chunk_list.h"
 
@@ -45,58 +48,9 @@ void add_define(const char* tag, const char* value)
 }
 
 
-/* \todo DRY with load_keyword_file */
 int32_t load_define_file(const char* filename, const uint32_t max_line_size)
 {
-   retval_if(ptr_is_invalid(filename), EX_CONFIG);
-
-   FILE *pf = fopen(filename, "r");
-   if (ptr_is_invalid(pf))
-   {
-      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
-      cpd.error_count++;
-      return(EX_IOERR);
-   }
-
-   char   buf[max_line_size];
-   uint32_t line_no = 0;
-
-   /* read file line by line */
-   while (fgets(buf, sizeof(buf), pf) != nullptr)
-   {
-      line_no++;
-
-      /* remove comments after '#' sign */
-      char *ptr = strchr(buf, '#');
-      if (ptr_is_valid(ptr))
-      {
-         *ptr = 0; /* set string end where comment begins */
-      }
-
-      const uint32_t arg_parts = 2;  /**< each define argument consists of three parts */
-      char *args[arg_parts+1];
-      uint32_t argc = Args::SplitLine(buf, args, arg_parts);
-      args[arg_parts] = 0; /* third element of defines is not used currently */
-
-      if (argc > 0)
-      {
-         if ((argc < arg_parts           ) &&
-             (CharTable::IsKW1(*args[0]) ) )
-         {
-            LOG_FMT(LDEFVAL, "%s: line %u - %s\n", filename, line_no, args[0]);
-            add_define(args[0], args[1]);
-         }
-         else
-         {
-            LOG_FMT(LWARN, "%s line %u invalid (starts with '%s')\n",
-                    filename, line_no, args[0]);
-            cpd.error_count++;
-         }
-      }
-   }
-
-   fclose(pf);
-   return(EX_OK);
+   return load_from_file(filename, max_line_size, true);
 }
 
 

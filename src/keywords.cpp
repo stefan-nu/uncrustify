@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <map>
 #include "args.h"
+#include "cfg_file.h"
 #include "char_table.h"
 #include "chunk_list.h"
 #include "keywords.h"
@@ -377,7 +378,7 @@ static const chunk_tag_t* kw_static_first(const chunk_tag_t *tag)
 }
 
 
-static const chunk_tag_t *kw_static_match(const chunk_tag_t *tag)
+static const chunk_tag_t* kw_static_match(const chunk_tag_t* tag)
 {
    bool in_preproc = not_type(cpd.is_preproc, CT_NONE, CT_PP_DEFINE);
 
@@ -421,59 +422,9 @@ c_token_t find_keyword_type(const char *word, uint32_t len)
 }
 
 
-/* \todo DRY with load_define_file */
 int32_t load_keyword_file(const char* filename, const uint32_t max_line_size)
 {
-   retval_if(ptr_is_invalid(filename), EX_CONFIG);
-
-   FILE *pf = fopen(filename, "r");
-   if (ptr_is_invalid(pf))
-   {
-      LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n", __func__, filename, strerror(errno), errno);
-      cpd.error_count++;
-      return(EX_IOERR);
-   }
-
-   char   buf[max_line_size];
-   uint32_t line_no = 0;
-
-   /* read file line by line */
-   while (fgets(buf, sizeof(buf), pf) != nullptr)
-   {
-      line_no++;
-
-      /* remove comments after '#' sign */
-      char *ptr = strchr(buf, '#');
-      if (ptr_is_valid(ptr))
-      {
-         *ptr = 0; /* set string end where comment begins */
-      }
-
-      const uint32_t arg_parts = 2;  /**< each define argument consists of three parts */
-      char *args[arg_parts+1];
-      uint32_t argc = Args::SplitLine(buf, args, arg_parts);
-      args[arg_parts] = 0; /* third element of defines is not used currently */
-
-      if (argc > 0)
-      {
-         if ((argc < arg_parts           ) &&
-             (CharTable::IsKW1(*args[0]) ) )
-         {
-            LOG_FMT(LDEFVAL, "%s: line %u - %s\n", filename, line_no, args[0]);
-            add_keyword(args[0], CT_TYPE);
-         }
-         else
-         {
-            LOG_FMT(LWARN, "%s line %u invalid (starts with '%s')\n",
-                    filename, line_no, args[0]);
-            cpd.error_count++;
-         }
-      }
-      else { continue; } /* the line is empty */
-   }
-
-   fclose(pf);
-   return(EX_OK);
+   return load_from_file(filename, max_line_size, false);
 }
 
 
