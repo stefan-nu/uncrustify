@@ -18,7 +18,7 @@
  * @retval EX_IOERR - reading defines file failed
  */
 int32_t load_define_file(
-   const char*  filename,     /**< [in] path to file to read from */
+   const char*    filename,     /**< [in] path to file to read from */
    const uint32_t max_line_size /**< [in] maximal allowed characters per line */
 );
 
