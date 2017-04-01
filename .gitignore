@@ -81,7 +81,8 @@ build*
 
 
 # Eclipse Build Directories
-Release/
+/Release_win/
+/Release_linux/
 build/
 /GCov_win/
 /Gcov_linux/
@@ -94,3 +95,4 @@ build/
 #.cproject
 #.project
 #.settings
+
