@@ -303,6 +303,9 @@ static bool split_line(chunk_t *start)
            __func__, start->orig_line, start->column, start->text(),
            get_token_name(start->type),
            is_flag(start, (PCF_IN_FCN_DEF | PCF_IN_FCN_CALL)));
+#ifdef DEBUG
+   LOG_FMT(LSPLIT, "\n");
+#endif // DEBUG
 
    /* break at maximum line length if ls_code_width is true */
    if (is_flag(start, PCF_ONE_LINER))
@@ -556,8 +559,20 @@ static void split_fcn_params_full(chunk_t *start)
    LOG_FMT(LSPLIT, "%s", __func__);
 
    /* Find the opening function parenthesis */
-   chunk_t *fpopen = get_prev_fparen_open(start);
-   assert(is_valid(fpopen));
+   chunk_t *fpopen = start;
+   while ((fpopen = chunk_get_prev(fpopen)) != nullptr)
+   {
+#ifdef DEBUG
+      LOG_FMT(LSPLIT, "%s: %s, Col=%zu, Level=%zu\n",
+              __func__, fpopen->text(), fpopen->orig_col, fpopen->level);
+#endif
+      if ((fpopen->type == CT_FPAREN_OPEN) &&
+          (fpopen->level == start->level - 1))
+      {
+         // opening parenthesis found. Issue #1020
+         break;
+      }
+   }
 
    /* Now break after every comma */
    chunk_t *pc = fpopen;
@@ -576,7 +591,10 @@ static void split_fcn_params_full(chunk_t *start)
 static void split_fcn_params(chunk_t *start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LSPLIT, "%s", __func__);
+   LOG_FMT(LSPLIT, "  %s: %s", __func__, start->text());
+#ifdef DEBUG
+   LOG_FMT(LSPLIT, "\n");
+#endif
 
    /* Find the opening function parenthesis */
    chunk_t *fpopen = get_prev_fparen_open(start);
