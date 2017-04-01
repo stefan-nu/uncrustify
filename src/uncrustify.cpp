@@ -194,7 +194,7 @@ static void uncrustify_start(
 
 
 /** tbd */
-static void uncrustify_end(void);
+void uncrustify_end(void);
 
 
 /** tbd */
@@ -2001,7 +2001,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
 }
 
 
-static void uncrustify_end(void)
+void uncrustify_end(void)
 {
    /* Free all the memory */
    cpd.unc_stage = unc_stage_e::CLEANUP;

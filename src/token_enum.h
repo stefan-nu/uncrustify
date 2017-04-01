@@ -23,7 +23,7 @@
  * The script 'make_token_names.sh' creates token_names.h, so be sure to run
  * that after adding or removing an entry.
  */
-typedef enum
+enum c_token_t
 {
    CT_NONE,                /**<  */
    CT_EOF,                 /**<  */
@@ -350,7 +350,7 @@ typedef enum
    CT_WORD_,               /**<  */
 
    CT_TOKEN_COUNT_         // NOTE: Keep this the last entry because it's used as a counter.
-} c_token_t;
+};
 
 
 /**

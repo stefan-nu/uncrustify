@@ -292,7 +292,7 @@ struct chunk_t
 
 
 /** list of all programming languages known to uncrustify */
-typedef enum lang_e
+typedef enum lang_flag_e
 {
    LANG_NONE  = 0x0000,     /**< no language */
    LANG_C     = 0x0001,     /**< plain C */
