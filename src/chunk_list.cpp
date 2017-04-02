@@ -1380,9 +1380,18 @@ bool chunk_is_member(chunk_t* pc)
 }
 
 
+bool is_brace_of_if(chunk_t* pc)
+{
+   return (is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
+           is_ptype(pc, CT_IF));
+}
+
+
 bool is_closing_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
 bool is_opening_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
 bool is_rbrace        (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }
+bool is_opening_rbrace(chunk_t* pc) { return(is_type(pc,                  CT_BRACE_OPEN  )); }
+bool is_closing_rbrace(chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE                  )); }
 bool is_vbrace        (chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN )); }
 bool is_opening_vbrace(chunk_t* pc) { return(is_type(pc,                  CT_VBRACE_OPEN )); }
 bool is_closing_vbrace(chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE                 )); }

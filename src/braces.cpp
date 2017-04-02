@@ -95,7 +95,7 @@ static void mod_full_brace_if_chain(void);
  *  - doesn't mess up if/else stuff
  */
 static bool can_remove_braces(
-   chunk_t *bopen /**< [in]  */
+   chunk_t* bopen /**< [in]  */
 );
 
 
@@ -103,11 +103,10 @@ static bool can_remove_braces(
  * Checks to see if the virtual braces should be converted to real braces.
  *  - over a certain length
  *
- * @param vbopen Virtual Brace Open chunk
  * @return true (convert to real braces) or false (leave alone)
  */
 static bool should_add_braces(
-   chunk_t* vbopen /**< [in]  */
+   chunk_t* vbopen /**< [in] Virtual Brace Open chunk */
 );
 
 
@@ -210,7 +209,7 @@ void do_braces(void)
       examine_braces();
    }
 
-   /* convert vbraces if needed */
+   /* convert virtual braces if needed */
    convert_all_vbrace_to_brace_if_required();
 
    /* Mark one-liners */
@@ -222,7 +221,7 @@ void do_braces(void)
       const c_token_t brc_type = get_inverse_type(pc->type); /* corresponds to closing type */
 
       /* Detect empty bodies */
-      chunk_t *tmp = get_next_ncnl(pc);
+      chunk_t* tmp = get_next_ncnl(pc);
       if (is_type(tmp, brc_type))
       {
          set_flags(br_open, PCF_EMPTY_BODY);
@@ -231,11 +230,12 @@ void do_braces(void)
 
       /* Scan for the brace close or a newline */
       tmp = br_open;
-      while ((tmp = get_next_nc(tmp)) != nullptr)
+      while (is_valid(tmp))
       {
+         tmp = get_next_nc(tmp);
          break_if(is_nl(tmp));
          if ((is_type(tmp, brc_type)) &&
-             (br_open->level == tmp->level) )
+              is_level(br_open, tmp->level))
          {
             flag_series(br_open, tmp, PCF_ONE_LINER);
             break;
@@ -292,8 +292,8 @@ static bool should_add_braces(chunk_t *vbopen)
    uint32_t nl_count = 0;
    chunk_t* pc       = get_next_nc(vbopen, scope_e::PREPROC);
 
-   while( (is_valid(pc)        ) && /* chunk is valid */
-          (pc->level >  vbopen->level) )  /* tbd */
+   while( (is_valid(pc)             ) && /* chunk is valid */
+          (pc->level > vbopen->level) )  /* tbd */
    {
       if (is_nl(pc))
       {
@@ -321,14 +321,8 @@ static bool can_remove_braces(chunk_t *bopen)
    /* Cannot remove braces inside a preprocessor */
    retval_if(is_invalid(bopen) || is_preproc(bopen), false);
 
-   chunk_t *pc = get_next_ncnl(bopen, scope_e::PREPROC);
-   /* Can't remove empty statement */
-   retval_if(is_invalid_or_type(pc, CT_BRACE_CLOSE), false); /* Can't remove empty statement */
-
-   // DRY 7 start
    LOG_FMT(LBRDEL, "%s: start on %u : ", __func__, bopen->orig_line);
 
-   chunk_t*        prev       = nullptr;
    uint32_t        semi_count = 0;
    const uint32_t  level      = bopen->level + 1;
    bool            hit_semi   = false;
@@ -338,6 +332,11 @@ static bool can_remove_braces(chunk_t *bopen)
    uint32_t        if_count   = 0;
    int32_t         br_count   = 0;
 
+   chunk_t* prev = nullptr;
+   chunk_t* pc   = get_next_ncnl(bopen, scope_e::PREPROC);
+
+   /* Can't remove empty statement */
+   retval_if(is_invalid_or_type(pc, CT_BRACE_CLOSE), false); /* Can't remove empty statement */
    pc = get_next_nc(bopen, scope_e::ALL);
    while ((is_valid(pc)) && (pc->level >= level))
    {
@@ -367,10 +366,9 @@ static bool can_remove_braces(chunk_t *bopen)
             default:              /* do nothing */                   break;
          }
 
-         if (pc->level == level)
+         if (is_level(pc, level))
          {
-            if ((semi_count >  0   ) &&
-                (hit_semi   == true) )
+            if ((semi_count >  0) && (hit_semi == true))
             {
                /* should have bailed due to close brace level drop */
                LOG_FMT(LBRDEL, " no close brace\n");
@@ -392,7 +390,6 @@ static bool can_remove_braces(chunk_t *bopen)
                                  CT_DO, CT_WHILE,  CT_USING_STMT) &&
                    was_fcn == true))
             {
-               // DRY with line 485
                const bool is_semi = is_semicolon(pc);
                hit_semi = (is_semi) ? true : hit_semi;
                if (++semi_count > 1)
@@ -413,16 +410,16 @@ static bool can_remove_braces(chunk_t *bopen)
       LOG_FMT(LBRDEL, " nullptr\n");
       return(false);
    }
-   // DRY 7 end
+
    if (is_type_and_ptype(pc, CT_BRACE_CLOSE, CT_IF))
    {
       chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
 
       prev = get_prev_ncnl(pc, scope_e::PREPROC);
       assert(is_valid(prev));
-      if ( is_type (next, CT_ELSE                        ) &&
-           is_type (prev, CT_BRACE_CLOSE, CT_VBRACE_CLOSE) &&
-           is_ptype(prev, CT_IF                          ) )
+      if (is_type(next, CT_ELSE) &&
+          is_closing_brace(prev) &&
+          is_ptype(prev, CT_IF ) )
       {
          LOG_FMT(LBRDEL, " - bailed on '%s'[%s] on line %u due to 'if' and 'else' sequence\n",
                  get_token_name(pc->type), get_token_name(pc->ptype),
@@ -434,8 +431,8 @@ static bool can_remove_braces(chunk_t *bopen)
    LOG_FMT(LBRDEL, " - end on '%s' on line %u. if_count=%u semi_count=%u\n",
            get_token_name(pc->type), pc->orig_line, if_count, semi_count);
 
-   return(is_type(pc, CT_BRACE_CLOSE      ) &&
-          (pc->pp_level == bopen->pp_level) );
+   return(is_closing_rbrace(pc) &&
+          (pc->pp_level == bopen->pp_level));
 }
 
 
@@ -445,7 +442,6 @@ static void examine_brace(chunk_t* bopen)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(bopen));
 
-   // DRY7 start
    LOG_FMT(LBRDEL, "%s: start on %u : ", __func__, bopen->orig_line);
 
    uint32_t        semi_count = 0;
@@ -459,12 +455,10 @@ static void examine_brace(chunk_t* bopen)
 
    chunk_t* prev = nullptr;
    chunk_t* pc   = get_next_nc(bopen);
-   while ( is_valid(pc) &&
-          (pc->level >= level))
+   while (is_valid(pc) && (pc->level >= level))
    {
       if (is_preproc(pc))
-      {
-         /* Cannot remove braces that contain a preprocessor */
+      {  /* Cannot remove braces that contain a preprocessor */
          LOG_FMT(LBRDEL, " PREPROC\n");
          return;
       }
@@ -480,11 +474,11 @@ static void examine_brace(chunk_t* bopen)
       }
       else
       {
-         if (is_type(pc, CT_BRACE_OPEN))
+         if (is_opening_rbrace(pc))
          {
             br_count++;
          }
-         else if (is_type(pc, CT_BRACE_CLOSE))
+         else if (is_closing_rbrace(pc))
          {
             br_count--;
 #if 0
@@ -516,7 +510,6 @@ static void examine_brace(chunk_t* bopen)
             }
 
             LOG_FMT(LBRDEL, " [%s %u-%u]", pc->text(), pc->orig_line, semi_count);
-
             if (is_type(pc, CT_ELSE))
             {
                LOG_FMT(LBRDEL, " bailed on %s on line %u\n",
@@ -527,10 +520,9 @@ static void examine_brace(chunk_t* bopen)
             was_fcn = is_type(prev, CT_FPAREN_CLOSE);
 
             if ( is_type(pc, 9, CT_IF, CT_FOR,   CT_SEMICOLON,  CT_ELSEIF,
-                       CT_USING_STMT, CT_DO, CT_WHILE, CT_VSEMICOLON, CT_SWITCH) ||
-                 (is_type(pc, CT_BRACE_OPEN) && (was_fcn == true)) )
+                 CT_USING_STMT, CT_DO, CT_WHILE, CT_VSEMICOLON, CT_SWITCH) ||
+                 (is_opening_rbrace(pc) && (was_fcn == true)) )
             {
-               // DRY with line 345
                const bool is_semi = is_semicolon(pc);
                hit_semi = (is_semi) ? true : hit_semi;
                if (++semi_count > 1)
@@ -551,12 +543,11 @@ static void examine_brace(chunk_t* bopen)
       LOG_FMT(LBRDEL, " nullptr\n");
       return;
    }
-   // DRY7 end
 
    LOG_FMT(LBRDEL, " - end on '%s' on line %u. if_count=%u semi_count=%u\n",
            get_token_name(pc->type), pc->orig_line, if_count, semi_count);
 
-   if (is_type(pc, CT_BRACE_CLOSE))
+   if (is_closing_rbrace(pc))
    {
       chunk_t *next = get_next_ncnl(pc);
       while (is_type(next, CT_VBRACE_CLOSE) ) /* \todo better use chunk search fct */
@@ -648,13 +639,13 @@ static void convert_vbrace(chunk_t* vbr)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(vbr));
 
-   if (is_type(vbr, CT_VBRACE_OPEN))
+   if (is_opening_vbrace(vbr))
    {
       set_type(vbr, CT_BRACE_OPEN);
       vbr->str = "{";
 
-      /* If the next chunk is a preprocessor, then move the open brace after the
-       * preprocessor. */
+      /* If the next chunk is a preprocessor, then move the open brace
+       * after the preprocessor. */
       chunk_t *tmp = chunk_get_next(vbr);
       if (is_type(tmp, CT_PREPROC))
       {
@@ -663,7 +654,7 @@ static void convert_vbrace(chunk_t* vbr)
          newline_add_after(vbr);
       }
    }
-   else if (is_type(vbr, CT_VBRACE_CLOSE))
+   else if (is_closing_vbrace(vbr))
    {
       set_type(vbr, CT_BRACE_CLOSE);
       vbr->str = "}";
@@ -671,7 +662,7 @@ static void convert_vbrace(chunk_t* vbr)
       /* If the next chunk is a comment, followed by a newline, then
        * move the brace after the newline and add another newline after
        * the close brace. */
-      chunk_t *tmp = chunk_get_next(vbr);
+      chunk_t* tmp = chunk_get_next(vbr);
       if (is_cmt(tmp))
       {
          tmp = chunk_get_next(tmp);
@@ -692,11 +683,11 @@ static void convert_vbrace_pair(chunk_t* vbopen)
 
    /* search the matching closing virtual brace */
    chunk_t* vbclose = nullptr;
-   chunk_t* tmp = vbopen;
+   chunk_t* tmp     = vbopen;
    while (is_valid(tmp))
    {
       tmp = get_next_closing_vbrace(tmp);
-      if (is_type (tmp, CT_VBRACE_CLOSE) &&
+      if (is_closing_vbrace(tmp) &&
           are_corresponding(vbopen, tmp))
       {
          vbclose = tmp;
@@ -713,7 +704,7 @@ static void convert_vbrace_pair(chunk_t* vbopen)
 
 
 /** array of virtual brace checks */
-#define         VBC_COUNT 8           /* \todo later use dynamic memory allocation or a linked list */
+#define         VBC_COUNT 6           /* \todo later use dynamic memory allocation or a linked list */
 chunk_check_t   vbc_list[VBC_COUNT];  /**< array that holds all virtual brace checks */
 static uint32_t vbc_count = 0;        /**< number of virtual brace checks */
 
@@ -807,7 +798,7 @@ static void append_tag_name(unc_text &txt, chunk_t *pc)
    return_if(is_invalid(pc));
 
    /* step backwards over all a::b stuff */
-   chunk_t *tmp = pc;
+   chunk_t* tmp = pc;
    while ((tmp = get_prev_ncnl(tmp)) != nullptr)
    {
       break_if(not_type(tmp, CT_DC_MEMBER, CT_MEMBER));
@@ -852,7 +843,7 @@ void add_long_closebrace_comment(void)
       }
       continue_if(not_type(pc, CT_BRACE_OPEN) || is_preproc(pc));
 
-      uint32_t   nl_count = 0;
+      uint32_t nl_count = 0;
       chunk_t* br_open  = pc;
       chunk_t* tmp      = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
@@ -948,20 +939,21 @@ void add_long_closebrace_comment(void)
 static void move_case_break(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t* prev = nullptr;
-
-   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
+   chunk_t* prev  = nullptr;
+   chunk_t* chunk = chunk_get_head();
+   while(is_valid(chunk))
    {
-      if ( is_type          (pc,   CT_BREAK               ) &&
-           is_type_and_ptype(prev, CT_BRACE_CLOSE, CT_CASE) )
+      if (is_type          (chunk, CT_BREAK               ) &&
+          is_type_and_ptype(prev,  CT_BRACE_CLOSE, CT_CASE) )
       {
-         if (is_nl(chunk_get_prev(pc  )) &&
-             is_nl(chunk_get_prev(prev)) )
+         if (is_nl(chunk_get_prev(chunk)) &&
+             is_nl(chunk_get_prev(prev )) )
          {
-            swap_lines(prev, pc);
+            swap_lines(prev, chunk);
          }
       }
-      prev = pc;
+      prev = chunk;
+      chunk   = get_next_ncnl(chunk);
    }
 }
 
@@ -974,7 +966,7 @@ static chunk_t* mod_case_brace_remove(chunk_t *br_open)
    LOG_FMT(LMCB, "%s: line %u", __func__, br_open->orig_line);
 
    /* Find the matching brace close */
-   chunk_t *br_close = get_next_type(br_open, CT_BRACE_CLOSE, (int32_t)br_open->level, scope_e::PREPROC);
+   chunk_t* br_close = get_next_type(br_open, CT_BRACE_CLOSE, (int32_t)br_open->level, scope_e::PREPROC);
    if (is_invalid(br_close))
    {
       LOG_FMT(LMCB, " - no close\n");
@@ -1071,7 +1063,7 @@ static chunk_t* mod_case_brace_add(chunk_t* cl_colon)
    chunk.orig_line = last->orig_line;
    chunk.str       = "}";
 
-   const chunk_t *br_close = chunk_add_before(&chunk, last);
+   const chunk_t* br_close = chunk_add_before(&chunk, last);
    newline_add_before(last);
 
    for (pc = chunk_get_next(br_open, scope_e::PREPROC);
@@ -1094,15 +1086,15 @@ static void mod_case_brace(void)
    chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
+      chunk_t* next = get_next_ncnl(pc, scope_e::PREPROC);
       return_if(is_invalid(next));
 
-      if ((cpd.settings[UO_mod_case_brace].a == AV_REMOVE) &&
+      if (is_arg(UO_mod_case_brace, AV_REMOVE) &&
           is_type_and_ptype(pc, CT_BRACE_OPEN, CT_CASE))
       {
          pc = mod_case_brace_remove(pc);
       }
-      else if (is_arg_set   (UO_mod_case_brace, AV_ADD) &&
+      else if (is_arg_set(UO_mod_case_brace, AV_ADD) &&
                is_type (pc,   CT_CASE_COLON) &&
                not_type(next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE  ) )
       {
@@ -1221,13 +1213,13 @@ static void mod_full_brace_if_chain(void)
 {
    LOG_FUNC_ENTRY();
 
-   /* search through all chunks and look for */
-   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   chunk_t* pc = chunk_get_head();
+   while(is_valid(pc))
    {
-      if(is_type (pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&  /* any brace */
-         is_ptype(pc, CT_IF))      /* that is part of an if statement */
+      if(is_brace_of_if(pc))
       {
          process_if_chain(pc);
       }
+      pc = chunk_get_next(pc);
    }
 }
