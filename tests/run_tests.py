@@ -188,10 +188,10 @@ def process_test_file(args, filename):
     # \todo add a command line option verbose to print progress messages
     # \todo add a command line option to set the maximal number of worker threads
     
-    # usually a good choice for the number of parallel threads is the 
+    # usually a good choice for the number of parallel threads is twice the 
     # number of available CPU cores plus a few extra threads. This leads
     # to fast overall test speed but little thread blocking
-    max_threads = 16 
+    max_threads = 32
     
     fd = open(filename, "r")
     if fd == None:
