@@ -776,9 +776,10 @@ enum uo_t
    UO_mod_full_brace_if_chain_only,              /**< make all if/elseif/else statements in a chain with at least
                                                   *   one 'else' or 'else if' fully braced */
    UO_mod_full_brace_nl,                         /**< max number of newlines to span w/o braces */
+   UO_mod_full_brace_nl_block_rem_mlcond,        /**< block brace removal on multiline condition */
    UO_mod_full_brace_while,                      /**< add or remove braces on single-line while */
    UO_mod_full_brace_using,                      /**< add or remove braces on using */
-   UO_mod_paren_on_return,                       /**< add or remove paren on return */
+   UO_mod_paren_on_return,                       /**< add or remove parenthesis on return */
    UO_mod_pawn_semicolon,                        /**< add optional semicolons */
    UO_mod_full_paren_if_bool,                    /**<  */
    UO_mod_remove_extra_semicolon,                /**< remove extra semicolons */

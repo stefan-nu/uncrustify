@@ -555,7 +555,7 @@ static void version_exit(void)
    printf("uncrustify %s\n", UNCRUSTIFY_CURRENT_VERSION);
 #else
    printf("uncrustify %s\n", UNCRUSTIFY_VERSION);
-#endif // DEBUG
+#endif
    exit(EX_OK);
 }
 

@@ -142,7 +142,7 @@ def run_tests(args, test_name, config_name, input_name, lang):
     a = os.system(cmd)
     if a != 0:
         mutex.acquire()
-        print(FAIL_COLOR + "FAILED: " + NORMAL + test_name)
+        print(FAIL_COLOR + "FAILED:   " + NORMAL + test_name + " " + input_name)
         global fail_count
         fail_count   += 1
         thread_count -= 1
@@ -158,7 +158,7 @@ def run_tests(args, test_name, config_name, input_name, lang):
                 os.system(cmd)
                 
             mutex.acquire()   
-            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name) 
+            print(UNSTABLE_COLOR + "UNSTABLE: " + NORMAL + test_name + " " + input_name) 
             unst_count   += 1   
             thread_count -= 1
             mutex.release()  
@@ -166,7 +166,7 @@ def run_tests(args, test_name, config_name, input_name, lang):
     except:
         # impossible
         mutex.acquire()
-        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name)  
+        print(UNSTABLE_COLOR + "MISSING: " + NORMAL + test_name + " " + input_name)  
         fail_count   += 1   
         thread_count -= 1
         mutex.release() 

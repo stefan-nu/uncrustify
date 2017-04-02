@@ -9,6 +9,7 @@
 #define NEWLINES_H_INCLUDED
 
 #include "uncrustify_types.h"
+#include "chunk_list.h"
 
 
 /**
@@ -167,13 +168,11 @@ chunk_t* newline_force_after(
  * If the 'PCF_IN_PREPROC' status differs between two tags, we can't remove
  * the newline.
  *
- * @param start   The starting chunk (if it is a newline, it will be removed!)
- * @param end     The ending chunk (will not be removed, even if it is a newline)
  * @return        true/false - removed something
  */
 void newline_del_between(
-   chunk_t* start, /**< [in]  */
-   chunk_t* end    /**< [in]  */
+   chunk_t* start, /**< [in] starting chunk (if it is a newline, it will be removed!) */
+   chunk_t* end    /**< [in] ending chunk (will not be removed, even if it is a newline) */
 );
 
 
@@ -197,5 +196,12 @@ chunk_t* newline_add_between(
    chunk_t* end    /**< [in]  */
 );
 
+
+/** \brief count the number of newlines between two chunks */
+int newlines_between(
+   chunk_t* pc_start,           /**< [in] chunk to start with */
+   chunk_t* pc_end,             /**< [in] chunk to stop counting at */
+   scope_e scope = scope_e::ALL /**< [in] count all code or only preprocessor */
+);
 
 #endif /* NEWLINES_H_INCLUDED */

@@ -3727,3 +3727,18 @@ void annotations_nl(void)
       nl_iarf(ae, get_arg(type));
    }
 }
+
+
+int newlines_between(chunk_t* pc_start, chunk_t* pc_end, scope_e scope)
+{
+   retval_if(are_invalid(pc_start, pc_end), -1);
+
+   uint32_t nl_count = 0;
+   chunk_t* it = pc_start;
+   for ( ; it != pc_end; it = chunk_get_next(it, scope))
+   {
+      nl_count += it->nl_count;
+   }
+
+   return((it == chunk_get_tail()) ? -1 : nl_count);
+}
