@@ -554,8 +554,8 @@ void align_right_comments(void)
       {
          if(is_ptype(pc, CT_COMMENT_END))
          {
-            bool    skip  = false;
-            chunk_t *prev = chunk_get_prev(pc);
+            bool     skip = false;
+            chunk_t* prev = chunk_get_prev(pc);
             assert(is_valid(prev));
             if (pc->orig_col < (uint32_t)((int32_t)prev->orig_col_end + get_ival(UO_align_right_cmt_gap)))
             {
@@ -592,7 +592,7 @@ void align_right_comments(void)
       }
    }
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       if (is_flag(pc, PCF_RIGHT_COMMENT)) { pc = align_trailing_comments(pc); }
@@ -863,8 +863,8 @@ static void align_func_params(void)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       continue_if(not_type (pc,    CT_FPAREN_OPEN) ||
-                  not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_DEF,
-                    CT_FUNC_CLASS_PROTO, CT_FUNC_CLASS_DEF, CT_TYPEDEF));
+                  not_ptype(pc, 5, CT_FUNC_PROTO, CT_FUNC_CLASS_PROTO,
+                       CT_TYPEDEF, CT_FUNC_DEF,   CT_FUNC_CLASS_DEF));
       /* We're on a open parenthesis of a prototype */
       pc = align_func_param(pc);
    }
@@ -1174,7 +1174,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
       align_mask |= PCF_VAR_INLINE;
    }
 
-   /* Set up the var/proto/def aligner */
+   /* Set up the variable/prototype/definition aligner */
    AlignStack as;
    as.Start(myspan, mythresh);
    as.m_gap        = mygap;
@@ -1279,7 +1279,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
          }
       }
 
-      /* don't align stuff inside parens/squares/angles */
+      /* don't align stuff inside parenthesis/squares/angles */
       if (pc->level > pc->brace_level)
       {
          pc = chunk_get_next(pc);

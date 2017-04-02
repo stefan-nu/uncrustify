@@ -241,10 +241,10 @@ def process_test_file(args, filename):
             if thread_count < max_threads:
                 break
             else:
-                #print("\r(%d / %d) tests finished" % (pass_count, test_count)),
+                print("\r(%d / %d) tests finished" % (pass_count, test_count)),
                 time.sleep(1)
                 
-    #print("\n")                
+    print("\n")                
     return               
 
 #
@@ -318,7 +318,7 @@ def main(argv):
         if thread_count <= 0:
             break
         else:
-            #print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
+            print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
             time.sleep(1)
     
     # all worker threads have stopped by now, 
