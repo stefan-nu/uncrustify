@@ -85,7 +85,7 @@ struct no_space_table_t
  * this table lists all chunk combos where a space must NOT be present
  *
  * \note: CT_UNKNOWN is a wildcard for all chunks.
- * \todo: some of these are no longer needed.
+ * \todo: some of these are no longer needed, identify and remove them.
  */
 const no_space_table_t no_space_table[] =
 {
@@ -179,9 +179,8 @@ static bool sp_cond_0223(chunks_t* c) {return any_is_type(c->a, CT_INCDEC_BEFORE
 static bool sp_cond_0140(chunks_t* c) {return any_is_type(c->a, CT_MEMBER,        c->b, CT_MEMBER      ); }
 static bool sp_cond_0085(chunks_t* c) {return any_is_type(c->a, CT_ANGLE_OPEN,    c->b, CT_ANGLE_CLOSE ); }
 
-static bool sp_cond_0217(chunks_t* c) {return any_is_type(c->a, c->b, CT_PTR_TYPE     ); }
-static bool sp_cond_0188(chunks_t* c) {return any_is_type(c->a, c->b, CT_BOOL         ); }
 static bool sp_cond_1188(chunks_t* c) {return any_is_type(c->a, c->b, CT_BOOL) && (c->a->orig_line != c->b->orig_line     ); }
+static bool sp_cond_0188(chunks_t* c) {return any_is_type(c->a, c->b, CT_BOOL         ); }
 static bool sp_cond_0189(chunks_t* c) {return any_is_type(c->a, c->b, CT_COMPARE      ); }
 static bool sp_cond_0186(chunks_t* c) {return any_is_type(c->a, c->b, CT_NULLCOND     ); }
 static bool sp_cond_0067(chunks_t* c) {return any_is_type(c->a, c->b, CT_LAMBDA       ); }
@@ -189,6 +188,7 @@ static bool sp_cond_0001(chunks_t* c) {return any_is_type(c->a, c->b, CT_IGNORED
 static bool sp_cond_0003(chunks_t* c) {return any_is_type(c->a, c->b, CT_PP           ); }
 static bool sp_cond_0006(chunks_t* c) {return any_is_type(c->a, c->b, CT_SPACE        ); }
 static bool sp_cond_0013(chunks_t* c) {return any_is_type(c->a, c->b, CT_D_ARRAY_COLON); }
+static bool sp_cond_0217(chunks_t* c) {return any_is_type(c->a, c->b, CT_PTR_TYPE     ); }
 
 static bool sp_cond_0018(chunks_t* c) {return any_is_type(c->a, c->b, CT_QUESTION     ); }
 
@@ -272,11 +272,8 @@ static bool sp_cond_0026(chunks_t* c) {return is_type(c->a, CT_PREPROC       ); 
 
 static bool sp_cond_0021(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON); }
 
-static bool sp_cond_0027(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) &&
-                                                  is_type(c->b,       CT_COND_COLON); }
-
-static bool sp_cond_0028(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) &&
-                                                  is_type(c->a,       CT_COND_COLON); }
+static bool sp_cond_0027(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) && is_type(c->b, CT_COND_COLON); }
+static bool sp_cond_0028(chunks_t* c) {return any_is_type(c->a, c->b, CT_COND_COLON) && is_type(c->a, CT_COND_COLON); }
 
 static bool sp_cond_0029(chunks_t* c) {return is_type(c->b, CT_SEMICOLON     ); }
 static bool sp_cond_0032(chunks_t* c) {return is_type  (c->b, CT_SEMICOLON   ) &&
@@ -548,7 +545,7 @@ static bool sp_cond_0034(chunks_t* c)
  * appropriate to be applied to two chunk
  ******************************************************************************/
 typedef bool (*sp_check_t)(
-   chunks_t* pc  /**< [in]  chunks to use for check and their spaceing */
+   chunks_t* pc  /**< [in]  chunks to use for check and their spacing */
 );
 
 
@@ -1266,21 +1263,16 @@ void space_text(void)
             break;
 
             case AV_ADD:
+            {
+               uint32_t delta = min_sp;
+               if ((next->orig_col >= pc->orig_col_end) && (pc->orig_col_end != 0))
                {
-                  uint32_t delta = min_sp;
-                  if ((next->orig_col >= pc->orig_col_end) && (pc->orig_col_end != 0))
-                  {
-                     /* Keep the same relative spacing, minimum 1 */
-                     delta = next->orig_col - pc->orig_col_end;
-                     delta = max(delta, min_sp);
-                  }
-                  column += delta;
+                  /* Keep the same relative spacing, minimum 1 */
+                  delta = next->orig_col - pc->orig_col_end;
+                  delta = max(delta, min_sp);
                }
-            break;
-
-            case AV_REMOVE:  /* the symbols will be back-to-back "a+3" */
-            case AV_NOT_DEFINED:
-               /* do nothing */
+               column += delta;
+            }
             break;
 
             case AV_IGNORE:
@@ -1289,6 +1281,12 @@ void space_text(void)
                {
                   column += next->orig_col - pc->orig_col_end;
                }
+            break;
+
+            case AV_REMOVE:      /* the symbols will be back-to-back "a+3" */
+            case AV_NOT_DEFINED: /* unknown argument value */
+            default:
+                                 /* do nothing */
             break;
          }
 
@@ -1418,24 +1416,13 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
       LOG_FMT(LSPACE, "len=%u", first->len());
       coldiff = first->len();
    }
-   switch (av)
+
+   if( is_arg_set(av, AV_ADD   ) ||
+      (is_arg    (av, AV_IGNORE) && (second->orig_col > (first->orig_col + first->len()))))
    {
-      case AV_ADD:        /* fallthrough */
-      case AV_FORCE:
-         coldiff++;
-         break;
-
-      case AV_IGNORE:
-         if (second->orig_col > (first->orig_col + first->len()))
-         {
-            coldiff++;
-         }
-         break;
-
-      case AV_REMOVE:      /* fallthrough */
-      case AV_NOT_DEFINED: /* fallthrough */
-      default:             /* do nothing */ break;
+      coldiff++;
    }
+
    LOG_FMT(LSPACE, " => %u\n", coldiff);
    return(coldiff);
 }

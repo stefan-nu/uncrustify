@@ -856,7 +856,7 @@ static bool nl_if_for_while_switch(chunk_t* start, argval_t nl_opt)
          if (is_type(brace_open, CT_VBRACE_OPEN))
          {
             /* Can only add - we don't want to create a one-line here */
-            if (is_opt_set(nl_opt, AV_ADD))
+            if (is_arg_set(nl_opt, AV_ADD))
             {
                nl_iarf_pair(close_paren, get_next_ncnl(brace_open), nl_opt);
                pc = get_next_type(brace_open, CT_VBRACE_CLOSE, (int32_t)brace_open->level);
@@ -894,7 +894,7 @@ static void nl_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_t nl_o
    chunk_t* next;
    chunk_t* last_nl = nullptr;
    uint32_t level   = start->level;
-   bool     do_add  = is_opt_set(nl_opt, AV_ADD);
+   bool     do_add  = is_arg_set(nl_opt, AV_ADD);
 
    /* look backwards until we find
     *  open brace (don't add or remove)
@@ -909,7 +909,7 @@ static void nl_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_t nl_o
          if ((pc->nl_count > 1) || is_nl(get_prev_nvb(pc)))
          {
             /* need to remove */
-            if (is_opt_set(nl_opt, AV_REMOVE) && not_flag(pc, PCF_VAR_DEF))
+            if (is_arg_set(nl_opt, AV_REMOVE) && not_flag(pc, PCF_VAR_DEF))
             {
                /* if we're also adding, take care of that here */
                uint32_t nl_count = do_add ? 2 : 1;
@@ -1173,7 +1173,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
    return_if((prev = get_prev_nvb(pc)) == nullptr);
 
    bool have_pre_vbrace_nl = isVBrace && is_nl(prev);
-   if (is_opt_set(nl_opt, AV_REMOVE))
+   if (is_arg_set(nl_opt, AV_REMOVE))
    {
       /* if vbrace, have to check before and after */
       /* if chunk before vbrace, remove any newlines after vbrace */
@@ -1201,7 +1201,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
 
    /* may have a newline before and after vbrace */
    /* don't do anything with it if the next non newline chunk is a closing brace */
-   if (is_opt_set(nl_opt, AV_ADD))
+   if (is_arg_set(nl_opt, AV_ADD))
    {
       return_if ((next = get_next_nnl(pc)) == nullptr);
 
@@ -1414,7 +1414,7 @@ static void nl_do_else(chunk_t* start, argval_t nl_opt)
       if (next->type == CT_VBRACE_OPEN)
       {
          /* Can only add - we don't want to create a one-line here */
-         if (is_opt_set(nl_opt, AV_ADD))
+         if (is_arg_set(nl_opt, AV_ADD))
          {
             nl_iarf_pair(start, get_next_ncnl(next), nl_opt);
             chunk_t* tmp = get_next_type(next, CT_VBRACE_CLOSE, (int32_t)next->level);
@@ -1836,7 +1836,7 @@ static void nl_iarf_pair(chunk_t* before, chunk_t* after, argval_t av)
 
    if(are_valid(before, after))
    {
-      if (is_opt_set(av, AV_ADD))
+      if (is_arg_set(av, AV_ADD))
       {
          chunk_t* nl = newline_add_between(before, after);
          if ( (is_valid(nl)    ) &&
@@ -1846,7 +1846,7 @@ static void nl_iarf_pair(chunk_t* before, chunk_t* after, argval_t av)
             nl->nl_count = 1;
          }
       }
-      else if (is_opt_set(av, AV_REMOVE))
+      else if (is_arg_set(av, AV_REMOVE))
       {
          newline_del_between(before, after);
       }
@@ -2754,7 +2754,7 @@ void newlines_cleanup_braces(bool first)
 
                argval_t arg = get_arg(UO_nl_after_square_assign);
 
-               if (is_opt_set(UO_nl_assign_square, AV_ADD))
+               if (is_arg_set(UO_nl_assign_square, AV_ADD))
                {
                   arg = AV_ADD;
                }
@@ -3029,8 +3029,8 @@ static void nl_eat(const dir_e dir)
 
    /* Process newlines at the end or start of the file */
    if ((cpd.frag_cols == 0) &&
-        (is_opt_set(arg, AV_REMOVE) ||
-        (is_opt_set(arg, AV_ADD   ) && (min_nl > 0))))
+        (is_arg_set(arg, AV_REMOVE) ||
+        (is_arg_set(arg, AV_ADD   ) && (min_nl > 0))))
    {
       if (is_valid(pc))
       {
@@ -3052,7 +3052,7 @@ static void nl_eat(const dir_e dir)
                }
             }
          }
-         else if ( is_opt_set(arg, AV_ADD) && (min_nl > 0))
+         else if ( is_arg_set(arg, AV_ADD) && (min_nl > 0))
          {
             chunk_t chunk;
             chunk.orig_line = pc->orig_line;
@@ -3249,7 +3249,7 @@ void nl_class_colon_pos(c_token_t tok)
 
          if (!is_nl(prev) &&
              !is_nl(next) &&
-             is_opt_set(anc, AV_ADD))
+             is_arg_set(anc, AV_ADD))
          {
             newline_add_after(pc);
             prev = get_prev_nc(pc);
@@ -3301,7 +3301,7 @@ void nl_class_colon_pos(c_token_t tok)
          assert(is_valid(ccolon));
          if (is_type_and_level(pc, CT_COMMA, ccolon->level))
          {
-            if (is_opt_set(ncia, AV_ADD))
+            if (is_arg_set(ncia, AV_ADD))
             {
                if (is_token_set(pcc, TP_TRAIL)) // \todo DRY
                {
@@ -3729,16 +3729,17 @@ void annotations_nl(void)
 }
 
 
-int newlines_between(chunk_t* pc_start, chunk_t* pc_end, scope_e scope)
+int32_t newlines_between(chunk_t* pc_start, chunk_t* pc_end, scope_e scope)
 {
-   retval_if(are_invalid(pc_start, pc_end), -1);
+   retval_if(are_invalid(pc_start, pc_end), INVALID_COUNT);
 
    uint32_t nl_count = 0;
-   chunk_t* it = pc_start;
-   for ( ; it != pc_end; it = chunk_get_next(it, scope))
+   chunk_t* chunk = pc_start;
+   for ( ; chunk != pc_end; chunk = chunk_get_next(chunk, scope))
    {
-      nl_count += it->nl_count;
+      nl_count += chunk->nl_count;
    }
 
-   return((it == chunk_get_tail()) ? -1 : nl_count);
+   /* check that search did end before end of file */
+   return((chunk == chunk_get_tail()) ? INVALID_COUNT : (int32_t)nl_count);
 }

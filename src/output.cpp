@@ -655,7 +655,7 @@ void output_text(FILE *pfile)
             /* FIXME: this really shouldn't be done here! */
             if (not_flag(pc, PCF_WAS_ALIGNED))
             {
-               if (is_opt_set(UO_sp_before_nl_cont, AV_REMOVE))
+               if (is_arg_set(UO_sp_before_nl_cont, AV_REMOVE))
                {
                   pc->column = cpd.column + (is_arg(UO_sp_before_nl_cont, AV_FORCE) ? 1 :0);
                }
@@ -1299,7 +1299,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
 
          tmp.set(first->str, iLISz, first->len() - iLISz);
 
-         if (is_opt_set(sp_cmt_cpp_start, AV_REMOVE))
+         if (is_arg_set(sp_cmt_cpp_start, AV_REMOVE))
          {
             while ((tmp.size() > 0    ) &&
                     unc_isspace(tmp[0]) )
@@ -1309,7 +1309,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
          }
          if (tmp.size() > 0)
          {
-            if (is_opt_set(sp_cmt_cpp_start, AV_ADD))
+            if (is_arg_set(sp_cmt_cpp_start, AV_ADD))
             {
                if (!unc_isspace(tmp[0]) &&
                    (tmp[0] != SLASH   ) )
@@ -1334,7 +1334,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
       /* nothing to group: just output a single line */
       add_text("/*");
       if( (!unc_isspace(first->str[2])            ) &&
-          (is_opt_set(sp_cmt_cpp_start, AV_ADD)) )
+          (is_arg_set(sp_cmt_cpp_start, AV_ADD)) )
       {
          add_char(SPACE);
       }

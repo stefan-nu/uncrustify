@@ -781,25 +781,24 @@ int main(int argc, char* argv[])
    LOG_FMT(LDATA, "check       = %d\n", cpd.do_check);
    LOG_FMT(LDATA, "if_changed  = %d\n", cpd.if_changed);
 
-   if ((cpd.do_check     == true   )   &&
-      ((ptr_is_valid(output_file)  ) ||
-       (replace          == true   ) ||
-       (no_backup        == true   ) ||
-       (keep_mtime       == true   ) ||
-       (update_config    == true   ) ||
-       (update_config_wd == true   ) ||
-       (detect           == true   ) ||
-       (ptr_is_valid(prefix)       ) ||
-       (ptr_is_valid(suffix)       ) ||
-        cpd.if_changed             ) )
+   if ((cpd.do_check     == true )   &&
+      ((ptr_is_valid(output_file)) ||
+       (replace          == true ) ||
+       (no_backup        == true ) ||
+       (keep_mtime       == true ) ||
+       (update_config    == true ) ||
+       (update_config_wd == true ) ||
+       (detect           == true ) ||
+       (ptr_is_valid(prefix)     ) ||
+       (ptr_is_valid(suffix)     ) ||
+        cpd.if_changed           ) )
    {
       usage_exit("Cannot use --check with output options.", argv[0], EX_NOUSER);
    }
 
    if (!cpd.do_check)
    {
-      if (replace   == true ||
-          no_backup == true )
+      if (replace   == true || no_backup == true)
       {
          if (ptrs_are_valid(prefix, suffix))
          {
@@ -1768,6 +1767,7 @@ static void uncrustify_start(const deque<int32_t> &data)
     * We can setup the function arrays that are
     * used during the checking and processing */
    init_space_check_action_array();
+   init_vbrace_check_array();
 
    /* Parse the text into chunks */
    tokenize(data, nullptr);

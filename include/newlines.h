@@ -196,9 +196,15 @@ chunk_t* newline_add_between(
    chunk_t* end    /**< [in]  */
 );
 
+#define INVALID_COUNT -1
 
-/** \brief count the number of newlines between two chunks */
-int newlines_between(
+/**
+ *  \brief count the number of newlines between two chunks
+ *
+ *  @retval >= 0               the number of newlines
+ *  @retval INVALID_COUNT (-1) an error occurred
+ * */
+int32_t newlines_between(
    chunk_t* pc_start,           /**< [in] chunk to start with */
    chunk_t* pc_end,             /**< [in] chunk to stop counting at */
    scope_e scope = scope_e::ALL /**< [in] count all code or only preprocessor */

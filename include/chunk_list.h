@@ -22,6 +22,12 @@
 #define ANY_LEVEL    -1
 
 
+/***************************************************************************//**
+ * @brief prototype for a function that checks a chunk for some condition
+ ******************************************************************************/
+typedef bool (*chunk_check_t)(chunk_t* pc);
+
+
 typedef ListManager<chunk_t>::dir_e dir_e;
 
 /**
@@ -317,6 +323,22 @@ chunk_t* chunk_get_head(void);
 chunk_t* chunk_get_tail(void);
 
 
+/* determine if two chunks correspond
+ *
+ * Corresponding means the chunks have:
+ *  - the same indentation level
+ *  - the same parent type
+ *  - the same preprocessor state
+ *
+ *  This function is typically used to check if two braces
+ *  are the corresponding opening and closing braces.
+ */
+bool are_corresponding(
+   chunk_t* chunk1, /**< [in] first  chunk to compare */
+   chunk_t* chunk2  /**< [in] second chunk to compare */
+);
+
+
 /**
  * \brief returns the next chunk in either direction of a list of chunks
  *
@@ -335,7 +357,7 @@ chunk_t* chunk_get(
  * @return pointer to next chunk or nullptr if no chunk was found
  */
 chunk_t* chunk_get_next(
-   chunk_t* cur,                      /**< [in] chunk to start with */
+   chunk_t*      cur,                 /**< [in] chunk to start with */
    const scope_e scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -419,6 +441,26 @@ chunk_t* get_next_class(
 chunk_t* get_prev_oc_class(
    chunk_t* pc /**< [in] chunk to start with */
 );
+
+
+
+/**
+ * Gets the next opening virtual brace
+ */
+chunk_t* get_next_opening_vbrace(
+   chunk_t*      pc,                  /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+);
+
+
+/**
+ * Gets the next closing virtual brace
+ */
+chunk_t* get_next_closing_vbrace(
+   chunk_t*      pc,                  /**< [in] chunk to start with */
+   const scope_e scope = scope_e::ALL /**< [in] code region to search in */
+);
+
 
 
 /**
@@ -1408,9 +1450,33 @@ bool is_closing_brace(
 
 
 /**
+ * check if a chunk is a virtual opening brace
+ */
+bool is_opening_vbrace(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is a virtual closing brace
+ */
+bool is_closing_vbrace(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
  * check if a chunk is a real or virtual opening brace
  */
 bool is_opening_brace(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is a opening or closing real brace
+ */
+bool is_rbrace(
    chunk_t* pc /**< [in] chunk to check */
 );
 
@@ -1486,6 +1552,36 @@ bool is_safe_to_del_nl(
  *@retval false - no for(...in...) loop found
  */
 bool is_forin(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is either if, else or elseif */
+bool is_if_else_elseif(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is a for statement */
+bool is_for(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is a do statement */
+bool is_do(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is a while statement */
+bool is_while(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is a using statement */
+bool is_using(
+   chunk_t* pc /**< [in] chunk to start search with */
+);
+
+/* check if a chunk is a function statement */
+bool is_fct(
    chunk_t* pc /**< [in] chunk to start search with */
 );
 

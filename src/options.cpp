@@ -213,13 +213,13 @@ argval_t add_option(argval_t var, argval_t opt)
 }
 
 
-bool is_opt_set(const argval_t opt, const argval_t val)
+bool is_arg_set(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == val); /*lint !e655 */
 }
-bool is_opt_set(const uo_t opt, const argval_t val)
+bool is_arg_set(const uo_t opt, const argval_t val)
 {
-   return(is_opt_set(get_arg(opt), val));
+   return(is_arg_set(get_arg(opt), val));
 }
 
 

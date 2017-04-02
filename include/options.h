@@ -915,19 +915,19 @@ uo_t get_inverse_uo(
 
 /**
  * \brief check if a option variable has at least one of the
- * given option flags set
+ * given argument flags set
  *
- * In contrast to is_opt it is sufficient if any of the give
- * option flag is set. The remaining flags are ignored.
+ * In contrast to is_arg it is sufficient if any of the give
+ * argument flag is set. The remaining flags are ignored.
  *
  * @retval true  if variable has all required option flags set
  * @retval false if at least one option was not set
  */
-bool is_opt_set(
+bool is_arg_set(
    const argval_t opt, /**< [in] argument variable to check */
    const argval_t val  /**< [in] option value combination to check for */
 );
-bool is_opt_set(
+bool is_arg_set(
    const uo_t     opt, /**< [in] uncrustify option to check */
    const argval_t val  /**< [in] option value to check for */
 );
@@ -1013,7 +1013,7 @@ bool is_option_unset(
 
 /**
  * \brief check if a option variable is equal to a given value
- * In contrast to is_opt_set the option variable has to equal
+ * In contrast to is_arg_set the option variable has to equal
  * exactly to the expected value.
  *
  * @retval true  if option is     equal to the given value

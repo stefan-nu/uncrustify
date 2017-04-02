@@ -27,7 +27,7 @@ enum c_token_t
 {
    CT_NONE,                /**<  */
    CT_EOF,                 /**<  */
-   CT_UNKNOWN,             /**<  */
+   CT_UNKNOWN,             /**< a wildcard for all chunks */
 
    CT_JUNK,                /**< junk collected when parsing is disabled */
 

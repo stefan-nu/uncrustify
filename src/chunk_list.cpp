@@ -26,6 +26,13 @@
  *  bracket     = [ ] aka "square bracket"
  */
 
+/**
+ * abbreviations use
+ *
+ * vbrace = virtual brace
+ * rbrace = real brace
+ */
+
 
 /***************************************************************************//**
  * @brief prototype for a function that searches through a chunk list
@@ -413,6 +420,13 @@ chunk_t* chunk_get_tail(void)
    return(g_cl.GetTail());
 }
 
+bool are_corresponding(chunk_t* chunk1, chunk_t* chunk2)
+{
+   return((chunk1->brace_level == chunk2->brace_level) &&
+           is_ptype(chunk1, chunk2->ptype ) &&
+           are_same_pp(chunk2, chunk1     ) );
+}
+
 
 chunk_t* chunk_dup(const chunk_t* const pc_in)
 {
@@ -512,6 +526,18 @@ void chunk_move_after(chunk_t* pc_in, chunk_t* ref)
       pc_in->orig_col     = pc_in->column;
       pc_in->orig_col_end = pc_in->orig_col + pc_in->len();
    }
+}
+
+
+chunk_t* get_next_opening_vbrace(chunk_t* pc, const scope_e scope)
+{
+   return (chunk_search(pc, is_opening_vbrace, scope, dir_e::AFTER, true));
+}
+
+
+chunk_t* get_next_closing_vbrace(chunk_t* pc, const scope_e scope)
+{
+   return (chunk_search(pc, is_closing_vbrace, scope, dir_e::AFTER, true));
 }
 
 
@@ -880,6 +906,14 @@ bool is_forin(chunk_t* pc)
    }
    return(false);
 }
+
+
+bool is_if_else_elseif(chunk_t* pc) { return is_ptype(pc, CT_IF, CT_ELSE, CT_ELSEIF); }
+bool is_for           (chunk_t* pc) { return is_ptype(pc, CT_FOR                   ); }
+bool is_do            (chunk_t* pc) { return is_ptype(pc, CT_DO                    ); }
+bool is_while         (chunk_t* pc) { return is_ptype(pc, CT_WHILE                 ); }
+bool is_using         (chunk_t* pc) { return is_ptype(pc, CT_USING_STMT            ); }
+bool is_fct           (chunk_t* pc) { return is_ptype(pc, CT_FUNC_DEF              ); }
 
 
 bool is_type_and_ptype(const chunk_t* const pc, const c_token_t type,
@@ -1346,22 +1380,13 @@ bool chunk_is_member(chunk_t* pc)
 }
 
 
-bool is_closing_brace(chunk_t* pc)
-{
-   return(is_type(pc, CT_BRACE_CLOSE, CT_VBRACE_CLOSE));
-}
+bool is_closing_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
+bool is_opening_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
+bool is_rbrace        (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }
+bool is_vbrace        (chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN )); }
+bool is_opening_vbrace(chunk_t* pc) { return(is_type(pc,                  CT_VBRACE_OPEN )); }
+bool is_closing_vbrace(chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE                 )); }
 
-
-bool is_opening_brace(chunk_t* pc)
-{
-   return(is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN));
-}
-
-
-bool is_vbrace(chunk_t* pc)
-{
-   return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN));
-}
 
 bool is_fparen_open(chunk_t* pc)
 {
@@ -1406,13 +1431,6 @@ bool is_word(chunk_t* pc)
    return(is_valid(pc) && (pc->len() >= 1u) &&
           (CharTable::IsKW1((uint32_t)pc->str[0])) );
 }
-
-#if 0
-bool is_word(chunk_t* pc)
-{
-   return(is_valid(pc) && pc->type == CT_WORD);
-}
-#endif
 
 
 bool is_star(chunk_t* pc)

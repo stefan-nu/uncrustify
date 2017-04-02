@@ -5315,8 +5315,8 @@ static void handle_wrap(chunk_t* pc)
        is_type(opp,  CT_PAREN_OPEN   ) &&
        is_type(name, CT_WORD, CT_TYPE) )
    {
-      const char *psp = is_opt_set(pav, AV_ADD) ? " " : "";
-      const char *fsp = is_opt_set(av,  AV_ADD) ? " " : "";
+      const char *psp = is_arg_set(pav, AV_ADD) ? " " : "";
+      const char *fsp = is_arg_set(av,  AV_ADD) ? " " : "";
       pc->str.append("%s(%s%s%s)", psp, fsp, name->str.c_str(), fsp);
       const c_token_t new_type = is_type(pc, CT_FUNC_WRAP) ? CT_FUNCTION : CT_TYPE;
       set_type(pc, new_type);

@@ -2409,11 +2409,11 @@ void indent_preproc(void)
       pp_level = max(pp_level, 0);
 
       /* Adjust the indent of the '#' */
-      if (is_opt_set(UO_pp_indent, AV_ADD))
+      if (is_arg_set(UO_pp_indent, AV_ADD))
       {
          reindent_line(pc, 1 + (uint32_t)pp_level * get_uval(UO_pp_indent_count));
       }
-      else if (is_opt_set(UO_pp_indent, AV_REMOVE))
+      else if (is_arg_set(UO_pp_indent, AV_REMOVE))
       {
          reindent_line(pc, 1);
       }
@@ -2421,7 +2421,7 @@ void indent_preproc(void)
       /* Add spacing by adjusting the length */
       if (not_ignore(UO_pp_space) &&  (is_valid(next)))
       {
-         if (is_opt_set(UO_pp_space, AV_ADD))
+         if (is_arg_set(UO_pp_space, AV_ADD))
          {
             uint32_t mult = get_uval(UO_pp_space_count);
             mult = max(mult, (uint32_t)1u);
@@ -2429,7 +2429,7 @@ void indent_preproc(void)
             reindent_line(next, (uint32_t)((int32_t)pc->column +
                   (int32_t)pc->len() + (pp_level * (int32_t)mult)));
          }
-         else if (is_opt_set(UO_pp_space, AV_REMOVE))
+         else if (is_arg_set(UO_pp_space, AV_REMOVE))
          {
             reindent_line(next, pc->column + pc->len());
          }
