@@ -287,7 +287,7 @@ static void examine_braces(void)
                {
                   examine_brace(pc);
                }
-               break; /* no need to check the same chunk again */
+               break; /* no need to process the same chunk again */
             }
             ebc++;
          }
@@ -1232,7 +1232,7 @@ static void mod_full_brace_if_chain(void)
    chunk_t* pc = chunk_get_head();
    while(is_valid(pc))
    {
-      if(is_brace_of_if(pc))
+      if(is_opening_brace_of_if(pc))
       {
          process_if_chain(pc);
       }

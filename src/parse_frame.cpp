@@ -68,7 +68,6 @@ static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
 static void pf_log_all(log_sev_t logsev)
 {
    LOG_FMT(logsev, "##=- Parse Frame : %d entries\n", cpd.frame_count);
-
    for (int32_t idx = 0; idx < cpd.frame_count; idx++)
    {
       LOG_FMT(logsev, "##  <%d> ", idx);
@@ -115,7 +114,7 @@ void pf_push_under(parse_frame_t *pf)
    LOG_FMT(LPF, "%s(%d): after count = %d\n", __func__, __LINE__, cpd.frame_count);
 }
 
-
+// \todo DRY with pf_copy_2nd_tos
 void pf_copy_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 0)
@@ -126,6 +125,7 @@ void pf_copy_tos(parse_frame_t *pf)
 }
 
 
+// \todo DRY with pf_copy_tos
 static void pf_copy_2nd_tos(parse_frame_t *pf)
 {
    if (cpd.frame_count > 1)
@@ -183,7 +183,7 @@ uint32_t pf_check(parse_frame_t *frm, chunk_t *pc)
            __func__, __LINE__, pc->orig_line, get_token_name(pc->ptype));
    pf_log_frms(LPFCHK, "TOP", frm);
 
-   const char *txt = nullptr;
+   const char* txt = nullptr;
    if (is_preproc(pc))
    {
       LOG_FMT(LPF, " <In> ");

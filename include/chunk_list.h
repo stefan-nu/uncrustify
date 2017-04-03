@@ -1442,7 +1442,7 @@ bool chunk_is_member(
 
 
 /** check if a brace belongs to an if statement */
-bool is_brace_of_if(
+bool is_opening_brace_of_if(
    chunk_t* pc /**< [in] chunk to check */
 );
 

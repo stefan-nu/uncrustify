@@ -291,7 +291,6 @@ static bool maybe_while_of_do(chunk_t* pc)
    }
 #endif
 
-
    return(is_ptype(prev, CT_DO) &&
           is_type (prev, CT_VBRACE_CLOSE, CT_BRACE_CLOSE)) ?
             true : false;

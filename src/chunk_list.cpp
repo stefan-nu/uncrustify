@@ -1380,7 +1380,7 @@ bool chunk_is_member(chunk_t* pc)
 }
 
 
-bool is_brace_of_if(chunk_t* pc)
+bool is_opening_brace_of_if(chunk_t* pc)
 {
    return (is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
            is_ptype(pc, CT_IF));
