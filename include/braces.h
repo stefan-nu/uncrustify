@@ -25,6 +25,7 @@
  * array has to be recalculated.
  */
 void init_vbrace_check_array(void);
+void init_examine_brace_check_array(void);
 
 
 /**

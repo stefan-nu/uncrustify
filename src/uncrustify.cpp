@@ -1766,6 +1766,7 @@ static void uncrustify_start(const deque<int32_t> &data)
    /* the configuration and file type is fix here.
     * We can setup the function arrays that are
     * used during the checking and processing */
+   init_examine_brace_check_array();
    init_space_check_action_array();
    init_vbrace_check_array();
 

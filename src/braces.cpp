@@ -201,14 +201,7 @@ void do_braces(void)
       mod_full_brace_if_chain();
    }
 
-   if (is_arg_set(UO_mod_full_brace_if   , AV_REMOVE) ||
-       is_arg_set(UO_mod_full_brace_do   , AV_REMOVE) ||
-       is_arg_set(UO_mod_full_brace_for  , AV_REMOVE) ||
-       is_arg_set(UO_mod_full_brace_using, AV_REMOVE) ||
-       is_arg_set(UO_mod_full_brace_while, AV_REMOVE) )
-   {
-      examine_braces();
-   }
+   examine_braces();
 
    /* convert vbraces if needed */
    convert_all_vbrace_to_brace_if_required();
@@ -248,32 +241,55 @@ void do_braces(void)
 }
 
 
+/** array of virtual brace checks */
+#define         EBC_COUNT 5           /* \todo later use dynamic memory allocation or a linked list */
+chunk_check_t   ebc_list[EBC_COUNT];  /**< array that holds all examine brace checks */
+static uint32_t ebc_count = 0;        /**< number of examine brace checks */
+
+static void add_ebc(chunk_check_t ebc)
+{
+   ebc_list[ebc_count] = ebc;
+   ebc_count++;
+}
+
+
+void init_examine_brace_check_array(void)
+{
+   if(is_arg(UO_mod_full_brace_if,    AV_REMOVE)) { add_ebc(is_if_else_elseif); }
+   if(is_arg(UO_mod_full_brace_do,    AV_REMOVE)) { add_ebc(is_do            ); }
+   if(is_arg(UO_mod_full_brace_for,   AV_REMOVE)) { add_ebc(is_for           ); }
+   if(is_arg(UO_mod_full_brace_using, AV_REMOVE)) { add_ebc(is_using         ); }
+   if(is_arg(UO_mod_full_brace_while, AV_REMOVE)) { add_ebc(is_while         ); }
+}
+
+
 static void examine_braces(void)
 {
    LOG_FUNC_ENTRY();
 
+   /* if no examine brace check was defined we are done already */
+   return_if(ebc_count == 0);
+
    const bool multiline_block = get_bool(UO_mod_full_brace_nl_block_rem_mlcond);
 
    chunk_t* pc = chunk_get_tail();
-   while (is_valid(pc))
+   while(is_valid(pc))
    {
       chunk_t* prev = get_prev_type(pc, CT_BRACE_OPEN, -1);
-      if (is_type(pc, CT_BRACE_OPEN ) && !is_preproc(pc))
+      if (is_type(pc, CT_BRACE_OPEN) && !is_preproc(pc))
       {
-         if((is_ptype(pc, CT_IF        )                                              ) ||
-            (is_ptype(pc, CT_ELSE      )                                              ) ||
-            (is_ptype(pc, CT_ELSEIF    ) && is_arg(UO_mod_full_brace_if   , AV_REMOVE)) ||
-            (is_ptype(pc, CT_DO        ) && is_arg(UO_mod_full_brace_do   , AV_REMOVE)) ||
-            (is_ptype(pc, CT_FOR       ) && is_arg(UO_mod_full_brace_for  , AV_REMOVE)) ||
-            (is_ptype(pc, CT_USING_STMT) && is_arg(UO_mod_full_brace_using, AV_REMOVE)) ||
-            (is_ptype(pc, CT_WHILE     ) && is_arg(UO_mod_full_brace_while, AV_REMOVE)) )
+         chunk_check_t* ebc = ebc_list;
+         for(uint32_t i=0; i < ebc_count; i++)
          {
-            if (multiline_block && paren_multiline_before_brace(pc))
+            if(ebc_list[i](pc))
             {
-               pc = prev;
-               continue;
+               if (!(multiline_block && paren_multiline_before_brace(pc)))
+               {
+                  examine_brace(pc);
+               }
+               break; /* no need to check the same chunk again */
             }
-            examine_brace(pc);
+            ebc++;
          }
       }
       pc = prev;
