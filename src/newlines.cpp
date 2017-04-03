@@ -263,7 +263,7 @@ static void nl_struct_enum_union(
 );
 
 
-/**   */
+/** tbd  */
 static void nl_enum(
    chunk_t* start /**< [in]  */
 );
@@ -274,11 +274,9 @@ static void nl_enum(
  *
  * "} while" vs "} \n while"
  * "} else"  vs "} \n else"
- *
- * @param start   The chunk - should be CT_ELSE or CT_WHILE_OF_DO
  */
 static void nl_cuddle_uncuddle(
-   chunk_t* start, /**< [in]  */
+   chunk_t* start, /**< [in] chunk to operate on - should be CT_ELSE or CT_WHILE_OF_DO */
    argval_t nl_opt /**< [in]  */
 );
 

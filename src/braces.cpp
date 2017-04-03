@@ -1139,7 +1139,7 @@ static void process_if_chain(chunk_t* br_start)
 
    while (is_valid(pc))
    {
-      if (is_type(pc, CT_BRACE_OPEN))
+      if (is_opening_rbrace(pc))
       {
          bool tmp = can_remove_braces(pc);
          LOG_FMT(LBRCH, "  [%d] line %u - can%s remove %s\n",
@@ -1189,7 +1189,7 @@ static void process_if_chain(chunk_t* br_start)
       while (--br_cnt >= 0)
       {
          set_flags(braces[br_cnt], PCF_KEEP_BRACE);
-         if (is_type(braces[br_cnt], CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
+         if (is_vbrace(braces[br_cnt]))
          {
             LOG_FMT(LBRCH, " %u", braces[br_cnt]->orig_line);
             convert_vbrace(braces[br_cnt]);
@@ -1213,7 +1213,7 @@ static void process_if_chain(chunk_t* br_start)
       while (--br_cnt >= 0)
       {
          LOG_FMT(LBRCH, " {%u}", braces[br_cnt]->orig_line);
-         if (is_type(braces[br_cnt], CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
+         if (is_rbrace(braces[br_cnt]) &&
             ((multiline_block) ? !paren_multiline_before_brace(braces[br_cnt]) : true))
          {
             convert_brace(braces[br_cnt]);
