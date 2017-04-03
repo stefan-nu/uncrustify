@@ -322,13 +322,13 @@ def main(argv):
             time.sleep(1)
     
     # all worker threads have stopped by now, 
-    # so we dont need to acquire the mutex from now on
+    # so we do not need to acquire the mutex from now on
     
     stoptime = timeit.default_timer()
     duration = stoptime - starttime
     
     printf(       "\n-------------------------\n") 
-    printf(       "Runtime: %d sec, Time per Test: %2.2fsec \n", duration, (float(duration)/test_count) )
+    printf(       "Runtime: %2.2f sec, Time per Test: %2.2fsec \n", duration, (float(duration)/test_count) )
     printf(       "Tests:    %3d \n", test_count)
     printf(       "Passed:   %3d (%3.1f%%) \n", pass_count, (float(pass_count)*100)/test_count )
     printf(BOLD + "Failed:   %3d (%3.1f%%) \n", fail_count, (float(fail_count)*100)/test_count)

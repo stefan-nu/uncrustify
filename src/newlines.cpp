@@ -372,6 +372,7 @@ static void log_nl_func(
    chunk_t* pc /**< [in]  */
 );
 
+
 /**
  * mark a line as blank line
  */
@@ -685,15 +686,7 @@ static void newline_min_after(chunk_t* ref, uint32_t count, uint64_t flag)
    log_func_stack_inline(LNEWLINE);
 
    chunk_t* pc = ref;
-
    pc = get_next_nl(pc);
-#if 0
-   do /* \todo use chunk search */
-   {
-      pc = chunk_get_next(pc);
-   } while ((pc != nullptr) && !is_nl(pc));
-#endif
-
    if (is_valid(pc))
    {
       LOG_FMT(LNEWLINE, "%s: on %s, line %u, col %u\n",

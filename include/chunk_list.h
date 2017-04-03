@@ -1441,6 +1441,12 @@ bool chunk_is_member(
 );
 
 
+/** check if a brace belongs to an if statement */
+bool is_brace_of_if(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
 /**
  * check if a chunk is a real or virtual closing brace
  */
@@ -1477,6 +1483,21 @@ bool is_opening_brace(
  * check if a chunk is a opening or closing real brace
  */
 bool is_rbrace(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
+ * check if a chunk is a opening real brace
+ */
+bool is_opening_rbrace(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+/**
+ * check if a chunk is a closing real brace
+ */
+bool is_closing_rbrace(
    chunk_t* pc /**< [in] chunk to check */
 );
 
