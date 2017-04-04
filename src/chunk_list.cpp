@@ -1019,26 +1019,52 @@ bool not_type(const c_token_t token, const c_token_t type1,
    return((token != type1) && (token != type2) && (token != type3));
 }
 
+#if 0
+// use variadic template to unify overloaded and variadic functions
+template<typename T, const chunk_t* const>
+bool nis_type(const chunk_t* const pc, const T type)
+{
+   return(is_valid(pc) && (pc->type == type));
+}
+
+template<typename T, const chunk_t* const, typename... Args>
+bool nis_type(const chunk_t* const pc, const T type, Args...args)
+{
+   return (pc->type == type) && nis_type(pc, type, args...);
+}
+#endif
 
 bool is_type(const chunk_t* const pc, const c_token_t type)
 {
+#if 0
+   return nis_type(pc, type);
+#else
    return(is_valid(pc) && (pc->type == type));
+#endif
 }
 
 
 bool is_type(const chunk_t* const pc, const c_token_t type1,
                                       const c_token_t type2)
 {
+#if 0
+   return nis_type(pc, type1, type2);
+#else
    return(is_valid(pc) && ((pc->type == type1) || (pc->type == type2)));
+#endif
 }
 
 
 bool is_type(const chunk_t* const pc, const c_token_t type1,
              const c_token_t type2,   const c_token_t type3)
 {
+#if 0
+   return nis_type(pc, type1, type2, type3);
+#else
    return(is_valid(pc) && ((pc->type == type1) ||
                            (pc->type == type2) ||
                            (pc->type == type3) ) );
+#endif
 }
 
 
@@ -1119,7 +1145,7 @@ bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
 
 
 bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
-              const c_token_t ptype2,   const c_token_t ptype3)
+               const c_token_t ptype2,  const c_token_t ptype3)
 {
    return(is_valid(pc) && (pc->ptype != ptype1) &&
                           (pc->ptype != ptype2) &&
@@ -1127,7 +1153,7 @@ bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
 }
 
 
-bool is_type(const chunk_t* const pc, int32_t count, ... )
+bool is_type(const chunk_t* const pc, uint32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1135,7 +1161,7 @@ bool is_type(const chunk_t* const pc, int32_t count, ... )
    bool result = false;
    if(is_valid(pc))
    {
-      for( ; count > 0; --count)
+      for( ; count != 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
 
@@ -1152,7 +1178,7 @@ bool is_type(const chunk_t* const pc, int32_t count, ... )
 
 
 /* todo combine with is_type */
-bool is_ptype(const chunk_t* const pc, int32_t count, ... )
+bool is_ptype(const chunk_t* const pc, uint32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1160,7 +1186,7 @@ bool is_ptype(const chunk_t* const pc, int32_t count, ... )
    bool result = false;
    if(is_valid(pc))
    {
-      for( ; count > 0; --count)
+      for( ; count != 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->ptype == type)
@@ -1176,7 +1202,7 @@ bool is_ptype(const chunk_t* const pc, int32_t count, ... )
 
 
 /* \todo combine with chunk_is_not_parent_type */
-bool not_type(const chunk_t* const pc, int32_t count, ... )
+bool not_type(const chunk_t* const pc, uint32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1185,7 +1211,7 @@ bool not_type(const chunk_t* const pc, int32_t count, ... )
    if(is_valid(pc))
    {
       result = true;
-      for( ; count > 0; --count)
+      for( ; count != 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->type == type)
@@ -1200,7 +1226,7 @@ bool not_type(const chunk_t* const pc, int32_t count, ... )
 }
 
 
-bool not_ptype(const chunk_t* const pc, int32_t count, ... )
+bool not_ptype(const chunk_t* const pc, uint32_t count, ... )
 {
    va_list args;          /* determine list of arguments ... */
    va_start(args, count); /* ... that follow after parameter count */
@@ -1209,7 +1235,7 @@ bool not_ptype(const chunk_t* const pc, int32_t count, ... )
    if(is_valid(pc))
    {
       result = true;
-      for( ; count > 0; --count)
+      for( ; count != 0; --count)
       {
          c_token_t type = (c_token_t)va_arg(args, int32_t); /* get next argument */
          if(pc->ptype == type)

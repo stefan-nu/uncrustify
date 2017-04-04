@@ -241,7 +241,8 @@ def process_test_file(args, filename):
             if thread_count < max_threads:
                 break
             else:
-                print("\r(%d / %d) tests finished" % (pass_count, test_count)),
+                if args.v:
+                    print("\r(%d / %d) tests finished" % (pass_count, test_count)),
                 time.sleep(1)
                 
     print("\n")                
@@ -266,6 +267,8 @@ def main(argv):
     parser.add_argument('-p', help='show passed/skipped tests', action='store_true')
     parser.add_argument('-g', help='generate debug files (.log, .unc)', action='store_true')
     parser.add_argument('-r', help='specify test filter range list', type=str, default=None)
+    parser.add_argument('-v', help='make output verbose', action='store_true')
+    parser.add_argument('-t', help='define number of parallel threads', type=int)
     parser.add_argument('--results', help='specify results folder', type=str, default='results')
     parser.add_argument('--exe', help='uncrustify executable to test',
                         type=str)
@@ -318,7 +321,8 @@ def main(argv):
         if thread_count <= 0:
             break
         else:
-            print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
+            if args.v:
+                print ("\r(%d / %d) tests remaining" % (thread_count, test_count)),
             time.sleep(1)
     
     # all worker threads have stopped by now, 

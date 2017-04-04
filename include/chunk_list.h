@@ -1275,7 +1275,7 @@ bool not_type(
  */
 bool is_type(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int32_t count,               /**< [in] number of token types to check */
+   uint32_t count,          /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1286,7 +1286,7 @@ bool is_type(
  */
 bool is_ptype(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int32_t count,               /**< [in] number of token types to check */
+   uint32_t count,          /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1297,7 +1297,7 @@ bool is_ptype(
  */
 bool not_type(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int32_t count,               /**< [in] number of token types to check */
+   uint32_t count,          /**< [in] number of token types to check */
    ...                      /**< [in] list of token types to check for */
 );
 
@@ -1341,7 +1341,7 @@ bool not_ptype(
  */
 bool not_ptype(
    const chunk_t* const pc, /**< [in] chunk to check */
-   int32_t count,               /**< [in] number of token types to check */
+   uint32_t count,          /**< [in] number of token types to check */
    ...                      /**< [in] list of parent token types to check for */
 );
 
