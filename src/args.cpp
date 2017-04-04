@@ -64,14 +64,14 @@ bool Args::Present(const char *token)
 }
 
 
-const char *Args::Param(const char *token)
+const char* Args::Param(const char* token)
 {
    uint32_t idx = 0;
    return(Params(token, idx));
 }
 
 
-const char *Args::Params(const char *token, uint32_t &index)
+const char* Args::Params(const char* token, uint32_t& index)
 {
    retval_if(ptr_is_invalid(token), token);
 
@@ -155,8 +155,7 @@ uint32_t Args::SplitLine(char* text, char* args[], uint32_t num_args)
    {
       /* Detect the start of an arg */
       static bool in_arg = false;
-      if ( (in_arg == false    ) &&
-           (!unc_isspace(*text)) )
+      if ( (in_arg == false) && (!unc_isspace(*text)) )
       {
          in_arg     = true;
          args[argc] = dest;

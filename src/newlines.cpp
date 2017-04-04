@@ -2258,6 +2258,8 @@ void newlines_remove_newlines(void)
 }
 
 
+#if 0
+// currently not used
 static void newlines_struct_union(chunk_t* start, argval_t nl_opt, bool leave_trailing)
 {
    LOG_FUNC_ENTRY();
@@ -2288,6 +2290,7 @@ static void newlines_struct_union(chunk_t* start, argval_t nl_opt, bool leave_tr
       nl_iarf_pair(start, pc, nl_opt);
    }
 }
+#endif
 
 
 void newlines_cleanup_braces(bool first)
@@ -3333,26 +3336,28 @@ void nl_class_colon_pos(c_token_t tok)
 }
 
 
+#if 0
+// currently not used
 static void _blank_line_max(chunk_t* pc, const char* text, uo_t uo)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
 
-   const option_map_value_t *option = get_option_name(uo);
+   const option_map_value_t* option = get_option_name(uo);
    if (option->type != AT_UNUM)
    {
       fprintf(stderr, "Program error for UO_=%d\n", static_cast<int32_t>(uo));
       fprintf(stderr, "Please make a report\n");
       exit(2);
    }
-   if ((get_uval(uo) > 0) &&
-       (pc->nl_count > get_uval(uo)))
+   if ((get_uval(uo) > 0) && (pc->nl_count > get_uval(uo)))
    {
       LOG_FMT(LBLANKD, "do_blank_lines: %s max line %u\n", text + 3, pc->orig_line);
       pc->nl_count = get_uval(uo);
       MARK_CHANGE();
    }
 }
+#endif
 
 
 void do_blank_lines(void)

@@ -1812,17 +1812,17 @@ static bool kw_fcn_function(chunk_t* cmt, unc_text& out_txt)
 
 static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 {
-   chunk_t *fcn = get_next_function(cmt);
+   chunk_t* fcn = get_next_function(cmt);
    retval_if(is_invalid(fcn), false);
 
-   chunk_t *fpo;
-   chunk_t *fpc;
-   bool    has_param = true;
-   bool    need_nl   = false;
+   chunk_t* fpo;
+   chunk_t* fpc;
+   bool     has_param = true;
+   bool     need_nl   = false;
 
    if (is_type(fcn, CT_OC_MSG_DECL))
    {
-      chunk_t *tmp = get_next_ncnl(fcn);
+      chunk_t* tmp = get_next_ncnl(fcn);
       has_param = false;
       while (tmp)
       {
@@ -1850,7 +1850,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
       retval_if(is_invalid(fpc), true);
    }
 
-   chunk_t *tmp;
+   chunk_t* tmp;
    /* Check for 'foo()' and 'foo(void)' */
    if (get_next_ncnl(fpo) == fpc)
    {
@@ -1868,7 +1868,7 @@ static bool kw_fcn_javaparam(chunk_t *cmt, unc_text &out_txt)
 
    if (has_param == true)
    {
-      chunk_t *prev = nullptr;
+      chunk_t* prev = nullptr;
       tmp = fpo;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
@@ -1917,7 +1917,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    if (is_flag(fcn, PCF_IN_CLASS))
    {
       /* if inside a class, we need to find to the class name */
-      chunk_t *tmp = get_prev_type(fcn, CT_BRACE_OPEN, (int32_t)(fcn->level - 1));
+      chunk_t* tmp = get_prev_type(fcn, CT_BRACE_OPEN, (int32_t)(fcn->level - 1));
       assert(is_valid(tmp));
       tmp = get_prev_type(tmp, CT_CLASS, (int32_t)tmp->level);
       tmp = get_next_ncnl(tmp);
@@ -1936,7 +1936,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
    else
    {
       /* if outside a class, we expect "CLASS::METHOD(...)" */
-      chunk_t *tmp = get_prev_ncnl(fcn);
+      chunk_t* tmp = get_prev_ncnl(fcn);
       if(is_type(tmp, CT_OPERATOR))
       {
          tmp = get_prev_ncnl(tmp);

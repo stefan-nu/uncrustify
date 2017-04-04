@@ -566,7 +566,7 @@ static void examine_brace(chunk_t* bopen)
    if (is_closing_rbrace(pc))
    {
       chunk_t *next = get_next_ncnl(pc);
-      while (is_type(next, CT_VBRACE_CLOSE) ) /* \todo better use chunk search fct */
+      while (is_closing_vbrace(next) ) /* \todo better use chunk search fct */
       {
          next = get_next_ncnl(next);
       }
@@ -627,13 +627,9 @@ static void convert_brace(chunk_t* br)
    LOG_FUNC_ENTRY();
    return_if(is_invalid_or_flag(br, PCF_KEEP_BRACE));
 
-   chunk_t* tmp;
-   switch(br->type)
-   {
-      case(CT_BRACE_OPEN ): { set_type(br, CT_VBRACE_OPEN ); br->str.clear(); tmp = chunk_get_prev(br); break; }
-      case(CT_BRACE_CLOSE): { set_type(br, CT_VBRACE_CLOSE); br->str.clear(); tmp = chunk_get_next(br); break; }
-      default:              { /* unexpected type */   return;     }
-   }
+   chunk_t* tmp = nullptr;
+   if(is_opening_rbrace(br)) { set_type(br, CT_VBRACE_OPEN ); br->str.clear(); tmp = chunk_get_prev(br); }
+   if(is_closing_rbrace(br)) { set_type(br, CT_VBRACE_CLOSE); br->str.clear(); tmp = chunk_get_next(br); }
 
    if (is_nl(tmp))
    {
@@ -937,12 +933,12 @@ void add_long_closebrace_comment(void)
                    (nl_count >= nl_min) &&
                    is_valid(tag_pc)     )
                {
-                  /* determine the added comment style */
-                  const c_token_t style = (is_lang(cpd, LANG_CPPCS)) ?
+                  /* use the comment style that fits to the selected language */
+                  const c_token_t cmt_style = (is_lang(cpd, LANG_CPPCS)) ?
                                     CT_COMMENT_CPP : CT_COMMENT;
 
                   /* Add a comment after the close brace */
-                  insert_comment_after(br_close, style, xstr);
+                  insert_comment_after(br_close, cmt_style, xstr);
                }
             }
             break;
@@ -1112,7 +1108,7 @@ static void mod_case_brace(void)
       }
       else if (is_arg_set(UO_mod_case_brace, AV_ADD) &&
                is_type (pc,   CT_CASE_COLON) &&
-               not_type(next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE  ) )
+               not_type(next, CT_BRACE_OPEN, CT_BRACE_CLOSE, CT_CASE) )
       {
          pc = mod_case_brace_add(pc);
       }

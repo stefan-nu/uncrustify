@@ -7,7 +7,7 @@
  *          October 2015, 2016
  * @license GPL v2+
  */
-#include "uncrustify_types.h"
+
 #include "args.h"
 #include "chunk_list.h"
 #include "uncrustify_version.h"
@@ -82,7 +82,7 @@ static ug_t                   current_group; /**< defines the currently active o
 
 #ifdef DEBUG
 static int32_t checkGroupNumber  = -1;
-static int32_t checkOptionNumber = -1;
+//static int32_t checkOptionNumber = -1;
 #endif
 
 
@@ -242,6 +242,10 @@ int32_t get_ival(const uo_t opt)
 tokenpos_t get_tok(const uo_t opt)
 {
    return(cpd.settings[opt].tp);
+}
+StarStyle_t get_star(const uo_t opt)
+{
+   return static_cast<StarStyle_t>(get_uval(opt));
 }
 
 void set_arg(const uo_t opt, argval_t val)

@@ -16,6 +16,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include "enum_types.h"
 #include "uncrustify_types.h"
 
 /**
@@ -947,6 +948,9 @@ int32_t get_ival(
    const uo_t opt /**< [in] uncrustify option to use */
 );
 tokenpos_t get_tok(
+   const uo_t opt /**< [in] uncrustify option to use */
+);
+StarStyle_t get_star(
    const uo_t opt /**< [in] uncrustify option to use */
 );
 

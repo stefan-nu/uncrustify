@@ -14,6 +14,7 @@
 using namespace std;
 
 #include "base_types.h"
+#include "enum_types.h"
 #include "options.h"
 #include "token_enum.h"
 #include "log_levels.h"
@@ -193,14 +194,6 @@ struct parse_frame_t
 #define PCF_OC_ATYPE           PCF_BIT(38)  /**< inside OC arg type */
 #define PCF_WF_ENDIF           PCF_BIT(39)  /**< #endif for whole file ifdef */
 #define PCF_IN_QT_MACRO        PCF_BIT(40)  /**< in a QT-macro, i.e. SIGNAL, SLOT */
-
-
-typedef enum StarStyle_e
-{
-   SS_IGNORE,   /**< don't look for prev stars */
-   SS_INCLUDE,  /**< include prev * before add */
-   SS_DANGLE    /**< include prev * after  add */
-}StarStyle_t;
 
 
 typedef struct align_ptr_s

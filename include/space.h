@@ -55,11 +55,13 @@ uint32_t space_col_align(
 
 
 /**
- * Determines if a space is required between two chunks
+ * Determines how many spaces are required between two chunks
+ *
+ * @return number of required spaces
  */
-uint32_t space_needed(
-   chunk_t* first, /**< [in]  */
-   chunk_t* second /**< [in]  */
+uint32_t how_many_spaces_are_needed(
+   chunk_t* first, /**< [in] first chunk */
+   chunk_t* second /**< [in] second chunk */
 );
 
 

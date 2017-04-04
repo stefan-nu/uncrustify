@@ -195,7 +195,7 @@ bool ptrs_are_invalid(const void* const ptr1, const void* const ptr2,
 }
 
 
-bool is_valid(const chunk_t*  const pc)
+bool is_valid(const chunk_t* const pc)
 {
    return (pc != nullptr);
 }
@@ -409,16 +409,9 @@ chunk_t* chunk_get_prev(chunk_t* cur, const scope_e scope)
 }
 
 
-chunk_t* chunk_get_head(void)
-{
-   return(g_cl.GetHead());
-}
+chunk_t* chunk_get_head(void) { return(g_cl.GetHead()); }
+chunk_t* chunk_get_tail(void) { return(g_cl.GetTail()); }
 
-
-chunk_t* chunk_get_tail(void)
-{
-   return(g_cl.GetTail());
-}
 
 bool are_corresponding(chunk_t* chunk1, chunk_t* chunk2)
 {
@@ -1258,16 +1251,8 @@ bool is_type_and_flag(const chunk_t* const pc, const c_token_t type,
 }
 
 
-bool is_flag(const chunk_t* const pc, const uint64_t flags)
-{
-   return (is_valid(pc) && (pc->flags & flags) == flags);
-}
-
-
-bool not_flag(const chunk_t* const pc, const uint64_t flags)
-{
-   return (is_valid(pc) && (pc->flags & flags) == 0);
-}
+bool is_flag (const chunk_t* const pc, const uint64_t flags) { return (is_valid(pc) && (pc->flags & flags) == flags); }
+bool not_flag(const chunk_t* const pc, const uint64_t flags) { return (is_valid(pc) && (pc->flags & flags) == 0    ); }
 
 
 chunk_t* chunk_skip_to_match(chunk_t* cur, const scope_e scope)
@@ -1298,7 +1283,7 @@ chunk_t* chunk_skip_to_match_rev(chunk_t* cur, const scope_e scope)
 }
 
 
-bool chunk_is_function(chunk_t* pc)
+bool chunk_is_function(const chunk_t* const pc)
 {
    return(is_type(pc, 5, CT_FUNC_CLASS_DEF,   CT_FUNC_PROTO,
                          CT_FUNC_CLASS_PROTO, CT_FUNC_DEF,
@@ -1306,89 +1291,41 @@ bool chunk_is_function(chunk_t* pc)
 }
 
 
-bool is_cmt(chunk_t* pc)
+bool is_cmt(const chunk_t* const pc)
 {
    return(is_type(pc, CT_COMMENT_MULTI, CT_COMMENT, CT_COMMENT_CPP));
 }
 
 
-bool is_nl(chunk_t* pc)
+bool is_nl(const chunk_t* const pc)
 {
    return(is_type(pc, CT_NEWLINE, CT_NL_CONT));
 }
 
+bool is_comma(const chunk_t* const pc) { return(is_type(pc, CT_COMMA   )); }
+bool is_ptr  (const chunk_t* const pc) { return(is_type(pc, CT_PTR_TYPE)); }
 
-bool is_comma(chunk_t* pc)
+
+bool chunk_empty(const chunk_t* const pc)
 {
-   return(is_type(pc, CT_COMMA));
+   return(is_valid(pc) && (pc->str.size() == 0));
 }
 
 
-bool is_ptr(chunk_t* pc)
-{
-   return(is_type(pc, CT_PTR_TYPE));
-}
+bool is_cmt_or_nl           (const chunk_t* const pc) { return(is_cmt      (pc) || is_nl       (pc)); }
+bool is_cmt_or_nl_in_preproc(const chunk_t* const pc) { return(is_preproc  (pc) && is_cmt_or_nl(pc)); }
+bool is_cmt_nl_or_preproc   (const chunk_t* const pc) { return(is_cmt_or_nl(pc) || is_preproc  (pc)); }
+bool is_cmt_nl_or_blank     (const chunk_t* const pc) { return(is_cmt_or_nl(pc) || chunk_empty (pc)); }
 
 
-bool chunk_empty(chunk_t* pc)
-{
-   return(is_valid(pc) && (pc->len() == 0));
-}
-
-
-bool is_cmt_or_nl(chunk_t* pc)
-{
-   return(is_cmt(pc) || is_nl (pc));
-}
-
-
-bool is_bal_square(chunk_t* pc)
+bool is_bal_square(const chunk_t* const pc)
 {
    return(is_type(pc, CT_SQUARE_OPEN, CT_TSQUARE, CT_SQUARE_CLOSE));
 }
 
-
-bool is_preproc(chunk_t* pc)
-{
-   return(is_flag(pc, PCF_IN_PREPROC));
-}
-
-
-bool is_no_preproc_type(chunk_t* pc)
-{
-   return ((pc->type < CT_PP_DEFINE) ||
-           (pc->type > CT_PP_OTHER ) );
-}
-
-
-bool is_cmt_or_nl_in_preproc(chunk_t* pc)
-{
-   return(is_preproc(pc) && is_cmt_or_nl(pc));
-}
-
-
-bool is_cmt_nl_or_preproc(chunk_t* pc)
-{
-   return(is_cmt_or_nl(pc) || is_preproc(pc));
-}
-
-
-bool is_cmt_nl_or_blank(chunk_t* pc)
-{
-   return(is_cmt_or_nl(pc) || chunk_empty(pc));
-}
-
-
-bool is_single_line_cmt(const chunk_t* const pc)
-{
-   return(is_type(pc, CT_COMMENT, CT_COMMENT_CPP));
-}
-
-
-bool is_semicolon(const chunk_t* const pc)
-{
-   return(is_type(pc, CT_SEMICOLON, CT_VSEMICOLON));
-}
+bool is_single_line_cmt(const chunk_t* const pc) { return(is_type(pc, CT_COMMENT, CT_COMMENT_CPP )); }
+bool is_semicolon      (const chunk_t* const pc) { return(is_type(pc, CT_SEMICOLON, CT_VSEMICOLON)); }
+bool chunk_is_member   (const chunk_t* const pc) { return(is_type(pc, CT_DC_MEMBER, CT_MEMBER    )); }
 
 
 bool is_var_type(const chunk_t* const pc)
@@ -1400,43 +1337,37 @@ bool is_var_type(const chunk_t* const pc)
 }
 
 
-bool chunk_is_member(chunk_t* pc)
-{
-   return(is_type(pc, CT_DC_MEMBER, CT_MEMBER));
-}
-
-
-bool is_opening_brace_of_if(chunk_t* pc)
+bool is_opening_brace_of_if(const chunk_t* const pc)
 {
    return (is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
            is_ptype(pc, CT_IF));
 }
 
 
-bool is_closing_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
-bool is_opening_brace (chunk_t* pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
-bool is_rbrace        (chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }
-bool is_opening_rbrace(chunk_t* pc) { return(is_type(pc,                  CT_BRACE_OPEN  )); }
-bool is_closing_rbrace(chunk_t* pc) { return(is_type(pc, CT_BRACE_CLOSE                  )); }
-bool is_vbrace        (chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN )); }
-bool is_opening_vbrace(chunk_t* pc) { return(is_type(pc,                  CT_VBRACE_OPEN )); }
-bool is_closing_vbrace(chunk_t* pc) { return(is_type(pc, CT_VBRACE_CLOSE                 )); }
+bool is_closing_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
+bool is_opening_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
+bool is_rbrace        (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }
+bool is_opening_rbrace(const chunk_t* const pc) { return(is_type(pc,                  CT_BRACE_OPEN  )); }
+bool is_closing_rbrace(const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE                  )); }
+bool is_vbrace        (const chunk_t* const pc) { return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN )); }
+bool is_opening_vbrace(const chunk_t* const pc) { return(is_type(pc,                  CT_VBRACE_OPEN )); }
+bool is_closing_vbrace(const chunk_t* const pc) { return(is_type(pc, CT_VBRACE_CLOSE                 )); }
 
 
-bool is_fparen_open(chunk_t* pc)
+bool is_fparen_open(const chunk_t* const pc)
 {
    return(is_type(pc, CT_FPAREN_OPEN));
 }
 
 
-bool is_paren_open(chunk_t* pc)
+bool is_paren_open(const chunk_t* const pc)
 {
    return(is_type(pc, CT_PAREN_OPEN,  CT_SPAREN_OPEN,
                       CT_TPAREN_OPEN, CT_FPAREN_OPEN));
 }
 
 
-bool is_paren_close(chunk_t* pc)
+bool is_paren_close(const chunk_t* const pc)
 {
    return(is_type(pc, CT_PAREN_CLOSE,  CT_SPAREN_CLOSE,
                       CT_TPAREN_CLOSE, CT_FPAREN_CLOSE));
@@ -1447,7 +1378,7 @@ bool is_str(chunk_t* pc, const char* str)
 {
    retval_if(ptrs_are_invalid(pc, str), false);
    uint32_t len = strlen(str);
-   return((pc->len() == len) && /* string length has to be equal */
+   return((pc->str.size() == len) && /* string length has to be equal */
           (memcmp(pc->text(), str, len) == 0) ); /* strings are equal considering case */
 }
 
@@ -1456,31 +1387,22 @@ bool is_str_case(chunk_t* pc, const char* str)
 {
    retval_if(ptrs_are_invalid(pc, str), false);
    uint32_t len = strlen(str);
-   return((pc->len() == len) && /* string length has to be equal */
+   return((pc->str.size() == len) && /* string length has to be equal */
           (strncasecmp(pc->text(), str, len) == 0)); /* strings are equal ignoring case */
 }
 
 
-bool is_word(chunk_t* pc)
+bool is_word(const chunk_t* const pc)
 {
-   return(is_valid(pc) && (pc->len() >= 1u) &&
+   return(is_valid(pc) && (pc->str.size() >= 1u) &&
           (CharTable::IsKW1((uint32_t)pc->str[0])) );
 }
-
-
-bool is_star(chunk_t* pc)
-{
-   return(is_valid(pc) && (pc->len() == 1) &&
-          (pc->str[0] == '*'            ) &&
-          (pc->type   != CT_OPERATOR_VAL) );
-}
-
 
 bool is_addr(chunk_t* pc)
 {
    if (  (is_valid(pc)           ) &&
        ( (pc->type   == CT_BYREF ) ||
-        ((pc->len()  ==  1       ) &&
+        ((pc->str.size() == 1    ) &&
          (pc->str[0] == '&'      ) &&
          not_type(pc, CT_OPERATOR_VAL) )))
    {
@@ -1498,13 +1420,21 @@ bool is_addr(chunk_t* pc)
 }
 
 
+bool is_star(const chunk_t* const pc)
+{
+   return(is_valid(pc) && (pc->str.size() == 1) &&
+          (pc->str[0] == '*'            ) &&
+          (pc->type   != CT_OPERATOR_VAL) );
+}
+
+
 /* ms compilers for C++/CLI and WinRT use '^' instead of '*'
  * for marking up reference types vs pointer types */
-bool is_msref(chunk_t* pc)
+bool is_msref(const chunk_t* const pc)
 {
    return(is_lang(cpd, LANG_CPP       ) &&
           (is_valid(pc)               ) &&
-          (pc->len()  == 1            ) &&
+          (pc->str.size() == 1        ) &&
           (pc->str[0] == '^'          ) &&
           not_type(pc, CT_OPERATOR_VAL) );
 }
@@ -1518,10 +1448,22 @@ bool is_ptr_operator(chunk_t* pc)
 }
 
 
+bool is_preproc(const chunk_t* const pc)
+{
+   return(is_flag(pc, PCF_IN_PREPROC));
+}
+
+
+bool is_no_preproc_type(const chunk_t* const pc)
+{
+   return ((pc->type < CT_PP_DEFINE) ||
+           (pc->type > CT_PP_OTHER ) );
+}
+
+
 bool are_same_pp(const chunk_t* const pc1, const chunk_t* const pc2)
 {
-   return( are_valid(pc1, pc2) &&
-          (is_flag(pc1, PCF_IN_PREPROC) == is_flag(pc2, PCF_IN_PREPROC)));
+   return are_valid(pc1, pc2) && (is_preproc(pc1) == is_preproc(pc2));
 }
 
 

@@ -224,7 +224,7 @@ bool chunk_and_prev_are_valid(
  * for a function pointer of type
  * bool function(chunk_t* pc)
  ******************************************************************************/
-typedef bool (*check_t)(chunk_t* pc);
+typedef bool (*check_t)(const chunk_t* const pc);
 
 
 /***************************************************************************//**
@@ -842,7 +842,10 @@ bool is_type_and_level(
 
 
 /**
- * Check to see if there is a newline between the two chunks
+ * Check if there is a newline between two chunks
+ *
+ * @retval true  there is at least one newline
+ * @retval false there is          no  newline
  */
 bool is_newline_between(
    chunk_t* start, /**< [in] chunk where check starts */
@@ -862,7 +865,7 @@ bool is_ptr_operator(
  * check if a chunk is valid and holds a newline
  */
 bool is_nl(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -870,7 +873,7 @@ bool is_nl(
  * check if a chunk is valid and holds a comma
  */
 bool is_comma(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -878,7 +881,7 @@ bool is_comma(
  * check if a chunk is a pointer
  */
 bool is_ptr(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -886,7 +889,7 @@ bool is_ptr(
  * check if a chunk is valid and holds an empty string
  */
 bool chunk_empty(
-chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -894,7 +897,7 @@ chunk_t* pc /**< [in] chunk to check */
  * check if a chunk is valid and holds any part of a function
  */
 bool chunk_is_function(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -908,7 +911,7 @@ bool chunk_is_function(
  * - C++ comment
  */
 bool is_cmt(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -916,7 +919,7 @@ bool is_cmt(
  * checks if a chunk is valid and either a comment or newline
  */
 bool is_cmt_or_nl(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -924,7 +927,7 @@ bool is_cmt_or_nl(
  * tbd
  */
 bool is_bal_square(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -932,7 +935,7 @@ bool is_bal_square(
  * check if a chunk is valid and holds a part of a preprocessor region
  */
 bool is_preproc(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -940,7 +943,7 @@ bool is_preproc(
  * check if a chunk is valid and has a type that is not part of a preprocessor region
  */
 bool is_no_preproc_type(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -949,7 +952,7 @@ bool is_no_preproc_type(
  * a preprocessor region
  */
 bool is_cmt_or_nl_in_preproc(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -957,7 +960,7 @@ bool is_cmt_or_nl_in_preproc(
  * check if a chunk is valid and holds a newline or blank character
  */
 bool is_cmt_nl_or_blank(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -966,7 +969,7 @@ bool is_cmt_nl_or_blank(
  * a preprocessor part
  */
 bool is_cmt_nl_or_preproc(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1404,7 +1407,7 @@ bool is_str_case(
  * tbd
  */
  bool is_word(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1412,7 +1415,7 @@ bool is_str_case(
   * tbd
   */
 bool is_star(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1428,7 +1431,7 @@ bool is_addr(
  * tbd
  */
 bool is_msref(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1437,13 +1440,13 @@ bool is_msref(
  * thus is either "->" or "::"
  */
 bool chunk_is_member(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
 /** check if a brace belongs to an if statement */
 bool is_opening_brace_of_if(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1451,7 +1454,7 @@ bool is_opening_brace_of_if(
  * check if a chunk is a real or virtual closing brace
  */
 bool is_closing_brace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1459,7 +1462,7 @@ bool is_closing_brace(
  * check if a chunk is a virtual opening brace
  */
 bool is_opening_vbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1467,7 +1470,7 @@ bool is_opening_vbrace(
  * check if a chunk is a virtual closing brace
  */
 bool is_closing_vbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1475,7 +1478,7 @@ bool is_closing_vbrace(
  * check if a chunk is a real or virtual opening brace
  */
 bool is_opening_brace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1483,7 +1486,7 @@ bool is_opening_brace(
  * check if a chunk is a opening or closing real brace
  */
 bool is_rbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1491,14 +1494,14 @@ bool is_rbrace(
  * check if a chunk is a opening real brace
  */
 bool is_opening_rbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 /**
  * check if a chunk is a closing real brace
  */
 bool is_closing_rbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1506,7 +1509,7 @@ bool is_closing_rbrace(
  * check if a chunk is a opening or closing virtual brace
  */
 bool is_vbrace(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1514,7 +1517,7 @@ bool is_vbrace(
  * check if a chunk is a function opening parenthese
  */
 bool is_fparen_open(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1522,7 +1525,7 @@ bool is_fparen_open(
  * check if a chunk is any kind of opening parenthesis
  */
 bool is_paren_open(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 
@@ -1530,7 +1533,7 @@ bool is_paren_open(
  * check if a chunk is any kind of closing parenthesis
  */
 bool is_paren_close(
-   chunk_t* pc /**< [in] chunk to check */
+   const chunk_t* const pc /**< [in] chunk to check */
 );
 
 

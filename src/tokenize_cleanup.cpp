@@ -361,9 +361,9 @@ void tokenize_cleanup(void)
                break_if(not_type(tmp, 7, CT_WORD, CT_AMP,  CT_TSQUARE,
                            CT_QUALIFIER, CT_TYPE, CT_STAR, CT_CARET));
 
-               /* Change tmp into a type so that space_needed() works right */
+               /* Change tmp into a type to use it in function call */
                make_type(tmp);
-               uint32_t num_sp = space_needed(tmp2, tmp);
+               uint32_t num_sp = how_many_spaces_are_needed(tmp2, tmp);
                while (num_sp-- > 0)
                {
                   next->str.append(" ");

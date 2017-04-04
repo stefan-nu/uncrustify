@@ -243,7 +243,7 @@ void brace_cleanup(void)
       if (is_lang(cpd, LANG_PAWN))
       {
          if ((frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN) &&
-              is_type(pc,  CT_NEWLINE) )
+              is_type(pc, CT_NEWLINE) )
          {
             pc = pawn_check_vsemicolon(pc);
          }
@@ -255,11 +255,8 @@ void brace_cleanup(void)
       pc->brace_level = frm.brace_level;
       pc->pp_level    = pp_level;
 
-
-      /**
-       * #define bodies get the full formatting treatment
-       * Also need to pass in the initial '#' to close out any virtual braces.
-       */
+      /* #define bodies get the full formatting treatment
+       * Also need to pass in the initial '#' to close out any virtual braces. */
       if (!is_cmt_or_nl(pc) &&
           is_type(cpd.is_preproc, CT_PP_DEFINE, CT_NONE))
       {
@@ -291,14 +288,12 @@ static bool maybe_while_of_do(chunk_t* pc)
    }
 #endif
 
-   return(is_ptype(prev, CT_DO) &&
-          is_type (prev, CT_VBRACE_CLOSE, CT_BRACE_CLOSE)) ?
-            true : false;
+   return(is_ptype(prev, CT_DO) && is_closing_brace(prev)) ? true : false;
 }
 
 
-static void push_fmr_pse(parse_frame_t *frm, chunk_t* pc,
-                         brace_stage_e stage, const char *logtext)
+static void push_fmr_pse(parse_frame_t* frm, chunk_t* pc,
+                         brace_stage_e stage, const char* logtext)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
@@ -375,7 +370,7 @@ static void push_fmr_pse(parse_frame_t *frm, chunk_t* pc,
  * When a #define is entered, the current frame is pushed and cleared.
  * When a #define is exited, the frame is popped.
  */
-static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
+static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
@@ -690,9 +685,9 @@ static void parse_cleanup(parse_frame_t *frm, chunk_t* pc)
       LOG_FMT(LSTMT, "%s: %u> reset expr on %s\n", __func__, pc->orig_line, pc->text());
    }
 
-   else if (is_type(pc, CT_BRACE_CLOSE) &&
-            cpd.consumed     == false   &&
-            cpd.unc_off_used == false   )
+   else if (is_closing_rbrace(pc)     &&
+            cpd.consumed     == false &&
+            cpd.unc_off_used == false )
    {
       /* fatal error */
       fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%u, column=%u\n",
@@ -788,7 +783,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::OP_PAREN1;
          return(true);
       }
-      else if (is_type(pc, CT_BRACE_OPEN))
+      else if (is_opening_rbrace(pc))
       {
          frm->pse[frm->pse_tos].stage = brace_stage_e::BRACE2;
          return(false);
@@ -814,7 +809,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
    }
 
    /* Insert a CT_VBRACE_OPEN, if needed */
-   if ( not_type(pc, CT_BRACE_OPEN                     )   &&
+   if ( not_type(pc, CT_BRACE_OPEN)   &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
@@ -851,7 +846,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
    }
 
    /* Verify open parenthesis in complex statement */
-   if ( not_type(pc, CT_PAREN_OPEN                      )   &&
+   if ( not_type(pc, CT_PAREN_OPEN) &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1   ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN) ) )
    {
@@ -996,8 +991,7 @@ static chunk_t* insert_vbrace(chunk_t* pc, bool after, parse_frame_t *frm)
       }
 
       /* Don't back into a preprocessor */
-      if (!is_preproc(pc ) &&
-           is_preproc(ref) )
+      if (!is_preproc(pc) && is_preproc(ref) )
       {
          const bool is_pp_body = is_type(ref, CT_PREPROC_BODY);
          ref = (is_pp_body) ? get_prev_non_pp(ref): chunk_get_next (ref);
