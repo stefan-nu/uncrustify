@@ -38,11 +38,11 @@ public:
 
    ~sp_votes(void);
 
-   void vote(chunk_t *first, chunk_t *second);
+   void vote(chunk_t* first, chunk_t* second);
 };
 
 
-void sp_votes::vote(chunk_t *first, chunk_t *second)
+void sp_votes::vote(chunk_t* first, chunk_t* second)
 {
    return_if(are_invalid(first, second) ||
              is_nl(first) || is_nl(second) );

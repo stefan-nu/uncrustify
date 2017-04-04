@@ -25,7 +25,7 @@
 /***************************************************************************//**
  * @brief prototype for a function that checks a chunk for some condition
  ******************************************************************************/
-typedef bool (*chunk_check_t)(chunk_t* pc);
+typedef bool (*chunk_check_t)(const chunk_t* const pc);
 
 
 typedef ListManager<chunk_t>::dir_e dir_e;
@@ -629,7 +629,7 @@ chunk_t* get_prev_ncnlnp(
 chunk_t* get_next_type(
    chunk_t*        cur,   /**< [in] Starting chunk */
    const c_token_t type,  /**< [in] The type to look for */
-   const int32_t   level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const int32_t   level = ANY_LEVEL,   /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e   scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -642,7 +642,7 @@ chunk_t* get_next_type(
 chunk_t* get_prev_type(
    chunk_t*        cur,   /**< [in] Starting chunk */
    const c_token_t type,  /**< [in] The type to look for */
-   const int32_t   level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const int32_t   level = ANY_LEVEL,   /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e   scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -660,7 +660,7 @@ chunk_t* get_next_str(
    chunk_t*       cur,   /**< [in] Starting chunk */
    const char*    str,   /**< [in] string to search for */
    const uint32_t len,   /**< [in] length of string */
-   const int32_t  level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const int32_t  level = ANY_LEVEL,   /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e  scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -678,7 +678,7 @@ chunk_t* get_prev_str(
    chunk_t*       cur,   /**< [in] Starting chunk */
    const char*    str,   /**< [in] string to search for */
    const uint32_t len,   /**< [in] length of string */
-   const int32_t  level, /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
+   const int32_t  level = ANY_LEVEL,   /**< [in] -1 or ANY_LEVEL (any level) or the level to match */
    const scope_e  scope = scope_e::ALL /**< [in] code region to search in */
 );
 
@@ -837,7 +837,7 @@ bool exceeds_level(
 bool is_type_and_level(
    const chunk_t*  pc,   /**< [in] chunk to check */
    const c_token_t type, /**< [in] expected type */
-   const int32_t   level /**< [in] expected level or -1 to ignore level */
+   const int32_t   level = ANY_LEVEL /**< [in] expected level or -1 to ignore level */
 );
 
 
@@ -1451,6 +1451,14 @@ bool is_opening_brace_of_if(
 
 
 /**
+ * check if a chunk is a real or virtual brace opening or closing
+ */
+bool is_any_brace(
+   const chunk_t* const pc /**< [in] chunk to check */
+);
+
+
+/**
  * check if a chunk is a real or virtual closing brace
  */
 bool is_closing_brace(
@@ -1581,32 +1589,32 @@ bool is_forin(
 
 /* check if a chunk is either if, else or elseif */
 bool is_if_else_elseif(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 /* check if a chunk is a for statement */
 bool is_for(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 /* check if a chunk is a do statement */
 bool is_do(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 /* check if a chunk is a while statement */
 bool is_while(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 /* check if a chunk is a using statement */
 bool is_using(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 /* check if a chunk is a function statement */
 bool is_fct(
-   chunk_t* pc /**< [in] chunk to start search with */
+   const chunk_t* const pc /**< [in] chunk to start search with */
 );
 
 

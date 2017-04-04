@@ -549,7 +549,7 @@ void align_backslash_newline(void)
    {
       if (not_type(pc, CT_NL_CONT))
       {
-         pc = get_next_type(pc, CT_NL_CONT, -1);
+         pc = get_next_type(pc, CT_NL_CONT);
          continue;
       }
       pc = align_nl_cont(pc);
@@ -627,7 +627,7 @@ void align_struct_initializers(void)
       {
          align_init_brace(pc);
       }
-      pc = get_next_type(pc, CT_BRACE_OPEN, -1);
+      pc = get_next_type(pc, CT_BRACE_OPEN);
    }
 }
 

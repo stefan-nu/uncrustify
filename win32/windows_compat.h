@@ -10,6 +10,7 @@
 #define WINDOWS_COMPAT_H_INCLUDED
 
 #include "windows.h"
+#include "inttypes.h"
 
 #define HAVE_SYS_STAT_H
 
@@ -25,7 +26,7 @@ typedef unsigned int         uint32_t;
 typedef unsigned long long   uint64_t;
 
 #ifndef PRIx64
-#define PRIx64    "llx"
+#define PRIx64   "I64d" // "llx"
 #endif
 
 /* eliminate GNU's attribute */

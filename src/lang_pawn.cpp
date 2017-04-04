@@ -411,7 +411,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    LOG_FUNC_ENTRY();
 
    /* Grab the open VBrace */
-   const chunk_t *vb_open = get_prev_type(pc, CT_VBRACE_OPEN, -1);
+   const chunk_t *vb_open = get_prev_type(pc, CT_VBRACE_OPEN);
 
    /** Grab the item before the newline
     * Don't do anything if:

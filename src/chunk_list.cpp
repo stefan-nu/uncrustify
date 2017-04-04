@@ -82,7 +82,7 @@ chunk_t* chunk_search_typelevel(
    const c_token_t type,                 /**< [in] category to search for */
    const scope_e   scope = scope_e::ALL, /**< [in] code parts to consider for search */
    const dir_e     dir   = dir_e::AFTER, /**< [in] search direction */
-   const int32_t   level = -1            /**< {in] -1 or ANY_LEVEL or the level to match */
+   const int32_t   level = ANY_LEVEL     /**< {in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -115,9 +115,9 @@ chunk_t* chunk_search_str(
    chunk_t*       cur,   /**< [in] chunk to start search at */
    const char*    str,   /**< [in] string to search for */
    const uint32_t len,   /**< [in] length of string */
-   const scope_e  scope, /**< [in] code parts to consider for search */
-   const dir_e    dir,   /**< [in] search direction */
-   const int32_t  level  /**< [in] -1 or ANY_LEVEL or the level to match */
+   const scope_e  scope = scope_e::ALL, /**< [in] code parts to consider for search */
+   const dir_e    dir   = dir_e::AFTER, /**< [in] search direction */
+   const int32_t  level = ANY_LEVEL     /**< [in] -1 or ANY_LEVEL or the level to match */
 );
 
 
@@ -901,12 +901,12 @@ bool is_forin(chunk_t* pc)
 }
 
 
-bool is_if_else_elseif(chunk_t* pc) { return is_ptype(pc, CT_IF, CT_ELSE, CT_ELSEIF); }
-bool is_for           (chunk_t* pc) { return is_ptype(pc, CT_FOR                   ); }
-bool is_do            (chunk_t* pc) { return is_ptype(pc, CT_DO                    ); }
-bool is_while         (chunk_t* pc) { return is_ptype(pc, CT_WHILE                 ); }
-bool is_using         (chunk_t* pc) { return is_ptype(pc, CT_USING_STMT            ); }
-bool is_fct           (chunk_t* pc) { return is_ptype(pc, CT_FUNC_DEF              ); }
+bool is_if_else_elseif(const chunk_t* const pc) { return is_ptype(pc, CT_IF, CT_ELSE, CT_ELSEIF); }
+bool is_for           (const chunk_t* const pc) { return is_ptype(pc, CT_FOR                   ); }
+bool is_do            (const chunk_t* const pc) { return is_ptype(pc, CT_DO                    ); }
+bool is_while         (const chunk_t* const pc) { return is_ptype(pc, CT_WHILE                 ); }
+bool is_using         (const chunk_t* const pc) { return is_ptype(pc, CT_USING_STMT            ); }
+bool is_fct           (const chunk_t* const pc) { return is_ptype(pc, CT_FUNC_DEF              ); }
 
 
 bool is_type_and_ptype(const chunk_t* const pc, const c_token_t type,
@@ -1343,7 +1343,7 @@ bool is_opening_brace_of_if(const chunk_t* const pc)
            is_ptype(pc, CT_IF));
 }
 
-
+bool is_any_brace     (const chunk_t* const pc) { return(is_rbrace(pc) || is_vbrace(pc)); }
 bool is_closing_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
 bool is_opening_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
 bool is_rbrace        (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }

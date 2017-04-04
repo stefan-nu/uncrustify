@@ -159,22 +159,17 @@ static void convert_vbrace_pair(
 //TODO: this should take in const refs, like almost all chunk OP
 bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t = CT_SPAREN_CLOSE)
 {
-   if (is_invalid(brace)
-       || not_type(brace, CT_BRACE_OPEN, CT_BRACE_CLOSE)
-       || (   brace->ptype != CT_IF
-           && brace->ptype != CT_ELSEIF
-           && brace->ptype != CT_FOR
-           && brace->ptype != CT_USING_STMT
-           && brace->ptype != CT_WHILE
-           && brace->ptype != CT_FUNC_CLASS_DEF
-           && brace->ptype != CT_FUNC_DEF))
+   if (is_invalid(brace) ||
+       not_type (brace, CT_BRACE_OPEN, CT_BRACE_CLOSE) ||
+       not_ptype(brace, 7, CT_IF, CT_ELSEIF, CT_FOR, CT_WHILE,
+             CT_USING_STMT, CT_FUNC_CLASS_DEF, CT_FUNC_DEF))
    {
       return(false);
    }
 
    /* find parenthesis pair of the if/for/while/... */
-   auto paren_close = get_prev_type(brace, paren_t, brace->level, scope_e::ALL);
-   auto paren_open  = chunk_skip_to_match_rev(paren_close, scope_e::ALL);
+   auto paren_close = get_prev_type(brace, paren_t, brace->level);
+   auto paren_open  = chunk_skip_to_match_rev(paren_close);
 
    if ((is_valid(paren_close) && paren_close != brace      ) &&
        (is_valid(paren_open ) && paren_open  != paren_close) )
@@ -275,8 +270,8 @@ static void examine_braces(void)
    chunk_t* pc = chunk_get_tail();
    while(is_valid(pc))
    {
-      chunk_t* prev = get_prev_type(pc, CT_BRACE_OPEN, -1);
-      if (is_type(pc, CT_BRACE_OPEN) && !is_preproc(pc))
+      chunk_t* prev = get_prev_type(pc, CT_BRACE_OPEN);
+      if (is_opening_rbrace(pc) && !is_preproc(pc))
       {
          chunk_check_t* ebc = ebc_list;
          for(uint32_t i=0; i < ebc_count; i++)
@@ -297,7 +292,7 @@ static void examine_braces(void)
 }
 
 
-static bool should_add_braces(chunk_t *vbopen)
+static bool should_add_braces(chunk_t* vbopen)
 {
    LOG_FUNC_ENTRY();
    const uint32_t nl_max = get_uval(UO_mod_full_brace_nl);
@@ -330,7 +325,7 @@ static bool should_add_braces(chunk_t *vbopen)
 
 
 // DRY with examine_brace
-static bool can_remove_braces(chunk_t *bopen)
+static bool can_remove_braces(chunk_t* bopen)
 {
    LOG_FUNC_ENTRY();
 
@@ -353,7 +348,7 @@ static bool can_remove_braces(chunk_t *bopen)
 
    /* Can't remove empty statement */
    retval_if(is_invalid_or_type(pc, CT_BRACE_CLOSE), false); /* Can't remove empty statement */
-   pc = get_next_nc(bopen, scope_e::ALL);
+   pc = get_next_nc(bopen);
    while ((is_valid(pc)) && (pc->level >= level))
    {
       if (is_preproc(pc))
@@ -1175,8 +1170,7 @@ static void process_if_chain(chunk_t* br_start)
             pc = get_next_ncnl(pc, scope_e::PREPROC);
          }
       }
-      break_if(is_invalid(pc));
-      break_if(not_type(pc, CT_VBRACE_OPEN, CT_BRACE_OPEN));
+      break_if(is_invalid(pc) || not_type(pc, CT_VBRACE_OPEN, CT_BRACE_OPEN));
    }
 
    if (must_have_braces)

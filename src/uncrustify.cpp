@@ -1868,7 +1868,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
    if (is_true(UO_mod_remove_extra_semicolon)) { remove_extra_semicolons(); }
    if (is_true(UO_mod_remove_empty_return   )) { remove_extra_returns();    }
    do_parens();
-   if (get_uval(UO_nl_remove_extra_newlines) == 2) { newlines_remove_newlines(); }
+   if (get_uval(UO_nl_remove_extra_newlines) == 2) { remove_newlines(); }
 
    bool first = true;
    int32_t  old_changes;
@@ -1881,12 +1881,12 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
 
       annotations_nl();
       newlines_cleanup_dup();
-      newlines_cleanup_braces(first);
+      cleanup_braces(first);
 
       if (is_true(UO_nl_after_multiline_comment)) { nl_after_multiline_cmt(); }
       if (is_true(UO_nl_after_label_colon      )) { newline_after_label_colon();       }
 
-      newlines_insert_blank_lines();
+      insert_blank_lines();
 
       set_nl_chunk_pos(UO_pos_bool,        UO_pos_bool,        CT_BOOL      );
       set_nl_chunk_pos(UO_pos_compare,     UO_pos_compare,     CT_COMPARE   );
@@ -1968,8 +1968,8 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
              (first       == true       ) )
          {
             /* retry line breaks caused by splitting 1-liners */
-            newlines_cleanup_braces(false);
-            newlines_insert_blank_lines();
+            cleanup_braces(false);
+            insert_blank_lines();
             first = false;
          }
       }

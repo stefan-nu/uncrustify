@@ -16,13 +16,13 @@
  * Remove all extra newlines.
  * Modify line breaks as needed.
  */
-void newlines_remove_newlines(void);
+void remove_newlines(void);
 
 
 /**
  * Step through all chunks.
  */
-void newlines_cleanup_braces(
+void cleanup_braces(
    bool first /**< [in]  */
 );
 
@@ -30,7 +30,7 @@ void newlines_cleanup_braces(
 /**
  * Handle insertion/removal of blank lines before if/for/while/do and functions
  */
-void newlines_insert_blank_lines(void);
+void insert_blank_lines(void);
 
 
 /**

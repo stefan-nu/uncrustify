@@ -870,16 +870,15 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
 
          for (tmp = get_prev_ncnl(pc); is_valid(tmp); tmp = get_prev_ncnl(tmp))
          {
-            break_if ((is_semicolon(tmp)) ||
-                      is_type(tmp, CT_BRACE_OPEN, CT_VBRACE_OPEN));
+            break_if (is_semicolon(tmp) || is_opening_brace(tmp));
             make_type(tmp);
          }
       }
 
       if (is_type(pc, CT_ALIGN))
       {
-         if (is_type(tmp, CT_BRACE_OPEN)) { set_paren_parent(tmp, pc->type); }
-         if (is_type(tmp, CT_COLON     )) { set_ptype       (tmp, pc->type); }
+         if (is_opening_rbrace(tmp)) { set_paren_parent(tmp, pc->type); }
+         if (is_type(tmp, CT_COLON)) { set_ptype       (tmp, pc->type); }
       }
    }
 
@@ -1065,7 +1064,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       if (is_paren_open(next))
       {
          chunk_t* tmp = flag_parens(next, 0, CT_NONE, CT_EXTERN, true);
-         if (is_type(tmp, CT_BRACE_OPEN))
+         if (is_opening_rbrace(tmp))
          {
             set_paren_parent(tmp, CT_EXTERN);
          }
@@ -1075,7 +1074,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          /* next likely is a string (see tokenize_cleanup.cpp) */
          set_ptype(next, CT_EXTERN);
          chunk_t* tmp = get_next_ncnl(next);
-         if (is_type(tmp, CT_BRACE_OPEN))
+         if (is_opening_rbrace(tmp))
          {
             set_paren_parent(tmp, CT_EXTERN);
          }
@@ -1231,7 +1230,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
             tmp = flag_parens(tmp, 0, CT_FPAREN_OPEN, pc->type, false);
             if (is_valid(tmp))
             {
-               if (is_type(tmp, CT_BRACE_OPEN))
+               if (is_opening_rbrace(tmp))
                {
                   if (not_ptype(tmp, CT_DOUBLE_BRACE) &&
                       not_flag(pc, PCF_IN_CONST_ARGS) )
@@ -1374,7 +1373,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
 
          tmp = get_next_ncnl(tmp);
       }
-      if (is_type(tmp, CT_BRACE_OPEN) )
+      if (is_opening_rbrace(tmp))
       {
          tmp = chunk_skip_to_match(tmp);
          tmp = get_next_ncnl(tmp);
@@ -1439,7 +1438,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       else if (is_type(pc, CT_STAR))
       {
          /* A star can have three meanings
-          * 1. CT_DEREF    = pointer dereferencation
+          * 1. CT_DEREF    = pointer dereferencing
           * 2. CT_PTR_TYPE = pointer definition
           * 3. CT_ARITH    = arithmetic multiplication */
          if (is_type(prev, CT_TYPE))
@@ -1450,7 +1449,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          {
             const c_token_t type = ( is_flag(prev, PCF_PUNCTUATOR)                    &&
                              (!is_paren_close(prev) || is_ptype(prev, CT_MACRO_FUNC)) &&
-                               not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER)          ) ?
+                               not_type(prev, CT_SQUARE_CLOSE, CT_DC_MEMBER)        ) ?
                                CT_DEREF : CT_ARITH;
             set_type(pc, type);
          }
@@ -1569,12 +1568,12 @@ static void check_double_brace_init(chunk_t* bo1)
    if (is_paren_close(pc))
    {
       chunk_t* bo2 = chunk_get_next(bo1);
-      if (is_type(bo2, CT_BRACE_OPEN))
+      if (is_opening_rbrace(bo2))
       {
          /* found a potential double brace */
          chunk_t* bc2 = chunk_skip_to_match(bo2);
          chunk_t* bc1 = chunk_get_next     (bc2);
-         if (is_type(bc1, CT_BRACE_CLOSE))
+         if (is_closing_rbrace(bc1))
          {
             LOG_FMT(LJDBI, " - end %u:%u\n", bc2->orig_line, bc2->orig_col);
             /* delete bo2 and bc1 */
@@ -1613,8 +1612,8 @@ void fix_symbols(void)
          handle_wrap(pc);
       }
 
-      if (             is_type(pc, CT_ASSIGN    )) { mark_lvalue            (pc); }
-      if ((is_java) && is_type(pc, CT_BRACE_OPEN)) { check_double_brace_init(pc); }
+      if (             is_type(pc, CT_ASSIGN)) { mark_lvalue            (pc); }
+      if ((is_java) && is_opening_rbrace(pc )) { check_double_brace_init(pc); }
    }
 
    pc = chunk_get_head();
@@ -1641,7 +1640,7 @@ void fix_symbols(void)
    /* 2nd pass - handle variable definitions
     * REVISIT: We need function params marked to do this (?) */
    pc = chunk_get_head();
-   int32_t square_level = -1;
+   int32_t square_level = ANY_LEVEL;
    while (is_valid(pc))
    {
       /* Can't have a variable definition inside [ ] */
@@ -1656,7 +1655,7 @@ void fix_symbols(void)
       {
          if (pc->level <= static_cast<uint32_t>(square_level))
          {
-            square_level = -1;
+            square_level = ANY_LEVEL;
          }
       }
 
@@ -1915,7 +1914,7 @@ static bool mark_function_type(chunk_t* pc)
    {
       set_ptype(aft, (is_flag(aft, PCF_IN_TYPEDEF)) ? CT_TYPEDEF : CT_FUNC_VAR);
    }
-   else if (is_type(aft, CT_BRACE_OPEN))
+   else if (is_opening_rbrace(aft))
    {
       flag_parens(aft, 0, CT_NONE, pt, false);
    }
@@ -1970,7 +1969,7 @@ static void process_returns(void)
    {
       if (not_type(pc, CT_RETURN) || is_preproc(pc))
       {
-         pc = get_next_type(pc, CT_RETURN, -1);
+         pc = get_next_type(pc, CT_RETURN);
          continue;
       }
       pc = process_return(pc);
@@ -2119,8 +2118,8 @@ static void fix_casts(chunk_t* start)
    chunk_t*    after;
    chunk_t*    last = nullptr;
    chunk_t*    paren_close;
-   const char* verb      = "likely";
-   const char* detail    = "";
+   const char* verb       = "likely";
+   const char* detail     = "";
    uint32_t    count      = 0;
    int         word_count = 0;
    bool        nope;
@@ -2354,7 +2353,7 @@ static void fix_enum_struct_union(chunk_t* pc)
       set_ptype(next, pc->type);
       prev = next;
       next = get_next_ncnl(next);
-//  \todo SN is this needed ? set_chunk_parent(next, pc->type);
+      // set_ptype(next, pc->type); //  \todo SN is this needed ?
 
       /* next up is either a colon, open brace, or open parenthesis (pawn) */
       return_if(is_invalid(next));
@@ -2374,7 +2373,7 @@ static void fix_enum_struct_union(chunk_t* pc)
          }
       }
    }
-   if (is_type(next, CT_BRACE_OPEN))
+   if (is_opening_rbrace(next))
    {
       /* \todo SN which function is the right one? */
 //    flag_series(pc, next, (is_type(pc, CT_ENUM)) ? PCF_IN_ENUM : PCF_IN_STRUCT);
@@ -2562,7 +2561,7 @@ static void fix_typedef(chunk_t* start)
    }
    return_if(is_invalid(next));
 
-   if (is_type(next, CT_BRACE_OPEN))
+   if (is_opening_rbrace(next))
    {
       set_ptype(next, tag);
       /* Skip to the closing brace */
@@ -2611,7 +2610,7 @@ void combine_labels(void)
       {
          hit_class = true;
       }
-      if (is_semicolon(next) || is_type(next, CT_BRACE_OPEN))
+      if (is_semicolon(next) || is_opening_rbrace(next))
       {
          hit_class = false;
       }
@@ -2883,8 +2882,8 @@ static void fix_fcn_def_params(chunk_t* start)
 
 static chunk_t* skip_to_next_statement(chunk_t* pc)
 {
-   while ( not_type (pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
-          !is_semicolon(pc                            ) )
+   while ( not_type(pc, CT_BRACE_OPEN, CT_BRACE_CLOSE) &&
+          !is_semicolon(pc                           ) )
    {
       pc = get_next_ncnl(pc);
    }
@@ -3395,8 +3394,8 @@ exit_loop:
             flag_parens(popen, 0, CT_PAREN_OPEN, CT_FUNC_TYPE, false);
          }
 
-         set_type(pc,   CT_TYPE    );
-         set_type(tmp1, CT_PTR_TYPE);
+         set_type (pc,   CT_TYPE    );
+         set_type (tmp1, CT_PTR_TYPE);
          clr_flags(pc,   PCF_VAR_1ST_DEF);
          set_flags(tmp2, PCF_VAR_1ST_DEF);
          flag_parens(tmp, 0, CT_FPAREN_OPEN, CT_FUNC_PROTO, false);
@@ -3642,7 +3641,7 @@ exit_loop:
       else if (is_level(tmp, pc->level))
       {
          /* its a function def for sure */
-         break_if(is_type(tmp, CT_BRACE_OPEN));
+         break_if(is_opening_rbrace(tmp));
 
          if (is_semicolon(tmp))
          {
@@ -3756,8 +3755,6 @@ exit_loop:
       tmp = get_next_ncnl(pclose);
       while (not_type(tmp, CT_BRACE_OPEN))
       {
-         //LOG_FMT(LSYS, "%s: set parent to FUNC_DEF on line %d: [%s]\n",
-         //     __func__, tmp->orig_line, tmp->text());
          set_ptype(tmp, CT_FUNC_DEF);
          if (!is_semicolon(tmp))
          {
@@ -3843,7 +3840,7 @@ static void mark_cpp_constructor(chunk_t* pc)
    }
    if (is_valid(tmp))
    {
-      if (is_type(tmp, CT_BRACE_OPEN))
+      if (is_opening_rbrace(tmp))
       {
          set_paren_parent(paren_open, CT_FUNC_CLASS_DEF);
          set_paren_parent(tmp,        CT_FUNC_CLASS_DEF);
@@ -3947,7 +3944,7 @@ static void mark_class_ctor(chunk_t* start)
          continue;
       }
 
-      if (is_type(pc, CT_BRACE_CLOSE) && (pc->brace_level < level))
+      if (is_closing_rbrace(pc) && (pc->brace_level < level))
       {
          LOG_FMT(LFTOR, "%s: %u] Hit brace close\n", __func__, pc->orig_line);
          pc = get_next_ncnl(pc, scope_e::PREPROC);
@@ -4670,7 +4667,7 @@ static void handle_oc_block_literal(chunk_t* pc)
             LOG_FMT(LOCBLK, "[PAREN]");
             apo = tmp;
          }
-         if (is_type(tmp, CT_BRACE_OPEN))
+         if (is_opening_rbrace(tmp))
          {
             LOG_FMT(LOCBLK, "[BRACE]");
             bbo = tmp;
@@ -4894,7 +4891,7 @@ static void handle_oc_message_decl(chunk_t* pc)
    assert(is_valid(pc));
    LOG_FMT(LOCMSGD, " end[%s]", pc->text());
 
-   if (is_type(pc, CT_BRACE_OPEN))
+   if (is_opening_rbrace(pc))
    {
       set_ptype(pc, pt);
       pc = chunk_skip_to_match(pc);
@@ -5039,7 +5036,7 @@ static void handle_oc_property_decl(chunk_t* os)
 {
    if (is_true(UO_mod_sort_oc_properties))
    {
-      typedef std::vector<chunk_t* > ChunkGroup;
+      typedef std::vector<chunk_t*> ChunkGroup;
       std::vector<ChunkGroup> thread_chunks;      // atomic/nonatomic
       std::vector<ChunkGroup> readwrite_chunks;   // readwrite, readonly
       std::vector<ChunkGroup> ref_chunks;         // retain, copy, assign, weak, strong, unsafe_unretained
@@ -5087,9 +5084,10 @@ static void handle_oc_property_decl(chunk_t* os)
                   chunkGroup.push_back(next);
                   ref_chunks.push_back(chunkGroup);
                }
-               else if (is_str(next, "getter"))
+               else if (is_str(next, "getter") ||
+                        is_str(next, "setter") )
                {
-                  do // DRY
+                  do
                   {
                      chunkGroup.push_back(next);
                      next = chunk_get_next(next);
@@ -5098,20 +5096,8 @@ static void handle_oc_property_decl(chunk_t* os)
                   next = next->prev;
                   break_if(is_invalid(next));
 
-                  getter_chunks.push_back(chunkGroup);
-               }
-               else if (is_str(next, "setter"))
-               {
-                  do // DRY
-                  {
-                     chunkGroup.push_back(next);
-                     next = chunk_get_next(next);
-                  } while (not_type(next, CT_COMMA, CT_PAREN_CLOSE));
-                  assert(is_valid(next));
-                  next = next->prev;
-                  break_if(is_invalid(next));
-
-                  setter_chunks.push_back(chunkGroup);
+                  if (is_str(next, "getter")) getter_chunks.push_back(chunkGroup);
+                  else  /* str=="setter" */   setter_chunks.push_back(chunkGroup);
                }
                else if (is_str(next, "nullable") ||
                         is_str(next, "nonnull" ) )
@@ -5282,7 +5268,7 @@ void remove_extra_returns(void)
          chunk_t* cl_br = get_next_ncnl(semi);
 
          if (are_types(semi, CT_SEMICOLON, cl_br, CT_BRACE_CLOSE) &&
-             is_ptype(cl_br, CT_FUNC_DEF, CT_FUNC_CLASS_DEF  ) )
+             is_ptype (cl_br, CT_FUNC_DEF, CT_FUNC_CLASS_DEF    ) )
          {
             LOG_FMT(LRMRETURN, "Removed 'return;' on line %u\n", pc->orig_line);
             chunk_del(pc);
@@ -5301,9 +5287,9 @@ static void handle_wrap(chunk_t* pc)
    chunk_t* opp  = chunk_get_next(pc);
    chunk_t* name = chunk_get_next(opp);
    chunk_t* clp  = chunk_get_next(name);
-   assert(are_valid(opp, name, clp));
+   return_if(are_invalid(opp, name, clp));
 
-   argval_t pav = (is_type(pc, CT_FUNC_WRAP)) ?
+   const argval_t pav = (is_type(pc, CT_FUNC_WRAP)) ?
                   get_arg(UO_sp_func_call_paren) :
                   get_arg(UO_sp_cpp_cast_paren );
 

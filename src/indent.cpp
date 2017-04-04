@@ -307,8 +307,8 @@ void align_to_column(chunk_t* pc, uint32_t column)
       break_if(is_invalid(next));
 
       int32_t min_delta = (int32_t)space_col_align(pc, next);
-      min_col  = (uint32_t)((int32_t)min_col + min_delta);
-      chunk_t  *prev = pc;
+      min_col  = min_col + (uint32_t)min_delta;
+      chunk_t* prev = pc;
       pc       = next;
 
       if (is_cmt(pc) && not_ptype(pc, CT_COMMENT_EMBED))
@@ -437,9 +437,6 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t* pc)
       uint32_t index = frm.pse_tos;
       memset(&frm.pse[index], 0, sizeof(paren_stack_entry_t));
 
-      //LOG_FMT(LINDPSE, "%s(%d):%d] (pp=%d) OPEN  [%d,%s] level=%d\n",
-      //        __func__, __LINE__, pc->orig_line, cpd.pp_level, frm.pse_tos, get_token_name(pc->type), pc->level);
-
       frm.pse[frm.pse_tos].pc          = pc;
       frm.pse[frm.pse_tos].type        = pc->type;
       frm.pse[frm.pse_tos].level       = pc->level;
@@ -454,8 +451,6 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t* pc)
    }
    else
    {
-      /* the stack depth is too small */
-      /* fatal error */
       fprintf(stderr, "the stack depth is too small\n");
       exit(EXIT_FAILURE);
    }
@@ -513,11 +508,11 @@ static uint32_t token_indent(c_token_t type)
 {
    switch (type)
    {
-      case CT_IF:           /* falltrough */
+      case CT_IF:           /* fallthrough */
       case CT_DO:           return(3);
-      case CT_FOR:          /* falltrough */
+      case CT_FOR:          /* fallthrough */
       case CT_ELSE:         return(4);  /* wacky, but that's what is wanted */
-      case CT_WHILE:        /* falltrough */
+      case CT_WHILE:        /* fallthrough */
       case CT_USING_STMT:   return(6);
       case CT_SWITCH:       return(7);
       case CT_ELSEIF:       return(8);
@@ -527,20 +522,18 @@ static uint32_t token_indent(c_token_t type)
 }
 
 
-#define indent_column_set(X)                                                  \
-   do {                                                                       \
-      indent_column = (X);                                                    \
+#define indent_column_set(X)                                                \
+   do {                                                                     \
+      indent_column = (X);                                                  \
       LOG_FMT(LINDENT2, "%s:[line %d], orig_line=%u, indent_column = %u\n", \
-              __func__, __LINE__, pc->orig_line, indent_column);              \
+              __func__, __LINE__, pc->orig_line, indent_column);            \
    } while (false)
 
 
 static uint32_t calc_indent_continue(const parse_frame_t &frm, uint32_t pse_tos)
 {
    int32_t ic = get_ival(UO_indent_continue);
-
-   if ((ic < 0) &&
-       frm.pse[pse_tos].indent_cont)
+   if ((ic < 0) && frm.pse[pse_tos].indent_cont)
    {
       return(frm.pse[pse_tos].indent);
    }
@@ -552,10 +545,9 @@ static chunk_t* oc_msg_block_indent(chunk_t* pc, bool from_brace,
       bool from_caret, bool from_colon,  bool from_keyword)
 {
    LOG_FUNC_ENTRY();
+   retval_if((from_brace == true), pc);
+
    chunk_t* tmp = get_prev_nc(pc);
-
-   retval_if(from_brace, pc);
-
    if (is_paren_close(tmp))
    {
       tmp = get_prev_nc(chunk_skip_to_match_rev(tmp));
@@ -568,8 +560,7 @@ static chunk_t* oc_msg_block_indent(chunk_t* pc, bool from_brace,
    retval_if(from_colon, tmp);
 
    tmp = get_prev_nc(tmp);
-   if (is_invalid (tmp                                ) ||
-       not_type(tmp, CT_OC_MSG_NAME, CT_OC_MSG_FUNC) )
+   if (is_invalid (tmp) || not_type(tmp, CT_OC_MSG_NAME, CT_OC_MSG_FUNC))
    {
       return(nullptr);
    }
@@ -580,7 +571,7 @@ static chunk_t* oc_msg_block_indent(chunk_t* pc, bool from_brace,
 
 static chunk_t* oc_msg_prev_colon(chunk_t* pc)
 {
-   return(get_prev_type(pc, CT_OC_COLON, (int32_t)pc->level, scope_e::ALL));
+   return(get_prev_type(pc, CT_OC_COLON, (int32_t)pc->level));
 }
 
 
@@ -2073,7 +2064,7 @@ void indent_text(void)
                                    CT_STRING, CT_PAREN_OPEN )) &&
                     is_type(prev,  CT_COND_COLON) ) )
          {
-            chunk_t* tmp = get_prev_type(prev, CT_QUESTION, -1);
+            chunk_t* tmp = get_prev_type(prev, CT_QUESTION);
             tmp = get_next_ncnl(tmp);
             assert(is_valid(tmp));
             log_and_reindent(pc, tmp->column, "ternarydefcol");
@@ -2081,7 +2072,7 @@ void indent_text(void)
          else if ((get_uval(UO_indent_ternary_operator) == 2) &&
                   is_type(pc, CT_COND_COLON))
          {
-            const chunk_t* tmp = get_prev_type(pc, CT_QUESTION, -1);
+            const chunk_t* tmp = get_prev_type(pc, CT_QUESTION);
             assert(is_valid(tmp));
             log_and_reindent(pc, tmp->column, "ternarydefcol");
          }
