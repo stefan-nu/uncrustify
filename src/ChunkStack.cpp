@@ -44,7 +44,7 @@ chunk_t* ChunkStack::GetChunk(uint32_t idx) const
 
 chunk_t* ChunkStack::Pop_Front()
 {
-   chunk_t *pc = nullptr;
+   chunk_t* pc = nullptr;
 
    if (m_cse.empty() == false)
    {
@@ -57,7 +57,7 @@ chunk_t* ChunkStack::Pop_Front()
 
 chunk_t* ChunkStack::Pop_Back()
 {
-   chunk_t *pc = nullptr;
+   chunk_t* pc = nullptr;
 
    if (m_cse.empty() == false)
    {

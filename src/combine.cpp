@@ -228,8 +228,8 @@ static bool can_be_full_param(
  * Changes the return type to type and set the parent.
  */
 static void mark_function_return_type(
-   chunk_t   *fname,     /**< [in]  */
-   chunk_t   *pc,        /**< [in] the last chunk of the return type */
+   chunk_t*  fname,      /**< [in]  */
+   chunk_t*  pc,         /**< [in] the last chunk of the return type */
    c_token_t parent_type /**< [in] CT_NONE (no change) or the new parent type */
 );
 
@@ -342,8 +342,8 @@ static void mark_lvalue(
  *   Renderer<rgb32> rend;
  */
 static void mark_template_func(
-   chunk_t* pc,      /**< [in]  */
-   chunk_t* pc_next  /**< [in]  */
+   chunk_t* pc,     /**< [in]  */
+   chunk_t* pc_next /**< [in]  */
 );
 
 
@@ -352,7 +352,7 @@ static void mark_template_func(
  * Adjust the levels if pc is CT_SQL_BEGIN
  */
 static void mark_exec_sql(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -363,7 +363,7 @@ static void mark_exec_sql(
  * Skips anything in braces.
  */
 static void handle_oc_class(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -377,7 +377,7 @@ static void handle_oc_class(
  *  typedef void (^workBlk_t)(void);
  */
 static void handle_oc_block_literal(
-   chunk_t* pc  /**< [in] points to the '^' */
+   chunk_t* pc /**< [in] points to the '^' */
 );
 
 
@@ -392,7 +392,7 @@ static void handle_oc_block_literal(
  * This is triggered when the sequence '(' '^' is found.
  */
 static void handle_oc_block_type(
-   chunk_t* pc  /**< [in] points to the '^' */
+   chunk_t* pc /**< [in] points to the '^' */
 );
 
 
@@ -414,7 +414,7 @@ static void handle_oc_block_type(
  * -(void) insertObject:(id)anObject atIndex:(int32_t)index
  */
 static void handle_oc_message_decl(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -429,7 +429,7 @@ static void handle_oc_message_decl(
  * Mainly find the matching ']' and ';' and mark the colons.
  */
 static void handle_oc_message_send(
-   chunk_t* pc  /**< [in] points to the open square '[' */
+   chunk_t* pc /**< [in] points to the open square '[' */
 );
 
 
@@ -437,7 +437,7 @@ static void handle_oc_message_send(
  * Process @Property values and re-arrange them if necessary
  */
 static void handle_oc_property_decl(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -464,7 +464,7 @@ static chunk_t* handle_oc_md_type(
  * Set the next chunk to a statement start after the close ']'
  */
 static void handle_cs_square_stmt(
-   chunk_t* pc  /**< [in] points to the open square '[' */
+   chunk_t* pc /**< [in] points to the open square '[' */
 );
 
 
@@ -474,7 +474,7 @@ static void handle_cs_square_stmt(
  * property and set its parent, too.
  */
 static void handle_cs_property(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -484,7 +484,7 @@ static void handle_cs_property(
  * If there is nothing but commas between the open and close, then mark it.
  */
 static void handle_cs_array_type(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -502,7 +502,7 @@ static void handle_cs_array_type(
  * Set the parent of the semicolon to CT_TEMPLATE.
  */
 static void handle_cpp_template(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -513,7 +513,7 @@ static void handle_cpp_template(
  * Split the '[]' so we can control the space
  */
 static void handle_cpp_lambda(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -528,7 +528,7 @@ static void handle_cpp_lambda(
  * Scan the body for each type in TYPELIST and change the type to CT_TYPE.
  */
 static void handle_d_template(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -540,7 +540,7 @@ static void handle_d_template(
  * Create new text for the chunk and call it a CT_TYPE.
  */
 static void handle_wrap(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -555,7 +555,7 @@ static void handle_wrap(
  * PARAMS is all marked as prototype parameters.
  */
 static void handle_proto_wrap(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -563,7 +563,7 @@ static void handle_proto_wrap(
  * tbd
  */
 static bool is_oc_block(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -572,7 +572,7 @@ static bool is_oc_block(
  * Mark the parent of the colon and semicolon
  */
 static void handle_java_assert(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -581,8 +581,8 @@ static void handle_java_assert(
  * returns the close_paren
  */
 static chunk_t* get_d_template_types(
-   ChunkStack &cs,         /**< [in]  */
-   chunk_t    *open_paren  /**< [in]  */
+   ChunkStack& cs,        /**< [in]  */
+   chunk_t*    open_paren /**< [in]  */
 );
 
 
@@ -590,8 +590,8 @@ static chunk_t* get_d_template_types(
  * tbd
  */
 static bool chunkstack_match(
-   const   ChunkStack &cs, /**< [in]  */
-   chunk_t* pc             /**< [in]  */
+   const ChunkStack& cs, /**< [in]  */
+         chunk_t*    pc  /**< [in]  */
 );
 
 
@@ -681,9 +681,8 @@ static chunk_t* flag_parens(chunk_t* po, uint64_t flags, c_token_t opentype,
 chunk_t* set_paren_parent(chunk_t* start, c_token_t parent)
 {
    LOG_FUNC_ENTRY();
-   chunk_t* end;
 
-   end = chunk_skip_to_match(start, scope_e::PREPROC);
+   chunk_t* end = chunk_skip_to_match(start, scope_e::PREPROC);
    if (is_valid(end))
    {
       assert(is_valid(start));

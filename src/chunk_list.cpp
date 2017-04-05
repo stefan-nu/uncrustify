@@ -1330,17 +1330,14 @@ bool chunk_is_member   (const chunk_t* const pc) { return(is_type(pc, CT_DC_MEMB
 
 bool is_var_type(const chunk_t* const pc)
 {
-   return(is_type(pc, 8, CT_PTR_TYPE,  CT_TYPE,
-                         CT_DC_MEMBER, CT_BYREF,
-                         CT_QUALIFIER, CT_STRUCT,
-                         CT_UNION,     CT_ENUM));
+   return(is_type(pc, 8, CT_DC_MEMBER, CT_PTR_TYPE, CT_TYPE,  CT_BYREF,
+                         CT_QUALIFIER, CT_STRUCT,   CT_UNION, CT_ENUM));
 }
 
 
 bool is_opening_brace_of_if(const chunk_t* const pc)
 {
-   return (is_type(pc, CT_BRACE_OPEN, CT_VBRACE_OPEN) &&
-           is_ptype(pc, CT_IF));
+   return (is_opening_brace(pc) && is_ptype(pc, CT_IF));
 }
 
 bool is_any_brace     (const chunk_t* const pc) { return(is_rbrace(pc) || is_vbrace(pc)); }

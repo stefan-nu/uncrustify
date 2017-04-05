@@ -8,6 +8,7 @@
 #include "braces.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
+#include <forward_list>
 #include <cstdio>
 #include <cstdlib>
 #include "unc_ctype.h"
@@ -159,13 +160,10 @@ static void convert_vbrace_pair(
 //TODO: this should take in const refs, like almost all chunk OP
 bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t = CT_SPAREN_CLOSE)
 {
-   if (is_invalid(brace) ||
+   retval_if(is_invalid(brace) ||
        not_type (brace, CT_BRACE_OPEN, CT_BRACE_CLOSE) ||
-       not_ptype(brace, 7, CT_IF, CT_ELSEIF, CT_FOR, CT_WHILE,
-             CT_USING_STMT, CT_FUNC_CLASS_DEF, CT_FUNC_DEF))
-   {
-      return(false);
-   }
+       not_ptype(brace, 7, CT_IF, CT_ELSEIF, CT_FOR, CT_USING_STMT,
+             CT_WHILE, CT_FUNC_CLASS_DEF, CT_FUNC_DEF), false);
 
    /* find parenthesis pair of the if/for/while/... */
    auto paren_close = get_prev_type(brace, paren_t, brace->level);
@@ -180,7 +178,6 @@ bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t = CT_SPAREN_
       /* don't execute examine_brace() (brace removal) if too big span */
       retval_if(lineSpan >= 1, true);
    }
-
    return(false);
 }
 
@@ -196,8 +193,6 @@ void do_braces(void)
    }
 
    examine_braces();
-
-   /* convert virtual braces if needed */
    convert_all_vbrace_to_brace_if_required();
 
    /* Mark one-liners */
@@ -237,13 +232,13 @@ void do_braces(void)
 
 
 /** array of virtual brace checks */
-#define         EBC_COUNT 5           /* \todo later use dynamic memory allocation or a linked list */
-chunk_check_t   ebc_list[EBC_COUNT];  /**< array that holds all examine brace checks */
-static uint32_t ebc_count = 0;        /**< number of examine brace checks */
+forward_list<check_t> ebc_list;   /**< array with examine brace checks */
+static uint32_t ebc_count = 0;    /**< number of  examine brace checks */
 
-static void add_ebc(chunk_check_t ebc)
+static void add_ebc(check_t ebc)
 {
-   ebc_list[ebc_count] = ebc;
+   static forward_list<check_t>::iterator insert_pos = ebc_list.before_begin();
+   insert_pos = ebc_list.insert_after(insert_pos, ebc);
    ebc_count++;
 }
 
@@ -273,10 +268,9 @@ static void examine_braces(void)
       chunk_t* prev = get_prev_type(pc, CT_BRACE_OPEN);
       if (is_opening_rbrace(pc) && !is_preproc(pc))
       {
-         chunk_check_t* ebc = ebc_list;
-         for(uint32_t i=0; i < ebc_count; i++)
+         for (check_t& check: ebc_list)
          {
-            if(ebc_list[i](pc))
+            if(check(pc))
             {
                if (!(multiline_block && paren_multiline_before_brace(pc)))
                {
@@ -284,7 +278,6 @@ static void examine_braces(void)
                }
                break; /* no need to process the same chunk again */
             }
-            ebc++;
          }
       }
       pc = prev;
@@ -303,8 +296,7 @@ static bool should_add_braces(chunk_t* vbopen)
    uint32_t nl_count = 0;
    chunk_t* pc       = get_next_nc(vbopen, scope_e::PREPROC);
 
-   while( (is_valid(pc)             ) && /* chunk is valid */
-          (pc->level > vbopen->level) )  /* tbd */
+   while(is_valid(pc) && (pc->level > vbopen->level))
    {
       if (is_nl(pc))
       {
@@ -347,7 +339,7 @@ static bool can_remove_braces(chunk_t* bopen)
    chunk_t* pc   = get_next_ncnl(bopen, scope_e::PREPROC);
 
    /* Can't remove empty statement */
-   retval_if(is_invalid_or_type(pc, CT_BRACE_CLOSE), false); /* Can't remove empty statement */
+   retval_if(is_invalid_or_type(pc, CT_BRACE_CLOSE), false);
    pc = get_next_nc(bopen);
    while ((is_valid(pc)) && (pc->level >= level))
    {
@@ -560,7 +552,7 @@ static void examine_brace(chunk_t* bopen)
 
    if (is_closing_rbrace(pc))
    {
-      chunk_t *next = get_next_ncnl(pc);
+      chunk_t* next = get_next_ncnl(pc);
       while (is_closing_vbrace(next) ) /* \todo better use chunk search fct */
       {
          next = get_next_ncnl(next);
@@ -710,14 +702,13 @@ static void convert_vbrace_pair(chunk_t* vbopen)
 }
 
 
-/** array of virtual brace checks */
-#define         VBC_COUNT 6           /* \todo later use dynamic memory allocation or a linked list */
-chunk_check_t   vbc_list[VBC_COUNT];  /**< array that holds all virtual brace checks */
-static uint32_t vbc_count = 0;        /**< number of virtual brace checks */
+forward_list<check_t> vbc_list; /**< array  of virtual brace checks */
+static uint32_t vbc_count = 0;  /**< number of virtual brace checks */
 
-static void add_vbc(chunk_check_t vbc)
+static void add_vbc(check_t check)
 {
-   vbc_list[vbc_count] = vbc;
+   static forward_list<check_t>::iterator insert_pos = vbc_list.before_begin();
+   insert_pos = vbc_list.insert_after(insert_pos, check);
    vbc_count++;
 }
 
@@ -746,15 +737,13 @@ static void convert_all_vbrace_to_brace_if_required(void)
    {
       pc = get_next_opening_vbrace(pc);
 
-      chunk_check_t* vbc = vbc_list;
-      for(uint32_t i=0; i < vbc_count; i++)
+      for (check_t& check: vbc_list)
       {
-         if(vbc_list[i](pc))
+         if(check(pc))
          {
             convert_vbrace_pair(pc);
             break; /* no need to check the same chunk again */
          }
-         vbc++;
       }
    }
 }
@@ -864,9 +853,6 @@ void add_long_closebrace_comment(void)
          {
             br_close = tmp;
 
-            //LOG_FMT(LSYS, "found brace pair on lines %d and %d, nl_count=%d\n",
-            //        br_open->orig_line, br_close->orig_line, nl_count);
-
             /* Found the matching close brace - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
@@ -883,7 +869,7 @@ void add_long_closebrace_comment(void)
             }
             if (is_invalid(tmp) || is_nl(tmp))
             {
-               uint32_t   nl_min = 0;
+               uint32_t nl_min = 0;
                chunk_t* tag_pc = nullptr;
 
                if(is_ptype(br_open, CT_SWITCH))

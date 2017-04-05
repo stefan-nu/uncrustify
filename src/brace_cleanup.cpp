@@ -262,7 +262,7 @@ void brace_cleanup(void)
       {
          cpd.consumed = false;
          parse_cleanup(&frm, pc);
-         const char* str = (is_type(pc, CT_VBRACE_CLOSE)) ? "Virt-}" : pc->str.c_str();
+         const char* str = is_closing_vbrace(pc) ? "Virt-}" : pc->text();
          print_stack(LBCSAFTER, str, &frm, pc);
       }
       pc = chunk_get_next(pc);
@@ -387,7 +387,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
         !is_str(pc, ")")                                  &&
         !is_str(pc, "]")                                  )
    {
-      const char* type = is_flag(pc, PCF_STMT_START) ? "stmt" : "expr";
+      const char* type = is_flag(pc, PCF_STMT_START) ? "statement" : "expression";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
       LOG_FMT(LSTMT, "%u] 1.marked %s as %s start st:%d ex:%d\n",
             pc->orig_line, pc->text(), type, frm->stmt_count, frm->expr_count);
@@ -400,19 +400,21 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       set_flags(pc, PCF_IN_SPAREN);
 
       /* Mark everything in the for statement */
-      for (int32_t tmp = (int32_t)frm->pse_tos - 1; tmp >= 0; tmp--)	/* tmp can become negative do not use uint32_t */
+      uint32_t count = frm->pse_tos;
+      while(count > 0)
       {
-         if (frm->pse[tmp].type == CT_FOR)
+         if (frm->pse[count-1].type == CT_FOR)
          {
             set_flags(pc, PCF_IN_FOR);
             break;
          }
+         count--;
       }
 
       /* Mark the parent on semicolons in for() statements */
       if (is_type(pc, CT_SEMICOLON) &&
           (frm->pse_tos > 1       ) &&
-          (frm->pse[frm->pse_tos - 1].type == CT_FOR))
+          (frm->pse[frm->pse_tos-1].type == CT_FOR))
       {
          set_ptype(pc, CT_FOR);
       }
@@ -459,11 +461,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       }
 
       /* Make sure the open / close match */
-#if 1
-      if (pc->type != (c_token_t)((int32_t)frm->pse[frm->pse_tos].type + 1))   // \todo why +1
-#else
-    if (pc->type != get_inverse_type(frm->pse[frm->pse_tos].type)) // \todo fails 30016 30017 30720 fix it
-#endif
+      if (pc->type != (c_token_t)((int32_t)frm->pse[frm->pse_tos].type + 1)) // \todo why +1
       {
          my_type = frm->pse[frm->pse_tos].type;
          if ((my_type != CT_NONE     ) &&
@@ -519,7 +517,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
          {
             tmp = get_next_ncnl(pc);
             assert(is_valid(tmp));
-            if (not_type(tmp, CT_SEMICOLON, CT_VSEMICOLON))
+            if (!is_semicolon(tmp))
             {
                pawn_add_vsemi_after(pc);
             }
@@ -528,7 +526,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       else
       {
          /* Complain if this ISN'T a semicolon, but close out WHILE_OF_DO anyway */
-         if (is_type(pc, CT_SEMICOLON, CT_VSEMICOLON) )
+         if (is_semicolon(pc))
          {
             cpd.consumed = true;
             set_ptype(pc, CT_WHILE_OF_DO);
@@ -606,7 +604,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       }
    }
 
-   /** Adjust the level for opens & create a stack entry
+   /* Adjust the level for opens & create a stack entry
     * Note that CT_VBRACE_OPEN has already been handled. */
    if (is_type(pc, 7, CT_BRACE_OPEN, CT_PAREN_OPEN, CT_FPAREN_OPEN,
       CT_SPAREN_OPEN, CT_ANGLE_OPEN, CT_MACRO_OPEN, CT_SQUARE_OPEN))
@@ -624,7 +622,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 
    const pattern_class_e patcls = get_token_pattern_class(pc->type);
 
-   /** Create a stack entry for complex statements:
+   /* Create a stack entry for complex statements:
     * if, elseif, switch, for, while, synchronized, using, lock, with,
     * version, CT_D_SCOPE_IF */
    if (patcls == pattern_class_e::BRACED)
@@ -809,7 +807,7 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
    }
 
    /* Insert a CT_VBRACE_OPEN, if needed */
-   if ( not_type(pc, CT_BRACE_OPEN)   &&
+   if ( not_type(pc, CT_BRACE_OPEN) &&
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
@@ -1011,6 +1009,7 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
+   assert(ptr_is_valid(frm));
    chunk_t* vbc = pc;
 
    LOG_FMT(LTOK, "%s:%u] %s '%s' type %s stage %u\n", __func__,

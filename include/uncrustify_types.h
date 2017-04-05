@@ -479,21 +479,21 @@ struct cp_data_t
    char_encoding_e enc;                 /**<  */
 
    /* bumped up when a line is split or indented */
-   int32_t         changes;             /**<  */
-   int32_t         pass_count;          /**<  */
+   int32_t         changes;      /**<  */
+   int32_t         pass_count;   /**<  */
 
-   align_t         al[80];              /**<  */
-   uint32_t        al_cnt;              /**<  */
-   bool            al_c99_array;        /**<  */
+   align_t         al[80];       /**<  */
+   uint32_t        al_cnt;       /**<  */
+   bool            al_c99_array; /**<  */
 
    bool            warned_unable_string_replace_tab_chars; /**<  */
 
    /* Here are all the settings */
    op_val_t        settings[UO_option_count]; /**< array with all uncrustify options */
 
-   parse_frame_t   frames[16];                /**<  */
-   int32_t         frame_count;               /**<  */
-   uint32_t        pp_level;                  /**< \todo can this ever be negative */
+   parse_frame_t   frames[16];   /**<  */
+   int32_t         frame_count;  /**<  */
+   uint32_t        pp_level;     /**< \todo can this ever be negative */
 
    /* the default values for settings */
    op_val_t        defaults[UO_option_count]; /**<  */

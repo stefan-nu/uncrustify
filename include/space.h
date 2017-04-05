@@ -44,13 +44,11 @@ void space_text_balance_nested_parens(void);
  * The rules are bent a bit here, as AV_IGNORE and AV_ADD become AV_FORCE.
  * So the column difference is either first->len or first->len + 1.
  *
- * @param first   The first chunk
- * @param second  The second chunk
- * @return        the column difference between the two chunks
+ * @return the column difference between the two chunks
  */
 uint32_t space_col_align(
-   chunk_t* first, /**< [in]  */
-   chunk_t* second /**< [in]  */
+   chunk_t* first, /**< [in] first  chunk */
+   chunk_t* second /**< [in] second chunk */
 );
 
 

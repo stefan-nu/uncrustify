@@ -190,7 +190,7 @@ void AlignStack::Add(chunk_t* start, uint32_t seqnum)
          {
             chunk_t* next = chunk_get_next(tmp);
             assert(is_valid(next));
-            tmp_col += (uint32_t)space_col_align(tmp, next); // \todo ensure the result cannot become negative
+            tmp_col += space_col_align(tmp, next);
             if (next->column != tmp_col)
             {
                align_to_column(next, tmp_col);

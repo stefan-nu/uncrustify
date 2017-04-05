@@ -33,35 +33,33 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    ~unc_text(void)
    {
    }
 
 
+   /**
+    * tbd
+    */
    unc_text(const unc_text &ref)
    {
       set(ref);
    }
-
-
    unc_text(const unc_text &ref, uint32_t idx, uint32_t len = 0)
    {
       set(ref, idx, len);
    }
-
-
    unc_text(const char *ascii_text)
    {
       set(ascii_text);
    }
-
-
    explicit unc_text(const string &ascii_text)
    {
       set(ascii_text);
    }
-
-
    unc_text(const int_list_t &data, uint32_t idx = 0, uint32_t len = 0)
    {
       set(data, idx, len);
@@ -97,30 +95,20 @@ public:
    void set(
       int32_t ch
    );
-
-
    void set(
       const unc_text &ref
    );
-
-
    void set(
       const unc_text &ref,
       uint32_t idx,
       uint32_t len = 0
    );
-
-
    void set(
       const string &ascii_text
    );
-
-
    void set(
       const char* ascii_text
    );
-
-
    void set(
       const int_list_t &data,
       uint32_t idx = 0,
@@ -136,22 +124,16 @@ public:
       set(ch);
       return(*this);
    }
-
-
    unc_text &operator =(const unc_text &ref)
    {
       set(ref);
       return(*this);
    }
-
-
    unc_text &operator =(const string &ascii_text)
    {
       set(ascii_text);
       return(*this);
    }
-
-
    unc_text &operator =(const char* ascii_text)
    {
       set(ascii_text);
@@ -166,21 +148,22 @@ public:
       uint32_t idx,
       int32_t ch
    );
-
-
    void insert(
       uint32_t idx,
       const unc_text &ref
    );
 
 
+   /**
+    * tbd
+    */
    void erase(
       uint32_t idx,
       uint32_t len = 1
    );
 
 
-   /*
+   /**
     * Add a single character to an unc_text
     */
    void append(
@@ -188,13 +171,13 @@ public:
    );
 
 
-   /*
+   /**
     * Add a unc_text character to an unc_text
     */
    void append(const unc_text &ref);
 
 
-   /*
+   /**
     * Add a string to an unc_text
     */
    void append(
@@ -202,7 +185,7 @@ public:
    );
 
 
-   /*
+   /**
     * Add a variable length string to an unc_text
     *
     * The variable length string format is similar as for printf
@@ -212,9 +195,14 @@ public:
    void append(
       const char* const msg, ... /**< [in] a variable length string */
    );
+   void append(
+      const int_list_t &data,
+      uint32_t idx = 0,
+      uint32_t len = 0
+   );
 
 
-   /*
+   /**
     * Conditionally add a variable length string to an unc_text
     *
     * The variable length string format is similar as for printf
@@ -227,13 +215,6 @@ public:
    );
 
 
-   void append(
-      const int_list_t &data,
-      uint32_t idx = 0,
-      uint32_t len = 0
-   );
-
-
    /**
     * tbd
     */
@@ -242,21 +223,16 @@ public:
       append(ch);
       return(*this);
    }
-
-
    unc_text &operator +=(const unc_text &ref)
    {
       append(ref);
       return(*this);
    }
-
-
    unc_text &operator +=(const string &ascii_text)
    {
       append(ascii_text);
       return(*this);
    }
-
    unc_text &operator +=(const char *ascii_text)
    {
       append(ascii_text);
@@ -268,6 +244,7 @@ public:
     *  get the UTF-8 string for logging
     */
    const char* c_str(void);
+
 
    /**
     * compares the content of two unc_text instances
@@ -301,12 +278,18 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    const int_list_t &get(void) const
    {
       return(m_chars);
    }
 
 
+   /**
+    * tbd
+    */
    int32_t operator[](
       uint32_t idx /**< [in]  */
    ) const
@@ -324,6 +307,9 @@ public:
    }
 
 
+   /**
+    * tbd
+    */
    const int32_t &at(
       uint32_t idx /**< [in]  */
    ) const
@@ -341,7 +327,7 @@ public:
    }
 
 
-   /*
+   /**
     * returns the last element of the character list
     */
    int32_t &back(void)
@@ -394,8 +380,6 @@ public:
       const unc_text &text,
       uint32_t idx = 0
    ) const;
-
-
    bool startswith(
       const char *text,
       uint32_t idx = 0
@@ -435,9 +419,9 @@ protected:
    void update_logtext();
 
 
-   int_list_t    m_chars;   /**< contains the non-encoded 31-bit chars */
+   int_list_t      m_chars;   /**< contains the non-encoded 31-bit chars */
    vector<uint8_t> m_logtext; /**< logging text, utf8 encoded - updated in c_str() */
-   bool          m_logok;
+   bool            m_logok;   /**  */
 };
 
 #endif /* UNC_TEXT_H_INCLUDED */

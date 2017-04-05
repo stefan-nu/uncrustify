@@ -22,12 +22,6 @@
 #define ANY_LEVEL    -1
 
 
-/***************************************************************************//**
- * @brief prototype for a function that checks a chunk for some condition
- ******************************************************************************/
-typedef bool (*chunk_check_t)(const chunk_t* const pc);
-
-
 typedef ListManager<chunk_t>::dir_e dir_e;
 
 /**

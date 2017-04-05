@@ -17,16 +17,19 @@
  * @author  Stefan Nunninger refactoring and optimization 2017
  * @license GPL v2+
  */
+
+#include <forward_list>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <algorithm>
+
 #include "space.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
 #include "punctuators.h"
 #include "char_table.h"
 #include "options_for_QT.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
 #include "unc_ctype.h"
 #include "uncrustify.h"
 
@@ -145,7 +148,9 @@ static void log_space(const uint32_t id, const uo_t opt, chunks_t* c, bool add_n
       chunk_t* pc2 = c->b;
 
       const option_map_value_t* rule = get_option_name(opt);
-      assert(are_valid(pc1, pc2));
+      if(is_invalid(pc1))      {LOG_FMT(LSPACE, "cannot log as pointer pc1  is invalid\n");return;};
+      if(is_invalid(pc2))      {LOG_FMT(LSPACE, "cannot log as pointer pc2  is invalid\n");return;};
+      if(ptr_is_invalid(rule)) {LOG_FMT(LSPACE, "cannot log as pointer rule is invalid\n");return;};
       if (not_type(pc2, CT_NEWLINE))
       {
          LOG_FMT(LSPACE, "Spacing: id %u [%s/%s] '%s' <===> [%s/%s] '%s' : %s[%u]%s",
@@ -279,8 +284,6 @@ static bool sp_cond_0032(chunks_t* c) {return is_type  (c->b, CT_SEMICOLON   ) &
 static bool sp_cond_0030(chunks_t* c) {return is_type (c->b, CT_SEMICOLON) && is_ptype(c->b, CT_FOR); }
 static bool sp_cond_0031(chunks_t* c) {return is_type (c->b, CT_SEMICOLON) && is_ptype(c->b, CT_FOR) &&
                                               is_type (c->a, CT_SPAREN_OPEN, CT_SEMICOLON); }
-
-
 
 static bool sp_cond_0048(chunks_t* c) {return is_type (c->a, CT_COMMA);}
 static bool sp_cond_0049(chunks_t* c) {return is_type (c->a, CT_COMMA) && is_ptype(c->a, CT_TYPE); }
@@ -559,15 +562,13 @@ typedef struct space_check_action_s
 }sca_t;
 
 
-/** array of space checks with corresponding actions */
-#define SCA_COUNT 256          /* \todo later use dynamic memory allocation or a linked list */
-sca_t sca_list[SCA_COUNT];     /**< array that holds all space checks */
-static uint32_t sca_count = 0; /**< number of space checks */
+forward_list<sca_t> sca_list;   /**< array of virtual brace checks */
+static uint32_t sca_count = 0;  /**< number of virtual brace checks */
 
-
-static void add_sca(sca_t sca)
+static void add_sca(sca_t check)
 {
-   sca_list[sca_count] = sca;
+   static forward_list<sca_t>::iterator insert_pos = sca_list.before_begin();
+   insert_pos = sca_list.insert_after(insert_pos, check);
    sca_count++;
 }
 
@@ -1059,16 +1060,14 @@ static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t& min_sp, bool comp
 
    chunks_t chunks = {pc1, pc2, min_sp};
    chunks_t* pc    = &chunks;
-   sca_t*    sca   = sca_list;
-   for(uint32_t i=0; i < sca_count; i++)
+
+   for (sca_t& sca: sca_list)
    {
-      const bool cond = sca_list[i].check(pc);
-      if(cond)
+      if(sca.check(pc))
       {
-         log_space(sca->id, sca->opt, pc, complete);
-         return(get_arg(sca->opt));
+         log_space(sca.id, sca.opt, pc, complete);
+         return(get_arg(sca.opt));
       }
-      sca++;
    }
 
    /* this table lists out all combos where a space should NOT be
