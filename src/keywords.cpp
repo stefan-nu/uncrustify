@@ -34,21 +34,21 @@ static dkwmap dkwm;
  * @retval > 0 - p2 is smaller than p1
  */
 static int32_t kw_compare(
-   const void *p1,  /**< [in] The 'left'  entry */
-   const void *p2   /**< [in] The 'right' entry */
+   const void* p1,  /**< [in] The 'left'  entry */
+   const void* p2   /**< [in] The 'right' entry */
 );
 
 
 /**
  * search in static keywords for first occurrence of a given tag
  */
-static const chunk_tag_t *kw_static_first(
-   const chunk_tag_t *tag  /**< [in] tag/keyword to search for */
+static const chunk_tag_t* kw_static_first(
+   const chunk_tag_t* tag  /**< [in] tag/keyword to search for */
 );
 
 
-static const chunk_tag_t *kw_static_match(
-   const chunk_tag_t *tag  /**< [in] tag/keyword to search for */
+static const chunk_tag_t* kw_static_match(
+   const chunk_tag_t* tag  /**< [in] tag/keyword to search for */
 );
 
 
@@ -56,6 +56,8 @@ static const chunk_tag_t *kw_static_match(
  * interesting static keywords - keep sorted.
  * Table includes the Name, Type, and Language flags.
  */
+// \todo it might be useful if users could add there custom keywords to
+// this list
 static const chunk_tag_t keywords[] =
 {
    { "@catch",           CT_CATCH,         LANG_CCPPO     },
@@ -363,13 +365,14 @@ void add_keyword(const char* tag, c_token_t type)
 }
 
 
-static const chunk_tag_t* kw_static_first(const chunk_tag_t *tag)
+static const chunk_tag_t* kw_static_first(const chunk_tag_t* tag)
 {
    const chunk_tag_t *prev = tag - 1;
 
    /* loop over static keyword array while */
+   // \todo avoid pointer arithmetics
    while (((uint32_t)prev >= (uint32_t)&keywords[0]) && /* not at beginning of keyword array */
-          (strcmp(prev->tag, tag->tag) == 0    ) )  /* tags match */
+          (strcmp(prev->tag, tag->tag) == 0    ) )      /* tags match */
    {
       tag = prev;
       prev--;
@@ -382,8 +385,8 @@ static const chunk_tag_t* kw_static_match(const chunk_tag_t* tag)
 {
    bool in_preproc = not_type(cpd.is_preproc, CT_NONE, CT_PP_DEFINE);
 
-   const chunk_tag_t *end_adr = &keywords[ARRAY_SIZE(keywords)];
-   const chunk_tag_t *iter    = kw_static_first(tag);
+   const chunk_tag_t* end_adr = &keywords[ARRAY_SIZE(keywords)];
+   const chunk_tag_t* iter    = kw_static_first(tag);
    for (; (uint32_t)iter < (uint32_t)end_adr; iter++)
    {
       bool pp_iter = (iter->lang_flags & FLAG_PP) != 0;

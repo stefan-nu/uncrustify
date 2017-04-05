@@ -603,9 +603,9 @@ static bool is_shift_operator(chunk_t* pc, bool* in_shift, dir_e dir)
    } while (false)
 
 
-static void _log_indent(const char *func, const uint32_t line, parse_frame_t *frm)
+static void _log_indent(const char* func, const uint32_t line, parse_frame_t* frm)
 {
-   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent=%zu\n",
+   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent);
 }
 
@@ -615,9 +615,9 @@ static void _log_indent(const char *func, const uint32_t line, parse_frame_t *fr
    } while (false)
 
 
-static void _log_indent_tmp(const char *func, const uint32_t line, parse_frame_t *frm)
+static void _log_indent_tmp(const char* func, const uint32_t line, parse_frame_t* frm)
 {
-   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent_tmp=%zu\n",
+   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent_tmp);
 }
 
@@ -854,7 +854,7 @@ void indent_text(void)
                else
                {
                   frm.pse[frm.pse_tos].indent = (uint32_t)((int32_t)frm.pse[frm.pse_tos].indent + val);
-                  LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent=%zu\n",
+                  LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
                           __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent);
                }
             }
@@ -1222,7 +1222,7 @@ void indent_text(void)
          {
             /* Use the prev indent level + indent_size. */
             frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos-1].indent + indent_size;
-            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%zu, ... indent=%zu\n",
+            LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
                     __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent);
 
             /* If this brace is part of a statement, bump it out by indent_brace */

@@ -376,11 +376,12 @@ enum class pattern_class_e : uint32_t
 };
 
 
+/** used to link language keywords with some addition information */
 struct chunk_tag_t
 {
-   const char* tag;        /**<  */
-   c_token_t   type;       /**<  */
-   lang_t      lang_flags; /**<  */
+   const char* tag;        /**< name of the keyword e.g. "bool" */
+   c_token_t   type;       /**< uncrustify type assigned to that keyword */
+   lang_t      lang_flags; /**< programming language that uses this keyword */
 };
 
 
