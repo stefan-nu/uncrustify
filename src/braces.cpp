@@ -33,7 +33,7 @@
  * Converts a single real brace into a virtual brace
  */
 static void convert_brace(
-   chunk_t* br /**< [in] brace to convert */
+   chunk_t* pc /**< [in] brace to convert */
 );
 
 
@@ -323,7 +323,6 @@ static bool can_remove_braces(chunk_t* bopen)
 
    /* Cannot remove braces inside a preprocessor */
    retval_if(is_invalid(bopen) || is_preproc(bopen), false);
-
    LOG_FMT(LBRDEL, "%s: start on %u : ", __func__, bopen->orig_line);
 
    uint32_t        semi_count = 0;
@@ -444,7 +443,6 @@ static void examine_brace(chunk_t* bopen)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(bopen));
-
    LOG_FMT(LBRDEL, "%s: start on %u : ", __func__, bopen->orig_line);
 
    uint32_t        semi_count = 0;
@@ -484,11 +482,11 @@ static void examine_brace(chunk_t* bopen)
          else if (is_closing_rbrace(pc))
          {
             br_count--;
-#if 0
-            \\todo SN disabled, enable code after if it does not fail any test
+#if 1
+            // \todo SN disabled, enable code after if it does not fail any test
             if (br_count == 0)
             {
-               next = get_next_ncnl(pc, scope_e::PREPROC);
+               chunk_t* next = get_next_ncnl(pc, scope_e::PREPROC);
                if (is_invalid(next) || (next->type != CT_BRACE_CLOSE))
                {
                   LOG_FMT(LBRDEL, " junk after close brace\n");
@@ -608,15 +606,14 @@ static void examine_brace(chunk_t* bopen)
 }
 
 
-/* \todo DRY with convert_vbrace */
-static void convert_brace(chunk_t* br)
+static void convert_brace(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   return_if(is_invalid_or_flag(br, PCF_KEEP_BRACE));
+   return_if(is_invalid_or_flag(pc, PCF_KEEP_BRACE));
 
    chunk_t* tmp = nullptr;
-   if(is_opening_rbrace(br)) { set_type(br, CT_VBRACE_OPEN ); br->str.clear(); tmp = chunk_get_prev(br); }
-   if(is_closing_rbrace(br)) { set_type(br, CT_VBRACE_CLOSE); br->str.clear(); tmp = chunk_get_next(br); }
+   if(is_opening_rbrace(pc)) { set_type(pc, CT_VBRACE_OPEN ); pc->str.clear(); tmp = chunk_get_prev(pc); }
+   if(is_closing_rbrace(pc)) { set_type(pc, CT_VBRACE_CLOSE); pc->str.clear(); tmp = chunk_get_next(pc); }
 
    if (is_nl(tmp))
    {
@@ -632,43 +629,42 @@ static void convert_brace(chunk_t* br)
 }
 
 
-/* \todo DRY with convert_brace */
-static void convert_vbrace(chunk_t* vbr)
+static void convert_vbrace(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   return_if(is_invalid(vbr));
+   return_if(is_invalid(pc));
 
-   if (is_opening_vbrace(vbr))
+   if(is_opening_vbrace(pc))
    {
-      set_type(vbr, CT_BRACE_OPEN);
-      vbr->str = "{";
+      set_type(pc, CT_BRACE_OPEN);
+      pc->str = "{";
 
       /* If the next chunk is a preprocessor, then move the open brace
        * after the preprocessor. */
-      chunk_t *tmp = chunk_get_next(vbr);
+      chunk_t* tmp = chunk_get_next(pc);
       if (is_type(tmp, CT_PREPROC))
       {
-         tmp = chunk_get_next(vbr, scope_e::PREPROC);
-         chunk_move_after(vbr, tmp);
-         newline_add_after(vbr);
+         tmp = chunk_get_next(pc, scope_e::PREPROC);
+         chunk_move_after(pc, tmp);
+         newline_add_after(pc);
       }
    }
-   else if (is_closing_vbrace(vbr))
+   else if (is_closing_vbrace(pc))
    {
-      set_type(vbr, CT_BRACE_CLOSE);
-      vbr->str = "}";
+      set_type(pc, CT_BRACE_CLOSE);
+      pc->str = "}";
 
       /* If the next chunk is a comment, followed by a newline, then
        * move the brace after the newline and add another newline after
        * the close brace. */
-      chunk_t* tmp = chunk_get_next(vbr);
+      chunk_t* tmp = chunk_get_next(pc);
       if (is_cmt(tmp))
       {
          tmp = chunk_get_next(tmp);
          if (is_nl(tmp))
          {
-            chunk_move_after(vbr, tmp);
-            newline_add_after(vbr);
+            chunk_move_after(pc, tmp);
+            newline_add_after(pc);
          }
       }
    }

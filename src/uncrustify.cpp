@@ -667,23 +667,15 @@ int main(int argc, char* argv[])
       if (unc_homedir(home))
       {
          struct stat tmp_stat = {};
-
          const auto  path0 = home + "/.uncrustify.cfg";
          const auto  path1 = home + "/uncrustify.cfg";
-
-         if (stat(path0.c_str(), &tmp_stat) == 0)
-         {
-            cfg_file = path0;
-         }
-         else if (stat(path1.c_str(), &tmp_stat) == 0)
-         {
-            cfg_file = path1;
-         }
+         if      (stat(path0.c_str(), &tmp_stat) == 0) { cfg_file = path0; }
+         else if (stat(path1.c_str(), &tmp_stat) == 0) { cfg_file = path1; }
       }
    }
 
    /* Get the parsed file name */
-   const char *parsed_file;
+   const char* parsed_file;
    if (((parsed_file = arg_list.Param("--parsed")) != nullptr) ||
        ((parsed_file = arg_list.Param("-p"      )) != nullptr) )
    {
