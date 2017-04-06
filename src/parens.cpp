@@ -18,8 +18,8 @@
  * Add an open parenthesis after first and add a close parenthesis before the last
  */
 static void add_parens_between(
-   chunk_t *first,  /**< [in]  */
-   chunk_t *last    /**< [in]  */
+   chunk_t* first, /**< [in]  */
+   chunk_t* last   /**< [in]  */
 );
 
 
@@ -42,9 +42,9 @@ static void add_parens_between(
  *        a non-preprocessor
  */
 static void check_bool_parens(
-   chunk_t *popen,  /**< [in]  */
-   chunk_t *pclose, /**< [in]  */
-   int32_t     nest     /**< [in]  */
+   chunk_t* popen,  /**< [in]  */
+   chunk_t* pclose, /**< [in]  */
+   int32_t  nest    /**< [in]  */
 );
 
 
@@ -54,14 +54,14 @@ void do_parens(void)
 
    if (is_true(UO_mod_full_paren_if_bool))
    {
-      chunk_t *pc = chunk_get_head();
+      chunk_t* pc = chunk_get_head();
       while ((pc = get_next_ncnl(pc)) != nullptr)
       {
          continue_if (not_type (pc, CT_SPAREN_OPEN             ) ||
                       not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
-         chunk_t *pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int32_t)pc->level, scope_e::PREPROC);
+         chunk_t* pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int32_t)pc->level, scope_e::PREPROC);
          if (is_valid(pclose))
          {
             check_bool_parens(pc, pclose, 0);
@@ -72,19 +72,17 @@ void do_parens(void)
 }
 
 
-static void add_parens_between(chunk_t *first, chunk_t *last)
+static void add_parens_between(chunk_t* first, chunk_t* last)
 {
    LOG_FUNC_ENTRY();
-
-   if (is_invalid(first) ||
-       is_invalid(last ) ) { return; }
+   return_if(are_invalid(first, last));
 
    LOG_FMT(LPARADD, "%s: line %u between %s [lvl=%u] and %s [lvl=%u]\n",
            __func__, first->orig_line,
            first->text(), first->level, last->text(),  last->level);
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
-   chunk_t *first_n = get_next_ncnl(first);
+   chunk_t* first_n = get_next_ncnl(first);
    assert(is_valid(first_n));
    return_if(first_n == last);
 
@@ -119,18 +117,18 @@ static void add_parens_between(chunk_t *first, chunk_t *last)
 }
 
 
-static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int32_t nest)
+static void check_bool_parens(chunk_t* popen, chunk_t* pclose, int32_t nest)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *ref        = popen;
-   bool    hit_compare = false;
+   chunk_t* ref         = popen;
+   bool     hit_compare = false;
 
    LOG_FMT(LPARADD, "%s(%d): popen on %u, col %u, pclose on %u, col %u, level=%u\n",
            __func__, nest, popen->orig_line, popen->orig_col,
            pclose->orig_line, pclose->orig_col, popen->level);
 
-   chunk_t *pc = popen;
+   chunk_t* pc = popen;
    while (((pc = get_next_ncnl(pc)) != nullptr) && (pc != pclose))
    {
       if (is_preproc(pc))
@@ -161,7 +159,7 @@ static void check_bool_parens(chunk_t *popen, chunk_t *pclose, int32_t nest)
       }
       else if (is_paren_open(pc))
       {
-         chunk_t *next = chunk_skip_to_match(pc);
+         chunk_t* next = chunk_skip_to_match(pc);
          if (is_valid(next))
          {
             check_bool_parens(pc, next, nest + 1);

@@ -32,15 +32,16 @@ static void pf_log_all(
  * We want to copy [base].
  */
 static void pf_copy_2nd_tos(
-   parse_frame_t *pf  /**< [in]  */
+   parse_frame_t* pf  /**< [in]  */
 );
 
 
 /**
  * Logs one parse frame
  */
-void pf_log(log_sev_t logsev, parse_frame_t *pf)
+void pf_log(log_sev_t logsev, parse_frame_t* pf)
 {
+   return_if(ptr_is_invalid(pf));
    LOG_FMT(logsev, "[%s] BrLevel=%u Level=%u PseTos=%u\n",
          get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
 
@@ -53,8 +54,9 @@ void pf_log(log_sev_t logsev, parse_frame_t *pf)
 }
 
 
-static void pf_log_frms(log_sev_t logsev, const char *txt, parse_frame_t *pf)
+static void pf_log_frms(log_sev_t logsev, const char* txt, parse_frame_t* pf)
 {
+   return_if(ptrs_are_invalid(txt, pf));
    LOG_FMT(logsev, "%s Parse Frames(%d):", txt, cpd.frame_count);
    for (int32_t idx = 0; idx < cpd.frame_count; idx++)
    {
@@ -77,13 +79,13 @@ static void pf_log_all(log_sev_t logsev)
 }
 
 
-void pf_copy(parse_frame_t *dst, const parse_frame_t *src)
+void pf_copy(parse_frame_t* dst, const parse_frame_t* src)
 {
    memcpy(dst, src, sizeof(parse_frame_t));
 }
 
 
-void pf_push(parse_frame_t *pf)
+void pf_push(parse_frame_t* pf)
 {
    if (cpd.frame_count < static_cast<int32_t> ARRAY_SIZE(cpd.frames))
    {
@@ -97,7 +99,7 @@ void pf_push(parse_frame_t *pf)
 }
 
 
-void pf_push_under(parse_frame_t *pf)
+void pf_push_under(parse_frame_t* pf)
 {
    LOG_FMT(LPF, "%s(%d): before count = %d\n", __func__, __LINE__, cpd.frame_count);
 
@@ -115,7 +117,7 @@ void pf_push_under(parse_frame_t *pf)
 }
 
 // \todo DRY with pf_copy_2nd_tos
-void pf_copy_tos(parse_frame_t *pf)
+void pf_copy_tos(parse_frame_t* pf)
 {
    if (cpd.frame_count > 0)
    {
@@ -126,7 +128,7 @@ void pf_copy_tos(parse_frame_t *pf)
 
 
 // \todo DRY with pf_copy_tos
-static void pf_copy_2nd_tos(parse_frame_t *pf)
+static void pf_copy_2nd_tos(parse_frame_t* pf)
 {
    if (cpd.frame_count > 1)
    {
@@ -150,7 +152,7 @@ void pf_trash_tos(void)
  * Pop the top item off the stack and copy into pf.
  * This is called on #endif
  */
-void pf_pop(parse_frame_t *pf)
+void pf_pop(parse_frame_t* pf)
 {
    if (cpd.frame_count > 0)
    {
@@ -161,14 +163,14 @@ void pf_pop(parse_frame_t *pf)
 }
 
 
-uint32_t pf_check(parse_frame_t *frm, chunk_t *pc)
+uint32_t pf_check(parse_frame_t* frm, chunk_t* pc)
 {
-   int32_t    in_ifdef = (int32_t)frm->in_ifdef;
-   int32_t    b4_cnt   = cpd.frame_count;
+   int32_t  in_ifdef = (int32_t)frm->in_ifdef;
+   int32_t  b4_cnt   = cpd.frame_count;
    uint32_t pp_level = cpd.pp_level;
 
    if (not_type(pc, CT_PREPROC)) { return(pp_level); }
-   chunk_t *next = chunk_get_next(pc);
+   chunk_t* next = chunk_get_next(pc);
    if (is_invalid(next)) { return(pp_level); }
 
    if (not_ptype(pc, next->type))

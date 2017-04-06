@@ -12,7 +12,7 @@
 
 struct include_category
 {
-   include_category(const char *pattern)
+   include_category(const char* pattern)
       : regex(pattern)
    {
    }
@@ -34,8 +34,8 @@ enum
  * @retval  < 0 - tbd
  */
 static int32_t compare_chunks(
-   chunk_t *pc1,  /**< [in] chunk 1 to compare */
-   chunk_t *pc2   /**< [in] chunk 2 to compare */
+   chunk_t* pc1, /**< [in] chunk 1 to compare */
+   chunk_t* pc2  /**< [in] chunk 2 to compare */
 );
 
 
@@ -45,14 +45,14 @@ static int32_t compare_chunks(
  * So, we do a min sort.
  */
 static void do_the_sort(
-   chunk_t      **chunks,  /**< [in]  */
+   chunk_t**      chunks,    /**< [in]  */
    const uint32_t num_chunks /**< [in]  */
 );
 
 
 /** tbd */
 static int32_t get_chunk_priority(
-   chunk_t *pc /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -64,7 +64,7 @@ static void prepare_categories(void);
 static void cleanup_categories(void);
 
 
-include_category *include_categories[kIncludeCategoriesCount];
+include_category* include_categories[kIncludeCategoriesCount];
 
 
 static void prepare_categories(void)
@@ -110,7 +110,7 @@ static int32_t get_chunk_priority(chunk_t *pc)
 }
 
 
-static int32_t compare_chunks(chunk_t *pc1, chunk_t *pc2)
+static int32_t compare_chunks(chunk_t* pc1, chunk_t* pc2)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSORT, "\n@begin pc1->len=%u, line=%u, column=%u\n", pc1->len(), pc1->orig_line, pc1->orig_col);
@@ -170,7 +170,7 @@ static int32_t compare_chunks(chunk_t *pc1, chunk_t *pc2)
 }
 
 
-static void do_the_sort(chunk_t **chunks, const uint32_t num_chunks)
+static void do_the_sort(chunk_t** chunks, const uint32_t num_chunks)
 {
    LOG_FUNC_ENTRY();
 
@@ -206,21 +206,21 @@ static void do_the_sort(chunk_t **chunks, const uint32_t num_chunks)
 }
 
 
-#define MAX_NUMBER_TO_SORT    256
+#define MAX_NUMBER_TO_SORT 256  /* \todo better use a list with dynamic size */
 void sort_imports(void)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *chunks[MAX_NUMBER_TO_SORT];  /* MAX_NUMBER_TO_SORT should be enough, right? */
-   uint32_t  num_chunks = 0;
-   chunk_t *p_last    = nullptr;
-   chunk_t *p_imp     = nullptr;
+   chunk_t* chunks[MAX_NUMBER_TO_SORT];
+   uint32_t num_chunks = 0;
+   chunk_t* p_last     = nullptr;
+   chunk_t* p_imp      = nullptr;
 
    prepare_categories();
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *next = chunk_get_next(pc);
+      chunk_t* next = chunk_get_next(pc);
 
       if (is_nl(pc))
       {

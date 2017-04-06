@@ -17,7 +17,7 @@
 
 
 static void remove_semicolon(
-   chunk_t *pc /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -27,14 +27,16 @@ static void remove_semicolon(
  * Do not remove if it is a square close, word, type, or paren close.
  */
 static void check_unknown_brace_close(
-   chunk_t *semi,       /**< [in]  */
-   chunk_t *brace_close /**< [in]  */
+   chunk_t* semi,       /**< [in]  */
+   chunk_t* brace_close /**< [in]  */
 );
 
 
-static void remove_semicolon(chunk_t *pc)
+static void remove_semicolon(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
+   return_if(is_invalid(pc));
+
    LOG_FMT(LDELSEMI, "%s: Removed semicolon at line %u, col %u",
            __func__, pc->orig_line, pc->orig_col);
    log_func_stack_inline(LDELSEMI);
@@ -47,11 +49,11 @@ void remove_extra_semicolons(void)
 {
    LOG_FUNC_ENTRY();
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
-      chunk_t *next = get_next_ncnl(pc);
-      chunk_t *prev;
+      chunk_t* next = get_next_ncnl(pc);
+      chunk_t* prev;
       if ( is_type(pc, CT_SEMICOLON) &&
           !is_preproc(pc) &&
           ((prev = get_prev_ncnl(pc)) != nullptr))
@@ -89,10 +91,10 @@ void remove_extra_semicolons(void)
 }
 
 
-static void check_unknown_brace_close(chunk_t *semi, chunk_t *brace_close)
+static void check_unknown_brace_close(chunk_t* semi, chunk_t* brace_close)
 {
    LOG_FUNC_ENTRY();
-   chunk_t *pc = get_prev_type(brace_close, CT_BRACE_OPEN, (int32_t)brace_close->level);
+   chunk_t* pc = get_prev_type(brace_close, CT_BRACE_OPEN, (int32_t)brace_close->level);
    pc = get_prev_ncnl(pc);
 
    if (not_type(pc, 5, CT_RETURN, CT_WORD, CT_TYPE,

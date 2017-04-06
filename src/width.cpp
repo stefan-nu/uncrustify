@@ -92,7 +92,7 @@ static void try_split_here(
  * @param start The first chunk that exceeded the limit
  */
 static bool split_line(
-   chunk_t* pc  /**< in]  */
+   chunk_t* pc /**< in]  */
 );
 
 
@@ -114,7 +114,7 @@ static bool split_line(
  *                inserted before it
  */
 static void split_fcn_params(
-   chunk_t *start  /**< in]  */
+   chunk_t* start /**< in]  */
 );
 
 
@@ -125,7 +125,7 @@ static void split_fcn_params(
  * @param start   the offending token
  */
 static void split_fcn_params_full(
-   chunk_t *start  /**< in]  */
+   chunk_t* start /**< in]  */
 );
 
 
@@ -133,7 +133,7 @@ static void split_fcn_params_full(
  * \brief split a for statement in several lines
  */
 static void split_for_statement(
-   chunk_t* start  /**< in] any chunk inside the for statement */
+   chunk_t* start /**< in] any chunk inside the for statement */
 );
 
 
@@ -177,7 +177,7 @@ static const token_pri pri_table[] =
 };
 
 
-static inline bool is_past_width(chunk_t *pc)
+static inline bool is_past_width(chunk_t* pc)
 {
    assert(is_valid(pc));
    /* allow char to sit at last column by subtracting 1 */
@@ -185,7 +185,7 @@ static inline bool is_past_width(chunk_t *pc)
 }
 
 
-static void split_before_chunk(chunk_t *pc)
+static void split_before_chunk(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
@@ -208,7 +208,7 @@ void do_code_width(void)
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPLIT, "%s\n", __func__);
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       if ((!is_cmt_or_nl(pc)) &&
           (not_type(pc, CT_SPACE) ) &&
@@ -235,7 +235,7 @@ static uint32_t get_split_pri(c_token_t tok)
 }
 
 
-static void try_split_here(cw_entry &ent, chunk_t *pc)
+static void try_split_here(cw_entry& ent, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
@@ -267,15 +267,14 @@ static void try_split_here(cw_entry &ent, chunk_t *pc)
    /* don't break after last term of a qualified type */
    if (pc_pri == 25)
    {
-      chunk_t *next = chunk_get_next(pc);
+      chunk_t* next = chunk_get_next(pc);
       return_if(not_type(next, CT_WORD) &&
                 (get_split_pri(next->type) != 25) );
    }
 
    /* Check levels first */
    bool change = false;
-   if (is_invalid(ent.pc          ) ||
-       (pc->level <  ent.pc->level) )
+   if (is_invalid(ent.pc) || (pc->level <  ent.pc->level))
    {
       change = true;
    }
@@ -348,8 +347,8 @@ static bool split_line(chunk_t *start)
    /* Try to find the best spot to split the line */
    cw_entry ent;
    memset(&ent, 0, sizeof(ent));
-   chunk_t *pc = start;
-   chunk_t *prev;
+   chunk_t* pc = start;
+   chunk_t* prev;
 
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
            (!is_nl(pc)) )
@@ -405,7 +404,7 @@ static bool split_line(chunk_t *start)
       {
          LOG_FMT(LSPLIT, " ** NO GO **\n");
 
-         /*TODO: Add in logic to handle 'hard' limits by backing up a token */
+         /* TODO: Add in logic to handle 'hard' limits by backing up a token */
          return(true);
       }
    }
@@ -553,7 +552,7 @@ void scan_for_type(chunk_t* pc, int32_t* count, uint32_t  max_cnt, dir_e dir)
 #endif
 
 
-static void split_fcn_params_full(chunk_t *start)
+static void split_fcn_params_full(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPLIT, "%s", __func__);
@@ -569,7 +568,7 @@ static void split_fcn_params_full(chunk_t *start)
       if ((fpopen->type  == CT_FPAREN_OPEN) &&
           (fpopen->level == start->level - 1))
       {
-         break; // opening parenthesis found. Issue #1020
+         break; /* opening parenthesis found. Issue #1020 */
       }
    }
 

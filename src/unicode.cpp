@@ -18,9 +18,9 @@
  * See if all characters are ASCII (0-127)
  */
 static bool is_ascii(
-   const  vector<uint8_t> &data,          /**< [in]  */
-   uint32_t                 &non_ascii_cnt, /**< [in]  */
-   uint32_t                 &zero_cnt       /**< [in]  */
+   const vector<uint8_t> &data,          /**< [in]  */
+   uint32_t              &non_ascii_cnt, /**< [in]  */
+   uint32_t              &zero_cnt       /**< [in]  */
 );
 
 
@@ -29,7 +29,7 @@ static bool is_ascii(
  */
 static bool decode_bytes(
    const vector<uint8_t> &in, /**< [in]  */
-   deque<int32_t>            &out /**< [in]  */
+   deque<int32_t>        &out /**< [in]  */
 );
 
 
@@ -39,7 +39,7 @@ static bool decode_bytes(
  */
 static bool decode_utf8(
    const vector<uint8_t> &in, /**< [in]  */
-   deque<int32_t>            &out /**< [in]  */
+   deque<int32_t>        &out /**< [in]  */
 );
 
 
@@ -47,9 +47,9 @@ static bool decode_utf8(
  * Extract 2 bytes from the stream and increment idx by 2
  */
 static int32_t get_word(
-   const  vector<uint8_t> &in_data, /**< [in]  */
-   uint32_t &idx,  /**< [in]  */
-   bool   be     /**< [in]  */
+   const vector<uint8_t> &in_data, /**< [in]  */
+   uint32_t& idx, /**< [in]  */
+   bool      be   /**< [in]  */
 );
 
 
@@ -60,7 +60,7 @@ static int32_t get_word(
  */
 static bool decode_utf16(
    const vector<uint8_t> &in,  /**< [in]  */
-   deque<int32_t>            &out, /**< [in]  */
+   deque<int32_t>        &out, /**< [in]  */
    char_encoding_e       &enc  /**< [in]  */
 );
 
@@ -147,7 +147,7 @@ void encode_utf8(uint32_t ch, vector<uint8_t> &res)
    else if (ch < 0x200000)
    {
       /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-      res.push_back(0xF0 | ((ch >> 18)       ));   /* \todo DRY */
+      res.push_back(0xF0 | ((ch >> 18)       )); /* \todo DRY */
       res.push_back(0x80 | ((ch >> 12) & 0x3f));
       res.push_back(0x80 | ((ch >>  6) & 0x3f));
       res.push_back(0x80 | ((ch >>  0) & 0x3f));

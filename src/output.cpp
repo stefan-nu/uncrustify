@@ -35,18 +35,14 @@ struct cmt_reflow_t
 
 /***************************************************************************//**
  * @brief prototype for a function that operates on a keyword
- *
- * @note this typedef defines the function type "kw_func_t"
- * for a function pointer of type
- * bool *function(chunk_t *cmt, unc_text &out_txt)
  ******************************************************************************/
-typedef bool (*kw_func_t)(chunk_t *cmt, unc_text &out_txt);
+typedef bool (*kw_func_t)(chunk_t* cmt, unc_text& out_txt);
 
 
 struct kw_subst_t
 {
-   const char *tag; /**<   */
-   kw_func_t  func; /**<   */
+   const char* tag;  /**<   */
+   kw_func_t   func; /**<   */
 };
 
 
@@ -56,7 +52,7 @@ struct kw_subst_t
  * to get the comment to line up.
  */
 static void output_comment_multi(
-   chunk_t *pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -64,8 +60,8 @@ static void output_comment_multi(
  * tbd
  */
 static bool kw_fcn_filename(
-   chunk_t  *cmt,     /**< [in]  */
-   unc_text &out_txt  /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -73,8 +69,8 @@ static bool kw_fcn_filename(
  * tbd
  */
 static bool kw_fcn_class(
-   chunk_t  *cmt,     /**< [in]  */
-   unc_text &out_txt  /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -82,8 +78,8 @@ static bool kw_fcn_class(
  * tbd
  */
 static bool kw_fcn_message(
-   chunk_t  *cmt,    /**< [in]  */
-   unc_text &out_txt /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -91,8 +87,8 @@ static bool kw_fcn_message(
  * tbd
  */
 static bool kw_fcn_category(
-   chunk_t  *cmt,     /**< [in]  */
-   unc_text &out_txt  /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -100,8 +96,8 @@ static bool kw_fcn_category(
  * tbd
  */
 static bool kw_fcn_scope(
-   chunk_t  *cmt,    /**< [in]  */
-   unc_text &out_txt /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -109,8 +105,8 @@ static bool kw_fcn_scope(
  * tbd
  */
 static bool kw_fcn_function(
-   chunk_t  *cmt,    /**< [in]  */
-   unc_text &out_txt /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -121,8 +117,8 @@ static bool kw_fcn_function(
  * Likewise, if the return value is 'void', then no @return is added.
  */
 static bool kw_fcn_javaparam(
-   chunk_t  *cmt,    /**< [in]  */
-   unc_text &out_txt /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -130,8 +126,8 @@ static bool kw_fcn_javaparam(
  * tbd
  */
 static bool kw_fcn_fclass(
-   chunk_t  *cmt,    /**< [in]  */
-   unc_text &out_txt /**< [in]  */
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
 );
 
 
@@ -141,8 +137,8 @@ static bool kw_fcn_fclass(
  * Trim trailing whitespace and do keyword substitution.
  */
 static void output_comment_multi_simple(
-   chunk_t *pc,      /**< [in]  */
-   bool    kw_subst  /**< [in]  */
+   chunk_t* pc,      /**< [in]  */
+   bool     kw_subst /**< [in]  */
 );
 
 
@@ -150,8 +146,8 @@ static void output_comment_multi_simple(
  * This renders the #if condition to a string buffer.
  */
 static void generate_if_conditional_as_text(
-   unc_text &dst,    /**< [out] unc_text buffer to be filled */
-   chunk_t  *ifdef   /**< [in]  if conditional as chunk list */
+   unc_text& dst,  /**< [out] unc_text buffer to be filled */
+   chunk_t*  ifdef /**< [in]  if conditional as chunk list */
 );
 
 
@@ -161,7 +157,7 @@ static void generate_if_conditional_as_text(
  * of keyword.
  */
 static void do_keyword_substitution(
-   chunk_t *pc /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -177,7 +173,7 @@ static void add_char(
  * tbd
  */
 static void add_text(
-   const char *ascii_text /**< [in]  */
+   const char* ascii_text /**< [in]  */
 );
 
 
@@ -185,8 +181,8 @@ static void add_text(
  * tbd
  */
 static void add_text(
-   const unc_text &text,     /**< [in]  */
-   bool           is_ignored /**< [in]  */
+   const unc_text& text,      /**< [in]  */
+   bool            is_ignored /**< [in]  */
 );
 
 
@@ -195,8 +191,8 @@ static void add_text(
  * If it exceeds the limit, return true.
  */
 static bool next_word_exceeds_limit(
-   const unc_text &text,  /**< [in]  */
-   uint32_t         idx     /**< [in]  */
+   const unc_text& text, /**< [in]  */
+   uint32_t        idx   /**< [in]  */
 );
 
 
@@ -205,7 +201,7 @@ static bool next_word_exceeds_limit(
  */
 static void fill_line(
    uint32_t column,    /**< [in] The column to advance to */
-   bool   allow_tabs /**< [in] false=use only spaces, true=use tabs+spaces */
+   bool     allow_tabs /**< [in] false=use only spaces, true=use tabs+spaces */
 );
 
 
@@ -253,8 +249,8 @@ static void cmt_output_indent(
  * @return 0=not present, >0=number of chars that are part of the lead
  */
 static uint32_t cmt_parse_lead(
-   const unc_text &line,   /**< [in]  */
-   bool           is_last  /**< [in]  */
+   const unc_text& line,   /**< [in]  */
+   bool            is_last /**< [in]  */
 );
 
 
@@ -285,8 +281,8 @@ static uint32_t cmt_parse_lead(
  * @return          cmt.xtra_indent is set to 0 or 1
  */
 static void calculate_cmt_body_indent(
-   cmt_reflow_t   &cmt, /**< [in]  */
-   const unc_text &str  /**< [in]  */
+   cmt_reflow_t&   cmt, /**< [in]  */
+   const unc_text& str  /**< [in]  */
 );
 
 
@@ -294,9 +290,9 @@ static void calculate_cmt_body_indent(
  * tbd
  */
 static int32_t next_up(
-   const unc_text &text, /**< [in]  */
-   uint32_t         idx,   /**< [in]  */
-   const unc_text &tag   /**< [in]  */
+   const unc_text& text, /**< [in]  */
+   uint32_t        idx,  /**< [in]  */
+   const unc_text& tag   /**< [in]  */
 );
 
 
@@ -306,8 +302,8 @@ static int32_t next_up(
  *
  * @return the last chunk output'd
  */
-static chunk_t *output_cmt_c(
-   chunk_t *pc /**< [in]  */
+static chunk_t* output_cmt_c(
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -317,8 +313,8 @@ static chunk_t *output_cmt_c(
  *
  * @return the last chunk output'd
  */
-static chunk_t *output_comment_cpp(
-   chunk_t *pc /**< [in]  */
+static chunk_t* output_comment_cpp(
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -326,8 +322,8 @@ static chunk_t *output_comment_cpp(
  * tbd
  */
 static void cmt_trim_whitespace(
-   unc_text &line,      /**< [in]  */
-   bool     in_preproc  /**< [in]  */
+   unc_text& line,      /**< [in]  */
+   bool      in_preproc /**< [in]  */
 );
 
 
@@ -343,9 +339,9 @@ static void cmt_trim_whitespace(
  * combined.
  */
 static void add_cmt_text(
-   const unc_text &text,     /**< [in]  */
-   cmt_reflow_t   &cmt,      /**< [in]  */
-   bool           esc_close  /**< [in]  */
+   const unc_text& text,     /**< [in]  */
+   cmt_reflow_t&   cmt,      /**< [in]  */
+   bool            esc_close /**< [in]  */
 );
 
 
@@ -353,8 +349,8 @@ static void add_cmt_text(
  * tbd
  */
 static void output_cmt_start(
-   cmt_reflow_t &cmt, /**< [in]  */
-   chunk_t      *pc   /**< [in]  */
+   cmt_reflow_t& cmt, /**< [in]  */
+   chunk_t*      pc   /**< [in]  */
 );
 
 
@@ -367,8 +363,8 @@ static void output_cmt_start(
  *  3. They are indented to the same level
  */
 static bool can_combine_cmt(
-   chunk_t            *pc,   /**< [in] chunk with first comment */
-   const cmt_reflow_t &cmt   /**< [in]  */
+   chunk_t*            pc, /**< [in] chunk with first comment */
+   const cmt_reflow_t& cmt /**< [in]  */
 );
 
 
@@ -389,7 +385,7 @@ bool is_dos_nl(
  * at its end. Whitespace is either a space or a tabstop.
  */
 static bool line_has_trailing_whitespace(
-   unc_text &line /**< [in] line to check */
+   unc_text& line /**< [in] line to check */
 );
 
 
@@ -515,7 +511,7 @@ static void add_text(const char *ascii_text)
 }
 
 
-static void add_text(const unc_text &text, bool is_ignored = false)
+static void add_text(const unc_text& text, bool is_ignored = false)
 {
    for (uint32_t idx = 0; idx < text.size(); idx++)
    {
@@ -533,7 +529,7 @@ static void add_text(const unc_text &text, bool is_ignored = false)
 }
 
 
-static bool next_word_exceeds_limit(const unc_text &text, uint32_t idx)
+static bool next_word_exceeds_limit(const unc_text& text, uint32_t idx)
 {
    uint32_t length = 0;
 
@@ -577,7 +573,7 @@ static void cmt_output_indent(uint32_t brace_col, uint32_t base_col, uint32_t co
 }
 
 
-void output_parsed(FILE *pfile)
+void output_parsed(FILE* pfile)
 {
    // save_option_file(pfile, false);
    save_option_file_kernel(pfile, false, true);
@@ -591,7 +587,7 @@ void output_parsed(FILE *pfile)
               get_token_name(pc->ptype),         pc->column,
               pc->orig_col,    pc->orig_col_end, pc->orig_prev_sp,
               pc->brace_level, pc->level,        pc->pp_level,
-              get_flags(pc),   pc->nl_count,     pc->after_tab);
+              (int64_t)get_flags(pc), pc->nl_count, pc->after_tab);
 
       if (not_type(pc, CT_NEWLINE) &&
           (pc->len() != 0         ) )
@@ -610,7 +606,7 @@ void output_parsed(FILE *pfile)
 }
 
 
-void output_text(FILE *pfile)
+void output_text(FILE* pfile)
 {
    cpd.fout        = pfile;
    cpd.did_newline = true;
@@ -817,7 +813,7 @@ void output_text(FILE *pfile)
 }
 
 
-static uint32_t cmt_parse_lead(const unc_text &line, bool is_last)
+static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
 {
    uint32_t len = 0;
 

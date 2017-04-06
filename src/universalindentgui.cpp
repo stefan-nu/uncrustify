@@ -18,8 +18,8 @@
 
 void print_universal_indent_cfg(FILE* pfile)
 {
-   const group_map_value_t *p_grp;
-   const char              *p_name;
+   const group_map_value_t* p_grp;
+   const char*              p_name;
 
    /* Add all the categories */
    char   ch = '=';
