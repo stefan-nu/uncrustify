@@ -508,7 +508,7 @@ static void split_for_statement(chunk_t* start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      if (is_type_and_level(pc, CT_COMMA, (open_paren->level + 1)))
+      if (is_type_and_level(pc, CT_COMMA, (int32_t)(open_paren->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
          return_if(!is_past_width(pc));
@@ -519,7 +519,7 @@ static void split_for_statement(chunk_t* start)
    pc = open_paren;
    while ((pc = chunk_get_next(pc)) != start)
    {
-      if (is_type_and_level(pc, CT_ASSIGN, (open_paren->level + 1)))
+      if (is_type_and_level(pc, CT_ASSIGN, (int32_t)(open_paren->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
          return_if(!is_past_width(pc));
@@ -578,7 +578,7 @@ static void split_fcn_params_full(chunk_t* start)
    {
       break_if(pc->level <= fpopen->level);
 
-      if (is_type_and_level(pc, CT_COMMA, (fpopen->level + 1)))
+      if (is_type_and_level(pc, CT_COMMA, (int32_t)(fpopen->level + 1)))
       {
          split_before_chunk(chunk_get_next(pc));
       }
