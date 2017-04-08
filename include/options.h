@@ -1221,12 +1221,12 @@ int32_t save_option_file(
 
 
 /**
- * tbd
+ * save the used options into a text file
  */
 int32_t save_option_file_kernel(
-   FILE* pfile,           /**< [in]  */
-   bool  withDoc,         /**< [in]  */
-   bool  only_not_default /**< [in]  */
+   FILE* pfile,           /**< [in] file to print into */
+   bool  withDoc,         /**< [in] also print description */
+   bool  only_not_default /**< [in] print only options with non default value */
 );
 
 

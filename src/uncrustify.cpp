@@ -551,11 +551,7 @@ void usage_exit(const char* msg, const char* argv0, int32_t code)
 
 static void version_exit(void)
 {
-#if defined (DEBUG) || defined (_DEBUG)
-   printf("uncrustify %s\n", UNCRUSTIFY_CURRENT_VERSION);
-#else
    printf("uncrustify %s\n", UNCRUSTIFY_VERSION);
-#endif
    exit(EX_OK);
 }
 
