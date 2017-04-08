@@ -141,7 +141,8 @@ static void unc_add_opt(
               "   for the group '%s'\n", id, checkOptionNumber, name);
       exit(EX_SOFTWARE);
    }
-#endif // DEBUG
+#endif
+
 #define OptionMaxLength    60
    int32_t lengthOfTheOption = strlen(name);
    if (lengthOfTheOption > OptionMaxLength)
@@ -149,8 +150,7 @@ static void unc_add_opt(
 #endif
 
 
-void unc_begin_group(ug_t id, const char *short_desc,
-                     const char *long_desc)
+void unc_begin_group(ug_t id, const char* short_desc, const char* long_desc)
 {
 #ifdef DEBUG
    /* The order of the calls of 'unc_begin_group' in the function 'register_options'
@@ -353,8 +353,14 @@ bool is_bit_unset(const uint64_t var, const uint64_t bit)
 }
 
 
-static void unc_add_opt(const char *name, uo_t id, argtype_t type,
-      const char *short_desc, const char *long_desc, int32_t min_val, int32_t max_val)
+#define MAX_BOOL_VAL 1 /**< a boolean values is either 0 or 1 */
+#define MAX_IARF_VAL 3 /**< a IARF value is either 0,1,2 or 3 */
+#define MAX_LINE_VAL 3 /**< ??? */
+#define MAX_POS_VAL  2 /**< ??? */
+#define MAX_STR_VAL  0 /**< ??? */
+
+static void unc_add_opt(const char* name, uo_t id, argtype_t type,
+      const char* short_desc, const char* long_desc, int32_t min_val, int32_t max_val)
 {
    const uint32_t option_max_length = 60;
    uint32_t lengthOfTheOption = strlen(name);
@@ -377,12 +383,12 @@ static void unc_add_opt(const char *name, uo_t id, argtype_t type,
 
    /* Calculate the max/min values */
    switch (type)
-   { /* \todo avoid magic numbers as max values */
-      case AT_BOOL:   value.max_val = 1;                                break;
-      case AT_IARF:   value.max_val = 3;                                break;
-      case AT_LINE:   value.max_val = 3;                                break;
-      case AT_POS:    value.max_val = 2;                                break;
-      case AT_STRING: value.max_val = 0;                                break;
+   {
+      case AT_BOOL:   value.max_val = MAX_BOOL_VAL;                     break;
+      case AT_IARF:   value.max_val = MAX_IARF_VAL;                     break;
+      case AT_LINE:   value.max_val = MAX_LINE_VAL;                     break;
+      case AT_POS:    value.max_val = MAX_POS_VAL;                      break;
+      case AT_STRING: value.max_val = MAX_STR_VAL;                      break;
       case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
       case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
@@ -1617,7 +1623,7 @@ void register_options(void)
                   "Set the comment reflow mode (Default=0)\n"
                   "0: no reflowing (apart from the line wrapping due to cmt_width)\n"
                   "1: no touching at all\n"
-                  "2: full reflow\n", "", 0, 2);
+                  "2: full reflow", "", 0, 2);
    unc_add_opt("cmt_convert_tab_to_spaces", UO_cmt_convert_tab_to_spaces, AT_BOOL,
                   "Whether to convert all tabs to spaces in comments. Default is to leave tabs inside comments alone, unless used for indenting.");
    unc_add_opt("cmt_indent_multi", UO_cmt_indent_multi, AT_BOOL,
@@ -1694,7 +1700,7 @@ void register_options(void)
    unc_add_opt("mod_full_brace_if_chain_only", UO_mod_full_brace_if_chain_only, AT_BOOL,
                   "Make all if/elseif/else statements with at least one 'else' or 'else if' fully braced.\n"
                   "If mod_full_brace_if_chain is used together with this option, all if-else chains will get braces,\n"
-                  "and simple 'if' statements will lose them (if possible).\n");
+                  "and simple 'if' statements will lose them (if possible).");
    unc_add_opt("mod_full_brace_nl", UO_mod_full_brace_nl, AT_UNUM,
                   "Don't remove braces around statements that span N newlines", "", 0, 5000);
    unc_add_opt("mod_full_brace_nl_block_rem_mlcond", UO_mod_full_brace_nl_block_rem_mlcond, AT_BOOL,
@@ -2200,36 +2206,43 @@ int32_t load_option_file(const char *filename)
 }
 
 
-int32_t save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
+int32_t save_option_file_kernel(FILE* pfile, bool withDoc, bool only_not_default)
 {
-   int32_t count_the_not_default_options = 0;
-
-#if defined (DEBUG) || defined (_DEBUG)
-   fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_CURRENT_VERSION);
-#else
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
-#endif // DEBUG
 
+   int32_t not_default_opt_count = 0; /* number of options that differ from their default value */
    /* Print the options by group */
    for (auto &jt : group_map)
    {
-      if (withDoc)
-      {
-         fputs("\n#\n", pfile);
-         fprintf(pfile, "# %s\n", jt.second.short_desc);
-         fputs("#\n\n", pfile);
-      }
-
       bool first = true;
 
       for (auto option_id : jt.second.options)
       {
-         const option_map_value_t *option = get_option_name(option_id);
+         const option_map_value_t* option = get_option_name(option_id);
+         const string val_string  = op_val2str(option->type, cpd.settings[option->id]);
+         const string val_default = op_val2str(option->type, cpd.defaults[option->id]);
+
+         if (val_string != val_default)
+         {
+            not_default_opt_count++;
+         }
+         else if (only_not_default)
+         {
+            continue;
+         }
 
          if (withDoc &&
             ( ptr_is_valid(option->short_desc)) &&
             (*option->short_desc != 0))
          {
+            if (first)
+            {
+               /* print group description */
+               fputs("\n#\n", pfile);
+               fprintf(pfile, "# %s\n", jt.second.short_desc);
+               fputs("#\n\n", pfile);
+            }
+
             fprintf(pfile, "%s# ", first ? "" : "\n");
             int32_t idx;
             for (idx = 0; option->short_desc[idx] != 0; idx++)
@@ -2247,48 +2260,22 @@ int32_t save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default
             }
          }
          first = false;
-         string      val_string = op_val2str(option->type, cpd.settings[option->id]);
-         const char* val_str    = val_string.c_str();
-         uint32_t      val_len    = strlen(val_str);
-         uint32_t      name_len   = strlen(option->name);
 
-         bool print_option = true;
-         if (only_not_default)
+         const uint32_t name_len = strlen(option->name);
+         const int      pad      = (name_len < MAX_OPTION_NAME_LEN)
+                                  ? (MAX_OPTION_NAME_LEN - name_len) : 1;
+
+         fprintf(pfile, "%s%*.s= ", option->name, pad, " ");
+
+         if (option->type == AT_STRING) { fprintf(pfile, "\"%s\"", val_string.c_str()); }
+         else                           { fprintf(pfile, "%s",     val_string.c_str()); }
+         if (withDoc)
          {
-            string     val_string_D;
-            const char *val_default;
-            val_string_D = op_val2str(option->type, cpd.defaults[option->id]);
-            val_default  = val_string_D.c_str();
-            if ((strcmp(val_default, val_str) == 0))
-            {
-               print_option = false;
-            }
-            else
-            {
-               print_option = true;
-               count_the_not_default_options++;
-            }
+            const int val_len = val_string.length();
+            fprintf(pfile, "%*.s # %s", 8 - val_len, " ",
+                    argtype2string(option->type).c_str());
          }
-         if (print_option)
-         {
-            uint32_t pad = (name_len < MAX_OPTION_NAME_LEN) ? (MAX_OPTION_NAME_LEN - name_len) : 1u;
-            fprintf(pfile, "%s%*.s= ", option->name, (int32_t)pad, " ");
-            if (option->type == AT_STRING)
-            {
-               fprintf(pfile, "\"%s\"", val_str);
-            }
-            else
-            {
-               fprintf(pfile, "%s", val_str);
-            }
-            if (withDoc)
-            {
-               fprintf(pfile, "%*.s # %s",
-                       (int32_t)(8 - val_len), " ",
-                       argtype2string(option->type).c_str());
-            }
-            fputs("\n", pfile);
-         }
+         fputs("\n", pfile);
       }
    }
 
@@ -2301,21 +2288,21 @@ int32_t save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default
    print_defines   (pfile); /* Print custom defines */
    print_extensions(pfile); /* Print custom file extensions */
 
-   fprintf(pfile, "# option(s) with 'not default' value: %d\n#\n", count_the_not_default_options);
+   fprintf(pfile, "# option(s) with 'not default' value: %d\n#\n", not_default_opt_count);
 
    return(0);
 }
 
 
-int32_t save_option_file(FILE *pfile, bool withDoc)
+int32_t save_option_file(FILE* pfile, bool withDoc)
 {
    return(save_option_file_kernel(pfile, withDoc, false));
 }
 
 
-void print_options(FILE *pfile)
+void print_options(FILE* pfile)
 {
-   // TODO refactor to be undependent of type positioning
+   // TODO refactor to be independent of type positioning
    const char *names[] =
    {
       "{ False, True }",
@@ -2327,11 +2314,7 @@ void print_options(FILE *pfile)
       "Unsigned Number",
    };
 
-#if defined (DEBUG) || defined (_DEBUG)
-   fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_CURRENT_VERSION);
-#else
    fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
-#endif // DEBUG
 
    /* Print the all out */
    for (auto &jt : group_map)
