@@ -134,11 +134,10 @@ static bool kw_fcn_fclass(
 /**
  * Output a multiline comment without any reformatting other than shifting
  * it left or right to get the column right.
- * Trim trailing whitespace and do keyword substitution.
+ * Trim trailing whitespace.
  */
 static void output_comment_multi_simple(
-   chunk_t* pc,      /**< [in]  */
-   bool     kw_subst /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -706,7 +705,7 @@ void output_text(FILE* pfile)
             }
             else
             {
-               output_comment_multi_simple(pc, not_flag(pc, PCF_INSERTED));
+               output_comment_multi_simple(pc);
             }
          break;
 
@@ -1423,10 +1422,9 @@ static void cmt_trim_whitespace(unc_text& line, bool in_preproc)
 }
 
 
+// \todo DRY 5 with output_comment_multi_simple
 static void output_comment_multi(chunk_t* pc)
 {
-   // \todo DRY 5 with output_comment_multi_simple
-
    cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
    cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
@@ -1983,12 +1981,9 @@ static void do_keyword_substitution(chunk_t *pc)
 }
 
 
-static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
+// DRY 5 start with output_comment_multi
+static void output_comment_multi_simple(chunk_t* pc)
 {
-   UNUSED(kw_subst);
-
-   // DRY 5 start with output_comment_multi
-
    cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
 
@@ -1996,9 +1991,9 @@ static void output_comment_multi_simple(chunk_t *pc, bool kw_subst)
       (int32_t)pc->orig_col - (int32_t)pc->column : 0;
    /* The comment should be indented correctly : The comment starts after something else */
 
-   uint32_t   line_count = 0;
-   uint32_t   cmt_idx    = 0;
-   uint32_t   ccol       = pc->column;
+   uint32_t line_count = 0;
+   uint32_t cmt_idx    = 0;
+   uint32_t ccol       = pc->column;
    bool     nl_end     = false;
    unc_text line;
    line.clear();

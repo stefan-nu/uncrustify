@@ -778,24 +778,24 @@ int main(int argc, char* argv[])
    LOG_FMT(LDATA, "check       = %d\n", cpd.do_check);
    LOG_FMT(LDATA, "if_changed  = %d\n", cpd.if_changed);
 
-   if ((cpd.do_check     == true )   &&
-      ((ptr_is_valid(output_file)) ||
-       (replace          == true ) ||
-       (no_backup        == true ) ||
-       (keep_mtime       == true ) ||
-       (update_config    == true ) ||
-       (update_config_wd == true ) ||
-       (detect           == true ) ||
-       (ptr_is_valid(prefix)     ) ||
-       (ptr_is_valid(suffix)     ) ||
-        cpd.if_changed           ) )
+   if ((cpd.do_check     == true)   &&
+      ( ptr_is_valid(output_file) ||
+        ptr_is_valid(prefix)      ||
+        ptr_is_valid(suffix)      ||
+       (replace          == true) ||
+       (no_backup        == true) ||
+       (keep_mtime       == true) ||
+       (update_config    == true) ||
+       (update_config_wd == true) ||
+       (detect           == true) ||
+        cpd.if_changed            ) )
    {
       usage_exit("Cannot use --check with output options.", argv[0], EX_NOUSER);
    }
 
    if (!cpd.do_check)
    {
-      if (replace   == true || no_backup == true)
+      if (replace == true || no_backup == true)
       {
          if (ptrs_are_valid(prefix, suffix))
          {
@@ -853,7 +853,7 @@ int main(int argc, char* argv[])
       strcpy(buffer, p_arg);
 
       /* Tokenize and extract key and value */
-      const char* token  = strtok(buffer, "=");
+      const char* token = strtok(buffer, "=");
       const char* const option = token;
 
       token = strtok(nullptr, "=");
@@ -876,7 +876,7 @@ int main(int argc, char* argv[])
 
    if (arg_list.Present("--universalindent"))
    {
-      FILE *pfile = stdout;
+      FILE* pfile = stdout;
 
       if (ptr_is_valid(output_file))
       {
@@ -951,7 +951,7 @@ int main(int argc, char* argv[])
    p_arg = arg_list.Unused(idx);
 
    /* Check args - for multi file options */
-#if 0 // SN allow debugging with eclipse
+#if 1 // SN allow debugging with eclipse
    if (ptr_is_valid(source_list) ||
        ptr_is_valid(p_arg      ) )
    {
