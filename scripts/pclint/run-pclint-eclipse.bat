@@ -1,5 +1,5 @@
-rem set to on for debugging
 @echo off
+rem set to on for debugging
 setlocal
 
 rem Run this script from the project root directory
@@ -13,7 +13,9 @@ set OUT_DIR=tests\pclint
 set LNT_DIR=scripts\pclint
 
 rem Check if pcLint program is available
-set prog=lint-nt.exe
+
+rem set prog=lint-nt.exe 
+set prog=pclp64.exe
 for %%i in ("%path:;=";"%") do (
 rem echo %%~i
     if exist %%~i\%prog% (
@@ -72,10 +74,10 @@ echo.										> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\uncrustify.cpp 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\unicode.cpp 		>> .\%OUT_DIR%\files.lnt
  rem dir /s/b %SRC_DIR%\universalindentgui.cpp 	>> .\%OUT_DIR%\files.lnt
- rem dir /s/b %SRC_DIR%\width.cpp 			>> .\%OUT_DIR%\files.lnt
+ dir /s/b %SRC_DIR%\width.cpp 			>> .\%OUT_DIR%\files.lnt
 
 rem to check all source files use the line below
- dir /s/b %SRC_DIR%\*.cpp 	>> .\%OUT_DIR%\files.lnt
+ rem dir /s/b %SRC_DIR%\*.cpp 	>> .\%OUT_DIR%\files.lnt
 
 
 rem Update the pclint configuration to reflect the compiler settings
@@ -93,7 +95,8 @@ rem use this to save the pclint errors to a file for later review
 rem lint-nt .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt > .\%OUT_DIR%\pclint-results.xml
 
 rem to make eclipse parse the pclint errors it has to be output to the console
-lint-nt .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt
+%PROG% .\%LNT_DIR%\pclint_cfg_eclipse.lnt .\%OUT_DIR%\exceptions.lnt .\%OUT_DIR%\files.lnt
+
 
 rem type %OUT_DIR%\pclint-results.xml | more
 rem type %OUT_DIR%\pclint-results.xml

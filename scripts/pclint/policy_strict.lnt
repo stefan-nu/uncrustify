@@ -1,9 +1,9 @@
 // uncrustify policy
--passes(6)              // number of analysis passes (higher values give better detection but slower)                                           
--static_depth(6)        // number of analyzed redirection for static variables 
+-passes(1)              // number of analysis passes (higher values give better detection but slower)                                           
+-static_depth(3)        // number of analyzed redirection for static variables 
 //-w2                   // suppress informational messages  
 // -strong(AJX)    		// All typedefs must match exactly
--w3						// display informational messages  
+//-w3						// display informational messages  
 //-w4      				// use the maximum warning level
 //+fpn     				// warns about the use of pointer parameters without first checking for NULL
 //+fsc       			// assumes string constants are const char*
@@ -101,7 +101,7 @@
 +e638 					// Strong type mismatch for type in relational
 +e639 					// Strong type mismatch for type in binary operation
 +e640 					// Expected strong type 'Name' in Boolean context
-+e641 					// Converting enum to int
+-e641 					// Converting enum to int
 +e642 					// Format char 'Char' not supported by wsprintf
 +e643 					// Loss of precision in pointer cast
 +e644 					// Variable may not have been initialized
@@ -299,6 +299,7 @@
 +e850 					// loop index variable is modified in body of the for loop
 -e864 					// Expression possibly depends on order of evaluation
 +e866 					// Unusual use of 'String' in argument to sizeof
+-e893					// expanded from macro
 
 +e900					// print total number of errors/warnings
 -e904 					// Return statement before end of function 'Symbol'
@@ -349,10 +350,13 @@
 -e1015					// symbol not found in class
 -e1016					// symbol is supposed to denote class
 +e1025					// no function or template matches invocation
+-e1033					// static member function cannot be virtual
+-e1038					// type ... not found
 -e1039					// symbol is not a member of class
 +e1040					// symbol is not a legal declaration within class
 +e1042					// a least one class like operand is required with operator
 -e1048					// expected a constant expression
+-e1049					// too few template arguments for class ...
 +e1051					// symbol is both a function and a variable
 +e1052					// a type was expected, class assumed
 -e1054					// template variable declaration expects a type
@@ -401,6 +405,25 @@
 -e1904					// old style comments
 -e1923					// define could be const variable
 -e1924					// C-style cast in C++ code
+
+-e4054					// declaration of anonymous struct must be a definition
+-e4380					// no return statement in constexpr function
+-e4602					// no type named ... in namespace
+-e4615					// expected function body after function declaration
+-e4624					// expected ( after __0
+-e4626					// expected type name
+-e4636					// expected a qualified name after typename
+-e4646					// expected ; at end of declaration list
+-e4654					// expected unqualified-id
+-e4731					// field has incomplete type
+-e4873					// inline can only appear on functions
+-e4898					// cannot define or redeclare ... here because namespace ... does not enclose namespace ...
+-e5124					// no template named ... in namespace
+-e5681					// implicit instantiation of undefined template
+-e5717					// class template specialization
+-e5741					// too many arguments provided to function-like macro invocation
+-e5849					// no type named ... in namespace
+-e5915 					// unknown type name
 
 //scripts/pclint/au-sm123.lnt 	// also check Scott Meyers rules of all three books
 //scripts/pclint/au-misra3.lnt	// Misra 2012 rules

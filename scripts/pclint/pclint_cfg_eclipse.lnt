@@ -61,7 +61,7 @@ scripts\pclint\policy_strict.lnt	// pclint rules
 
 // make error format same as GCC to display it in Eclipse
 -"format=%(%f:%l:%C:%) %t %n: %m"
--frl	// Enable warning 831
+//-frl	// Enable warning 831, obsolete in pclint plus
 +flm	// make sure no foreign includes change the format
 // env-xml.lnt 			// create output in xml format 
 // -"format_stack=%-20f %5a %-20t %5n %c %e"
