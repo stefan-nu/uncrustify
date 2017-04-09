@@ -23,16 +23,16 @@
 /** tbd */
 struct cw_entry
 {
-   chunk_t* pc;  /**<  */
-   uint32_t pri; /**<  */
+   chunk_t* pc;  /**< [in]  */
+   uint32_t pri; /**< [in]  */
 };
 
 
 /** tbd */
 struct token_pri
 {
-   c_token_t tok; /**<  */
-   uint32_t  pri; /**<  */
+   c_token_t tok; /**< [in]  */
+   uint32_t  pri; /**< [in]  */
 };
 
 
@@ -40,7 +40,7 @@ struct token_pri
  * tbd
  */
 static inline bool is_past_width(
-   chunk_t* pc /**< in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -48,7 +48,7 @@ static inline bool is_past_width(
  * Split right after the chunk
  */
 static void split_before_chunk(
-   chunk_t* pc /**< in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -56,7 +56,7 @@ static void split_before_chunk(
  * tbd
  */
 static uint32_t get_split_pri(
-   c_token_t tok /**< in]  */
+   c_token_t tok /**< [in]  */
 );
 
 
@@ -77,8 +77,8 @@ static uint32_t get_split_pri(
  *  - function open parenthesis not followed by closing parenthesis
  */
 static void try_split_here(
-   cw_entry& ent, /**< in]  */
-   chunk_t*  pc   /**< in]  */
+   cw_entry& ent, /**< [in,out]  */
+   chunk_t*  pc   /**< [in]  */
 );
 
 
@@ -92,7 +92,7 @@ static void try_split_here(
  * @param start The first chunk that exceeded the limit
  */
 static bool split_line(
-   chunk_t* pc /**< in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -114,7 +114,7 @@ static bool split_line(
  *                inserted before it
  */
 static void split_fcn_params(
-   chunk_t* start /**< in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -125,7 +125,7 @@ static void split_fcn_params(
  * @param start   the offending token
  */
 static void split_fcn_params_full(
-   chunk_t* start /**< in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -133,7 +133,7 @@ static void split_fcn_params_full(
  * \brief split a for statement in several lines
  */
 static void split_for_statement(
-   chunk_t* start /**< in] any chunk inside the for statement */
+   chunk_t* start /**< [in] any chunk inside the for statement */
 );
 
 
@@ -167,7 +167,7 @@ static const token_pri pri_table[] =
  //{ CT_MEMBER,      10 },
    { CT_QUESTION,    20 }, // allow break in ? : for ls_code_width
    { CT_COND_COLON,  20 },
-   { CT_FPAREN_OPEN, 21 }, // break after function open paren not followed by close paren
+   { CT_FPAREN_OPEN, 21 }, // break after function open parenthesis not followed by close parenthesis
    { CT_QUALIFIER,   25 },
    { CT_CLASS,       25 },
    { CT_STRUCT,      25 },
@@ -238,7 +238,7 @@ static uint32_t get_split_pri(c_token_t tok)
 static void try_split_here(cw_entry& ent, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-//   return_if(are_invalid(ent.pc, pc));
+   return_if(is_invalid(pc));
 
    uint32_t pc_pri = get_split_pri(pc->type);
    return_if(pc_pri == 0);
@@ -348,10 +348,7 @@ static bool split_line(chunk_t *start)
    /* Try to find the best spot to split the line */
    cw_entry ent;
    memset(&ent, 0, sizeof(ent));
-   ent.pc = nullptr;
-   ent.pri = 0;
    chunk_t* pc = start;
-   chunk_t* prev;
 
    while (((pc = chunk_get_prev(pc)) != nullptr) &&
            (!is_nl(pc)) )
@@ -413,7 +410,7 @@ static bool split_line(chunk_t *start)
    }
 
    /* add a newline before pc */
-   prev = chunk_get_prev(pc);
+   chunk_t* prev = chunk_get_prev(pc);
    if (!is_nl(pc) && !is_nl(prev) )
    {
       //int plen = (pc->len() < 5) ? pc->len() : 5;
@@ -656,8 +653,7 @@ static void split_fcn_params(chunk_t* start)
             }
             else
             {
-               min_col += (uint32_t)abs(get_ival(UO_indent_continue));
-             //  min_col += get_abs(UO_indent_continue);
+               min_col += get_abs(UO_indent_continue);
             }
          }
 

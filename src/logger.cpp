@@ -27,8 +27,8 @@ struct log_fcn_info
    {
    }
 
-   const char *name;
-   int32_t        line;
+   const char* name;
+   int32_t     line;
 };
 static std::deque<log_fcn_info> g_fq;
 
@@ -50,7 +50,7 @@ struct log_buf_t
    log_sev_t  sev;               /** log level determines which messages are logged */
    bool       in_log;            /** flag indicates if a log operation is going on */
    char       buf[LOG_BUF_SIZE]; /** buffer holds the log message */
-   uint32_t     buf_len;           /** number of characters currently stored in buffer */
+   uint32_t   buf_len;           /** number of characters currently stored in buffer */
    log_mask_t mask;              /**  */
    bool       show_hdr;          /** flag determine if a header gets added to log message */
 };
@@ -209,7 +209,7 @@ void log_fmt(log_sev_t sev, const char* fmt, ...)
        * of the number of characters actually stored. Thus limit the len
        * value to the maximal number of written characters */
       len = min(len, (int32_t)cap);
-      g_log.buf_len += len;            /* update the buffer usage count */
+      g_log.buf_len += (uint32_t)len;  /* update the buffer usage count */
       g_log.buf[g_log.buf_len] = '\0'; /* ensure string is terminated */
    }
    else if (len < 0)
@@ -345,7 +345,7 @@ void log_func_stack(log_sev_t sev, const char* prefix, const char* suffix, uint3
    uint32_t g_fq_size = g_fq.size();
    if (g_fq_size > (skip_cnt + 1) )
    {
-      uint32_t     begin_with;
+      uint32_t    begin_with;
       const char* sep = "";
       begin_with = g_fq_size - (skip_cnt + 1);
       for (uint32_t idx = begin_with; idx != 0; idx--)

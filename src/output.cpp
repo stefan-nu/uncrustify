@@ -180,8 +180,8 @@ static void add_text(
  * tbd
  */
 static void add_text(
-   const unc_text& text,      /**< [in]  */
-   bool            is_ignored /**< [in]  */
+   const unc_text& text,              /**< [in]  */
+   bool            is_ignored = false /**< [in]  */
 );
 
 
@@ -375,7 +375,7 @@ static bool can_combine_cmt(
  * \todo parameter should not be int32_t type
  */
 bool is_dos_nl(
-   const int32_t* pchar /**< [in] pointer to first character of line ending */
+   const uint32_t* pchar /**< [in] pointer to first character of line ending */
 );
 
 
@@ -499,7 +499,7 @@ static void fill_line(uint32_t column, bool allow_tabs)
 }
 
 
-static void add_text(const char *ascii_text)
+static void add_text(const char* ascii_text)
 {
    char ch;
    while ((ch = *ascii_text) != 0)
@@ -510,20 +510,12 @@ static void add_text(const char *ascii_text)
 }
 
 
-static void add_text(const unc_text& text, bool is_ignored = false)
+static void add_text(const unc_text& text, bool is_ignored)
 {
    for (uint32_t idx = 0; idx < text.size(); idx++)
    {
-      int32_t ch = text[idx];
-
-      if((is_ignored == true) && (ch >= 0))
-      {
-         write_char((uint32_t)ch);
-      }
-      else
-      {
-         add_char(ch); /*lint !e732 */
-      }
+      if(is_ignored) { write_char(text[idx]); }
+      else           { add_char  (text[idx]); }
    }
 }
 
@@ -553,13 +545,13 @@ static bool next_word_exceeds_limit(const unc_text& text, uint32_t idx)
 
 static void cmt_output_indent(uint32_t brace_col, uint32_t base_col, uint32_t column)
 {
-   uint32_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs)    ? 2 :
-                            (get_ival(UO_indent_with_tabs) ? 1 :
-                                                                   0);
+   uint32_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 :   /* \todo better use an enum here */
+                                 (get_ival(UO_indent_with_tabs) ? 1 :
+                                                                  0);
 
    uint32_t tab_col = (indent_with_tabs == 0) ? 0 :
-                    (indent_with_tabs == 1) ? brace_col :
-                  /*(indent_with_tabs == 2)*/ base_col;
+                      (indent_with_tabs == 1) ? brace_col :
+                    /*(indent_with_tabs == 2)*/ base_col;
 
    cpd.did_newline = false;
    if ( (                      indent_with_tabs == 2 ) ||
@@ -668,7 +660,7 @@ void output_text(FILE* pfile)
                   if (is_valid(prev) && (prev->nl_count == 0))
                   {
                      int32_t orig_sp = (int32_t)pc->orig_col - (int32_t)prev->orig_col_end;
-                     if ((int32_t)(cpd.column + orig_sp) < 0)
+                     if ((int32_t)cpd.column + orig_sp < 0)
                      {
                         fprintf(stderr, "FATAL: negative value.\n   pc->orig_col=%u prev->orig_col_end=%u\n",
                                          pc->orig_col, prev->orig_col_end);
@@ -832,7 +824,7 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
                    (line[tmp] == SLASH), 1);
          break;
       }
-      else if (strchr("*|\\#+", line[len]) == nullptr)
+      else if (strchr("*|\\#+", (int32_t)line[len]) == nullptr)
       {
          break;
       }
@@ -851,21 +843,21 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
 }
 
 
-bool is_dos_nl(const int32_t* pchar)
+bool is_dos_nl(const uint32_t* pchar)
 {
    return((pchar[0] == CARRIAGERETURN) &&
           (pchar[1] == LINEFEED      ) );
 }
 
 
-bool is_part_of_nl(const int32_t character)
+bool is_part_of_nl(const uint32_t character)
 {
    return((character == CARRIAGERETURN) ||
           (character == LINEFEED      ) );
 }
 
 
-bool is_space_or_tab(const int32_t character)
+bool is_space_or_tab(const uint32_t character)
 {
    return((character == SPACE  ) ||
           (character == TABSTOP) );
@@ -1261,7 +1253,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
    /* Special treatment for Qt translator or meta-data comments (treat as unity) */
    if (is_true(UO_sp_cmt_cpp_qttr))
    {
-      const int32_t c = first->str[2];
+      const uint32_t c = first->str[2];
       if ((c == ':') ||
           (c == '=') ||
           (c == '~') )
@@ -1446,7 +1438,7 @@ static void output_comment_multi(chunk_t* pc)
    line.clear();
    while (cmt_idx < pc->len())
    {
-      int32_t ch = pc->str[cmt_idx++];
+      uint32_t ch = pc->str[cmt_idx++];
 
       /* handle the CRLF and CR endings. convert both to LF */
       if (ch == CARRIAGERETURN)
@@ -1487,9 +1479,9 @@ static void output_comment_multi(chunk_t* pc)
           (ch      == LINEFEED     ) &&
           (cmt_idx <  pc->len()) )
       {
-         int32_t    prev_nonempty_line = -1;
+         int32_t  prev_nonempty_line = -1;
          uint32_t nwidx              = line.size();
-         bool   star_is_bullet     = false;
+         bool     star_is_bullet     = false;
 
          /* strip trailing whitespace from the line collected so far */
          while (nwidx > 0)
@@ -1999,7 +1991,7 @@ static void output_comment_multi_simple(chunk_t* pc)
    line.clear();
    while (cmt_idx < pc->len())
    {
-      int32_t ch = pc->str[cmt_idx++];
+      uint32_t ch = pc->str[cmt_idx++];
 
       /* handle the CRLF and CR endings. convert both to LF */
       if (ch == CARRIAGERETURN)

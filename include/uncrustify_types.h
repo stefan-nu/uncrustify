@@ -406,7 +406,7 @@ struct align_t
 struct file_mem_t
 {
    vector<uint8_t> raw;   /**< raw content of file  */
-   deque<int32_t>  data;  /**< processed content of file  */
+   deque<uint32_t> data;  /**< processed content of file  */
    bool            bom;   /**<  */
    char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
 #ifdef HAVE_UTIME_H
@@ -437,7 +437,7 @@ struct cp_data_t
    int32_t         last_char;      /**<  */
    bool            do_check;       /**<  */
    unc_stage_e     unc_stage;      /**<  */
-   int32_t         check_fail_cnt; /**< total failures */
+   uint32_t        check_fail_cnt; /**< total failures */
    bool            if_changed;     /**<  */
 
    uint32_t        error_count;    /**< counts how many errors occurred so far */
@@ -471,7 +471,7 @@ struct cp_data_t
 
    bool            did_newline;         /**< flag indicates if a newline was added or converted */
    c_token_t       is_preproc;          /**<  */
-   int32_t         preproc_ncnl_count;  /**<  */
+   uint32_t        preproc_ncnl_count;  /**<  */
    bool            output_trailspace;   /**<  */
    bool            output_tab_as_space; /**<  */
 
@@ -480,7 +480,7 @@ struct cp_data_t
 
    /* bumped up when a line is split or indented */
    int32_t         changes;      /**<  */
-   int32_t         pass_count;   /**<  */
+   int32_t         pass_count;   /**< indicates how often the chunk list shall be processed */
 
    align_t         al[80];       /**<  */
    uint32_t        al_cnt;       /**<  */
@@ -492,7 +492,7 @@ struct cp_data_t
    op_val_t        settings[UO_option_count]; /**< array with all uncrustify options */
 
    parse_frame_t   frames[16];   /**<  */
-   int32_t         frame_count;  /**<  */
+   uint32_t        frame_count;  /**<  */
    uint32_t        pp_level;     /**< \todo can this ever be negative */
 
    /* the default values for settings */

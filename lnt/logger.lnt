@@ -1,2 +1,3 @@
 -esym(526, __builtin_va_start)
 -esym(530, args)
+-esym(522, std::log_set_sev)

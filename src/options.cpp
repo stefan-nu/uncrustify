@@ -281,6 +281,12 @@ bool is_false(const uo_t opt)
 }
 
 
+bool is_opt_unset(
+   const argval_t opt,
+   const argval_t val
+);
+
+
 bool is_opt_unset(const argval_t opt, const argval_t val)
 {
    return ((opt & val) == 0); /*lint !e655 !e641*/
@@ -1832,10 +1838,10 @@ void register_options(void)
    unc_add_opt("warn_level_tabs_found_in_verbatim_string_literals", UO_warn_level_tabs_found_in_verbatim_string_literals, AT_UNUM,
                   "Warning is given if doing tab-to-\\t replacement and we have found one in a C# verbatim string literal.", "", 1, 3);
 
-   unc_add_opt("always_ignore", UO_always_ignore, AT_IARF, "this option is always AV_IGNORE", "", AV_IGNORE, AV_IGNORE);
-   unc_add_opt("always_add",    UO_always_add,    AT_IARF, "this option is always AV_ADD"   , "", AV_ADD,    AV_ADD   );
-   unc_add_opt("always_remove", UO_always_remove, AT_IARF, "this option is always AV_REMOVE", "", AV_REMOVE, AV_REMOVE);
-   unc_add_opt("always_force",  UO_always_force,  AT_IARF, "this option is always AV_FORCE" , "", AV_FORCE,  AV_FORCE );
+   unc_add_opt("always_ignore", UO_always_ignore, AT_IARF, "this option is always AV_IGNORE", "");
+   unc_add_opt("always_add",    UO_always_add,    AT_IARF, "this option is always AV_ADD"   , "");
+   unc_add_opt("always_remove", UO_always_remove, AT_IARF, "this option is always AV_REMOVE", "");
+   unc_add_opt("always_force",  UO_always_force,  AT_IARF, "this option is always AV_FORCE" , "");
 }
 
 
@@ -1937,6 +1943,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
                  cpd.line_number,
                  get_argtype_name(entry->type), entry->name,
                  get_argtype_name(tmp->type), tmp->name);
+
          if (( tmp->type == entry->type) ||
              ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
              ((tmp->type == AT_NUM ) && (entry->type == AT_UNUM) && (get_ival(tmp->id) * mult) > 0))
@@ -2027,7 +2034,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
 
 int32_t set_option_value(const char *name, const char *value)
 {
-   const option_map_value_t *entry;
+   const option_map_value_t* entry;
 
    if ((entry = unc_find_option(name)) != nullptr)
    {
@@ -2061,19 +2068,14 @@ bool is_path_relative(const char *path)
 void process_option_line(char* configLine, const char* filename)
 {
    cpd.line_number++;
-   char *ptr;
-   /* Chop off trailing comments */
-   if ((ptr = strchr(configLine, '#')) != nullptr) { *ptr = 0; }
-
-   /* Blow away the '=' to make things simple */
-   if ((ptr = strchr(configLine, '=')) != nullptr) { *ptr = ' '; }
-
-   /* Blow away all commas */
+   char* ptr;
+   if ((ptr = strchr(configLine, '#')) != nullptr) { *ptr = 0;   } /* Chop off trailing comments */
+   if ((ptr = strchr(configLine, '=')) != nullptr) { *ptr = ' '; } /* Blow away the '=' to make things simple */
    ptr = configLine;
-   while ((ptr = strchr(ptr, ',')) != nullptr)     { *ptr = ' '; }
+   while ((ptr = strchr(ptr, ',')) != nullptr)     { *ptr = ' '; } /* Blow away all commas */
 
    /* Split the line */
-   char   *args[32];
+   char*    args[32];
    uint32_t argc = Args::SplitLine(configLine, args, uint32_t(ARRAY_SIZE(args) - 1u));
    if (argc < 2)
    {

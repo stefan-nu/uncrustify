@@ -24,7 +24,7 @@
 
 struct tok_info
 {
-   tok_info()
+   tok_info(void)
       : last_ch(0)
       , idx(0)
       , row(1)
@@ -40,7 +40,7 @@ struct tok_info
 
 struct tok_ctx
 {
-   explicit tok_ctx(const deque<int32_t> &d)
+   explicit tok_ctx(const deque<uint32_t> &d)
       : data(d)
    {
    }
@@ -66,7 +66,7 @@ struct tok_ctx
 #endif
 
 
-   void save()
+   void save(void)
    {
       save(s);
    }
@@ -78,7 +78,7 @@ struct tok_ctx
    }
 
 
-   void restore()
+   void restore(void)
    {
       restore(s);
    }
@@ -90,13 +90,13 @@ struct tok_ctx
    }
 
 
-   bool more() const
+   bool more(void) const
    {
       return(c.idx < data.size());
    }
 
 
-   uint32_t peek() const
+   uint32_t peek(void) const
    {
       return((more() == true) ? data[c.idx] : 0u);
    }
@@ -109,11 +109,11 @@ struct tok_ctx
    }
 
 
-   int32_t get()
+   uint32_t get()
    {
       if (more())
       {
-         int32_t ch = data[c.idx++];
+         uint32_t ch = data[c.idx++];
          switch (ch)
          {
             case TABSTOP:
@@ -148,7 +148,7 @@ struct tok_ctx
       return(false);
    }
 
-   const deque<int32_t> &data;
+   const deque<uint32_t> &data;
    tok_info         c; /* current */
    tok_info         s; /* saved */
 };
@@ -175,10 +175,10 @@ static bool parse_word(
  * @return Whether a string was parsed
  */
 static bool parse_string(
-   tok_ctx &ctx,        /**< [in]  */
-   chunk_t &pc,         /**< [in] The structure to update, str is an input. */
-   uint32_t  quote_idx,   /**< [in]  */
-   bool    allow_escape /**< [in]  */
+   tok_ctx& ctx,         /**< [in]  */
+   chunk_t& pc,          /**< [in] The structure to update, str is an input. */
+   uint32_t quote_idx,   /**< [in]  */
+   bool     allow_escape /**< [in]  */
 );
 
 
@@ -189,8 +189,8 @@ static bool parse_string(
  * @return Whether a string was parsed
  */
 static bool parse_cs_string(
-   tok_ctx &ctx,
-   chunk_t &pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -202,10 +202,10 @@ static bool parse_cs_string(
  * @return Whether a string was parsed
  */
 static bool tag_compare(
-   const deque<int32_t> &d,
-   uint32_t           a_idx,
-   uint32_t           b_idx,
-   uint32_t           len
+   const deque<uint32_t>& d,
+   uint32_t               a_idx,
+   uint32_t               b_idx,
+   uint32_t               len
 );
 
 
@@ -213,8 +213,8 @@ static bool tag_compare(
  * VALA verbatim string, ends with three quotes (""")
  */
 static void parse_verbatim_string(
-   tok_ctx &ctx,
-   chunk_t &pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -223,9 +223,9 @@ static void parse_verbatim_string(
  * Newlines may be in the string.
  */
 static bool parse_cr_string(
-   tok_ctx &ctx,
-   chunk_t &pc,  /**< [in] structure to update, str is an input. */
-   uint32_t  q_idx
+   tok_ctx& ctx,
+   chunk_t& pc,   /**< [in] structure to update, str is an input. */
+   uint32_t q_idx
 );
 
 
@@ -235,8 +235,8 @@ static bool parse_cr_string(
  * @return Whether whitespace was parsed
  */
 static bool parse_whitespace(
-   tok_ctx &ctx,
-   chunk_t &pc   /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -246,8 +246,8 @@ static bool parse_whitespace(
  * backslash newline
  */
 static bool parse_bs_newline(
-   tok_ctx &ctx,
-   chunk_t &pc   /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -258,7 +258,7 @@ static bool parse_bs_newline(
  * a single newline is encountered.
  */
 static bool parse_newline(
-   tok_ctx &ctx
+   tok_ctx& ctx
 );
 
 
@@ -270,8 +270,8 @@ static bool parse_newline(
  * Do not change the pattern.
  */
 static void parse_pawn_pattern(
-   tok_ctx   &ctx,
-   chunk_t   &pc,  /**< [in] structure to update, str is an input. */
+   tok_ctx&  ctx,
+   chunk_t&  pc,  /**< [in] structure to update, str is an input. */
    c_token_t tt
 );
 
@@ -280,8 +280,8 @@ static void parse_pawn_pattern(
  * tbd
  */
 static bool parse_ignored(
-   tok_ctx &ctx,
-   chunk_t &pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -296,8 +296,8 @@ static bool parse_ignored(
  * @return        true/false - whether anything was parsed
  */
 static bool parse_next(
-   tok_ctx &ctx,
-   chunk_t &pc   /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -322,8 +322,8 @@ static bool parse_next(
  * @return     Whether a string was parsed
  */
 static bool d_parse_string(
-   tok_ctx &ctx,
-   chunk_t &pc   /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -338,8 +338,8 @@ static bool d_parse_string(
  * @return Whether a comment was parsed
  */
 static bool parse_comment(
-   tok_ctx &ctx,
-   chunk_t &pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx,
+   chunk_t& pc  /**< [in] structure to update, str is an input. */
 );
 
 
@@ -351,8 +351,8 @@ static bool parse_comment(
  * @return Whether a placeholder was parsed.
  */
 static bool parse_code_placeholder(
-   tok_ctx &ctx,  /**< [in]  */
-   chunk_t &pc    /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -362,23 +362,35 @@ static bool parse_code_placeholder(
  * PRIx32 and SCNx64.
  */
 static void parse_suffix(
-   tok_ctx &ctx,      /**< [in]  */
-   chunk_t &pc,       /**< [in]  */
-   bool    forstring  /**< [in]  */
+   tok_ctx& ctx,       /**< [in]  */
+   chunk_t& pc,        /**< [in]  */
+   bool     forstring  /**< [in]  */
 );
 
 
-static bool is_bin (int32_t ch);
-static bool is_bin_or_underline(int32_t ch);
+/** check if a symbol holds a boolean value */
+static bool is_bin (uint32_t ch); /**< [in] symbol to check */
 
-static bool is_oct (int32_t ch);
-static bool is_oct_or_underline(int32_t ch);
+/** check if a symbol holds a octal value */
+static bool is_oct (uint32_t ch); /**< [in] symbol to check */
 
-static bool is_dec (int32_t ch);
-static bool is_dec_or_underline(int32_t ch);
+/** check if a symbol holds a decimal value */
+static bool is_dec (uint32_t ch); /**< [in] symbol to check */
 
-static bool is_hex (int32_t ch);
-static bool is_hex_or_underline(int32_t ch);
+/** check if a symbol holds a hexadecimal value */
+static bool is_hex (uint32_t ch); /**< [in] symbol to check */
+
+/** check if a symbol holds a boolean value or an underscore */
+static bool is_bin_or_underline(uint32_t ch); /**< [in] symbol to check */
+
+/** check if a symbol holds a octal value or an underscore */
+static bool is_oct_or_underline(uint32_t ch); /**< [in] symbol to check */
+
+/** check if a symbol holds a decimal value or an underscore */
+static bool is_dec_or_underline(uint32_t ch); /**< [in] symbol to check */
+
+/** check if a symbol holds a hexadecimal value or an underscore */
+static bool is_hex_or_underline(uint32_t ch); /**< [in] symbol to check */
 
 
 /**
@@ -396,8 +408,8 @@ static bool is_hex_or_underline(int32_t ch);
  * @return Whether a number was parsed
  */
 static bool parse_number(
-   tok_ctx &ctx, /**< [in]  */
-   chunk_t &pc   /**< [in,out] The structure to update, str is an input. */
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in,out] The structure to update, str is an input. */
 );
 
 
@@ -405,9 +417,9 @@ static bool parse_number(
  * tbd
  */
 void append_multiple(
-   tok_ctx &ctx,  /**< [in]  */
-   chunk_t &pc,   /**< [in]  */
-   uint32_t  cnt    /**< [in]  */
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc,  /**< [in]  */
+   uint32_t cnt  /**< [in]  */
 );
 
 
@@ -420,7 +432,7 @@ void append_multiple(tok_ctx &ctx, chunk_t &pc, uint32_t cnt)
 }
 
 
-static bool d_parse_string(tok_ctx &ctx, chunk_t &pc)
+static bool d_parse_string(tok_ctx& ctx, chunk_t& pc)
 {
    uint32_t ch = ctx.peek();
 
@@ -523,8 +535,13 @@ static const char *str_search(const char *needle, const char *haystack, int32_t 
 #endif
 
 
+void parse_char(
+   tok_ctx& ctx,
+   chunk_t& pc
+);
+
 /* \todo name might be improved */
-void parse_char(tok_ctx &ctx, chunk_t &pc)
+void parse_char(tok_ctx& ctx, chunk_t& pc)
 {
   uint32_t ch = ctx.get();
   pc.str.append(ch);
@@ -574,7 +591,7 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 
    /* account for opening two chars */
    pc.str = ctx.get(); /* opening '/' */
-   int32_t ch = ctx.get();
+   uint32_t ch = ctx.get();
    pc.str.append(ch);     /* second char */
 
    if (ch == '/')
@@ -786,43 +803,7 @@ static void parse_suffix(tok_ctx &ctx, chunk_t &pc, bool forstring = false)
 }
 
 
-static bool is_bin(int32_t ch)
-{
-   return((ch == '0') || (ch == '1'));
-}
-
-
-static bool is_bin_or_underline(int32_t ch)
-{
-   return(is_bin(ch) || (ch == '_'));
-}
-
-
-static bool is_oct(int32_t ch)
-{
-   return((ch >= '0') && (ch <= '7'));
-}
-
-
-static bool is_oct_or_underline(int32_t ch)
-{
-   return(is_oct(ch) || (ch == '_'));
-}
-
-
-static bool is_dec(int32_t ch)
-{
-   return((ch >= '0') && (ch <= '9'));
-}
-
-
-static bool is_dec_or_underline(int32_t ch)
-{
-   return(is_dec(ch) || (ch == '_'));
-}
-
-
-static bool is_hex(int32_t ch)
+static bool is_hex(uint32_t ch)
 {
    return(((ch >= '0') && (ch <= '9')) ||
           ((ch >= 'a') && (ch <= 'f')) ||
@@ -830,13 +811,21 @@ static bool is_hex(int32_t ch)
 }
 
 
-static bool is_hex_or_underline(int32_t ch)
-{
-   return(is_hex(ch) || (ch == '_'));
-}
+static bool is_bin(uint32_t ch) { return((ch >= '0') && (ch <= '1')); }
+static bool is_oct(uint32_t ch) { return((ch >= '0') && (ch <= '7')); }
+static bool is_dec(uint32_t ch) { return((ch >= '0') && (ch <= '9')); }
 
+static bool is_bin_or_underline(uint32_t ch) { return(is_bin(ch) || (ch == '_')); }
+static bool is_oct_or_underline(uint32_t ch) { return(is_oct(ch) || (ch == '_')); }
+static bool is_dec_or_underline(uint32_t ch) { return(is_dec(ch) || (ch == '_')); }
+static bool is_hex_or_underline(uint32_t ch) { return(is_hex(ch) || (ch == '_')); }
 
-bool analyze_character(tok_ctx &ctx, chunk_t &pc)
+bool analyze_character(
+   tok_ctx& ctx,
+   chunk_t& pc
+);
+
+bool analyze_character(tok_ctx& ctx, chunk_t& pc)
 {
    bool did_hex = false;
 
@@ -1015,10 +1004,10 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 }
 
 
-static bool parse_string(tok_ctx &ctx, chunk_t &pc, uint32_t quote_idx, bool allow_escape)
+static bool parse_string(tok_ctx& ctx, chunk_t& pc, uint32_t quote_idx, bool allow_escape)
 {
-   uint32_t escape_char        = get_uval(UO_string_escape_char);
-   uint32_t escape_char2       = get_uval(UO_string_escape_char2);
+   uint32_t escape_char      = get_uval(UO_string_escape_char);
+   uint32_t escape_char2     = get_uval(UO_string_escape_char2);
    bool   should_escape_tabs = is_true(UO_string_replace_tab_chars) && (cpd.lang_flags & LANG_ALLC);
 
    pc.str.clear();
@@ -1236,7 +1225,7 @@ static void parse_verbatim_string(tok_ctx &ctx, chunk_t &pc)
 }
 
 
-static bool tag_compare(const deque<int32_t> &d, uint32_t a_idx, uint32_t b_idx, uint32_t len)
+static bool tag_compare(const deque<uint32_t> &d, uint32_t a_idx, uint32_t b_idx, uint32_t len)
 {
    if (a_idx != b_idx)
    {
@@ -1313,7 +1302,7 @@ static bool parse_cr_string(tok_ctx &ctx, chunk_t &pc, uint32_t q_idx)
 
 static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
 {
-   static unc_text intr_txt("@interface");
+   static const unc_text intr_txt("@interface");
 
    /* The first character is already valid */
    pc.str.clear();
@@ -1446,8 +1435,7 @@ static bool parse_bs_newline(tok_ctx &ctx, chunk_t &pc)
    ctx.get(); /* skip the '\' */
 
    uint32_t ch;
-   while ((ctx.more() == true        ) &&
-          unc_isspace(ch = ctx.peek()) )
+   while ((ctx.more()) && unc_isspace(ch = ctx.peek()))
    {
       ctx.get();
       if(is_part_of_nl(ch))
@@ -1873,14 +1861,14 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 }
 
 
-void tokenize(const deque<int32_t> &data, chunk_t *ref)
+void tokenize(const deque<uint32_t> &data, chunk_t* ref)
 {
    tok_ctx ctx(data);
-   chunk_t chunk;
-   chunk_t *pc          = nullptr;
-   chunk_t *rprev       = nullptr;
-   bool    last_was_tab = false;
-   uint32_t  prev_sp      = 0;
+   chunk_t  chunk;
+   chunk_t* pc           = nullptr;
+   chunk_t* rprev        = nullptr;
+   bool     last_was_tab = false;
+   uint32_t prev_sp      = 0;
 
    cpd.unc_stage = unc_stage_e::TOKENIZE;
 

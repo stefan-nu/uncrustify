@@ -61,7 +61,7 @@ void log_set_sev(
  * Sets the log mask
  */
 void log_set_mask(
-   const log_mask_t &mask /**< [in] The mask to copy */
+   const log_mask_t& mask /**< [in] The mask to copy */
 );
 
 
@@ -69,7 +69,7 @@ void log_set_mask(
  * Gets the log mask
  */
 void log_get_mask(
-   log_mask_t &mask /**< [in] Where to copy the mask */
+   log_mask_t& mask /**< [in] Where to copy the mask */
 );
 
 
@@ -79,7 +79,7 @@ void log_get_mask(
 void log_str(
    log_sev_t   sev, /**< [in] severity */
    const char* str, /**< [in] pointer to the string */
-   uint32_t    len  /**< [in] length of the string from strlen(str) */
+   uint32_t    len  /**< [in] length of the string from strlen(str) */ /* \todo not necessary function can call strlen itself */
 );
 
 
@@ -155,9 +155,9 @@ void log_hex_blk(
  * @return        '0', '1', '2', '3', '4', '5', '6', '7',
  *                '8', '9', 'a', 'b', 'c', 'd', 'e', or 'f'
  */
-static inline char to_hex_char(int32_t nibble)
+static inline char to_hex_char(uint32_t nibble)
 {
-   const char *hex_string = "0123456789abcdef";
+   const char* hex_string = "0123456789abcdef";
    return(hex_string[nibble & 0x0F]);
 }
 
@@ -169,14 +169,14 @@ static inline char to_hex_char(int32_t nibble)
  * It uses the log_func class to add an entry to the function log stack.
  * It is automatically removed when the function returns.
  */
-#define LOG_FUNC_ENTRY()    log_func log_fe = log_func(__func__, __LINE__)
+#define LOG_FUNC_ENTRY() log_func log_fe = log_func(__func__, __LINE__)
 
 /**
  * This should be called right before a repeated function call to trace where
  * the function was called. It does not add an entry, but rather updates the
  * line number of the top entry.
  */
-#define LOG_FUNC_CALL()     log_func_call(__LINE__)
+#define LOG_FUNC_CALL()  log_func_call(__LINE__)
 
 #else
 #define LOG_FUNC_ENTRY()
@@ -191,7 +191,7 @@ static inline char to_hex_char(int32_t nibble)
 class log_func
 {
 public:
-   log_func(const char *name, int32_t line);
+   log_func(const char* name, int32_t line);
    ~log_func(); /**< [in]  */
 };
 
@@ -211,11 +211,11 @@ void log_func_stack(
    log_sev_t   sev,           /**< [in]  */
    const char* prefix = "",   /**< [in]  */
    const char* suffix = "\n", /**< [in]  */
-   uint32_t      skip_cnt = 0   /**< [in]  */
+   uint32_t    skip_cnt = 0   /**< [in]  */
 );
 
 
-#define log_func_stack_inline(_sev)    log_func_stack((_sev), " [CallStack:", "]\n", 1)
+#define log_func_stack_inline(_sev) log_func_stack((_sev), " [CallStack:", "]\n", 1)
 
 
 #endif /* LOGGER_H_INCLUDED */

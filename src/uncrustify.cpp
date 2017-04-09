@@ -47,7 +47,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cerrno>
+#include <cerrno> /*lint !e967 */
 #include <fcntl.h>
 #include "unc_ctype.h"
 #include <vector>
@@ -157,7 +157,7 @@ static bool load_header_file(
  * @return  LANG_xxx
  */
 static lang_t language_flags_from_filename(
-   const char* filenme  /**< [in] The name of the file */
+   const char* filenme /**< [in] The name of the file */
 );
 
 
@@ -167,13 +167,13 @@ static lang_t language_flags_from_filename(
  * @return  A string
  */
 const char *language_name_from_flags(
-   uint32_t lang  /**< [in] The LANG_xxx enum */
+   uint32_t lang /**< [in] The LANG_xxx enum */
 );
 
 
 /** tbd */
 static bool read_stdin(
-   file_mem_t &fm  /**< [out] file description to update */
+   file_mem_t &fm /**< [out] file description to update */
 );
 
 
@@ -183,13 +183,13 @@ static bool read_stdin(
  * the full path was created on disk
  */
 static void make_folders(
-   const string &filename  /**< [in] full path to create */
+   const string& filename /**< [in] full path to create */
 );
 
 
 /** tbd */
 static void uncrustify_start(
-   const deque<int32_t> &data  /**< [in]  */
+   const deque<uint32_t>& data /**< [in]  */
 );
 
 
@@ -207,7 +207,7 @@ static bool ends_with(
 
 /** tbd */
 void uncrustify_file(
-   const file_mem_t &fm,             /**< [out] file description to update */
+   const file_mem_t& fm,             /**< [out] file description to update */
    FILE*             pfout,          /**< [in]  */
    const char*       parsed_file,    /**< [in]  */
    bool defer_uncrustify_end = false /**< [in]  */
@@ -236,23 +236,23 @@ static void add_file_footer(void);
 
 /** tbd */
 static void add_func_header(
-   c_token_t        type, /**< [in]  */
-   const file_mem_t &fm   /**< [out] file description to update */
+   c_token_t         type, /**< [in]  */
+   const file_mem_t& fm    /**< [out] file description to update */
 );
 
 
 /** tbd */
 static void add_msg_header(
-   c_token_t        type, /**< [in]  */
-   const file_mem_t &fm   /**< [out] file description to update */
+   c_token_t         type, /**< [in]  */
+   const file_mem_t& fm    /**< [out] file description to update */
 );
 
 
 /** tbd */
 static void process_source_list(
    const char* const source_list, /**< [in]  */
-   const char*       prefix,     /**< [in]  */
-   const char*       suffix,     /**< [in]  */
+   const char*       prefix,      /**< [in]  */
+   const char*       suffix,      /**< [in]  */
    bool              no_backup,   /**< [in]  */
    bool              keep_mtime   /**< [in]  */
 );
@@ -281,8 +281,8 @@ static const char* make_output_filename(
  * compare the content of two files
  */
 static bool file_content_matches(
-   const string &filename1, /**< [in] file1 to compare */
-   const string &filename2  /**< [in] file2 to compare */
+   const string& filename1, /**< [in] file1 to compare */
+   const string& filename2  /**< [in] file2 to compare */
 );
 
 
@@ -293,14 +293,14 @@ static bool file_content_matches(
  * example: "source.c" -> "source.c.uncrustify"
  */
 static string create_out_filename(
-   const char * const filename /**< [in]  */
+   const char* const filename /**< [in]  */
 );
 
 
 /** tbd */
 static bool bout_content_matches(
-   const file_mem_t &fm,          /**< [out] file description to update */
-   const bool       report_status /**< [in]  */
+   const file_mem_t& fm,           /**< [out] file description to update */
+   const bool        report_status /**< [in]  */
 );
 
 
@@ -311,8 +311,8 @@ static bool bout_content_matches(
  * @retval false file could not be loaded
  */
 static bool load_mem_file(
-   const char * const filename,  /**< [in]  name of file to load */
-   file_mem_t         &fm        /**< [out] file description to update */
+   const char* const filename, /**< [in]  name of file to load */
+   file_mem_t&       fm        /**< [out] file description to update */
 );
 
 
@@ -323,8 +323,8 @@ static bool load_mem_file(
  * @retval false file could not be loaded
  */
 static bool load_mem_file_config(
-   const char * const filename,  /**< [in]  name of file to load */
-   file_mem_t         &fm        /**< [out] file description to update */
+   const char* const filename, /**< [in]  name of file to load */
+   file_mem_t&       fm        /**< [out] file description to update */
 );
 
 
@@ -336,7 +336,7 @@ static void version_exit(void);
 
 /** tbd */
 static void redir_stdout(
-   const char *output_file /**< [in]  */
+   const char* output_file /**< [in]  */
 );
 
 
@@ -352,7 +352,7 @@ bool is_valid_token_name(
  * check if a string pointer is valid and holds a non empty string
  */
 bool is_nonempty_string(
-  const char *str   /**< [in] string to check */
+  const char* str   /**< [in] string to check */
 );
 
 
@@ -360,15 +360,23 @@ bool is_nonempty_string(
  * rename a file
  */
 static void rename_file(
-   const char *old_name, /**< [in] current file name */
-   const char *new_name  /**< [in] changed file name */
+   const char* old_name, /**< [in] current file name */
+   const char* new_name  /**< [in] changed file name */
+);
+
+
+/** tbd */
+static void set_nl_chunk_pos(
+   uo_t      check, /**< [in]  */
+   uo_t      set,   /**< [in]  */
+   c_token_t token  /**< [in]  */
 );
 
 cp_data_t cpd;
 
 
 #ifdef DEFINE_PCF_NAMES
-static const char * const pcf_names[] =
+static const char* const pcf_names[] =
 {
    "IN_PREPROC",        // 0
    "IN_STRUCT",         // 1
@@ -415,9 +423,9 @@ static const char * const pcf_names[] =
 #endif
 
 
-bool is_lang(cp_data_t &cpd, lang_t lang)
+bool is_lang(cp_data_t& cpd, lang_t lang)
 {
-   return((cpd.lang_flags & lang));
+   return((cpd.lang_flags & lang) != 0);
 }
 
 
@@ -556,9 +564,9 @@ static void version_exit(void)
 }
 
 
-static void redir_stdout(const char *output_file)
+static void redir_stdout(const char* output_file)
 {
-   const FILE *my_stdout = stdout; /* Reopen stdout */
+   const FILE* my_stdout = stdout; /* Reopen stdout */
 
    if (ptr_is_valid(output_file))
    {
@@ -574,6 +582,7 @@ static void redir_stdout(const char *output_file)
    }
 }
 
+#include <stdio.h>
 
 int main(int argc, char* argv[])
 {
@@ -599,7 +608,7 @@ int main(int argc, char* argv[])
    Args arg_list(argc, argv);
    if (arg_list.Present("--version") || arg_list.Present("-v"))
    {
-      version_exit();
+      version_exit(); /*lint !e522 */
    }
    if (arg_list.Present("--help" ) || arg_list.Present("-h") ||
        arg_list.Present("--usage") || arg_list.Present("-?") )
@@ -623,7 +632,7 @@ int main(int argc, char* argv[])
 
    /* Init logging */
    log_init(cpd.do_check ? stdout : stderr);
-   log_mask_t mask;
+   log_mask_t mask; /*lint !e1788 */
    if (arg_list.Present("-q"))
    {
       logmask_from_string("", mask);
@@ -834,18 +843,18 @@ int main(int argc, char* argv[])
       }
    }
 
+#define MAX_ARG_LENGTH 256u
    /* Set config options using command line arguments.*/
    idx = 0;
    while ((p_arg = arg_list.Params("--set", idx)) != nullptr)
    {
-      const uint32_t argLength = strlen(p_arg);
-#define MAXLENGTHFORARG    256
-      if (argLength > MAXLENGTHFORARG)
+      const size_t argLength = strlen(p_arg);
+      if (argLength > MAX_ARG_LENGTH)
       {
          fprintf(stderr, "The buffer is to short for the set argument '%s'\n", p_arg);
          exit(EX_SOFTWARE);
       }
-      char buffer[MAXLENGTHFORARG];
+      char buffer[MAX_ARG_LENGTH];
       strcpy(buffer, p_arg);
 
       /* Tokenize and extract key and value */
@@ -856,9 +865,10 @@ int main(int argc, char* argv[])
       const char* const value = token;
 
       if (ptrs_are_valid(option, value) &&
-          (strtok(nullptr, "=") == nullptr) )
+          (strtok(nullptr, "=") == nullptr) ) /* end of argument reached */
       {
-         if (set_option_value(option, value) == -1)
+         int32_t result = set_option_value(option, value);
+         if (result == -1)
          {
             fprintf(stderr, "Unknown option '%s' to override.\n", buffer);
             return(EXIT_FAILURE);
@@ -1130,7 +1140,7 @@ static bool read_stdin(file_mem_t &fm)
  * of either Windows or Unix type
  */
 bool char_is_path_separation(
-   const char* character   /**< {in] single character to check */
+   const char character   /**< {in] single character to check */
 );
 
 
@@ -1142,7 +1152,7 @@ bool char_is_path_separation(const char character)
 
 
 #define FOLDER_RIGHTS 0750 /**< rights used to create a new (sub-)folder */
-static void make_folders(const string &filename)
+static void make_folders(const string& filename)
 {
    char   outname[4096];
    snprintf(outname, sizeof(outname), "%s", filename.c_str());
@@ -1205,6 +1215,7 @@ static bool load_mem_file(const char* const filename, file_mem_t &fm)
 
    /* Try to read in the file */
    FILE* p_file = fopen(filename, "rb");
+   if(p_file == nullptr) { return (false); }
    retval_if(ptr_is_invalid(p_file), false);
 
    bool success = false;
@@ -1277,11 +1288,13 @@ static bool load_header_file(uo_t option, file_mem_t &file_mem)
 bool load_all_header_files(void)
 {
    bool success = false;
+   /*lint -save -e514 */
    success |= load_header_file(UO_cmt_insert_file_header,   cpd.file_hdr  );
    success |= load_header_file(UO_cmt_insert_file_footer,   cpd.file_ftr  );
    success |= load_header_file(UO_cmt_insert_func_header,   cpd.func_hdr  );
    success |= load_header_file(UO_cmt_insert_class_header,  cpd.class_hdr );
    success |= load_header_file(UO_cmt_insert_oc_msg_header, cpd.oc_msg_hdr);
+   /*lint -restore */
    return(success);
 }
 
@@ -1351,10 +1364,10 @@ static bool file_content_matches(const string &filename1, const string &filename
 
 static string create_out_filename(const char* const filename)
 {
-   const char file_ending[]  = ".uncrustify";
+   const char file_ending[]    = ".uncrustify";
    const uint32_t new_name_len = strlen(filename) + strlen(file_ending) + 1;
-   char* new_filename = new char[new_name_len];
-   if(ptr_is_invalid(new_filename))
+   char* const new_filename    = new char[new_name_len];
+   if(new_filename == nullptr)
    {
       LOG_FMT(LERR, "Failed to allocate memory in %s \n", __func__);
    }
@@ -1754,7 +1767,7 @@ static void add_msg_header(c_token_t type, const file_mem_t &fm)
 }
 
 
-static void uncrustify_start(const deque<int32_t> &data)
+static void uncrustify_start(const deque<uint32_t> &data)
 {
    /* the configuration and file type is fix here.
     * We can setup the function arrays that are
@@ -1790,7 +1803,7 @@ static void uncrustify_start(const deque<int32_t> &data)
 }
 
 
-void set_nl_chunk_pos(uo_t check, uo_t set, c_token_t token)
+static void set_nl_chunk_pos(uo_t check, uo_t set, c_token_t token)
 {
    if (not_tok(cpd.settings[check].tp, TP_IGNORE))
    {
@@ -1799,10 +1812,10 @@ void set_nl_chunk_pos(uo_t check, uo_t set, c_token_t token)
 }
 
 
-void uncrustify_file(const file_mem_t &fm, FILE* pfout,
+void uncrustify_file(const file_mem_t& fm, FILE* pfout,
                      const char* parsed_file, bool defer_uncrustify_end)
 {
-   const deque<int32_t> &data = fm.data;
+   const deque<uint32_t> &data = fm.data;
 
    /* Save off the encoding and whether a BOM is required */
    cpd.bom = fm.bom;
@@ -1903,7 +1916,7 @@ void uncrustify_file(const file_mem_t &fm, FILE* pfout,
       first = false;
       cpd.pass_count--;
    } while ((old_changes    != cpd.changes) &&
-            (cpd.pass_count >   0         ) );
+            (cpd.pass_count !=   0        ) );
 
    mark_comments();
 

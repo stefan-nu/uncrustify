@@ -17,13 +17,13 @@
  * tbd
  */
 static void fix_len_idx(
-   uint32_t       size, /**< [in]  */
-   const uint32_t &idx, /**< [in]  */
-   uint32_t       &len  /**< [in]  */
+   uint32_t        size, /**< [in]  */
+   const uint32_t& idx,  /**< [in]  */
+   uint32_t&       len   /**< [in]  */
 );
 
 
-static void fix_len_idx(uint32_t size, const uint32_t &idx, uint32_t &len)
+static void fix_len_idx(uint32_t size, const uint32_t& idx, uint32_t& len)
 {
    if (idx >= size)
    {
@@ -37,7 +37,7 @@ static void fix_len_idx(uint32_t size, const uint32_t &idx, uint32_t &len)
 }
 
 
-void unc_text::update_logtext()
+void unc_text::update_logtext(void)
 {
    if (m_logok == false)
    {
@@ -56,7 +56,7 @@ void unc_text::update_logtext()
 }
 
 
-int32_t unc_text::compare(const unc_text &ref1, const unc_text &ref2, uint32_t len)
+int32_t unc_text::compare(const unc_text& ref1, const unc_text& ref2, uint32_t len)
 {
    uint32_t len1 = ref1.size();
    uint32_t len2 = ref2.size();
@@ -87,7 +87,7 @@ int32_t unc_text::compare(const unc_text &ref1, const unc_text &ref2, uint32_t l
 }
 
 
-bool unc_text::equals(const unc_text &ref) const
+bool unc_text::equals(const unc_text& ref) const
 {
    uint32_t len = size();
    retval_if((ref.size() != len), false);
@@ -100,14 +100,19 @@ bool unc_text::equals(const unc_text &ref) const
 }
 
 
-const char *unc_text::c_str()
+const char* unc_text::c_str()
 {
    update_logtext();
-   return(reinterpret_cast<const char *>(&m_logtext[0]));
+   return(reinterpret_cast<const char*>(&m_logtext[0]));
 }
 
+const uint32_t* unc_text::c_unc()
+{
+   update_logtext();
+   return(reinterpret_cast<const uint32_t*>(&m_logtext[0]));
+}
 
-void unc_text::set(int32_t ch)
+void unc_text::set(uint32_t ch)
 {
    m_chars.clear();
    m_chars.push_back(ch);
@@ -115,14 +120,14 @@ void unc_text::set(int32_t ch)
 }
 
 
-void unc_text::set(const unc_text &ref)
+void unc_text::set(const unc_text& ref)
 {
    m_chars = ref.m_chars;
    m_logok = false;
 }
 
 
-void unc_text::set(const unc_text &ref, uint32_t idx, uint32_t len)
+void unc_text::set(const unc_text& ref, uint32_t idx, uint32_t len)
 {
    uint32_t ref_size = ref.size();
 
@@ -146,7 +151,7 @@ void unc_text::set(const unc_text &ref, uint32_t idx, uint32_t len)
 }
 
 
-void unc_text::set(const string &ascii_text)
+void unc_text::set(const string& ascii_text)
 {
    uint32_t len = ascii_text.size();
 
@@ -159,7 +164,7 @@ void unc_text::set(const string &ascii_text)
 }
 
 
-void unc_text::set(const char *ascii_text)
+void unc_text::set(const char* ascii_text)
 {
    uint32_t len = strlen(ascii_text);
 
@@ -172,7 +177,7 @@ void unc_text::set(const char *ascii_text)
 }
 
 
-void unc_text::set(const int_list_t &data, uint32_t idx, uint32_t len)
+void unc_text::set(const uint_list_t& data, uint32_t idx, uint32_t len)
 {
    uint32_t data_size = data.size();
 
@@ -199,7 +204,7 @@ void unc_text::resize(uint32_t new_size)
 }
 
 
-void unc_text::clear()
+void unc_text::clear(void)
 {
    m_chars.clear();
    m_logok = false;
@@ -213,21 +218,21 @@ void unc_text::insert(uint32_t idx, int32_t ch)
 }
 
 
-void unc_text::insert(uint32_t idx, const unc_text &ref)
+void unc_text::insert(uint32_t idx, const unc_text& ref)
 {
    m_chars.insert(m_chars.begin() + static_cast<int32_t>(idx), ref.m_chars.begin(), ref.m_chars.end());
    m_logok = false;
 }
 
 
-void unc_text::append(int32_t ch)
+void unc_text::append(uint32_t ch)
 {
    m_chars.push_back(ch);
    m_logok = false;
 }
 
 
-void unc_text::append(const unc_text &ref)
+void unc_text::append(const unc_text& ref)
 {
    m_chars.insert(m_chars.end(), ref.m_chars.begin(), ref.m_chars.end());
    m_logok = false;
@@ -270,20 +275,20 @@ void unc_text::append(const char* const msg, ...)
 }
 
 
-void unc_text::append(const int_list_t &data, uint32_t idx, uint32_t len)
+void unc_text::append(const uint_list_t& data, uint32_t idx, uint32_t len)
 {
    unc_text tmp(data, idx, len);
    append(tmp);
 }
 
 
-bool unc_text::startswith(const char *text, uint32_t idx) const
+bool unc_text::startswith(const char* text, uint32_t idx) const
 {
    bool match = false;
 
    while ((idx < size()) && *text)
    {
-      if (*text != m_chars[idx])
+      if ((uint32_t)*text != m_chars[idx])
       {
          return(false);
       }
@@ -295,9 +300,9 @@ bool unc_text::startswith(const char *text, uint32_t idx) const
 }
 
 
-bool unc_text::startswith(const unc_text &text, uint32_t idx) const
+bool unc_text::startswith(const unc_text& text, uint32_t idx) const
 {
-   bool   match = false;
+   bool     match = false;
    uint32_t si    = 0;
 
    while ((idx < size()) && (si < text.size()))
@@ -314,15 +319,14 @@ bool unc_text::startswith(const unc_text &text, uint32_t idx) const
 }
 
 
-int32_t unc_text::find(const char *text, uint32_t sidx) const
+int32_t unc_text::find(const char* text, uint32_t sidx) const
 {
    uint32_t len = strlen(text); /**< the length of 'text' we are looking for */
    uint32_t si  = size();       /**< the length of the string we are looking in */
 
-   if (si < len)              /* not enough place for 'text' */
-   {
-      return(-1);
-   }
+   /* not enough place for 'text' */
+   retval_if((si < len), -1);
+
    uint32_t midx = size() - len;
 
    for (uint32_t idx = sidx; idx <= midx; idx++)
@@ -330,22 +334,22 @@ int32_t unc_text::find(const char *text, uint32_t sidx) const
       bool match = true;
       for (uint32_t ii = 0; ii < len; ii++)
       {
-         if (m_chars[idx + ii] != text[ii])
+         if (m_chars[idx + ii] != (uint32_t)text[ii])
          {
             match = false;
             break;
          }
       }
-      if (match) // found at position 'idx'
+      if (match) /* 'text' found at position 'idx' */
       {
          return((int32_t)idx);
       }
    }
-   return(-1);  // 'text' not found
+   return(-1);  /* 'text' not found */
 }
 
 
-int32_t unc_text::rfind(const char *text, uint32_t sidx) const
+int32_t unc_text::rfind(const char* text, uint32_t sidx) const
 {
    uint32_t len  = strlen(text);
    uint32_t midx = size() - len;
@@ -356,7 +360,7 @@ int32_t unc_text::rfind(const char *text, uint32_t sidx) const
       bool match = true;
       for (uint32_t ii = 0; ii < len; ii++)
       {
-         if (m_chars[idx + ii] != text[ii])
+         if (m_chars[idx + ii] != (uint32_t)text[ii])
          {
             match = false;
             break;
@@ -372,14 +376,14 @@ void unc_text::erase(uint32_t idx, uint32_t len)
 {
    if (len >= 1)
    {
-      m_chars.erase(m_chars.begin() + static_cast<int32_t>(idx), m_chars.begin() + static_cast<int32_t>(idx) + static_cast<int32_t>(len));
+      m_chars.erase(m_chars.begin() + idx, m_chars.begin() + idx + len);
    }
 }
 
 
-int32_t unc_text::replace(const char *oldtext, const unc_text &newtext)
+int32_t unc_text::replace(const char* oldtext, const unc_text& newtext)
 {
-   int32_t    fidx         = find(oldtext);
+   int32_t  fidx         = find(oldtext);
    uint32_t olen         = strlen(oldtext);
    uint32_t rcnt         = 0;
    uint32_t newtext_size = newtext.size();

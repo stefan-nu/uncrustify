@@ -19,15 +19,13 @@
 void print_universal_indent_cfg(FILE* pfile)
 {
    const group_map_value_t* p_grp;
-   const char*              p_name;
 
    /* Add all the categories */
    char   ch = '=';
-   uint32_t idx;
 
    /* Dump the header and the categories */
    fprintf(pfile, "[header]\ncategories");
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (uint32_t idx = 0; idx < UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       if (ptr_is_valid(p_grp))
@@ -44,6 +42,7 @@ void print_universal_indent_cfg(FILE* pfile)
    ch = '=';
    uint32_t fileIdx = 0;
    fprintf(pfile, "fileTypes");
+   const char* p_name;
    while ((p_name = get_file_extension(fileIdx)) != nullptr)
    {
       fprintf(pfile, "%c*%s", ch, p_name);
@@ -72,22 +71,22 @@ void print_universal_indent_cfg(FILE* pfile)
    uint32_t optionNumber = 0;
 #endif
    /* Now add each option */
-   for (idx = 0; idx < UG_group_count; idx++)
+   for (uint32_t idx = 0; idx < UG_group_count; idx++)
    {
       p_grp = get_group_name(idx);
       continue_if(ptr_is_invalid(p_grp));
 
       for (auto optionEnumVal : p_grp->options)
       {
-         const option_map_value_t *option = get_option_name(optionEnumVal);
+         const option_map_value_t* option = get_option_name(optionEnumVal);
 
-         // Create a better readable name from the options name
-         // by replacing '_' by a space and use some upper case characters.
-         char *optionNameReadable = new char[strlen(option->name) + 1];
+         /* Create a better readable name from the options name
+          * by replacing '_' by a space and use some upper case characters. */
+         char* optionNameReadable = new char[strlen(option->name) + 1];
          strcpy(optionNameReadable, option->name);
 
          bool was_space = true;
-         for (char *character = optionNameReadable; *character != 0; character++)
+         for (char* character = optionNameReadable; *character != 0; character++)
          {
             if (*character == '_')
             {
@@ -110,7 +109,7 @@ void print_universal_indent_cfg(FILE* pfile)
          fprintf(pfile, "Description=\"<html>");
 #endif
 
-         const char *tmp = option->short_desc;
+         const char* tmp = option->short_desc;
          ch = 0;
 
          /* Output the description which may contain forbidden chars */
@@ -250,11 +249,9 @@ void print_universal_indent_cfg(FILE* pfile)
             {
                fprintf(pfile, "CallName=%s=\n", option->name);
                fprintf(pfile, "EditorType=string\n");
-               string     val_string;
-               const char *val_str;
-               val_string = op_val2str(option->type, cpd.settings[option->id]);
-               val_str    = val_string.c_str();
-               fprintf(pfile, "ValueDefault=%s\n", val_str);
+
+               const string val_str = op_val2str(option->type, cpd.settings[option->id]);
+               fprintf(pfile, "ValueDefault=%s\n", val_str.c_str());
                break;
             }
 

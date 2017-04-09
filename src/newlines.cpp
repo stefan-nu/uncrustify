@@ -480,8 +480,10 @@ static bool can_increase_nl(chunk_t* nl)
 static void double_newline(chunk_t* nl)
 {
    LOG_FUNC_ENTRY();
+   return_if(is_invalid(nl));
+
    chunk_t* prev = chunk_get_prev(nl);
-   assert(is_valid(prev));
+   return_if(is_invalid(prev));
 
    LOG_FMT(LNEWLINE, "%s: add newline after %s on line %u",
            __func__, prev->text(), prev->orig_line);
@@ -492,7 +494,7 @@ static void double_newline(chunk_t* nl)
       return;
    }
    LOG_FMT(LNEWLINE, " - done\n");
-   assert(is_valid(nl));
+   return_if(is_invalid(nl));
    if (nl->nl_count != 2)
    {
       nl->nl_count = 2;
@@ -1034,9 +1036,10 @@ static void nl_func_pre_blank_lines(chunk_t* start)
          case(CT_TYPE      ): /* fallthrough */
          case(CT_QUALIFIER ): /* fallthrough */
          case(CT_PTR_TYPE  ): /* fallthrough */
-         case(CT_DC_MEMBER ): log_nl_func(pc);     break;
+         case(CT_DC_MEMBER ): log_nl_func(pc); break;
+
          default:             log_nl_func(pc);
-                              goto set_blank_line; break;
+                              goto set_blank_line;
       }
    }
    return;
@@ -2906,6 +2909,7 @@ void insert_blank_lines(void)
 
 void add_nl_before_and_after(chunk_t* pc, uo_t option)
 {
+   return_if(is_invalid(pc));
    nl_if_for_while_switch_pre_blank_lines (pc, get_arg(option                ));
    nl_if_for_while_switch_post_blank_lines(pc, get_arg(get_inverse_uo(option)));
 }
@@ -2927,7 +2931,7 @@ void newlines_functions_remove_extra_blank_lines(void)
 
       while (is_valid(pc))
       {
-         break_if(is_type_and_level(pc, CT_BRACE_CLOSE, startMoveLevel));
+         break_if(is_type_and_level(pc, CT_BRACE_CLOSE, (int32_t)startMoveLevel));
          /* delete newlines */
          if (pc->nl_count > nl_max_blank_in_func)
          {
@@ -3292,8 +3296,8 @@ void nl_class_colon_pos(c_token_t tok)
             continue;
          }
 
-         assert(is_valid(ccolon));
-         if (is_type_and_level(pc, CT_COMMA, ccolon->level))
+         assert(are_valid(pc, ccolon));
+         if (is_type_and_level(pc, CT_COMMA, (int32_t)ccolon->level))
          {
             if (is_arg_set(ncia, AV_ADD))
             {

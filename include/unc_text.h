@@ -24,7 +24,7 @@ using namespace std;
 class unc_text
 {
 public:
-   typedef deque<int32_t> int_list_t;   /* double encoded list of int32_t values */
+   typedef deque<uint32_t> uint_list_t;   /* double encoded list of uint32_t values */
 
 public:
    unc_text(void)
@@ -44,23 +44,23 @@ public:
    /**
     * tbd
     */
-   unc_text(const unc_text &ref)
+   unc_text(const unc_text& ref)
    {
       set(ref);
    }
-   unc_text(const unc_text &ref, uint32_t idx, uint32_t len = 0)
+   unc_text(const unc_text& ref, uint32_t idx, uint32_t len = 0)
    {
       set(ref, idx, len);
    }
-   unc_text(const char *ascii_text)
+   unc_text(const char* ascii_text)
    {
       set(ascii_text);
    }
-   explicit unc_text(const string &ascii_text)
+   explicit unc_text(const string& ascii_text)
    {
       set(ascii_text);
    }
-   unc_text(const int_list_t &data, uint32_t idx = 0, uint32_t len = 0)
+   unc_text(const uint_list_t& data, uint32_t idx = 0, uint32_t len = 0)
    {
       set(data, idx, len);
    }
@@ -93,24 +93,24 @@ public:
     * tbd
     */
    void set(
-      int32_t ch
+      uint32_t ch
    );
    void set(
-      const unc_text &ref
+      const unc_text& ref
    );
    void set(
-      const unc_text &ref,
+      const unc_text& ref,
       uint32_t idx,
       uint32_t len = 0
    );
    void set(
-      const string &ascii_text
+      const string& ascii_text
    );
    void set(
       const char* ascii_text
    );
    void set(
-      const int_list_t &data,
+      const uint_list_t& data,
       uint32_t idx = 0,
       uint32_t len = 0
    );
@@ -119,17 +119,17 @@ public:
    /**
     * tbd
     */
-   unc_text &operator =(int32_t ch)
+   unc_text &operator =(uint32_t ch)
    {
       set(ch);
       return(*this);
    }
-   unc_text &operator =(const unc_text &ref)
+   unc_text &operator =(const unc_text& ref)
    {
       set(ref);
       return(*this);
    }
-   unc_text &operator =(const string &ascii_text)
+   unc_text &operator =(const string& ascii_text)
    {
       set(ascii_text);
       return(*this);
@@ -146,11 +146,11 @@ public:
     */
    void insert(
       uint32_t idx,
-      int32_t ch
+      int32_t  ch
    );
    void insert(
-      uint32_t idx,
-      const unc_text &ref
+      uint32_t        idx,
+      const unc_text& ref
    );
 
 
@@ -167,21 +167,21 @@ public:
     * Add a single character to an unc_text
     */
    void append(
-      int32_t ch
+      uint32_t ch
    );
 
 
    /**
     * Add a unc_text character to an unc_text
     */
-   void append(const unc_text &ref);
+   void append(const unc_text& ref);
 
 
    /**
     * Add a string to an unc_text
     */
    void append(
-      const string &ascii_text
+      const string& ascii_text
    );
 
 
@@ -196,7 +196,7 @@ public:
       const char* const msg, ... /**< [in] a variable length string */
    );
    void append(
-      const int_list_t &data,
+      const uint_list_t& data,
       uint32_t idx = 0,
       uint32_t len = 0
    );
@@ -218,22 +218,22 @@ public:
    /**
     * tbd
     */
-   unc_text &operator +=(int32_t ch)
+   unc_text &operator +=(uint32_t ch)
    {
       append(ch);
       return(*this);
    }
-   unc_text &operator +=(const unc_text &ref)
+   unc_text &operator +=(const unc_text& ref)
    {
       append(ref);
       return(*this);
    }
-   unc_text &operator +=(const string &ascii_text)
+   unc_text &operator +=(const string& ascii_text)
    {
       append(ascii_text);
       return(*this);
    }
-   unc_text &operator +=(const char *ascii_text)
+   unc_text &operator +=(const char* ascii_text)
    {
       append(ascii_text);
       return(*this);
@@ -241,9 +241,15 @@ public:
 
 
    /**
-    *  get the UTF-8 string for logging
+    *  get the UTF-8 string as char for logging
     */
    const char* c_str(void);
+
+
+   /**
+    *  get the UTF-8 string as uint32_t for logging
+    */
+   const uint32_t* c_unc(void);
 
 
    /**
@@ -255,9 +261,9 @@ public:
     * @retval  < 0 - tbd
     */
    static int32_t compare(
-      const  unc_text &ref1,  /**< [in] first  instance to compare */
-      const  unc_text &ref2,  /**< [in] second instance to compare */
-      uint32_t        len = 0 /**< [in] number of character to compare */
+      const  unc_text& ref1,   /**< [in] first  instance to compare */
+      const  unc_text& ref2,   /**< [in] second instance to compare */
+      uint32_t         len = 0 /**< [in] number of character to compare */
    );
 
 
@@ -265,13 +271,14 @@ public:
     * tbd
     */
    bool equals(
-      const unc_text &ref /**< [in]  */
+      const unc_text& ref /**< [in]  */
    ) const;
+
 
    /**
     *  grab the data as a series of ints for outputting to a file
     */
-   int_list_t &get(void)
+   uint_list_t& get(void)
    {
       m_logok = false;
       return(m_chars);
@@ -281,7 +288,7 @@ public:
    /**
     * tbd
     */
-   const int_list_t &get(void) const
+   const uint_list_t& get(void) const
    {
       return(m_chars);
    }
@@ -290,7 +297,7 @@ public:
    /**
     * tbd
     */
-   int32_t operator[](
+   uint32_t operator[](
       uint32_t idx /**< [in]  */
    ) const
    {
@@ -301,7 +308,7 @@ public:
    /**
     * throws an exception if out of bounds
     */
-   int32_t &at(uint32_t idx) /**< [in]  */
+   uint32_t& at(uint32_t idx) /**< [in]  */
    {
       return(m_chars.at(idx));
    }
@@ -310,7 +317,7 @@ public:
    /**
     * tbd
     */
-   const int32_t &at(
+   const uint32_t& at(
       uint32_t idx /**< [in]  */
    ) const
    {
@@ -321,7 +328,7 @@ public:
    /**
     * tbd
     */
-   const int32_t &back(void) const
+   const uint32_t& back(void) const
    {
       return(m_chars.back());
    }
@@ -330,7 +337,7 @@ public:
    /**
     * returns the last element of the character list
     */
-   int32_t &back(void)
+   uint32_t& back(void)
    {
       /* \todo returning a temporary via a reference
        * this has to be checked and probably changed */
@@ -341,7 +348,7 @@ public:
    /**
     * tbd
     */
-   void push_back(int32_t ch) /**< [in]  */
+   void push_back(uint32_t ch) /**< [in]  */
    {
       append(ch);
    }
@@ -377,12 +384,12 @@ public:
     * tbd
     */
    bool startswith(
-      const unc_text &text,
-      uint32_t idx = 0
+      const unc_text& text,
+      uint32_t        idx = 0
    ) const;
    bool startswith(
-      const char *text,
-      uint32_t idx = 0
+      const char* text,
+      uint32_t    idx = 0
    ) const;
 
 
@@ -393,8 +400,8 @@ public:
     * @retval >=  0 if found gives position
     */
    int32_t find(
-      const char *text,  /**< [in] text to search for */
-      uint32_t idx = 0   /**< [in] position to start search */
+      const char* text,   /**< [in] text to search for */
+      uint32_t    idx = 0 /**< [in] position to start search */
    ) const;
 
 
@@ -402,8 +409,8 @@ public:
     * tbd
     */
    int32_t rfind(
-      const char *text, /**< [in]  */
-      uint32_t idx = 0  /**< [in]  */
+      const char* text,   /**< [in]  */
+      uint32_t    idx = 0 /**< [in]  */
    ) const;
 
 
@@ -411,15 +418,15 @@ public:
     * tbd
     */
    int32_t replace(
-      const char *oldtext,
-      const unc_text &newtext
+      const char*     oldtext,
+      const unc_text& newtext
    );
 
 protected:
-   void update_logtext();
+   void update_logtext(void);
 
 
-   int_list_t      m_chars;   /**< contains the non-encoded 31-bit chars */
+   uint_list_t     m_chars;   /**< contains the non-encoded 31-bit chars */
    vector<uint8_t> m_logtext; /**< logging text, utf8 encoded - updated in c_str() */
    bool            m_logok;   /**  */
 };

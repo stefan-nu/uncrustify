@@ -13,115 +13,117 @@
 
 #include <cctype>
 
+/* \todo better avoid inline and move implementation to cpp file */
 
 /**
- * Truncate anything except EOF (-1) to 0-255
+ * Truncate symbol to unsigned 8 Bit range 0-255
  */
-static inline int32_t unc_fix_ctype(
-   int32_t ch /**< [in]  */
+static inline uint32_t unc_fix_ctype(
+   uint32_t ch /**< [in] symbol to convert to uint8_t */
 )
 {
-   return((ch == -1) ? -1 : (ch & 0xff));
+   return(ch & 0xff);
 }
 
 
 /**
  * check if a character is a space
  */
-static inline int32_t unc_isspace(
-   int32_t ch /**< [in] character to check */
+static inline bool unc_isspace(
+   uint32_t ch /**< [in] character to check */
 )
 {
-   return(isspace(unc_fix_ctype(ch)));
+   return(isspace(unc_fix_ctype(ch)) != 0);
 }
 
 
 /**
- * tbd
+ * check if a character is a printing character
  */
-static inline int32_t unc_isprint(
-   int32_t ch /**< [in]  */
+static inline bool unc_isprint(
+   uint32_t ch /**< [in] character to check */
 )
 {
-   return(isprint(unc_fix_ctype(ch)));
+   return(isprint(unc_fix_ctype(ch)) != 0);
 }
 
 
 /**
- * tbd
+ * check if a character is an alphabetic character (a letter).
  */
-static inline int32_t unc_isalpha(
-   int32_t ch /**< [in]  */
+static inline bool unc_isalpha(
+   uint32_t ch /**< [in] character to check */
 )
 {
-   return(isalpha(unc_fix_ctype(ch)));
+   return(isalpha(unc_fix_ctype(ch)) != 0);
 }
 
 
 /**
- * tbd
+ * check if a character is an alphanumeric character.
  */
-static inline int32_t unc_isalnum(
-   int32_t ch /**< [in]  */
+static inline uint32_t unc_isalnum(
+   uint32_t ch /**< [in] character to check */
 )
 {
-   return(isalnum(unc_fix_ctype(ch)));
+   return((uint32_t)isalnum(unc_fix_ctype(ch)));
 }
 
 
 /**
  * convert a character to upper case
  */
-static inline int32_t unc_toupper(
-   int32_t ch /**< [in] character to convert */
+static inline uint32_t unc_toupper(
+   uint32_t ch /**< [in] character to convert */
 )
 {
-   return(toupper(unc_fix_ctype(ch)));
+   return((uint32_t)toupper(unc_fix_ctype(ch)));
 }
 
 
 /**
  * convert a character to lower case
  */
-static inline int32_t unc_tolower(
-   int32_t ch /**< [in] character to convert */
+static inline uint32_t unc_tolower(
+   uint32_t ch /**< [in] character to convert */
 )
 {
-   return(tolower(unc_fix_ctype(ch)));
+   return((uint32_t)tolower(unc_fix_ctype(ch)));
 }
 
 
 /**
- * tbd
+ * check if a character is a hexadecimal digit
  */
-static inline int32_t unc_isxdigit(
-   int32_t ch /**< [in] character to convert */
+static inline uint32_t unc_isxdigit(
+   uint32_t ch /**< [in] character to convert */
 )
 {
-   return(isxdigit(unc_fix_ctype(ch)));
+   return((uint32_t)isxdigit(unc_fix_ctype(ch)));
 }
 
 
 /**
- * tbd
+ * check if a character is a decimal digit
  */
-static inline int32_t unc_isdigit(
-   int32_t ch /**< [in] character to convert */
+static inline bool unc_isdigit(
+   uint32_t ch /**< [in] character to convert */
 )
 {
-   return(isdigit(unc_fix_ctype(ch)));
+   return(isdigit(unc_fix_ctype(ch)) != 0);
 }
 
 
 /**
- * tbd
+ * check if a character is upper case
  */
-static inline int32_t unc_isupper(
-   int32_t ch /**< [in] character to convert */
+static inline bool unc_isupper(
+   uint32_t ch /**< [in] character to convert */
 )
 {
-   int32_t character = unc_fix_ctype(ch);
-   return(isalpha(character) &&  unc_toupper(character) == ch);
+   uint32_t character = unc_fix_ctype(ch);
+   return( (isalpha(character) != 0) &&
+            unc_toupper(character) == ch);
 }
 
 

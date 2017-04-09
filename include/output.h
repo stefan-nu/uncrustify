@@ -53,7 +53,7 @@ void add_long_preprocessor_conditional_block_comment(void);
  * \todo parameter should not be int type
  */
 bool is_part_of_nl(
-   const int32_t character /**< [in] character to check */
+   const uint32_t character /**< [in] character to check */
 );
 
 
@@ -63,7 +63,7 @@ bool is_part_of_nl(
  * \todo parameter should not be int32_t type
  */
 bool is_space_or_tab(
-   const int32_t character /**< [in] character to check */
+   const uint32_t character /**< [in] character to check */
 );
 
 

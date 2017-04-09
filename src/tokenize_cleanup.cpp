@@ -454,8 +454,8 @@ void tokenize_cleanup(void)
                break_if(is_type(tmp, CT_SEMICOLON));
 
                if ((tmp->len() > 0                      )   &&
-                   (unc_isalpha(*tmp->str.c_str()       ) ||
-                               (*tmp->str.c_str() == '$') ) )
+                   (unc_isalpha(*tmp->str.c_unc()) ||
+                               (*tmp->str.c_str() == '$')  ) )
                {
                   set_type(tmp, CT_SQL_WORD);
                }
@@ -478,7 +478,7 @@ void tokenize_cleanup(void)
          /* label the 'in' */
          if (is_type(next, CT_PAREN_OPEN))
          {
-            chunk_t *tmp = get_next_ncnl(next);
+            chunk_t* tmp = get_next_ncnl(next);
             while (not_type(tmp, CT_PAREN_CLOSE))
             {
                if (is_str(tmp, "in"))

@@ -18,9 +18,9 @@
  * See if all characters are ASCII (0-127)
  */
 static bool is_ascii(
-   const vector<uint8_t> &data,          /**< [in]  */
-   uint32_t              &non_ascii_cnt, /**< [in]  */
-   uint32_t              &zero_cnt       /**< [in]  */
+   const vector<uint8_t>& data,          /**< [in]  */
+   uint32_t&              non_ascii_cnt, /**< [in]  */
+   uint32_t&              zero_cnt       /**< [in]  */
 );
 
 
@@ -28,8 +28,8 @@ static bool is_ascii(
  * Convert the array of bytes into an array of ints
  */
 static bool decode_bytes(
-   const vector<uint8_t> &in, /**< [in]  */
-   deque<int32_t>        &out /**< [in]  */
+   const vector<uint8_t>& in, /**< [in]  */
+   deque<uint32_t>&       out /**< [in]  */
 );
 
 
@@ -38,18 +38,18 @@ static bool decode_bytes(
  * If there are any decoding errors, then return false.
  */
 static bool decode_utf8(
-   const vector<uint8_t> &in, /**< [in]  */
-   deque<int32_t>        &out /**< [in]  */
+   const vector<uint8_t>& in, /**< [in]  */
+   deque<uint32_t>&       out /**< [in]  */
 );
 
 
 /**
  * Extract 2 bytes from the stream and increment idx by 2
  */
-static int32_t get_word(
-   const vector<uint8_t> &in_data, /**< [in]  */
-   uint32_t& idx, /**< [in]  */
-   bool      be   /**< [in]  */
+static uint32_t get_word(
+   const vector<uint8_t>& in,  /**< [in] byte vector with input data */
+   uint32_t&              idx, /**< [in] index points to working position in vector */
+   bool                   be   /**< [in]  */
 );
 
 
@@ -59,9 +59,9 @@ static int32_t get_word(
  * Must have the BOM as the first two bytes.
  */
 static bool decode_utf16(
-   const vector<uint8_t> &in,  /**< [in]  */
-   deque<int32_t>        &out, /**< [in]  */
-   char_encoding_e       &enc  /**< [in]  */
+   const vector<uint8_t>& in,  /**< [in]  */
+   deque<uint32_t>&       out, /**< [in]  */
+   char_encoding_e&       enc  /**< [in]  */
 );
 
 
@@ -112,7 +112,7 @@ static bool is_ascii(const vector<uint8_t> &data, uint32_t &non_ascii_cnt, uint3
 }
 
 
-static bool decode_bytes(const vector<uint8_t> &in, deque<int32_t> &out)
+static bool decode_bytes(const vector<uint8_t>& in, deque<uint32_t>& out)
 {
    uint32_t out_size = in.size();
    out.resize(out_size);
@@ -174,7 +174,7 @@ void encode_utf8(uint32_t ch, vector<uint8_t> &res)
 }
 
 
-static bool decode_utf8(const vector<uint8_t> &in, deque<int32_t> &out)
+static bool decode_utf8(const vector<uint8_t> &in, deque<uint32_t> &out)
 {
    /* check for UTF-8 BOM silliness and skip */
    uint32_t idx = 0;
@@ -215,19 +215,22 @@ static bool decode_utf8(const vector<uint8_t> &in, deque<int32_t> &out)
 }
 
 
-static int32_t get_word(const vector<uint8_t> &in_data, uint32_t &idx, bool be)
+static uint32_t get_word(const vector<uint8_t> &in, uint32_t &idx, bool be)
 {
-   int32_t ch;
-
-   if ((idx + 2) > in_data.size()) { ch = -1; }
-   else if (be) { ch = (in_data[idx] << 8) | (in_data[idx + 1] << 0); }
-   else         { ch = (in_data[idx] << 0) | (in_data[idx + 1] << 8); }
+   uint32_t ch;
+   if ((idx + 2) > in.size())
+   {
+      /* \todo invalid index we should indicate an error */
+      return 0;
+   }
+   else if (be) { ch = (in[idx] << 8) | (in[idx + 1] << 0); }
+   else         { ch = (in[idx] << 0) | (in[idx + 1] << 8); }
    idx += 2;
    return(ch);
 }
 
 
-static bool decode_utf16(const vector<uint8_t> &in, deque<int32_t> &out, char_encoding_e &enc)
+static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_encoding_e& enc)
 {
    out.clear();
 
@@ -273,12 +276,12 @@ static bool decode_utf16(const vector<uint8_t> &in, deque<int32_t> &out, char_en
 
    while (idx < in.size())
    {
-      int32_t ch = get_word(in, idx, be);
+      uint32_t ch = get_word(in, idx, be);
       if ((ch & 0xfc00) == 0xd800)
       {
          ch  &= 0x3ff;
          ch <<= 10;
-         int32_t tmp = get_word(in, idx, be);
+         uint32_t tmp = get_word(in, idx, be);
          retval_if((tmp & 0xfc00) != 0xdc00, false);
          ch |= (tmp & 0x3ff);
          ch += 0x10000;
@@ -328,7 +331,7 @@ static bool decode_bom(const vector<uint8_t> &in, char_encoding_e &enc)
 }
 
 
-bool decode_unicode(const vector<uint8_t> &in, deque<int32_t> &out, char_encoding_e &enc, bool &has_bom)
+bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_encoding_e& enc, bool& has_bom)
 {
    /* check for a BOM */
    if (decode_bom(in, enc))

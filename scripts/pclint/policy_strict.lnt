@@ -1,6 +1,6 @@
 // uncrustify policy
--passes(3)              // number of analysis passes (higher values give better detection but slower)                                           
-//-static_depth(3)        // number of analyzed redirection for static variables obsolet in pclint plus
+-passes(1)              // number of analysis passes (higher values give better detection but slower)                                           
+//-static_depth(3)      // number of analyzed redirection for static variables obsolet in pclint plus
 //-w2                   // suppress informational messages  
 // -strong(AJX)    		// All typedefs must match exactly
 //-w3						// display informational messages  
@@ -11,7 +11,7 @@
 // all checks from 0 to 599 are enabled by +w2 
 -e10					// Expecting identifier or other declarator
 -e18					// symbol redefined
-+e19					// useless declaration
+-e19					// useless declaration, C++ requires a type specifier for all declarations
 -e14					// symbol previously defined
 -e24					// expected an expression found >
 -e26					// expected an expression found const/return
@@ -54,7 +54,9 @@
 +e520					// highest operation lacks side effects
 +e522					// highest operation lacks side effects
 +e526					// symbol not defined
-+e528					// symbol not referenced
+-e528					// symbol not referenced
+-e529					// local variable not subsecquently referenced (seems to be broken in pclint plus)
+-e530					// symbol is likely uninitialized (seems to be broken in pclint plus)
 -e534					// ignoring return value of function
 -e537					// do not warn about repeated inclusion
 +e574					// signed / unsigned mix with relational
@@ -205,7 +207,7 @@
 -e747	 				// (noisy when using bool) Significant prototype coercion Type1 to Type2
 +e748 					// Symbol is a register variable used with setjmp
 +e749					// check for unused enum values
-+e750					// ignore    unused local macros
+-e750					// local macros not referenced
 +e751					// check for unused local typedefs
 +e752 					// check for unused local declarations
 +e753					// check for unused local struct, union or enum tag
@@ -300,6 +302,7 @@
 -e864 					// Expression possibly depends on order of evaluation
 +e866 					// Unusual use of 'String' in argument to sizeof
 -e893					// expanded from macro
+-e891					// indication where a symbol is allocated
 
 +e900					// print total number of errors/warnings
 -e904 					// Return statement before end of function 'Symbol'
@@ -346,14 +349,16 @@
 -e970					// (noisy) Use of modifier or type outside of a typedef
 -e971					// (noisy) Use of 'char' without 'signed' or 'unsigned'
 +e974 					// print Worst case function for stack usage:
+-e1005					// destructor declaration requires a class
 -e1013					// symbol is not a member of class
 -e1015					// symbol not found in class
 -e1016					// symbol is supposed to denote class
+-e1023					//
 +e1025					// no function or template matches invocation
 -e1033					// static member function cannot be virtual
 -e1038					// type ... not found
 -e1039					// symbol is not a member of class
-+e1040					// symbol is not a legal declaration within class
+-e1040					// symbol is not a legal declaration within class
 +e1042					// a least one class like operand is required with operator
 -e1048					// expected a constant expression
 -e1049					// too few template arguments for class ...
@@ -367,10 +372,14 @@
 -e1062					// template must be either a class or a function
 -e1065					// symbol not declared as "C"
 -e1066					// symbol declared as "C" 
+-e1069					// member initializer .. does not name a non-static data member of base class
+-e1072					// reference variable '...' must be initialized
 +e1075					// Ambiguous reference to symbol
 +e1077					// could not evaluate default template parameter			
+-e1079					// could not find '>' or ',' to terminate template parameter
 +e1086					// do not warn about compount literals
 +e1087					// previous declaration is incompatible
+-e1091					// using declaration refers into ... which is not a base class of ...
 -e1220					// internal error
 +e1401					// member not initialized by constructor
 +e1502					// object has no nonstatic data member
@@ -406,23 +415,39 @@
 -e1923					// define could be const variable
 -e1924					// C-style cast in C++ code
 
+-e4002					// ... is a protected member of ...
 -e4054					// declaration of anonymous struct must be a definition
+-e4318					// builtin functions must be directly called
 -e4380					// no return statement in constexpr function
+-e4397					// constexpr variable ... must be initialized by a const expression
 -e4602					// no type named ... in namespace
+-e4609					// expected '{' or ','
 -e4615					// expected function body after function declaration
 -e4624					// expected ( after __0
 -e4626					// expected type name
+-e4627					// expected class member or base class name
 -e4636					// expected a qualified name after typename
--e4646					// expected ; at end of declaration list
+-e4645					// expected ';' at end of declaration
+-e4646					// expected ';' at end of declaration list
 -e4654					// expected unqualified-id
+-e4683					// explicit specialization of non-template struct
 -e4731					// field has incomplete type
 -e4873					// inline can only appear on functions
 -e4898					// cannot define or redeclare ... here because namespace ... does not enclose namespace ...
+-e5123					// no member named .. in namespace ... 
 -e5124					// no template named ... in namespace
+-e5370					// type does not provide a subscript operator
+-e5524					// typedef declaratior cannot be qualified
+-e5542					// reference to type ... could not bind to an lvalue of type ...
+-e5557					// ... does not refer to a value
+-e5675					// variable cannot be defined in an explicit instantiation
 -e5681					// implicit instantiation of undefined template
+-e5704					// nested name specifier
 -e5717					// class template specialization
 -e5741					// too many arguments provided to function-like macro invocation
+-e5787					// variable has incomplete type
 -e5849					// no type named ... in namespace
+-e5914					// unknown template name
 -e5915 					// unknown type name
 
 //scripts/pclint/au-sm123.lnt 	// also check Scott Meyers rules of all three books

@@ -504,7 +504,9 @@ static bool sp_cond_0181(chunks_t* c)
 {
    if (is_type(c->a, CT_CONSTR_COLON))
    {
-      c->sp = get_ival(UO_indent_ctor_init_leading) - 1;
+      int32_t spaces = get_ival(UO_indent_ctor_init_leading) - 1;
+      spaces = max(1, spaces); /* ensure number of spaces is at least 1 */
+      c->sp = (uint32_t)spaces;
       return true;
    }
    else
@@ -516,7 +518,9 @@ static bool sp_cond_0034(chunks_t* c)
 {
    if(is_ptype(c->b, CT_COMMENT_END, CT_COMMENT_EMBED))
    {
-      c->sp = get_ival(UO_sp_num_before_tr_emb_cmt);
+      int32_t spaces = get_ival(UO_sp_num_before_tr_emb_cmt);
+      spaces = max(0, spaces); /* ensure number of spaces is at least 1 */
+      c->sp = (uint32_t)spaces;
       return true;
    }
    else
@@ -535,11 +539,11 @@ typedef bool (*sp_check_t)(
 );
 
 
+#if 0
 typedef void (*sp_act_t)(
    chunks_t* pc,
    uo_t*     opt
 );
-
 
 /***************************************************************************//**
  * @brief prototype for a function that determines if a space is to be
@@ -551,7 +555,7 @@ typedef void (*sp_log_t)(
    chunks_t*   c,       /**< [in] chunks that where used for check */
    bool        complete /**< [in] flag indicates if it was the last check */
 );
-
+#endif
 
 /** combines a check with an action function */
 typedef struct space_check_action_s
@@ -591,7 +595,7 @@ void init_space_check_action_array(void)
    add_sca({ 13, sp_cond_0013, UO_sp_d_array_colon       });
 
    if(not_ignore(UO_sp_case_label)) { set_arg(UO_sp_case_label, AV_FORCE); }
-      add_sca({ 14, sp_cond_0014, UO_sp_case_label});
+   add_sca({ 14, sp_cond_0014, UO_sp_case_label});
 
    add_sca({ 15, sp_cond_0015, UO_sp_after_for_colon });
    add_sca({ 16, sp_cond_0016, UO_sp_before_for_colon});
@@ -616,7 +620,7 @@ void init_space_check_action_array(void)
    /* Macro stuff can only return IGNORE, ADD, or FORCE but not REMOVE */
    if(is_arg(UO_sp_macro     , AV_REMOVE)) { set_arg(UO_sp_macro,      AV_FORCE); }
    if(is_arg(UO_sp_macro_func, AV_REMOVE)) { set_arg(UO_sp_macro_func, AV_FORCE); }
-      add_sca({ 26, sp_cond_0024, UO_sp_macro});
+   add_sca({ 26, sp_cond_0024, UO_sp_macro});
    add_sca({ 27, sp_cond_0025, UO_sp_macro_func});
 
    /* Remove spaces, unless we are ignoring. See indent_preproc() */
