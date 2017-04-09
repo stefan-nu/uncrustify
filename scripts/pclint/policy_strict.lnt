@@ -1,6 +1,6 @@
 // uncrustify policy
--passes(1)              // number of analysis passes (higher values give better detection but slower)                                           
--static_depth(3)        // number of analyzed redirection for static variables 
+-passes(3)              // number of analysis passes (higher values give better detection but slower)                                           
+//-static_depth(3)        // number of analyzed redirection for static variables obsolet in pclint plus
 //-w2                   // suppress informational messages  
 // -strong(AJX)    		// All typedefs must match exactly
 //-w3						// display informational messages  

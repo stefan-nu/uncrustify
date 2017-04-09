@@ -1657,9 +1657,6 @@ void indent_text(void)
             if ((pc->level == pc->brace_level) &&
                 (is_type(pc, CT_FPAREN_OPEN, CT_SPAREN_OPEN)))
             {
-               //frm.pse[frm.pse_tos].indent += abs(get_ival(UO_indent_continue));
-               //   frm.pse[frm.pse_tos].indent      = calc_indent_continue(frm, frm.pse_tos);
-               //   frm.pse[frm.pse_tos].indent_cont = true;
                if ((is_true(UO_use_indent_continue_only_once)) &&
                    (frm.pse[frm.pse_tos].indent_cont) &&
                    (vardefcol != 0))
@@ -1718,14 +1715,11 @@ void indent_text(void)
                    (not_type(pc, CT_ASSIGN) ||
                     not_ptype(pc, 2, CT_FUNC_PROTO, CT_FUNC_DEF)))
                {
-                  //frm.pse[frm.pse_tos].indent += abs(get_ival(UO_indent_continue));
-                  //   frm.pse[frm.pse_tos].indent      = calc_indent_continue(frm, frm.pse_tos);
-                  //   frm.pse[frm.pse_tos].indent_cont = true;
                   if ((is_true(UO_use_indent_continue_only_once)) &&
                       (frm.pse[frm.pse_tos].indent_cont) &&
                       (vardefcol != 0))
                   {
-                     // if vardefcol isn't zero, use it
+                     /* if vardefcol isn't zero, use it */
                      frm.pse[frm.pse_tos].indent = vardefcol;
                      log_indent();
                   }
@@ -1785,8 +1779,6 @@ void indent_text(void)
          log_indent_tmp();
          if (get_ival(UO_indent_continue) != 0)
          {
-            //frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent +
-            //                              abs(get_ival(UO_indent_continue));
             frm.pse[frm.pse_tos].indent      = calc_indent_continue(frm, frm.pse_tos - 1);
             log_indent();
             frm.pse[frm.pse_tos].indent_cont = true;
@@ -1862,8 +1854,6 @@ void indent_text(void)
       {
          if (get_ival(UO_indent_continue) != 0)
          {
-            //vardefcol = frm.pse[frm.pse_tos].indent +
-            //            abs(get_ival(UO_indent_continue));
             vardefcol                        = calc_indent_continue(frm, frm.pse_tos);
             frm.pse[frm.pse_tos].indent_cont = true;
          }

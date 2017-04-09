@@ -68,13 +68,13 @@ static uint32_t get_split_pri(
  * Splitting Preference:
  *  - semicolon
  *  - comma
- *  - boolean op
+ *  - boolean operation
  *  - comparison
- *  - arithmetic op
+ *  - arithmetic operation
  *  - assignment
  *  - concatenated strings
  *  - ? :
- *  - function open paren not followed by close paren
+ *  - function open parenthesis not followed by closing parenthesis
  */
 static void try_split_here(
    cw_entry& ent, /**< in]  */
@@ -97,14 +97,14 @@ static bool split_line(
 
 
 /**
- * Figures out where to split a function def/proto/call
+ * Figures out where to split a function def/prototype/call
  *
  * For function prototypes and definition. Also function calls where
  * level == brace_level:
  *   - find the open function parenthesis
  *     + if it doesn't have a newline right after it
- *       * see if all parameters will fit individually after the paren
- *       * if not, throw a newline after the open paren & return
+ *       * see if all parameters will fit individually after the parenthesis
+ *       * if not, throw a newline after the open parenthesis & return
  *   - scan backwards to the open function parenthesis or comma
  *     + if there isn't a newline after that item, add one & return
  *     + otherwise, add a newline before the start token
@@ -197,7 +197,7 @@ static void split_before_chunk(chunk_t* pc)
       newline_add_before(pc);
       /* reindent needs to include the indent_continue value and was off by one */
       reindent_line(pc, pc->brace_level * get_uval(UO_indent_columns) +
-                    (uint32_t)abs(get_ival(UO_indent_continue)) + 1u);
+                    get_abs(UO_indent_continue) + 1u);
       cpd.changes++;
    }
 }
@@ -238,31 +238,32 @@ static uint32_t get_split_pri(c_token_t tok)
 static void try_split_here(cw_entry& ent, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
+//   return_if(are_invalid(ent.pc, pc));
 
    uint32_t pc_pri = get_split_pri(pc->type);
    return_if(pc_pri == 0);
 
    /* Can't split after a newline */
-   chunk_t *prev = chunk_get_prev(pc);
+   chunk_t* prev = chunk_get_prev(pc);
    return_if(is_invalid(prev) || (is_nl(prev) && not_type(pc, CT_STRING)) );
 
    /* Can't split a function without arguments */
    if (is_type(pc, CT_FPAREN_OPEN))
    {
-      chunk_t *next = chunk_get_next(pc);
+      chunk_t* next = chunk_get_next(pc);
       return_if(is_type(next, CT_FPAREN_CLOSE));
    }
 
    /* Only split concatenated strings */
    if (is_type(pc, CT_STRING))
    {
-      chunk_t *next = chunk_get_next(pc);
+      chunk_t* next = chunk_get_next(pc);
       return_if(not_type(next, CT_STRING));
    }
 
    /* keep common groupings unless ls_code_width */
    return_if((is_false(UO_ls_code_width)) &&
-             (pc_pri                           >= 20   ) );
+             (pc_pri >= 20) );
 
    /* don't break after last term of a qualified type */
    if (pc_pri == 25)
@@ -274,7 +275,7 @@ static void try_split_here(cw_entry& ent, chunk_t* pc)
 
    /* Check levels first */
    bool change = false;
-   if (is_invalid(ent.pc) || (pc->level <  ent.pc->level))
+   if (is_invalid(ent.pc) || (pc->level < ent.pc->level))
    {
       change = true;
    }
@@ -347,6 +348,8 @@ static bool split_line(chunk_t *start)
    /* Try to find the best spot to split the line */
    cw_entry ent;
    memset(&ent, 0, sizeof(ent));
+   ent.pc = nullptr;
+   ent.pri = 0;
    chunk_t* pc = start;
    chunk_t* prev;
 
@@ -654,6 +657,7 @@ static void split_fcn_params(chunk_t* start)
             else
             {
                min_col += (uint32_t)abs(get_ival(UO_indent_continue));
+             //  min_col += get_abs(UO_indent_continue);
             }
          }
 

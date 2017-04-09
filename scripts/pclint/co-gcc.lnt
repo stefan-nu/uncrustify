@@ -74,11 +74,11 @@
     See "System Dependent Options" below.
 */
 
--cgnu             // Notifies FlexeLint that gcc is being used.
+// -cgnu             // Notifies FlexeLint that gcc is being used. obsolet in pclint plus
 
 // Begin: System Dependent Options
 // -------------------------------
--a#machine(i386)  	// #assert's machine(i386)  (SVR4 facility).
+//-a#machine(i386)  	// #assert's machine(i386)  (SVR4 facility). obsolete in pclint plus
 +fdi              	// Use the directory of the including file
 -si4           		// size of int
 -sp4				// size of pointer

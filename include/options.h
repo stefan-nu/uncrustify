@@ -934,22 +934,31 @@ bool is_arg_set(
 );
 
 
-/** \brief getter function for uncrustify argument option */
+/** provides the value of a boolean parameter option */
 bool get_bool(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+/** provides the value of an argument option */
 argval_t get_arg(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+/** provides the value of an unsigned parameter option */
 uint32_t get_uval(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+/** provides the value of a signed parameter option */
 int32_t get_ival(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+/** provides the absolute value of a signed parameter option */
+uint32_t get_abs(
+   const uo_t opt
+);
+/** provides the value of a token type parameter option */
 tokenpos_t get_tok(
    const uo_t opt /**< [in] uncrustify option to use */
 );
+/** provides the value of a pointer type parameter option */
 StarStyle_t get_star(
    const uo_t opt /**< [in] uncrustify option to use */
 );

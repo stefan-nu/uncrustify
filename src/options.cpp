@@ -239,6 +239,10 @@ int32_t get_ival(const uo_t opt)
 {
    return(cpd.settings[opt].n);
 }
+uint32_t get_abs(const uo_t opt)
+{
+   return((uint32_t)abs(cpd.settings[opt].n));
+}
 tokenpos_t get_tok(const uo_t opt)
 {
    return(cpd.settings[opt].tp);

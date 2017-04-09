@@ -22,10 +22,10 @@
 //+libclass(angle)	// ingore all headers specified with angle brackets
 +libclass(all)	    // ignore all header files
 +libh(co-ggc.lnt)	// ignore this file
-+libh(lint_cppmac.h)// ignore this file
++libh(lint_cppmac.h) // ignore this file
 //+libdir(uncrustify/scripts/pclint/*)
 //-wlib(1)    // Disable non-error messages from library headers
--wlib(0)    // Disable non-error messages from library headers
+//-wlib(0)    // Disable non-error messages from library headers
 -elib(19)   // Suppress 'useless declaration' for spurious ';' in headers
 
 
