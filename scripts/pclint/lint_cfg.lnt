@@ -3,6 +3,7 @@
 
 // show pclint where to find Header files
 
+-max_threads=12
 
 -iC:\mingw\include
 -iC:\mingw\include\ddk

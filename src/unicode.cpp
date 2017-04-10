@@ -124,7 +124,7 @@ static bool decode_bytes(const vector<uint8_t>& in, deque<uint32_t>& out)
 }
 
 
-void encode_utf8(uint32_t ch, vector<uint8_t> &res)
+void encode_utf8(uint32_t ch, vector<uint8_t>& res)
 {
    if (ch < 0x80)
    {

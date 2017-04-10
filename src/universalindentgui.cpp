@@ -95,7 +95,7 @@ void print_universal_indent_cfg(FILE* pfile)
             }
             else if (was_space)
             {
-               *character = (char)unc_toupper(*character);
+               *character = (char)unc_toupper(char2uint32(*character));
                was_space  = false;
             }
          }

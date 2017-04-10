@@ -58,7 +58,7 @@ void do_parens(void)
       while ((pc = get_next_ncnl(pc)) != nullptr)
       {
          continue_if (not_type (pc, CT_SPAREN_OPEN             ) ||
-                      not_ptype(pc, 3, CT_IF, CT_ELSEIF, CT_SWITCH) );
+                      not_ptype(pc, CT_IF, CT_ELSEIF, CT_SWITCH) );
 
          /* Grab the close sparen */
          chunk_t* pclose = get_next_type(pc, CT_SPAREN_CLOSE, (int32_t)pc->level, scope_e::PREPROC);

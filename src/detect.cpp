@@ -6,12 +6,12 @@
  * @license GPL v2+
  */
 
+#include <cstdio>
+#include <cstdlib>
 #include "detect.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
 #include "ChunkStack.h"
-#include <cstdio>
-#include <cstdlib>
 #include "unc_ctype.h"
 
 
@@ -29,7 +29,7 @@ protected:
    argval_t* m_av;     /**<  */
 
 public:
-   explicit sp_votes(argval_t &av)
+   explicit sp_votes(argval_t& av)
    {
       m_add    = 0;
       m_remove = 0;

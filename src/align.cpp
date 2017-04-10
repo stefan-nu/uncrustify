@@ -1897,7 +1897,7 @@ static void align_left_shift(void)
 }
 
 
-static void align_oc_msg_colon(chunk_t *so)
+static void align_oc_msg_colon(chunk_t* so)
 {
    LOG_FUNC_ENTRY();
 

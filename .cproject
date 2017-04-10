@@ -36,7 +36,7 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="WIN32"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.other.other.1959702187" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -Wfatal-errors" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.other.1959702187" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -Wfatal-errors -Wno-missing-field-initializers" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.warnings.extrawarn.347876787" name="Extra warnings (-Wextra)" superClass="gnu.cpp.compiler.option.warnings.extrawarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.dialect.flags.366447249" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=gnu++11" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.warnings.wconversion.1880161809" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.cpp.compiler.option.warnings.wconversion" useByScannerDiscovery="false" value="false" valueType="boolean"/>

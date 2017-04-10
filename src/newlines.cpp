@@ -2925,7 +2925,7 @@ void newlines_functions_remove_extra_blank_lines(void)
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       continue_if (not_type (pc, CT_BRACE_OPEN) ||
-                   not_ptype(pc, 2, CT_FUNC_DEF, CT_CPP_LAMBDA) );
+                   not_ptype(pc, CT_FUNC_DEF, CT_CPP_LAMBDA) );
 
       const uint32_t startMoveLevel = pc->level;
 

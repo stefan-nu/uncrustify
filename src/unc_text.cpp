@@ -69,13 +69,13 @@ int32_t unc_text::compare(const unc_text& ref1, const unc_text& ref2, uint32_t l
       /*  exactly the same character ? */
       continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
 
-      int32_t diff = unc_tolower(ref1.m_chars[idx]) - unc_tolower(ref2.m_chars[idx]);
+      int32_t diff = (int32_t)unc_tolower(ref1.m_chars[idx]) - (int32_t)unc_tolower(ref2.m_chars[idx]);
       if (diff == 0)
       {
          /* if we're comparing the same character but in different case
           * we want to favor lower case before upper case (e.g. a before A)
           * so the order is the reverse of ASCII order (we negate). */
-         return(-(ref1.m_chars[idx] - ref2.m_chars[idx]));
+         return(-((int32_t)ref1.m_chars[idx] - (int32_t)ref2.m_chars[idx]));
       }
       else
       {
@@ -106,11 +106,13 @@ const char* unc_text::c_str()
    return(reinterpret_cast<const char*>(&m_logtext[0]));
 }
 
+
 const uint32_t* unc_text::c_unc()
 {
    update_logtext();
    return(reinterpret_cast<const uint32_t*>(&m_logtext[0]));
 }
+
 
 void unc_text::set(uint32_t ch)
 {
@@ -171,7 +173,7 @@ void unc_text::set(const char* ascii_text)
    m_chars.resize((uint32_t)len);
    for (uint32_t idx = 0; idx < len; idx++)
    {
-      m_chars[idx] = *ascii_text++;
+      m_chars[idx] = char2uint32(*ascii_text++);
    }
    m_logok = false;
 }
@@ -288,7 +290,7 @@ bool unc_text::startswith(const char* text, uint32_t idx) const
 
    while ((idx < size()) && *text)
    {
-      if ((uint32_t)*text != m_chars[idx])
+      if (char2uint32(*text) != m_chars[idx])
       {
          return(false);
       }
@@ -334,7 +336,7 @@ int32_t unc_text::find(const char* text, uint32_t sidx) const
       bool match = true;
       for (uint32_t ii = 0; ii < len; ii++)
       {
-         if (m_chars[idx + ii] != (uint32_t)text[ii])
+         if (m_chars[idx + ii] != char2uint32(text[ii]))
          {
             match = false;
             break;
@@ -349,6 +351,12 @@ int32_t unc_text::find(const char* text, uint32_t sidx) const
 }
 
 
+uint32_t char2uint32(char in)
+{
+   return((uint32_t)(int32_t)in);
+}
+
+
 int32_t unc_text::rfind(const char* text, uint32_t sidx) const
 {
    uint32_t len  = strlen(text);
@@ -360,7 +368,7 @@ int32_t unc_text::rfind(const char* text, uint32_t sidx) const
       bool match = true;
       for (uint32_t ii = 0; ii < len; ii++)
       {
-         if (m_chars[idx + ii] != (uint32_t)text[ii])
+         if (m_chars[idx + ii] != char2uint32(text[ii]))
          {
             match = false;
             break;

@@ -1299,6 +1299,20 @@ bool not_type(
 );
 
 
+
+
+/**
+ * check if the given chunk is valid and has a parent token type
+ * different than ptoken1 and ptoken2
+ */
+bool not_type(
+   const chunk_t* const pc, /**< [in] chunk to check */
+   const c_token_t ptype1,  /**< [in] token type1 to check for */
+   const c_token_t ptype2   /**< [in] token type2 to check for */
+);
+
+
+
 /**
  * check if the given chunk is valid and holds a parent token
  * type which is different from the given type
@@ -1310,10 +1324,10 @@ bool not_ptype(
 
 
 /**
- * check if the given chunk is valid and has a parent token type
- * different than ptoken1 and ptoken2
+ * check if the given chunk is valid and holds a parent token
+ * type which is different from ptoken1 and ptoken2
  */
-bool not_type(
+bool not_ptype(
    const chunk_t* const pc, /**< [in] chunk to check */
    const c_token_t ptype1,  /**< [in] token type1 to check for */
    const c_token_t ptype2   /**< [in] token type2 to check for */

@@ -416,9 +416,9 @@ static bool match_text(const char* str1, const char* str2)
    int32_t matches = 0;
    while ((*str1 != 0) && (*str2 != 0))
    {
-      if (!unc_isalnum(*str1)) { str1++; continue; }
-      if (!unc_isalnum(*str2)) { str2++; continue; }
-      retval_if(unc_tolower(*str1) != unc_tolower(*str2), false);
+      if (!unc_isalnum(char2uint32(*str1))) { str1++; continue; }
+      if (!unc_isalnum(char2uint32(*str2))) { str2++; continue; }
+      retval_if(unc_tolower(char2uint32(*str1)) != unc_tolower(char2uint32(*str2)), false);
 
       matches++;
       str1++;
@@ -1662,7 +1662,7 @@ void register_options(void)
    unc_add_opt("cmt_multi_check_last", UO_cmt_multi_check_last, AT_BOOL,
                   "For multi-line comments with a '*' lead, remove leading spaces if the first and last lines of\n"
                   "the comment are the same length. Default=True");
-   unc_add_opt("cmt_multi_first_len_minimum", UO_cmt_multi_first_len_minimum, AT_UNUM,
+   unc_add_opt("cmt_multi_first_len_minimum", UO_cmt_multi_first_len_min, AT_UNUM,
                   "For multi-line comments with a '*' lead, remove leading spaces if the first and last lines of\n"
                   "the comment are the same length AND if the length is bigger as the first_len minimum. Default=4",
                   "", 1, 20);
@@ -1908,8 +1908,8 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
    if ((entry->type == AT_NUM ) ||
        (entry->type == AT_UNUM) )
    {
-      if (unc_isdigit(*val) ||
-         (unc_isdigit(val[1]) && ((*val == '-') || (*val == '+'))))
+      if (unc_isdigit(char2uint32(*val)) ||
+         (unc_isdigit(char2uint32(val[1])) && ((*val == '-') || (*val == '+'))))
       {
          if ((entry->type == AT_UNUM) && (*val == '-'))
          {
@@ -2370,7 +2370,7 @@ void set_option_defaults(void)
    cpd.defaults[UO_cmt_indent_multi                                 ].b = true;
    cpd.defaults[UO_cmt_insert_before_inlines                        ].b = true;
    cpd.defaults[UO_cmt_multi_check_last                             ].b = true;
-   cpd.defaults[UO_cmt_multi_first_len_minimum                      ].n = 4;
+   cpd.defaults[UO_cmt_multi_first_len_min                      ].n = 4;
    cpd.defaults[UO_indent_access_spec                               ].n = 1;
    cpd.defaults[UO_indent_align_assign                              ].b = true;
    cpd.defaults[UO_indent_columns                                   ].u = 8;

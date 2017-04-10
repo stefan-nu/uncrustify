@@ -1,0 +1,4 @@
+-esym(1023, min, max)
+-esym(967, cstdio, cstring)
+-esym(550, prev_column)
+-esym(754, std::space_check_action_s::*)

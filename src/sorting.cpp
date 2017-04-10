@@ -106,7 +106,7 @@ static int32_t get_chunk_priority(chunk_t *pc)
          }
       }
    }
-   return(kIncludeCategoriesCount);
+   return((int32_t)kIncludeCategoriesCount);
 }
 
 

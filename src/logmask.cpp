@@ -10,6 +10,7 @@
 #include <cstdio>      /* provides snprintf() */
 #include <cstdlib>     /* provides strtoul() */
 #include "chunk_list.h"
+#include "unc_text.h"
 #include "unc_ctype.h"
 
 
@@ -72,7 +73,7 @@ void logmask_from_string(const char* str, log_mask_t &mask)
    logmask_set_all(mask, false); /* Start with a clean mask */
 
    /* If the first character is 'a' or 'A', set all severities */
-   if (unc_toupper(*str) == 'A')
+   if (unc_toupper(char2uint32(*str)) == 'A')
    {
       logmask_set_all(mask, true);
       str++;
@@ -82,13 +83,13 @@ void logmask_from_string(const char* str, log_mask_t &mask)
    int32_t   last_level = -1;
    while (*str != 0) /* check string until termination character */
    {
-      if (unc_isspace(*str)) /* ignore spaces */
+      if (unc_isspace(char2uint32(*str))) /* ignore spaces */
       {
          str++;              /* and go on with */
          continue;           /* next character */
       }
 
-      if (unc_isdigit(*str))
+      if (unc_isdigit(char2uint32(*str)))
       {
          char* ptmp;
          uint32_t level = strtoul(str, &ptmp, 10);

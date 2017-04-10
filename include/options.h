@@ -753,7 +753,7 @@ enum uo_t
    UO_cmt_sp_before_star_cont,     /**< # of spaces for subsequent comment lines (before possible star) */
    UO_cmt_sp_after_star_cont,      /**< # of spaces for subsequent comment lines (after star) */
    UO_cmt_multi_check_last,        /**< no space after '*' prefix when comment start and end are of equal length */
-   UO_cmt_multi_first_len_minimum, /**< controls the xtra_indent for the last line of a multi-line comment
+   UO_cmt_multi_first_len_min,     /**< controls the xtra_indent for the last line of a multi-line comment
                                     *   For multi-line comments with a '*' lead, remove leading spaces if the
                                     *   first and last lines of the comment are the same length AND if the
                                     *   length is bigger as the first_len minimum.
@@ -1363,7 +1363,7 @@ const option_map_value_t* unc_find_option(
 
 
 typedef map<uo_t, option_map_value_t>::iterator   option_name_map_it;
-//typedef map<ug_t, group_map_value_t>::iterator  group_map_it;
+typedef map<ug_t, group_map_value_t>::iterator    group_map_it;
 typedef group_map_value_options_t::iterator       option_list_it;
 typedef group_map_value_options_t::const_iterator option_list_cit;
 

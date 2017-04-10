@@ -336,7 +336,7 @@ static void push_fmr_pse(parse_frame_t* frm, chunk_t* pc,
  * '--' [IF - 2] [BRACE OPEN]
  * ';'  [IF - 2] [BRACE OPEN]
  * '}'  [IF - 3]
- *                             <- lack of else kills the IF, closes statement
+ *                     <- lack of else kills the IF, closes statement
  *
  * Virtual braces example:
  *   if ( x ) x--; else x++;
@@ -401,7 +401,6 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 
       /* Mark everything in the for statement */
       uint32_t count = frm->pse_tos;
-      count = min(count, 1024u); /* limit count */
       while(count > 0)
       {
          count--;
@@ -462,7 +461,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       }
 
       /* Make sure the open / close match */
-      if (pc->type != (c_token_t)((int32_t)frm->pse[frm->pse_tos].type + 1)) // \todo why +1
+      if (pc->type != (c_token_t)((int32_t)frm->pse[frm->pse_tos].type + 1)) // \todo why +1 better use inverse token
       {
          my_type = frm->pse[frm->pse_tos].type;
          if ((my_type != CT_NONE     ) &&
@@ -696,12 +695,11 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 }
 
 
-static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
+static bool check_complex_statements(parse_frame_t* frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   c_token_t parent;
-
    assert(is_valid(pc));
+
    /* Turn an optional parenthesis into either a real parenthesis or a brace */
    if(frm->pse[frm->pse_tos].stage == brace_stage_e::OP_PAREN1)
    {
@@ -819,9 +817,8 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
       }
       else
       {
-         parent = frm->pse[frm->pse_tos].type;
-
-         chunk_t* vbrace = insert_vbrace_open_before(pc, frm);
+         c_token_t parent = frm->pse[frm->pse_tos].type;
+         chunk_t*  vbrace = insert_vbrace_open_before(pc, frm);
          set_ptype(vbrace, parent);
 
          frm->level++;
@@ -863,11 +860,10 @@ static bool check_complex_statements(parse_frame_t *frm, chunk_t* pc)
 }
 
 
-static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
+static bool handle_complex_close(parse_frame_t* frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
-   chunk_t* next;
 
    if (frm->pse[frm->pse_tos].stage == brace_stage_e::PAREN1)
    {
@@ -892,7 +888,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::ELSE;
 
          /* If the next chunk isn't CT_ELSE, close the statement */
-         next = get_next_ncnl(pc);
+         chunk_t* next = get_next_ncnl(pc);
          if (not_type(next, CT_ELSE))
          {
             frm->pse_tos--;
@@ -905,7 +901,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
          frm->pse[frm->pse_tos].stage = brace_stage_e::CATCH;
 
          /* If the next chunk isn't CT_CATCH or CT_FINALLY, close the statement */
-         next = get_next_ncnl(pc);
+         chunk_t* next = get_next_ncnl(pc);
          if(not_type(next, CT_CATCH, CT_FINALLY))
          {
             frm->pse_tos--;
@@ -955,7 +951,7 @@ static bool handle_complex_close(parse_frame_t *frm, chunk_t* pc)
 }
 
 
-static chunk_t* insert_vbrace(chunk_t* pc, bool after, parse_frame_t *frm)
+static chunk_t* insert_vbrace(chunk_t* pc, bool after, parse_frame_t* frm)
 {
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(pc), pc);
@@ -1011,7 +1007,6 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
    LOG_FUNC_ENTRY();
    assert(is_valid(pc));
    assert(ptr_is_valid(frm));
-   chunk_t* vbc = pc;
 
    LOG_FMT(LTOK, "%s:%u] %s '%s' type %s stage %u\n", __func__,
            pc->orig_line, get_token_name(pc->type), pc->text(),
@@ -1026,6 +1021,7 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
               __func__, pc->orig_line, pc->text());
    }
 
+   chunk_t* vbc = pc;
    /* Insert a CT_VBRACE_CLOSE, if needed:
     * If we are in a virtual brace and we are not ON a CT_VBRACE_CLOSE add one */
    if (frm->pse[frm->pse_tos].type == CT_VBRACE_OPEN)

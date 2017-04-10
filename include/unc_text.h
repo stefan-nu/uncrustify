@@ -431,4 +431,11 @@ protected:
    bool            m_logok;   /**  */
 };
 
+
+/** convert a char character to a uint32_t type character */
+uint32_t char2uint32(
+   char in /**< [in] character to convert */
+);
+
+
 #endif /* UNC_TEXT_H_INCLUDED */

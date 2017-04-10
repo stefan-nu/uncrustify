@@ -61,6 +61,7 @@
 -e530					// symbol is likely uninitialized (seems to be broken in pclint plus)
 -e534					// ignoring return value of function
 -e537					// do not warn about repeated inclusion
+-e550					// local variable not subsequently accessed
 +e574					// signed / unsigned mix with relational
 -e578					// Declaration of symbol hides symbol
 -e585					// not a valid Trigraph sequence
@@ -210,7 +211,7 @@
 +e748 					// Symbol is a register variable used with setjmp
 +e749					// check for unused enum values
 -e750					// local macros not referenced
-+e751					// check for unused local typedefs
+-e751					// check for unused local typedefs
 +e752 					// check for unused local declarations
 +e753					// check for unused local struct, union or enum tag
 +e754					// check for unused local structure member
@@ -364,6 +365,7 @@
 +e1042					// a least one class like operand is required with operator
 -e1048					// expected a constant expression
 -e1049					// too few template arguments for class ...
+-e1050					// use of class template requires template arguments
 +e1051					// symbol is both a function and a variable
 +e1052					// a type was expected, class assumed
 -e1054					// template variable declaration expects a type
@@ -411,7 +413,7 @@
 -e1770					// function defined without function
 +e1776					// converting a string literal to char*
 +e1786					// implicit conversion to bool
-+e1788					// variable is referenced only by its constructor or destructor
+-e1788					// variable is referenced only by its constructor or destructor
 +e1795					// Template was defined but not instantiated
 -e1904					// old style comments
 -e1923					// define could be const variable

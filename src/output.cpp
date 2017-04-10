@@ -190,8 +190,8 @@ static void add_text(
  * If it exceeds the limit, return true.
  */
 static bool next_word_exceeds_limit(
-   const unc_text& text, /**< [in]  */
-   uint32_t        idx   /**< [in]  */
+   const unc_text& text, /**< [in] text to check */
+   uint32_t        idx   /**< [in] index in text to start check at */
 );
 
 
@@ -248,8 +248,8 @@ static void cmt_output_indent(
  * @return 0=not present, >0=number of chars that are part of the lead
  */
 static uint32_t cmt_parse_lead(
-   const unc_text& line,   /**< [in]  */
-   bool            is_last /**< [in]  */
+   unc_text& line,   /**< [in]  */
+   bool      is_last /**< [in]  */
 );
 
 
@@ -368,18 +368,6 @@ static bool can_combine_cmt(
 
 
 /**
- * check if a character combination is a DOS newline
- * thus if it is combination of carriage return CARRIAGERETURN
- * and line feed character
- *
- * \todo parameter should not be int32_t type
- */
-static bool is_dos_nl(
-   const uint32_t pchar[] /**< [in] pointer to first character of line ending */
-);
-
-
-/**
  * Checks if a line of source code has a whitespace character
  * at its end. Whitespace is either a space or a tabstop.
  */
@@ -408,17 +396,8 @@ static const kw_subst_t kw_subst_table[] =
 static void add_char(uint32_t ch)
 {
    /* output a newline if ... */
-   if ((cpd.last_char == CARRIAGERETURN) &&
-       (ch            != LINEFEED      ) ) /* we did a CARRIAGERETURN not followed by a LINEFEED */
-   {
-      write_string(cpd.newline);
-      cpd.column      = 1;
-      cpd.did_newline = true;
-      cpd.spaces      = 0;
-   }
-
-   /* convert a newline into the LF/CRLF/CR sequence */
-   if (ch == LINEFEED)
+   if (((cpd.last_char == CARRIAGERETURN) && (ch != LINEFEED)) || /* a CARRIAGERETURN not followed by a LINEFEED */
+       (                                      ch == LINEFEED ) )  /* convert a newline into the LF/CRLF/CR sequence */
    {
       write_string(cpd.newline);
       cpd.column      = 1;
@@ -540,6 +519,22 @@ static bool next_word_exceeds_limit(const unc_text& text, uint32_t idx)
 
    const bool result = ((cpd.column + length - 1) > get_uval(UO_cmt_width));
    return(result);
+}
+
+
+static int32_t next_up(const unc_text& text, uint32_t idx, const unc_text& tag)
+{
+   uint32_t offs = 0;
+
+   // \todo DRY line 507
+   while ((idx < text.size()) && unc_isspace(text[idx]))
+   {
+      idx++;
+      offs++;
+   }
+
+   retval_if (text.startswith(tag, idx), (int32_t)offs);
+   return(-1); // \todo is this a bad solution to indicate an error?
 }
 
 
@@ -804,7 +799,7 @@ void output_text(FILE* pfile)
 }
 
 
-static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
+static uint32_t cmt_parse_lead(unc_text& line, bool is_last)
 {
    uint32_t len = 0;
 
@@ -815,8 +810,7 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
       {
          /* ignore combined comments */
          uint32_t tmp = len + 1;
-         while ((tmp < line.size()    ) &&
-                 unc_isspace(line[tmp]) )
+         while ((tmp < line.size()) && unc_isspace(line[tmp]) )
          {
             tmp++;
          }
@@ -824,9 +818,9 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
                    (line[tmp] == SLASH), 1);
          break;
       }
-      else if (strchr("*|\\#+", (int32_t)line[len]) == nullptr)
+      else if (strchr("*|\\#+", line[len]) == nullptr)
       {
-         break;
+         break; /* none of the characters '*|\#+' found in line */
       }
       len++;
    }
@@ -840,13 +834,6 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
       return(len);
    }
    return(0);
-}
-
-
-static bool is_dos_nl(const uint32_t pchar[])
-{
-   return((pchar[0] == CARRIAGERETURN) &&
-          (pchar[1] == LINEFEED      ) );
 }
 
 
@@ -868,7 +855,7 @@ static void calculate_cmt_body_indent(cmt_reflow_t& cmt, const unc_text& str)
 {
    return_if(is_false(UO_cmt_indent_multi));
 
-   cmt.xtra_indent = 0;
+   cmt.xtra_indent   = 0;
    uint32_t idx      = 0;
    uint32_t len      = str.size();
    uint32_t last_len = 0;
@@ -903,12 +890,8 @@ static void calculate_cmt_body_indent(cmt_reflow_t& cmt, const unc_text& str)
          }
 
          /* handle DOS endings */
-#if 0
-         if(is_dos_nl(&str[idx]))
-#else
          if ((str[idx+0] == CARRIAGERETURN) &&
              (str[idx+1] == LINEFEED      ) )
-#endif
          {
             idx++;
          }
@@ -950,54 +933,37 @@ static void calculate_cmt_body_indent(cmt_reflow_t& cmt, const unc_text& str)
       }
    }
 
-   // LOG_FMT(LSYS, "%s: first=%d last=%d width=%d\n", __func__, first_len, last_len, width);
-
-   // If the first and last line are the same length and don't contain any alnum
-   // chars and (the first line len > cmt_multi_first_len_minimum or
-   // the second leader is the same as the first line length), then the indent is 0.
-   return_if ( (first_len == last_len                                     )   &&
-       ((first_len > get_uval(UO_cmt_multi_first_len_minimum)) ||
-        (first_len == width                                        ) ) );
+   /* If the first and last line are the same length and don't contain any
+    * alphanumeric chars and (the first line len > cmt_multi_first_len_minimum or
+    * the second leader is the same as the first line length), then the indent is 0. */
+   return_if ((first_len == last_len                     )   &&
+       ((first_len > get_uval(UO_cmt_multi_first_len_min)) ||
+        (first_len == width                              ) ) );
 
    cmt.xtra_indent = ((width == 2) ? 0 : 1);
 }
 
 
-static int32_t next_up(const unc_text &text, uint32_t idx, const unc_text &tag)
-{
-   uint32_t offs = 0;
-
-   while ((idx < text.size()) && unc_isspace(text[idx]))
-   {
-      idx++;
-      offs++;
-   }
-
-   retval_if (text.startswith(tag, idx), (int32_t)offs);
-   return(-1); // \todo is this a good solution to indicate an error?
-}
-
-
 static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close)
 {
-   bool   was_star  = false;
-   bool   was_slash = false;
-   bool   in_word   = false;
-   uint32_t len       = text.size();
-   uint32_t ch_cnt    = 0; /* chars since newline */
-
-   /* If the '//' is included write it first else we may wrap an empty line */
+   uint32_t len = text.size();
    uint32_t idx = 0;
 
+   /* If the '//' is included write it first else we may wrap an empty line */
    if (text.startswith("//"))
    {
       add_text("//");
       idx += 2;
       while (unc_isspace(text[idx]))
       {
-         add_char(text[idx++]);  /*lint !e732 */
+         add_char(text[idx++]);
       }
    }
+
+   bool was_star  = false;
+   bool was_slash = false;
+   bool in_word   = false;
+   uint32_t ch_cnt = 0; /* counts characters since newline except comment written before */
 
    for ( ; idx < len; idx++)  /* \todo avoid modifying idx in loop */
    {
@@ -1007,11 +973,9 @@ static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close
          in_word = false;
          add_char(LINEFEED);
          cmt_output_indent(cmt.brace_col, cmt.base_col, cmt.column);
-         if (cmt.xtra_indent > 0)
-         {
-            add_char(SPACE);
-         }
-         /* hack to get escaped newlines to align and not dup the leading '//' */
+         if (cmt.xtra_indent > 0) { add_char(SPACE); }
+
+         /* get escaped newlines to align and don't duplicate the leading '//' */
          int32_t tmp = next_up(text, idx + 1, cmt.cont_text);
          if (tmp < 0)
          {
@@ -1019,13 +983,13 @@ static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close
          }
          else
          {
-            idx = (uint32_t)((int32_t)idx + tmp);
+            idx += (uint32_t)tmp;
          }
          ch_cnt = 0;
 
       }
-      else if ((cmt.reflow == true              ) &&
-               (text[idx]  == SPACE             ) &&
+      else if ((cmt.reflow == true        ) &&
+               (text[idx]  == SPACE       ) &&
                (get_uval(UO_cmt_width) > 0) &&
                ((cpd.column > get_uval(UO_cmt_width)) ||
                 ((ch_cnt > 1) && next_word_exceeds_limit(text, idx))))
@@ -1056,13 +1020,13 @@ static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close
          }
          in_word = !unc_isspace(text[idx]);
 
-         add_char    (text[idx]); /*lint !e732 */
+         add_char    (text[idx]);
          was_star  = (text[idx] == '*');
          was_slash = (text[idx] == SLASH);
          ch_cnt++;
       }
    }
-} /*lint !e850 */
+}
 
 
 static void output_cmt_start(cmt_reflow_t& cmt, chunk_t* pc)
@@ -1114,7 +1078,7 @@ static bool can_combine_cmt(chunk_t* pc, const cmt_reflow_t& cmt)
    retval_if(is_invalid_or_ptype(pc, CT_COMMENT_START), false);
 
    /* next is a newline for sure, make sure it is a single newline */
-   chunk_t *next = chunk_get_next(pc);
+   chunk_t* next = chunk_get_next(pc);
    if ((is_valid(next)) &&
        (next->nl_count == 1 ) )
    {
@@ -1144,7 +1108,7 @@ void combine_comment(
 /* \todo is this fct name correct? */
 void combine_comment(unc_text& tmp, chunk_t* pc, cmt_reflow_t& cmt)
 {
-   tmp.set(pc->str, 2, pc->len() - 4);
+   tmp.set(pc->str, 2, pc->len() - 4); /* \todo avoid magic numbers */
    if ((cpd.last_char == '*'  ) &&
         (tmp[0]       == SLASH) )
    {
@@ -1219,8 +1183,8 @@ static chunk_t* output_comment_cpp(chunk_t* first)
    output_cmt_start(cmt, first);
    cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
 
-   unc_text leadin = "//";                    // default setting to keep previous behavior
-   if (is_true(UO_sp_cmt_cpp_doxygen)) // special treatment for doxygen style comments (treat as unity)
+   unc_text leadin = "//";             /* default setting to keep previous behavior */
+   if (is_true(UO_sp_cmt_cpp_doxygen)) /* special treatment for doxygen style comments (treat as unity) */
    {
       const char *sComment = first->text();
       retval_if(ptr_is_invalid(sComment), first);
@@ -1228,7 +1192,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
       bool grouping = (sComment[2] == '@');
       int32_t  brace    = 3;
       if ((sComment[2] == SLASH) ||
-          (sComment[2] == '!') ) // doxygen style found!
+          (sComment[2] == '!') ) /* doxygen style found */
       {
          leadin += sComment[2];  // at least one additional char (either "///" or "//!")
          if (sComment[3] == '<') // and a further one (either "///<" or "//!<")
@@ -1237,13 +1201,12 @@ static chunk_t* output_comment_cpp(chunk_t* first)
          }
          else
          {
-            grouping = (sComment[3] == '@');  // or a further one (grouping)
+            grouping = (sComment[3] == '@');  /* or a further one (grouping) */
             brace    = 4;
          }
       }
-      if ( (grouping == true       )   &&
-           ((sComment[brace] == '{') ||
-            (sComment[brace] == '}') ) )
+      if ( (grouping == true) &&
+           ((sComment[brace] == '{') || (sComment[brace] == '}')))
       {
          leadin += '@';
          leadin += sComment[brace];
@@ -1280,7 +1243,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
       }
       else
       {
-         uint32_t   iLISz = leadin.size();
+         uint32_t iLISz = leadin.size(); /* \todo variable name? */
          unc_text tmp(first->str, 0, iLISz);
          add_cmt_text(tmp, cmt, false);
 
@@ -1288,8 +1251,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
 
          if (is_arg_set(sp_cmt_cpp_start, AV_REMOVE))
          {
-            while ((tmp.size() > 0    ) &&
-                    unc_isspace(tmp[0]) )
+            while ((tmp.size() > 0) && unc_isspace(tmp[0]))
             {
                tmp.pop_front();
             }
@@ -1298,8 +1260,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
          {
             if (is_arg_set(sp_cmt_cpp_start, AV_ADD))
             {
-               if (!unc_isspace(tmp[0]) &&
-                   (tmp[0] != SLASH   ) )
+               if (!unc_isspace(tmp[0]) && (tmp[0] != SLASH))
                {
                   add_cmt_text(" ", cmt, false);
                }
@@ -1320,7 +1281,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
    {
       /* nothing to group: just output a single line */
       add_text("/*");
-      if( (!unc_isspace(first->str[2])            ) &&
+      if( (!unc_isspace(first->str[2])         ) &&
           (is_arg_set(sp_cmt_cpp_start, AV_ADD)) )
       {
          add_char(SPACE);
@@ -1492,7 +1453,7 @@ static void output_comment_multi(chunk_t* pc)
                 (line[nwidx] != '*') &&     // block comment: skip '*' at end of line
                 (is_preproc(pc) ?
                   (line[nwidx  ] !=  '\\') ||
-                 ((line[nwidx+1] !=  'r' ) &&
+                 ((line[nwidx+1] !=  'r' ) && /* \todo should this be \r ? */
                   (line[nwidx+1] != LINEFEED ) )
                  : true))
             {
@@ -1954,13 +1915,14 @@ static void do_keyword_substitution(chunk_t *pc)
          /* if the replacement contains LINEFEED we need to fix the lead */
          if (tmp_txt.find("\n") >= 0)
          {
-            int32_t nl_idx = pc->str.rfind("\n", idx);
+            int32_t nl_idx = pc->str.rfind("\n", (uint32_t)idx);
             if (nl_idx > 0)
             {
+               /* idx and nl_idx are both positive */
                unc_text nl_txt;
                nl_txt.append("\n");
                nl_idx++;
-               while ((nl_idx < static_cast<uint32_t>(idx)) && !unc_isalnum(pc->str[nl_idx]))
+               while ((nl_idx < idx) && !unc_isalnum(pc->str[nl_idx]))
                {
                   nl_txt.append(pc->str[nl_idx++]);
                }

@@ -1276,8 +1276,8 @@ void space_text(void)
          {
             /* do some comment adjustments if sp_before_tr_emb_cmt and
              * sp_endif_cmt did not apply. */
-            if ((is_ignore(UO_sp_before_tr_emb_cmt) || not_ptype(next, 2, CT_COMMENT_END, CT_COMMENT_EMBED) ) &&
-                (is_ignore(UO_sp_endif_cmt        ) || not_type (pc,      CT_PP_ELSE,     CT_PP_ENDIF     ) ) )
+            if ((is_ignore(UO_sp_before_tr_emb_cmt) || not_ptype(next, CT_COMMENT_END, CT_COMMENT_EMBED)) &&
+                (is_ignore(UO_sp_endif_cmt        ) || not_type (pc,   CT_PP_ELSE,     CT_PP_ENDIF     )) )
             {
                if (is_true(UO_indent_rel_single_line_comments))
                {

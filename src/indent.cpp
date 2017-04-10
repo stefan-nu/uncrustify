@@ -1720,7 +1720,7 @@ void indent_text(void)
                frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent;
                if (is_level(pc, pc->brace_level) &&
                    (not_type(pc, CT_ASSIGN) ||
-                    not_ptype(pc, 2, CT_FUNC_PROTO, CT_FUNC_DEF)))
+                    not_ptype(pc, CT_FUNC_PROTO, CT_FUNC_DEF)))
                {
                   if ((is_true(UO_use_indent_continue_only_once)) &&
                       (frm.pse[frm.pse_tos].indent_cont) &&
@@ -2426,7 +2426,7 @@ void indent_preproc(void)
       /* Mark as already handled if not region stuff or in column 1 */
       if ((is_false(UO_pp_indent_at_level) ||
            (pc->brace_level <= (is_ptype(pc, CT_PP_DEFINE) ? 1 : 0))) &&
-           not_ptype(pc, 2, CT_PP_REGION, CT_PP_ENDREGION) )
+           not_ptype(pc, CT_PP_REGION, CT_PP_ENDREGION) )
       {
          if (is_false(UO_pp_define_at_level) || not_ptype(pc, CT_PP_DEFINE))
          {

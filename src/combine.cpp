@@ -1274,8 +1274,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
     * which means that we are on a function type declaration (C/C++ only?).
     * Note that typedefs are already taken care of. */
    if (not_flag(pc, (PCF_IN_TYPEDEF | PCF_IN_TEMPLATE)) &&
-       not_ptype(pc, 2, CT_CPP_CAST,    CT_C_CAST     ) &&
-       not_ptype(pc, 2, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
+       not_ptype(pc, CT_CPP_CAST,    CT_C_CAST     ) &&
+       not_ptype(pc, CT_OC_MSG_DECL, CT_OC_MSG_SPEC) &&
        !is_preproc (pc) &&
        !is_oc_block(pc) &&
        is_str(pc,  ")") &&
@@ -2052,16 +2052,16 @@ static chunk_t* process_return(chunk_t* pc)
    {
       /* add the parenthesis */
       chunk.type        = CT_PAREN_OPEN;
+      chunk.ptype       = CT_RETURN;
       chunk.str         = "(";
       chunk.level       = pc->level;
       chunk.brace_level = pc->brace_level;
       chunk.orig_line   = pc->orig_line;
-      chunk.ptype = CT_RETURN;
       set_flags(&chunk, get_flags(pc, PCF_COPY_FLAGS));
       chunk_add_before(&chunk, next);
 
-      chunk.type      = CT_PAREN_CLOSE;
-      chunk.str       = ")";
+      chunk.type = CT_PAREN_CLOSE;
+      chunk.str  = ")";
 
       assert(is_valid(semi));
       chunk.orig_line = semi->orig_line;
@@ -2083,7 +2083,7 @@ static bool is_ucase_str(const char* str, uint32_t len)
 {
    while (len-- > 0)
    {
-      retval_if(unc_toupper(*str) != *str, false);
+      retval_if(unc_toupper(char2uint32(*str)) != *str, false);
       str++;
    }
    return(true);
@@ -3713,14 +3713,14 @@ exit_loop:
       {
          chunk_t* br_open = get_prev_type(pc, CT_BRACE_OPEN, (int32_t)pc->brace_level - 1);
 
-         if (not_ptype(br_open, 2, CT_EXTERN, CT_NAMESPACE))
+         if (not_ptype(br_open, CT_EXTERN, CT_NAMESPACE))
          {
             /* Do a check to see if the level is right */
             prev = get_prev_ncnl(pc);
             if (!is_str(prev, "*") && !is_str(prev, "&"))
             {
                chunk_t* p_op = get_prev_type(pc, CT_BRACE_OPEN, (int32_t)pc->brace_level - 1);
-               if (not_ptype(p_op, 3, CT_CLASS, CT_STRUCT, CT_NAMESPACE))
+               if (not_ptype(p_op, CT_CLASS, CT_STRUCT, CT_NAMESPACE))
                {
                   set_type_and_log(pc, CT_FUNC_CTOR_VAR, 4);
                }

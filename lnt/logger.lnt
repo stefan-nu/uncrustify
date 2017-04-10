@@ -1,3 +1,5 @@
 -esym(526, __builtin_va_start)
 -esym(530, args)
 -esym(522, std::log_set_sev)
+-esym(754, std::log_fcn_info::*, std::log_buf_t::mask)
+-esym(1714, std::log_fcn_info::log_fcn_info)
