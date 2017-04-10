@@ -1,0 +1,441 @@
+
+            ____________________ MESSAGE GROUP ____________________            
+
+                      ----- Error Inhibition Options -----                      
+
+-e  disables a message where # is a message number or pattern
+   -e#
++e  re-enables message(s) #
+   +e#
+!e  disables message # for the current line
+   !e#
+-e(  inhibits message #s for the next expression
+   -e(# [,#...])
+--e(  inhibits message #s for the entire enclosing expression
+   --e(# [,#...])
+-e{  inhibits message #s for the next statement
+   -e{# [,#...]}
+--e{  inhibits message #s for the entire enclosing braced region
+   --e{# [,#...]}
+-ecall  inhibits the message #s within calls to Function
+   -ecall(# [#...], Function [,Function...])
++ecall  enables the message #s within calls to Function
+   +ecall(# [#...], Function [,Function...])
+-efile  inhibits the message #s within File
+   -efile(# [#...], File [,File...])
++efile  enables the message #s within File
+   +efile(# [#...], File [,File...])
++efreeze  freeze the message #s and/or warning level(s)
+   +efreeze | +efreeze(#|w# [,#|w#...])
+-efreeze  unfreeze the message #s and/or warning level(s)
+   -efreeze | -efreeze(#|w# [,#|w#...])
+++efreeze  deep freeze the message #s and/or warning level(s)
+   ++efreeze | ++efreeze(#|w# [,#|w#...])
+-efunc  inhibits the message #s within the body of Function
+   -efunc(# [#...], Function [,Function...])
++efunc  enables the message #s within the body of Function
+   +efunc(# [#...], Function [,Function...])
+-egrep  inhibits the message #s when the message text matches Regex
+   -egrep(# [#...], Regex [,Regex...])
++egrep  enables the message #s when the message text matches Regex
+   +egrep(# [#...], Regex [,Regex...])
+-elib  disables the message #s in library code
+   -elib(# [,#...])
++elib  enables message #s in library code
+   +elib(# [,#...])
+-elibcall  inhibits message #s inside calls to library functions
+   -elibcall(# [,#...])
++elibcall  enables message #s inside calls to library functions
+   +elibcall(# [,#...])
+-elibmacro  inhibits message #s issued for library macros
+   -elibmacro(# [,#...])
++elibmacro  enables message #s issued for library macros
+   +elibmacro(# [,#...])
+-elibsym  inhibits message #s issued for library symbols
+   -elibsym(# [,#...])
++elibsym  enables message #s issued for library symbols
+   +elibsym(# [,#...])
+-emacro  inhibits message #s within macro expansions
+   -emacro(# [#...], Symbol [,Symbol...])
++emacro  enables message #s within macro expansions
+   +emacro(# [#...], Symbol [,Symbol...])
+--emacro  inhibits message #s within macro expansions
+   --emacro(# [#...], Symbol [,Symbol...])
+-estring  inhibits the message #s parameterized by String
+   -estring(# [#...], String [,String...])
++estring  enables the message #s parameterized by String
+   +estring(# [#...], String [,String...])
+-esym  inhibits the message #s parameterized by Symbol
+   -esym(# [#...], Symbol [,Symbol...])
++esym  enables the message #s parameterized by Symbol
+   +esym(# [#...], Symbol [,Symbol...])
+-etype  inhibits the message #s parameterized by Type
+   -etype(# [#...], Type [,Type...])
++etype  enables the message #s parameterized by Type
+   +etype(# [#...], Type [,Type...])
++group  adds messages from Pattern to message group Name
+   +group(Name [,Pattern...])
+-group  remove Pattern from group Name or delete Name
+   -group(Name [,Pattern...])
+-restore  restores the state of error inhibition settings
+-save  saves the current state of error inhibition settings
+-w  sets the base warning level
+   -w#
+-wlib  sets the base warning level for library code
+   -wlib(#)
+
+                         ----- Verbosity Options -----                         
+
+-v  turn off verbosity or send it to stdout
+   -v[acehiostw#][mf<int>]
++v  output verbosity to stderr and stdout
+   +v[acehiostw#][mf<int>]
+-verbosify  print string as a verbosity message
+   -verbosify(string)
+
+                    ----- Message Presentation Options -----                    
+
+-append  append String to diagnostic # when issued
+   -append(#, String)
+-format  sets the message format for height 3 or less
+-format4a  sets the format of the message that appears above the error for height 4
+-format4b  sets the format of the message that appears below the error for height 4
+-format_intro  sets the format of the line that appears before each new message group
+-format_specific  sets the format of the specific walk message
+-format_stack  sets the format of the stack usage message
+-format_summary  format of the output produced by the -summary option
+-format_template  sets the formatting of the prologue used when a message is issued while instantiating a class template
+-format_verbosity  sets the format of verbosity output
+-h  adjusts message height options
+   -h[s][A/B][a/b][r][I]N
++html  emit HTML output
+   +html(sub-option, ...)
+-limit  set the message limit to n
+   -limit(n)
+++limit  locks in the message limit at n
+   ++limit(n)
+-message  emits a custom message via info 865
+   -message(text)
++message  emits a custom message with the specified message #
+   +message([#,] text)
+-summary  outputs a message summary at the end of processing, optionally to a file
+   -summary | -summary=filename
+-t  sets tab width
+   -t#
++typename  includes the types of symbols when emitting specified messages
+   +typename(# [,#...])
+-typename  excludes the types of symbols when emitting specified messages
+   -typename(# [,#...])
+-width  sets the maximum output width and indentation level for continuations
+   -width(# [,Indent])
++xml  activates XML escape sequences
+   +xml([tag])
+
+f12  view MISRA C 2012 essential types (OFF)
+fcc  capitalize message categories (OFF)
+fcn  convert non-printable characters in context line (ON)
+fff  fold filenames to a consistent case (ON)
+ffn  use full file names (OFF)
+fia  inhibit supplementary messages (OFF)
+fin  refer to supplemental messages with the info label (OFF)
+fla  locations for all diagnostics (ON)
+flm  lock message format (OFF)
+fsn  treat strings as names (ON)
+
+           ____________________ PROCESSING GROUP ____________________           
+
+                    ----- Compiler Adaptation Options -----                    
+
+-A  specifies the C or C++ language version
+   -A={C|C++}{YY|YYYY}
+-std  specifies the C or C++ language version
+   -std={c89|c90|c99|c11|c++03|c++11|c++14}
+
+                        ----- Preprocessor Options -----                        
+
+-d  define the preprocessor symbol Name with value Value
+   -d{Name}[={Value}]
++d  define the preprocessor symbol Name resistent to change via #define
+   +dName[=Value]
+++d  define the preprocessor symbol Name that cannot be #undef'd
+   ++dName[=Value]
+-header  auto-include Filename at the beginning of each module
+   -header(Filename)
+--header  clears previous auto-includes and optionally adds a new one
+   --header | --header(Filename)
+-i  add search directory for #include directives
+   -idirectory
+-I  add search directory for #include directives
+   -Idirectory
+--i  add lower-priority search directory for #include directives
+   --idirectory
+-incvar  change the name of the INCLUDE environment variable to Name
+   -incvar(Name)
++macros  (obsolete) double the maximum macro size
+   +macros
+-macros  (obsolete) halve the maximum macro size
+   -macros
+-pch  designates a given header as the pre-compiled header, creating precompiled form if needed
+   -pch(Header)
++pch  designates a given header as the pre-compiled header, forcing recreation
+   +pch(Header)
+-pp_sizeof  set the value that sizeof(Text) evaluates to in a preprocessor directive
+   -pp_sizeof(Text, Value)
+-u  undefine the preprocessor symbol Name
+   -uName
+--u  ignore past and future #defines of the preprocessor symbol Name
+   --uName
++ppw  enable preprocessor keyword(s)
+   +ppw(word [,word...])
+-ppw  disable preprocessor keyword(s)
+   -ppw(word [,word...])
+--ppw  remove built in meaning of preprocessor keyword(s)
+   --ppw(word [,word...])
+-ppw_asgn  assign preprocessor word meaning of Word2 to Word1
+   -ppw_asgn(Word1, Word2)
++pragma  associates Action with Identifier for #pragma
+   +pragma(Identifier, Action)
+-pragma  disables pragma Identifier
+   -pragma(Identifier)
+
+fce  continue on #error (OFF)
+fcs  continue on static assertion failure (OFF)
+fdg  expansion of digraphs (ON)
+fdm  comma from macro expansion does not delimit macro args (OFF)
+fho  header include guard optimization (OFF)
+fim  -i can have multiple directories (ON)
+fkp  use K&R preprocessor (OFF)
+fln  honor #line directives for diagnostics (ON)
+frc  remove commas before __VA_ARGS__ (OFF)
+fsi  search #include stack (OFF)
+fsl  single line comments (OFF)
+
+                         ----- Tokenizing Options -----                         
+
+-$  permit $ in identifiers
+-ident  add identifier characters
+   -ident(chars)
++linebuf  (obsolete) double the size of the line buffer
++rw  enable reserved word(s)
+   +rw(word [,word...])
+-rw  disable reserved word(s)
+   -rw(word [,word...])
+--rw  remove built in meaning of reserved word(s)
+   --rw(word [,word...])
+-rw_asgn  assigns reserved word meaning of Word2 to Word1
+   -rw_asgn(Word1, Word2)
+
+fnc  nested comments (OFF)
+ftg  permit trigraphs (ON)
+
+                          ----- Parsing Options -----                          
+
+-fallthrough  ignores switch case fallthrough when used in a lint comment
+-unreachable  ignores unreachable code when used in a lint comment
+
+ffb  for loop creates separate block (ON)
+flf  process library functions (OFF)
+fon  support for C++ operator name keywords (ON)
+fpm  limit precision to the maximum of the arguments (OFF)
+fpo  limit precision to the type of the operation (ON)
+
+                          ----- Template Options -----                          
+
+-tr_limit  set the template recursion limit to n
+   -tr_limit=n
+
+              ____________________ DATA GROUP ____________________              
+
+                      ----- Scalar Data Size Options -----                      
+
+-s  set the size of various types
+-size  set static or auto size thresholds
+   -size(flags, amount)
+
+fba  bit addressability (OFF)
+fbc  binary constants (OFF)
+fbo  activate bool, true, false (ON)
+fcu  char is unsigned (OFF)
+fdl  pointer difference is long (OFF)
+fll  allow long long int (OFF)
+fsc  strings are const char even in C (OFF)
+fwc  internal wchar_t for C (OFF)
+fwu  wchar_t is unsigned (OFF)
+
+                   ----- Scalar Data Alignment Options -----                   
+
+-a  set the alignment of various types
+
+         ____________________ MISCELLANEOUS GROUP ____________________         
+
+                            ----- File Options -----                            
+
++cpp  add C++ extension(s)
+   +cpp(Extension [,Extension...])
+-cpp  remove C++ extension(s)
+   -cpp(Extension [,Extension...])
++ext  set the extensions to try for extensionless files
+   +ext(Extension [,Extension...])
++headerwarn  causes message #829 to be issued when Filename is #included
+   +headerwarn(Filename)
+-indirect  process File as an options file
+   -indirect(File [,...])
++libclass  add class of headers treated as libraries
+   +libclass(Identifier [,...])
++libdir  specify a Directory of headers to treat as libraries
+   +libdir(Directory [,...])
+-libdir  specify a Directory of headers to not treat as libraries
+   -libdir(Directory [,...])
++libh  specify Headers to treat as libraries
+   +libh(Header [,...])
+-libh  specify Headers to not treat as libraries
+   -libh(Header [,...])
++libm  specify Modules to treat as libraries
+   +libm(Module [,...])
+-libm  specify Modules to not treat as libraries
+   -libm(Module [,...])
+-library  indicates the next source module is to be treated as library code
+   -library
++lnt  add indirect file extension(s)
+   +lnt(Extension [,Extension...])
+-lnt  remove indirect file extension(s)
+   -lnt(Extension [,Extension...])
+
+fdh  append '.h' to header names in #include's (OFF)
+fdi  search directory of including file (ON)
+flb  treat code as library (OFF)
+
+                           ----- Global Options -----                           
+
+?  displays help
+-b  suppress banner output
++b  redirect banner output to stdout
+++b  produce banner line
+-cond  conditionally execute options
+   -cond(conditional-expr, true-options [,false-options])
+-dump_message_list  dumps PC-lint Plus message list to the provided file
+   -dump_message_list=filename
+-exitcode  set the exit code to n
+   -exitcode=n
++f  turns a flag on
+-f  turns a flag off
+++f  increments a flag
+--f  decrements a flag
+-help  display detailed help about Option
+   -help=Option
+-max_threads  set the maximum number of concurrent threads for parallel analysis
+   -max_threads=n
+-p  just preprocess
+   -p | -p(width)
+-setenv  set environment variable name to value
+   -setenv(name=value)
+-skip_function  skips the body of a Function when parsing
+   -skip_function(Function [,Function...])
+-subfile  process just options or just modules from options file File
+   -subfile(File, options|modules)
+-unit_check  unit checkout
+--unit_check  unit checkout and ignore modules in lower .lnt files
+-write_file  write String to file Filename
+   -write_file(String, Filename [,append=true|false] [,binary=true|false])
+-zero  sets exit code to 0
+   -zero | -zero(#)
++zero_err  specify message numbers that should not increment exit code
+   +zero_err(# [#...])
+-zero_err  specify message numbers that should increment exit code
+   -zero_err(# [#...])
+
+fcp  all subsequent modules are considered C++ (OFF)
+fee  expand environment variables (ON)
+fes  search enclosing scopes for friend tag decls (OFF)
+ffv  implicit function to void pointer conversion (OFF)
+ffw  allow friend decl to act as forward decl (OFF)
+fgi  inline treated as GNU inline (OFF)
+fhk  execute user-defined hooks (ON)
+fhl  execute hooks in library regions (OFF)
+flp  lax null pointer constants (OFF)
+fma  microsoft inline asm blocks (OFF)
+fms  microsoft semantics (OFF)
+fnf  fall back to operator new when new[] not available (OFF)
+fpa  pause before exiting (OFF)
+fre  allow recursive hook events (OFF)
+frz  use return code only to indicate execution failure (ON)
+fsd  output stack diagrams (OFF)
+fta  enable typographical ambiguity checks (ON)
+fti  initialize predefined C++ types from type_info (OFF)
+fum  user declared move deletes only corresponding copy (OFF)
+fun  issue additional stack usage notes (OFF)
+
+                           ----- Output Options -----                           
+
+-env_pop  pop the current option environment
+-env_push  push the current option environment
+-env_restore  restore the option environment to a previously saved one
+   -env_restore(Name)
+-env_save  save the current option environment with name Name
+   -env_save(Name)
+-oe  redirect stderr to Filename overwriting existing content
+   -oe(Filename)
++oe  redirect stderr to Filename in append mode
+   +oe(Filename)
+-os  redirect stdout to Filename overwriting existing content
+   -os(Filename)
++os  redirect stdout to Filename in append mode
+   +os(Filename)
+-program_info  configure program info settings
++program_info  enable program info output
+-stack  set stack reporting options
+   -stack(&file=filename, &overhead(n), &external(n), &off, name(n))
++stack  enable stack reporting
+
+       ____________________ SPECIAL DETECTION GROUP ____________________       
+
+                        ----- Strong Type Options -----                        
+
+-father  a stricter version of -parent
+   -father(parent, child [,child...])
+-index  establish ixtype as index type
+   -index(flags, ixtype, sitype [,sitype...])
+-parent  augment strong type hierarchy
+   -parent(parent, child [,child...])
+-strong  imbues typedefs with strong type checking characteristics
+   -strong(flags [,name...])
+
+fdd  dimensional by default (ON)
+fhd  allow hierarchy downcasts (ON)
+fhs  natural hierarchy of strong types (ON)
+fhx  hierarchy of index types (ON)
+
+                  ----- Miscellaneous Detection Options -----                  
+
+-deprecate  deprecates the use of Name within Category
+   -deprecate(Category, Name [,Commentary])
+-misra  (obsolete) specifies the MISRA standard version to use
+   -misra(version)
+
+                          ----- Semantic Options -----                          
+
+-function  copy or remove semantics from Function0
+   -function(Function0 [,Function1] [,Function2...]
+-printf  name1,... are printf-like functions with format provided in the Nth argument
+   -printf(N, name1 [,name2...])
+-scanf  name1,... are scanf-like functions with format provided in the Nth argument
+   -scanf(N, name1 [,name2...])
+-sem  associates the semantic Sem with Function
+   -sem(Function [,Sem...])
+
+                       ----- Value Tracking Options -----                       
+
+-specific_climit  maximum number of specific calls per function
+-vt_depth  specifies the maximum number of nested specific walks
+   -vt_depth=n
+-vt_passes  specifies the number of passes for intermodule value tracking
+   -vt_passes=n
+
+fai  arguments pointed to get initialized (ON)
+fiw  initialization is a write (ON)
+fiz  initialization by zero is a write (ON)
+fnn  new can return null (OFF)
+fnr  null pointer return (OFF)
+fpn  pointer parameter may be null (OFF)
+fsp  specific calls (ON)
+fsv  track static variables (ON)
