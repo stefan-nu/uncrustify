@@ -5,6 +5,7 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #include "detect.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
@@ -164,13 +165,13 @@ static void detect_space_options(void)
          case(CT_COMPARE     ): vote_sp_compare.vote       (prev, pc); vote_sp_compare.vote(pc, next); break;
 
          case(CT_PAREN_OPEN):   vote_sp_inside_paren.vote(pc, next); /* fallthrough */
-         case(CT_TPAREN_OPEN):  /* fallthrough */
+         case(CT_TPAREN_OPEN):  /*lint -fallthrough */
          case(CT_FPAREN_OPEN):
             if(is_paren_open(next)) { vote_sp_paren_paren.vote(pc, next); }
          break;
 
          case(CT_PAREN_CLOSE):  vote_sp_inside_paren.vote(prev, pc); /* fallthrough */
-         case(CT_TPAREN_CLOSE): /* fallthrough */
+         case(CT_TPAREN_CLOSE): /*lint -fallthrough */
          case(CT_FPAREN_CLOSE):
             if     (is_paren_close(next))         { vote_sp_paren_paren.vote(pc, next); }
             else if(is_type(next, CT_BRACE_OPEN)) { vote_sp_paren_brace.vote(pc, next); }

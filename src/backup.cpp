@@ -47,9 +47,9 @@ void md5_to_string(
 
 void md5_to_string(char *md5_str, const uint32_t str_len, uint8_t dig[16])
 {
+   int32_t pos = 0;
    for(uint32_t i = 0; i < MD5_CHAR_COUNT; i++)
    {
-      static int32_t pos = 0;
       if(pos < (int32_t)(str_len - MD5_CHAR_SIZE))
       {
          pos += snprintf(&md5_str[pos], MD5_CHAR_SIZE, "%02X", dig[i]);

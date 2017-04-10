@@ -401,14 +401,15 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 
       /* Mark everything in the for statement */
       uint32_t count = frm->pse_tos;
+      count = min(count, 1024u); /* limit count */
       while(count > 0)
       {
-         if (frm->pse[count-1].type == CT_FOR)
+         count--;
+         if (frm->pse[count].type == CT_FOR)
          {
             set_flags(pc, PCF_IN_FOR);
             break;
          }
-         count--;
       }
 
       /* Mark the parent on semicolons in for() statements */

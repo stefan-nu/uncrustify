@@ -621,6 +621,13 @@ static void _log_indent_tmp(const char* func, const uint32_t line, parse_frame_t
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent_tmp);
 }
 
+void _log_indent1(
+   const char*    func,
+   const uint32_t line,
+   const char*    str,
+   chunk_t*       pc,
+   const uint32_t val
+);
 
 #define log_indent1(pc, val, str)                          \
    do{                                                     \
@@ -1068,7 +1075,7 @@ void indent_text(void)
          if (frm.pse[frm.pse_tos].type == CT_BRACE_OPEN)
          {
             /* Indent the brace to match the open brace */
-            indent_column_set(frm.pse[frm.pse_tos].brace_indent);
+            indent_column_set((uint32_t)frm.pse[frm.pse_tos].brace_indent);
 
             if (frm.pse[frm.pse_tos].ip.ref)
             {
@@ -1115,7 +1122,7 @@ void indent_text(void)
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)frm.pse[frm.pse_tos-1].indent;
-            indent_column                       = frm.pse[frm.pse_tos  ].brace_indent;
+            indent_column                       = (uint32_t)frm.pse[frm.pse_tos  ].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
@@ -1129,7 +1136,7 @@ void indent_text(void)
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)(1 + ((pc->brace_level+1) * indent_size));
-            indent_column                       = frm.pse[frm.pse_tos].brace_indent;
+            indent_column                       = (uint32_t)frm.pse[frm.pse_tos].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
@@ -1145,7 +1152,7 @@ void indent_text(void)
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)(1 + (pc->brace_level * indent_size));
-            indent_column                       = frm.pse[frm.pse_tos].brace_indent;
+            indent_column                       = (uint32_t)frm.pse[frm.pse_tos].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
@@ -1272,7 +1279,7 @@ void indent_text(void)
                      frm.pse[frm.pse_tos].indent -= indent_size;
                      log_indent();
                   }
-                  indent_column_set((frm.pse_tos <= 1) ? 1 : frm.pse[frm.pse_tos-1].brace_indent);
+                  indent_column_set((frm.pse_tos <= 1) ? 1 : (uint32_t)frm.pse[frm.pse_tos-1].brace_indent);
                }
                else if (is_flag(pc, PCF_LONG_BLOCK) || is_false(UO_indent_namespace))
                {
@@ -1944,7 +1951,7 @@ void indent_text(void)
                   is_true(UO_indent_namespace_single_indent) &&
                   frm.pse[frm.pse_tos].ns_cnt)
          {
-            log_and_reindent(pc, frm.pse[frm.pse_tos].brace_indent, "Namespace");
+            log_and_reindent(pc, (uint32_t)frm.pse[frm.pse_tos].brace_indent, "Namespace");
          }
          else if (are_types(pc, prev, CT_STRING) &&
                   is_true(UO_indent_align_string))

@@ -895,7 +895,7 @@ static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
    while ((pc = chunk_get_next(pc)) != nullptr)
    {
       break_if(is_type(pc, CT_NEWLINE, CT_NL_CONT, CT_SEMICOLON) ||
-               is_type_and_level(pc, CT_FPAREN_CLOSE, start->level));
+               is_type_and_level(pc, CT_FPAREN_CLOSE, (int32_t)start->level));
 
       if (pc->level == (start->level + 1))
       {
@@ -1704,7 +1704,7 @@ static void align_init_brace(chunk_t* start)
             }
             LOG_FMT(LALBR, " [%s] to col %u\n", pc->text(), cpd.al[idx].col);
 
-            if (is_valid(num_token))
+            if (are_valid(pc, num_token))
             {
                const int32_t col_diff = (int32_t)pc->column - (int32_t)num_token->column;
                assert((int32_t)cpd.al[idx].col - col_diff >= 0);
@@ -1811,11 +1811,11 @@ static void align_left_shift(void)
 {
    LOG_FUNC_ENTRY();
 
-   const chunk_t *start = nullptr;
+   const chunk_t* start = nullptr;
    AlignStack    as;
    as.Start(255);
 
-   chunk_t *pc = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       if(are_different_pp(pc, start))

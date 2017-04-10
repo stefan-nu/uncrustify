@@ -374,8 +374,8 @@ static bool can_combine_cmt(
  *
  * \todo parameter should not be int32_t type
  */
-bool is_dos_nl(
-   const uint32_t* pchar /**< [in] pointer to first character of line ending */
+static bool is_dos_nl(
+   const uint32_t pchar[] /**< [in] pointer to first character of line ending */
 );
 
 
@@ -843,7 +843,7 @@ static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
 }
 
 
-bool is_dos_nl(const uint32_t* pchar)
+static bool is_dos_nl(const uint32_t pchar[])
 {
    return((pchar[0] == CARRIAGERETURN) &&
           (pchar[1] == LINEFEED      ) );
@@ -864,7 +864,7 @@ bool is_space_or_tab(const uint32_t character)
 }
 
 
-static void calculate_cmt_body_indent(cmt_reflow_t &cmt, const unc_text &str)
+static void calculate_cmt_body_indent(cmt_reflow_t& cmt, const unc_text& str)
 {
    return_if(is_false(UO_cmt_indent_multi));
 
@@ -1954,7 +1954,7 @@ static void do_keyword_substitution(chunk_t *pc)
          /* if the replacement contains LINEFEED we need to fix the lead */
          if (tmp_txt.find("\n") >= 0)
          {
-            uint32_t nl_idx = pc->str.rfind("\n", idx);
+            int32_t nl_idx = pc->str.rfind("\n", idx);
             if (nl_idx > 0)
             {
                unc_text nl_txt;

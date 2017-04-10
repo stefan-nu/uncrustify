@@ -78,10 +78,10 @@ chunk_t* pawn_add_vsemi_after(chunk_t* pc)
    chunk_t* next = get_next_nc(pc);
    retval_if(is_semicolon(next), pc);
 
-   chunk_t chunk     = *pc;
-   chunk.type        = CT_VSEMICOLON;
-   chunk.str         = is_true(UO_mod_pawn_semicolon) ? ";" : "";
-   chunk.column     += pc->len();
+   chunk_t chunk  = *pc;
+   chunk.type     = CT_VSEMICOLON;
+   chunk.str      = is_true(UO_mod_pawn_semicolon) ? ";" : "";
+   chunk.column  += pc->len();
    chunk.ptype = CT_NONE;
 
    LOG_FMT(LPVSEMI, "%s: Added VSEMI on line %u, prev='%s' [%s]\n",
@@ -214,8 +214,8 @@ static chunk_t* pawn_process_variable(chunk_t* start)
    chunk_t* pc   = start;
    while ((pc = get_next_nc(pc)) != nullptr)
    {
-      if (is_type (pc, CT_NEWLINE                              ) &&
-          (pawn_continued(prev, (int32_t)start->level) == false) )
+      if (is_type (pc, CT_NEWLINE                     ) &&
+          (pawn_continued(prev, start->level) == false) )
       {
          if(not_type(prev, CT_SEMICOLON, CT_VSEMICOLON))
          {
@@ -252,7 +252,7 @@ void pawn_add_virtual_semicolons(void)
          /* we just hit a newline and we have a previous token */
          if ((!is_preproc(prev)) && not_flag(prev, (PCF_IN_ENUM | PCF_IN_STRUCT)) &&
               not_type(prev, CT_VSEMICOLON, CT_SEMICOLON) &&
-             !pawn_continued(prev, (int32_t)prev->brace_level))
+             !pawn_continued(prev, prev->brace_level))
          {
             pawn_add_vsemi_after(prev);
             prev = nullptr;
@@ -424,7 +424,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
    if ((is_invalid(prev) ) ||
        (prev == vb_open  ) ||
        is_preproc(prev) ||
-       pawn_continued(prev, (int32_t)vb_open->level + 1))
+       pawn_continued(prev, vb_open->level + 1u))
    {
       if (is_valid(prev))
       {

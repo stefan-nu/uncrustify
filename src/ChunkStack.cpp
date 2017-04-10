@@ -70,7 +70,7 @@ chunk_t* ChunkStack::Pop_Back()
 
 void ChunkStack::Push_Back(chunk_t* pc, uint32_t seqnum)
 {
-   m_cse.push_back(Entry(seqnum, pc));
+   m_cse.emplace_back(Entry(seqnum, pc));
    if (m_seqnum < seqnum)
    {
       m_seqnum = seqnum;

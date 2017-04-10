@@ -1363,7 +1363,7 @@ const option_map_value_t* unc_find_option(
 
 
 typedef map<uo_t, option_map_value_t>::iterator   option_name_map_it;
-typedef map<ug_t, group_map_value_t> ::iterator   group_map_it;
+//typedef map<ug_t, group_map_value_t>::iterator  group_map_it;
 typedef group_map_value_options_t::iterator       option_list_it;
 typedef group_map_value_options_t::const_iterator option_list_cit;
 

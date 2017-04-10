@@ -1745,7 +1745,7 @@ static void mark_function_return_type(chunk_t* fname, chunk_t* start, c_token_t 
                 (pc->type == CT_ANGLE_CLOSE))
             {
                /* search the opening angle */
-               pc = get_prev_type(pc, CT_ANGLE_OPEN, save->level);
+               pc = get_prev_type(pc, CT_ANGLE_OPEN, (int32_t)save->level);
                if (is_valid(pc))
                {
                   pc = chunk_get_prev(pc);
@@ -2311,7 +2311,7 @@ static void fix_type_cast(chunk_t* start)
    while (((pc = get_next_ncnl(pc)) != nullptr) &&
           (pc->level >= start->level))
    {
-      if (is_type_and_level(pc, CT_ANGLE_CLOSE, start->level))
+      if (is_type_and_level(pc, CT_ANGLE_CLOSE, (int32_t)start->level))
       {
          pc = get_next_ncnl(pc);
          if (is_str(pc, "("))
@@ -2332,9 +2332,9 @@ static void fix_enum_struct_union(chunk_t* pc)
    /* Make sure this wasn't a cast */
    return_if(is_invalid_or_type(pc, CT_C_CAST));
 
-   chunk_t* prev        = nullptr;
-   uint32_t  flags        = PCF_VAR_1ST_DEF;
-   uint32_t  in_fcn_paren = get_flags(pc, PCF_IN_FCN_DEF);
+   chunk_t* prev          = nullptr;
+   uint64_t  flags        = PCF_VAR_1ST_DEF;
+   uint64_t  in_fcn_paren = (get_flags(pc, PCF_IN_FCN_DEF) != 0);
 
    /* the next item is either a type or open brace */
    chunk_t* next = get_next_ncnl(pc);
@@ -2580,7 +2580,7 @@ static void fix_typedef(chunk_t* start)
 static bool cs_top_is_question(const ChunkStack &cs, uint32_t level)
 {
    chunk_t* pc = cs.Empty() ? nullptr : cs.Top()->m_pc;
-   return(is_type_and_level(pc, CT_QUESTION, level));
+   return(is_type_and_level(pc, CT_QUESTION, (int32_t)level));
 }
 
 
@@ -3019,8 +3019,8 @@ static chunk_t* mark_variable_definition(chunk_t* start)
    LOG_FUNC_ENTRY();
    retval_if(is_invalid(start), start);
 
-   chunk_t* pc   = start;
-   uint32_t  flags = PCF_VAR_1ST_DEF;
+   chunk_t* pc    = start;
+   uint64_t flags = PCF_VAR_1ST_DEF;
 
    LOG_FMT(LVARDEF, "%s: line %u, col %u '%s' type %s\n", __func__,
          pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
@@ -3083,7 +3083,6 @@ static bool can_be_full_param(chunk_t* start, chunk_t* end)
          case(CT_UNION):
             LOG_FMT(LFPARAM, " <== %s! (yes)\n", get_token_name(pc->type));
             return(true);
-         break;
 
          case(CT_WORD):       /* fallthrough */
          case(CT_TYPE):
@@ -3098,17 +3097,14 @@ static bool can_be_full_param(chunk_t* start, chunk_t* end)
 
          case(CT_ASSIGN):
             goto end_of_loop;  /* chunk is OK (default values) */
-         break;
 
          case(CT_ANGLE_OPEN):
             LOG_FMT(LFPARAM, " <== template\n");
             return(true);
-         break;
 
          case(CT_ELLIPSIS):
             LOG_FMT(LFPARAM, " <== ellipses\n");
             return(true);
-         break;
 
          case(CT_PAREN_OPEN):
             if (word_cnt == 0)
@@ -3226,6 +3222,11 @@ end_of_loop:
    return(ret);
 }
 
+void set_type_and_log(
+   chunk_t* pc,
+   const c_token_t type,
+   const uint32_t num
+);
 
 void set_type_and_log(chunk_t* pc, const c_token_t type, const uint32_t num)
 {
@@ -3686,7 +3687,7 @@ exit_loop:
       while (tmp != pclose)
       {
          tmp2 = get_next_ncnl(tmp);
-         if (is_type_and_level(tmp, CT_COMMA, (popen->level + 1)))
+         if (is_type_and_level(tmp, CT_COMMA, (int32_t)(popen->level + 1)))
          {
             if (!can_be_full_param(ref, tmp))
             {
@@ -4052,7 +4053,7 @@ static void mark_struct_union_body(chunk_t* start)
 
    chunk_t* pc = start;
    while ( is_valid(pc) && (pc->level >= start->level) &&
-         !(is_type_and_level(pc, CT_BRACE_CLOSE, start->level)))
+         !(is_type_and_level(pc, CT_BRACE_CLOSE, (int32_t)start->level)))
    {
       // LOG_FMT(LSYS, "%s: %d:%d %s:%s\n", __func__, pc->orig_line,
       // pc->orig_col, pc->text(), get_token_name(pc->parent_type));
@@ -4165,7 +4166,7 @@ static void handle_cpp_template(chunk_t* pc)
       {
          set_type(tmp, CT_TYPE);
       }
-      else if(is_type_and_level(tmp, CT_ANGLE_CLOSE, level))
+      else if(is_type_and_level(tmp, CT_ANGLE_CLOSE, (int32_t)level))
       {
          set_ptype(tmp, CT_TEMPLATE);
          break;
@@ -4240,7 +4241,7 @@ static void handle_cpp_lambda(chunk_t* sq_o)
        * of CT_TSQUARE. CT_SQUARE_CLOSE orig_col and orig_col_end values
        * are calculate from orig_col_end of CT_TSQUARE. */
       nc.orig_col        = sq_o->orig_col_end - 1;
-      nc.column          = static_cast<int32_t>(nc.orig_col);
+      nc.column          = nc.orig_col;
       nc.orig_col_end    = sq_o->orig_col_end;
       sq_o->orig_col_end = sq_o->orig_col + 1;
 
@@ -5012,7 +5013,7 @@ static void handle_oc_message_send(chunk_t* os)
    {
       assert(is_valid(tmp));
       set_flags(tmp, PCF_IN_OC_MSG);
-      if (is_type_and_level(tmp, CT_COLON, cs->level + 1))
+      if (is_type_and_level(tmp, CT_COLON, (int32_t)(cs->level + 1)))
       {
          set_type(tmp, CT_OC_COLON);
          if (is_type(prev, CT_WORD, CT_TYPE))
@@ -5153,7 +5154,7 @@ static void handle_oc_property_decl(chunk_t* os)
                endchunk.level       = curr_chunk->level;
                endchunk.brace_level = curr_chunk->brace_level;
                endchunk.orig_line   = curr_chunk->orig_line;
-               endchunk.column      = static_cast<int32_t>(curr_chunk->orig_col_end) + 1u;
+               endchunk.column      = curr_chunk->orig_col_end + 1u;
                endchunk.ptype       = curr_chunk->ptype;
                set_flags(&endchunk, get_flags(curr_chunk, PCF_COPY_FLAGS));
                chunk_add_after(&endchunk, curr_chunk);

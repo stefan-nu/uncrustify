@@ -47,7 +47,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cerrno> /*lint !e967 */
+#include <cerrno>
 #include <fcntl.h>
 #include "unc_ctype.h"
 #include <vector>

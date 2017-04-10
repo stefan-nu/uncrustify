@@ -320,13 +320,13 @@ void AlignStack::Flush(void)
    m_max_col    = 0;
 
    /* Recalculate the max_col - it may have shifted since the last Add() */
-   for (uint32_t idx = 0; idx < m_aligned.Len(); idx++)
+   for (uint32_t idx1 = 0; idx1 < m_aligned.Len(); idx1++)
    {
-      assert(ptr_is_valid(m_aligned.Get(idx)));
-      pc = m_aligned.Get(idx)->m_pc;
+      assert(ptr_is_valid(m_aligned.Get(idx1)));
+      pc = m_aligned.Get(idx1)->m_pc;
 
       /* Set the column adjust and gap */
-      int32_t      col_adj = 0;
+      int32_t  col_adj = 0;
       uint32_t gap     = 0u;
       if (pc != pc->align.ref)
       {
@@ -371,16 +371,16 @@ void AlignStack::Flush(void)
       m_max_col = align_tab_column(m_max_col);
    }
 
-   const ChunkStack::Entry *ce = nullptr;
+   const ChunkStack::Entry* ce = nullptr;
    LOG_FMT(LAS, "%s: m_aligned.Len()=%u\n", __func__, m_aligned.Len());
-   for (uint32_t idx = 0; idx < m_aligned.Len(); idx++)
+   for (uint32_t idx2 = 0; idx2 < m_aligned.Len(); idx2++)
    {
-      ce = m_aligned.Get(idx);
+      ce = m_aligned.Get(idx2);
       assert(ptr_is_valid(ce));
       pc = ce->m_pc;
 
       const uint32_t tmp_col = (uint32_t)((int32_t)m_max_col - pc->align.col_adj);
-      if (idx == 0)
+      if (idx2 == 0)
       {
          if ((m_skip_first == true   ) &&
              (pc->column   != tmp_col) )
@@ -400,7 +400,7 @@ void AlignStack::Flush(void)
          pc->align.star_style  = m_star_style;
       }
       pc->align.gap  = m_gap;
-      pc->align.next = m_aligned.GetChunk(idx + 1);
+      pc->align.next = m_aligned.GetChunk(idx2 + 1);
 
       /* Indent the token, taking col_adj into account */
       LOG_FMT(LAS, "%s: line %u: '%s' to col %u (adj=%d)\n",

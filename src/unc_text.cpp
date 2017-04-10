@@ -44,7 +44,7 @@ void unc_text::update_logtext(void)
       /* make a pessimistic guess at the size */
       m_logtext.clear();
       m_logtext.reserve(m_chars.size() * 3);
-      for (int32_t m_char : m_chars)
+      for (uint32_t m_char : m_chars)
       {
          if      (m_char == LINEFEED      ) { m_char = 0x2424; }
          else if (m_char == CARRIAGERETURN) { m_char = 0x240d; }

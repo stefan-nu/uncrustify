@@ -39,10 +39,12 @@
 +e119					// too many arguments 
 -e123					// macro defined with arguments
 -e129					// declaration expected
+-e148					// member ... previously declared
 -e150					// token unexpected for non-constructor function			
 -e151					// token inconsitent with abstract type
 +e200					// internal error
 -e309					// #error
+-e413					// likely use of null pointer
 +e438					// last value assignd to variable not used
 -e451					// header without include guard
 +e457					// enable for checking multithreading
@@ -61,7 +63,7 @@
 -e537					// do not warn about repeated inclusion
 +e574					// signed / unsigned mix with relational
 -e578					// Declaration of symbol hides symbol
-+e585					// not a valid Trigraph sequence
+-e585					// not a valid Trigraph sequence
 
 +e601 					// Expected a type for symbol Symbol
 +e602 					// Comment within comment
@@ -254,7 +256,7 @@
 +e795					// Conceivable division by 0
 +e796 					// Conceivable access of out-of-bounds pointer
 +e797 					// Conceivable creation of out-of-bounds pointer
-+e798 					// Redundant character
+-e798 					// Redundant character
 +e799 					// numerical constant 'Integer' larger than unsigned long
 
 -e801 					// Use of goto is deprecated
@@ -277,7 +279,7 @@
 -e818 					// Pointer parameter could be declared ptr to const
 +e820 					// Boolean test of a parenthesized assignment
 +e821 					// Right hand side of assignment not parenthesized
-+e825 					// control flows into case/default without -fallthrough comment
+-e825 					// control flows into case/default without -fallthrough comment
 +e826 					// Suspicious pointer-to-pointer conversion
 +e827 					// Loop not reachable
 +e828 					// redefinition of functions
@@ -437,6 +439,7 @@
 -e5123					// no member named .. in namespace ... 
 -e5124					// no template named ... in namespace
 -e5370					// type does not provide a subscript operator
+-e5373					// no matching constructor for initialization of ...
 -e5524					// typedef declaratior cannot be qualified
 -e5542					// reference to type ... could not bind to an lvalue of type ...
 -e5557					// ... does not refer to a value

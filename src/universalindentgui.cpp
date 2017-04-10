@@ -21,7 +21,7 @@ void print_universal_indent_cfg(FILE* pfile)
    const group_map_value_t* p_grp;
 
    /* Add all the categories */
-   char   ch = '=';
+   char ch = '=';
 
    /* Dump the header and the categories */
    fprintf(pfile, "[header]\ncategories");
@@ -71,9 +71,9 @@ void print_universal_indent_cfg(FILE* pfile)
    uint32_t optionNumber = 0;
 #endif
    /* Now add each option */
-   for (uint32_t idx = 0; idx < UG_group_count; idx++)
+   for (uint32_t idx1 = 0; idx1 < UG_group_count; idx1++)
    {
-      p_grp = get_group_name(idx);
+      p_grp = get_group_name(idx1);
       continue_if(ptr_is_invalid(p_grp));
 
       for (auto optionEnumVal : p_grp->options)
@@ -101,7 +101,7 @@ void print_universal_indent_cfg(FILE* pfile)
          }
 
          fprintf(pfile, "\n[%s]\n", optionNameReadable);
-         fprintf(pfile, "Category=%u\n", idx);
+         fprintf(pfile, "Category=%u\n", idx1);
 #ifdef DEBUG
          fprintf(pfile, "Description=\"<html>(%u)", optionNumber);
          optionNumber++;

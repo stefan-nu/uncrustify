@@ -41,7 +41,7 @@
  * for a function pointer of type
  * chunk_t* function(chunk_t* cur, scope_t scope)
  ******************************************************************************/
-typedef chunk_t*  (*search_t)(chunk_t* cur, const scope_e scope);
+typedef chunk_t* (*search_t)(chunk_t* cur, const scope_e scope);
 
 
 typedef ListManager<chunk_t> ChunkList_t;

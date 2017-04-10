@@ -141,7 +141,7 @@ static chunk_t* mod_case_brace_add(
  * Traverse the if chain and see if all can be removed
  */
 static void process_if_chain(
-   chunk_t* br_start /**< [in]  */
+   chunk_t* br_start /**< [in] chunk pointing to opening brace of if clause */
 );
 
 
@@ -156,9 +156,14 @@ static void convert_vbrace_pair(
    chunk_t* vbopen /**< [in] opening virtual brace to converted */
 );
 
+bool paren_multiline_before_brace(
+   chunk_t* brace,
+   c_token_t paren_t = CT_SPAREN_CLOSE
+);
+
 
 //TODO: this should take in const refs, like almost all chunk OP
-bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t = CT_SPAREN_CLOSE)
+bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t)
 {
    retval_if(is_invalid(brace) ||
        not_type (brace, CT_BRACE_OPEN, CT_BRACE_CLOSE) ||
@@ -166,8 +171,8 @@ bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t = CT_SPAREN_
              CT_WHILE, CT_FUNC_CLASS_DEF, CT_FUNC_DEF), false);
 
    /* find parenthesis pair of the if/for/while/... */
-   auto paren_close = get_prev_type(brace, paren_t, brace->level);
-   auto paren_open  = chunk_skip_to_match_rev(paren_close);
+   chunk_t* paren_close = get_prev_type(brace, paren_t, (int32_t)brace->level);
+   chunk_t* paren_open  = chunk_skip_to_match_rev(paren_close);
 
    if ((is_valid(paren_close) && paren_close != brace      ) &&
        (is_valid(paren_open ) && paren_open  != paren_close) )
@@ -845,7 +850,7 @@ void add_long_closebrace_comment(void)
             nl_count += tmp->nl_count;
          }
 
-         else if (is_type_and_level(tmp, CT_BRACE_CLOSE, br_open->level))
+         else if (is_type_and_level(tmp, CT_BRACE_CLOSE, (int32_t)br_open->level))
          {
             br_close = tmp;
 
@@ -1103,7 +1108,7 @@ static void process_if_chain(chunk_t* br_start)
    return_if(is_invalid(br_start));
 
    chunk_t* braces[256];
-   int32_t  br_cnt           = 0;
+   uint32_t br_cnt           = 0;
    bool     must_have_braces = false;
 
    chunk_t* pc = br_start;
@@ -1115,8 +1120,8 @@ static void process_if_chain(chunk_t* br_start)
       if (is_opening_rbrace(pc))
       {
          bool tmp = can_remove_braces(pc);
-         LOG_FMT(LBRCH, "  [%d] line %u - can%s remove %s\n",
-                 br_cnt, pc->orig_line, tmp ? "" : "not",
+         LOG_FMT(LBRCH, "  [%d] line %u - %s %s\n",
+                 br_cnt, pc->orig_line, tmp ? "can remove" : "cannot remove",
                  get_token_name(pc->type));
          if (tmp == false) { must_have_braces = true; }
       }
@@ -1140,7 +1145,7 @@ static void process_if_chain(chunk_t* br_start)
 
       if (is_true(UO_mod_full_brace_if_chain_only))
       {
-         // There is an 'else' - we want full braces.
+         /* There is an 'else' - we want full braces. */
          must_have_braces = true;
       }
 
@@ -1158,8 +1163,9 @@ static void process_if_chain(chunk_t* br_start)
    if (must_have_braces)
    {
       LOG_FMT(LBRCH, "%s: add braces on lines[%d]:", __func__, br_cnt);
-      while (--br_cnt >= 0)
+      while (br_cnt > 0)
       {
+         br_cnt--;
          set_flags(braces[br_cnt], PCF_KEEP_BRACE);
          if (is_vbrace(braces[br_cnt]))
          {
@@ -1182,8 +1188,9 @@ static void process_if_chain(chunk_t* br_start)
       const bool multiline_block = get_bool(UO_mod_full_brace_nl_block_rem_mlcond);
 
       LOG_FMT(LBRCH, "%s: remove braces on lines[%d]:", __func__, br_cnt);
-      while (--br_cnt >= 0)
+      while (br_cnt > 0)
       {
+         br_cnt--;
          LOG_FMT(LBRCH, " {%u}", braces[br_cnt]->orig_line);
          if (is_rbrace(braces[br_cnt]) &&
             ((multiline_block) ? !paren_multiline_before_brace(braces[br_cnt]) : true))
