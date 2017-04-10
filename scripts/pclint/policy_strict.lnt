@@ -45,13 +45,14 @@
 +e200					// internal error
 -e309					// #error
 -e413					// likely use of null pointer
+-e424					// delete[] is not appropriate for deallocating memory allocated by new
 +e438					// last value assignd to variable not used
 -e451					// header without include guard
 +e457					// enable for checking multithreading
 +e458					// enable for checking multithreading
 +e459					// enable for checking multithreading
 +e506					// allow constant value booleans
-+e514					// unusual use of boolean expression
+-e514					// unusual use of boolean expression
 +e516					// symbol has arg type conflict
 +e520					// highest operation lacks side effects
 +e522					// highest operation lacks side effects
@@ -126,7 +127,7 @@
 +e658 					// Anonymous union assumed
 +e659 					// Nothing follows '}'
 +e660 					// Option requests removing an extent that is not on the list
-+e661 					// possible access of out-of-bounds pointer
+-e661 					// possible access of out-of-bounds pointer
 +e662 					// possible creation of out-of-bounds pointer
 +e663 					// Suspicious array to pointer conversion
 +e664 					// Left side of logical OR (||) or logical AND (&&) does not return
@@ -174,7 +175,7 @@
 +e707 					// Mixing narrow and wide string literals in concatenation
 +e708 					// union initialization
 +e712 					// Loss of precision
-+e713 					// Loss of precision
+-e713 					// Loss of precision
 -e714 					// external variable not referenced
 -e715 					// Symbol not referenced
 -e716					// while(1) found, allow endless loops
@@ -386,7 +387,7 @@
 -e1091					// using declaration refers into ... which is not a base class of ...
 -e1220					// internal error
 +e1401					// member not initialized by constructor
-+e1502					// object has no nonstatic data member
+-e1502					// object has no nonstatic data member
 +e1526					// Member function not defined
 +e1529					// symbol not first checking for assignment to this
 +e1536					// exposing low access member
@@ -411,7 +412,7 @@
 +e1762					// member could be made const
 +e1764					// reference parameter could be declared const 
 -e1770					// function defined without function
-+e1776					// converting a string literal to char*
+-e1776					// converting a string literal to char*
 +e1786					// implicit conversion to bool
 -e1788					// variable is referenced only by its constructor or destructor
 +e1795					// Template was defined but not instantiated

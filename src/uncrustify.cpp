@@ -1955,7 +1955,7 @@ void uncrustify_file(const file_mem_t& fm, FILE* pfout,
    if ((get_uval(UO_mod_add_long_ifdef_else_comment ) > 0) ||
        (get_uval(UO_mod_add_long_ifdef_endif_comment) > 0) )
    {
-      add_long_preprocessor_conditional_block_comment();
+      add_long_pp_conditional_block_cmt();
    }
 
    /* Align everything else, reindent and break at code_width */

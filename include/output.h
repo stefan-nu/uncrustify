@@ -42,7 +42,7 @@ void output_parsed(
  * Hence we need to track and seek matching CT_PREPROC pp_levels here, which complicates
  * things a little bit, but not much.
  */
-void add_long_preprocessor_conditional_block_comment(void);
+void add_long_pp_conditional_block_cmt(void);
 
 
 /**

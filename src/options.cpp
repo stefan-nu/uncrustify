@@ -8,20 +8,23 @@
  * @license GPL v2+
  */
 
-#include "args.h"
-#include "chunk_list.h"
-#include "uncrustify_version.h"
-#include "uncrustify.h"
-#include "error_types.h"
-#include "keywords.h"
-#include "defines.h"
 #include <cstring>
 #ifdef HAVE_STRINGS_H
 #include <strings.h>  /* strcasecmp() */
 #endif
 #include <cstdio>
 #include <cstdlib>
+
+#include "args.h"
+#include "chunk_list.h"
+#include "error_types.h"
+#include "defines.h"
+#include "keywords.h"
+#include "uncrustify_version.h"
+#include "uncrustify_types.h"
+#include "uncrustify.h"
 #include "unc_ctype.h"
+
 
 static const char * const DOC_TEXT_END =
    "\n"
@@ -2065,6 +2068,7 @@ bool is_path_relative(const char *path)
 }
 
 
+#define MAX_ARG_COUNT 32u
 void process_option_line(char* configLine, const char* filename)
 {
    cpd.line_number++;
@@ -2075,7 +2079,7 @@ void process_option_line(char* configLine, const char* filename)
    while ((ptr = strchr(ptr, ',')) != nullptr)     { *ptr = ' '; } /* Blow away all commas */
 
    /* Split the line */
-   char*    args[32];
+   char*    args[MAX_ARG_COUNT];
    uint32_t argc = Args::SplitLine(configLine, args, uint32_t(ARRAY_SIZE(args) - 1u));
    if (argc < 2)
    {
@@ -2087,6 +2091,7 @@ void process_option_line(char* configLine, const char* filename)
       }
       return;
    }
+   argc = min(argc, MAX_ARG_COUNT);
    args[argc] = nullptr;
 
    if (strcasecmp(args[0], "type") == 0)

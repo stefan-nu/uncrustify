@@ -136,7 +136,7 @@ static bool kw_fcn_fclass(
  * it left or right to get the column right.
  * Trim trailing whitespace.
  */
-static void output_comment_multi_simple(
+static void output_cmt_multi_simple(
    chunk_t* pc /**< [in]  */
 );
 
@@ -248,8 +248,8 @@ static void cmt_output_indent(
  * @return 0=not present, >0=number of chars that are part of the lead
  */
 static uint32_t cmt_parse_lead(
-   unc_text& line,   /**< [in]  */
-   bool      is_last /**< [in]  */
+   const unc_text& line,   /**< [in]  */
+   bool            is_last /**< [in]  */
 );
 
 
@@ -692,7 +692,7 @@ void output_text(FILE* pfile)
             }
             else
             {
-               output_comment_multi_simple(pc);
+               output_cmt_multi_simple(pc);
             }
          break;
 
@@ -799,7 +799,7 @@ void output_text(FILE* pfile)
 }
 
 
-static uint32_t cmt_parse_lead(unc_text& line, bool is_last)
+static uint32_t cmt_parse_lead(const unc_text& line, bool is_last)
 {
    uint32_t len = 0;
 
@@ -1901,7 +1901,7 @@ static bool kw_fcn_fclass(chunk_t *cmt, unc_text &out_txt)
 }
 
 
-static void do_keyword_substitution(chunk_t *pc)
+static void do_keyword_substitution(chunk_t* pc)
 {
    for (const auto &kw : kw_subst_table)
    {
@@ -1936,7 +1936,7 @@ static void do_keyword_substitution(chunk_t *pc)
 
 
 // DRY 5 start with output_comment_multi
-static void output_comment_multi_simple(chunk_t* pc)
+static void output_cmt_multi_simple(chunk_t* pc)
 {
    cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
@@ -1992,8 +1992,7 @@ static void output_comment_multi_simple(chunk_t* pc)
       line.append(ch);
 
       /* If we just hit an end of line OR we just hit end-of-comment... */
-      if ((ch      == LINEFEED ) ||
-          (cmt_idx == pc->len()) )
+      if ((ch == LINEFEED ) || (cmt_idx == pc->len()))
       {
          line_count++;
 
@@ -2027,14 +2026,15 @@ static void output_comment_multi_simple(chunk_t* pc)
 }
 
 
-static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
+#define INVALID_COL 0xFFFFFFFF
+static void generate_if_conditional_as_text(unc_text& dst, chunk_t* ifdef)
 {
-   int32_t column = -1; /* \todo better use uint32_t avoid negative values for column */
+   uint32_t column = INVALID_COL;
 
    dst.clear();
-   for (chunk_t *pc = ifdef; is_valid(pc); pc = chunk_get_next(pc))
+   for (chunk_t* pc = ifdef; is_valid(pc); pc = chunk_get_next(pc))
    {
-      if (column == -1) { column = (int32_t)pc->column; }
+      if (column == INVALID_COL) { column = pc->column; }
 
       switch(pc->type)
       {
@@ -2047,29 +2047,29 @@ static void generate_if_conditional_as_text(unc_text &dst, chunk_t *ifdef)
 
          case(CT_NL_CONT):
             dst   += SPACE;
-            column = -1;
+            column = INVALID_COL;
          break;
 
          default: /* (CT_JUNK or everything  else */
-            for (int32_t spacing = (int32_t)pc->column - column; spacing > 0; spacing--)
+            for (int32_t spacing = pc->column - column; spacing > 0; spacing--)
             {
                dst += SPACE;
                column++;
             }
             dst.append(pc->str);
-            column += (int32_t)pc->len();
+            column += pc->len();
          break;
       }
    }
 }
 
 
-void add_long_preprocessor_conditional_block_comment(void)
+void add_long_pp_conditional_block_cmt(void)
 {
-   const chunk_t *pp_start = nullptr;
-   const chunk_t *pp_end   = nullptr;
+   const chunk_t* pp_start = nullptr;
+   const chunk_t* pp_end   = nullptr;
 
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       /* just track the preproc level: */
       if (is_type(pc, CT_PREPROC))
@@ -2080,10 +2080,10 @@ void add_long_preprocessor_conditional_block_comment(void)
 
       continue_if(not_type(pc, CT_PP_IF) || is_invalid (pp_start ));
 
-      chunk_t *br_close;
-      chunk_t *br_open = pc;
-      uint32_t  nl_count = 0;
-      chunk_t *tmp     = pc;
+      chunk_t* br_close;
+      chunk_t* br_open  = pc;
+      uint32_t nl_count = 0;
+      chunk_t* tmp      = pc;
       while ((tmp = chunk_get_next(tmp)) != nullptr)
       {
          assert(is_valid(tmp));
@@ -2108,11 +2108,12 @@ void add_long_preprocessor_conditional_block_comment(void)
             /* Found the matching #else or #endif - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
-            LOG_FMT(LPPIF, "next item type %d (is %s)\n",   /* \todo use switch */
-                    (is_valid(tmp) ? (int32_t)tmp->type : -1),
-                    (is_valid(tmp) ?
-                     is_nl(tmp) ? "newline" : is_cmt(tmp) ?
-                     "comment" : "other" : "---"));
+            str = is_invalid(tmp) ? "-------" :
+                  is_nl     (tmp) ? "newline" :
+                  is_cmt    (tmp) ? "comment" :
+                                    "other  " ;
+            int32_t type = is_valid(tmp) ? (int32_t)tmp->type : -1;
+            LOG_FMT(LPPIF, "next item type %d (is %s)\n", type, str);
 
             if (is_type(tmp, CT_NEWLINE))  /* chunk_is_newline(tmp) */
             {
@@ -2120,25 +2121,24 @@ void add_long_preprocessor_conditional_block_comment(void)
                     get_uval(UO_mod_add_long_ifdef_endif_comment) :
                     get_uval(UO_mod_add_long_ifdef_else_comment );
 
-               const char *txt = is_invalid(tmp)              ? "EOF" :
-                                 is_type   (tmp, CT_PP_ENDIF) ? "#endif" :
-                                                                "#else";
-
+               str = is_invalid(tmp)              ? "EOF"    :
+                     is_type   (tmp, CT_PP_ENDIF) ? "#endif" :
+                                                    "#else"  ;
                LOG_FMT(LPPIF, "#if / %s section candidate for augmenting when over NL threshold %u != 0 (nl_count=%u)\n",
-                       txt, nl_min, nl_count);
+                       str, nl_min, nl_count);
 
                if ((nl_min > 0) && (nl_count > nl_min))        /* nl_count is 1 too large at all times as #if line was counted too */
                {                                               /* determine the added comment style */
                   c_token_t style = (is_lang(cpd, LANG_CPPCS)) ? CT_COMMENT_CPP : CT_COMMENT;
 
-                  unc_text str;
-                  generate_if_conditional_as_text(str, br_open);
+                  unc_text text;
+                  generate_if_conditional_as_text(text, br_open);
 
                   LOG_FMT(LPPIF, "#if / %s section over threshold %u (nl_count=%u) --> insert comment after the %s: %s\n",
-                          txt, nl_min, nl_count, txt, str.c_str());
+                          str, nl_min, nl_count, str, text.c_str());
 
                   /* Add a comment after the close brace */
-                  insert_comment_after(br_close, style, str);
+                  insert_comment_after(br_close, style, text);
                }
             }
 

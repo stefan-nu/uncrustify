@@ -457,7 +457,7 @@ static void indent_pse_push(parse_frame_t &frm, chunk_t* pc)
 }
 
 
-static void indent_pse_pop(parse_frame_t &frm, chunk_t* pc)
+static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
    /* Bump up the index and initialize it */
@@ -736,8 +736,7 @@ void indent_text(void)
       /* Clean up after a #define, etc */
       if (!in_preproc)
       {
-         while ((frm.pse_tos > 0) &&
-                 frm.pse[frm.pse_tos].in_preproc)
+         while ((frm.pse_tos > 0) && frm.pse[frm.pse_tos].in_preproc)
          {
             c_token_t type = frm.pse[frm.pse_tos].type;
             indent_pse_pop(frm, pc);
@@ -1035,7 +1034,9 @@ void indent_text(void)
       {
          LOG_FMT(LINDPC, " -=[ %u:%u %s ]=-\n",
                  pc->orig_line, pc->orig_col, pc->text());
-         for (uint32_t ttidx = frm.pse_tos; ttidx > 0; ttidx--)
+         uint32_t ttidx = frm.pse_tos;
+         ttidx = min(ttidx, MAX_PSE_COUNT);
+         for (; ttidx > 0; ttidx--)
          {
             LOG_FMT(LINDPC, "     [%u %u:%u %s %s/%s tmp=%u ind=%u bri=%d tab=%u cont=%d lvl=%u blvl=%u]\n",
                     ttidx, frm.pse[ttidx].pc->orig_line, frm.pse[ttidx].pc->orig_col,
@@ -1581,6 +1582,7 @@ void indent_text(void)
             /* Skip any continuation indents */
             idx = (int32_t)frm.pse_tos - 1;
             assert(idx >= 0);
+            idx = min(idx, (int32_t)MAX_PSE_COUNT); /* ensure index stays inside array */
             while ((idx > 0) &&
                    (frm.pse[idx].type != CT_BRACE_OPEN  ) &&
                    (frm.pse[idx].type != CT_VBRACE_OPEN ) &&

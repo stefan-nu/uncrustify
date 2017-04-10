@@ -17,13 +17,13 @@
  * tbd
  */
 static void fix_len_idx(
-   uint32_t        size, /**< [in]  */
+   const uint32_t        size, /**< [in]  */
    const uint32_t& idx,  /**< [in]  */
    uint32_t&       len   /**< [in]  */
 );
 
 
-static void fix_len_idx(uint32_t size, const uint32_t& idx, uint32_t& len)
+static void fix_len_idx(const uint32_t size, const uint32_t& idx, uint32_t& len)
 {
    if (idx >= size)
    {
@@ -100,14 +100,14 @@ bool unc_text::equals(const unc_text& ref) const
 }
 
 
-const char* unc_text::c_str()
+const char* unc_text::c_str(void)
 {
    update_logtext();
    return(reinterpret_cast<const char*>(&m_logtext[0]));
 }
 
 
-const uint32_t* unc_text::c_unc()
+const uint32_t* unc_text::c_unc(void)
 {
    update_logtext();
    return(reinterpret_cast<const uint32_t*>(&m_logtext[0]));

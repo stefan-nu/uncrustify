@@ -124,6 +124,7 @@ struct paren_stack_entry_t
 
 
 /* TODO: put this on a linked list */
+#define MAX_PSE_COUNT 128u
 struct parse_frame_t
 {
    int32_t             ref_no;       /**<  */
@@ -133,7 +134,7 @@ struct parse_frame_t
 
    int32_t             sparen_count; /**<  */
 
-   paren_stack_entry_t pse[128];     /**<  */
+   paren_stack_entry_t pse[MAX_PSE_COUNT];     /**<  */
    uint32_t            pse_tos;      /**<  */
    int32_t             paren_count;  /**<  */
 

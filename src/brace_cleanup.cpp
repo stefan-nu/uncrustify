@@ -401,6 +401,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
 
       /* Mark everything in the for statement */
       uint32_t count = frm->pse_tos;
+      count = min(count, MAX_PSE_COUNT); /* keep index inside array size */
       while(count > 0)
       {
          count--;
