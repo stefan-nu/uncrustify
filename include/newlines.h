@@ -118,13 +118,10 @@ void undo_one_liner(
 
 /**
  * Does a simple Ignore, Add, Remove, or Force after the given chunk
- *
- * @param pc   The chunk
- * @param av   The IARF value
  */
 void nl_iarf(
-   chunk_t* pc, /**< [in]  */
-   argval_t av  /**< [in]  */
+   chunk_t* pc, /**< [in] chunk to operate on */
+   argval_t av  /**< [in] The IARF value */
 );
 
 

@@ -2083,7 +2083,7 @@ static bool is_ucase_str(const char* str, uint32_t len)
 {
    while (len-- > 0)
    {
-      retval_if(unc_toupper(char2uint32(*str)) != *str, false);
+      retval_if(unc_toupper(char2uint32(*str)) != char2uint32(*str), false);
       str++;
    }
    return(true);

@@ -1851,8 +1851,6 @@ static void nl_iarf_pair(chunk_t* before, chunk_t* after, argval_t av)
 void nl_iarf(chunk_t* pc, argval_t av)
 {
    LOG_FUNC_ENTRY();
-   log_func_stack(LNEWLINE, "CallStack:");
-
    nl_iarf_pair(pc, get_next_nnl(pc), av);
 }
 
@@ -3660,9 +3658,8 @@ static void nl_enum_entries(chunk_t* open_brace, argval_t av)
    while (((pc = get_next_nc(pc)) != nullptr) &&
           (pc->level > open_brace->level))
    {
-      continue_if ((pc->level != (open_brace->level + 1)) ||
+      continue_if((pc->level != (open_brace->level + 1)) ||
                    not_type(pc, CT_COMMA));
-
       nl_iarf(pc, av);
    }
 
@@ -3676,7 +3673,7 @@ static void nl_double_space_struct_enum_union(chunk_t* open_brace)
    chunk_t* pc = open_brace;
 
    while (((pc = get_next_nc(pc)) != nullptr) &&
-           (pc->level > open_brace->level   ) )
+           (pc->level > open_brace->level))
    {
       continue_if((pc->level != (open_brace->level + 1)) ||
                    not_type(pc, CT_NEWLINE))

@@ -1493,6 +1493,17 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
    }
 }
 
+void reset_and_go_to_nl(chunk_t& pc, tok_ctx& ctx)
+{
+   /* Reset the chunk & scan to until a newline */
+   pc.str.clear();
+   while ((ctx.more() == true          ) &&
+          (ctx.peek() != CARRIAGERETURN) &&
+          (ctx.peek() != LINEFEED      ) )
+   {
+      pc.str.append(ctx.get());
+   }
+}
 
 static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 {
@@ -1512,15 +1523,8 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
    /* See if the UO_enable_processing_cmt text is on this line */
    ctx.save();
-   pc.str.clear();
-   while ((ctx.more() == true          ) &&
-          (ctx.peek() != CARRIAGERETURN) &&
-          (ctx.peek() != LINEFEED      ) )
-   {
-      pc.str.append(ctx.get());
-   }
-
-   retval_if((pc.str.size() == 0), false);   /* end of file? */
+   reset_and_go_to_nl(pc, ctx);
+   retval_if((pc.str.size() == 0), false); /* end of file? */
 
    /* Note that we aren't actually making sure this is in a comment, yet */
    if ((((pc.str.find("#pragma ") >= 0) || (pc.str.find("#pragma	") >= 0)) &&
@@ -1555,15 +1559,8 @@ static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 
    /* Look for the ending comment and let it pass */
    retval_if((parse_comment(ctx, pc) && !cpd.unc_off), true);
+   reset_and_go_to_nl(pc, ctx);
 
-   /* Reset the chunk & scan to until a newline */
-   pc.str.clear();
-   while ((ctx.more() == true          ) &&
-          (ctx.peek() != CARRIAGERETURN) &&
-          (ctx.peek() != LINEFEED      ) )
-   {
-      pc.str.append(ctx.get());
-   }
    if (pc.str.size() > 0)
    {
       pc.type = CT_IGNORED;
