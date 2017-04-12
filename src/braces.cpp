@@ -5,6 +5,7 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #include "braces.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
@@ -156,14 +157,28 @@ static void convert_vbrace_pair(
    chunk_t* vbopen /**< [in] opening virtual brace to converted */
 );
 
-bool paren_multiline_before_brace(
-   chunk_t* brace,
-   c_token_t paren_t = CT_SPAREN_CLOSE
+
+/**
+ * Check if parenthesis pair that comes before a brace spans multiple lines
+ *
+ * @pre   the brace chunk cannot be a nullptr,
+ *        it needs to be of type CT_BRACE_OPEN or CT_BRACE_CLOSE,
+ *        its parent type needs to be one of this types:
+ *            CT_IF, CT_ELSEIF, CT_FOR, CT_USING_STMT, CT_WHILE,
+ *            CT_FUNC_CLASS_DEF, CT_FUNC_DEF
+ *
+ * @return  false: if preconditions are not met,
+ *                 if an error occurs while  counting the newline between the
+ *                 parenthesis or
+ *                 when no newlines are found between the parenthesis
+ */
+static bool paren_multiline_before_brace(
+   chunk_t*  brace, /**< [in] brace chunk whose predecessing parenthesis will be checked */
+   c_token_t paren_t = CT_SPAREN_CLOSE /**< [in]  */
 );
 
 
-//TODO: this should take in const refs, like almost all chunk OP
-bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t)
+static bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t)
 {
    retval_if(is_invalid(brace) ||
        not_type (brace, CT_BRACE_OPEN, CT_BRACE_CLOSE) ||
@@ -178,10 +193,16 @@ bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t)
        (is_valid(paren_open ) && paren_open  != paren_close) )
    {
       /* determine number of lines in the parenthesis pair spans */
-      const int32_t lineSpan = newlines_between(paren_open, paren_close) + 1;
+      uint32_t   nl_count;
+      const bool ret_flag = newlines_between(paren_open, paren_close, nl_count);
 
+      if (ret_flag == false)
+      {
+         LOG_FMT(LERR, "newlines_between error\n");
+         return(false);
+      }
       /* don't execute examine_brace() (brace removal) if too big span */
-      retval_if(lineSpan >= 1, true);
+      retval_if(nl_count >= 1, true);
    }
    return(false);
 }
@@ -487,8 +508,6 @@ static void examine_brace(chunk_t* bopen)
          else if (is_closing_rbrace(pc))
          {
             br_count--;
-#if 1
-            // \todo SN disabled, enable code after if it does not fail any test
             if (br_count == 0)
             {
                chunk_t* next = get_next_ncnl(pc, scope_e::PREPROC);
@@ -498,7 +517,6 @@ static void examine_brace(chunk_t* bopen)
                   return;
                }
             }
-#endif
          }
 
          else if (is_type(pc, CT_IF, CT_ELSEIF))
@@ -561,8 +579,10 @@ static void examine_brace(chunk_t* bopen)
          next = get_next_ncnl(next);
       }
 
-      assert(is_valid(next));
-      LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
+      if(is_valid(next))
+      {
+         LOG_FMT(LBRDEL, " next is '%s'\n", get_token_name(next->type));
+      }
       if ((if_count > 0 ) && is_type(next, CT_ELSE, CT_ELSEIF))
       {
          LOG_FMT(LBRDEL, " bailed on because 'else' is next and %u ifs\n", if_count);

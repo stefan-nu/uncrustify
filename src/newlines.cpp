@@ -3725,17 +3725,19 @@ void annotations_nl(void)
 }
 
 
-int32_t newlines_between(chunk_t* pc_start, chunk_t* pc_end, scope_e scope)
+bool newlines_between(chunk_t*  pc_start, chunk_t* pc_end,
+                      uint32_t& nl_count, scope_e  scope)
 {
-   retval_if(are_invalid(pc_start, pc_end), INVALID_COUNT);
+   retval_if(are_invalid(pc_start, pc_end), false);
 
-   uint32_t nl_count = 0;
+   nl_count = 0;
    chunk_t* chunk = pc_start;
-   for ( ; chunk != pc_end; chunk = chunk_get_next(chunk, scope))
+   while(is_valid(chunk) && chunk != pc_end)
    {
       nl_count += chunk->nl_count;
+      chunk = chunk_get_next(chunk, scope);
    }
 
-   /* check that search did end before end of file */
-   return((chunk == chunk_get_tail()) ? INVALID_COUNT : (int32_t)nl_count);
+   /* newline count is valid if search stopped on expected chunk */
+   return(chunk == pc_end);
 }
