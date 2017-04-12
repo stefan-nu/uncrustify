@@ -36,5 +36,15 @@ void examine_Data(
    int32_t     what
 );
 
+/* dump the chunk list to a file */
+void dump_out(
+   uint32_t type
+);
+
+/* create chunk list from a file */
+void dump_in(
+   uint32_t type
+);
+
 
 #endif /* UNC_TOOLS_H_INCLUDED */

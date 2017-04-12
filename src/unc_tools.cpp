@@ -7,8 +7,10 @@
  * @license GPL v2+
  */
 
+#include "args.h"
 #include "unc_tools.h"
 #include "uncrustify.h"
+#include "windows_compat.h"
 
 
 static void log_newline(
@@ -106,5 +108,140 @@ void examine_Data(const char *func_name, int32_t theLine, int32_t what)
 
    default:
       break;
+   }
+}
+
+
+void dump_out(uint32_t type)
+{
+   char dumpFileName[300];
+
+   if (cpd.dumped_file == nullptr)
+   {
+      sprintf(dumpFileName, "%s.%u", cpd.filename, type);
+   }
+   else
+   {
+      sprintf(dumpFileName, "%s.%u", cpd.dumped_file, type);
+   }
+   FILE* D_file = fopen(dumpFileName, "w");
+   if (D_file != nullptr)
+   {
+      for (chunk_t* pc = chunk_get_head(); pc != nullptr; pc = pc->next)
+      {
+         fprintf(D_file, "[%p]\n", pc);
+         fprintf(D_file, "  type %s\n",         get_token_name(pc->type));
+         fprintf(D_file, "  orig_line %u\n",    pc->orig_line);
+         fprintf(D_file, "  orig_col %u\n",     pc->orig_col);
+         fprintf(D_file, "  orig_col_end %u\n", pc->orig_col_end);
+         fprintf(D_file, (pc->orig_prev_sp  != 0) ? "  orig_prev_sp %u\n"      : "", pc->orig_prev_sp);
+         fprintf(D_file, (pc->flags         != 0) ? "  flags %016" PRIx64 "\n" : "", pc->flags);
+         fprintf(D_file, (pc->column        != 0) ? "  column %u\n"            : "", pc->column);
+         fprintf(D_file, (pc->column_indent != 0) ? "  column_indent %u\n"     : "", pc->column_indent);
+         fprintf(D_file, (pc->nl_count      != 0) ? "  nl_count %u\n"          : "", pc->nl_count);
+         fprintf(D_file, (pc->level         != 0) ? "  level %u\n"             : "", pc->level);
+         fprintf(D_file, (pc->brace_level   != 0) ? "  brace_level %u\n"       : "", pc->brace_level);
+         fprintf(D_file, (pc->pp_level      != 0) ? "  pp_level %u\n"          : "", pc->pp_level);
+         fprintf(D_file, (pc->after_tab     != 0) ? "  after_tab %d\n"         : "", pc->after_tab);
+         if (pc->type != CT_NEWLINE)
+         {
+            fprintf(D_file, "  text %s\n", pc->text());
+         }
+      }
+      fclose(D_file);
+   }
+}
+
+
+#define MAX_BUF_SIZE  256
+#define MAX_NAME_SIZE 300
+void dump_in(uint32_t type)
+{
+   char    dumpFileName[MAX_NAME_SIZE];
+   char    buffer      [MAX_BUF_SIZE ];
+   bool    aNewChunkIsFound = false;
+   chunk_t chunk;
+
+   const char* pfile = (cpd.dumped_file == nullptr) ?
+         cpd.filename : cpd.dumped_file;
+   sprintf(dumpFileName, "%s.%u", pfile, type);
+
+   FILE* D_file = fopen(dumpFileName, "r");
+
+   if (D_file != nullptr)
+   {
+      unsigned int lineNumber = 0;
+      while (fgets(buffer, sizeof(buffer), D_file) != nullptr)
+      {
+         ++lineNumber;
+         if (aNewChunkIsFound)
+         {
+            /* look for the next chunk */
+            char first = buffer[0];
+            if (first == '[')
+            {
+               aNewChunkIsFound = false;
+               /* add the chunk in the list */
+               chunk_add_before(&chunk, nullptr);
+               chunk.reset();
+               aNewChunkIsFound = true;
+               continue;
+            }
+            /* the line as the form
+             * part value
+             * Split the line */
+#define NUMBER_OF_PARTS    3
+            char* parts[NUMBER_OF_PARTS];
+            int partCount = Args::SplitLine(buffer, parts, NUMBER_OF_PARTS - 1);
+            if (partCount != 2)
+            {
+               exit(EX_SOFTWARE);
+            }
+
+            /* \todo better use switch here */
+            if (strcasecmp(parts[0], "type") == 0)
+            {
+               c_token_t tokenName = find_token_name(parts[1]);
+               set_type(&chunk, tokenName);
+            }
+            else if (strcasecmp(parts[0], "orig_line"   ) == 0) { chunk.orig_line    = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "orig_col"    ) == 0) { chunk.orig_col     = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "orig_col_end") == 0) { chunk.orig_col_end = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "orig_prev_sp") == 0) { chunk.orig_prev_sp = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "flags"       ) == 0) { chunk.flags        = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "column"      ) == 0) { chunk.column       = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "nl_count"    ) == 0) { chunk.nl_count     = strtol(parts[1], nullptr, 0); }
+            else if (strcasecmp(parts[0], "text"        ) == 0)
+            {
+               if (chunk.type != CT_NEWLINE)
+               {
+                  chunk.str = parts[1];
+               }
+            }
+            else
+            {
+               fprintf(stderr, "on line=%d, for '%s'\n", lineNumber, parts[0]);
+               exit(EX_SOFTWARE);
+            }
+         }
+         else
+         {
+            /* look for a new chunk */
+            char first = buffer[0];
+            if (first == '[')
+            {
+               aNewChunkIsFound = true;
+               chunk.reset();
+            }
+         }
+      }
+      /*  add the last chunk in the list*/
+      chunk_add_before(&chunk, nullptr);
+      fclose(D_file);
+   }
+   else
+   {
+      fprintf(stderr, "FATAL: file not found '%s'\n", dumpFileName);
+      exit(EX_SOFTWARE);
    }
 }

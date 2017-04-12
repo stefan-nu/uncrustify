@@ -498,6 +498,9 @@ struct cp_data_t
 
    /* the default values for settings */
    op_val_t        defaults[UO_option_count]; /**<  */
+
+   const char*     phase_name;   /**  */
+   const char*     dumped_file;  /**  */
 };
 
 

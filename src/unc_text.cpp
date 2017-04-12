@@ -399,7 +399,7 @@ int32_t unc_text::replace(const char* oldtext, const unc_text& newtext)
    while (fidx >= 0)
    {
       rcnt++;
-      erase(static_cast<uint32_t>(fidx), olen);
+      erase (static_cast<uint32_t>(fidx), olen   );
       insert(static_cast<uint32_t>(fidx), newtext);
       fidx = find(oldtext, static_cast<uint32_t>(fidx) + newtext_size - olen + 1);
    }
