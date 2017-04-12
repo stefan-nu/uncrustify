@@ -559,7 +559,7 @@ void usage_exit(const char* msg, const char* argv0, int32_t code)
 
 static void version_exit(void)
 {
-   printf("uncrustify %s\n", UNCRUSTIFY_VERSION);
+   printf("%s\n", UNCRUSTIFY_VERSION);
    exit(EX_OK);
 }
 

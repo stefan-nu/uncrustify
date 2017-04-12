@@ -2219,7 +2219,7 @@ int32_t load_option_file(const char *filename)
 
 int32_t save_option_file_kernel(FILE* pfile, bool withDoc, bool only_not_default)
 {
-   fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
+   fprintf(pfile, "# %s\n", UNCRUSTIFY_VERSION);
 
    int32_t not_default_opt_count = 0; /* number of options that differ from their default value */
    /* Print the options by group */
@@ -2325,7 +2325,7 @@ void print_options(FILE* pfile)
       "Unsigned Number",
    };
 
-   fprintf(pfile, "# Uncrustify %s\n", UNCRUSTIFY_VERSION);
+   fprintf(pfile, "# %s\n", UNCRUSTIFY_VERSION);
 
    /* Print the all out */
    for (auto &jt : group_map)
