@@ -1869,9 +1869,6 @@ void tokenize(const deque<uint32_t> &data, chunk_t* ref)
 
    cpd.unc_stage = unc_stage_e::TOKENIZE;
 
-   parse_frame_t frm;
-   memset(&frm, 0, sizeof(frm));
-
    while (ctx.more())
    {
       chunk.reset();
