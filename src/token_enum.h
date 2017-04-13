@@ -349,6 +349,7 @@ enum c_token_t
    CT_NOTHROW,             /**<  */
    CT_WORD_,               /**<  */
 
+//   CT_IGNORE,              /**<  */
    CT_TOKEN_COUNT_         // NOTE: Keep this the last entry because it's used as a counter.
 };
 

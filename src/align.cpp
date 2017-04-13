@@ -7,6 +7,7 @@
  *          October 2015, 2016
  * @license GPL v2+
  */
+
 #include "align.h"
 #include "uncrustify_types.h"
 #include "chunk_list.h"
@@ -20,13 +21,17 @@
 #include "space.h"
 #include "tabulator.h"
 
+/**
+ * abbreviations used
+ * OC = objective C
+ */
 
  /**  */
 enum class comment_align_e : uint32_t
 {
-   REGULAR, /**<  */
-   BRACE,   /**<  */
-   ENDIF    /**<  */
+   REGULAR, /**<  *///!< REGULAR
+   BRACE,   /**<  *///!< BRACE
+   ENDIF    /**<  *///!< ENDIF
 };
 
 
@@ -115,10 +120,9 @@ enum class comment_align_e : uint32_t
  * The stack is empty after this function.
  */
 static void align_stack(
-   ChunkStack &cs,          /**< [in]  */
-   uint32_t   col,          /**< [in] the column */
-   bool       align_single, /**< [in] indicates if to align even if there is only one item on the stack */
-   log_sev_t  sev           /**< [in]  */
+   ChunkStack &cs,        /**< [in]  */
+   uint32_t   col,        /**< [in] the column */
+   log_sev_t  sev = LALTC /**< [in] log level to use */
 );
 
 
@@ -255,7 +259,7 @@ static void log_align(
  * @param start   Points to the open brace chunk
  */
 static void align_init_brace(
-   chunk_t* start  /**< [in]  */
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -265,8 +269,8 @@ static void align_func_params(void);
 
 /**  */
 static void align_params(
-   chunk_t*        start,   /**< [in]  */
-   deque<chunk_t*> &chunks  /**< [in]  */
+   chunk_t*        start,  /**< [in]  */
+   deque<chunk_t*> &chunks /**< [in]  */
 );
 
 
@@ -275,32 +279,28 @@ static void align_same_func_call_params(void);
 
 
 /**  */
-static chunk_t *step_back_over_member(
-   chunk_t* pc  /**< [in]  */
+static chunk_t* step_back_over_member(
+   chunk_t* pc /**< [in]  */
 );
 
 
 /**
  * Aligns all function prototypes in the file.
  */
-static void align_func_proto(
-   uint32_t span  /**< [in]  */
-);
+static void align_func_proto(void);
 
 
 /**
  * Aligns all function prototypes in the file.
  */
-static void align_oc_msg_spec(
-   uint32_t span  /**< [in]  */
-);
+static void align_oc_msg_spec(void);
 
 
 /**
  * tbd
  */
-static chunk_t *align_func_param(
-   chunk_t* start  /**< [in]  */
+static chunk_t* align_func_param(
+   chunk_t* start /**< [in]  */
 );
 
 
@@ -308,17 +308,18 @@ static chunk_t *align_func_param(
  * Aligns simple typedefs that are contained on a single line each.
  * This should be called after the typedef target is marked as a type.
  *
+ * Example:
  * typedef int32_t        foo_t;
  * typedef char       bar_t;
  * typedef const char cc_t;
  */
 static void align_typedefs(
-   uint32_t span  /**< [in]  */
+   uint32_t span /**< [in]  */
 );
 
 
 /**
- * Align '<<' (CT_ARITH?)
+ * Align left shift operators '<<' (CT_ARITH?)
  */
 static void align_left_shift(void);
 
@@ -359,9 +360,13 @@ static void align_oc_decl_colon(void);
 static void align_asm_colon(void);
 
 
-static void align_stack(ChunkStack &cs, uint32_t col, bool align_single, log_sev_t sev)
+static void align_stack(ChunkStack& cs, uint32_t col, log_sev_t sev)
 {
    LOG_FUNC_ENTRY();
+
+   /* consider single lines for aligning if the end of line comments
+    * shall be aligned to a specific column */
+   const bool align_single = get_uval(UO_align_right_cmt_at_col) > 0;
 
    if (is_true(UO_align_on_tabstop)) { col = align_tab_column(col); }
 
@@ -369,21 +374,23 @@ static void align_stack(ChunkStack &cs, uint32_t col, bool align_single, log_sev
        ((cs.Len() == 1) && align_single))
    {
       LOG_FMT(sev, "%s: max_col=%u\n", __func__, col);
-      chunk_t *pc;
-      while ((pc = cs.Pop_Back()) != nullptr)
+      chunk_t* pc = cs.Pop_Back();
+      while(is_valid(pc))
       {
          align_to_column(pc, col);
          set_flags(pc, PCF_WAS_ALIGNED);
 
          LOG_FMT(sev, "%s: indented [%s] on line %u to %u\n",
                  __func__, pc->text(), pc->orig_line, pc->column);
+         pc = cs.Pop_Back();
       }
    }
    cs.Reset();
 }
 
 
-static void align_add(ChunkStack &cs, chunk_t* pc, uint32_t &max_col, uint32_t min_pad, bool squeeze)
+static void align_add(ChunkStack &cs, chunk_t* pc, uint32_t& max_col,
+                      uint32_t min_pad, bool squeeze)
 {
    LOG_FUNC_ENTRY();
 
@@ -402,8 +409,8 @@ static void align_add(ChunkStack &cs, chunk_t* pc, uint32_t &max_col, uint32_t m
 
       if (squeeze == false) { min_col = max(min_col, pc->column); }
 
-      const bool  is_multi = is_type(prev, CT_COMMENT_MULTI);
-      const char* type = (is_multi) ? "Y" : "N";
+      const bool is_multi = is_type(prev, CT_COMMENT_MULTI);
+      const char*   type = (is_multi) ? "Y" : "N";
       const uint32_t col = (is_multi) ? prev->orig_col_end : (uint32_t)prev->column;
 
       LOG_FMT(LALADD, "%s: pc->orig_line=%u, pc->col=%u max_col=%u min_pad=%u \
@@ -423,7 +430,8 @@ void quick_align_again(void)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LALAGAIN, "%s:\n", __func__);
-   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   chunk_t* pc = chunk_get_head();
+   while(is_valid(pc))
    {
       if (is_valid(pc->align.next     ) &&
           is_flag (pc, PCF_ALIGN_START) )
@@ -438,15 +446,19 @@ void quick_align_again(void)
          LOG_FMT(LALAGAIN, "   [%s:%u]", pc->text(), pc->orig_line);
          as.Add(pc->align.start);
          set_flags(pc, PCF_WAS_ALIGNED);
-         for (chunk_t *tmp = pc->align.next; is_valid(tmp); tmp = tmp->align.next)
+
+         chunk_t* tmp = pc->align.next;
+         while(is_valid(tmp))
          {
             set_flags(tmp, PCF_WAS_ALIGNED);
             as.Add(tmp->align.start);
             LOG_FMT(LALAGAIN, " => [%s:%u]", tmp->text(), tmp->orig_line);
+            tmp = tmp->align.next;
          }
          LOG_FMT(LALAGAIN, "\n");
          as.End();
       }
+      pc = chunk_get_next(pc);
    }
 }
 
@@ -506,10 +518,10 @@ void align_all(void)
 
    /* Align function prototypes */
    if ((get_uval(UO_align_func_proto_span) > 0) &&
-       is_false(UO_align_mix_var_proto)) { align_func_proto(get_uval(UO_align_func_proto_span)); }
+       is_false(UO_align_mix_var_proto)) { align_func_proto(); }
 
    /* Align function prototypes */
-   if (get_uval(UO_align_oc_msg_spec_span) > 0)  { align_oc_msg_spec(get_uval(UO_align_oc_msg_spec_span)); }
+   if (get_uval(UO_align_oc_msg_spec_span) > 0)  { align_oc_msg_spec(); }
 
    /* Align OC colons */
    if (is_true(UO_align_oc_decl_colon)) { align_oc_decl_colon(); }
@@ -524,10 +536,12 @@ void align_all(void)
 }
 
 
-static void align_oc_msg_spec(uint32_t span)
+static void align_oc_msg_spec(void)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LALIGN, "%s\n", __func__);
+
+   uint32_t span = get_uval(UO_align_oc_msg_spec_span);
 
    AlignStack as;
    as.Start(span, 0);
@@ -812,9 +826,8 @@ chunk_t* align_assign(chunk_t* first, uint32_t span, uint32_t thresh, uint32_t* 
    as.End();
    vdas.End();
 
-   const bool     valid = is_valid(pc);
-   const char*    str   = valid ? pc->text()    : "nullptr";
-   const uint32_t line  = valid ? pc->orig_line : 0u;
+   const char*    str   = is_valid(pc) ? pc->text()    : "nullptr";
+   const uint32_t line  = is_valid(pc) ? pc->orig_line : 0u;
    LOG_FMT(LALASS, "%s: done on %s on line %u\n", __func__, str, line);
 
    return(pc);
@@ -834,8 +847,8 @@ static chunk_t* align_func_param(chunk_t* start)
    uint32_t comma_count   = 0;
    uint32_t chunk_count   = 0;
 
-   chunk_t* pc = start;
-   while ((pc = chunk_get_next(pc)) != nullptr)
+   chunk_t* pc = chunk_get_next(start);
+   while(is_valid(pc))
    {
       chunk_count++;
       if (is_nl(pc))
@@ -861,6 +874,7 @@ static chunk_t* align_func_param(chunk_t* start)
          }
       }
       else if (is_type(pc, CT_COMMA)) { comma_count++; }
+      pc = chunk_get_next(pc);
    }
 
    if (comma_count <= 1) { as.End(); }
@@ -884,7 +898,7 @@ static void align_func_params(void)
 }
 
 
-static void align_params(chunk_t *start, deque<chunk_t *> &chunks)
+static void align_params(chunk_t* start, deque<chunk_t*> &chunks)
 {
    LOG_FUNC_ENTRY();
 
@@ -1090,10 +1104,12 @@ static chunk_t* step_back_over_member(chunk_t* pc)
 }
 
 
-static void align_func_proto(uint32_t span)
+static void align_func_proto(void)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LALIGN, "%s\n", __func__);
+
+   uint32_t span = get_uval(UO_align_func_proto_span);
 
    AlignStack as;
    as.Start(span, 0);
@@ -1498,7 +1514,7 @@ static chunk_t* align_trailing_comments(chunk_t* start)
    {
       col -= cpd.frag_cols;
    }
-   align_stack(cs, col, (intended_col != 0), LALTC);
+   align_stack(cs, col);
 
    return(chunk_get_next(pc));
 }
@@ -1771,12 +1787,12 @@ static void align_typedefs(uint32_t span)
 
    AlignStack as;
    as.Start(span);
-   as.m_gap        = get_uval(UO_align_typedef_gap);
+   as.m_gap        = get_uval(UO_align_typedef_gap       );
    as.m_star_style = get_star(UO_align_typedef_star_style);
    as.m_amp_style  = get_star(UO_align_typedef_amp_style );
 
    const chunk_t* c_typedef = nullptr;
-   chunk_t* pc        = chunk_get_head();
+   chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
       if (is_nl(pc))
@@ -1811,10 +1827,10 @@ static void align_left_shift(void)
 {
    LOG_FUNC_ENTRY();
 
-   const chunk_t* start = nullptr;
-   AlignStack    as;
+   AlignStack as;
    as.Start(255);
 
+   const chunk_t* start = nullptr;
    chunk_t* pc = chunk_get_head();
    while (is_valid(pc))
    {
@@ -1882,7 +1898,7 @@ static void align_left_shift(void)
           *
           *      cout <<
           *          "something"; */
-         chunk_t *prev = chunk_get_prev(pc);
+         chunk_t* prev = chunk_get_prev(pc);
          if (is_nl(prev))
          {
             indent_to_column(pc, pc->column_indent + get_uval(UO_indent_columns));
@@ -2006,12 +2022,14 @@ static void align_oc_msg_colons(void)
 {
    LOG_FUNC_ENTRY();
 
-   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
+   chunk_t* pc = chunk_get_head();
+   while(is_valid(pc))
    {
       if (is_type_and_ptype(pc, CT_SQUARE_OPEN, CT_OC_MSG))
       {
          align_oc_msg_colon(pc);
       }
+      pc = chunk_get_next(pc);
    }
 }
 
@@ -2039,9 +2057,8 @@ static void align_oc_decl_colon(void)
       cas.Reset();
 
       const uint32_t level = pc->level;
-      pc = get_next_ncnl(pc, scope_e::PREPROC);
-
       bool did_line = false;
+      pc = get_next_ncnl(pc, scope_e::PREPROC);
       while (is_valid(pc) && (pc->level >= level))
       {
          /* The declaration ends with an open brace or semicolon */

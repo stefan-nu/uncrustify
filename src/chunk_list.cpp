@@ -1014,16 +1014,17 @@ bool not_type(const c_token_t token, const c_token_t type1,
 
 #if 0
 // use variadic template to unify overloaded and variadic functions
-template<typename T, const chunk_t* const>
+template<typename T>
 bool nis_type(const chunk_t* const pc, const T type)
 {
-   return(is_valid(pc) && (pc->type == type));
+   retval_if(is_invalid(pc), false);
+   return(pc->type == type);
 }
 
-template<typename T, const chunk_t* const, typename... Args>
+template<typename T, typename... Args>
 bool nis_type(const chunk_t* const pc, const T type, Args...args)
 {
-   return (pc->type == type) && nis_type(pc, type, args...);
+   return (pc->type == type) && nis_type(pc, args...);
 }
 #endif
 
@@ -1054,92 +1055,128 @@ bool is_type(const chunk_t* const pc, const c_token_t type1,
 #if 0
    return nis_type(pc, type1, type2, type3);
 #else
-   return(is_valid(pc) && ((pc->type == type1) ||
-                           (pc->type == type2) ||
-                           (pc->type == type3) ) );
+   retval_if(is_invalid(pc), false);
+   return((pc->type == type1) ||
+          (pc->type == type2) ||
+          (pc->type == type3) ) ;
 #endif
 }
 
-
+#if 1
 bool is_type(const chunk_t* const pc, const c_token_t type1, const c_token_t type2,
                                       const c_token_t type3, const c_token_t type4)
 {
-   return(is_valid(pc) && ((pc->type == type1) || (pc->type == type2) ||
-                           (pc->type == type3) || (pc->type == type4) ) );
+   retval_if(is_invalid(pc), false);
+   return((pc->type == type1) || (pc->type == type2) ||
+          (pc->type == type3) || (pc->type == type4) );
 }
+#endif
+
+#if 0
+bool is_type(const chunk_t* const pc, const c_token_t type1,
+      const c_token_t type2=CT_IGNORE,
+      const c_token_t type3=CT_IGNORE,
+      const c_token_t type4=CT_IGNORE,
+      const c_token_t type5=CT_IGNORE,
+      const c_token_t type6=CT_IGNORE,
+      const c_token_t type7=CT_IGNORE,
+      const c_token_t type8=CT_IGNORE,
+      const c_token_t type9=CT_IGNORE)
+{
+   if (!pc) return false;
+   if (pc->type == type1) return true;
+   if (type2==CT_IGNORE) return false; if (pc->type == type2) return true;
+   if (type3==CT_IGNORE) return false; if (pc->type == type3) return true;
+   if (type4==CT_IGNORE) return false; if (pc->type == type4) return true;
+   if (type5==CT_IGNORE) return false; if (pc->type == type5) return true;
+   if (type6==CT_IGNORE) return false; if (pc->type == type6) return true;
+   if (type7==CT_IGNORE) return false; if (pc->type == type7) return true;
+   if (type8==CT_IGNORE) return false; if (pc->type == type8) return true;
+   if (type9==CT_IGNORE) return false; if (pc->type == type9) return true;
+}
+#endif
 
 
 bool is_ptype(const chunk_t* const pc, const c_token_t type)
 {
-   return (is_valid(pc) && (pc->ptype == type));
+   retval_if(is_invalid(pc), false);
+   return(pc->ptype == type);
 }
 
 
 bool is_ptype(const chunk_t* const pc, const c_token_t type1,
                                        const c_token_t type2)
 {
-   return(is_valid(pc) && ((pc->ptype == type1) ||
-                           (pc->ptype == type2) ) );
+   retval_if(is_invalid(pc), false);
+   return((pc->ptype == type1) ||
+          (pc->ptype == type2) );
 }
 
 
 bool is_ptype(const chunk_t* const pc, const c_token_t type1,
               const c_token_t type2,   const c_token_t type3)
 {
-   return (is_valid(pc) && ((pc->ptype == type1) ||
-                            (pc->ptype == type2) ||
-                            (pc->ptype == type3) ) );
+   retval_if(is_invalid(pc), false);
+   return ((pc->ptype == type1) ||
+           (pc->ptype == type2) ||
+           (pc->ptype == type3) );
 }
 
 
 bool is_only_first_type(const chunk_t* pc1, const c_token_t type1,
                         const chunk_t* pc2, const c_token_t type2)
 {
-   return(is_type (pc1, type1) && not_type(pc2, type2));
+   return(is_type(pc1, type1) && not_type(pc2, type2));
 
 }
 
 
 bool not_type(const chunk_t* const pc, const c_token_t type)
 {
-   return(is_valid(pc) && (pc->type != type));
+   retval_if(is_invalid(pc), false);
+   return(pc->type != type);
 }
 
 
 bool not_type(const chunk_t* const pc, const c_token_t type1,
                                        const c_token_t type2)
 {
-   return(is_valid(pc) && (pc->type != type1) &&
-                          (pc->type != type2) );
+   retval_if(is_invalid(pc), false);
+   return((pc->type != type1) &&
+          (pc->type != type2) );
 }
 
 
 bool not_type(const chunk_t* const pc, const c_token_t type1,
               const c_token_t type2,   const c_token_t type3)
 {
-   return(is_valid(pc) && (pc->type != type1) &&
-                          (pc->type != type2) &&
-                          (pc->type != type3) );
+   retval_if(is_invalid(pc), false);
+   return((pc->type != type1) &&
+          (pc->type != type2) &&
+          (pc->type != type3) );
 }
 
 
 bool not_ptype(const chunk_t* const pc, const c_token_t ptype)
 {
-   return(is_valid(pc) && (pc->ptype != ptype));
+   retval_if(is_invalid(pc), false);
+   return(pc->ptype != ptype);
 }
 
 
 bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
                                         const c_token_t ptype2)
 {
-   return(is_valid(pc) && (pc->ptype != ptype1) &&
-                          (pc->ptype != ptype2) );
+   retval_if(is_invalid(pc), false);
+   return((pc->ptype != ptype1) &&
+          (pc->ptype != ptype2) );
 }
 
 
 bool not_ptype(const chunk_t* const pc, const c_token_t ptype1,
                const c_token_t ptype2,  const c_token_t ptype3)
 {
+   retval_if(is_invalid(pc), false);
    return(is_valid(pc) && (pc->ptype != ptype1) &&
                           (pc->ptype != ptype2) &&
                           (pc->ptype != ptype3) );

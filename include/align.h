@@ -5,6 +5,7 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #ifndef ALIGN_H_INCLUDED
 #define ALIGN_H_INCLUDED
 
@@ -54,20 +55,20 @@ void align_struct_initializers(void);
  * @param start   Start point
  * @return        pointer the last item looked at (nullptr/newline/comment)
  */
-chunk_t *align_nl_cont(
+chunk_t* align_nl_cont(
    chunk_t* start /**< [in]  */
 );
 
 
 /**
- * Aligns all assignment operators on the same level as first, starting with
- * first.
+ * Aligns all assignment operators that are on the same level as the
+ * first one, starting with the first.
  *
  * For variable definitions, only consider the '=' for the first variable.
  * Otherwise, only look at the first '=' on the line.
  */
 chunk_t* align_assign(
-   chunk_t*  first,     /**< [in]  */
+   chunk_t*  first,     /**< [in] chunk pointing to the first assignment */
    uint32_t  span,      /**< [in]  */
    uint32_t  thresh,    /**< [in]  */
    uint32_t* p_nl_count /**< [in]  */

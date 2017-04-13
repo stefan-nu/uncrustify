@@ -5,6 +5,7 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #ifndef NEWLINES_H_INCLUDED
 #define NEWLINES_H_INCLUDED
 
@@ -175,7 +176,7 @@ void newline_del_between(
 
 /**
  * Add a newline between two tokens.
- * If there is already a newline between then, nothing is done.
+ * If there is already a newline between them, nothing is done.
  * Otherwise a newline is inserted.
  *
  * If end is CT_BRACE_OPEN and a comment and newline follow, then

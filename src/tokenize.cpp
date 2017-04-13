@@ -1834,8 +1834,8 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    punc_txt[1] = (char)ctx.peek(1);
    punc_txt[2] = (char)ctx.peek(2);
    punc_txt[3] = (char)ctx.peek(3);
-   const chunk_tag_t *punc;
-   if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != nullptr)
+   const chunk_tag_t* punc = find_punctuator(punc_txt, cpd.lang_flags);
+   if (ptr_is_valid(punc))
    {
       int32_t cnt = (int32_t)strlen(punc->tag);
       while (cnt--)
@@ -1903,7 +1903,7 @@ void tokenize(const deque<uint32_t> &data, chunk_t* ref)
       {
          /* If comment contains backslash '\' followed by whitespace chars, keep last one;
           * this will prevent it from turning '\' into line continuation. */
-         break_if ((chunk.str.size()               > 1        ) &&
+         break_if ((chunk.str.size() > 1                      ) &&
                    (chunk.str[chunk.str.size()-2] == BACKSLASH) );
          chunk.str.pop_back();
       }

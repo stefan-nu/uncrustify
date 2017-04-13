@@ -5,6 +5,7 @@
  * @author  Ben Gardner
  * @license GPL v2+
  */
+
 #ifndef CHUNKSTACK_H_INCLUDED
 #define CHUNKSTACK_H_INCLUDED
 
@@ -22,24 +23,24 @@ public:
       { }
 
 
-      Entry(const Entry &ref)
+      Entry(const Entry& ref)
          : m_seqnum(ref.m_seqnum)
          , m_pc(ref.m_pc)
       { }
 
 
-      Entry(uint32_t sn, chunk_t *pc)
+      Entry(uint32_t sn, chunk_t* pc)
          : m_seqnum(sn)
          , m_pc(pc)
       { }
-      uint32_t  m_seqnum;
-      chunk_t *m_pc;
+      uint32_t m_seqnum;
+      chunk_t* m_pc;
    };
 
 
 protected:
    deque<Entry> m_cse;    /**<   */
-   uint32_t       m_seqnum; /**< current sequence number */
+   uint32_t     m_seqnum; /**< current sequence number */
 
 
 public:
@@ -51,25 +52,24 @@ public:
 
 
    /** Constructor */
-   ChunkStack(const ChunkStack &cs)  /**< [in]  */
+   ChunkStack(const ChunkStack& cs) /**< [in]  */
    {
       Set(cs);
    }
 
 
    /** Destructor */
-   virtual ~ChunkStack(void)
-   { }
+   virtual ~ChunkStack(void) { }
 
 
    /** tbd */
    void Set(
-      const ChunkStack &cs /**< [in]  */
+      const ChunkStack& cs /**< [in]  */
    );
 
 
    /** tbd */
-   void Push_Back(chunk_t *pc)
+   void Push_Back(chunk_t* pc)
    {
       Push_Back(pc, ++m_seqnum);
    }
@@ -90,34 +90,34 @@ public:
 
 
    /** tbd */
-   const Entry *Top(void) const;
+   const Entry* Top(void) const;
 
 
    /** tbd */
-   const Entry *Get(
+   const Entry* Get(
       uint32_t idx /**< [in]  */
    ) const;
 
 
    /** tbd */
-   chunk_t *GetChunk(
+   chunk_t* GetChunk(
       uint32_t idx /**< [in]  */
    ) const;
 
 
    /** tbd */
-   chunk_t *Pop_Back(void);
+   chunk_t* Pop_Back(void);
 
 
    /** tbd */
    void Push_Back(
-      chunk_t *pc,   /**< [in]  */
-      uint32_t  seqnum /**< [in]  */
+      chunk_t* pc,    /**< [in]  */
+      uint32_t seqnum /**< [in]  */
    );
 
 
    /** tbd */
-   chunk_t *Pop_Front(void);
+   chunk_t* Pop_Front(void);
 
 
    /** tbd */

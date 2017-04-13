@@ -12,7 +12,7 @@
 #include "ChunkStack.h"
 
 
-void ChunkStack::Set(const ChunkStack &cs)
+void ChunkStack::Set(const ChunkStack& cs)
 {
    m_cse.resize(cs.m_cse.size());
    for (uint32_t idx = 0; idx < m_cse.size(); idx++)
