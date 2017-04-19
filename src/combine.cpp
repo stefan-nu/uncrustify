@@ -1470,12 +1470,20 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          if (is_type(prev, CT_WORD))
          {
             chunk_t* tmp = get_prev_ncnl(prev);
-            if (is_type(tmp, CT_SEMICOLON,  CT_VSEMICOLON,
-                             CT_BRACE_OPEN, CT_QUALIFIER))
+            if (is_valid(tmp))
             {
-               set_type(prev, CT_TYPE);
-               set_type(pc,   CT_ADDR);
-               set_flags(next, PCF_VAR_1ST);
+               if (is_type(tmp, CT_SEMICOLON,  CT_VSEMICOLON,
+                                CT_BRACE_OPEN, CT_QUALIFIER))
+               {
+                  set_type (prev, CT_TYPE);
+                  set_type (pc,   CT_ADDR);
+                  set_flags(next, PCF_VAR_1ST);
+               }
+               else if (is_type(tmp, CT_DC_MEMBER))
+               {
+                  set_type(prev, CT_TYPE);
+                  set_type(pc,   CT_BYREF);
+               }
             }
          }
       }

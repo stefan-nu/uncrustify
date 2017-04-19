@@ -1381,10 +1381,10 @@ bool is_any_brace     (const chunk_t* const pc) { return(is_rbrace(pc) || is_vbr
 bool is_closing_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_VBRACE_CLOSE)); }
 bool is_opening_brace (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_OPEN,   CT_VBRACE_OPEN )); }
 bool is_rbrace        (const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE,  CT_BRACE_OPEN  )); }
-bool is_opening_rbrace(const chunk_t* const pc) { return(is_type(pc,                  CT_BRACE_OPEN  )); }
-bool is_closing_rbrace(const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE                  )); }
 bool is_vbrace        (const chunk_t* const pc) { return(is_type(pc, CT_VBRACE_CLOSE, CT_VBRACE_OPEN )); }
 bool is_opening_vbrace(const chunk_t* const pc) { return(is_type(pc,                  CT_VBRACE_OPEN )); }
+bool is_opening_rbrace(const chunk_t* const pc) { return(is_type(pc,                  CT_BRACE_OPEN  )); }
+bool is_closing_rbrace(const chunk_t* const pc) { return(is_type(pc, CT_BRACE_CLOSE                  )); }
 bool is_closing_vbrace(const chunk_t* const pc) { return(is_type(pc, CT_VBRACE_CLOSE                 )); }
 
 

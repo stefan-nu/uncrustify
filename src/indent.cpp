@@ -1903,8 +1903,9 @@ void indent_text(void)
          /* Check for special continuations.
           * Note that some of these could be done as a stack item like
           * everything else */
-         prev = get_prev_ncnl(pc);
-         next = get_next_ncnl(pc);
+         prev           = get_prev_ncnl(pc);
+         chunk_t* prevv = get_prev_ncnl(prev);
+         next           = get_next_ncnl(pc);
 
          bool do_vardefcol = false;
          if ((vardefcol  > 0              ) &&
@@ -1932,14 +1933,16 @@ void indent_text(void)
             reindent_line(pc, sql_col + (pc->orig_col - sql_orig_col));
             log_indent1(pc, sql_col, "sql");
          }
-         else if (not_flag(pc, PCF_STMT_START)           &&
-                  (is_type(pc,   CT_MEMBER, CT_DC_MEMBER) ||
-                   is_type(prev, CT_MEMBER, CT_DC_MEMBER) ) )
+         else if (not_flag(pc, PCF_STMT_START) &&
+                 ((is_type  (prev, CT_MEMBER)                   ) ||
+                  (are_types(pc,   CT_MEMBER,    prev,  CT_TYPE)) ||
+                  (are_types(prev, CT_DC_MEMBER, prevv, CT_TYPE)) ) )
          {
             uint32_t tmp = get_uval(UO_indent_member) + indent_column;
 
             log_and_reindent(pc, tmp, "member");
          }
+
          else if (do_vardefcol)
          {
             log_and_reindent(pc, vardefcol, "Vardefcol");
@@ -1981,8 +1984,8 @@ void indent_text(void)
                chunk_t* ck2 = chunk_get_prev(ck1);
 
                assert(is_valid(ck2));
-               /* If the open paren was the first thing on the line or we are
-                * doing mode 1, then put the close paren in the same column */
+               /* If the open parenthesis was the first thing on the line or we are
+                * doing mode 1, then put the close parenthesis in the same column */
                if (is_nl(ck2) || (get_uval(UO_indent_paren_close) == 1u))
                {
                   log_indent1(ck2, 1, "indent_paren_close is 1");
@@ -2025,12 +2028,12 @@ void indent_text(void)
             }
             log_and_reindent(pc, indent_column, "comma");
          }
-         else if ( get_uval(UO_indent_func_const)              &&
-                  is_type(pc, CT_QUALIFIER)                    &&
+         else if (get_uval(UO_indent_func_const) &&
+                  is_type(pc, CT_QUALIFIER)      &&
                   (strncasecmp(pc->text(), "const", pc->len()) == 0) &&
                   (is_invalid(next) ||
                    is_type(next, 6, CT_BRACED, CT_BRACE_OPEN, CT_THROW,
-                        CT_NEWLINE, CT_SEMICOLON, CT_VBRACE_OPEN))   )
+                        CT_NEWLINE, CT_SEMICOLON, CT_VBRACE_OPEN)))
          {
             // indent const - void GetFoo(void)\n const\n { return (m_Foo); }
             indent_column_set(get_uval(UO_indent_func_const));

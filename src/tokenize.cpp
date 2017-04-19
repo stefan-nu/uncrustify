@@ -423,6 +423,13 @@ void append_multiple(
 );
 
 
+/** tbd */
+static void reset_and_go_to_nl(
+   chunk_t& pc, /**< [in]  */
+   tok_ctx& ctx /**< [in]  */
+);
+
+
 void append_multiple(tok_ctx &ctx, chunk_t &pc, uint32_t cnt)
 {
    while (cnt--)
@@ -1493,7 +1500,8 @@ static void parse_pawn_pattern(tok_ctx &ctx, chunk_t &pc, c_token_t tt)
    }
 }
 
-void reset_and_go_to_nl(chunk_t& pc, tok_ctx& ctx)
+
+static void reset_and_go_to_nl(chunk_t& pc, tok_ctx& ctx)
 {
    /* Reset the chunk & scan to until a newline */
    pc.str.clear();
