@@ -143,7 +143,7 @@ enum uo_t
                                     *   also ">>>" "<<" ">>" "%" "|" */
    UO_sp_assign,                   /**< space around =, +=, etc */
    UO_sp_cpp_lambda_assign,        /**< space around the capture spec [=](...){...} */
-   UO_sp_cpp_lambda_paren,         /**< space after the capture spec [] (...){...} */
+   UO_sp_cpp_lambda_paren,         /**< space after the capture spec  [] (...){...} */
    UO_sp_assign_default,           /**< space around '=' in prototype */
    UO_sp_before_assign,            /**< space before =, +=, etc */
    UO_sp_after_assign,             /**< space after =, +=, etc */
@@ -214,9 +214,9 @@ enum uo_t
    UO_sp_between_mdatype_commas,   /**<  */
    UO_sp_paren_comma,              /**<  */
    UO_sp_before_ellipsis,          /**< space before '...' */
-   UO_sp_after_class_colon,        /**< space after class ':' */
+   UO_sp_after_class_colon,        /**< space after  class ':' */
    UO_sp_before_class_colon,       /**< space before class ':' */
-   UO_sp_after_constr_colon,       /**< space after class constructor ':' */
+   UO_sp_after_constr_colon,       /**< space after  class constructor ':' */
    UO_sp_before_constr_colon,      /**< space before class constructor ':' */
    UO_sp_before_case_colon,        /**< space before case ':' */
    UO_sp_after_operator,           /**< space after operator when followed by a punctuator */
@@ -306,7 +306,7 @@ enum uo_t
    UO_sp_cond_question_before,     /**<  */
    UO_sp_cond_question_after,      /**<  */
    UO_sp_cond_ternary_short,       /**<  */
-   UO_sp_case_label,               /**<  */
+   UO_sp_case_label,               /**< Fix the spacing between 'case' and the label. 'ignore' or 'force' */
    UO_sp_range,                    /**<  */
    UO_sp_after_for_colon,          /**<  */
    UO_sp_before_for_colon,         /**<  */
@@ -404,7 +404,7 @@ enum uo_t
    UO_indent_oc_block_msg_from_caret,       /**<  */
    UO_indent_oc_block_msg_from_brace,       /**<  */
    UO_indent_min_vbrace_open,               /**< min. indent after virtual brace open and newline */
-   UO_indent_vbrace_open_on_tabstop,        /**< when identing after virtual brace open and newline
+   UO_indent_vbrace_open_on_tabstop,        /**< when indenting after virtual brace open and newline
                                              *   add further spaces to reach next tabstop */
    UO_indent_token_after_brace,             /**<  */
    UO_indent_cpp_lambda_body,               /**< indent cpp lambda or not */
@@ -437,8 +437,8 @@ enum uo_t
    UO_nl_typedef_blk_start,           /**< newline before typedef block */
    UO_nl_typedef_blk_end,             /**< newline after typedef block */
    UO_nl_typedef_blk_in,              /**< newline max within typedef block */
-   UO_nl_var_def_blk_start,           /**< newline before variable defs block */
-   UO_nl_var_def_blk_end,             /**< newline after variable defs block */
+   UO_nl_var_def_blk_start,           /**< number of newlines before variable defs block */
+   UO_nl_var_def_blk_end,             /**< newline after  variable defs block */
    UO_nl_var_def_blk_in,              /**< newline max within variable defs block */
    UO_nl_fcall_brace,                 /**< newline between function call and open brace */
    UO_nl_enum_brace,                  /**< newline between enum and brace */
@@ -642,13 +642,13 @@ enum uo_t
    UO_nl_between_annotation,           /**< Controls the newline between two annotations */
 /* UO_nl_after_ifdef,                       after #if or #ifdef - but not if covers whole file */
 /* UO_nl_after_func_class_def,              newline after 'func_class_def' */
-/* UO_ls_before_bool_op,               TODO: break line before or after boolean op */
+/* UO_ls_before_bool_op,               TODO: break line before or after boolean operation */
 /* UO_ls_before_paren,                 TODO: break before open paren */
-/* UO_ls_after_arith,                  TODO: break after arith op '+', etc */
+/* UO_ls_after_arith,                  TODO: break after arithmetic operation '+', etc */
 /* UO_ls_honor_newlines,               TODO: don't remove newlines on split lines */
 
    /* group: UG_position, "Positioning options"  5 */
-   UO_pos_arith,                      /**< position of trailing/leading arithmetic ops */
+   UO_pos_arith,                      /**< position of trailing/leading arithmetic operations */
    UO_pos_assign,                     /**< position of trailing/leading = */
    UO_pos_bool,                       /**< position of trailing/leading &&/|| */
    UO_pos_compare,                    /**< position of trailing/leading <=/>, etc */
@@ -662,7 +662,7 @@ enum uo_t
    UO_pos_class_colon,                /**< position of trailing/leading class colon, between
                                        *   class and base class list
                                        *   (tied to UO_nl_class_colon) */
-   UO_pos_constr_colon,               /**< position of trailing/leading class constr colon
+   UO_pos_constr_colon,               /**< position of trailing/leading class constructor colon
                                        *   (tied to UO_nl_constr_colon, UO_nl_constr_init_args,
                                        *   UO_pos_constr_colon, */
 
@@ -675,7 +675,7 @@ enum uo_t
    /* group: UG_align, "Code alignment (not left column spaces/tabs)" 7 */
    UO_align_keep_tabs,             /**< keep non-indenting tabs */
    UO_align_with_tabs,             /**< use tabs for aligning (0/1) */
-   UO_align_on_tabstop,            /**< always align on tabstops */
+   UO_align_on_tabstop,            /**< always align on tab stops */
    UO_align_number_left,           /**< left-align numbers (not fully supported, yet) */
    UO_align_keep_extra_space,      /**< don't squash extra whitespace */
    UO_align_func_params,           /**< align prototype variable defs on variable */
@@ -715,7 +715,7 @@ enum uo_t
                                     *   'pulls in' comments as a bonus side effect */
    UO_align_func_proto_span,       /**< align function prototypes */
    UO_align_func_proto_gap,        /**< align function prototypes */
-   UO_align_on_operator,           /**<  */
+   UO_align_on_operator,           /**< Align function prototypes on the 'operator' keyword instead of what follows */
    UO_align_mix_var_proto,         /**< mix function prototypes and variable declaration */
    UO_align_single_line_func,      /**< mix single line function with prototypes */
    UO_align_single_line_brace,     /**< align the open brace of single line functions */
@@ -725,7 +725,7 @@ enum uo_t
    UO_align_pp_define_together,    /**< align macro functions and variables together */
    UO_align_pp_define_gap,         /**< min space between define label and value '#define a <---> 16' */
    UO_align_pp_define_span,        /**< align bodies in #define statements */
-   UO_align_left_shift,            /**<  */
+   UO_align_left_shift,            /**< Align lines that start with '<<' with previous '<<' */
    UO_align_asm_colon,             /**<  */
    UO_align_oc_msg_colon_span,     /**<  */
    UO_align_oc_msg_colon_first,    /**<  */
@@ -740,7 +740,7 @@ enum uo_t
    /* group: UG_comment, "Comment modifications" 8 */
    UO_cmt_width,                   /**< column to wrap comments */
    UO_cmt_reflow_mode,             /**< comment reflow style */
-   UO_cmt_convert_tab_to_spaces,   /**<  */
+   UO_cmt_convert_tab_to_spaces,   /**< Whether to convert all tabs to spaces in comments */
    UO_cmt_indent_multi,            /**< change left indent of multiline comments */
    UO_cmt_c_group,                 /**< try to group neighboring C comments */
    UO_cmt_c_nl_start,              /**< put a blank '/ *' at the start of a combined group */
@@ -782,20 +782,20 @@ enum uo_t
    UO_mod_full_brace_using,                      /**< add or remove braces on using */
    UO_mod_paren_on_return,                       /**< add or remove parenthesis on return */
    UO_mod_pawn_semicolon,                        /**< add optional semicolons */
-   UO_mod_full_paren_if_bool,                    /**<  */
+   UO_mod_full_paren_if_bool,                    /**< Add parenthesis on 'while' and 'if' statement around booleans */
    UO_mod_remove_extra_semicolon,                /**< remove extra semicolons */
-   UO_mod_add_long_function_closebrace_comment,  /**<  */
-   UO_mod_add_long_namespace_closebrace_comment, /**<  */
-   UO_mod_add_long_class_closebrace_comment,     /**<  */
-   UO_mod_add_long_switch_closebrace_comment,    /**<  */
-   UO_mod_add_long_ifdef_endif_comment,          /**<  */
-   UO_mod_add_long_ifdef_else_comment,           /**<  */
-   UO_mod_sort_import,                           /**<  */
-   UO_mod_sort_using,                            /**<  */
-   UO_mod_sort_include,                          /**<  */
-   UO_mod_move_case_break,                       /**<  */
-   UO_mod_case_brace,                            /**<  */
-   UO_mod_remove_empty_return,                   /**<  */
+   UO_mod_add_long_function_closebrace_comment,  /**< add function  name at end of function  if function  is longer than this many lines */
+   UO_mod_add_long_namespace_closebrace_comment, /**< add namespace name at end of namespace if namespace is longer than this many lines */
+   UO_mod_add_long_class_closebrace_comment,     /**< add class     name at end of class     if class     is longer than this many lines */
+   UO_mod_add_long_switch_closebrace_comment,    /**< add switch    name at end of switch    if switch    is longer than this many lines */
+   UO_mod_add_long_ifdef_endif_comment,          /**< add ifdef     name at end of #endif    if ifdef     is longer than this many lines */
+   UO_mod_add_long_ifdef_else_comment,           /**< add ifdef     name at end of #else     if ifdef     is longer than this many lines */
+   UO_mod_sort_import,                           /**< alphabetically sort import  statements */
+   UO_mod_sort_using,                            /**< alphabetically sort using   statements */
+   UO_mod_sort_include,                          /**< alphabetically sort include statements */
+   UO_mod_move_case_break,                       /**< move break before a possibly existing corresponding closing brace */
+   UO_mod_case_brace,                            /**< add or remove (unnecessary) braces in a case clause of an switch statement */
+   UO_mod_remove_empty_return,                   /**< remove unnecessary return statements at end of function */
    UO_mod_sort_oc_properties,                    /**< organizes objective c properties */
 
    /* Sorting options for objective C properties */
@@ -826,7 +826,7 @@ enum uo_t
    UO_include_category_2,  /**<  */
 
    /* group: UG_Use_Ext, "Use or Do not Use options", "G" 12 */
-   UO_use_indent_func_call_param,           /**< use/don't use indent_func_call_param Guy 2015-09-24 */
+   UO_use_indent_func_call_param,           /**< use/don't use indent_func_call_param */
    UO_use_indent_continue_only_once,        /**< The value of the indentation for a continuation line is calculate
                                              *   differently if the line is:
                                              *     a declaration :your case with QString fileName ...
@@ -845,6 +845,7 @@ enum uo_t
                                                           *   then we should warn about cases we can't
                                                           *   do the replacement */
 
+   /* all following options are used internally, they cannot be set by users */
    UO_sp_type_func_add,                     /**< value of UO_sp_type_func plus AV_ADD */
    UO_always_ignore,                        /**< this option is always AV_IGNORE */
    UO_always_add,                           /**< this option is always AV_ADD */
@@ -863,16 +864,16 @@ enum uo_t
 
 
 #ifdef EMSCRIPTEN
-   #define group_map_value_options_t    vector<uo_t>
+   #define group_map_value_options_t   vector<uo_t>
 #else
-   #define group_map_value_options_t    list<uo_t>
+   #define group_map_value_options_t   list<uo_t>
 #endif
 
 struct group_map_value_t
 {
-   ug_t                      id;         /**<  */
-   const char*               short_desc; /**<  */
-   const char*               long_desc;  /**<  */
+   ug_t                      id;         /**< identifier */
+   const char*               short_desc; /**< brief human readable description */
+   const char*               long_desc;  /**< long human readable description */
    group_map_value_options_t options;    /**<  */
 };
 
@@ -894,7 +895,7 @@ struct option_map_value_t
  * tbd
  */
 const option_map_value_t* unc_find_option(
-   const char* name /**<  */
+   const char* name /**< name of option to search */
 );
 
 

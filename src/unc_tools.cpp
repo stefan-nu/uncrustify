@@ -14,14 +14,14 @@
 
 
 static void log_newline(
-   chunk_t *pc /**< [in] chunk to operate with */
+   chunk_t* pc /**< [in] chunk to operate with */
 );
 
 
 void prot_the_line(int32_t theLine, uint32_t actual_line)
 {
    LOG_FMT(LGUY, "Prot_the_line:(%d) \n", theLine);
-   for (chunk_t *pc = chunk_get_head(); is_valid(pc); pc = pc->next)
+   for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = pc->next)
    {
       if (pc->orig_line == actual_line)
       {
@@ -45,7 +45,7 @@ void prot_the_line(int32_t theLine, uint32_t actual_line)
 }
 
 
-static void log_newline(chunk_t *pc)
+static void log_newline(chunk_t* pc)
 {
    if (is_type(pc, CT_NEWLINE))
    {
@@ -54,60 +54,60 @@ static void log_newline(chunk_t *pc)
    else
    {
       LOG_FMT(LGUY, "(%u)%s %s, col=%u, column=%u\n", pc->orig_line, pc->text(),
-            get_token_name(pc->type), pc->orig_col, pc->column);
+              get_token_name(pc->type), pc->orig_col, pc->column);
    }
 }
 
 
 /* \todo examine_Data seems not to be used, is it still required? */
-void examine_Data(const char *func_name, int32_t theLine, int32_t what)
+void examine_Data(const char* func_name, int32_t theLine, int32_t what)
 {
    LOG_FMT(LGUY, "\n%s:", func_name);
 
-   chunk_t *pc;
+   chunk_t* pc;
    switch (what)
    {
-   case 1:
-      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
-      {
-         if (is_type(pc, CT_SQUARE_CLOSE, CT_TSQUARE))
+      case 1:
+         for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
          {
-            LOG_FMT(LGUY, "\n");
-            LOG_FMT(LGUY, "1:(%d),", theLine);
-            LOG_FMT(LGUY, "%s, orig_col=%u, orig_col_end=%u\n", pc->text(), pc->orig_col, pc->orig_col_end);
+            if (is_type(pc, CT_SQUARE_CLOSE, CT_TSQUARE))
+            {
+               LOG_FMT(LGUY, "\n");
+               LOG_FMT(LGUY, "1:(%d),", theLine);
+               LOG_FMT(LGUY, "%s, orig_col=%u, orig_col_end=%u\n", pc->text(), pc->orig_col, pc->orig_col_end);
+            }
          }
-      }
-      break;
+         break;
 
-   case 2:
-      LOG_FMT(LGUY, "2:(%d)\n", theLine);
-      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
-      {
-         if (pc->orig_line == 7) { log_newline(pc); }
-      }
-      break;
+      case 2:
+         LOG_FMT(LGUY, "2:(%d)\n", theLine);
+         for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
+         {
+            if (pc->orig_line == 7) { log_newline(pc); }
+         }
+         break;
 
-   case 3:
-      LOG_FMT(LGUY, "3:(%d)\n", theLine);
-      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
-      {
-         log_newline(pc);
-      }
-      break;
-
-   case 4:
-      LOG_FMT(LGUY, "4:(%d)\n", theLine);
-      for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
-      {
-         if (pc->orig_line == 6)
+      case 3:
+         LOG_FMT(LGUY, "3:(%d)\n", theLine);
+         for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
          {
             log_newline(pc);
          }
-      }
-      break;
+         break;
 
-   default:
-      break;
+      case 4:
+         LOG_FMT(LGUY, "4:(%d)\n", theLine);
+         for (pc = chunk_get_head(); is_valid(pc); pc = pc->next)
+         {
+            if (pc->orig_line == 6)
+            {
+               log_newline(pc);
+            }
+         }
+         break;
+
+      default:
+         break;
    }
 }
 
@@ -163,7 +163,7 @@ void dump_in(uint32_t type)
    chunk_t chunk;
 
    const char* pfile = (cpd.dumped_file == nullptr) ?
-         cpd.filename : cpd.dumped_file;
+                        cpd.filename : cpd.dumped_file;
    sprintf(dumpFileName, "%s.%u", pfile, type);
 
    FILE* D_file = fopen(dumpFileName, "r");

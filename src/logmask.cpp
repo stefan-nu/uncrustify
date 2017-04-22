@@ -7,14 +7,14 @@
  * @license GPL v2+
  */
 #include "logmask.h"
-#include <cstdio>      /* provides snprintf() */
-#include <cstdlib>     /* provides strtoul() */
+#include <cstdio>  /* provides snprintf() */
+#include <cstdlib> /* provides strtoul() */
 #include "chunk_list.h"
 #include "unc_text.h"
 #include "unc_ctype.h"
 
 
-char* logmask_to_str(const log_mask_t &mask, char* buf, uint32_t size)
+char* logmask_to_str(const log_mask_t& mask, char* buf, uint32_t size)
 {
    retval_if((ptr_is_invalid(buf) || (size == 0)), buf);
 
@@ -40,7 +40,7 @@ char* logmask_to_str(const log_mask_t &mask, char* buf, uint32_t size)
       {
          if (is_range)
          {
-            buf[len - 1] = '-';  /* change last comma to a dash */
+            buf[len - 1] = '-'; /* change last comma to a dash */
             len         += (uint32_t)snprintf(&buf[len], size - len, "%d,", last_sev);
             is_range     = false;
          }
@@ -51,7 +51,7 @@ char* logmask_to_str(const log_mask_t &mask, char* buf, uint32_t size)
    /* handle a range that ends on the last bit */
    if (is_range && (last_sev != -1))
    {
-      buf[len - 1] = '-';  /* change last comma to a dash */
+      buf[len - 1] = '-'; /* change last comma to a dash */
       len         += (uint32_t)snprintf(&buf[len], size - len, "%d", last_sev);
    }
    else
@@ -66,7 +66,7 @@ char* logmask_to_str(const log_mask_t &mask, char* buf, uint32_t size)
 }
 
 
-void logmask_from_string(const char* str, log_mask_t &mask)
+void logmask_from_string(const char* str, log_mask_t& mask)
 {
    return_if(ptr_is_invalid(str));
 
@@ -79,19 +79,19 @@ void logmask_from_string(const char* str, log_mask_t &mask)
       str++;
    }
 
-   bool  was_dash   = false;
-   int32_t   last_level = -1;
-   while (*str != 0) /* check string until termination character */
+   bool    was_dash   = false;
+   int32_t last_level = -1;
+   while (*str != 0)                      /* check string until termination character */
    {
       if (unc_isspace(char2uint32(*str))) /* ignore spaces */
       {
-         str++;              /* and go on with */
-         continue;           /* next character */
+         str++;                           /* and go on with */
+         continue;                        /* next character */
       }
 
       if (unc_isdigit(char2uint32(*str)))
       {
-         char* ptmp;
+         char*    ptmp;
          uint32_t level = strtoul(str, &ptmp, 10);
          str = ptmp;
 
@@ -112,7 +112,7 @@ void logmask_from_string(const char* str, log_mask_t &mask)
          was_dash = true;
          str++;
       }
-      else  /* probably a comma */
+      else /* probably a comma */
       {
          last_level = -1;
          was_dash   = false;

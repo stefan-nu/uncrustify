@@ -56,7 +56,7 @@ static void print_stack(
  * Scan backwards to see if we find a brace/vbrace with the parent set to CT_DO
  */
 static bool maybe_while_of_do(
-   chunk_t* pc  /**< [in]  */
+   chunk_t* pc /**< [in]  */
 );
 
 
@@ -64,10 +64,10 @@ static bool maybe_while_of_do(
  * tbd
  */
 static void push_fmr_pse(
-   parse_frame_t* frm,     /**< [in]  */
-   chunk_t*       pc,      /**< [in]  */
-   brace_stage_e  stage,    /**< [in]  */
-   const char*    logtext  /**< [in]  */
+   parse_frame_t* frm,    /**< [in]  */
+   chunk_t*       pc,     /**< [in]  */
+   brace_stage_e  stage,  /**< [in]  */
+   const char*    logtext /**< [in]  */
 );
 
 
@@ -81,6 +81,7 @@ static chunk_t* insert_vbrace(
    bool           after, /**< [in] true=close_after, false=open_before */
    parse_frame_t* frm    /**< [in]  */
 );
+
 
 #define insert_vbrace_close_after(pc, frm)    insert_vbrace(pc, true,  frm)
 #define insert_vbrace_open_before(pc, frm)    insert_vbrace(pc, false, frm)
@@ -137,15 +138,15 @@ static bool check_complex_statements(
  */
 static bool handle_complex_close(
    parse_frame_t* frm, /**< [in] The parse frame */
-   chunk_t*        pc  /**< [in] The current chunk */
+   chunk_t*       pc   /**< [in] The current chunk */
 );
 
 
-static uint32_t preproc_start(parse_frame_t *frm, chunk_t* pc)
+static uint32_t preproc_start(parse_frame_t* frm, chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
-   uint32_t  pp_level = cpd.pp_level;
+   uint32_t pp_level = cpd.pp_level;
 
    /* Get the type of preprocessor and handle it */
    chunk_t* next = get_next_ncnl(pc);
@@ -178,8 +179,8 @@ static uint32_t preproc_start(parse_frame_t *frm, chunk_t* pc)
 }
 
 
-static void print_stack(log_sev_t logsev, const char *str,
-                        parse_frame_t *frm, chunk_t* pc)
+static void print_stack(log_sev_t logsev, const char* str,
+                        parse_frame_t* frm, chunk_t* pc)
 {
    UNUSED(pc);
    LOG_FUNC_ENTRY();
@@ -310,7 +311,7 @@ static void push_fmr_pse(parse_frame_t* frm, chunk_t* pc,
    else
    {
       LOG_FMT(LWARN, "%s:%d Error: Frame stack overflow,  Unable to "
-            "properly process this file.\n",  cpd.filename, cpd.line_number);
+              "properly process this file.\n", cpd.filename, cpd.line_number);
       cpd.error_count++;
    }
 }
@@ -390,7 +391,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       const char* type = is_flag(pc, PCF_STMT_START) ? "statement" : "expression";
       set_flags(pc, PCF_EXPR_START | ((frm->stmt_count == 0) ? PCF_STMT_START : 0));
       LOG_FMT(LSTMT, "%u] 1.marked %s as %s start st:%d ex:%d\n",
-            pc->orig_line, pc->text(), type, frm->stmt_count, frm->expr_count);
+              pc->orig_line, pc->text(), type, frm->stmt_count, frm->expr_count);
    }
    frm->stmt_count++;
    frm->expr_count++;
@@ -575,7 +576,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
                /* no need to set parent */
             }
          }
-         else  /* must be CT_BRACE_OPEN */
+         else /* must be CT_BRACE_OPEN */
          {
             /* Set the parent for open braces */
             if (frm->pse[frm->pse_tos].stage != brace_stage_e::NONE)
@@ -635,7 +636,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
    {
       brace_stage_e bs = brace_stage_e::PAREN1;
 
-      if (is_type(pc, CT_WHILE) && maybe_while_of_do(pc) )
+      if (is_type(pc, CT_WHILE) && maybe_while_of_do(pc))
       {
          set_type(pc, CT_WHILE_OF_DO);
          bs = brace_stage_e::WOD_PAREN;
@@ -677,7 +678,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
                        CT_FPAREN_OPEN, CT_CARET,  CT_GOTO, CT_THROW,
                        CT_SPAREN_OPEN, CT_COMMA,  CT_NOT,  CT_COLON,
                        CT_BRACE_OPEN,  CT_INV,    CT_RETURN) ||
-        is_semicolon(pc)                                     ||
+       is_semicolon(pc)                                     ||
        (is_type(pc, CT_STAR) && not_type(tmp, CT_STAR)))
    {
       frm->expr_count = 0;
@@ -913,7 +914,7 @@ static bool handle_complex_close(parse_frame_t* frm, chunk_t* pc)
       else
       {
          LOG_FMT(LNOTE, "%s: close_statement on %s brace_stage_e::BRACE2\n",
-               __func__, get_token_name(frm->pse[frm->pse_tos].type));
+                 __func__, get_token_name(frm->pse[frm->pse_tos].type));
          frm->pse_tos--;
          print_stack(LBCSPOP, "-HCC B2 ", frm, pc);
          retval_if(close_statement(frm, pc), true);
@@ -926,14 +927,14 @@ static bool handle_complex_close(parse_frame_t* frm, chunk_t* pc)
    else if (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_PAREN)
    {
       LOG_FMT(LNOTE, "%s: close_statement on %s brace_stage_e::WOD_PAREN\n",
-            __func__, get_token_name(frm->pse[frm->pse_tos].type));
+              __func__, get_token_name(frm->pse[frm->pse_tos].type));
       frm->pse[frm->pse_tos].stage = brace_stage_e::WOD_SEMI;
       print_stack(LBCSPOP, "-HCC WoDP ", frm, pc);
    }
    else if (frm->pse[frm->pse_tos].stage == brace_stage_e::WOD_SEMI)
    {
       LOG_FMT(LNOTE, "%s: close_statement on %s brace_stage_e::WOD_SEMI\n",
-            __func__, get_token_name(frm->pse[frm->pse_tos].type));
+              __func__, get_token_name(frm->pse[frm->pse_tos].type));
       frm->pse_tos--;
       print_stack(LBCSPOP, "-HCC WoDS ", frm, pc);
 
@@ -987,7 +988,7 @@ static chunk_t* insert_vbrace(chunk_t* pc, bool after, parse_frame_t* frm)
       }
 
       /* Don't back into a preprocessor */
-      if (!is_preproc(pc) && is_preproc(ref) )
+      if (!is_preproc(pc) && is_preproc(ref))
       {
          const bool is_pp_body = is_type(ref, CT_PREPROC_BODY);
          ref = (is_pp_body) ? get_prev_non_pp(ref): chunk_get_next (ref);
@@ -1011,7 +1012,7 @@ static bool close_statement(parse_frame_t* frm, chunk_t* pc)
 
    LOG_FMT(LTOK, "%s:%u] %s '%s' type %s stage %u\n", __func__,
            pc->orig_line, get_token_name(pc->type), pc->text(),
-           get_token_name(frm->pse[frm->pse_tos].type ),
+           get_token_name(frm->pse[frm->pse_tos].type),
            (uint32_t)(frm->pse[frm->pse_tos].stage));
 
    if (cpd.consumed)

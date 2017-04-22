@@ -24,12 +24,13 @@ struct log_fcn_info
    log_fcn_info(const char* name_, int32_t line_)
       : name(name_)
       , line(line_)
-   {
-   }
+   {}
 
    const char* name;
    int32_t     line;
 };
+
+
 static std::deque<log_fcn_info> g_fq;
 
 
@@ -46,6 +47,7 @@ struct log_buf_t
       memset(buf, 0, LOG_BUF_SIZE);
    }
 
+
    FILE*      log_file;          /** file where the log messages are stored into */
    log_sev_t  sev;               /** log level determines which messages are logged */
    bool       in_log;            /** flag indicates if a log operation is going on */
@@ -55,6 +57,7 @@ struct log_buf_t
    bool       show_hdr;          /** flag determine if a header gets added to log message */
 };
 
+
 static struct log_buf_t g_log;
 
 
@@ -62,7 +65,7 @@ static struct log_buf_t g_log;
  * Flushes the cached log text to the stream
  */
 static void log_flush(
-   bool force_nl  /**< [in] Append NL if not present */
+   bool force_nl /**< [in] Append NL if not present */
 );
 
 
@@ -113,13 +116,13 @@ void log_set_sev(log_sev_t sev, bool val)
 }
 
 
-void log_set_mask(const log_mask_t &mask)
+void log_set_mask(const log_mask_t& mask)
 {
    g_log.mask = mask;
 }
 
 
-void log_get_mask(log_mask_t &mask)
+void log_get_mask(log_mask_t& mask)
 {
    mask = g_log.mask;
 }
@@ -175,7 +178,7 @@ static void log_end(void)
 }
 
 
-void log_str(log_sev_t sev, const char *str, uint32_t len)
+void log_str(log_sev_t sev, const char* str, uint32_t len)
 {
    return_if(ptr_is_invalid(str) || (len == 0) || !log_sev_on(sev));
 
@@ -225,8 +228,8 @@ void log_hex(log_sev_t sev, const void* vdata, uint32_t len)
 {
    return_if(ptr_is_invalid(vdata) || !log_sev_on(sev));
 
-   char        buf[80];
-   const uint8_t* dat = static_cast<const uint8_t *>(vdata);
+   char           buf[80];
+   const uint8_t* dat = static_cast<const uint8_t*>(vdata);
    uint32_t       idx = 0;
    while (len-- > 0)
    {
@@ -254,8 +257,8 @@ void log_hex_blk(log_sev_t sev, const void* data, uint32_t len)
 {
    return_if(ptr_is_invalid(data) || !log_sev_on(sev));
 
-   static char buf[80] = "nnn | XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX | cccccccccccccccc\n";
-   const uint8_t* dat     = static_cast<const uint8_t *>(data);
+   static char    buf[80] = "nnn | XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX | cccccccccccccccc\n";
+   const uint8_t* dat     = static_cast<const uint8_t*>(data);
    int32_t        str_idx = 0;
    int32_t        chr_idx = 0;
 
@@ -300,9 +303,9 @@ void log_hex_blk(log_sev_t sev, const void* data, uint32_t len)
       /* Clear out any junk */
       while (count < 16)
       {
-         buf[str_idx    ] = ' ';   /* MSB hex */
-         buf[str_idx + 1] = ' ';   /* LSB hex */
-         str_idx         += 3;
+         buf[str_idx  ] = ' '; /* MSB hex */
+         buf[str_idx+1] = ' '; /* LSB hex */
+         str_idx       += 3;
          buf[chr_idx++] = ' ';
          count++;
       }
@@ -343,7 +346,7 @@ void log_func_stack(log_sev_t sev, const char* prefix, const char* suffix, uint3
    }
 #ifdef DEBUG
    uint32_t g_fq_size = g_fq.size();
-   if (g_fq_size > (skip_cnt + 1) )
+   if (g_fq_size > (skip_cnt + 1))
    {
       uint32_t    begin_with;
       const char* sep = "";

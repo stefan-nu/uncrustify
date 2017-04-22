@@ -28,7 +28,7 @@
  * template thingy.  Otherwise, it's likely a comparison.
  */
 static void check_template(
-   chunk_t* start  /**< [in] chunk to start check at */
+   chunk_t* start /**< [in] chunk to start check at */
 );
 
 
@@ -111,8 +111,8 @@ void tokenize_cleanup(void)
             chunk_del(next);
          }
       }
-      if ( is_type(pc, CT_SEMICOLON) &&
-           is_preproc(pc) &&
+      if (is_type(pc, CT_SEMICOLON) &&
+          is_preproc(pc) &&
           !get_next_ncnl(pc, scope_e::PREPROC))
       {
          LOG_FMT(LNOTE, "%s:%u Detected a macro that ends with a semicolon. Possible failures if used.\n",

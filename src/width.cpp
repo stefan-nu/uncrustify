@@ -137,7 +137,6 @@ static void split_for_statement(
 );
 
 
-
 /** \brief search for semicolons in a for statement */
 void find_semicolons(
    chunk_t*       start,   /**< [in]  chunk to start search */
@@ -245,7 +244,7 @@ static void try_split_here(cw_entry& ent, chunk_t* pc)
 
    /* Can't split after a newline */
    chunk_t* prev = chunk_get_prev(pc);
-   return_if(is_invalid(prev) || (is_nl(prev) && not_type(pc, CT_STRING)) );
+   return_if(is_invalid(prev) || (is_nl(prev) && not_type(pc, CT_STRING)));
 
    /* Can't split a function without arguments */
    if (is_type(pc, CT_FPAREN_OPEN))
@@ -263,14 +262,14 @@ static void try_split_here(cw_entry& ent, chunk_t* pc)
 
    /* keep common groupings unless ls_code_width */
    return_if((is_false(UO_ls_code_width)) &&
-             (pc_pri >= 20) );
+             (pc_pri >= 20));
 
    /* don't break after last term of a qualified type */
    if (pc_pri == 25)
    {
       chunk_t* next = chunk_get_next(pc);
       return_if(not_type(next, CT_WORD) &&
-                (get_split_pri(next->type) != 25) );
+                (get_split_pri(next->type) != 25));
    }
 
    /* Check levels first */
@@ -296,7 +295,7 @@ static void try_split_here(cw_entry& ent, chunk_t* pc)
 }
 
 
-static bool split_line(chunk_t *start)
+static bool split_line(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
    LOG_FMT(LSPLIT, "%s: line %u, col %u token: '%s' [%s] (IN_FUNC=%d) ",
@@ -316,7 +315,7 @@ static bool split_line(chunk_t *start)
       return(false);
    }
 
-   if (is_true(UO_ls_code_width)) {  }
+   if (is_true(UO_ls_code_width)) {}
 
    /* Check to see if we are in a for statement */
    else if (is_flag(start, PCF_IN_FOR))
@@ -464,7 +463,7 @@ static void split_for_statement(chunk_t* start)
    uint32_t nl_cnt     = 0;
 
    /* Find the open paren so we know the level and count newlines */
-   chunk_t *pc = start;
+   chunk_t* pc = start;
    while ((pc = chunk_get_prev(pc)) != nullptr)
    {
       if (is_type(pc, CT_SPAREN_OPEN))
@@ -533,7 +532,7 @@ static void split_for_statement(chunk_t* start)
  * scan through the chunk list and count the number
  * of chunks of a given type
  */
-void scan_for_type(chunk_t* pc, int32_t* count, uint32_t  max_cnt, dir_e dir)
+void scan_for_type(chunk_t* pc, int32_t* count, uint32_t max_cnt, dir_e dir)
 {
    const search_t search_function = select_search_fct(dir);
 
@@ -601,7 +600,7 @@ static void split_fcn_params(chunk_t* start)
    chunk_t* pc = get_next_ncnl(fpopen);
    assert(is_valid(pc));
 
-   uint32_t  min_col = pc->column;
+   uint32_t min_col = pc->column;
 
    LOG_FMT(LSPLIT, " mincol=%u, max_width=%u ",
            min_col, get_uval(UO_code_width) - min_col);

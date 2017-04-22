@@ -61,7 +61,7 @@ MD5::MD5()
    m_big_endian    = *(uint8_t*)m_buf == 1;
 
    memset(m_in,   0, M_IN_SIZE);
-   memset(m_bits, 0, sizeof(uint32_t)*M_BITS_SIZE);
+   memset(m_bits, 0, sizeof(uint32_t) * M_BITS_SIZE);
 }
 
 
@@ -91,11 +91,11 @@ void MD5::Update(const void* data, uint32_t len)
 
    if ((m_bits[0] = t + ((uint32_t)len << 3)) < t)
    {
-      m_bits[1]++;   /* Carry from low to high */
+      m_bits[1]++; /* Carry from low to high */
    }
    m_bits[1] += len >> 29;
 
-   t = (t >> 3) & 0x3f;   /* Bytes already in shsInfo->data */
+   t = (t >> 3) & 0x3f; /* Bytes already in shsInfo->data */
 
    const uint8_t* buf = (const uint8_t*)data;
    /* Handle any leading odd-sized chunks */
@@ -133,7 +133,7 @@ void MD5::Update(const void* data, uint32_t len)
    }
 
    /* Save off any remaining bytes of data */
-   memcpy(m_in, buf, len);  /*lint !e670 */
+   memcpy(m_in, buf, len); /*lint !e670 */
 }
 
 

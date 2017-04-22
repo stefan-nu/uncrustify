@@ -8,20 +8,20 @@
  * Any reproduction of the software or components thereof without the prior
  * written permission of nuinno is prohibited.
  ***************************************************************************//**
- * \file 		char_table.cpp
- * \brief		short description of file
- * \details 	long description of file
+ * \file       char_table.cpp
+ * \brief      short description of file
+ * \details    long description of file
  * \note		   Project: uncrustify
  * \note		   Platform: Raspberry Pi 2 or 3 based on ARM Cortex-A
  * \note		   Compiler: GCC
  * \date		   14.02.2017
- * \author		Stefan Nunninger
- * \author		nuinno, Erlangen
+ * \author     Stefan Nunninger
+ * \author     nuinno, Erlangen
  ******************************************************************************/
 
 /** @addtogroup common
- @{
-*/
+ *  @{
+ */
 
 
 /*******************************************************************************

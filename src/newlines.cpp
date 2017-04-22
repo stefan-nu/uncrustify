@@ -37,8 +37,8 @@
 
 /** tbd */
 static void mark_change(
-   const char* func,  /**< [in]  */
-   uint32_t    line   /**< [in]  */
+   const char* func, /**< [in]  */
+   uint32_t    line  /**< [in]  */
 );
 
 
@@ -50,7 +50,7 @@ static void mark_change(
  *  - if eat_blanks_after_open_brace and the prev is '{'
  */
 static bool can_increase_nl(
-   chunk_t* nl  /**< [in]  */
+   chunk_t* nl /**< [in]  */
 );
 
 
@@ -58,7 +58,7 @@ static bool can_increase_nl(
  * Double the newline, if allowed.
  */
 static void double_newline(
-   chunk_t* nl  /**< [in]  */
+   chunk_t* nl /**< [in]  */
 );
 
 
@@ -386,8 +386,8 @@ static void set_blank_line(
  * one-liner flag is found
  */
 void clear_one_liner_flag(
-   chunk_t* pc,  /**< [in] chunk to start with  */
-   dir_e    dir  /**< [in] direction to move */
+   chunk_t* pc, /**< [in] chunk to start with  */
+   dir_e    dir /**< [in] direction to move */
 );
 
 
@@ -408,7 +408,7 @@ static void nl_eat_end(void);
 #define MARK_CHANGE()    mark_change(__func__, __LINE__)
 
 
-static void mark_change(const char *func, uint32_t line)
+static void mark_change(const char* func, uint32_t line)
 {
    LOG_FUNC_ENTRY();
    cpd.changes++;
@@ -432,7 +432,7 @@ static bool can_increase_nl(chunk_t* nl)
    if (is_true(UO_nl_squeeze_ifdef))
    {
       if (is_type_and_ptype(prev, CT_PREPROC, CT_PP_ENDIF) &&
-          (prev->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
+          ((prev->level > 0) || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %u (prev) pp_lvl=%u rv=0\n",
                  __func__, nl->orig_line, nl->pp_level);
@@ -440,7 +440,7 @@ static bool can_increase_nl(chunk_t* nl)
       }
 
       if (is_type_and_ptype(next, CT_PREPROC, CT_PP_ENDIF) &&
-          (next->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
+          ((next->level > 0) || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          bool rv = ifdef_over_whole_file() && is_flag(next, PCF_WF_ENDIF);
          LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %u (next) pp_lvl=%u rv=%d\n",
@@ -535,6 +535,7 @@ static void setup_newline_add(chunk_t* prev, chunk_t* nl, chunk_t* next)
    }
 }
 
+
 #if 0
 chunk_t* newline_add(chunk_t* pc, const dir_e pos)
 {
@@ -559,6 +560,7 @@ chunk_t* newline_add(chunk_t* pc, const dir_e pos)
    return(chunk_add(&nl, pc, pos));
 }
 #endif
+
 
 /* \todo DRY with newline_add_after */
 chunk_t* newline_add_before(chunk_t* pc)
@@ -773,8 +775,8 @@ void newline_del_between(chunk_t* start, chunk_t* end)
    /* Can't remove anything if the preproc status differs */
    return_if(!are_same_pp(start, end));
 
-   chunk_t* pc           = start;
-   bool    start_removed = false;
+   chunk_t* pc            = start;
+   bool     start_removed = false;
    do
    {
       chunk_t* next = chunk_get_next(pc);
@@ -824,8 +826,8 @@ static bool nl_if_for_while_switch(chunk_t* start, argval_t nl_opt)
    retval_if((nl_opt == AV_IGNORE) ||
              (is_preproc(start) && is_false(UO_nl_define_macro)), false);
 
-   bool    retval = false;
-   chunk_t* pc    = get_next_ncnl(start);
+   bool     retval = false;
+   chunk_t* pc     = get_next_ncnl(start);
    if (is_type(pc, CT_SPAREN_OPEN))
    {
       chunk_t* close_paren = get_next_type(pc, CT_SPAREN_CLOSE, (int32_t)pc->level);
@@ -863,7 +865,7 @@ static bool nl_if_for_while_switch(chunk_t* start, argval_t nl_opt)
          }
          else
          {
-            nl_iarf_pair  (close_paren, brace_open, nl_opt);
+            nl_iarf_pair(close_paren, brace_open, nl_opt);
             newline_add_between(brace_open, get_next_ncnl(brace_open));
 
             /* Make sure nothing is cuddled with the closing brace */
@@ -966,12 +968,12 @@ static void nl_if_for_while_switch_pre_blank_lines(chunk_t* start, argval_t nl_o
 
 
 #define blank_line_set(pc, op) _blank_line_set(pc, #op, op)
-static void _blank_line_set(chunk_t* pc, const char *text, uo_t uo)
+static void _blank_line_set(chunk_t* pc, const char* text, uo_t uo)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
 
-   const option_map_value_t *option = get_option_name(uo);
+   const option_map_value_t* option = get_option_name(uo);
    assert(ptr_is_valid(option));
    if (option->type != AT_UNUM)
    {

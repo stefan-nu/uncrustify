@@ -39,6 +39,7 @@
 #include "tokenize.h"
 #include "tokenize_cleanup.h"
 #include "token_names.h"
+#include "unc_ctype.h"
 #include "uncrustify.h"
 #include "unicode.h"
 #include "universalindentgui.h"
@@ -49,7 +50,7 @@
 #include <cstring>
 #include <cerrno>
 #include <fcntl.h>
-#include "unc_ctype.h"
+#include <stdio.h>
 #include <vector>
 #include <deque>
 
@@ -62,7 +63,7 @@
 #endif
 
 #ifdef HAVE_STRINGS_H
-   #include <strings.h>  /* provides strcasecmp() */
+   #include <strings.h> /* provides strcasecmp() */
 #endif
 
 #ifdef HAVE_UTIME_H
@@ -166,14 +167,14 @@ static lang_t language_flags_from_filename(
  *
  * @return  A string
  */
-const char *language_name_from_flags(
+const char* language_name_from_flags(
    uint32_t lang /**< [in] The LANG_xxx enum */
 );
 
 
 /** tbd */
 static bool read_stdin(
-   file_mem_t &fm /**< [out] file description to update */
+   file_mem_t& fm /**< [out] file description to update */
 );
 
 
@@ -344,7 +345,7 @@ static void redir_stdout(
  * check if a token reference is valid and holds a valid name
  */
 bool is_valid_token_name(
-   c_token_t token   /**< [in] token to check */
+   c_token_t token /**< [in] token to check */
 );
 
 
@@ -352,7 +353,7 @@ bool is_valid_token_name(
  * check if a string pointer is valid and holds a non empty string
  */
 bool is_nonempty_string(
-  const char* str   /**< [in] string to check */
+  const char* str /**< [in] string to check */
 );
 
 
@@ -433,7 +434,7 @@ const char* path_basename(const char* path)
 {
    retval_if(ptr_is_invalid(path), "");
 
-   const char *last_path = path;
+   const char* last_path = path;
    while (*path != 0) /* check for end of string */ /*lint !e661 */
    {
       /* Check both slash types to support Linux and Windows */
@@ -582,7 +583,6 @@ static void redir_stdout(const char* output_file)
    }
 }
 
-#include <stdio.h>
 
 int main(int argc, char* argv[])
 {

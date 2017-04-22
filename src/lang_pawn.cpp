@@ -78,11 +78,11 @@ chunk_t* pawn_add_vsemi_after(chunk_t* pc)
    chunk_t* next = get_next_nc(pc);
    retval_if(is_semicolon(next), pc);
 
-   chunk_t chunk  = *pc;
-   chunk.type     = CT_VSEMICOLON;
-   chunk.str      = is_true(UO_mod_pawn_semicolon) ? ";" : "";
-   chunk.column  += pc->len();
-   chunk.ptype = CT_NONE;
+   chunk_t chunk = *pc;
+   chunk.type    = CT_VSEMICOLON;
+   chunk.str     = is_true(UO_mod_pawn_semicolon) ? ";" : "";
+   chunk.column += pc->len();
+   chunk.ptype   = CT_NONE;
 
    LOG_FMT(LPVSEMI, "%s: Added VSEMI on line %u, prev='%s' [%s]\n",
            __func__, pc->orig_line, pc->text(), get_token_name(pc->type));
@@ -236,8 +236,8 @@ void pawn_add_virtual_semicolons(void)
    /** Add Pawn virtual semicolons */
    if (is_lang(cpd, LANG_PAWN))
    {
-      chunk_t *prev = nullptr;
-      chunk_t *pc   = chunk_get_head();
+      chunk_t* prev = nullptr;
+      chunk_t* pc   = chunk_get_head();
       while ((pc = chunk_get_next(pc)) != nullptr)
       {
          if (!is_cmt_or_nl(pc) &&
@@ -262,15 +262,15 @@ void pawn_add_virtual_semicolons(void)
 }
 
 
-static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
+static chunk_t* pawn_mark_function0(chunk_t* start, chunk_t* fcn)
 {
    LOG_FUNC_ENTRY();
 
    /* handle prototypes */
    if (start == fcn)
    {
-      chunk_t *last = get_next_type(fcn, CT_PAREN_CLOSE, (int32_t)fcn->level);
-      last          = chunk_get_next(last);
+      chunk_t* last = get_next_type(fcn, CT_PAREN_CLOSE, (int32_t)fcn->level);
+      last = chunk_get_next(last);
 
       if(is_type(last, CT_SEMICOLON))
       {
@@ -297,7 +297,7 @@ static chunk_t *pawn_mark_function0(chunk_t *start, chunk_t *fcn)
 }
 
 
-static chunk_t *pawn_process_func_def(chunk_t *pc)
+static chunk_t* pawn_process_func_def(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
@@ -310,8 +310,8 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
    /* If we don't have a brace open right after the close fparen, then
     * we need to add virtual braces around the function body.
     */
-   chunk_t *clp  = get_next_str(pc, ")", 1, 0);
-   chunk_t *last = get_next_ncnl(clp);
+   chunk_t* clp  = get_next_str(pc, ")", 1, 0);
+   chunk_t* last = get_next_ncnl(clp);
 
    if (is_valid(last))
    {
@@ -365,7 +365,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       chunk.type  = CT_VBRACE_OPEN;
       chunk.ptype = CT_FUNC_DEF;
 
-      chunk_t *prev = chunk_add_before(&chunk, last);
+      chunk_t* prev = chunk_add_before(&chunk, last);
       last = prev;
 
       /* find the next newline at level 0 */
@@ -378,7 +378,7 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
          if (is_type(prev, CT_NEWLINE) &&
              (prev->level == 0       ) )
          {
-            chunk_t *next = get_next_ncnl(prev);
+            chunk_t* next = get_next_ncnl(prev);
             break_if(not_type(next, CT_ELSE, CT_WHILE_OF_DO));
          }
          prev->level++;
@@ -399,19 +399,19 @@ static chunk_t *pawn_process_func_def(chunk_t *pc)
       chunk.type        = CT_VBRACE_CLOSE;
       chunk.level       = 0;
       chunk.brace_level = 0;
-      chunk.ptype = CT_FUNC_DEF;
+      chunk.ptype       = CT_FUNC_DEF;
       last              = chunk_add_after(&chunk, last);
    }
    return(last);
 }
 
 
-chunk_t *pawn_check_vsemicolon(chunk_t *pc)
+chunk_t* pawn_check_vsemicolon(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
 
    /* Grab the open VBrace */
-   const chunk_t *vb_open = get_prev_type(pc, CT_VBRACE_OPEN);
+   const chunk_t* vb_open = get_prev_type(pc, CT_VBRACE_OPEN);
 
    /** Grab the item before the newline
     * Don't do anything if:
@@ -420,7 +420,7 @@ chunk_t *pawn_check_vsemicolon(chunk_t *pc)
     *  - level > (vb_open->level + 1) -- ie, in () or []
     *  - it is something that needs a continuation
     *    + arith, assign, bool, comma, compare */
-   chunk_t *prev = get_prev_ncnl(pc);
+   chunk_t* prev = get_prev_ncnl(pc);
    if ((is_invalid(prev) ) ||
        (prev == vb_open  ) ||
        is_preproc(prev) ||

@@ -35,16 +35,16 @@ void AlignStack::Start(uint32_t span, uint32_t thresh)
 
 void AlignStack::ReAddSkipped(void)
 {
-   if (!m_skipped.Empty())
+   if(!m_skipped.Empty())
    {
       /* Make a copy of the ChunkStack and clear m_skipped */
       m_scratch.Set(m_skipped);
       m_skipped.Reset();
 
       /* Need to add them in order so that m_nl_seqnum is correct */
-      for (uint32_t idx = 0; idx < m_scratch.Len(); idx++)
+      for(uint32_t idx = 0; idx < m_scratch.Len(); idx++)
       {
-         const ChunkStack::Entry *ce = m_scratch.Get(idx);
+         const ChunkStack::Entry* ce = m_scratch.Get(idx);
          return_if(ptr_is_invalid(ce));
 
          LOG_FMT(LAS, "ReAddSkipped [%u] - ", ce->m_seqnum);
@@ -62,19 +62,19 @@ void AlignStack::Add(chunk_t* start, uint32_t seqnum)
    return_if(is_invalid(start));
 
    /* Assign a seqnum if needed */
-   if (seqnum == 0) { seqnum = m_seqnum; }
+   if(seqnum == 0) { seqnum = m_seqnum; }
 
    m_last_added = 0;
 
    /* Check threshold limits */
-   if ( (m_max_col == 0) ||
-        (m_thresh  == 0) ||
-        (( (start->column + m_gap) <= (m_thresh + m_max_col)) && /* don't use subtraction here to prevent underflow */
-         (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
-           (start->column                     >=  m_min_col)) ) )
+   if((m_max_col == 0) ||
+      (m_thresh  == 0) ||
+      (((start->column + m_gap) <= (m_thresh + m_max_col)) && /* don't use subtraction here to prevent underflow */
+       (((start->column + m_gap + m_thresh) >= (m_max_col)) ||
+        (start->column                     >=  m_min_col))) )
    {
       /* we are adding it, so update the newline seqnum */
-      if (seqnum > m_nl_seqnum) { m_nl_seqnum = seqnum; }
+      if(seqnum > m_nl_seqnum) { m_nl_seqnum = seqnum; }
 
       /* SS_IGNORE: no special handling of '*' or '&', only 'foo' is aligned
        *     void     foo;  // gap=5, 'foo' is aligned
@@ -129,36 +129,36 @@ void AlignStack::Add(chunk_t* start, uint32_t seqnum)
        * The '*' and '&' can float between the two.
        *
        * If align_on_tabstop=true, then SS_DANGLE is changed to SS_INCLUDE. */
-      if (is_true(UO_align_on_tabstop) && (m_star_style == SS_DANGLE))
+      if(is_true(UO_align_on_tabstop) && (m_star_style == SS_DANGLE))
       {
          m_star_style = SS_INCLUDE;
       }
 
       /* Find ref. Back up to the real item that is aligned. */
       chunk_t* prev = start;
-      while (((prev = chunk_get_prev(prev)) != nullptr) &&
-             (is_ptr_operator(prev) || is_type(prev, CT_TPAREN_OPEN)))
+      while(((prev = chunk_get_prev(prev)) != nullptr) &&
+            (is_ptr_operator(prev) || is_type(prev, CT_TPAREN_OPEN)))
       {
          /* do nothing - we want prev when this exits */
       }
       chunk_t* ref = prev;
-      if (is_nl(ref))
+      if(is_nl(ref))
       {
          ref = chunk_get_next(ref);
       }
 
       /* Find the item that we are going to align. */
       chunk_t* ali = start;
-      if (m_star_style != SS_IGNORE)
+      if(m_star_style != SS_IGNORE)
       {
          /* back up to the first '*' or '^' preceding the token */
          prev = chunk_get_prev(ali);
-         while (is_star(prev) || is_msref(prev))
+         while(is_star(prev) || is_msref(prev))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
          }
-         if (is_type(prev, CT_TPAREN_OPEN))
+         if(is_type(prev, CT_TPAREN_OPEN))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -167,11 +167,12 @@ void AlignStack::Add(chunk_t* start, uint32_t seqnum)
             // chunk_get_prev(ali, nav_e::ALL) to prev here, but that stored value is overwritten before it can be used.
          }
       }
-      if (m_amp_style != SS_IGNORE)
+
+      if(m_amp_style != SS_IGNORE)
       {
          /* back up to the first '&' preceding the token */
          prev = chunk_get_prev(ali);
-         while (is_addr(prev))
+         while(is_addr(prev))
          {
             ali  = prev;
             prev = chunk_get_prev(ali);
@@ -341,7 +342,7 @@ void AlignStack::Flush(void)
          (m_star_style == SS_DANGLE))
       {
          col_adj = (int32_t)pc->align.start->column - (int32_t)pc->column;
-         gap     =      pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
+         gap     =          pc->align.start->column - (pc->align.ref->column + pc->align.ref->len());
       }
       if (m_right_align)
       {
@@ -434,7 +435,7 @@ void AlignStack::Flush(void)
       }
       m_skipped.Collapse();
 
-      ReAddSkipped();   /* Add all items from the skipped list */
+      ReAddSkipped(); /* Add all items from the skipped list */
    }
 }
 

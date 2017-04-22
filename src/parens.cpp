@@ -79,7 +79,7 @@ static void add_parens_between(chunk_t* first, chunk_t* last)
 
    LOG_FMT(LPARADD, "%s: line %u between %s [lvl=%u] and %s [lvl=%u]\n",
            __func__, first->orig_line,
-           first->text(), first->level, last->text(),  last->level);
+           first->text(), first->level, last->text(), last->level);
 
    /* Don't do anything if we have a bad sequence, ie "&& )" */
    chunk_t* first_n = get_next_ncnl(first);
@@ -96,7 +96,7 @@ static void add_parens_between(chunk_t* first, chunk_t* last)
 
    chunk_add_before(&pc, first_n);
 
-   chunk_t *last_p = get_prev_ncnl(last, scope_e::PREPROC);
+   chunk_t* last_p = get_prev_ncnl(last, scope_e::PREPROC);
    assert(is_valid(last_p));
    pc.type        = CT_PAREN_CLOSE;
    pc.str         = ")";
@@ -107,7 +107,7 @@ static void add_parens_between(chunk_t* first, chunk_t* last)
 
    chunk_add_after(&pc, last_p);
 
-   for (chunk_t *tmp = first_n;
+   for (chunk_t* tmp = first_n;
         tmp != last_p;
         tmp = get_next_ncnl(tmp))
    {
