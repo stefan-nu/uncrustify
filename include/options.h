@@ -371,7 +371,8 @@ enum uo_t
    UO_indent_func_class_param,              /**< same, but for classes */
    UO_indent_func_ctor_var_param,           /**<  */
    UO_indent_template_param,                /**<  */
-   UO_indent_func_param_double,             /**< double the tab indent for */
+   UO_indent_func_param_double,             /**< double the tab indent for
+                                             *   Use both values of the options indent_columns and indent_param */
    UO_indent_func_const,                    /**< indentation for standalone 'const' qualifier */
    UO_indent_func_throw,                    /**< indentation for standalone 'throw' qualifier */
    UO_indent_member,                        /**< indent lines broken at a member '.' or '->' */
@@ -385,10 +386,10 @@ enum uo_t
    UO_indent_access_spec,                   /**< same as indent_label, but for 'private:', 'public:' */
    UO_indent_access_spec_body,              /**< indent private/public/protected inside a class
                                              *   (overrides indent_access_spec) */
-   UO_indent_paren_nl,                      /**< indent-align under paren for open followed by newline */
-   UO_indent_paren_close,                   /**< indent of close paren after a newline */
-   UO_indent_comma_paren,                   /**< indent of comma if inside a paren */
-   UO_indent_bool_paren,                    /**< indent of bool if inside a paren */
+   UO_indent_paren_nl,                      /**< indent-align under parenthesis for open followed by newline */
+   UO_indent_paren_close,                   /**< indent of close parenthesis after a newline */
+   UO_indent_comma_paren,                   /**< indent of comma if inside a parenthesis */
+   UO_indent_bool_paren,                    /**< indent of bool if inside a parenthesis */
    UO_indent_first_bool_expr,               /**< if UO_indent_bool_paren == true, aligns the first
                                              *   expression to the following ones */
    UO_indent_square_nl,                     /**< indent-align under square for open followed by newline */
@@ -522,8 +523,8 @@ enum uo_t
                                        *   are on different lines */
    UO_nl_func_def_end_multi_line,     /**< newline before the ')' in a function def if '(' and ')'
                                        *   are on different lines */
-   UO_nl_func_decl_empty,             /**< as above, but for empty parens '()' */
-   UO_nl_func_def_empty,              /**< as above, but for empty parens '()' */
+   UO_nl_func_decl_empty,             /**< as above, but for empty parenthesis '()' */
+   UO_nl_func_def_empty,              /**< as above, but for empty parenthesis '()' */
    UO_nl_func_call_start_multi_line,  /**< newline after the '(' in a function call if '(' and ')'
                                        *   are on different lines */
    UO_nl_func_call_args_multi_line,   /**< newline after each ',' in a function call if '(' and ')'
@@ -643,7 +644,7 @@ enum uo_t
 /* UO_nl_after_ifdef,                       after #if or #ifdef - but not if covers whole file */
 /* UO_nl_after_func_class_def,              newline after 'func_class_def' */
 /* UO_ls_before_bool_op,               TODO: break line before or after boolean op */
-/* UO_ls_before_paren,                 TODO: break before open paren */
+/* UO_ls_before_paren,                 TODO: break before open parenthesis */
 /* UO_ls_after_arith,                  TODO: break after arith op '+', etc */
 /* UO_ls_honor_newlines,               TODO: don't remove newlines on split lines */
 

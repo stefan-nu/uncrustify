@@ -26,7 +26,7 @@
 #include "unc_ctype.h"
 
 
-static const char * const DOC_TEXT_END =
+static const char* const DOC_TEXT_END =
    "\n"
    "# Meaning of the settings:\n"
    "#   Ignore - do not do any changes\n"
@@ -962,7 +962,8 @@ void register_options(void)
    unc_add_opt("indent_template_param", UO_indent_template_param, AT_BOOL,
                   "Same as indent_func_call_param, but for templates");
    unc_add_opt("indent_func_param_double", UO_indent_func_param_double, AT_BOOL,
-                  "Double the indent for indent_func_xxx_param options");
+                  "Double the indent for indent_func_xxx_param options.\n"
+                  "Use both values of the options indent_columns and indent_param");
    unc_add_opt("indent_func_const", UO_indent_func_const, AT_UNUM,
                   "Indentation column for standalone 'const' function declaration/prototype qualifier");
    unc_add_opt("indent_func_throw", UO_indent_func_throw, AT_UNUM,
