@@ -14,17 +14,17 @@
 #include <cstdio>
 
 
-bool unc_getenv(const char *name, std::string &str)
+bool unc_getenv(const char* name, std::string& str)
 {
    DWORD len = GetEnvironmentVariableA(name, nullptr, 0);
-   char  *buf;
+   char* buf;
 
    if (len == 0)
    {
       retval_if(GetLastError() == ERROR_ENVVAR_NOT_FOUND, false);
    }
 
-   buf = (char *)malloc(len);
+   buf = (char*)malloc(len);
    if(ptr_is_invalid(buf))
    {
       LOG_FMT(LERR, "cannot allocate memory\n");
@@ -44,7 +44,7 @@ bool unc_getenv(const char *name, std::string &str)
 }
 
 
-bool unc_homedir(std::string &home)
+bool unc_homedir(std::string& home)
 {
    if (unc_getenv("HOME",        home)) { return(true); }
    if (unc_getenv("USERPROFILE", home)) { return(true); }
@@ -57,5 +57,6 @@ bool unc_homedir(std::string &home)
    }
    return(false);
 }
+
 
 #endif /* if defined(_WIN32) && !defined(__CYGWIN__) */

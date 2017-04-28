@@ -14,7 +14,10 @@
 #include <cstdlib>
 
 
-static void pf_log_frms(log_sev_t logsev, const char* txt, parse_frame_t* pf);
+static void pf_log_frms(
+   log_sev_t      logsev,
+   const char*    txt,
+   parse_frame_t* pf);
 
 
 /**
@@ -37,13 +40,13 @@ static void pf_copy_2nd_tos(
 
 
 void _pf_log1(
-   const char* func,
-   const int32_t line,
+   const char*            func,
+   const int32_t          line,
    const cp_data_t* const cpd
 );
 
 #define pf_log1(cpd) \
-   do{ _pf_log1(__func__, __LINE__, cpd); } while(0)
+   do { _pf_log1(__func__, __LINE__, cpd); } while(0)
 
 
 void _pf_log1(const char* func, const int32_t line, const cp_data_t* const cpd)
@@ -59,7 +62,7 @@ void pf_log(log_sev_t logsev, parse_frame_t* pf)
 {
    return_if(ptr_is_invalid(pf));
    LOG_FMT(logsev, "[%s] BrLevel=%u Level=%u PseTos=%u\n",
-         get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
+           get_token_name(pf->in_ifdef), pf->brace_level, pf->level, pf->pse_tos);
 
    LOG_FMT(logsev, " *");
    for (uint32_t idx = 1; idx <= pf->pse_tos; idx++)
@@ -122,8 +125,8 @@ void pf_push_under(parse_frame_t* pf)
    if ((cpd.frame_count < static_cast<int32_t> ARRAY_SIZE(cpd.frames)) &&
        (cpd.frame_count >= 1))
    {
-      parse_frame_t* npf1 = &cpd.frames[cpd.frame_count-1];
-      parse_frame_t* npf2 = &cpd.frames[cpd.frame_count  ];
+      parse_frame_t* npf1 = &cpd.frames[cpd.frame_count - 1];
+      parse_frame_t* npf2 = &cpd.frames[cpd.frame_count    ];
       pf_copy(npf2, npf1);
       pf_copy(npf1, pf);
       cpd.frame_count++;
@@ -131,12 +134,13 @@ void pf_push_under(parse_frame_t* pf)
    pf_log1(&cpd);
 }
 
+
 // \todo DRY with pf_copy_2nd_tos
 void pf_copy_tos(parse_frame_t* pf)
 {
    if (cpd.frame_count > 0)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count-1]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count - 1]);
    }
    pf_log1(&cpd);
 }
@@ -147,7 +151,7 @@ static void pf_copy_2nd_tos(parse_frame_t* pf)
 {
    if (cpd.frame_count > 1)
    {
-      pf_copy(pf, &cpd.frames[cpd.frame_count-2]);
+      pf_copy(pf, &cpd.frames[cpd.frame_count - 2]);
    }
    pf_log1(&cpd);
 }
@@ -240,10 +244,10 @@ uint32_t pf_check(parse_frame_t* frm, chunk_t* pc)
          {
             /* We have: [...] [base] [if]-[else]
              * We want: [...]-[if] */
-            pf_copy_tos(frm);     /* [...] [base] [if]-[if] */
+            pf_copy_tos(frm); /* [...] [base] [if]-[if] */
             frm->in_ifdef = cpd.frames[cpd.frame_count - 2].in_ifdef;
-            pf_trash_tos();       /* [...] [base]-[if] */
-            pf_trash_tos();       /* [...]-[if] */
+            pf_trash_tos();   /* [...] [base]-[if] */
+            pf_trash_tos();   /* [...]-[if] */
 
             txt = "endif-trash/pop";
          }

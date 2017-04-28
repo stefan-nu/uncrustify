@@ -54,7 +54,7 @@ int32_t load_define_file(const char* filename, const uint32_t max_line_size)
 }
 
 
-void print_defines(FILE *pfile)
+void print_defines(FILE* pfile)
 {
    defmap::iterator it;
    for (it = defines.begin(); it != defines.end(); ++it)

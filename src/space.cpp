@@ -68,10 +68,10 @@ static void log_space(
  * of expected space characters in min_sp
  */
 static argval_t do_space(
-   chunk_t* pc1,     /**< [in]  The first chunk */
-   chunk_t* pc2,     /**< [in]  The second chunk */
-   uint32_t &min_sp, /**< [out] minimal required space size, typically 1 */
-   bool     complete /**< [in]  if true the log message gets terminated with a newline */
+   chunk_t*  pc1,     /**< [in]  The first chunk */
+   chunk_t*  pc2,     /**< [in]  The second chunk */
+   uint32_t& min_sp,  /**< [out] minimal required space size, typically 1 */
+   bool      complete /**< [in]  if true the log message gets terminated with a newline */
 );
 
 
@@ -79,8 +79,8 @@ static argval_t do_space(
  * shall occur */
 struct no_space_table_t
 {
-   c_token_t first;   /**< [in] first  chunk */
-   c_token_t second;  /**< [in] second chunk */
+   c_token_t first;  /**< [in] first  chunk */
+   c_token_t second; /**< [in] second chunk */
 };
 
 
@@ -129,13 +129,13 @@ const no_space_table_t no_space_table[] =
    { CT_TYPENAME,       CT_TYPE          },
 };
 
-#define log_opt_return(uo)                    \
-   do {log_space(__LINE__, uo, pc, complete); \
-       return(get_arg(uo));                   \
+#define log_opt_return(uo)                     \
+   do { log_space(__LINE__, uo, pc, complete); \
+        return(get_arg(uo));                   \
    } while(0)
 
-#define log_rule(rule)                            \
-   do {log_space(__LINE__, (rule), pc, complete); \
+#define log_rule(rule)                             \
+   do { log_space(__LINE__, (rule), pc, complete); \
    } while (0)
 
 
@@ -506,7 +506,7 @@ static bool sp_cond_0181(chunks_t* c)
    {
       int32_t spaces = get_ival(UO_indent_ctor_init_leading) - 1;
       spaces = max(1, spaces); /* ensure number of spaces is at least 1 */
-      c->sp = (uint32_t)spaces;
+      c->sp  = (uint32_t)spaces;
       return true;
    }
    else
@@ -520,7 +520,7 @@ static bool sp_cond_0034(chunks_t* c)
    {
       int32_t spaces = get_ival(UO_sp_num_before_tr_emb_cmt);
       spaces = max(0, spaces); /* ensure number of spaces is at least 1 */
-      c->sp = (uint32_t)spaces;
+      c->sp  = (uint32_t)spaces;
       return true;
    }
    else
@@ -1175,7 +1175,7 @@ void space_text(void)
              !pc->str.startswith("@\""))
          {
             /* Find the next non-empty chunk on this line */
-            chunk_t *tmp = next;
+            chunk_t* tmp = next;
             while (is_valid(tmp) &&
                   (tmp->len() == 0) && /* \todo better use chunk_search here */
                   !is_nl(tmp))

@@ -14,8 +14,7 @@ struct include_category
 {
    include_category(const char* pattern)
       : regex(pattern)
-   {
-   }
+   {}
    std::regex regex;
 };
 
@@ -85,7 +84,7 @@ static void prepare_categories(void)
 
 static void cleanup_categories(void)
 {
-   for (auto &include_category : include_categories)
+   for (auto& include_category : include_categories)
    {
       continue_if(ptr_is_invalid(include_category));
       delete include_category;
@@ -94,7 +93,7 @@ static void cleanup_categories(void)
 }
 
 
-static int32_t get_chunk_priority(chunk_t *pc)
+static int32_t get_chunk_priority(chunk_t* pc)
 {
    for (uint32_t i = 0; i < kIncludeCategoriesCount; i++)
    {
@@ -126,7 +125,7 @@ static int32_t compare_chunks(chunk_t* pc1, chunk_t* pc2)
       LOG_FMT(LSORT, "text=%s, pc1->len=%u, line=%u, column=%u\n", pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
       LOG_FMT(LSORT, "text=%s, pc2->len=%u, line=%u, column=%u\n", pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
       const uint32_t min_len = min(pc1->len(), pc2->len());
-      const int32_t    ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
+      const int32_t  ret_val = unc_text::compare(pc1->str, pc2->str, min_len);
       LOG_FMT(LSORT, "ret_val=%d\n", ret_val);
 
       if (ret_val    != 0         ) { return(ret_val); }
@@ -206,7 +205,7 @@ static void do_the_sort(chunk_t** chunks, const uint32_t num_chunks)
 }
 
 
-#define MAX_NUMBER_TO_SORT 256  /* \todo better use a list with dynamic size */
+#define MAX_NUMBER_TO_SORT 256 /* \todo better use a list with dynamic size */
 void sort_imports(void)
 {
    LOG_FUNC_ENTRY();

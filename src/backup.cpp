@@ -39,13 +39,13 @@
 
 
 void md5_to_string(
-   char         *md5_str,
+   char*          md5_str,
    const uint32_t str_len,
    uint8_t        dig[16]
 );
 
 
-void md5_to_string(char *md5_str, const uint32_t str_len, uint8_t dig[16])
+void md5_to_string(char* md5_str, const uint32_t str_len, uint8_t dig[16])
 {
    int32_t pos = 0;
    for(uint32_t i = 0; i < MD5_CHAR_COUNT; i++)
@@ -58,22 +58,22 @@ void md5_to_string(char *md5_str, const uint32_t str_len, uint8_t dig[16])
 }
 
 
-int32_t backup_copy_file(const char *filename, const vector<uint8_t> &data)
+int32_t backup_copy_file(const char* filename, const vector<uint8_t>& data)
 {
-   char  md5_str_in[MD5_STR_SIZE];
+   char md5_str_in[MD5_STR_SIZE];
    md5_str_in[0] = 0;
 
    uint8_t md5_bin[MD5_CHAR_COUNT];
    MD5::Calc(&data[0], data.size(), md5_bin);
 
-   char  md5_str[MD5_STR_SIZE];
+   char md5_str[MD5_STR_SIZE];
    md5_to_string(md5_str, sizeof(md5_str), md5_bin);
 
    /* Create the backup-md5 filename, open it and read the md5 */
-   char  newpath[1024];
+   char newpath[1024];
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
-   FILE *thefile = fopen(newpath, "rb");
+   FILE* thefile = fopen(newpath, "rb");
    if (ptr_is_valid(thefile))
    {
       char buffer[128];
@@ -96,7 +96,7 @@ int32_t backup_copy_file(const char *filename, const vector<uint8_t> &data)
    }
 
    /* if the MD5s match, then there is no need to back up the file */
-   if (memcmp(md5_str, md5_str_in, (MD5_STR_SIZE-1) ) == 0)
+   if (memcmp(md5_str, md5_str_in, (MD5_STR_SIZE-1)) == 0)
    {
       LOG_FMT(LNOTE, "%s: MD5 match for %s\n", __func__, filename);
       return(EX_OK);
@@ -111,7 +111,7 @@ int32_t backup_copy_file(const char *filename, const vector<uint8_t> &data)
    if (ptr_is_valid(thefile))
    {
       const uint32_t retval   = fwrite(&data[0], data.size(), 1, thefile);
-      const int32_t    my_errno = errno;
+      const int32_t  my_errno = errno;
 
       fclose(thefile);
       retval_if((retval == 1), EX_OK);
@@ -129,10 +129,10 @@ int32_t backup_copy_file(const char *filename, const vector<uint8_t> &data)
 
 
 #define FILE_CHUNK 4096
-void backup_create_md5_file(const char *filename)
+void backup_create_md5_file(const char* filename)
 {
    /* Try to open file */
-   FILE *thefile = fopen(filename, "rb");
+   FILE* thefile = fopen(filename, "rb");
    if (ptr_is_invalid(thefile))
    {
       LOG_FMT(LERR, "%s: fopen(%s) failed: %s (%d)\n",
@@ -154,13 +154,13 @@ void backup_create_md5_file(const char *filename)
    uint8_t md5_bin[16];
    md5.Final(md5_bin);
 
-   char   newpath[1024];
+   char newpath[1024];
    snprintf(newpath, sizeof(newpath), "%s%s", filename, UNC_BACKUP_MD5_SUFFIX);
 
    thefile = fopen(newpath, "wb");
    if (ptr_is_valid(thefile))
    {
-      char  md5_str[MD5_STR_SIZE];
+      char md5_str[MD5_STR_SIZE];
       md5_to_string(md5_str, sizeof(md5_str), md5_bin);
       fprintf(thefile, "%s  %s\n", md5_str, path_basename(filename));
       fclose(thefile);

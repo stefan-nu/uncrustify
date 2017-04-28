@@ -153,36 +153,36 @@ static bool is_expected_string_and_level(
 
 bool ptr_is_valid(const void* const ptr)
 {
-   return (ptr != nullptr);
+   return(ptr != nullptr);
 }
 
 
 bool ptrs_are_valid(const void* const ptr1, const void* const ptr2)
 {
-   return ((ptr1 != nullptr) &&
-           (ptr2 != nullptr) );
+   return((ptr1 != nullptr) &&
+          (ptr2 != nullptr) );
 }
 
 
 bool ptrs_are_valid(const void* const ptr1, const void* const ptr2,
                     const void* const ptr3)
 {
-   return ((ptr1 != nullptr) &&
-           (ptr2 != nullptr) &&
-           (ptr3 != nullptr) );
+   return((ptr1 != nullptr) &&
+          (ptr2 != nullptr) &&
+          (ptr3 != nullptr) );
 }
 
 
 bool ptr_is_invalid(const void* const ptr)
 {
-   return (ptr == nullptr);
+   return(ptr == nullptr);
 }
 
 
 bool ptrs_are_invalid(const void* const ptr1, const void* const ptr2)
 {
-   return ((ptr1 == nullptr) ||
-           (ptr2 == nullptr) );
+   return((ptr1 == nullptr) ||
+          (ptr2 == nullptr) );
 }
 
 
@@ -197,11 +197,11 @@ bool ptrs_are_invalid(const void* const ptr1, const void* const ptr2,
 
 bool is_valid(const chunk_t* const pc)
 {
-   return (pc != nullptr);
+   return(pc != nullptr);
 }
 
 
-bool are_valid(const chunk_t*  const pc1, const chunk_t* const pc2)
+bool are_valid(const chunk_t* const pc1, const chunk_t* const pc2)
 {
    return ((pc1 != nullptr) &&
            (pc2 != nullptr) );
@@ -210,7 +210,7 @@ bool are_valid(const chunk_t*  const pc1, const chunk_t* const pc2)
 
 bool is_invalid(const chunk_t* const pc)
 {
-   return (pc == nullptr);
+   return(pc == nullptr);
 }
 
 
@@ -287,11 +287,11 @@ static chunk_t* chunk_search_type(chunk_t* cur, const c_token_t type,
       const scope_e scope, const dir_e dir)
 {
    chunk_t* pc = cur;
-   do /* loop over the chunk list */
+   do                                 /* loop over the chunk list */
    {
-      pc = chunk_get(pc, scope, dir);  /* in either direction while */
-   } while (not_type(pc, type));       /* and the demanded chunk was not found either */
-   return(pc);                         /* the latest chunk is the searched one */
+      pc = chunk_get(pc, scope, dir); /* in either direction while */
+   } while (not_type(pc, type));      /* and the demanded chunk was not found either */
+   return(pc);                        /* the latest chunk is the searched one */
 }
 
 

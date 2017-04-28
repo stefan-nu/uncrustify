@@ -1,6 +1,6 @@
 /**
  * @file unc_text.cpp
-
+ *
  * A simple class that handles the chunk text.
  *
  * @author  Ben Gardner
@@ -17,7 +17,7 @@
  * tbd
  */
 static void fix_len_idx(
-   const uint32_t        size, /**< [in]  */
+   const uint32_t  size, /**< [in]  */
    const uint32_t& idx,  /**< [in]  */
    uint32_t&       len   /**< [in]  */
 );
@@ -67,7 +67,7 @@ int32_t unc_text::compare(const unc_text& ref1, const unc_text& ref2, uint32_t l
         idx++)
    {
       /*  exactly the same character ? */
-      continue_if (ref1.m_chars[idx] == ref2.m_chars[idx]);
+      continue_if(ref1.m_chars[idx] == ref2.m_chars[idx]);
 
       int32_t diff = (int32_t)unc_tolower(ref1.m_chars[idx]) - (int32_t)unc_tolower(ref2.m_chars[idx]);
       if (diff == 0)
@@ -241,7 +241,7 @@ void unc_text::append(const unc_text& ref)
 }
 
 
-void unc_text::append(const string &ascii_text)
+void unc_text::append(const string& ascii_text)
 {
    unc_text tmp(ascii_text);
    append(tmp);
@@ -253,9 +253,9 @@ void unc_text::append_cond(const bool condition, const char* const msg, ...)
 {
    if(condition == true)
    {
-      va_list arg;         /* stores variable list of arguments */
-      va_start(arg, msg);  /* convert msg to variable list */
-      append(msg, arg);    /* forward the arguments to unconditional append */
+      va_list arg;        /* stores variable list of arguments */
+      va_start(arg, msg); /* convert msg to variable list */
+      append(msg, arg);   /* forward the arguments to unconditional append */
       va_end(arg);
    }
 }
@@ -263,8 +263,8 @@ void unc_text::append_cond(const bool condition, const char* const msg, ...)
 
 void unc_text::append(const char* const msg, ...)
 {
-   va_list arg;         /* stores variable list of arguments */
-   va_start(arg, msg);  /* convert msg to variable list */
+   va_list arg;        /* stores variable list of arguments */
+   va_start(arg, msg); /* convert msg to variable list */
 
    /* create fixed string from variable arguments */
    char orig_msg[MAX_MSG_SIZE];

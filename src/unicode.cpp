@@ -71,8 +71,8 @@ static bool decode_utf16(
  * Sets enc to char_encoding_e::ASCII and returns false if not found.
  */
 static bool decode_bom(
-   const vector<uint8_t> &in, /**< [in]  */
-   char_encoding_e       &enc /**< [in]  */
+   const vector<uint8_t>& in, /**< [in]  */
+   char_encoding_e&       enc /**< [in]  */
 );
 
 
@@ -99,7 +99,7 @@ static void write_utf16(
 );
 
 
-static bool is_ascii(const vector<uint8_t> &data, uint32_t &non_ascii_cnt, uint32_t &zero_cnt)
+static bool is_ascii(const vector<uint8_t>& data, uint32_t& non_ascii_cnt, uint32_t& zero_cnt)
 {
    non_ascii_cnt = 0;
    zero_cnt      = 0;
@@ -174,7 +174,7 @@ void encode_utf8(uint32_t ch, vector<uint8_t>& res)
 }
 
 
-static bool decode_utf8(const vector<uint8_t> &in, deque<uint32_t> &out)
+static bool decode_utf8(const vector<uint8_t>& in, deque<uint32_t>& out)
 {
    /* check for UTF-8 BOM silliness and skip */
    uint32_t idx = 0;
@@ -215,7 +215,7 @@ static bool decode_utf8(const vector<uint8_t> &in, deque<uint32_t> &out)
 }
 
 
-static uint32_t get_word(const vector<uint8_t> &in, uint32_t &idx, bool be)
+static uint32_t get_word(const vector<uint8_t>& in, uint32_t& idx, bool be)
 {
    uint32_t ch;
    if ((idx + 2) > in.size())
@@ -301,7 +301,7 @@ static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_e
 }
 
 
-static bool decode_bom(const vector<uint8_t> &in, char_encoding_e &enc)
+static bool decode_bom(const vector<uint8_t>& in, char_encoding_e& enc)
 {
    enc = char_encoding_e::ASCII;
    if (in.size() >= 2)
@@ -337,9 +337,9 @@ bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_encodi
    if (decode_bom(in, enc))
    {
       has_bom = true;
-      return (enc == char_encoding_e::UTF8) ?
-         decode_utf8 (in, out     ) :
-         decode_utf16(in, out, enc);
+      return(enc == char_encoding_e::UTF8) ?
+             decode_utf8 (in, out     ) :
+             decode_utf16(in, out, enc);
    }
    has_bom = false;
 
@@ -470,7 +470,7 @@ void write_char(uint32_t ch)
 }
 
 
-void write_string(const unc_text &text)
+void write_string(const unc_text& text)
 {
    for (uint32_t idx = 0; idx < text.size(); idx++)
    {

@@ -39,14 +39,17 @@ public:
 
    ~sp_votes(void);
 
-   void vote(chunk_t* first, chunk_t* second);
+   void vote(
+      chunk_t* first, 
+      chunk_t* second
+   );
 };
 
 
 void sp_votes::vote(chunk_t* first, chunk_t* second)
 {
    return_if(are_invalid(first, second) ||
-             is_nl(first) || is_nl(second) );
+             is_nl(first) || is_nl(second));
 
    int32_t col_dif = (int32_t)second->column - (int32_t)(first->column + first->len());
 
@@ -139,8 +142,8 @@ static void detect_space_options(void)
 // SP_VOTE_VAR(sp_try_brace);
 // SP_VOTE_VAR(sp_getset_brace);
 
-   chunk_t *prev = chunk_get_head();
-   chunk_t *pc   = chunk_get_next(prev);
+   chunk_t* prev = chunk_get_head();
+   chunk_t* pc   = chunk_get_next(prev);
    while (is_valid(pc))
    {
       chunk_t* next = chunk_get_next(pc);

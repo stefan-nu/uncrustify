@@ -12,7 +12,7 @@
 #include "unc_ctype.h"
 
 
-Args::Args(int32_t argc, char **argv)
+Args::Args(int32_t argc, char** argv)
 {
    m_count  = (uint32_t)argc;
    m_values = argv;
@@ -26,7 +26,7 @@ Args::Args(int32_t argc, char **argv)
 
 
 #if 0
-Args::Args(const Args &ref)
+Args::Args(const Args& ref)
 {
    Args new_arg_list = Args(ref.m_count, ref.m_values);
 }
@@ -47,7 +47,7 @@ Args::~Args()
 }
 
 
-bool Args::Present(const char *token)
+bool Args::Present(const char* token)
 {
    if (ptr_is_valid(token))
    {
@@ -128,7 +128,7 @@ void Args::SetUsed(uint32_t idx)
 }
 
 
-const char *Args::Unused(uint32_t &index) const
+const char* Args::Unused(uint32_t& index) const
 {
    retval_if(ptr_is_invalid(m_used), nullptr);
 
@@ -155,7 +155,7 @@ uint32_t Args::SplitLine(char* text, char* args[], uint32_t num_args)
    {
       /* Detect the start of an arg */
       static bool in_arg = false;
-      if ( (in_arg == false) && (!unc_isspace(*text)) )
+      if ((in_arg == false) && (!unc_isspace(*text)))
       {
          in_arg     = true;
          args[argc] = dest;

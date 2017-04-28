@@ -846,6 +846,7 @@ enum uo_t
                                                           *   then we should warn about cases we can't
                                                           *   do the replacement */
 
+   /* all following options are used internally, they cannot be set by users */
    UO_sp_type_func_add,                     /**< value of UO_sp_type_func plus AV_ADD */
    UO_always_ignore,                        /**< this option is always AV_IGNORE */
    UO_always_add,                           /**< this option is always AV_ADD */
@@ -864,9 +865,9 @@ enum uo_t
 
 
 #ifdef EMSCRIPTEN
-   #define group_map_value_options_t    vector<uo_t>
+   #define group_map_value_options_t   vector<uo_t>
 #else
-   #define group_map_value_options_t    list<uo_t>
+   #define group_map_value_options_t   list<uo_t>
 #endif
 
 struct group_map_value_t
