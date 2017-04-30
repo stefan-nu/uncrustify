@@ -1609,6 +1609,7 @@ void indent_text(void)
             }
             if (is_true(UO_indent_func_param_double))
             {
+               // double is: Use both values of the options indent_columns and indent_param
                frm.pse[frm.pse_tos].indent += indent_size;
                log_indent();
             }

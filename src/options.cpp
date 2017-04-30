@@ -1438,7 +1438,7 @@ void register_options(void)
 
    unc_begin_group(UG_linesplit, "Line Splitting options");
    unc_add_opt("code_width", UO_code_width, AT_UNUM,
-               "Try to limit code width to N number of columns", "", 16, 256);
+               "Try to limit code width to N number of columns", "", 0, 256);
    unc_add_opt("ls_for_split_full", UO_ls_for_split_full, AT_BOOL,
                "Whether to fully split long 'for' statements at semi-colons");
    unc_add_opt("ls_func_split_full", UO_ls_func_split_full, AT_BOOL,
@@ -1578,7 +1578,7 @@ void register_options(void)
 
    unc_begin_group(UG_comment, "Comment modifications");
    unc_add_opt("cmt_width", UO_cmt_width, AT_UNUM,
-               "Try to wrap comments at cmt_width columns", "", 16, 256);
+               "Try to wrap comments at cmt_width columns", "", 0, 256);
    unc_add_opt("cmt_reflow_mode", UO_cmt_reflow_mode, AT_NUM,
                "Set the comment reflow mode (Default=0)\n"
                "0: no reflowing (apart from the line wrapping due to cmt_width)\n"
@@ -1594,7 +1594,7 @@ void register_options(void)
    unc_add_opt("cmt_c_nl_start", UO_cmt_c_nl_start, AT_BOOL,
                "Whether to put an empty '/*' on the first line of the combined c-comment");
    unc_add_opt("cmt_c_nl_end", UO_cmt_c_nl_end, AT_BOOL,
-                  "Whether to put a newline before the closing '*/' of the combined c-comment");
+               "Whether to put a newline before the closing '*/' of the combined c-comment");
    unc_add_opt("cmt_cpp_group", UO_cmt_cpp_group, AT_BOOL,
                "Whether to group cpp-comments that look like they are in a block");
    unc_add_opt("cmt_cpp_nl_start", UO_cmt_cpp_nl_start, AT_BOOL,
@@ -2367,6 +2367,55 @@ void set_option_defaults(void)
    cpd.defaults[UO_always_remove                                    ].a = AV_REMOVE;
    cpd.defaults[UO_always_force                                     ].a = AV_FORCE;
 
+#ifdef DEBUG
+   // test all the default values if they are in the allowed interval
+   for (const auto &id : option_name_map)
+   {
+      option_map_value_t value = id.second;
+      if (value.type == AT_UNUM)
+      {
+         uint32_t min_value     = value.min_val;
+         uint32_t max_value     = value.max_val;
+         uint32_t default_value = cpd.defaults[id.first].u;
+         if (default_value > max_value)
+         {
+            fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
+            fprintf(stderr, "The default value '%u' is more than the max value '%u'.\n",
+                    default_value, max_value);
+            exit(EX_SOFTWARE);
+         }
+         if ((min_value > 0) &&
+             (default_value < min_value))
+         {
+            fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
+            fprintf(stderr, "The default value '%u' is less than the min value '%u'.\n",
+                    default_value, min_value);
+            exit(EX_SOFTWARE);
+         }
+      }
+
+      if (value.type == AT_NUM)
+      {
+         int min_value     = value.min_val;
+         int max_value     = value.max_val;
+         int default_value = cpd.defaults[id.first].u;
+         if (default_value > max_value)
+         {
+            fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
+            fprintf(stderr, "The default value '%d' is more than the max value '%d'.\n",
+                    default_value, max_value);
+            exit(EX_SOFTWARE);
+         }
+         if (default_value < min_value)
+         {
+            fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
+            fprintf(stderr, "The default value '%d' is less than the min value '%d'.\n",
+                    default_value, min_value);
+            exit(EX_SOFTWARE);
+         }
+      }
+   }
+#endif // DEBUG
 
    /* copy all the default values to settings array */
    const uint32_t option_count = (uint32_t)UO_option_count;
