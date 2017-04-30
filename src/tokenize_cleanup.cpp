@@ -760,6 +760,9 @@ static void check_template(chunk_t* start)
 {
    LOG_FMT(LTEMPL, "%s: Line %u, col %u:",
          __func__, start->orig_line, start->orig_col);
+#ifdef DEBUG
+   LOG_FMT(LSPLIT, "\n");
+#endif // DEBUG
 
    chunk_t *prev = get_prev_ncnl(start, scope_e::PREPROC);
    return_if(is_invalid(prev));
@@ -769,6 +772,9 @@ static void check_template(chunk_t* start)
    if (is_type(prev, CT_TEMPLATE))
    {
       LOG_FMT(LTEMPL, " CT_TEMPLATE:");
+#ifdef DEBUG
+      LOG_FMT(LSPLIT, "\n");
+#endif
 
       /* We have: "template< ... >", which is a template declaration */
       uint32_t level = 1;
@@ -782,6 +788,9 @@ static void check_template(chunk_t* start)
          {
             LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
+#ifdef DEBUG
+            LOG_FMT(LSPLIT, "\n");
+#endif
             split_off_angle_close(pc);
          }
 
@@ -810,11 +819,17 @@ static void check_template(chunk_t* start)
           not_ptype(prev,    CT_OPERATOR                                ) )
       {
          LOG_FMT(LTEMPL, " - after %s + ( - Not a template\n", get_token_name(prev->type));
+#ifdef DEBUG
+         LOG_FMT(LSPLIT, "\n");
+#endif
          set_type(start, CT_COMPARE);
          return;
       }
 
       LOG_FMT(LTEMPL, " - prev %s -", get_token_name(prev->type));
+#ifdef DEBUG
+      LOG_FMT(LSPLIT, "\n");
+#endif
 
       /* Scan back and make sure we aren't inside square parenthesis */
       bool in_if = false;
@@ -857,6 +872,9 @@ static void check_template(chunk_t* start)
          {
             LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
+#ifdef DEBUG
+            LOG_FMT(LSPLIT, "\n");
+#endif
             split_off_angle_close(pc);
          }
 
