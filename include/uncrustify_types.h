@@ -386,15 +386,6 @@ struct chunk_tag_t
 };
 
 
-struct lookup_entry_t
-{
-   char               ch;            /**<  */
-   char               left_in_group; /**<  */
-   uint16_t           next_idx;      /**<  */
-   const chunk_tag_t* tag;           /**<  */
-};
-
-
 struct align_t
 {
    uint32_t  col;  /**<  */

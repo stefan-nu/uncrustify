@@ -1837,13 +1837,16 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* see if we have a punctuator */
-   char punc_txt[4];
-   punc_txt[0] = (char)ctx.peek( );
-   punc_txt[1] = (char)ctx.peek(1);
-   punc_txt[2] = (char)ctx.peek(2);
-   punc_txt[3] = (char)ctx.peek(3);
-   const chunk_tag_t* punc = find_punctuator(punc_txt, cpd.lang_flags);
-   if (ptr_is_valid(punc))
+   char punc_txt[7];
+   punc_txt[0] = ctx.peek( );
+   punc_txt[1] = ctx.peek(1);
+   punc_txt[2] = ctx.peek(2);
+   punc_txt[3] = ctx.peek(3);
+   punc_txt[4] = ctx.peek(4);
+   punc_txt[5] = ctx.peek(5);
+   punc_txt[6] = '\0';
+   const chunk_tag_t *punc;
+   if ((punc = find_punctuator(punc_txt, cpd.lang_flags)) != nullptr)
    {
       int32_t cnt = (int32_t)strlen(punc->tag);
       while (cnt--)
