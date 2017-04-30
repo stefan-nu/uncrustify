@@ -210,8 +210,8 @@ void do_code_width(void)
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = chunk_get_next(pc))
    {
       if ((!is_cmt_or_nl(pc)) &&
-          (not_type(pc, CT_SPACE) ) &&
-          (is_past_width(pc)) )
+          (not_type(pc, CT_SPACE)) &&
+          (is_past_width(pc)))
       {
          if (split_line(pc) == false)
          {
@@ -410,7 +410,7 @@ static bool split_line(chunk_t* start)
 
    /* add a newline before pc */
    chunk_t* prev = chunk_get_prev(pc);
-   if (!is_nl(pc) && !is_nl(prev) )
+   if (!is_nl(pc) && !is_nl(prev))
    {
       //int plen = (pc->len() < 5) ? pc->len() : 5;
       //int slen = (start->len() < 5) ? start->len() : 5;
@@ -439,9 +439,9 @@ void find_semicolons(chunk_t* start, chunk_t** semi, uint32_t* count,
          (*count)++;
       }
    }
-   while ( (*count < max_cnt) &&
-           ((pc = chunk_get(pc, scope_e::ALL, dir)) != nullptr) &&
-            get_flags(pc, PCF_IN_SPAREN) );
+   while ((*count < max_cnt) &&
+          ((pc = chunk_get(pc, scope_e::ALL, dir)) != nullptr) &&
+            get_flags(pc, PCF_IN_SPAREN));
 }
 
 
@@ -624,8 +624,8 @@ static void split_fcn_params(chunk_t* start)
          {
             cur_width--;
             LOG_FMT(LSPLIT, " width=%d ", cur_width);
-            break_if (((last_col - 1) > static_cast<int32_t>(get_uval(UO_code_width))) ||
-                  is_type(pc, CT_FPAREN_CLOSE));
+            break_if(((last_col - 1) > static_cast<int32_t>(get_uval(UO_code_width))) ||
+                     is_type(pc, CT_FPAREN_CLOSE));
          }
       }
       pc = chunk_get_next(pc);
