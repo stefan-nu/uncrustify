@@ -91,6 +91,8 @@ void tokenize_cleanup(void)
 
    cpd.unc_stage = unc_stage_e::TOKENIZE_CLEANUP;
 
+   chunk_t* prev = nullptr;
+
    /* Since [] is expected to be TSQUARE for the 'operator', we need to make
     * this change in the first pass. */
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
@@ -185,12 +187,22 @@ void tokenize_cleanup(void)
          }
       }
 
-      /* Change CT_STAR to CT_PTR_TYPE if preceded by CT_TYPE,
-       * CT_QUALIFIER, or CT_PTR_TYPE. */
-      if (is_type(next, CT_STAR                           ) &&
-          is_type(pc,   CT_TYPE, CT_QUALIFIER, CT_PTR_TYPE) )
+      /* Change CT_STAR to CT_PTR_TYPE if preceded by
+       * CT_TYPE, CT_QUALIFIER, or CT_PTR_TYPE
+       * or by a CT_WORD which is preceded by CT_DC_MEMBER: '::aaa *b' */
+      if (is_type(next, CT_STAR))
       {
-         set_type(next, CT_PTR_TYPE);
+         if(is_type(pc, CT_TYPE, CT_QUALIFIER, CT_PTR_TYPE))
+         {
+            set_type(next, CT_PTR_TYPE);
+         }
+         else if(is_type(pc,   CT_WORD     ) &&
+                 is_type(prev, CT_DC_MEMBER) &&
+                  (cpd.lang_flags & LANG_CPP) != 0)
+         {
+            set_type(pc,   CT_TYPE    );
+            set_type(next, CT_PTR_TYPE);
+         }
       }
 
       static bool in_type_cast = false;
@@ -232,8 +244,6 @@ void tokenize_cleanup(void)
       }
 
       assert(is_valid(next));
-
-      static chunk_t *prev = nullptr;
       if (is_lang(cpd, LANG_D))
       {
          /* Check for the D string concat symbol '~' */
@@ -258,14 +268,14 @@ void tokenize_cleanup(void)
          }
 
          /* handle 'static if' and merge the tokens */
-         if ( is_type(pc, CT_IF) && is_str(prev, "static"))
+         if (is_type(pc, CT_IF) && is_str(prev, "static"))
          {
             /* delete PREV and merge with IF */
             pc->str.insert(0, ' ');
             pc->str.insert(0, prev->str);
             pc->orig_col  = prev->orig_col;
             pc->orig_line = prev->orig_line;
-            chunk_t *to_be_deleted = prev;
+            chunk_t* to_be_deleted = prev;
             prev = get_prev_ncnl(prev);
             chunk_del(to_be_deleted);
          }
