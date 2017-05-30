@@ -485,8 +485,16 @@ static void double_newline(chunk_t* nl)
    chunk_t* prev = chunk_get_prev(nl);
    return_if(is_invalid(prev));
 
-   LOG_FMT(LNEWLINE, "%s: add newline after %s on line %u",
-           __func__, prev->text(), prev->orig_line);
+   LOG_FMT(LNEWLINE, "%s:%d: add newline after ", __func__, __LINE__);
+   if (prev->type == CT_VBRACE_CLOSE)
+   {
+      LOG_FMT(LNEWLINE, "VBRACE_CLOSE ");
+   }
+   else
+   {
+      LOG_FMT(LNEWLINE, "%s ", prev->text());
+   }
+   LOG_FMT(LNEWLINE, "on line %zu", prev->orig_line);
 
    if (!can_increase_nl(nl))
    {
@@ -725,8 +733,8 @@ chunk_t* newline_add_between(chunk_t* start, chunk_t* end)
    LOG_FUNC_ENTRY();
    retval_if(are_invalid(start, end), nullptr);
 
-   LOG_FMT(LNEWLINE, "%s: '%s'[%s] line %u:%u and '%s' line %u:%u :",
-           __func__, start->text(), get_token_name(start->type),
+   LOG_FMT(LNEWLINE, "%s:%d: '%s'[%s] line %zu:%zu and '%s' line %zu:%zu :",
+           __func__, __LINE__, start->text(), get_token_name(start->type),
            start->orig_line, start->orig_col,
            end->text(), end->orig_line, end->orig_col);
    log_func_stack_inline(LNEWLINE);
@@ -1141,6 +1149,10 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
 
    chunk_t* next;
    chunk_t* prev;
+
+   LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+           __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
+
    /* if we're dealing with an if, we actually want to add or remove
     * blank lines after any else */
    if (is_type(start, CT_IF))
@@ -1152,6 +1164,9 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
          {
             /* point to the closing brace of the else */
             return_if((pc = get_closing_brace(next)) == nullptr);
+
+            LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+                    __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
          }
          else { break; }
       }
@@ -1163,12 +1178,33 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
    {
       /* point to the next semicolon */
       return_if((pc = get_next_type(pc, CT_SEMICOLON, (int32_t)start->level)) == nullptr);
+
+      LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+              __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
    }
 
-   bool isVBrace = pc->type == CT_VBRACE_CLOSE;
+   bool isVBrace = (pc->type == CT_VBRACE_CLOSE);
+   if (isVBrace)
+   {
+      LOG_FMT(LNEWLINE, "   %d: isVBrace is TRUE\n", __LINE__);
+   }
+   else
+   {
+      LOG_FMT(LNEWLINE, "   %d: isVBrace is FALSE\n", __LINE__);
+   }
+
    return_if((prev = get_prev_nvb(pc)) == nullptr);
 
    bool have_pre_vbrace_nl = isVBrace && is_nl(prev);
+   if (have_pre_vbrace_nl)
+   {
+      LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is TRUE\n", __LINE__);
+   }
+   else
+   {
+      LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is FALSE\n", __LINE__);
+   }
+
    if (is_arg_set(nl_opt, AV_REMOVE))
    {
       /* if vbrace, have to check before and after */
@@ -1199,46 +1235,88 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
    /* don't do anything with it if the next non newline chunk is a closing brace */
    if (is_arg_set(nl_opt, AV_ADD))
    {
-      return_if ((next = get_next_nnl(pc)) == nullptr);
+      chunk_t* nextNNL = get_next_nnl(pc);
+      do
+      {
+         if (nextNNL == nullptr)
+         {
+            return;
+         }
+         if (nextNNL->type != CT_VBRACE_CLOSE)
+         {
+            next = nextNNL;
+            break;
+         }
+         nextNNL = get_next_nnl(nextNNL);
+      } while (true);
 
+      LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+              __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
+   
       if (not_type(next, CT_BRACE_CLOSE))
       {
          /* if vbrace, have to check before and after */
          /* if chunk before vbrace, check its count */
          uint32_t nl_count = have_pre_vbrace_nl ? prev->nl_count : 0;
+         LOG_FMT(LNEWLINE, "   %d:nl_count %zu\n", __LINE__, nl_count);
          if (is_nl(next = get_next_nvb(pc)))
          {
-            assert(is_valid(next));
+            LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+                    __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             nl_count += next->nl_count;
+            LOG_FMT(LNEWLINE, "   %d:nl_count %zu\n", __LINE__, nl_count);
          }
 
          /* if we have no newlines, add one and make it double */
          if (nl_count == 0)
          {
+            LOG_FMT(LNEWLINE, "   %d: nl_count is 0\n", __LINE__);
             if (((next = chunk_get_next(pc)) != nullptr) &&
                 is_cmt(next))
             {
+               LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+                       __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
                pc = next;
+               LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+                       __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
             }
 
             return_if((next = newline_add_after(pc)) == nullptr);
+            LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+                    __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             double_newline(next);
          }
          else if (nl_count == 1) /* if we don't have enough newlines */
          {
+            LOG_FMT(LNEWLINE, "   %d: nl_count is 1\n", __LINE__);
             /* if we have one before vbrace, need to add one after */
             if (have_pre_vbrace_nl)
             {
+               LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is TRUE\n", __LINE__);
                next = newline_add_after(pc);
+               LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+                       __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             }
             else
             {
+               LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is FALSE\n", __LINE__);
                prev = get_prev_nnl(next);
-               pc   = get_next_nl (next);
-               //LOG_FMT(LSYS, "  -- pc1=%s [%s]\n", pc->text(), get_token_name(pc->type));
-
-               pc = chunk_get_next(pc);
-               //LOG_FMT(LSYS, "  -- pc2=%s [%s]\n", pc->text(), get_token_name(pc->type));
+               LOG_FMT(LNEWLINE, "   %d:prev->... , type %s, line %zu, column %zu,\n",
+                       __LINE__, get_token_name(prev->type), prev->orig_line, prev->orig_col);
+               pc = get_next_nl(next);
+               LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+                       __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
+               chunk_t* pc2 = chunk_get_next(pc);
+               if (pc2 != nullptr)
+               {
+                  pc = pc2;
+                  LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+                          __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
+               }
+               else
+               {
+                  LOG_FMT(LNEWLINE, "   %d: no next found: <EOF>\n", __LINE__);
+               }
                if (is_type_and_ptype(pc, CT_PREPROC, CT_PP_ENDIF) &&
                    is_true(UO_nl_squeeze_ifdef))
                {
@@ -1248,6 +1326,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
                }
                else
                {
+                  LOG_FMT(LNEWLINE, "   %d: call double_newline\n", __LINE__);
                   double_newline(next); /* make nl after double */
                }
             }
@@ -2585,12 +2664,14 @@ void cleanup_braces(bool first)
                   /* split one-liner */
                   const chunk_t* end = chunk_get_next(get_next_type(pc->next, CT_SEMICOLON)); /* \todo -1 is invalid enum */
                   /* Scan for clear flag */
-
-                  LOG_FMT(LGUY, "\n");
+#ifdef DEBUG
+               LOG_FMT(LNEWLINE, "(%d) ", __LINE__);
+#endif
+               LOG_FMT(LNEWLINE, "\n");
                   for (chunk_t* temp = pc; temp != end; temp = chunk_get_next(temp))
                   {
-                     LOG_FMT(LGUY, "%s type=%s , level=%u", temp->text(), get_token_name(temp->type), temp->level);
-                     log_pcf_flags(LGUY, get_flags(temp));
+                     LOG_FMT(LNEWLINE, "%s type=%s , level=%zu", temp->text(), get_token_name(temp->type), temp->level);
+                     log_pcf_flags(LNEWLINE, get_flags(temp));
                      clr_flags(temp, PCF_ONE_LINER);
                   }
                   // split
@@ -2889,6 +2970,9 @@ void insert_blank_lines(void)
 
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
+      LOG_FMT(LNEWLINE, "%s:%d: for-loop: line %zu, column %zu, %s type %s\n",
+              __func__, __LINE__, pc->orig_line, pc->orig_col,
+              pc->text(), get_token_name(pc->type));
       switch(pc->type)
       {
          case(CT_IF              ): add_nl_before_and_after(pc, UO_nl_before_if          ); break;
