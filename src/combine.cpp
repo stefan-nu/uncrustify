@@ -1129,7 +1129,6 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          /* This is the case where a block literal is passed as the
           * first argument of a C-style method invocation. */
          assert(is_valid(tmp));
-
          if (are_types(tmp, CT_OC_BLOCK_CARET, pc, CT_WORD))
          {
             set_type(pc, CT_FUNC_CALL);
@@ -1150,29 +1149,42 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
           * "int(foo)(void)"
           *
           * FIXME: this check can be done better... */
-         chunk_t* tmp1 = get_next_type(next, CT_PAREN_CLOSE, (int32_t)next->level);
-         tmp1 = chunk_get_next(tmp1);
-         if (is_type(tmp1, CT_PAREN_OPEN))
+         chunk_t* tmp = get_next_type(next, CT_PAREN_CLOSE, (int32_t)next->level);
+         if(tmp != nullptr)
          {
-            /* we have "TYPE(...)(" */
-            set_type(pc, CT_FUNCTION);
-         }
-         else
-         {
-            if (is_ptype(pc, CT_NONE       ) &&
-                not_flag(pc, PCF_IN_TYPEDEF) )
+            chunk_t* tmpA = get_next_type(tmp, CT_ASSIGN, pc->level);
+            tmp = chunk_get_next(tmp);
+            if (is_type(tmp, CT_PAREN_OPEN))
             {
-               tmp1 = get_next_ncnl(next);
-               if (is_type(tmp1, CT_PAREN_CLOSE))
+               if (is_type(tmpA, CT_ASSIGN))
                {
-                  /* we have TYPE() */
-                  set_type(pc, CT_FUNCTION);
+                  // we have "TYPE(...)(...) =" such as
+                  // Issue #1041
+                  // void (*g_func_table[32])(void) =
                }
                else
                {
-                  /* we have TYPE(...) */
-                  set_type        (pc,   CT_CPP_CAST);
-                  set_paren_parent(next, CT_CPP_CAST);
+                  /* we have "TYPE(...)(" */
+                  set_type(pc, CT_FUNCTION);
+               }
+            }
+            else
+            {
+               if (is_ptype(pc, CT_NONE       ) &&
+                   not_flag(pc, PCF_IN_TYPEDEF) )
+               {
+                  tmp = get_next_ncnl(next);
+                  if (is_type(tmp, CT_PAREN_CLOSE))
+                  {
+                     /* we have TYPE() */
+                     set_type(pc, CT_FUNCTION);
+                  }
+                  else
+                  {
+                     /* we have TYPE(...) */
+                     set_type        (pc,   CT_CPP_CAST);
+                     set_paren_parent(next, CT_CPP_CAST);
+                  }
                }
             }
          }
