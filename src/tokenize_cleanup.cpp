@@ -755,7 +755,10 @@ SN
          assert(is_valid(prev));
          if (is_type(prev, CT_TYPE))
          {
-            set_type(pc, CT_BYREF);
+            if ((pc->flags & PCF_IN_TEMPLATE) == 0)
+            {
+               set_type(pc, CT_BYREF);
+            }
          }
       }
 
