@@ -733,7 +733,7 @@ chunk_t* newline_add_between(chunk_t* start, chunk_t* end)
    LOG_FUNC_ENTRY();
    retval_if(are_invalid(start, end), nullptr);
 
-   LOG_FMT(LNEWLINE, "%s:%d: '%s'[%s] line %zu:%zu and '%s' line %zu:%zu :",
+   LOG_FMT(LNEWLINE, "%s:%d: '%s'[%s] line %u:%u and '%s' line %u:%u :",
            __func__, __LINE__, start->text(), get_token_name(start->type),
            start->orig_line, start->orig_col,
            end->text(), end->orig_line, end->orig_col);
@@ -1252,7 +1252,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
 
       LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
               __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
-   
+
       if (not_type(next, CT_BRACE_CLOSE))
       {
          /* if vbrace, have to check before and after */
@@ -2970,7 +2970,7 @@ void insert_blank_lines(void)
 
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
-      LOG_FMT(LNEWLINE, "%s:%d: for-loop: line %zu, column %zu, %s type %s\n",
+      LOG_FMT(LNEWLINE, "%s:%d: for-loop: line %u, column %u, %s type %s\n",
               __func__, __LINE__, pc->orig_line, pc->orig_col,
               pc->text(), get_token_name(pc->type));
       switch(pc->type)

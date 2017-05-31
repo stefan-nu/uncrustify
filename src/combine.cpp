@@ -5053,12 +5053,13 @@ static void handle_oc_property_decl(chunk_t* os)
    if (is_true(UO_mod_sort_oc_properties))
    {
       typedef std::vector<chunk_t*> ChunkGroup;
-      std::vector<ChunkGroup> thread_chunks;      // atomic/nonatomic
+      std::vector<ChunkGroup> class_chunks;       // class
+      std::vector<ChunkGroup> thread_chunks;      // atomic, nonatomic
       std::vector<ChunkGroup> readwrite_chunks;   // readwrite, readonly
       std::vector<ChunkGroup> ref_chunks;         // retain, copy, assign, weak, strong, unsafe_unretained
       std::vector<ChunkGroup> getter_chunks;      // getter
       std::vector<ChunkGroup> setter_chunks;      // setter
-      std::vector<ChunkGroup> nullability_chunks; // nonnull/nullable
+      std::vector<ChunkGroup> nullability_chunks; // nonnull, nullable, null_unspecified, null_resettable
 
       chunk_t* open_paren = nullptr;
       chunk_t* next       = chunk_get_next(os);
@@ -5075,11 +5076,11 @@ static void handle_oc_property_decl(chunk_t* os)
           * when I attempted to add them so this is my hack for now. */
          while (not_type(next, CT_PAREN_CLOSE))
          {
-            if (is_type(next, CT_WORD))
+            if (is_type(next, CT_OC_PROPERTY_ATTR))
             {
                ChunkGroup chunkGroup;
-               if      (is_str(next, "atomic"   ) ||
-                        is_str(next, "nonatomic") )
+               if (is_str(next, "atomic"   ) ||
+                   is_str(next, "nonatomic") )
                {
                   chunkGroup.push_back(next);
                   thread_chunks.push_back(chunkGroup);
@@ -5115,16 +5116,24 @@ static void handle_oc_property_decl(chunk_t* os)
                   if (is_str(next, "getter")) { getter_chunks.push_back(chunkGroup); }
                   else  /* str=="setter" */   { setter_chunks.push_back(chunkGroup); }
                }
-               else if (is_str(next, "nullable") ||
-                        is_str(next, "nonnull" ) )
+               else if (is_str(next, "nullable"        ) ||
+                        is_str(next, "nonnull"         ) ||
+                        is_str(next, "null_resettable" ) ||
+                        is_str(next, "null_unspecified") )
                {
                   chunkGroup.push_back(next);
                   nullability_chunks.push_back(chunkGroup);
+               }
+               else if (is_str(next, "class"))
+               {
+                  chunkGroup.push_back(next);
+                  class_chunks.push_back(chunkGroup);
                }
             }
             next = chunk_get_next(next);
          }
 
+         int32_t class_w       = get_ival(UO_mod_sort_oc_property_class_weight      );
          int32_t thread_w      = get_ival(UO_mod_sort_oc_property_thread_safe_weight);
          int32_t readwrite_w   = get_ival(UO_mod_sort_oc_property_readwrite_weight  );
          int32_t ref_w         = get_ival(UO_mod_sort_oc_property_reference_weight  );
@@ -5133,11 +5142,12 @@ static void handle_oc_property_decl(chunk_t* os)
          int32_t nullability_w = get_ival(UO_mod_sort_oc_property_nullability_weight);
 
          std::multimap<int32_t, std::vector<ChunkGroup>> sorted_chunk_map;
-         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(thread_w,      thread_chunks));
-         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(readwrite_w,   readwrite_chunks));
-         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(ref_w,         ref_chunks));
-         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(getter_w,      getter_chunks));
-         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(setter_w,      setter_chunks));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(class_w,       class_chunks      ));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(thread_w,      thread_chunks     ));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(readwrite_w,   readwrite_chunks  ));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(ref_w,         ref_chunks        ));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(getter_w,      getter_chunks     ));
+         sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(setter_w,      setter_chunks     ));
          sorted_chunk_map.insert(pair<int32_t, std::vector<ChunkGroup> >(nullability_w, nullability_chunks));
 
          chunk_t* curr_chunk = open_paren;
@@ -5166,7 +5176,7 @@ static void handle_oc_property_decl(chunk_t* os)
                assert(is_valid(curr_chunk));
                chunk_t endchunk;
                endchunk.type        = CT_COMMA;
-               endchunk.str         = ", ";
+               endchunk.str         = ",";
                endchunk.level       = curr_chunk->level;
                endchunk.brace_level = curr_chunk->brace_level;
                endchunk.orig_line   = curr_chunk->orig_line;
@@ -5187,7 +5197,6 @@ static void handle_oc_property_decl(chunk_t* os)
          }
       }
    }
-
 
    chunk_t* tmp = get_next_ncnl(os);
    if (is_paren_open(tmp))

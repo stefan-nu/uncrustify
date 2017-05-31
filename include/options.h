@@ -800,6 +800,7 @@ enum uo_t
    UO_mod_sort_oc_properties,                    /**< organizes objective c properties */
 
    /* Sorting options for objective C properties */
+   UO_mod_sort_oc_property_class_weight,         /**< Determines weight of class */
    UO_mod_sort_oc_property_thread_safe_weight,   /**< Determines weight of atomic/nonatomic */
    UO_mod_sort_oc_property_readwrite_weight,     /**< Determines weight of read/write */
    UO_mod_sort_oc_property_reference_weight,     /**< Determines weight of reference type

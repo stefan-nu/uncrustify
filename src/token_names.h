@@ -217,6 +217,7 @@ const char* const token_names[] =
    "OC_BLOCK_EXPR",
    "OC_BLOCK_CARET",
    "OC_AT",
+   "OC_PROPERTY_ATTR",
    "PP_DEFINE",
    "PP_DEFINED",
    "PP_INCLUDE",

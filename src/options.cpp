@@ -1716,8 +1716,10 @@ void register_options(void)
                "If True, it will remove a void 'return;' that appears as the last statement in a function.");
    unc_add_opt("mod_sort_oc_properties", UO_mod_sort_oc_properties, AT_BOOL,
                "If True, it will organize the properties (Obj-C)");
+   unc_add_opt("mod_sort_oc_property_class_weight", UO_mod_sort_oc_property_class_weight, AT_NUM,
+                  "Determines weight of class property modifier (Obj-C)");
    unc_add_opt("mod_sort_oc_property_thread_safe_weight", UO_mod_sort_oc_property_thread_safe_weight, AT_NUM,
-               "Determines weight of atomic/nonatomic (Obj-C)");
+                  "Determines weight of atomic, nonatomic (Obj-C)");
    unc_add_opt("mod_sort_oc_property_readwrite_weight", UO_mod_sort_oc_property_readwrite_weight, AT_NUM,
                "Determines weight of readwrite (Obj-C)");
    unc_add_opt("mod_sort_oc_property_reference_weight", UO_mod_sort_oc_property_reference_weight, AT_NUM,
@@ -1727,7 +1729,7 @@ void register_options(void)
    unc_add_opt("mod_sort_oc_property_setter_weight", UO_mod_sort_oc_property_setter_weight, AT_NUM,
                "Determines weight of setter type (setter=) (Obj-C)");
    unc_add_opt("mod_sort_oc_property_nullability_weight", UO_mod_sort_oc_property_nullability_weight, AT_NUM,
-               "Determines weight of nullability type (nullable/nonnull) (Obj-C)");
+                  "Determines weight of nullability type (nullable, nonnull, null_unspecified, null_resettable) (Obj-C)");
    unc_add_opt("mod_enum_last_comma", UO_mod_enum_last_comma, AT_IARF,
                "Will add or remove the comma after the last item in an enum.");
 
