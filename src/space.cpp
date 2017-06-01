@@ -22,7 +22,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <algorithm>
+//#include <algorithm>
 
 #include "space.h"
 #include "uncrustify_types.h"

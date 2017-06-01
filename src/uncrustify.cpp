@@ -1564,14 +1564,14 @@ static void do_source_file(const char* filename_in, const char* filename_out,
          }
       }
 
-#ifdef HAVE_UTIME_H
       if (keep_mtime == true)
       {
+#ifdef HAVE_UTIME_H
          /* update mtime -- don't care if it fails */
          fm.utb.actime = time(nullptr);
          UNUSED(utime(filename_in, &fm.utb));
-      }
 #endif
+      }
    }
 }
 

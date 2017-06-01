@@ -354,6 +354,9 @@ void reindent_line(chunk_t* pc, uint32_t column)
    LOG_FMT(LINDLINE, "%s(%d): %u] col %u on '%s' [%s/%s] => %u",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), get_token_name(pc->ptype), column);
+#ifdef DEBUG
+   LOG_FMT(LINDLINE, "\n");
+#endif
    log_func_stack_inline(LINDLINE);
 
    return_if(column == pc->column);
@@ -465,6 +468,7 @@ static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
    {
       if (is_valid(pc))
       {
+         LOG_FMT(LINDPSE, "%s(%d):\n", __func__, __LINE__);
          LOG_FMT(LINDPSE, "%4u] (pp=%u) CLOSE [%u,%s] on %s, started on line %u, level=%u/%u\n",
                  pc->orig_line, cpd.pp_level, frm.pse_tos,
                  get_token_name(frm.pse[frm.pse_tos].type), get_token_name(pc->type),
@@ -472,7 +476,8 @@ static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
       }
       else
       {
-         LOG_FMT(LINDPSE, " EOF] CLOSE [%u,%s], started on line %u\n",
+         LOG_FMT(LINDPSE, "%s(%d):\n", __func__, __LINE__);
+         LOG_FMT(LINDPSE, "   EOF] CLOSE [%u,%s], started on line %u\n",
                  frm.pse_tos, get_token_name(frm.pse[frm.pse_tos].type),
                  frm.pse[frm.pse_tos].open_line);
       }
@@ -480,7 +485,6 @@ static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
       /* Don't clear the stack entry because some code 'cheats' and uses the
        * just-popped indent values */
       frm.pse_tos--;
-      LOG_FMT(LINDLINE, "(%d) ", __LINE__);
       if (is_valid(pc))
       {
          LOG_FMT(LINDLINE, "%s(%d): orig_line=%u, pse_tos=%u, type=%s\n",
@@ -2272,6 +2276,9 @@ static void indent_comment(chunk_t* pc, uint32_t col)
    LOG_FUNC_ENTRY();
    LOG_FMT(LCMTIND, "%s(%d): orig_line %u, orig_col %u, level %u: ",
            __func__, __LINE__, pc->orig_line, pc->orig_col, pc->level);
+#ifdef DEBUG
+   LOG_FMT(LCMTIND, "\n");
+#endif
 
    /* force column 1 comment to column 1 if not changing them */
    if ((pc->orig_col == 1) && is_false(UO_indent_col1_comment) &&
