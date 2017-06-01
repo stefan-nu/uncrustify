@@ -381,16 +381,16 @@ static bool is_dec (uint32_t ch); /**< [in] symbol to check */
 static bool is_hex (uint32_t ch); /**< [in] symbol to check */
 
 /** check if a symbol holds a boolean value or an underscore */
-static bool is_bin_or_underline(uint32_t ch); /**< [in] symbol to check */
+static bool is_bin_or_separator(uint32_t ch); /**< [in] symbol to check */
 
 /** check if a symbol holds a octal value or an underscore */
-static bool is_oct_or_underline(uint32_t ch); /**< [in] symbol to check */
+static bool is_oct_or_separator(uint32_t ch); /**< [in] symbol to check */
 
 /** check if a symbol holds a decimal value or an underscore */
-static bool is_dec_or_underline(uint32_t ch); /**< [in] symbol to check */
+static bool is_dec_or_separator(uint32_t ch); /**< [in] symbol to check */
 
 /** check if a symbol holds a hexadecimal value or an underscore */
-static bool is_hex_or_underline(uint32_t ch); /**< [in] symbol to check */
+static bool is_hex_or_separator(uint32_t ch); /**< [in] symbol to check */
 
 
 /**
@@ -822,10 +822,13 @@ static bool is_bin(uint32_t ch) { return((ch >= '0') && (ch <= '1')); }
 static bool is_oct(uint32_t ch) { return((ch >= '0') && (ch <= '7')); }
 static bool is_dec(uint32_t ch) { return((ch >= '0') && (ch <= '9')); }
 
-static bool is_bin_or_underline(uint32_t ch) { return(is_bin(ch) || (ch == '_')); }
-static bool is_oct_or_underline(uint32_t ch) { return(is_oct(ch) || (ch == '_')); }
-static bool is_dec_or_underline(uint32_t ch) { return(is_dec(ch) || (ch == '_')); }
-static bool is_hex_or_underline(uint32_t ch) { return(is_hex(ch) || (ch == '_')); }
+/* number separators: JAVA: "_", C++14: "'" */
+static bool is_sep(uint32_t ch) { return((ch == '_') || (ch == '\'')); }
+
+static bool is_bin_or_separator(uint32_t ch) { return(is_bin(ch) || is_sep(ch)); }
+static bool is_oct_or_separator(uint32_t ch) { return(is_oct(ch) || is_sep(ch)); }
+static bool is_dec_or_separator(uint32_t ch) { return(is_dec(ch) || is_sep(ch)); }
+static bool is_hex_or_separator(uint32_t ch) { return(is_hex(ch) || is_sep(ch)); }
 
 bool analyze_character(
    tok_ctx& ctx,
@@ -843,14 +846,14 @@ bool analyze_character(tok_ctx& ctx, chunk_t& pc)
          do
          {
             pc.str.append(ctx.get());  /* store the 'x' and then the rest */
-         } while (is_hex_or_underline(ctx.peek()));
+         } while (is_hex_or_separator(ctx.peek()));
          break;
 
       case 'B':  /* binary */
          do
          {
             pc.str.append(ctx.get());  /* store the 'b' and then the rest */
-         } while (is_bin_or_underline(ctx.peek()));
+         } while (is_bin_or_separator(ctx.peek()));
          break;
 
       case '0':  /* octal or decimal */
@@ -866,7 +869,7 @@ bool analyze_character(tok_ctx& ctx, chunk_t& pc)
          do
          {
             pc.str.append(ctx.get());
-         } while (is_oct_or_underline(ctx.peek()));
+         } while (is_oct_or_separator(ctx.peek()));
          break;
 
       default:
@@ -880,7 +883,8 @@ bool analyze_character(tok_ctx& ctx, chunk_t& pc)
 
 static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 {
-   /* A number must start with a digit or a dot, followed by a digit */
+   /* A number must start with a digit or a dot, followed by a digit
+    * (signs handled elsewhere) */
    if (!is_dec(ctx.peek()) &&
        ((ctx.peek() != '.') || !is_dec(ctx.peek(1))))
    {
@@ -889,32 +893,35 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
 
    bool is_float = (ctx.peek( ) == '.');
    if ((is_float    == true) &&
-       (ctx.peek(1) == '.' ) )
+       (ctx.peek(1) == '.' ) ) /* make sure it isn't '..' */
    {
       return(false);
    }
 
    /* Check for Hex, Octal, or Binary
-    * Note that only D and Pawn support binary, but who cares? */
+    * Note that only D, C++14 and Pawn support binary */
    bool did_hex = false;
    if (ctx.peek() == '0')
    {
-      pc.str.append(ctx.get());  /* store the '0' */
       uint32_t  ch;
       uint32_t  pc_length;
       chunk_t pc_temp;
+
+      pc.str.append(ctx.get());  /* store the '0' */
       pc_temp.str.append('0');
-      // MS constant might have an "h" at the end. Look for it
+
+      /* MS constant might have an "h" at the end. Look for it */
       ctx.save();
       while (ctx.more() && CharTable::IsKW2(ctx.peek()))
       {
          ch = ctx.get();
          pc_temp.str.append(ch);
       }
-      pc_length = pc_temp.len();
-      ch        = pc_temp.str[pc_length - 1];
+
+      ch        = pc_temp.str[pc_temp.len() - 1];
       ctx.restore();
       LOG_FMT(LGUY, "%s(%d): pc_temp:%s\n", __func__, __LINE__, pc_temp.text());
+
       if (ch == 'h') /** \todo can we combine this in analyze_character */
       {
          // we have an MS hexadecimal number with "h" at the end
@@ -923,7 +930,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
          do
          {
             pc.str.append(ctx.get()); /* store the rest */
-         } while (is_hex_or_underline(ctx.peek()));
+         } while (is_hex_or_separator(ctx.peek()));
          pc.str.append(ctx.get());    /* store the h */
          LOG_FMT(LGUY, "%s(%d): pc:%s\n", __func__, __LINE__, pc.text());
       }
@@ -935,7 +942,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    else
    {
       /* Regular int or float */
-      while (is_dec_or_underline(ctx.peek()))
+      while (is_dec_or_separator(ctx.peek()))
       {
          pc.str.append(ctx.get());
       }
@@ -946,8 +953,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    {
       pc.str.append(ctx.get());
       is_float = true;
-      if (did_hex) { while (is_hex_or_underline(ctx.peek())) { pc.str.append(ctx.get()); } }
-      else         { while (is_dec_or_underline(ctx.peek())) { pc.str.append(ctx.get()); } }
+      if (did_hex) { while (is_hex_or_separator(ctx.peek())) { pc.str.append(ctx.get()); } }
+      else         { while (is_dec_or_separator(ctx.peek())) { pc.str.append(ctx.get()); } }
    }
 
    /* Check exponent
@@ -962,7 +969,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
       pc.str.append(ctx.get());
       if ((ctx.peek() == '+') ||
           (ctx.peek() == '-') )  { pc.str.append(ctx.get()); }
-      while (is_dec_or_underline(ctx.peek())){ pc.str.append(ctx.get()); }
+      while (is_dec_or_separator(ctx.peek())){ pc.str.append(ctx.get()); }
    }
 
    /* Check the suffixes
