@@ -887,8 +887,9 @@ void register_options(void)
                "Whether to indent the stuff after a leading class initializer colon");
    unc_add_opt("indent_ctor_init_leading", UO_indent_ctor_init_leading, AT_UNUM,
                "Virtual indent from the ':' for member initializers. Default=2");
-   unc_add_opt("indent_ctor_init", UO_indent_ctor_init, AT_UNUM,
-               "Additional indenting for constructor initializer list");
+   unc_add_opt("indent_ctor_init", UO_indent_ctor_init, AT_NUM,
+               "Additional indent for constructor initializer list.\n"
+               "Negative values decrease indent down to the first column. Default=0");
    unc_add_opt("indent_else_if", UO_indent_else_if, AT_BOOL,
                "False=treat 'else\\nif' as 'else if' for indenting purposes\n"
                "True=indent the 'if' one level");
@@ -908,7 +909,7 @@ void register_options(void)
    unc_add_opt("indent_func_def_param", UO_indent_func_def_param, AT_BOOL,
                "Same as indent_func_call_param, but for function defs");
    unc_add_opt("indent_func_proto_param", UO_indent_func_proto_param, AT_BOOL,
-               "Same as indent_func_call_param, but for function protos");
+               "Same as indent_func_call_param, but for function prototypes");
    unc_add_opt("indent_func_class_param", UO_indent_func_class_param, AT_BOOL,
                "Same as indent_func_call_param, but for class declarations");
    unc_add_opt("indent_func_ctor_var_param", UO_indent_func_ctor_var_param, AT_BOOL,

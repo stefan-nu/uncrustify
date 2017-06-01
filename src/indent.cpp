@@ -1495,65 +1495,73 @@ void indent_text(void)
          /* just indent one level */
          indent_pse_push(frm, pc);
          frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent_tmp + indent_size;
+         log_indent();
          frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
          frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos  ].indent;
          log_indent_tmp();
-
          indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
 
-         if ((is_true(UO_indent_class_colon ) && is_type(pc, CT_CLASS_COLON )) ||
-             (is_true(UO_indent_constr_colon) && is_type(pc, CT_CONSTR_COLON)) )
+         if (is_true(UO_indent_class_colon) && is_type(pc, CT_CLASS_COLON))
+         {
+            if (is_true(UO_indent_class_on_colon))
+            {
+               frm.pse[frm.pse_tos].indent = pc->column;
+               log_indent();
+            }
+            else
+            {
+               next = chunk_get_next(pc);
+               if (is_valid(next) && !is_nl(next))
+               {
+                  frm.pse[frm.pse_tos].indent = next->column;
+                  log_indent();
+               }
+            }
+         }
+         else if (is_true(UO_indent_constr_colon) && is_type(pc, CT_CONSTR_COLON))
          {
             prev = chunk_get_prev(pc);
             if (is_nl(prev))
             {
                frm.pse[frm.pse_tos].indent += get_uval(UO_indent_ctor_init_leading);
                log_indent();
+            }
 
-               if (get_uval(UO_indent_ctor_init) != 0)
-               {
-                  frm.pse[frm.pse_tos].indent     += get_uval(UO_indent_ctor_init);
-                  frm.pse[frm.pse_tos].indent_tmp += get_uval(UO_indent_ctor_init);
-                  frm.pse[frm.pse_tos].indent_tab += get_uval(UO_indent_ctor_init);
-                  log_indent_tmp();
-                  indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-               }
+            /* TODO: Create a dedicated indent_constr_on_colon? */
+            if (is_true(UO_indent_class_on_colon))
+            {
+               frm.pse[frm.pse_tos].indent = pc->column;
+               log_indent();
+            }
+            else if (get_uval(UO_indent_ctor_init) != 0)
+            {
+               /* If the std::max() calls were specialized with size_t (the type of the underlying variable),
+                * they would never actually do their job, because size_t is unsigned and therefore even
+                * a "negative" result would be always greater than zero.
+                * Using ptrdiff_t (a standard signed type of the same size as size_t) in order to avoid that. */
+               frm.pse[frm.pse_tos].indent     = std::max<ptrdiff_t>(frm.pse[frm.pse_tos].indent     + get_uval(UO_indent_ctor_init), 0);
+               log_indent();
+               frm.pse[frm.pse_tos].indent_tmp = std::max<ptrdiff_t>(frm.pse[frm.pse_tos].indent_tmp + get_uval(UO_indent_ctor_init), 0);
+               frm.pse[frm.pse_tos].indent_tab = std::max<ptrdiff_t>(frm.pse[frm.pse_tos].indent_tab + get_uval(UO_indent_ctor_init), 0);
+               log_indent_tmp();
+               indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
             }
             else
             {
-               if (is_true(UO_indent_class_on_colon) && is_type(pc, CT_CLASS_COLON))
+               next = chunk_get_next(pc);
+               if (is_valid(next) && !is_nl(next))
                {
-                  frm.pse[frm.pse_tos].indent = pc->column;
+                  frm.pse[frm.pse_tos].indent = next->column;
                   log_indent();
-               }
-               else
-               {
-                  next = chunk_get_next(pc);
-                  if (is_valid(next))
-                  {
-                     if (get_uval(UO_indent_ctor_init) != 0)
-                     {
-                        frm.pse[frm.pse_tos].indent     += get_uval(UO_indent_ctor_init);
-                        frm.pse[frm.pse_tos].indent_tmp += get_uval(UO_indent_ctor_init);
-                        frm.pse[frm.pse_tos].indent_tab += get_uval(UO_indent_ctor_init);
-                        log_indent_tmp();
-                        indent_column_set(frm.pse[frm.pse_tos].indent_tmp);
-                     }
-                     else if (!is_nl(next))
-                     {
-                        frm.pse[frm.pse_tos].indent = next->column;
-                        log_indent();
-                     }
-                  }
                }
             }
          }
       }
-      else if (is_type(pc, 5, CT_PAREN_OPEN, CT_SPAREN_OPEN,
-                       CT_FPAREN_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
+      else if (is_type(pc, 5, CT_PAREN_OPEN,  CT_SPAREN_OPEN,
+              CT_FPAREN_OPEN, CT_SQUARE_OPEN, CT_ANGLE_OPEN))
       {
-         /* Open parenthesis and squares - never update indent_column, unless right
-          * after a newline. */
+         /* Open parenthesis and squares - never update indent_column,
+          * unless right after a newline. */
          bool skipped = false;
 
          indent_pse_push(frm, pc);
