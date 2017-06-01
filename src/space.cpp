@@ -381,10 +381,11 @@ static bool sp_cond_0052(chunks_t* c) {return is_type(c->b, CT_DC_MEMBER) &&
 static bool sp_cond_0163(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_flag(c->a, PCF_OC_RTYPE ) && is_ptype(c->a, CT_OC_MSG_DECL, CT_OC_MSG_SPEC); }
 static bool sp_cond_0164(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_OC_MSG_SPEC, CT_OC_MSG_DECL); }
 static bool sp_cond_0165(chunks_t* c) {return is_type(c->a, CT_PAREN_CLOSE) && is_ptype(c->a, CT_OC_SEL) && not_type(c->b, CT_SQUARE_CLOSE); }
-
-static bool sp_cond_0125(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE); }
-static bool sp_cond_0126(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_ENUM); }
-static bool sp_cond_0127(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_STRUCT, CT_UNION); }
+static bool sp_cond_0125(chunks_t* c) {return is_type(c->b, CT_BRACE_OPEN)  && is_ptype(c->b, CT_TYPE); }
+//static bool sp_cond_0125(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE); }
+//static bool sp_cond_0126(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_ENUM);
+static bool sp_cond_0126(chunks_t* c) {return is_type(c->a, CT_BRACE_OPEN)  && is_ptype(c->a, CT_TYPE); }
+static bool sp_cond_0127(chunks_t* c) {return is_type(c->b, CT_BRACE_CLOSE) && is_ptype(c->b, CT_TYPE); }
 
 static bool sp_cond_0199(chunks_t* c) {return is_ptype(c->a, CT_C_CAST, CT_D_CAST); }
 
@@ -836,9 +837,16 @@ void init_space_check_action_array(void)
 
    add_sca({122, sp_cond_0123, UO_always_force           });
    add_sca({123, sp_cond_0124, UO_sp_inside_braces_empty });
-   add_sca({124, sp_cond_0126, UO_sp_inside_braces_enum  });
-   add_sca({125, sp_cond_0127, UO_sp_inside_braces_struct});
-   add_sca({126, sp_cond_0125, UO_sp_inside_braces       });
+   add_sca({123, sp_cond_0125, UO_sp_type_brace_init_lst }); // 'int{9}' vs 'int {9}'
+// add_sca({124, sp_cond_0126, UO_sp_inside_braces_enum  });
+
+   if(not_ignore(UO_sp_before_type_brace_init_lst_close)) {
+   add_sca({125, sp_cond_0127, UO_sp_before_type_brace_init_lst_close}); }
+
+   if(not_ignore(UO_sp_inside_type_brace_init_lst)) {
+   add_sca({125, sp_cond_0127, UO_sp_inside_type_brace_init_lst}); }
+
+// add_sca({126, sp_cond_0125, UO_sp_inside_braces       });
    add_sca({127, sp_cond_0128, UO_always_remove          });
    add_sca({128, sp_cond_0129, UO_sp_defined_paren       });
    add_sca({129, sp_cond_0131, UO_sp_throw_paren         });
@@ -996,6 +1004,11 @@ void init_space_check_action_array(void)
 
    add_sca({206, sp_cond_0205, UO_sp_inside_braces_enum});
    add_sca({207, sp_cond_0206, UO_sp_inside_braces_struct});
+
+   if (not_ignore(UO_sp_after_type_brace_init_lst_open)) {
+      add_sca({207, sp_cond_0126, UO_sp_after_type_brace_init_lst_open}); }
+   add_sca({207, sp_cond_0126, UO_sp_inside_type_brace_init_lst});
+
    add_sca({208, sp_cond_0207, UO_sp_inside_braces});
 
    add_sca({209, sp_cond_0209, UO_sp_inside_braces_enum});

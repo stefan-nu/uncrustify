@@ -2444,46 +2444,63 @@ void cleanup_braces(bool first)
          break;
 
          case(CT_BRACE_OPEN):
-            if (is_ptype(pc, CT_DOUBLE_BRACE) &&
-                not_ignore(UO_nl_paren_dbrace_open))
+            switch(pc->ptype)
             {
-               prev = get_prev_ncnl(pc, scope_e::PREPROC);
-               if (is_paren_close(prev))
-               {
-                  nl_iarf_pair(prev, pc, get_arg(UO_nl_paren_dbrace_open));
-               }
+               case(CT_DOUBLE_BRACE):
+                  if(not_ignore(UO_nl_paren_dbrace_open))
+                  {
+                     prev = get_prev_ncnl(pc, scope_e::PREPROC);
+                     if (is_paren_close(prev))
+                     {
+                        nl_iarf_pair(prev, pc, get_arg(UO_nl_paren_dbrace_open));
+                     }
+                  }
+               break;
+
+               case(CT_ENUM):
+                  if(not_ignore(UO_nl_enum_own_lines))
+                  {
+                     nl_enum_entries(pc, get_arg(UO_nl_enum_own_lines));
+                  }
+                  if (is_true(UO_nl_ds_struct_enum_cmt))
+                  {
+                     nl_double_space_struct_enum_union(pc);
+                  }
+               break;
+
+               case CT_STRUCT:
+               case CT_UNION:
+                  if (is_true(UO_nl_ds_struct_enum_cmt))
+                  {
+                    nl_double_space_struct_enum_union(pc);
+                  }
+               break;
+
+               case(CT_CLASS):
+                  if(is_level(pc, pc->brace_level))
+                  {
+                     nl_do_else(get_prev_nnl(pc), get_arg(UO_nl_class_brace));
+                  }
+               break;
+
+               case (CT_TYPE):
+                  nl_iarf_pair(get_prev_nnl(pc), pc, get_arg(UO_nl_type_brace_init_lst));
+               break;
+
+               case(CT_OC_BLOCK_EXPR):
+                  nl_iarf_pair(chunk_get_prev(pc), pc, get_arg(UO_nl_oc_block_brace));
+               break;
+
+               default:   break;
             }
 
-            if (not_ignore(UO_nl_brace_brace))
+            if(not_ignore(UO_nl_brace_brace))
             {
                next = get_next_nc(pc, scope_e::PREPROC);
                if (is_type(next, CT_BRACE_OPEN))
                {
                   nl_iarf_pair(pc, next, get_arg(UO_nl_brace_brace));
                }
-            }
-
-            if (is_ptype(pc, CT_ENUM) &&
-                not_ignore(UO_nl_enum_own_lines))
-            {
-               nl_enum_entries(pc, get_arg(UO_nl_enum_own_lines));
-            }
-
-            if (is_true(UO_nl_ds_struct_enum_cmt) &&
-                is_ptype(pc, CT_ENUM, CT_STRUCT, CT_UNION ) )
-            {
-               nl_double_space_struct_enum_union(pc);
-            }
-
-            if (is_ptype(pc, CT_CLASS) &&
-                is_level(pc, pc->brace_level))
-            {
-               nl_do_else(get_prev_nnl(pc), get_arg(UO_nl_class_brace));
-            }
-
-            if (is_ptype(pc, CT_OC_BLOCK_EXPR))
-            {
-               nl_iarf_pair(chunk_get_prev(pc), pc, get_arg(UO_nl_oc_block_brace));
             }
 
             next = get_next_nnl(pc);
@@ -2503,10 +2520,17 @@ void cleanup_braces(bool first)
             {
                next = get_next_ncnl(pc);
 
+               /* Handle unnamed temporary direct-list-initialization */
+               if (is_ptype(pc, CT_TYPE) &&
+                   not_ignore(UO_nl_type_brace_init_lst_open))
+               {
+                  nl_iarf_pair(pc, get_next_nnl(pc), get_arg(UO_nl_type_brace_init_lst_open));
+               }
+
                /* Handle nl_after_brace_open */
-               if ((is_ptype(pc, CT_CPP_LAMBDA  ) ||
-                    is_level(pc, pc->brace_level) ) &&
-                   is_true(UO_nl_after_brace_open))
+               else if ((is_ptype(pc, CT_CPP_LAMBDA  ) ||
+                         is_level(pc, pc->brace_level) )  &&
+                         is_true (UO_nl_after_brace_open) )
                {
                   if (!one_liner_nl_ok(pc))
                   {
@@ -2540,6 +2564,7 @@ void cleanup_braces(bool first)
          break;
 
          case(CT_BRACE_CLOSE):
+            /* newline between a close brace and x */
             if (not_ignore(UO_nl_brace_brace))
             {
                next = get_next_nc(pc, scope_e::PREPROC);
@@ -2572,6 +2597,15 @@ void cleanup_braces(bool first)
                }
             }
 
+            /* newline before a close brace */
+            if (is_ptype(pc, CT_TYPE) &&
+                not_ignore(UO_nl_type_brace_init_lst_close))
+            {
+               /* Handle unnamed temporary direct-list-initialization */
+               nl_iarf_pair(get_prev_nnl(pc), pc, get_arg(UO_nl_type_brace_init_lst_close));
+            }
+
+            /* blanks before a close brace */
             if (is_true(UO_eat_blanks_before_close_brace))
             {
                /* Limit the newlines before the close brace to 1 */
