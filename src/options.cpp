@@ -1104,6 +1104,8 @@ void register_options(void)
                "Add or remove newline between 'else' and '{'");
    unc_add_opt("nl_else_if", UO_nl_else_if, AT_IARF,
                "Add or remove newline between 'else' and 'if'");
+   unc_add_opt("nl_before_if_closing_paren", UO_nl_before_if_closing_paren, AT_IARF,
+                  "Add or remove newline before 'if'/'else if' closing parenthesis");
    unc_add_opt("nl_brace_finally", UO_nl_brace_finally, AT_IARF,
                "Add or remove newline between '}' and 'finally'");
    unc_add_opt("nl_finally_brace", UO_nl_finally_brace, AT_IARF,
@@ -1448,16 +1450,16 @@ void register_options(void)
                "  (tied to nl_class_colon).");
    unc_add_opt("pos_constr_colon", UO_pos_constr_colon, AT_POS,
                "The position of colons between constructor and member initialization,\n"
-               "(tied to UO_nl_constr_colon).\n"
+               "(tied to nl_constr_colon).\n"
                "Related to nl_constr_colon, nl_constr_init_args and pos_constr_comma.");
 
    unc_begin_group(UG_linesplit, "Line Splitting options");
    unc_add_opt("code_width", UO_code_width, AT_UNUM,
                "Try to limit code width to N number of columns", "", 0, 256);
    unc_add_opt("ls_for_split_full", UO_ls_for_split_full, AT_BOOL,
-               "Whether to fully split long 'for' statements at semi-colons");
+               "Whether to fully split long 'for' statements at semicolons");
    unc_add_opt("ls_func_split_full", UO_ls_func_split_full, AT_BOOL,
-               "Whether to fully split long function protos/calls at commas");
+               "Whether to fully split long function prototypes/calls at commas");
    unc_add_opt("ls_code_width", UO_ls_code_width, AT_BOOL,
                "Whether to split lines as close to code_width as possible and ignore some groupings");
 

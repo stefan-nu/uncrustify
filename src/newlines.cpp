@@ -2109,9 +2109,7 @@ static void nl_func_def(chunk_t* start)
             }
 
             if (not_type(prev, 5, CT_BRACE_CLOSE, CT_VBRACE_CLOSE,
-                 CT_BRACE_OPEN, CT_SEMICOLON, CT_PRIVATE_COLON)
-              //(prev->ptype != CT_TEMPLATE) TODO: create some examples to test the option
-                )
+                 CT_BRACE_OPEN, CT_SEMICOLON, CT_PRIVATE_COLON))
             {
                nl_iarf(prev, a);
             }
@@ -2389,10 +2387,34 @@ void cleanup_braces(bool first)
    {
       switch(pc->type)
       {
+         case(CT_IF):
+            nl_if_for_while_switch(pc, get_arg(UO_nl_if_brace));
+            tmp = get_next_type(pc, CT_SPAREN_CLOSE, pc->level);
+            if (tmp != nullptr)
+            {
+               prev = chunk_get_prev(tmp);
+               if (prev != nullptr)
+               {
+                  // Issue #1139
+                  nl_iarf_pair(prev, tmp, get_arg(UO_nl_before_if_closing_paren));
+               }
+            }
+         break;
+
          case(CT_ELSEIF):
          {
             argval_t arg = get_arg(UO_nl_elseif_brace);
             nl_if_for_while_switch(pc, (arg != AV_IGNORE) ? arg : get_arg(UO_nl_if_brace));
+            tmp = get_next_type(pc, CT_SPAREN_CLOSE, pc->level);
+            if (tmp != nullptr)
+            {
+               prev = chunk_get_prev(tmp);
+               if (prev != nullptr)
+               {
+                  // Issue #1139
+                  nl_iarf_pair(prev, tmp, get_arg(UO_nl_before_if_closing_paren));
+               }
+            }
          }
          break;
 
@@ -2409,7 +2431,6 @@ void cleanup_braces(bool first)
          break;
 
          /* \todo use check array here */
-         case(CT_IF          ): nl_if_for_while_switch(pc, get_arg(UO_nl_if_brace           )); break;
          case(CT_FOR         ): nl_if_for_while_switch(pc, get_arg(UO_nl_for_brace          )); break;
          case(CT_WHILE       ): nl_if_for_while_switch(pc, get_arg(UO_nl_while_brace        )); break;
          case(CT_USING_STMT  ): nl_if_for_while_switch(pc, get_arg(UO_nl_using_brace        )); break;
