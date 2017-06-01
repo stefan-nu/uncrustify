@@ -903,10 +903,8 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
    bool did_hex = false;
    if (ctx.peek() == '0')
    {
-      uint32_t  ch;
-      uint32_t  pc_length;
-      chunk_t pc_temp;
-
+      uint32_t ch;
+      chunk_t  pc_temp;
       pc.str.append(ctx.get());  /* store the '0' */
       pc_temp.str.append('0');
 
@@ -918,7 +916,7 @@ static bool parse_number(tok_ctx &ctx, chunk_t &pc)
          pc_temp.str.append(ch);
       }
 
-      ch        = pc_temp.str[pc_temp.len() - 1];
+      ch = pc_temp.str[pc_temp.len() - 1];
       ctx.restore();
       LOG_FMT(LGUY, "%s(%d): pc_temp:%s\n", __func__, __LINE__, pc_temp.text());
 
