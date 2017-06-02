@@ -2239,7 +2239,7 @@ static bool one_liner_nl_ok(chunk_t* pc)
       cond = is_true(UO_nl_oc_msg_leave_one_liner);
       if (cond && is_flag(pc, PCF_IN_OC_MSG))    { LOG_FMT(LNL1LINE, "false (message)\n");    return(false); }
       cond = is_true(UO_nl_if_leave_one_liners);
-      if (cond && is_ptype(pc, CT_IF, CT_ELSE))  { LOG_FMT(LNL1LINE, "false (if/else)\n");    return(false); }
+      if (cond && is_ptype(pc, CT_IF, CT_ELSEIF, CT_ELSE))  { LOG_FMT(LNL1LINE, "false (if/else)\n");    return(false); }
       cond = is_true(UO_nl_while_leave_one_liners);
       if (cond && is_ptype(pc, CT_WHILE))        { LOG_FMT(LNL1LINE, "false (while)\n");      return(false); }
    }
