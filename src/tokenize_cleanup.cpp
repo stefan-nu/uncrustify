@@ -794,10 +794,9 @@ SN
 
 static void check_template(chunk_t* start)
 {
-   LOG_FMT(LTEMPL, "%s: Line %u, col %u:",
-         __func__, start->orig_line, start->orig_col);
+   LOG_FMT(LTEMPL, "%s(%d): Line %u, col %u:", __func__, __LINE__, start->orig_line, start->orig_col);
 #ifdef DEBUG
-   LOG_FMT(LSPLIT, "\n");
+   LOG_FMT(LTEMPL, "\n");
 #endif // DEBUG
 
    chunk_t *prev = get_prev_ncnl(start, scope_e::PREPROC);
@@ -809,7 +808,7 @@ static void check_template(chunk_t* start)
    {
       LOG_FMT(LTEMPL, " CT_TEMPLATE:");
 #ifdef DEBUG
-      LOG_FMT(LSPLIT, "\n");
+      LOG_FMT(LTEMPL, "\n");
 #endif
 
       /* We have: "template< ... >", which is a template declaration */
@@ -819,13 +818,16 @@ static void check_template(chunk_t* start)
            pc = get_next_ncnl(pc,    scope_e::PREPROC))
       {
          LOG_FMT(LTEMPL, " [%s,%u]", get_token_name(pc->type), level);
+#ifdef DEBUG
+         LOG_FMT(LTEMPL, "\n");
+#endif
 
          if ((pc->str[0] == '>') && (pc->len() > 1))
          {
             LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
 #ifdef DEBUG
-            LOG_FMT(LSPLIT, "\n");
+            LOG_FMT(LTEMPL, "\n");
 #endif
             split_off_angle_close(pc);
          }
@@ -856,7 +858,7 @@ static void check_template(chunk_t* start)
       {
          LOG_FMT(LTEMPL, " - after %s + ( - Not a template\n", get_token_name(prev->type));
 #ifdef DEBUG
-         LOG_FMT(LSPLIT, "\n");
+         LOG_FMT(LTEMPL, "\n");
 #endif
          set_type(start, CT_COMPARE);
          return;
@@ -864,7 +866,7 @@ static void check_template(chunk_t* start)
 
       LOG_FMT(LTEMPL, " - prev %s -", get_token_name(prev->type));
 #ifdef DEBUG
-      LOG_FMT(LSPLIT, "\n");
+      LOG_FMT(LTEMPL, "\n");
 #endif
 
       /* Scan back and make sure we aren't inside square parenthesis */
@@ -900,6 +902,9 @@ static void check_template(chunk_t* start)
            pc = get_next_ncnl(pc, scope_e::PREPROC))
       {
          LOG_FMT(LTEMPL, " [%s,%u]", get_token_name(pc->type), num_tokens);
+#ifdef DEBUG
+         LOG_FMT(LTEMPL, "\n");
+#endif
 
          if ((tokens[num_tokens - 1] == CT_ANGLE_OPEN) &&
              (pc->str[0] == '>') &&
@@ -909,7 +914,7 @@ static void check_template(chunk_t* start)
             LOG_FMT(LTEMPL, " {split '%s' at %u:%u}",
                     pc->text(), pc->orig_line, pc->orig_col);
 #ifdef DEBUG
-            LOG_FMT(LSPLIT, "\n");
+            LOG_FMT(LTEMPL, "\n");
 #endif
             split_off_angle_close(pc);
          }
@@ -971,19 +976,44 @@ static void check_template(chunk_t* start)
       if (is_invalid_or_not_type(pc, CT_NUMBER))
       {
          LOG_FMT(LTEMPL, " - Template Detected\n");
+         LOG_FMT(LTEMPL, "     from line %zu, column %zu\n", start->orig_line, start->orig_col);
+         LOG_FMT(LTEMPL, "     to   line %zu, column %zu\n", end->orig_line, end->orig_col);
 
          set_ptype(start, CT_TEMPLATE);
 
          pc = start;
+         bool    expressionIsNumeric = false;
+         chunk_t *savepc             = nullptr;
          while (pc != end)
          {
-            chunk_t *next = get_next_ncnl(pc, scope_e::PREPROC);
+            chunk_t* next = get_next_ncnl(pc, scope_e::PREPROC);
+            if (next == nullptr) { return; }
+            // Issue #1127
+            // MyFoo<mySize * 2> foo1;
+            // MyFoo<2*mySize * 2> foo1;
             set_flags(pc, PCF_IN_TEMPLATE);
             if (not_type(next, CT_PAREN_OPEN) )
             {
-               make_type(pc);
+               // save to be used if expression is not numeric
+               savepc = pc;
+            }
+            if ((pc->type == CT_NUMBER) ||
+                ((pc->type == CT_ARITH) &&
+                 (pc->type != CT_STAR)))
+            {
+               expressionIsNumeric = true;
+               break;
             }
             pc = next;
+         }
+         LOG_FMT(LTEMPL, "expressionIsNumeric is %s\n", expressionIsNumeric ? "TRUE" : "FALSE");
+         if (!expressionIsNumeric)
+         {
+            if (savepc == nullptr)
+            {
+               return;
+            }
+            make_type(savepc);
          }
          set_ptype_and_flag(end, CT_TEMPLATE, PCF_IN_TEMPLATE);
          return;
