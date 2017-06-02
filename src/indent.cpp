@@ -455,6 +455,7 @@ static void indent_pse_push(parse_frame_t& frm, chunk_t* pc)
    else
    {
       fprintf(stderr, "the stack depth is too small\n");
+      log_flush(true);
       exit(EXIT_FAILURE);
    }
 }
@@ -503,6 +504,7 @@ static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
       assert(is_valid(pc));
       fprintf(stderr, "at line=%u, type is %s\n",
               pc->orig_line, get_token_name(pc->type));
+      log_flush(true);
       exit(EXIT_FAILURE);
    }
 }

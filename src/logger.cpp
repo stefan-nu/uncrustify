@@ -62,14 +62,6 @@ static struct log_buf_t g_log;
 
 
 /**
- * Flushes the cached log text to the stream
- */
-static void log_flush(
-   bool force_nl /**< [in] Append NL if not present */
-);
-
-
-/**
  * Starts the log statement by flushing if needed and printing the header
  *
  * @return The number of bytes available
@@ -128,7 +120,7 @@ void log_get_mask(log_mask_t& mask)
 }
 
 
-static void log_flush(bool force_nl)
+void log_flush(bool force_nl)
 {
    if (g_log.buf_len > 0)
    {

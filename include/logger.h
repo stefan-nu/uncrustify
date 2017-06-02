@@ -102,6 +102,15 @@ void log_fmt(
 )
 __attribute__((format(printf, 2, 3)));
 
+
+/**
+ * \brief Flushes the cached log text to the stream
+ */
+void log_flush(
+   bool force_nl /**< [in] Append NL if not present */
+);
+
+
 #ifdef NO_MACRO_VARARG
 #define LOG_FMT    log_fmt
 // \todo during debugging add source file and line number

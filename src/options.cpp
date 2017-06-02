@@ -143,6 +143,7 @@ static void unc_add_opt(
               "   Number in the options.cpp file = %d\n"
               "   Number in the options.h   file = %d\n"
               "   for the group '%s'\n", id, checkOptionNumber, name);
+      log_flush(true);
       exit(EX_SOFTWARE);
    }
 #endif
@@ -169,6 +170,7 @@ void unc_begin_group(ug_t id, const char* short_desc, const char* long_desc)
               "   Number in the options.cpp file = %d\n"
               "   Number in the options.h   file = %d\n"
               "   for the group '%s'\n", id, checkGroupNumber, short_desc);
+      log_flush(true);
       exit(EX_SOFTWARE);
    }
 #endif
@@ -327,6 +329,7 @@ static void unc_add_opt(const char* name, uo_t id, argtype_t type,
    {
       fprintf(stderr, "FATAL: length of the option name (%s) is too big (%u)\n", name, lengthOfTheOption);
       fprintf(stderr, "FATAL: the maximal length of an option name is %u characters\n", option_max_length);
+      log_flush(true);
       exit(EX_SOFTWARE);
    }
    group_map[current_group].options.push_back(id);
@@ -353,6 +356,7 @@ static void unc_add_opt(const char* name, uo_t id, argtype_t type,
 
       default:
          fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
+         log_flush(true);
          exit(EX_SOFTWARE);
    }
 
@@ -1848,6 +1852,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
       {
          fprintf(stderr, "%s:%u Expected AUTO, LF, CRLF, or CR for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
+         log_flush(true);
          cpd.error_count++;
       }
       dest->le = LE_AUTO;
@@ -1868,6 +1873,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
          fprintf(stderr, "%s:%u Expected IGNORE, JOIN, LEAD, LEAD_BREAK, LEAD_FORCE, "
                  "TRAIL, TRAIL_BREAK, TRAIL_FORCE for %s, got %s\n",
                  cpd.filename, cpd.line_number, entry->name, val);
+         log_flush(true);
          cpd.error_count++;
       }
       dest->tp = TP_IGNORE;
@@ -1885,6 +1891,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
          {
             fprintf(stderr, "%s:%u\n  for the option '%s' is a negative value not possible: %s",
                     cpd.filename, cpd.line_number, entry->name, val);
+            log_flush(true);
             exit(EX_CONFIG);
          }
          dest->n = strtol(val, nullptr, 0);
@@ -1906,6 +1913,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
          {
             fprintf(stderr, "%s:%u\n  for the assignment: unknown option '%s':",
                     cpd.filename, cpd.line_number, val);
+            log_flush(true);
             exit(EX_CONFIG);
          }
          // indent_case_brace = -indent_columns
@@ -1927,11 +1935,13 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
             fprintf(stderr, "%s:%u\n  for the assignment: expected type for %s is %s, got %s\n",
                     cpd.filename, cpd.line_number,
                     entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
+            log_flush(true);
             exit(EX_CONFIG);
          }
       }
       fprintf(stderr, "%s:%u Expected a number for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
+      log_flush(true);
       cpd.error_count++;
       dest->n = 0;
       // is the same as dest->u
@@ -1971,6 +1981,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
       }
       fprintf(stderr, "%s:%u Expected 'True' or 'False' for %s, got %s\n",
               cpd.filename, cpd.line_number, entry->name, val);
+      log_flush(true);
       cpd.error_count++;
       dest->b = false;
       return;
@@ -1997,6 +2008,7 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
 
    fprintf(stderr, "%s:%u Expected 'Add', 'Remove', 'Force', or 'Ignore' for %s, got %s\n",
            cpd.filename, cpd.line_number, entry->name, val);
+   log_flush(true);
    cpd.error_count++;
    dest->a = AV_IGNORE;
 }
@@ -2054,6 +2066,7 @@ void process_option_line(char* configLine, const char* filename)
       {
          fprintf(stderr, "%s:%u Wrong number of arguments: %s...\n",
                  filename, cpd.line_number, configLine);
+         log_flush(true);
          cpd.error_count++;
       }
       return;
@@ -2078,6 +2091,7 @@ void process_option_line(char* configLine, const char* filename)
       {
          fprintf(stderr, "%s:%u 'set' requires at least three arguments\n",
                  filename, cpd.line_number);
+         log_flush(true);
       }
       else
       {
@@ -2095,6 +2109,7 @@ void process_option_line(char* configLine, const char* filename)
          else
          {
             fprintf(stderr, "%s:%u unknown type '%s':", filename, cpd.line_number, args[1]);
+            log_flush(true);
          }
       }
    }
@@ -2123,6 +2138,7 @@ void process_option_line(char* configLine, const char* filename)
       {
          fprintf(stderr, "%s:%u 'file_ext' requires at least three arguments\n",
                  filename, cpd.line_number);
+         log_flush(true);
       }
       else
       {
@@ -2138,6 +2154,7 @@ void process_option_line(char* configLine, const char* filename)
             {
                fprintf(stderr, "%s:%u file_ext has unknown language '%s'\n",
                        filename, cpd.line_number, args[1]);
+               log_flush(true);
             }
          }
       }
@@ -2150,6 +2167,7 @@ void process_option_line(char* configLine, const char* filename)
       {
          fprintf(stderr, "%s:%u Unknown symbol '%s'\n",
                  filename, cpd.line_number, args[0]);
+         log_flush(true);
          cpd.error_count++;
       }
    }
@@ -2402,6 +2420,7 @@ void set_option_defaults(void)
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
             fprintf(stderr, "The default value '%u' is more than the max value '%u'.\n",
                     default_value, max_value);
+            log_flush(true);
             exit(EX_SOFTWARE);
          }
          if ((min_value > 0) &&
@@ -2410,6 +2429,7 @@ void set_option_defaults(void)
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
             fprintf(stderr, "The default value '%u' is less than the min value '%u'.\n",
                     default_value, min_value);
+            log_flush(true);
             exit(EX_SOFTWARE);
          }
       }
@@ -2424,6 +2444,7 @@ void set_option_defaults(void)
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
             fprintf(stderr, "The default value '%d' is more than the max value '%d'.\n",
                     default_value, max_value);
+            log_flush(true);
             exit(EX_SOFTWARE);
          }
          if (default_value < min_value)
@@ -2431,6 +2452,7 @@ void set_option_defaults(void)
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
             fprintf(stderr, "The default value '%d' is less than the min value '%d'.\n",
                     default_value, min_value);
+            log_flush(true);
             exit(EX_SOFTWARE);
          }
       }
@@ -2458,6 +2480,7 @@ string argtype2string(argtype_t argtype)
       case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
       case AT_STRING: return("string");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      log_flush(true);
                       return("");
    }
 }
@@ -2488,6 +2511,7 @@ const char* get_argtype_name(argtype_t argtype)
       case AT_POS:    return("AT_POS"   );
       case AT_STRING: return("AT_STRING");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      log_flush(true);
                       return("");
    }
 }
@@ -2508,6 +2532,7 @@ string argval2str(argval_t argval)
       case AV_REMOVE: return("remove");
       case AV_FORCE:  return("force" );
       default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
+                      log_flush(true);
                       return("undefined");
    }
 }
@@ -2532,6 +2557,7 @@ string lineends2str(lineends_t linends)
       case LE_CR:   return("cr"  );
       case LE_AUTO: return("auto");
       default:      fprintf(stderr, "Unknown lineends '%d'\n", linends);
+                    log_flush(true);
                     return("");
    }
 }
@@ -2550,6 +2576,7 @@ string tokenpos2str(tokenpos_t tokenpos)
       case TP_TRAIL_BREAK: return("trail_break");
       case TP_TRAIL_FORCE: return("trail_force");
       default:             fprintf(stderr, "Unknown tokenpos '%d'\n", tokenpos);
+                           log_flush(true);
                            return("");
    }
 }
@@ -2567,6 +2594,7 @@ string op_val2str(const argtype_t argtype, const op_val_t& op_val)
       case AT_POS:    return(tokenpos2str       (op_val.tp));
       case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");
       default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+                      log_flush(true);
                       return("");
    }
 }

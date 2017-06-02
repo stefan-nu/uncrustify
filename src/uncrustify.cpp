@@ -467,11 +467,13 @@ void usage_exit(const char* msg, const char* argv0, int32_t code)
    if (ptr_is_valid(msg))
    {
       fprintf(stderr, "%s\n", msg);
+      log_flush(true);
    }
    if ((code  != EXIT_SUCCESS) ||
        (ptr_is_invalid(argv0)) )
    {
       fprintf(stderr, "Try running with -h for usage information\n");
+      log_flush(true);
       exit(code);
    }
    fprintf(stdout,
@@ -838,6 +840,7 @@ int main(int argc, char* argv[])
          if (get_uval(UO_nl_func_var_def_blk) >= get_uval(UO_nl_max))
          {
             fprintf(stderr, "The option 'nl_func_var_def_blk' is too big against the option 'nl_max'\n");
+            log_flush(true);
             exit(EX_CONFIG);
          }
       }
@@ -852,6 +855,7 @@ int main(int argc, char* argv[])
       if (argLength > MAX_ARG_LENGTH)
       {
          fprintf(stderr, "The buffer is to short for the set argument '%s'\n", p_arg);
+         log_flush(true);
          exit(EX_SOFTWARE);
       }
       char buffer[MAX_ARG_LENGTH];
@@ -871,6 +875,7 @@ int main(int argc, char* argv[])
          if (result == -1)
          {
             fprintf(stderr, "Unknown option '%s' to override.\n", buffer);
+            log_flush(true);
             return(EXIT_FAILURE);
          }
       }
@@ -891,6 +896,7 @@ int main(int argc, char* argv[])
          {
             fprintf(stderr, "Unable to open %s for write: %s (%d)\n",
                     output_file, strerror(errno), errno);
+            log_flush(true);
             return(EXIT_FAILURE);
          }
       }
@@ -908,6 +914,7 @@ int main(int argc, char* argv[])
       if (ptrs_are_invalid(source_file, source_list))
       {
          fprintf(stderr, "The --detect option requires a single input file\n");
+         log_flush(true);
          return(EXIT_FAILURE);
       }
 
@@ -1395,6 +1402,7 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
       {
          fprintf(stderr, "FAIL: %s (File size changed from %u to %u)\n",
                  cpd.filename, (uint32_t)fm.raw.size(), (uint32_t)cpd.bout->size());
+         log_flush(true);
       }
       is_same = false;
    }
@@ -1408,6 +1416,7 @@ static bool bout_content_matches(const file_mem_t &fm, const bool report_status)
             {
                fprintf(stderr, "FAIL: %s (Difference at byte %u)\n",
                        cpd.filename, idx);
+               log_flush(true);
             }
             is_same = false;
             break;

@@ -987,6 +987,7 @@ static void _blank_line_set(chunk_t* pc, const char* text, uo_t uo)
    {
       fprintf(stderr, "Program error for UO_=%d\n", static_cast<int32_t>(uo));
       fprintf(stderr, "Please make a report\n");
+      log_flush(true);
       exit(2);
    }
 
@@ -3491,6 +3492,7 @@ static void _blank_line_max(chunk_t* pc, const char* text, uo_t uo)
    {
       fprintf(stderr, "Program error for UO_=%d\n", static_cast<int32_t>(uo));
       fprintf(stderr, "Please make a report\n");
+      log_flush(true);
       exit(2);
    }
    if ((get_uval(uo) > 0) && (pc->nl_count > get_uval(uo)))

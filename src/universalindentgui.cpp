@@ -257,6 +257,7 @@ void print_universal_indent_cfg(FILE* pfile)
 
             default:
                fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", option->type, option->name);
+               log_flush(true);
                exit(EX_SOFTWARE);
                break;
             }

@@ -643,7 +643,7 @@ void output_text(FILE* pfile)
                else
                {
                   /* Try to keep the same relative spacing */
-                  chunk_t *prev = chunk_get_prev(pc);
+                  chunk_t* prev = chunk_get_prev(pc);
                   while ((is_valid(prev)      ) &&
                          (prev->orig_col == 0 ) &&
                          (prev->nl_count == 0 ) )
@@ -658,7 +658,8 @@ void output_text(FILE* pfile)
                      {
                         fprintf(stderr, "FATAL: negative value.\n   pc->orig_col=%u prev->orig_col_end=%u\n",
                                          pc->orig_col, prev->orig_col_end);
-                     //   exit(EX_SOFTWARE);
+                        log_flush(true);
+                        exit(EX_SOFTWARE);
                      }
 
                      pc->column = (uint32_t)((int32_t)cpd.column + orig_sp);

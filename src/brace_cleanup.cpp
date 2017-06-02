@@ -692,6 +692,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       /* fatal error */
       fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%u, column=%u\n",
               pc->orig_line, pc->orig_col);
+      log_flush(true);
       exit(EXIT_FAILURE);
    }
 }
