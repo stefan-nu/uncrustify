@@ -1604,6 +1604,15 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          }
       }
    }
+
+   /* Issue #548
+    * inline T && someFunc(foo * *p, bar && q) { } */
+   if (is_type(pc, CT_BOOL) &&
+       is_str (pc, "&&"   ) &&
+       chunk_ends_type(pc->prev))
+   {
+      set_type(pc, CT_BYREF);
+   }
 }
 
 
