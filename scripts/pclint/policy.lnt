@@ -187,7 +187,7 @@
 +e736 					// Loss of precision float
 -e737 					// Loss of sign in promotion from Type1 to Type2
 +e738 					// Symbol not explicitly initialized
-+e739 					// Trigraph Sequence in literal (Quiet Change)
+-e739 					// Trigraph Sequence in literal (Quiet Change)
 +e740 					// Unusual pointer cast (incompatible indirect types)
 +e741 					// Unusual pointer cast (function qualification)
 +e742 					// Multiple character constant

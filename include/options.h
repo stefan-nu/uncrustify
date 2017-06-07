@@ -335,10 +335,10 @@ enum uo_t
 
    /* group: UG_indent, "Indenting" 2 */
    UO_indent_columns,                       /**< ie 3 or 8 */
-   UO_indent_continue,                      /**<  */
+   UO_indent_continue,                      /**< tbd */
    UO_indent_param,                         /**< indent value of indent_*_param */
    UO_indent_with_tabs,                     /**< 1=only to the 'level' indent, 2=use tabs for indenting */
-   UO_indent_cmt_with_tabs,                 /**<  */
+   UO_indent_cmt_with_tabs,                 /**< tbd */
    UO_indent_align_string,                  /**< True/False - indent align broken strings */
    UO_indent_xml_string,                    /**< Number amount to indent XML strings */
    UO_indent_brace,                         /**< spaces to indent '{' from level (usually 0) */
@@ -364,17 +364,17 @@ enum uo_t
    UO_indent_ctor_init_leading,             /**< virtual indent from the ':' for member initializers.
                                              *   Default is 2. (applies to the leading colon case) */
    UO_indent_ctor_init,                     /**< additional indenting for ctor initializer lists */
-   UO_indent_else_if,                       /**<  */
+   UO_indent_else_if,                       /**< tbd */
    UO_indent_var_def_blk,                   /**< indent a variable def block that appears at the top */
-   UO_indent_var_def_cont,                  /**<  */
+   UO_indent_var_def_cont,                  /**< tbd */
    UO_indent_shift,                         /**< if a shift expression spans multiple lines, indent */
    UO_indent_func_def_force_col1,           /**< force indentation of function definition to start in column 1 */
    UO_indent_func_call_param,               /**< indent continued function calls to indent_columns */
    UO_indent_func_def_param,                /**< same, but for function defs */
    UO_indent_func_proto_param,              /**< same, but for function prototypes */
    UO_indent_func_class_param,              /**< same, but for classes */
-   UO_indent_func_ctor_var_param,           /**<  */
-   UO_indent_template_param,                /**<  */
+   UO_indent_func_ctor_var_param,           /**< tbd */
+   UO_indent_template_param,                /**< tbd */
    UO_indent_func_param_double,             /**< double the tab indent for
                                              *   Use both values of the options indent_columns and indent_param */
    UO_indent_func_const,                    /**< indentation for standalone 'const' qualifier */
@@ -398,20 +398,20 @@ enum uo_t
                                              *   expression to the following ones */
    UO_indent_square_nl,                     /**< indent-align under square for open followed by newline */
    UO_indent_preserve_sql,                  /**< preserve indent of EXEC SQL statement body */
-   UO_indent_align_assign,                  /**<  */
-   UO_indent_oc_block,                      /**<  */
-   UO_indent_oc_block_msg,                  /**<  */
-   UO_indent_oc_msg_colon,                  /**<  */
-   UO_indent_oc_msg_prioritize_first_colon, /**<  */
-   UO_indent_oc_block_msg_xcode_style,      /**<  */
-   UO_indent_oc_block_msg_from_keyword,     /**<  */
-   UO_indent_oc_block_msg_from_colon,       /**<  */
-   UO_indent_oc_block_msg_from_caret,       /**<  */
-   UO_indent_oc_block_msg_from_brace,       /**<  */
+   UO_indent_align_assign,                  /**< tbd */
+   UO_indent_oc_block,                      /**< tbd */
+   UO_indent_oc_block_msg,                  /**< tbd */
+   UO_indent_oc_msg_colon,                  /**< tbd */
+   UO_indent_oc_msg_prioritize_first_colon, /**< tbd */
+   UO_indent_oc_block_msg_xcode_style,      /**< tbd */
+   UO_indent_oc_block_msg_from_keyword,     /**< tbd */
+   UO_indent_oc_block_msg_from_colon,       /**< tbd */
+   UO_indent_oc_block_msg_from_caret,       /**< tbd */
+   UO_indent_oc_block_msg_from_brace,       /**< tbd */
    UO_indent_min_vbrace_open,               /**< min. indent after virtual brace open and newline */
-   UO_indent_vbrace_open_on_tabstop,        /**< when identing after virtual brace open and newline
+   UO_indent_vbrace_open_on_tabstop,        /**< when indenting after virtual brace open and newline
                                              *   add further spaces to reach next tabstop */
-   UO_indent_token_after_brace,             /**<  */
+   UO_indent_token_after_brace,             /**< tbd */
    UO_indent_cpp_lambda_body,               /**< indent cpp lambda or not */
    UO_indent_using_block,                   /**< indent (or not) an using block if no braces are used, */
    UO_indent_ternary_operator,              /**< indent continuation of ternary operator */
@@ -427,8 +427,8 @@ enum uo_t
    UO_nl_getset_leave_one_liners,     /**< leave one-line get/set bodies */
    UO_nl_func_leave_one_liners,       /**< leave one-line function def bodies */
    UO_nl_cpp_lambda_leave_one_liners, /**< leave one-line C++11 lambda bodies */
-   UO_nl_if_leave_one_liners,         /**<  */
-   UO_nl_while_leave_one_liners,      /**<  */
+   UO_nl_if_leave_one_liners,         /**< tbd */
+   UO_nl_while_leave_one_liners,      /**< tbd */
    UO_nl_oc_msg_leave_one_liner,      /**< Don't split one-line OC messages */
    UO_nl_oc_block_brace,              /**< Add or remove newline between Objective-C block signature and '{' */
    UO_nl_start_of_file,               /**< alter newlines at the start of file */
@@ -688,7 +688,7 @@ enum uo_t
    UO_align_number_left,           /**< left-align numbers (not fully supported, yet) */
    UO_align_keep_extra_space,      /**< don't squash extra whitespace */
    UO_align_func_params,           /**< align prototype variable defs on variable */
-   UO_align_same_func_call_params, /**<  */
+   UO_align_same_func_call_params, /**< tbd */
    UO_align_var_def_span,          /**< align variable defs on variable (span for regular stuff) */
    UO_align_var_def_star_style,    /**< see UO_align_typedef_star_style */
    UO_align_var_def_amp_style,     /**< see UO_align_typedef_star_style */
@@ -696,7 +696,7 @@ enum uo_t
    UO_align_var_def_gap,           /**< align variable defs gap */
    UO_align_var_def_colon,         /**< align the colon in struct bit fields */
    UO_align_var_def_colon_gap,     /**< align variable defs gap for bit colons */
-   UO_align_var_def_attribute,     /**<  */
+   UO_align_var_def_attribute,     /**< tbd */
    UO_align_var_def_inline,        /**< also align inline struct/enum/union var defs */
    UO_align_assign_span,           /**< align on '='. 0=don't align */
    UO_align_assign_thresh,         /**< threshold for aligning on '='. 0=no limit */
@@ -724,7 +724,7 @@ enum uo_t
                                     *   'pulls in' comments as a bonus side effect */
    UO_align_func_proto_span,       /**< align function prototypes */
    UO_align_func_proto_gap,        /**< align function prototypes */
-   UO_align_on_operator,           /**<  */
+   UO_align_on_operator,           /**< tbd */
    UO_align_mix_var_proto,         /**< mix function prototypes and variable declaration */
    UO_align_single_line_func,      /**< mix single line function with prototypes */
    UO_align_single_line_brace,     /**< align the open brace of single line functions */
@@ -734,11 +734,11 @@ enum uo_t
    UO_align_pp_define_together,    /**< align macro functions and variables together */
    UO_align_pp_define_gap,         /**< min space between define label and value '#define a <---> 16' */
    UO_align_pp_define_span,        /**< align bodies in #define statements */
-   UO_align_left_shift,            /**<  */
-   UO_align_asm_colon,             /**<  */
-   UO_align_oc_msg_colon_span,     /**<  */
-   UO_align_oc_msg_colon_first,    /**<  */
-   UO_align_oc_decl_colon,         /**<  */
+   UO_align_left_shift,            /**< tbd */
+   UO_align_asm_colon,             /**< tbd */
+   UO_align_oc_msg_colon_span,     /**< tbd */
+   UO_align_oc_msg_colon_first,    /**< tbd */
+   UO_align_oc_decl_colon,         /**< tbd */
 /* UO_align_pp_define_col_min,    TODO: min column for a #define value */
 /* UO_align_pp_define_col_max,    TODO: max column for a #define value */
 /* UO_align_enum_col_min,         TODO: the min column for enum '=' alignment */
@@ -749,7 +749,7 @@ enum uo_t
    /* group: UG_comment, "Comment modifications" 8 */
    UO_cmt_width,                   /**< column to wrap comments */
    UO_cmt_reflow_mode,             /**< comment reflow style */
-   UO_cmt_convert_tab_to_spaces,   /**<  */
+   UO_cmt_convert_tab_to_spaces,   /**< tbd */
    UO_cmt_indent_multi,            /**< change left indent of multiline comments */
    UO_cmt_c_group,                 /**< try to group neighboring C comments */
    UO_cmt_c_nl_start,              /**< put a blank '/ *' at the start of a combined group */
@@ -767,14 +767,14 @@ enum uo_t
                                     *   first and last lines of the comment are the same length AND if the
                                     *   length is bigger as the first_len minimum.
                                     *   Default=4 */
-   UO_cmt_insert_file_header,      /**<  */
-   UO_cmt_insert_file_footer,      /**<  */
-   UO_cmt_insert_func_header,      /**<  */
-   UO_cmt_insert_class_header,     /**<  */
-   UO_cmt_insert_oc_msg_header,    /**<  */
-   UO_cmt_insert_before_preproc,   /**<  */
-   UO_cmt_insert_before_inlines,   /**<  */
-   UO_cmt_insert_before_ctor_dtor, /**<  */
+   UO_cmt_insert_file_header,      /**< tbd */
+   UO_cmt_insert_file_footer,      /**< tbd */
+   UO_cmt_insert_func_header,      /**< tbd */
+   UO_cmt_insert_class_header,     /**< tbd */
+   UO_cmt_insert_oc_msg_header,    /**< tbd */
+   UO_cmt_insert_before_preproc,   /**< tbd */
+   UO_cmt_insert_before_inlines,   /**< tbd */
+   UO_cmt_insert_before_ctor_dtor, /**< tbd */
 
    /* group: UG_codemodify, "Code modifying options (non-whitespace)"  9 */
    UO_mod_full_brace_do,                         /**< add or remove braces on single-line do */
@@ -791,20 +791,20 @@ enum uo_t
    UO_mod_full_brace_using,                      /**< add or remove braces on using */
    UO_mod_paren_on_return,                       /**< add or remove parenthesis on return */
    UO_mod_pawn_semicolon,                        /**< add optional semicolons */
-   UO_mod_full_paren_if_bool,                    /**<  */
+   UO_mod_full_paren_if_bool,                    /**< tbd */
    UO_mod_remove_extra_semicolon,                /**< remove extra semicolons */
-   UO_mod_add_long_function_closebrace_comment,  /**<  */
-   UO_mod_add_long_namespace_closebrace_comment, /**<  */
-   UO_mod_add_long_class_closebrace_comment,     /**<  */
-   UO_mod_add_long_switch_closebrace_comment,    /**<  */
-   UO_mod_add_long_ifdef_endif_comment,          /**<  */
-   UO_mod_add_long_ifdef_else_comment,           /**<  */
-   UO_mod_sort_import,                           /**<  */
-   UO_mod_sort_using,                            /**<  */
-   UO_mod_sort_include,                          /**<  */
-   UO_mod_move_case_break,                       /**<  */
-   UO_mod_case_brace,                            /**<  */
-   UO_mod_remove_empty_return,                   /**<  */
+   UO_mod_add_long_function_closebrace_comment,  /**< tbd */
+   UO_mod_add_long_namespace_closebrace_comment, /**< tbd */
+   UO_mod_add_long_class_closebrace_comment,     /**< tbd */
+   UO_mod_add_long_switch_closebrace_comment,    /**< tbd */
+   UO_mod_add_long_ifdef_endif_comment,          /**< tbd */
+   UO_mod_add_long_ifdef_else_comment,           /**< tbd */
+   UO_mod_sort_import,                           /**< tbd */
+   UO_mod_sort_using,                            /**< tbd */
+   UO_mod_sort_include,                          /**< tbd */
+   UO_mod_move_case_break,                       /**< tbd */
+   UO_mod_case_brace,                            /**< tbd */
+   UO_mod_remove_empty_return,                   /**< tbd */
    UO_mod_sort_oc_properties,                    /**< organizes objective c properties */
 
    /* Sorting options for objective C properties */
@@ -820,20 +820,20 @@ enum uo_t
    /* group: UG_preprocessor, "Preprocessor options"  10 */
    UO_pp_indent,             /**< indent preproc 1 space per level (add/ignore/remove) */
    UO_pp_indent_at_level,    /**< indent #if, #else, #endif at brace level */
-   UO_pp_indent_count,       /**<  */
+   UO_pp_indent_count,       /**< tbd */
    UO_pp_space,              /**< spaces between # and word (add/ignore/remove) */
    UO_pp_space_count,        /**< the number of spaces for add/force, may be positive, zero or negative */
    UO_pp_indent_region,      /**< indent of #region and #endregion, see indent_label */
    UO_pp_region_indent_code, /**< whether to indent the code inside region stuff */
-   UO_pp_indent_if,          /**<  */
-   UO_pp_if_indent_code,     /**<  */
+   UO_pp_indent_if,          /**< tbd */
+   UO_pp_if_indent_code,     /**< tbd */
    UO_pp_define_at_level,    /**< indent #define at brace level */
    UO_pp_ignore_define_body, /**< "Whether to ignore the '#define' body while formatting." */
 
    /* group: UG_sort_includes, "Sort includes options" 11 */
-   UO_include_category_0,  /**<  */
-   UO_include_category_1,  /**<  */
-   UO_include_category_2,  /**<  */
+   UO_include_category_0,  /**< tbd */
+   UO_include_category_1,  /**< tbd */
+   UO_include_category_2,  /**< tbd */
 
    /* group: UG_Use_Ext, "Use or Do not Use options", "G" 12 */
    UO_use_indent_func_call_param,           /**< use/don't use indent_func_call_param Guy 2015-09-24 */
@@ -863,9 +863,7 @@ enum uo_t
    UO_always_force,                         /**< this option is always AV_FORCE */
 
    /* UO_dont_protect_xcode_code_placeholders, */
-
-   /*  This is used to get the enumeration count */
-   UO_option_count
+   UO_option_count                          /**< This is used to get the enumeration count */
 };
 
 /* for helping by sort */

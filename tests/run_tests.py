@@ -106,6 +106,10 @@ mutex = Lock()
 def printf(format, *args):
     sys.stdout.write(format % args)
 
+#
+# execute a single test
+# this function can be run in parallel for several tests
+#
 def run_tests(args, test_name, config_name, input_name, lang):
     global unst_count
     global pass_count
@@ -181,6 +185,10 @@ def run_tests(args, test_name, config_name, input_name, lang):
     mutex.release()    
     return 0
 
+#
+# start all tests of a testfile using 
+# independent threads for each test
+#
 def process_test_file(args, filename):
     global thread_count
     global test_count
@@ -191,13 +199,15 @@ def process_test_file(args, filename):
     # usually a good choice for the number of parallel threads is twice the 
     # number of available CPU cores plus a few extra threads. This leads
     # to fast overall test speed but little thread blocking
+    # For some unknown reason the overall test speed on my machine is best 
+    # when I run 8 threads for each CPU core
     max_threads = 32
     
     fd = open(filename, "r")
     if fd == None:
         print("Unable to open " + filename)
         return None
-    print("Processing " + filename)
+    print("Start tests from " + filename)
     for line in fd:
         line = line.strip()
         parts = line.split()
@@ -245,7 +255,7 @@ def process_test_file(args, filename):
                     print("\r(%d / %d) tests finished" % (pass_count, test_count)),
                 time.sleep(1)
                 
-    print("\n")                
+    print("\n")
     return               
 
 #

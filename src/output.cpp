@@ -540,7 +540,7 @@ static int32_t next_up(const unc_text& text, uint32_t idx, const unc_text& tag)
 static void cmt_output_indent(uint32_t brace_col, uint32_t base_col, uint32_t column)
 {
    uint32_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 :   /* \todo better use an enum here */
-                                 (get_ival(UO_indent_with_tabs) ? 1 :
+                                 (get_uval(UO_indent_with_tabs) ? 1 :
                                                                   0);
 
    uint32_t tab_col = (indent_with_tabs == 0) ? 0 :
@@ -670,13 +670,14 @@ void output_text(FILE* pfile)
                      {
                         pc->column = cpd.column + 1;
                      }
+                     assert(pc->column < 100000); /* check for overflow should never be hit */
                   }
                }
                fill_line(pc->column, false);
             }
             else
             {
-               fill_line(pc->column, (get_ival(UO_indent_with_tabs) == 2));
+               fill_line(pc->column, (get_uval(UO_indent_with_tabs) == 2));
             }
             add_char(BACKSLASH);
             add_char(LINEFEED);
@@ -731,7 +732,7 @@ void output_text(FILE* pfile)
                /* indent to the 'level' first */
                if (cpd.did_newline == true)
                {
-                  if (get_ival(UO_indent_with_tabs) == 1)
+                  if (get_uval(UO_indent_with_tabs) == 1)
                   {
                      uint32_t lvlcol;
                      /* FIXME: it would be better to properly set column_indent in
@@ -742,18 +743,17 @@ void output_text(FILE* pfile)
                      }
                      else
                      {
-                        lvlcol = pc->column_indent;
-                        lvlcol = min(lvlcol, pc->column);
+                        lvlcol = min(pc->column_indent, pc->column);
                      }
+                     assert(lvlcol < 100000); /* check for overflow should never be hit */
 
                      if (lvlcol > 1)
                      {
                         fill_line(lvlcol, true);
                      }
                   }
-                  allow_tabs = (get_ival(UO_indent_with_tabs) == 2) ||
-                               (is_cmt(pc) &&
-                               (get_ival(UO_indent_with_tabs) != 0));
+                  allow_tabs =(( get_uval(UO_indent_with_tabs) == 2                  ) ||
+                               ((get_uval(UO_indent_with_tabs) != 0) && (is_cmt(pc) )) );
 
                   LOG_FMT(LOUTIND, "  %u> col %u/%u/%u - ", pc->orig_line, pc->column, pc->column_indent, cpd.column);
                }
@@ -1124,7 +1124,7 @@ static chunk_t* output_cmt_c(chunk_t* first)
 
    cmt_reflow_t cmt;
    output_cmt_start(cmt, first);
-   cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
+   cmt.reflow = (get_uval(UO_cmt_reflow_mode) != 1);
 
    /* See if we can combine this comment with the next comment */
    if (is_false(UO_cmt_c_group) || !can_combine_cmt(first, cmt))
@@ -1181,7 +1181,7 @@ static chunk_t* output_comment_cpp(chunk_t* first)
 
    cmt_reflow_t cmt;
    output_cmt_start(cmt, first);
-   cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
+   cmt.reflow = (get_uval(UO_cmt_reflow_mode) != 1);
 
    unc_text leadin = "//";             /* default setting to keep previous behavior */
    if (is_true(UO_sp_cmt_cpp_doxygen)) /* special treatment for doxygen style comments (treat as unity) */
@@ -1381,7 +1381,7 @@ static void output_comment_multi(chunk_t* pc)
 {
    cmt_reflow_t cmt;
    output_cmt_start(cmt, pc);
-   cmt.reflow = (get_ival(UO_cmt_reflow_mode) != 1);
+   cmt.reflow = (get_uval(UO_cmt_reflow_mode) != 1);
 
    uint32_t cmt_col  = cmt.base_col;
    int32_t  col_diff = (int32_t)pc->orig_col - (int32_t)cmt.base_col;
@@ -1437,7 +1437,7 @@ static void output_comment_multi(chunk_t* pc)
 
       /* Now see if we need/must fold the next line with the current to enable
        * full reflow */
-      if ((get_ival(UO_cmt_reflow_mode) == 2) &&
+      if ((get_uval(UO_cmt_reflow_mode) == 2) &&
           (ch      == LINEFEED     ) &&
           (cmt_idx <  pc->len()) )
       {

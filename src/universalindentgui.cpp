@@ -136,7 +136,7 @@ void print_universal_indent_cfg(FILE* pfile)
             fprintf(pfile, "EditorType=multiple\n");
             fprintf(pfile, "Choices=\"%s=0|%s=1|%s=2\"\n", option->name, option->name, option->name);
             fprintf(pfile, "ChoicesReadable=\"Spaces only|Indent with tabs, align with spaces|Indent and align with tabs\"\n");
-            fprintf(pfile, "ValueDefault=%d\n", get_ival(option->id));
+            fprintf(pfile, "ValueDefault=%u\n", get_uval(option->id));
             break;
 
          // All not specially handled options are created only dependent by their type.

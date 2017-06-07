@@ -36,6 +36,15 @@ using namespace std;
 #define UNCRUSTIFY_OFF_TEXT    " *INDENT-OFF*"
 #define UNCRUSTIFY_ON_TEXT     " *INDENT-ON*"
 
+//! returns type (with removed reference) of a variable
+#define noref_decl_t(X)              remove_reference<decltype((X))>::type
+
+//! static casts Y to the type (with removed reference) of X
+#define s_cast_noref_decl_t(X, Y)    static_cast<noref_decl_t(X)>(Y)
+
+//! performs abs on Y after static casting it to the type (with removed reference) of X
+#define cast_abs(X, Y)               s_cast_noref_decl_t(X, abs(Y))
+
 
 /**
  * @brief Macro to inform the compiler that a variable is intentionally
@@ -61,18 +70,18 @@ using namespace std;
 /** Brace stage enum used in brace_cleanup */
 enum class brace_stage_e : uint32_t
 {
-   NONE,                                                         //!< NONE
-   PAREN1,     /**< if/for/switch/while/synchronized */          //!< PAREN1
-   OP_PAREN1,  /**< optional parenthesis: catch () { */          //!< OP_PAREN1
-   WOD_PAREN,  /**< while of do parenthesis */                   //!< WOD_PAREN
-   WOD_SEMI,   /**< semicolon after while of do */               //!< WOD_SEMI
-   BRACE_DO,   /**< do */                                        //!< BRACE_DO
-   BRACE2,     /**< if/else/for/switch/while */                  //!< BRACE2
-   ELSE,       /**< expecting 'else' after 'if' */               //!< ELSE
-   ELSEIF,     /**< expecting 'if' after 'else' */               //!< ELSEIF
-   WHILE,      /**< expecting 'while' after 'do' */              //!< WHILE
-   CATCH,      /**< expecting 'catch' or 'finally' after 'try' *///!< CATCH
-   CATCH_WHEN  /**< optional 'when' after 'catch' */             //!< CATCH_WHEN
+   NONE,
+   PAREN1,     /**< if/for/switch/while/synchronized */
+   OP_PAREN1,  /**< optional parenthesis: catch () { */
+   WOD_PAREN,  /**< while of do parenthesis */
+   WOD_SEMI,   /**< semicolon after while of do */
+   BRACE_DO,   /**< do */
+   BRACE2,     /**< if/else/for/switch/while */
+   ELSE,       /**< expecting 'else' after 'if' */
+   ELSEIF,     /**< expecting 'if' after 'else' */
+   WHILE,      /**< expecting 'while' after 'do' */
+   CATCH,      /**< expecting 'catch' or 'finally' after 'try' */
+   CATCH_WHEN  /**< optional 'when' after 'catch' */
 };
 
 

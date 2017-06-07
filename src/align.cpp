@@ -479,8 +479,7 @@ void quick_indent_again(void)
 
             indent_to_column(pc, col);
             LOG_FMT(LINDENTAG, "%s: [%u] indent [%s] to %u based on [%s] @ %u:%u\n",
-                    __func__, pc->orig_line, pc->text(), col,
-                    pc->indent.ref->text(),
+                    __func__, pc->orig_line, pc->text(), col, pc->indent.ref->text(),
                     pc->indent.ref->orig_line, pc->indent.ref->column);
          }
       }
@@ -493,7 +492,7 @@ void align_all(void)
 {
    LOG_FUNC_ENTRY();
    if (get_uval(UO_align_typedef_span     ) > 0) { align_typedefs(get_uval(UO_align_typedef_span)); }
-   if (is_true (UO_align_left_shift)           ) { align_left_shift();                              }
+   if (is_true (UO_align_left_shift       )    ) { align_left_shift();                              }
    if (get_uval(UO_align_oc_msg_colon_span) > 0) { align_oc_msg_colons();                           }
 
    /* Align variable definitions */
@@ -506,7 +505,7 @@ void align_all(void)
 
    /* Align assignments */
    if ((get_uval(UO_align_enum_equ_span) > 0) ||
-       (get_uval(UO_align_assign_span  ) > 0))
+       (get_uval(UO_align_assign_span  ) > 0) )
    {
       align_assign(chunk_get_head(),
                    get_uval(UO_align_assign_span  ),
@@ -582,20 +581,14 @@ void align_right_comments(void)
       {
          if(is_ptype(pc, CT_COMMENT_END))
          {
-            bool     skip = false;
             chunk_t* prev = chunk_get_prev(pc);
             assert(is_valid(prev));
-            if (pc->orig_col < (uint32_t)((int32_t)prev->orig_col_end + get_ival(UO_align_right_cmt_gap)))
+            if (pc->orig_col < prev->orig_col_end + get_uval(UO_align_right_cmt_gap))
             {
-               /* note the use of -5 here (-1 would probably have worked as well) to force
-                * comments which are stuck to the previous token (gap=0) into alignment with the
-                * others. Not the major feature, but a nice find. (min_val/max_val in
-                * options.cpp isn't validated against, it seems; well, I don't mind! :-) ) */
                LOG_FMT(LALTC, "NOT changing END comment on line %u (%u <= %u + %d)\n",
                 pc->orig_line, pc->orig_col, prev->orig_col_end, get_ival(UO_align_right_cmt_gap));
-               skip = true;
             }
-            if (skip == false)
+            else
             {
                LOG_FMT(LALTC, "Changing END comment on line %u into a RIGHT-comment\n",
                        pc->orig_line);

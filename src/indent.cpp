@@ -291,13 +291,14 @@ void align_to_column(chunk_t* pc, uint32_t column)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc) || (column == pc->column));
+   assert(column < 100000);
 
    LOG_FMT(LINDLINE, "%s(%d): %u] col %u on %s [%s] => %u\n",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), column);
 
-   uint32_t col_delta = column - pc->column;
-   uint32_t min_col   = column;
+   int32_t col_delta = (int32_t)column - (int32_t)pc->column;
+   uint32_t min_col = column;
    pc->column = column;
    do
    {
@@ -321,25 +322,30 @@ void align_to_column(chunk_t* pc, uint32_t column)
       switch(almod)
       {
          case(align_mode_e::KEEP_ABS): /* Keep same absolute column */
+         {
             pc->column = pc->orig_col;
             pc->column = max(min_col, pc->column);
+         }
          break;
 
-         case(align_mode_e::KEEP_REL): { /* Keep same relative column */
+         case(align_mode_e::KEEP_REL): /* Keep same relative column */
+         {
             int32_t orig_delta = (int32_t)pc->orig_col - (int32_t)prev->orig_col;
             orig_delta = max(min_delta, orig_delta);
-            pc->column = (uint32_t)((int32_t)prev->column + orig_delta); }
+            pc->column = (uint32_t)((int32_t)prev->column + orig_delta);
+         }
          break;
 
          case(align_mode_e::SHIFT): /* Shift by the same amount */
+         {
             pc->column += col_delta;
             pc->column = max(min_col, pc->column);
+         }
          break;
 
          default: /* unknown enum, do nothing */ break;
       }
-
-
+      assert(pc->column < 100000); /* check for overflow should never be hit */
       LOG_FMT(LINDLINED, "   %s set column of %s on line %u to col %u (orig %u)\n",
             get_align_mode_name(almod), get_token_name(pc->type), pc->orig_line,
             pc->column, pc->orig_col);
@@ -351,6 +357,7 @@ void reindent_line(chunk_t* pc, uint32_t column)
 {
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
+   assert(column < 100000);
    LOG_FMT(LINDLINE, "%s(%d): %u] col %u on '%s' [%s/%s] => %u",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), get_token_name(pc->ptype), column);
@@ -361,7 +368,7 @@ void reindent_line(chunk_t* pc, uint32_t column)
 
    return_if(column == pc->column);
 
-   uint32_t col_delta = column - pc->column;
+   int32_t  col_delta = (int32_t)column - (int32_t)pc->column;
    uint32_t min_col   = column;
 
    pc->column = column;
@@ -405,16 +412,17 @@ void reindent_line(chunk_t* pc, uint32_t column)
           not_ptype(pc, CT_COMMENT_EMBED) &&
           (keep            == false     ) )
       {
-         pc->column = pc->orig_col;
-         pc->column = max(min_col, pc->column);
+         pc->column = max(pc->orig_col, min_col);
+         assert(pc->column < 100000); /* check for overflow should never be hit */
 
          LOG_FMT(LINDLINE, "%s(%d): set comment on line %u to col %u (orig %u)\n",
                  __func__, __LINE__, pc->orig_line, pc->column, pc->orig_col);
       }
       else
       {
-         pc->column += col_delta;
-         pc->column  = max(min_col, pc->column);
+         int32_t tmp_col = (int32_t)pc->column + col_delta;
+         pc->column  = max(tmp_col, (int32_t)min_col);
+         assert(pc->column < 100000); /* check for overflow should never be hit */
 
          LOG_FMT(LINDLINED, "   set column of '%s' to %u (orig %u)\n",
          (is_type(pc, CT_NEWLINE)) ? "newline" : pc->text(), pc->column, pc->orig_col);
@@ -531,6 +539,7 @@ static uint32_t token_indent(c_token_t type)
 #define indent_column_set(X)                                                \
    do {                                                                     \
       indent_column = (X);                                                  \
+      assert(indent_column < 100000);                                       \
       LOG_FMT(LINDENT2, "%s:[line %d], orig_line=%u, indent_column = %u\n", \
               __func__, __LINE__, pc->orig_line, indent_column);            \
    } while (false)
@@ -840,34 +849,26 @@ void indent_text(void)
                log_indent();
             }
             log_indent();
+            int32_t val = 0;
             if (is_ptype(pc, CT_PP_REGION, CT_PP_ENDREGION))
             {
-               int32_t val = get_ival(UO_pp_indent_region);
-               if (val > 0)
-               {
-                  frm.pse[frm.pse_tos].indent = (uint32_t)val;
-                  log_indent();
-               }
-               else
-               {
-                  frm.pse[frm.pse_tos].indent = (uint32_t)((int32_t)frm.pse[frm.pse_tos].indent + val);
-                  log_indent();
-               }
+               val = get_ival(UO_pp_indent_region);
+               log_indent();
             }
             else if (is_ptype(pc, CT_PP_IF, CT_PP_ELSE, CT_PP_ENDIF))
             {
-               int32_t val = get_ival(UO_pp_indent_if);
-               if (val > 0)
-               {
-                  frm.pse[frm.pse_tos].indent = (uint32_t)val;
-                  log_indent();
-               }
-               else
-               {
-                  frm.pse[frm.pse_tos].indent = (uint32_t)((int32_t)frm.pse[frm.pse_tos].indent + val);
-                  LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
-                          __func__, __LINE__, frm.pse_tos, frm.pse[frm.pse_tos].indent);
-               }
+               val = get_ival(UO_pp_indent_if);
+               log_indent();
+            }
+            if(val != 0)
+            {
+               uint32_t &indent = frm.pse[frm.pse_tos].indent;
+
+               indent = (val > 0) ? val                     // reassign if positive val,
+                        : (cast_abs(indent, val) < indent)  // else if no underflow
+                        ? (indent + val) : 0;               // reduce, else 0
+
+               assert(indent < 100000); /* check for overflow should never be hit */
             }
             frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
             log_indent_tmp();
@@ -1128,7 +1129,7 @@ void indent_text(void)
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)frm.pse[frm.pse_tos-1].indent;
-            indent_column                       = (uint32_t)frm.pse[frm.pse_tos  ].brace_indent;
+            indent_column                       = (uint32_t)frm.pse[frm.pse_tos ].brace_indent;
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
@@ -1260,8 +1261,10 @@ void indent_text(void)
                 * So we need to take the CASE indent, subtract off the
                 * indent_size that was added above and then add indent_case_brace.
                 * may take negative value */
-               indent_column_set(frm.pse[frm.pse_tos-1].indent - indent_size +
-                                 get_uval(UO_indent_case_brace));
+               auto tmp_indent = static_cast<int>(frm.pse[frm.pse_tos - 1].indent) -
+                                       static_cast<int>(indent_size) +
+                                       get_ival(UO_indent_case_brace);
+               indent_column_set(max(tmp_indent, 0));
 
                /* Stuff inside the brace still needs to be indented */
                frm.pse[frm.pse_tos].indent = indent_column + indent_size;
@@ -1434,10 +1437,13 @@ void indent_text(void)
       }
       else if (is_type(pc, CT_LABEL))
       {
+         const uint32_t pse_indent = frm.pse[frm.pse_tos].indent;
+
          /* Labels get sent to the left or backed up */
-         if (get_ival(UO_indent_label) > 0)
+         const int32_t  val = get_ival(UO_indent_label);
+         if (val > 0)
          {
-            indent_column_set(get_uval(UO_indent_label));
+            indent_column_set(val);
 
             next = chunk_get_next(pc); /* colon */
             if (is_valid(next))
@@ -1447,16 +1453,16 @@ void indent_text(void)
                if ( is_valid(next) &&
                    !is_nl(next) &&
                    /* label (+ 2, because there is colon and space after it) must fit into indent */
-                   (get_ival(UO_indent_label) + static_cast<int32_t>(pc->len()) + 2 <= static_cast<int32_t>(frm.pse[frm.pse_tos].indent)))
+                   (val + static_cast<int32_t>(pc->len()) + 2 <= static_cast<int32_t>(pse_indent)))
                {
-                  reindent_line(next, frm.pse[frm.pse_tos].indent);
+                  reindent_line(next, pse_indent);
                }
             }
          }
          else
          {
-            indent_column_set(frm.pse[frm.pse_tos].indent +
-                              get_uval(UO_indent_label));
+            const bool no_underflow = cast_abs(pse_indent, val) < pse_indent;
+            indent_column_set(((no_underflow == true) ? (pse_indent + val) : 0));
          }
       }
       else if (is_type(pc, CT_PRIVATE))
@@ -1480,14 +1486,16 @@ void indent_text(void)
          else
          {
             /* Access spec labels get sent to the left or backed up */
-            if (get_ival(UO_indent_access_spec) > 0)
+            const int32_t val = get_ival(UO_indent_access_spec);
+            if (val > 0)
             {
-               indent_column_set(get_uval(UO_indent_access_spec));
+               indent_column_set(val);
             }
             else
             {
-               indent_column_set(frm.pse[frm.pse_tos].indent +
-                                 get_uval(UO_indent_access_spec));
+               const uint32_t pse_indent   = frm.pse[frm.pse_tos].indent;
+               const bool     no_underflow = cast_abs(pse_indent, val) < pse_indent;
+               indent_column_set(no_underflow ? (pse_indent + val) : 0);
             }
          }
       }
@@ -2137,17 +2145,17 @@ void indent_text(void)
             if ((!frm.pse[frm.pse_tos].non_vardef           ) &&
                 ( frm.pse[frm.pse_tos].type == CT_BRACE_OPEN) )
             {
-               uint32_t tmp = indent_column;
-               if (get_ival(UO_indent_var_def_blk) > 0)
+               const int32_t val = get_ival(UO_indent_var_def_blk);
+               if (val != 0)
                {
-                  tmp = get_uval(UO_indent_var_def_blk);
+                  uint32_t indent = indent_column;
+                  indent = (val > 0) ? (uint32_t)val :        // reassign if positive val,
+                           (cast_abs(indent, val) < indent) ? // else if no underflow
+                           (indent + (uint32_t)val) : 0;                // reduce, else 0
+                  assert(indent < 100000);
+                  reindent_line(pc, indent);
+                  log_indent1(pc, indent, "var_type indent");
                }
-               else
-               {
-                  tmp += get_uval(UO_indent_var_def_blk);
-               }
-               reindent_line(pc, tmp);
-               log_indent1(pc, tmp, "var_type indent");
             }
          }
          else
