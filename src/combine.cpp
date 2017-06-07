@@ -4048,11 +4048,11 @@ static void mark_class_ctor(chunk_t* start)
       next = get_next_ncnl(pc, scope_e::PREPROC);
       if (chunkstack_match(cs, pc))
       {
-         if (is_valid(next) && (next->len() == 1) && (next->str[0] == '('))
+         if (is_valid(next) && is_type(next, CT_PAREN_OPEN))
          {
             set_type(pc, CT_FUNC_CLASS_DEF);
-            LOG_FMT(LFTOR, "(%d) %u] Marked CTor/DTor %s\n", __LINE__,
-                    pc->orig_line, pc->text());
+            LOG_FMT(LFTOR, "%s(%d): type is %s, orig_line is %u, orig_col is %u, Marked CTor/DTor %s\n",
+                    __func__, __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col, pc->text());
             mark_cpp_constructor(pc);
          }
          else
