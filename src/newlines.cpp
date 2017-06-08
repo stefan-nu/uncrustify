@@ -414,8 +414,8 @@ static void mark_change(const char* func, uint32_t line)
    cpd.changes++;
    if (cpd.pass_count == 0)
    {
-      LOG_FMT(LCHANGE, "%s: change %d on %s:%u\n",
-              __func__, cpd.changes, func, line);
+      LOG_FMT(LCHANGE, "%s(%d): change %d on %s:%u\n",
+              __func__, __LINE__, cpd.changes, func, line);
    }
 }
 
@@ -434,8 +434,8 @@ static bool can_increase_nl(chunk_t* nl)
       if (is_type_and_ptype(prev, CT_PREPROC, CT_PP_ENDIF) &&
           ((prev->level > 0) || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
-         LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %u (prev) pp_lvl=%u rv=0\n",
-                 __func__, nl->orig_line, nl->pp_level);
+         LOG_FMT(LBLANKD, "%s(%d): nl_squeeze_ifdef %u (prev) pp_lvl=%u rv=0\n",
+                 __func__, __LINE__, nl->orig_line, nl->pp_level);
          return(false);
       }
 
@@ -443,33 +443,37 @@ static bool can_increase_nl(chunk_t* nl)
           ((next->level > 0) || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          bool rv = ifdef_over_whole_file() && is_flag(next, PCF_WF_ENDIF);
-         LOG_FMT(LBLANKD, "%s: nl_squeeze_ifdef %u (next) pp_lvl=%u rv=%d\n",
-                 __func__, nl->orig_line, nl->pp_level, rv);
+         LOG_FMT(LBLANKD, "%s(%d): nl_squeeze_ifdef %u (next) pp_lvl=%u rv=%d\n",
+                 __func__, __LINE__, nl->orig_line, nl->pp_level, rv);
          return(rv);
       }
    }
 
    if (is_true(UO_eat_blanks_before_close_brace) && is_type(next, CT_BRACE_CLOSE))
    {
-      LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %u\n", __func__, nl->orig_line);
+      LOG_FMT(LBLANKD, "%s(%d): eat_blanks_before_close_brace %u\n",
+              __func__, __LINE__, nl->orig_line);
       return(false);
    }
 
    if (is_true(UO_eat_blanks_after_open_brace) && is_type(prev, CT_BRACE_OPEN))
    {
-      LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %u\n", __func__, nl->orig_line);
+      LOG_FMT(LBLANKD, "%s(%d): eat_blanks_after_open_brace %u\n",
+              __func__, __LINE__, nl->orig_line);
       return(false);
    }
 
    if (!pcmt && not_ignore(UO_nl_start_of_file))
    {
-      LOG_FMT(LBLANKD, "%s: SOF no prev %u\n", __func__, nl->orig_line);
+      LOG_FMT(LBLANKD, "%s(%d): SOF no prev %u\n",
+              __func__, __LINE__, nl->orig_line);
       return(false);
    }
 
    if (!next && not_ignore(UO_nl_end_of_file))
    {
-      LOG_FMT(LBLANKD, "%s: EOF no next %u\n", __func__, nl->orig_line);
+      LOG_FMT(LBLANKD, "%s(%d): EOF no next %u\n",
+              __func__, __LINE__, nl->orig_line);
       return(false);
    }
 
@@ -485,7 +489,7 @@ static void double_newline(chunk_t* nl)
    chunk_t* prev = chunk_get_prev(nl);
    return_if(is_invalid(prev));
 
-   LOG_FMT(LNEWLINE, "%s:%d: add newline after ", __func__, __LINE__);
+   LOG_FMT(LNEWLINE, "%s(%d): add newline after ", __func__, __LINE__);
    if (prev->type == CT_VBRACE_CLOSE)
    {
       LOG_FMT(LNEWLINE, "VBRACE_CLOSE ");
@@ -583,14 +587,14 @@ chunk_t* newline_add_before(chunk_t* pc)
    /* Already has a newline before this chunk */
    retval_if(is_nl(prev), prev);
 
-   LOG_FMT(LNEWLINE, "%s: '%s' on line %u, col %u, pc->column=%u",
-           __func__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' on line %u, col %u, pc->column=%u",
+           __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
    log_func_stack_inline(LNEWLINE);
 
    chunk_t nl;
    setup_newline_add(prev, &nl, pc);
-   LOG_FMT(LNEWLINE, "%s: '%s' on line %u, col %u, nl.column=%u\n",
-           __func__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' on line %u, col %u, nl.column=%u\n",
+           __func__, __LINE__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
 
    MARK_CHANGE();
    return(chunk_add_before(&nl, pc));
@@ -610,14 +614,14 @@ chunk_t* newline_add_after(chunk_t* pc)
    /* Already has a newline after this chunk */
    retval_if(is_nl(next), next);
 
-   LOG_FMT(LNEWLINE, "%s: '%s' on line %u, col %u, pc->column=%u",
-           __func__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' on line %u, col %u, pc->column=%u",
+           __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col, pc->column);
    log_func_stack_inline(LNEWLINE);
 
    chunk_t nl;
    setup_newline_add(pc, &nl, next);
-   LOG_FMT(LNEWLINE, "%s: '%s' on line %u, col %u, nl.column=%u\n",
-           __func__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' on line %u, col %u, nl.column=%u\n",
+           __func__, __LINE__, nl.text(), nl.orig_line, nl.orig_col, nl.column);
 
    MARK_CHANGE();
    return(chunk_add_after(&nl, pc));
@@ -679,8 +683,8 @@ static void newline_end_newline(chunk_t* br_close)
          nl.str  = "\n";
       }
       MARK_CHANGE();
-      LOG_FMT(LNEWLINE, "%s: %u:%u add newline after '%s'\n",
-              __func__, br_close->orig_line, br_close->orig_col, br_close->text());
+      LOG_FMT(LNEWLINE, "%s(%d): %u:%u add newline after '%s'\n",
+              __func__, __LINE__, br_close->orig_line, br_close->orig_col, br_close->text());
       chunk_add_after(&nl, br_close);
    }
 }
@@ -691,16 +695,16 @@ static void newline_min_after(chunk_t* ref, uint32_t count, uint64_t flag)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(ref));
 
-   LOG_FMT(LNEWLINE, "%s: '%s' line %u - count=%u flg=0x%" PRIx64 ":",
-           __func__, ref->text(), ref->orig_line, count, flag);
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' line %u - count=%u flg=0x%" PRIx64 ":",
+           __func__, __LINE__, ref->text(), ref->orig_line, count, flag);
    log_func_stack_inline(LNEWLINE);
 
    chunk_t* pc = ref;
    pc = get_next_nl(pc);
    if (is_valid(pc))
    {
-      LOG_FMT(LNEWLINE, "%s: on %s, line %u, col %u\n",
-              __func__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
+      LOG_FMT(LNEWLINE, "%s(%d): on %s, line %u, col %u\n",
+              __func__, __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
    }
 
    chunk_t* next = chunk_get_next(pc);
@@ -733,7 +737,7 @@ chunk_t* newline_add_between(chunk_t* start, chunk_t* end)
    LOG_FUNC_ENTRY();
    retval_if(are_invalid(start, end), nullptr);
 
-   LOG_FMT(LNEWLINE, "%s:%d: '%s'[%s] line %u:%u and '%s' line %u:%u :",
+   LOG_FMT(LNEWLINE, "%s(%d): '%s'[%s] line %u:%u and '%s' line %u:%u :",
            __func__, __LINE__, start->text(), get_token_name(start->type),
            start->orig_line, start->orig_col,
            end->text(), end->orig_line, end->orig_col);
@@ -774,8 +778,8 @@ void newline_del_between(chunk_t* start, chunk_t* end)
 {
    LOG_FUNC_ENTRY();
    assert(is_valid(start));
-   LOG_FMT(LNEWLINE, "%s: '%s' line %u:%u and '%s' line %u:%u : preproc=%d/%d ",
-           __func__, start->text(), start->orig_line, start->orig_col,
+   LOG_FMT(LNEWLINE, "%s(%d): '%s' line %u:%u and '%s' line %u:%u : preproc=%d/%d ",
+           __func__, __LINE__, start->text(), start->orig_line, start->orig_col,
            end->text(), end->orig_line, end->orig_col,
            is_preproc(start), is_preproc(end));
    log_func_stack_inline(LNEWLINE);
@@ -993,7 +997,9 @@ static void _blank_line_set(chunk_t* pc, const char* text, uo_t uo)
 
    if ((get_uval(uo) > 0) && (pc->nl_count != get_uval(uo)))
    {
-      LOG_FMT(LBLANKD, "do_blank_lines: %s set line %u to %u\n", text + 3, pc->orig_line, get_uval(uo));
+      LOG_FMT(LBLANKD, "%s(%d): do_blank_lines: %s set line %u to %u\n",
+              __func__, __LINE__, text + 3, pc->orig_line, get_uval(uo));
+
       pc->nl_count = get_uval(uo);
       MARK_CHANGE();
    }
@@ -1003,8 +1009,8 @@ static void _blank_line_set(chunk_t* pc, const char* text, uo_t uo)
 static void nl_func_pre_blank_lines(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LNLFUNCT, "\n%s: set blank line(s): for %s at line %u\n",
-           __func__, start->text(), start->orig_line);
+   LOG_FMT(LNLFUNCT, "\n%s(%d): set blank line(s): for %s at line %u\n",
+           __func__, __LINE__, start->text(), start->orig_line);
 
    /*  look backwards until we find:
     *  - open brace (don't add or remove)
@@ -1141,6 +1147,9 @@ static void remove_next_nl(chunk_t* start)
 static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_opt)
 {
    LOG_FUNC_ENTRY();
+   LOG_FMT(LNEWLINE, "%s:\n   (%d):start->..., type %s, line %zu, column %u,\n",
+           __func__, __LINE__, get_token_name(start->type), start->orig_line, start->orig_col);
+
    return_if (is_arg(nl_opt, AV_IGNORE) ||
        (is_preproc(start) && is_false(UO_nl_define_macro)));
 
@@ -1151,7 +1160,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
    chunk_t* next;
    chunk_t* prev;
 
-   LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+   LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %u,\n",
            __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
 
    /* if we're dealing with an if, we actually want to add or remove
@@ -1166,7 +1175,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
             /* point to the closing brace of the else */
             return_if((pc = get_closing_brace(next)) == nullptr);
 
-            LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+            LOG_FMT(LNEWLINE, "   (%d):pc->...   , type %s, line %u, column %u,\n",
                     __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
          }
          else { break; }
@@ -1180,18 +1189,18 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
       /* point to the next semicolon */
       return_if((pc = get_next_type(pc, CT_SEMICOLON, (int32_t)start->level)) == nullptr);
 
-      LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+      LOG_FMT(LNEWLINE, "   (%d):pc->...   , type %s, line %u, column %u,\n",
               __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
    }
 
    bool isVBrace = (pc->type == CT_VBRACE_CLOSE);
    if (isVBrace)
    {
-      LOG_FMT(LNEWLINE, "   %d: isVBrace is TRUE\n", __LINE__);
+      LOG_FMT(LNEWLINE, "   (%d): isVBrace is TRUE\n", __LINE__);
    }
    else
    {
-      LOG_FMT(LNEWLINE, "   %d: isVBrace is FALSE\n", __LINE__);
+      LOG_FMT(LNEWLINE, "   (%d): isVBrace is FALSE\n", __LINE__);
    }
 
    return_if((prev = get_prev_nvb(pc)) == nullptr);
@@ -1199,11 +1208,11 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
    bool have_pre_vbrace_nl = isVBrace && is_nl(prev);
    if (have_pre_vbrace_nl)
    {
-      LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is TRUE\n", __LINE__);
+      LOG_FMT(LNEWLINE, "   (%d): have_pre_vbrace_nl is TRUE \n", __LINE__);
    }
    else
    {
-      LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is FALSE\n", __LINE__);
+      LOG_FMT(LNEWLINE, "   (%d): have_pre_vbrace_nl is FALSE\n", __LINE__);
    }
 
    if (is_arg_set(nl_opt, AV_REMOVE))
@@ -1251,7 +1260,7 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
          nextNNL = get_next_nnl(nextNNL);
       } while (true);
 
-      LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+      LOG_FMT(LNEWLINE, "   (%d):next->... , type %s, line %zu, column %zu,\n",
               __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
 
       if (not_type(next, CT_BRACE_CLOSE))
@@ -1259,75 +1268,75 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
          /* if vbrace, have to check before and after */
          /* if chunk before vbrace, check its count */
          uint32_t nl_count = have_pre_vbrace_nl ? prev->nl_count : 0;
-         LOG_FMT(LNEWLINE, "   %d:nl_count %zu\n", __LINE__, nl_count);
+         LOG_FMT(LNEWLINE, "   (%d):nl_count %zu\n", __LINE__, nl_count);
          if (is_nl(next = get_next_nvb(pc)))
          {
-            LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+            LOG_FMT(LNEWLINE, "   (%d):next->... , type %s, line %zu, column %zu,\n",
                     __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             nl_count += next->nl_count;
-            LOG_FMT(LNEWLINE, "   %d:nl_count %zu\n", __LINE__, nl_count);
+            LOG_FMT(LNEWLINE, "   (%d):nl_count %zu\n", __LINE__, nl_count);
          }
 
          /* if we have no newlines, add one and make it double */
          if (nl_count == 0)
          {
-            LOG_FMT(LNEWLINE, "   %d: nl_count is 0\n", __LINE__);
+            LOG_FMT(LNEWLINE, "   (%d): nl_count is 0\n", __LINE__);
             if (((next = chunk_get_next(pc)) != nullptr) &&
                 is_cmt(next))
             {
-               LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+               LOG_FMT(LNEWLINE, "   (%d): next->... , type %s, line %zu, column %zu,\n",
                        __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
                pc = next;
-               LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+               LOG_FMT(LNEWLINE, "   (%d): pc->...   , type %s, line %zu, column %zu,\n",
                        __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
             }
 
             return_if((next = newline_add_after(pc)) == nullptr);
-            LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+            LOG_FMT(LNEWLINE, "   (%d): next->... , type %s, line %zu, column %zu,\n",
                     __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             double_newline(next);
          }
          else if (nl_count == 1) /* if we don't have enough newlines */
          {
-            LOG_FMT(LNEWLINE, "   %d: nl_count is 1\n", __LINE__);
+            LOG_FMT(LNEWLINE, "   (%d): nl_count is 1\n", __LINE__);
             /* if we have one before vbrace, need to add one after */
             if (have_pre_vbrace_nl)
             {
-               LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is TRUE\n", __LINE__);
+               LOG_FMT(LNEWLINE, "   (%d): have_pre_vbrace_nl is TRUE\n", __LINE__);
                next = newline_add_after(pc);
-               LOG_FMT(LNEWLINE, "   %d:next->... , type %s, line %zu, column %zu,\n",
+               LOG_FMT(LNEWLINE, "   (%d): next->... , type %s, line %zu, column %zu,\n",
                        __LINE__, get_token_name(next->type), next->orig_line, next->orig_col);
             }
             else
             {
-               LOG_FMT(LNEWLINE, "   %d: have_pre_vbrace_nl is FALSE\n", __LINE__);
+               LOG_FMT(LNEWLINE, "   (%d): have_pre_vbrace_nl is FALSE\n", __LINE__);
                prev = get_prev_nnl(next);
-               LOG_FMT(LNEWLINE, "   %d:prev->... , type %s, line %zu, column %zu,\n",
+               LOG_FMT(LNEWLINE, "   (%d): prev->... , type %s, line %zu, column %zu,\n",
                        __LINE__, get_token_name(prev->type), prev->orig_line, prev->orig_col);
                pc = get_next_nl(next);
-               LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+               LOG_FMT(LNEWLINE, "   (%d): pc->...   , type %s, line %zu, column %zu,\n",
                        __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
                chunk_t* pc2 = chunk_get_next(pc);
                if (pc2 != nullptr)
                {
                   pc = pc2;
-                  LOG_FMT(LNEWLINE, "   %d:pc->...   , type %s, line %zu, column %zu,\n",
+                  LOG_FMT(LNEWLINE, "   (%d): pc->...   , type %s, line %zu, column %zu,\n",
                           __LINE__, get_token_name(pc->type), pc->orig_line, pc->orig_col);
                }
                else
                {
-                  LOG_FMT(LNEWLINE, "   %d: no next found: <EOF>\n", __LINE__);
+                  LOG_FMT(LNEWLINE, "   (%d): no next found: <EOF>\n", __LINE__);
                }
                if (is_type_and_ptype(pc, CT_PREPROC, CT_PP_ENDIF) &&
                    is_true(UO_nl_squeeze_ifdef))
                {
                   assert(is_valid(prev));
-                  LOG_FMT(LNEWLINE, "%s: cannot add newline after line %u due to nl_squeeze_ifdef\n",
-                          __func__, prev->orig_line);
+                  LOG_FMT(LNEWLINE, "%s(%d): cannot add newline after line %u due to nl_squeeze_ifdef\n",
+                          __func__, __LINE__, prev->orig_line);
                }
                else
                {
-                  LOG_FMT(LNEWLINE, "   %d: call double_newline\n", __LINE__);
+                  LOG_FMT(LNEWLINE, "   (%d): call double_newline\n", __LINE__);
                   double_newline(next); /* make nl after double */
                }
             }
@@ -1741,7 +1750,8 @@ static void nl_brace_pair(chunk_t* br_open)
          if (next->nl_count > 1)
          {
             next->nl_count = 1;
-            LOG_FMT(LBLANKD, "%s: eat_blanks_after_open_brace %u\n", __func__, next->orig_line);
+            LOG_FMT(LBLANKD, "%s(%d): eat_blanks_after_open_brace %u\n",
+                    __func__, __LINE__, next->orig_line);
             MARK_CHANGE();
          }
       }
@@ -1979,9 +1989,9 @@ static uint32_t count_commas(chunk_t* *end, chunk_t* start, const argval_t newli
 static void nl_func_multi_line(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LNFD, "%s: called on %u:%u '%s' [%s/%s]\n",
-           __func__, start->orig_line, start->orig_col,
-           start->text(), get_token_name(start->type), get_token_name(start->ptype));
+   LOG_FMT(LNFD, "%s(%d): called on %u:%u '%s' [%s/%s]\n",
+           __func__, __LINE__, start->orig_line, start->orig_col, start->text(),
+           get_token_name(start->type), get_token_name(start->ptype));
 
    bool add_start;
    bool add_args;
@@ -2028,8 +2038,8 @@ static void nl_func_multi_line(chunk_t* start)
 static void nl_func_def(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LNFD, "%s: called on %u:%u '%s' [%s/%s]\n",
-           __func__, start->orig_line, start->orig_col, start->text(),
+   LOG_FMT(LNFD, "%s(%d): called on %u:%u '%s' [%s/%s]\n",
+           __func__, __LINE__, start->orig_line, start->orig_col, start->text(),
            get_token_name(start->type), get_token_name(start->ptype));
 
    bool     is_def = is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF);
@@ -2090,10 +2100,9 @@ static void nl_func_def(chunk_t* start)
          if (a != AV_IGNORE)
          {
             assert(is_valid(prev));
-            LOG_FMT(LNFD, "%s: prev %u:%u '%s' [%s/%s]\n",
-                    __func__, prev->orig_line, prev->orig_col, prev->text(),
-                    get_token_name(prev->type ),
-                    get_token_name(prev->ptype));
+            LOG_FMT(LNFD, "%s(%d): prev %u:%u '%s' [%s/%s]\n", __func__,
+                    __LINE__, prev->orig_line, prev->orig_col, prev->text(),
+                    get_token_name(prev->type ), get_token_name(prev->ptype));
 
             if (is_type(prev, CT_DESTRUCTOR))
             {
@@ -2191,8 +2200,8 @@ static void nl_oc_msg(chunk_t* start)
 static bool one_liner_nl_ok(chunk_t* pc)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LNL1LINE, "%s: check [%s] parent=[%s] flags=%" PRIx64 ", on line %u, col %u - ",
-           __func__, get_token_name(pc->type), get_token_name(pc->ptype),
+   LOG_FMT(LNL1LINE, "%s(%d): check [%s] parent=[%s] flags=%" PRIx64 ", on line %u, col %u - ",
+           __func__, __LINE__, get_token_name(pc->type), get_token_name(pc->ptype),
            get_flags(pc), pc->orig_line, pc->orig_col);
 
    if (not_flag(pc, PCF_ONE_LINER))
@@ -2267,7 +2276,7 @@ void undo_one_liner(chunk_t* pc)
 
    if (is_flag(pc, PCF_ONE_LINER))
    {
-      LOG_FMT(LNL1LINE, "%s: [%s]", __func__, pc->text());
+      LOG_FMT(LNL1LINE, "%s(%d): [%s]", __func__, __LINE__, pc->text());
       clr_flags(pc, PCF_ONE_LINER);
 
       clear_one_liner_flag(pc, dir_e::BEFORE);
@@ -2638,7 +2647,8 @@ void cleanup_braces(bool first)
                   if (prev->nl_count != 1)
                   {
                      prev->nl_count = 1;
-                     LOG_FMT(LBLANKD, "%s: eat_blanks_before_close_brace %u\n", __func__, prev->orig_line);
+                     LOG_FMT(LBLANKD, "%s(%d): eat_blanks_before_close_brace %u\n",
+                             __func__, __LINE__, prev->orig_line);
                      MARK_CHANGE();
                   }
                }
@@ -3026,7 +3036,7 @@ void insert_blank_lines(void)
 
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
-      LOG_FMT(LNEWLINE, "%s:%d: for-loop: line %u, column %u, %s type %s\n",
+      LOG_FMT(LNEWLINE, "%s(%d): for-loop: line %u, column %u, %s type %s\n",
               __func__, __LINE__, pc->orig_line, pc->orig_col,
               pc->text(), get_token_name(pc->type));
       switch(pc->type)
@@ -3124,8 +3134,8 @@ void newlines_squeeze_ifdef(void)
                      const chunk_t* tmp2 = get_prev_nnl(nnl);
                      assert(are_valid(tmp1, tmp2));
 
-                     LOG_FMT(LNEWLINE, "%s: moved from after line %u to after %u\n",
-                             __func__, tmp1->orig_line, tmp2->orig_line);
+                     LOG_FMT(LNEWLINE, "%s(%d): moved from after line %u to after %u\n",
+                             __func__, __LINE__, tmp1->orig_line, tmp2->orig_line);
                   }
                }
 
@@ -3135,8 +3145,8 @@ void newlines_squeeze_ifdef(void)
                   {
                      const chunk_t* tmp1 = get_prev_nnl(nnl);
                      assert(is_valid(tmp1));
-                     LOG_FMT(LNEWLINE, "%s: trimmed newlines after line %u from %u\n",
-                             __func__, tmp1->orig_line, nnl->nl_count);
+                     LOG_FMT(LNEWLINE, "%s(%d): trimmed newlines after line %u from %u\n",
+                             __func__, __LINE__, tmp1->orig_line, nnl->nl_count);
                      nnl->nl_count = 1;
                      MARK_CHANGE();
                   }
@@ -3176,7 +3186,8 @@ static void nl_eat(const dir_e dir)
          {
             if (arg == AV_REMOVE)
             {
-               LOG_FMT(LBLANKD, "%s: eat_blanks_%s_of_file %u\n", __func__, str, pc->orig_line);
+               LOG_FMT(LBLANKD, "%s(%d): eat_blanks_%s_of_file %u\n",
+                       __func__, __LINE__, str, pc->orig_line);
                chunk_del(pc);
                MARK_CHANGE();
             }
@@ -3184,7 +3195,8 @@ static void nl_eat(const dir_e dir)
             {
                if (pc->nl_count != min_nl)
                {
-                  LOG_FMT(LBLANKD, "%s: set_blanks_%s_of_file %u\n", __func__, str, pc->orig_line);
+                  LOG_FMT(LBLANKD, "%s(%d): set_blanks_%s_of_file %u\n",
+                          __func__, __LINE__, str, pc->orig_line);
                   pc->nl_count = min_nl;
                   MARK_CHANGE();
                }
@@ -3197,8 +3209,8 @@ static void nl_eat(const dir_e dir)
             chunk.type      = CT_NEWLINE;
             chunk.nl_count  = min_nl;
             chunk_add_after(&chunk, nullptr);
-            LOG_FMT(LNEWLINE, "%s: %u:%u add newline before '%s'\n",
-                    __func__, pc->orig_line, pc->orig_col, pc->text());
+            LOG_FMT(LNEWLINE, "%s(%d): %u:%u add newline before '%s'\n",
+                    __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
             MARK_CHANGE();
          }
       }
@@ -3520,8 +3532,8 @@ void do_blank_lines(void)
       uint32_t  old_nl = pc->nl_count;
       if (are_valid(next, prev))
       {
-         LOG_FMT(LBLANK, "%s: line %u [%s][%s] vs [%s][%s] nl=%u\n",
-                 __func__, pc->orig_line,    prev->text(),
+         LOG_FMT(LBLANK, "%s(%d): line %u [%s][%s] vs [%s][%s] nl=%u\n",
+                 __func__, __LINE__, pc->orig_line,    prev->text(),
                  get_token_name(prev->type), next->text(),
                  get_token_name(next->type), pc->nl_count);
       }
@@ -3854,8 +3866,8 @@ void annotations_nl(void)
       chunk_t* ae = (is_paren_open(next)) ? chunk_skip_to_match(next) : pc;
       break_if(is_invalid(ae));
 
-      LOG_FMT(LANNOT, "%s: %u:%u annotation '%s' end@%u:%u '%s'",
-              __func__, pc->orig_line, pc->orig_col, pc->text(),
+      LOG_FMT(LANNOT, "%s(%d): %u:%u annotation '%s' end@%u:%u '%s'",
+              __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(),
               ae->orig_line, ae->orig_col, ae->text());
 
       next = get_next_nnl(ae);

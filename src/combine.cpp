@@ -815,7 +815,8 @@ static chunk_t* skip_dc_member(chunk_t* start)
 void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LGUY, "%s: %u:%u %s:%s\n", __func__, pc->orig_line, pc->orig_col,
+   LOG_FMT(LGUY, "%s(%d): %u:%u %s:%s\n",
+           __func__, __LINE__, pc->orig_line, pc->orig_col,
            pc->text(), get_token_name(pc->type));
 
    if (is_type(pc, CT_OC_AT))
@@ -860,8 +861,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       }
 
       /* For a delegate, mark previous words as types and the item after the
-       * close paren as a variable def
-       */
+       * close paren as a variable def */
       if (is_type(pc, CT_DELEGATE))
       {
          if (is_valid(tmp))
@@ -924,9 +924,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       /* Check for message declarations */
       if (is_flag(pc, PCF_STMT_START))
       {
-         if ((is_str(pc,   "-") ||
-              is_str(pc,   "+") ) &&
-              is_str(next, "(")   )
+         if ((is_str(pc,   "-") || is_str(pc, "+") ) &&
+              is_str(next, "(")                      )
          {
             handle_oc_message_decl(pc);
          }
@@ -952,8 +951,8 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
          handle_cs_square_stmt(pc);
       }
 
-      if (is_type_and_ptype(next,  CT_BRACE_OPEN,   CT_NONE                ) &&
-          is_type          (pc, 3, CT_SQUARE_CLOSE, CT_ANGLE_CLOSE, CT_WORD) )
+      if (is_type_and_ptype(next, CT_BRACE_OPEN,   CT_NONE                ) &&
+          is_type          (pc,   CT_SQUARE_CLOSE, CT_WORD, CT_ANGLE_CLOSE) )
       {
          handle_cs_property(next);
       }
@@ -1041,7 +1040,7 @@ void do_symbol_check(chunk_t* prev, chunk_t* pc, chunk_t* next)
       if (is_type(next, CT_WORD)) { set_flags(next, PCF_VAR_1ST_DEF); }
    }
 
-   if (is_type(pc, 3, CT_SQL_EXEC, CT_SQL_BEGIN, CT_SQL_END))
+   if (is_type(pc, CT_SQL_EXEC, CT_SQL_BEGIN, CT_SQL_END))
    {
       mark_exec_sql(pc);
    }
@@ -2678,7 +2677,7 @@ void combine_labels(void)
    while (is_valid(next))
    { /* \todo better use a switch for next->type */
       assert(is_valid(cur));
-      LOG_FMT(LGUY, "%s: %u:%u %s\n", __func__,
+      LOG_FMT(LGUY, "%s(%d): %u:%u %s\n", __func__, __LINE__,
             cur->orig_line, cur->orig_col, get_token_name(cur->type));
 
       if (not_flag(next, PCF_IN_OC_MSG) && /* filter OC case of [self class] msg send */
@@ -4048,6 +4047,7 @@ static void mark_class_ctor(chunk_t* start)
       next = get_next_ncnl(pc, scope_e::PREPROC);
       if (chunkstack_match(cs, pc))
       {
+         /* Issue #1003, next->type should not be CT_FPAREN_OPEN */
          if (is_valid(next) && is_type(next, CT_PAREN_OPEN))
          {
             set_type(pc, CT_FUNC_CLASS_DEF);

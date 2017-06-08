@@ -373,15 +373,15 @@ static void align_stack(ChunkStack& cs, uint32_t col, log_sev_t sev)
    if((cs.Len()  > 1) ||
      ((cs.Len() == 1) && align_single))
    {
-      LOG_FMT(sev, "%s: max_col=%u\n", __func__, col);
+      LOG_FMT(sev, "%s(%d): max_col=%u\n", __func__, __LINE__, col);
       chunk_t* pc = cs.Pop_Back();
       while(is_valid(pc))
       {
          align_to_column(pc, col);
          set_flags(pc, PCF_WAS_ALIGNED);
 
-         LOG_FMT(sev, "%s: indented [%s] on line %u to %u\n",
-                 __func__, pc->text(), pc->orig_line, pc->column);
+         LOG_FMT(sev, "%s(%d): indented [%s] on line %u to %u\n",
+                 __func__, __LINE__, pc->text(), pc->orig_line, pc->column);
          pc = cs.Pop_Back();
       }
    }
@@ -400,8 +400,8 @@ static void align_add(ChunkStack& cs, chunk_t* pc, uint32_t& max_col,
    if(is_invalid(prev) || is_nl(prev))
    {
       min_col = squeeze ? 1 : pc->column;
-      LOG_FMT(LALADD, "%s: pc->orig_line=%u, pc->col=%u max_col=%u min_pad=%u min_col=%u\n",
-              __func__, pc->orig_line, pc->column, max_col, min_pad, min_col);
+      LOG_FMT(LALADD, "%s(%d): pc->orig_line=%u, pc->col=%u max_col=%u min_pad=%u min_col=%u\n",
+              __func__, __LINE__, pc->orig_line, pc->column, max_col, min_pad, min_col);
    }
    else
    {
@@ -414,9 +414,9 @@ static void align_add(ChunkStack& cs, chunk_t* pc, uint32_t& max_col,
       const char*   type = (is_multi) ? "Y" : "N";
       const uint32_t col = (is_multi) ? prev->orig_col_end : (uint32_t)prev->column;
 
-      LOG_FMT(LALADD, "%s: pc->orig_line=%u, pc->col=%u max_col=%u min_pad=%u \
+      LOG_FMT(LALADD, "%s(%d): pc->orig_line=%u, pc->col=%u max_col=%u min_pad=%u \
             min_col=%u multi:%s prev->col=%u prev->len()=%u %s\n",
-              __func__, pc->orig_line, pc->column, max_col, min_pad, min_col,
+              __func__, __LINE__, pc->orig_line, pc->column, max_col, min_pad, min_col,
               type, col, prev->len(), get_token_name(prev->type));
    }
 
@@ -430,7 +430,7 @@ static void align_add(ChunkStack& cs, chunk_t* pc, uint32_t& max_col,
 void quick_align_again(void)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LALAGAIN, "%s:\n", __func__);
+   LOG_FMT(LALAGAIN, "%s(%d):\n", __func__, __LINE__);
    chunk_t* pc = chunk_get_head();
    while(is_valid(pc))
    {
@@ -478,8 +478,8 @@ void quick_indent_again(void)
             const uint32_t col = (uint32_t)((int32_t)pc->indent.ref->column + pc->indent.delta);
 
             indent_to_column(pc, col);
-            LOG_FMT(LINDENTAG, "%s: [%u] indent [%s] to %u based on [%s] @ %u:%u\n",
-                    __func__, pc->orig_line, pc->text(), col, pc->indent.ref->text(),
+            LOG_FMT(LINDENTAG, "%s(%d): [%u] indent [%s] to %u based on [%s] @ %u:%u\n",
+                    __func__, __LINE__, pc->orig_line, pc->text(), col, pc->indent.ref->text(),
                     pc->indent.ref->orig_line, pc->indent.ref->column);
          }
       }
@@ -539,7 +539,7 @@ void align_all(void)
 static void align_oc_msg_spec(void)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LALIGN, "%s\n", __func__);
+   LOG_FMT(LALIGN, "%s(%d)\n", __func__, __LINE__);
 
    uint32_t span = get_uval(UO_align_oc_msg_spec_span);
 
@@ -674,8 +674,8 @@ void align_preprocessor(void)
       pc = get_next_nc(pc);
       break_if(is_invalid(pc));
 
-      LOG_FMT(LALPP, "%s: define (%s) on line %u col %u\n",
-              __func__, pc->text(), pc->orig_line, pc->orig_col);
+      LOG_FMT(LALPP, "%s(%d): define (%s) on line %u col %u\n",
+              __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col);
 
       cur_as = &as;
       if (is_type(pc, CT_MACRO_FUNC))
@@ -690,8 +690,8 @@ void align_preprocessor(void)
          pc = get_next_type(pc, CT_FPAREN_CLOSE, (int32_t)pc->level);
          assert(is_valid(pc));
 
-         LOG_FMT(LALPP, "%s: jumped to (%s) on line %u col %u\n",
-                 __func__, pc->text(), pc->orig_line, pc->orig_col);
+         LOG_FMT(LALPP, "%s(%d): jumped to (%s) on line %u col %u\n",
+                 __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col);
       }
 
       /* step to the value past the close parenthesis or the macro name */
@@ -702,8 +702,8 @@ void align_preprocessor(void)
        * a value is given */
       if (!is_nl(pc))
       {
-         LOG_FMT(LALPP, "%s: align on '%s', line %u col %u\n",
-                 __func__, pc->text(), pc->orig_line, pc->orig_col);
+         LOG_FMT(LALPP, "%s(%d): align on '%s', line %u col %u\n",
+                 __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col);
 
          cur_as->Add(pc);
       }
@@ -722,8 +722,8 @@ chunk_t* align_assign(chunk_t* first, uint32_t span, uint32_t thresh, uint32_t* 
    const uint32_t my_level = first->level;
    retval_if(span == 0, chunk_get_next(first));
 
-   LOG_FMT(LALASS, "%s[%u]: checking %s on line %u - span=%u threshold=%u\n",
-           __func__, my_level, first->text(), first->orig_line, span, thresh);
+   LOG_FMT(LALASS, "%s(%d): [%u]: checking %s on line %u - span=%u threshold=%u\n",
+           __func__, __LINE__, my_level, first->text(), first->orig_line, span, thresh);
 
    /* If we are aligning on a tabstop, we shouldn't right-align */
    AlignStack as; // regular assigns
@@ -822,7 +822,7 @@ chunk_t* align_assign(chunk_t* first, uint32_t span, uint32_t thresh, uint32_t* 
 
    const char*    str  = is_valid(pc) ? pc->text()    : "nullptr";
    const uint32_t line = is_valid(pc) ? pc->orig_line : 0u;
-   LOG_FMT(LALASS, "%s: done on %s on line %u\n", __func__, str, line);
+   LOG_FMT(LALASS, "%s(%d): done on %s on line %u\n", __func__, __LINE__, str, line);
 
    return(pc);
 }
@@ -1101,7 +1101,7 @@ static chunk_t* step_back_over_member(chunk_t* pc)
 static void align_func_proto(void)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LALIGN, "%s\n", __func__);
+   LOG_FMT(LALIGN, "%s(%d)\n", __func__, __LINE__);
 
    uint32_t span = get_uval(UO_align_func_proto_span);
 
@@ -1182,14 +1182,14 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    chunk_t* prev = get_prev_ncnl(start);
    if(is_type(prev, CT_ASSIGN))
    {
-      LOG_FMT(LAVDB, "%s: start=%s [%s] on line %u (abort due to assign)\n", __func__,
-              start->text(), get_token_name(start->type), start->orig_line);
+      LOG_FMT(LAVDB, "%s(%d): start=%s [%s] on line %u (abort due to assign)\n", 
+              __func__, __LINE__, start->text(), get_token_name(start->type), start->orig_line);
 
       chunk_t* pc = get_next_type(start, CT_BRACE_CLOSE, (int32_t)start->level);
       return(get_next_ncnl(pc));
    }
 
-   LOG_FMT(LAVDB, "%s: start=%s [%s] on line %u\n", __func__,
+   LOG_FMT(LAVDB, "%s(%d): start=%s [%s] on line %u\n", __func__, __LINE__,
            start->text(), get_token_name(start->type), start->orig_line);
 
    uint64_t align_mask = PCF_IN_FCN_DEF | PCF_VAR_1ST;
@@ -1225,8 +1225,8 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    while ((is_valid(pc)) &&
           ((pc->level >= start->level) || (pc->level == 0)))
    {
-      LOG_FMT(LGUY, "%s: pc->text()=%s, pc->orig_line=%u, pc->orig_col=%u\n",
-              __func__, pc->text(), pc->orig_line, pc->orig_col);
+      LOG_FMT(LGUY, "%s(%d): pc->text()=%s, pc->orig_line=%u, pc->orig_col=%u\n",
+              __func__, __LINE__, pc->text(), pc->orig_line, pc->orig_col);
       if (is_cmt(pc))
       {
          if (pc->nl_count > 0)
@@ -1388,7 +1388,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
 chunk_t* align_nl_cont(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
-   LOG_FMT(LALNLC, "%s: start on [%s] on line %u\n", __func__,
+   LOG_FMT(LALNLC, "%s(%d): start on [%s] on line %u\n", __func__, __LINE__,
            get_token_name(start->type), start->orig_line);
 
    /* Find the max column */
@@ -1454,8 +1454,8 @@ static chunk_t* align_trailing_comments(chunk_t* start)
    comment_align_e cmt_type_cur;
    comment_align_e cmt_type_start = get_comment_align_type(pc);
 
-   LOG_FMT(LALADD, "%s: start on line=%u\n",
-           __func__, pc->orig_line);
+   LOG_FMT(LALADD, "%s(%d): start on line=%u\n",
+           __func__, __LINE__, pc->orig_line);
 
    /* Find the max column */
    while (is_valid(pc) && (nl_count < get_uval(UO_align_right_cmt_span)))
@@ -1467,8 +1467,8 @@ static chunk_t* align_trailing_comments(chunk_t* start)
          if (cmt_type_cur == cmt_type_start)
          {
             col = 1 + (pc->brace_level * get_uval(UO_indent_columns));
-            LOG_FMT(LALADD, "%s: line=%u col=%u min_col=%u pc->col=%u pc->len=%u %s\n",
-                    __func__, pc->orig_line, col, min_col, pc->column, pc->len(),
+            LOG_FMT(LALADD, "%s(%d): line=%u col=%u min_col=%u pc->col=%u pc->len=%u %s\n",
+                    __func__, __LINE__, pc->orig_line, col, min_col, pc->column, pc->len(),
                     get_token_name(pc->type));
             if ((min_orig == 0        ) ||
                 (min_orig > pc->column) )
@@ -1501,8 +1501,8 @@ static chunk_t* align_trailing_comments(chunk_t* start)
    /* bump out to the intended column */
    col = max(col, intended_col);
 
-   LOG_FMT(LALADD, "%s:  -- min_orig=%u intended_col=%u min_allowed=%u ==> col=%u\n",
-           __func__, min_orig, intended_col, min_col, col);
+   LOG_FMT(LALADD, "%s(%d):  -- min_orig=%u intended_col=%u min_allowed=%u ==> col=%u\n",
+           __func__, __LINE__, min_orig, intended_col, min_col, col);
    if ((cpd.frag_cols >  0  ) &&
        (cpd.frag_cols <= col) )
    {
@@ -1554,8 +1554,8 @@ static chunk_t* scan_ib_line(chunk_t* start, bool first_pass)
    }
 
    chunk_t* pc = start;
-   LOG_FMT(LSIB, "%s: start=%s col %u/%u line %u\n",
-           __func__, get_token_name(pc->type), pc->column, pc->orig_col, pc->orig_line);
+   LOG_FMT(LSIB, "%s(%d): start=%s col %u/%u line %u\n",
+           __func__, __LINE__, get_token_name(pc->type), pc->column, pc->orig_col, pc->orig_line);
 
    const chunk_t* prev_match = nullptr;
    uint32_t       idx        = 0;
@@ -1629,7 +1629,7 @@ static void log_align(log_sev_t sev, uint32_t line)
 {
    if (log_sev_on(sev))
    {
-      log_fmt(sev, "%s: line %u, %u)", __func__, line, cpd.al_cnt);
+      log_fmt(sev, "%s(%d): line %u, %u)", __func__, __LINE__, line, cpd.al_cnt);
       for (uint32_t idx = 0; idx < cpd.al_cnt; idx++)
       {
          log_fmt(sev, " %u/%u=%s", cpd.al[idx].col, cpd.al[idx].len,
@@ -1648,7 +1648,7 @@ static void align_init_brace(chunk_t* start)
    cpd.al_cnt         = 0;
    cpd.al_c99_array   = false;
 
-   LOG_FMT(LALBR, "%s: start @ %u:%u\n", __func__, start->orig_line, start->orig_col);
+   LOG_FMT(LALBR, "%s(%d): start @ %u:%u\n", __func__, __LINE__, start->orig_line, start->orig_col);
 
    chunk_t* pc = get_next_ncnl(start);
    pc = scan_ib_line(pc, true);
@@ -1799,8 +1799,8 @@ static void align_typedefs(uint32_t span)
          if (is_flag(pc, PCF_ANCHOR))
          {
             as.Add(pc);
-            LOG_FMT(LALTD, "%s: typedef @ %u:%u, tag '%s' @ %u:%u\n",
-                    __func__, c_typedef->orig_line, c_typedef->orig_col,
+            LOG_FMT(LALTD, "%s(%d): typedef @ %u:%u, tag '%s' @ %u:%u\n",
+                    __func__, __LINE__, c_typedef->orig_line, c_typedef->orig_col,
                     pc->text(), pc->orig_line, pc->orig_col);
             c_typedef = nullptr;
          }

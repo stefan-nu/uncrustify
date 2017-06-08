@@ -1072,8 +1072,8 @@ static argval_t do_space(chunk_t* pc1, chunk_t* pc2, uint32_t& min_sp, bool comp
    min_sp = 1; /* default space count is 1 */
    retval_if(are_invalid(pc1, pc2), AV_IGNORE);
 
-   LOG_FMT(LSPACE, "%s: %u:%u %s %s\n", __func__, pc1->orig_line,
-         pc1->orig_col, pc1->text(), get_token_name(pc1->type));
+   LOG_FMT(LSPACE, "%s(%d): %u:%u %s %s\n", __func__, __LINE__, pc1->orig_line,
+           pc1->orig_col, pc1->text(), get_token_name(pc1->type));
 
    chunks_t chunks = {pc1, pc2, min_sp};
    chunks_t* pc    = &chunks;
@@ -1122,8 +1122,8 @@ void space_text(void)
    uint32_t column = pc->column;
    while (is_valid(pc))
    {
-      LOG_FMT(LSPACE, "%s: %u:%u %s %s\n",
-              __func__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
+      LOG_FMT(LSPACE, "%s(%d): %u:%u %s %s\n", __func__, __LINE__,
+              pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
       if ((is_true(UO_use_options_overriding_for_qt_macros)) &&
           ((strcmp(pc->text(), "SIGNAL") == 0) ||
            (strcmp(pc->text(), "SLOT"  ) == 0) ) )
@@ -1142,8 +1142,8 @@ void space_text(void)
                  is_type(next, CT_VBRACE_OPEN, CT_VBRACE_CLOSE))
          {
             assert(is_valid(next));
-            LOG_FMT(LSPACE, "%s: %u:%u Skip %s (%u+%u)\n",
-                    __func__, next->orig_line, next->orig_col, get_token_name(next->type),
+            LOG_FMT(LSPACE, "%s(%d): %u:%u Skip %s (%u+%u)\n", __func__, __LINE__,
+                    next->orig_line, next->orig_col, get_token_name(next->type),
                     pc->column, pc->str.size());
             next->column = pc->column + pc->str.size();
             next         = chunk_get_next(next);
@@ -1384,8 +1384,8 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
    LOG_FUNC_ENTRY();
    assert(are_valid(first, second));
 
-   LOG_FMT(LSPACE, "%s: %u:%u [%s/%s] '%s' <==> %u:%u [%s/%s] '%s'",
-           __func__, first->orig_line, first->orig_col,
+   LOG_FMT(LSPACE, "%s(%d): %u:%u [%s/%s] '%s' <==> %u:%u [%s/%s] '%s'",
+           __func__, __LINE__, first->orig_line, first->orig_col,
            get_token_name(first->type), get_token_name(first->ptype),
            first->text(), second->orig_line, second->orig_col,
            get_token_name(second->type), get_token_name(second->ptype),
@@ -1395,7 +1395,7 @@ uint32_t space_col_align(chunk_t* first, chunk_t* second)
    uint32_t min_sp;
    argval_t av = do_space(first, second, min_sp);
 
-   LOG_FMT(LSPACE, "%s: av=%d, ", __func__, av);
+   LOG_FMT(LSPACE, "%s(%d): av=%d, ", __func__, __LINE__, av);
    uint32_t coldiff;
    if (first->nl_count > 0)
    {

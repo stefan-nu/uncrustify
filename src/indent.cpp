@@ -358,7 +358,7 @@ void reindent_line(chunk_t* pc, uint32_t column)
    LOG_FUNC_ENTRY();
    return_if(is_invalid(pc));
    assert(column < 100000);
-   LOG_FMT(LINDLINE, "%s(%d): %u] col %u on '%s' [%s/%s] => %u",
+   LOG_FMT(LINDLINE, "%s(%d): orig_line is %u, orig_col is %u, on '%s' [%s/%s] => %u",
            __func__, __LINE__, pc->orig_line, pc->column, pc->text(),
            get_token_name(pc->type), get_token_name(pc->ptype), column);
 #ifdef DEBUG
@@ -442,7 +442,7 @@ static void indent_pse_push(parse_frame_t& frm, chunk_t* pc)
       static uint32_t ref = 0;
       /* Bump up the index and initialize it */
       frm.pse_tos++;
-      LOG_FMT(LINDLINE, "%s(%d): line=%u, pse_tos=%u, type=%s\n",
+      LOG_FMT(LINDLINE, "%s(%d): line is %u, pse_tos is %u, type is %s\n",
               __func__, __LINE__, pc->orig_line, frm.pse_tos, get_token_name(pc->type));
 
       uint32_t index = frm.pse_tos;
@@ -496,12 +496,12 @@ static void indent_pse_pop(parse_frame_t& frm, chunk_t* pc)
       frm.pse_tos--;
       if (is_valid(pc))
       {
-         LOG_FMT(LINDLINE, "%s(%d): orig_line=%u, pse_tos=%u, type=%s\n",
+         LOG_FMT(LINDLINE, "%s(%d): orig_line is %u, pse_tos is %u, type is %s\n",
                  __func__, __LINE__, pc->orig_line, frm.pse_tos, get_token_name(pc->type));
       }
       else
       {
-         LOG_FMT(LINDLINE, "%s(%d): ------------------- pse_tos=%u\n",
+         LOG_FMT(LINDLINE, "%s(%d): ------------------- pse_tos is %u\n",
                  __func__, __LINE__, frm.pse_tos);
       }
    }
@@ -536,12 +536,12 @@ static uint32_t token_indent(c_token_t type)
 }
 
 
-#define indent_column_set(X)                                                \
-   do {                                                                     \
-      indent_column = (X);                                                  \
-      assert(indent_column < 100000);                                       \
-      LOG_FMT(LINDENT2, "%s:[line %d], orig_line=%u, indent_column = %u\n", \
-              __func__, __LINE__, pc->orig_line, indent_column);            \
+#define indent_column_set(X)                                              \
+   do {                                                                   \
+      indent_column = (X);                                                \
+      assert(indent_column < 100000);                                     \
+      LOG_FMT(LINDENT2, "%s(%d): orig_line is %u, indent_column is %u\n", \
+              __func__, __LINE__, pc->orig_line, indent_column);          \
    } while (false)
 
 
@@ -620,7 +620,7 @@ static bool is_shift_operator(chunk_t* pc, bool* in_shift, dir_e dir)
 
 static void _log_indent(const char* func, const uint32_t line, parse_frame_t* frm)
 {
-   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent=%u\n",
+   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos is %u, ... indent is %u\n",
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent);
 }
 
@@ -632,7 +632,7 @@ static void _log_indent(const char* func, const uint32_t line, parse_frame_t* fr
 
 static void _log_indent_tmp(const char* func, const uint32_t line, parse_frame_t* frm)
 {
-   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos=%u, ... indent_tmp=%u\n",
+   LOG_FMT(LINDLINE, "%s(%d): frm.pse_tos is %u, ... indent_tmp is %u\n",
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent_tmp);
 }
 
@@ -652,7 +652,7 @@ void _log_indent1(
 void _log_indent1(const char* func, const uint32_t line, const char* str,
                  chunk_t* pc, const uint32_t val)
 {
-   LOG_FMT(LINDLINE, "%s(%d): %s orig_line:col %u:%u type: %s text: %s val: %u\n",
+   LOG_FMT(LINDLINE, "%s(%d): %s orig_line is col %u:%u type: %s text: %s val: %u\n",
            func, line, str,
            pc->orig_line, pc->orig_col, get_token_name(pc->type), pc->text(), val);
 }
@@ -692,14 +692,8 @@ void indent_text(void)
    pc = chunk_get_head();
    while (is_valid(pc))
    {
-      if (is_type(pc, CT_NEWLINE))
-      {
-         log_indent1(pc, 0, "NEWLINE");
-      }
-      else if (pc->type == CT_NL_CONT)
-      {
-         log_indent1(pc, 0, "CT_NL_CONT");
-      }
+      if      (is_type(pc, CT_NEWLINE)) { log_indent1(pc, 0, "NEWLINE"   ); }
+      else if (is_type(pc, CT_NL_CONT)) { log_indent1(pc, 0, "CT_NL_CONT"); }
       else
       {
          log_indent1(pc, 0, "");
