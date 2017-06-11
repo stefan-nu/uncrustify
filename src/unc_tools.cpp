@@ -135,7 +135,7 @@ void dump_out(uint32_t type)
          fprintf(D_file, "  orig_col %u\n",     pc->orig_col);
          fprintf(D_file, "  orig_col_end %u\n", pc->orig_col_end);
          fprintf(D_file, (pc->orig_prev_sp  != 0) ? "  orig_prev_sp %u\n"      : "", pc->orig_prev_sp);
-         fprintf(D_file, (pc->flags         != 0) ? "  flags %016" PRIx64 "\n" : "", pc->flags);
+         fprintf(D_file, (pc->flags         != 0) ? "  flags %016" PRIu64 "\n" : "", pc->flags);
          fprintf(D_file, (pc->column        != 0) ? "  column %u\n"            : "", pc->column);
          fprintf(D_file, (pc->column_indent != 0) ? "  column_indent %u\n"     : "", pc->column_indent);
          fprintf(D_file, (pc->nl_count      != 0) ? "  nl_count %u\n"          : "", pc->nl_count);
