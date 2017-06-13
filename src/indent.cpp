@@ -302,13 +302,13 @@ void align_to_column(chunk_t* pc, uint32_t column)
    pc->column = column;
    do
    {
-      align_mode_e almod = align_mode_e::SHIFT;
-
       chunk_t* next = chunk_get_next(pc);
       break_if(is_invalid(next));
 
-      int32_t min_delta = (int32_t)space_col_align(pc, next);
-      min_col = min_col + (uint32_t)min_delta;
+      align_mode_e almod = align_mode_e::SHIFT;
+
+      uint32_t min_delta = space_col_align(pc, next);
+      min_col += min_delta;
       chunk_t* prev = pc;
       pc = next;
 
@@ -323,23 +323,24 @@ void align_to_column(chunk_t* pc, uint32_t column)
       {
          case(align_mode_e::KEEP_ABS): /* Keep same absolute column */
          {
-            pc->column = pc->orig_col;
-            pc->column = max(min_col, pc->column);
+            pc->column = max(pc->orig_col, min_col);
          }
          break;
 
          case(align_mode_e::KEEP_REL): /* Keep same relative column */
          {
             int32_t orig_delta = (int32_t)pc->orig_col - (int32_t)prev->orig_col;
-            orig_delta = max(min_delta, orig_delta);
-            pc->column = (uint32_t)((int32_t)prev->column + orig_delta);
+            orig_delta = max(orig_delta, (int32_t)min_delta); /* keeps orig_delta positive */
+            pc->column = prev->column + (uint32_t)orig_delta;
          }
          break;
 
-         case(align_mode_e::SHIFT): /* Shift by the same amount */
+         case(align_mode_e::SHIFT): /* Shift by the same amount, keep above negative values */
          {
-            pc->column += col_delta;
-            pc->column = max(min_col, pc->column);
+            pc->column = (col_delta >= 0 ||
+                          cast_abs(pc->column, col_delta) < pc->column)
+                         ? pc->column + col_delta : 0;
+            pc->column = max(pc->column, min_col);
          }
          break;
 
