@@ -29,7 +29,7 @@
 
 
 /**
- * \brief Check the backup-md5 file and copy the input file to a backup if needed.
+ * @brief Check the backup-md5 file and copy the input file to a backup if needed.
  *
  * If there isn't a FILENAME+UNC_BACKUP_MD5_SUFFIX or the md5 over the data
  * doesn't match what is in FILENAME+UNC_BACKUP_MD5_SUFFIX, then write the
@@ -41,8 +41,9 @@
  * @param filename   The file that was read (full path)
  * @param file_data  The file data
  * @param file_len   The file length
- * @retval           EX_OK    - successfully created backup file
- * @retval           EX_IOERR - could not create backup file
+ *
+ * @retval EX_OK    - successfully created backup file
+ * @retval EX_IOERR - could not create backup file
  */
 int32_t backup_copy_file(
    const char            *filename, /**< [in]  */
@@ -60,7 +61,7 @@ int32_t backup_copy_file(
  * This should be called after the file was written to disk.
  * It will be read back and an md5 will be calculated over it.
  *
- * @param filename   The file that was written (full path)
+ * @param filename  The file that was written (full path)
  */
 void backup_create_md5_file(
    const char *filename /**< [in]  */

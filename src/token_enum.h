@@ -11,7 +11,7 @@
 #define TOKEN_ENUM_H_INCLUDED
 
 /**
- * abbreviations use:
+ * abbreviations used:
  * CT = chunk type
  */
 

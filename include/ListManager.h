@@ -27,7 +27,7 @@ template<class T> class ListManager
 {
 protected:
    T* first; /**< pointer to the head of list */
-   T* last;  /**> pointer to tail of list */
+   T* last;  /**< pointer to tail of list */
 
 private:
    /* Hide copy constructor */
@@ -126,7 +126,7 @@ public:
 
 
    /** \brief remove an element from a linked list */
-   void Pop(T* obj) /**< [in] element to remove from list */
+   void Pop(T* obj) /**< [in] element to remove */
    {
       if (ptr_is_valid(obj))
       {

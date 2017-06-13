@@ -15,6 +15,12 @@
 #include "uncrustify_types.h"
 
 
+/* \todo can we avoid those extern variables */
+extern bool     QT_SIGNAL_SLOT_found;
+extern uint32_t QT_SIGNAL_SLOT_level;
+extern bool     restoreValues;
+
+
 /**
  * tbd
  */
@@ -27,12 +33,6 @@ void save_set_options_for_QT(
  * tbd
  */
 void restore_options_for_QT(void);
-
-
-/* \todo can we avoid those extern variables */
-extern bool     QT_SIGNAL_SLOT_found;
-extern uint32_t QT_SIGNAL_SLOT_level;
-extern bool     restoreValues;
 
 
 #endif /* OPTIONS_FOR_QT_H_INCLUDED */

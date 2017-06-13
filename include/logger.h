@@ -15,8 +15,8 @@
 #define LOGGER_H_INCLUDED
 
 #include "logmask.h"
-#include <cstring>
-#include <cstdio>
+#include <cstring>   /* provides strlen() */
+#include <cstdio>    /* provides FILE */
 
 
 /**
@@ -32,7 +32,7 @@ void log_init(
  * Show or hide the severity prefix "<1>"
  */
 void log_show_sev(
-   bool show /**< [in] true=show  false=hide */
+   bool show /**< [in] true=show, false=hide */
 );
 
 
@@ -47,7 +47,7 @@ bool log_sev_on(
 
 
 /**
- * Sets a log sev on or off
+ * Sets a log severity on or off
  *
  * @return true/false
  */
@@ -75,17 +75,20 @@ void log_get_mask(
 
 /**
  * Logs a string of known length
+ *
+ * TODO call strlen internally instead of providing len
  */
 void log_str(
    log_sev_t   sev, /**< [in] severity */
    const char* str, /**< [in] pointer to the string */
-   uint32_t    len  /**< [in] length of the string from strlen(str) */ /* \todo not necessary function can call strlen itself */
+   uint32_t    len  /**< [in] length of the string from strlen(str) */
 );
 
 
 #define LOG_STR(sev, str, len)                           \
    do { if (log_sev_on(sev)) { log_str(sev, str, len); } \
    } while (0)
+
 
 #define LOG_STRING(sev, str)                                     \
    do { if (log_sev_on(sev)) { log_str(sev, str, strlen(str)); } \
@@ -172,7 +175,6 @@ static inline char to_hex_char(uint32_t nibble)
 
 
 #ifdef DEBUG
-
 /**
  * This should be called as the first thing in a function.
  * It uses the log_func class to add an entry to the function log stack.
@@ -201,6 +203,8 @@ class log_func
 {
 public:
    log_func(const char* name, int32_t line);
+
+
    ~log_func(); /**< [in]  */
 };
 
@@ -217,10 +221,10 @@ void log_func_call(
  * tbd
  */
 void log_func_stack(
-   log_sev_t   sev,           /**< [in]  */
-   const char* prefix = "",   /**< [in]  */
-   const char* suffix = "\n", /**< [in]  */
-   uint32_t    skip_cnt = 0   /**< [in]  */
+   log_sev_t   sev,             /**< [in]  */
+   const char* prefix   = "",   /**< [in]  */
+   const char* suffix   = "\n", /**< [in]  */
+   uint32_t    skip_cnt = 0     /**< [in]  */
 );
 
 
