@@ -353,6 +353,16 @@ static void output_cmt_start(
 
 
 /**
+ * \todo use more appropriate function name
+ */
+void do_something(
+   int32_t&  offs, /**< [in]  */
+   chunk_t*  pc,   /**< [in]  */
+   unc_text& tmp   /**< [in]  */
+);
+
+
+/**
  * Checks if the current comment can be combined with the next comment.
  *
  * Two comments can be combined if:
@@ -1167,14 +1177,6 @@ static chunk_t* output_cmt_c(chunk_t* first)
 }
 
 
-/** \todo use more appropriate function name */
-void do_something(
-   int32_t&  offs, /**< [in]  */
-   chunk_t*  pc,   /**< [in]  */
-   unc_text& tmp   /**< [in]  */
-);
-
-
 static chunk_t* output_comment_cpp(chunk_t* first)
 {
    retval_if(is_invalid(first), first);
@@ -1469,14 +1471,14 @@ static void output_comment_multi(chunk_t* pc)
               (pc->str[nxt_len] != 'r' ) && /* \todo should this be \r ? */
               (pc->str[nxt_len] != LINEFEED);
               nxt_len++)
-         {
+         { /* \todo horrible condition make this clearer */
             if ((next_nonempty_line < 0) &&
                 !unc_isspace(pc->str[nxt_len]) &&
                 (pc->str[nxt_len] != '*') &&
                 ((nxt_len == remaining) ||
-                 (is_preproc(pc)
-                  ? (pc->str[nxt_len] != '\\') ||
-                  ((pc->str[nxt_len + 1] != 'r') && /* \todo should this be \r ? */
+                 (is_preproc(pc) ?
+                   (pc->str[nxt_len + 0] != '\\') ||
+                  ((pc->str[nxt_len + 1] != 'r' ) && /* \todo should this be \r ? */
                    (pc->str[nxt_len + 1] != LINEFEED))
                   : true)))
             {
