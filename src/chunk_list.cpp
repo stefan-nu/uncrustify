@@ -1355,10 +1355,25 @@ bool is_cmt_nl_or_preproc   (const chunk_t* const pc) { return(is_cmt_or_nl(pc) 
 bool is_cmt_nl_or_blank     (const chunk_t* const pc) { return(is_cmt_or_nl(pc) || chunk_empty (pc)); }
 
 
+bool is_doxygen_cmt(chunk_t* pc)
+{
+   retval_if(!is_cmt(pc), false);
+
+   /* check the third character */
+   const char*  sComment = pc->text();
+   const size_t len      = strlen(sComment);
+   retval_if((len < 3), false);
+   return((sComment[2] == '/') ||
+          (sComment[2] == '!') ||
+          (sComment[2] == '@') );
+}
+
+
 bool is_bal_square(const chunk_t* const pc)
 {
    return(is_type(pc, CT_SQUARE_OPEN, CT_TSQUARE, CT_SQUARE_CLOSE));
 }
+
 
 bool is_single_line_cmt(const chunk_t* const pc) { return(is_type(pc, CT_COMMENT, CT_COMMENT_CPP )); }
 bool is_semicolon      (const chunk_t* const pc) { return(is_type(pc, CT_SEMICOLON, CT_VSEMICOLON)); }

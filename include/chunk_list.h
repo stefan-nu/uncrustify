@@ -959,6 +959,14 @@ bool is_cmt_nl_or_blank(
 
 
 /**
+ * check if a chunk is valid and is a doxygen comment
+ */
+bool is_doxygen_cmt(
+   chunk_t* pc /**< [in] chunk to check */
+);
+
+
+/**
  * check if a chunk is valid and holds a comment, a newline or is
  * a preprocessor part
  */

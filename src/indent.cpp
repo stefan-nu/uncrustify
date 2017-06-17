@@ -2316,13 +2316,12 @@ static void indent_comment(chunk_t* pc, uint32_t col)
    {
       assert(is_valid(prev));
       int32_t  coldiff = (int32_t)prev->orig_col - (int32_t)pc->orig_col;
-      chunk_t* pp      = chunk_get_prev(prev);
 
       /* Here we want to align comments that are relatively close one to another
-       * but not when the previous comment is on the same line with a preproc */
-      if ((coldiff <=  3) &&
+       * but not when the comment is a Doxygen comment */
+      if ((coldiff <=  3) && /* \todo make column difference 3 a parameter */
           (coldiff >= -3) &&
-          !is_preproc(pp) )
+          !is_doxygen_cmt(pc))
       {
          reindent_line(pc, prev->column);
          LOG_FMT(LCMTIND, "rule 3 - prev comment, coldiff = %d, now in %u\n",
