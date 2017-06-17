@@ -1555,7 +1555,10 @@ static void output_comment_multi(chunk_t* pc)
          {
             /* This is not the first line, so we need to indent to the
              * correct column. Each line is indented 0 or more spaces. */
-            ccol = (uint32_t)((int32_t)ccol - col_diff);
+            if ((int32_t)ccol >= col_diff) /* prevent underrun */
+            {
+               ccol -= (uint32_t)col_diff;
+            }
             if (ccol < (cmt_col + 3)) { ccol = cmt_col + 3; }
 
             if (line.size() == 0)
