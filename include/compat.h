@@ -28,4 +28,10 @@ bool unc_homedir(
 );
 
 
+/*
+ * even if we prefer the format %zu, we have to change to %lu
+ * to be runable under Windows
+ */
+void convert_log_zu2lu(char *buf);
+
 #endif /* COMPAT_H_INCLUDED */
