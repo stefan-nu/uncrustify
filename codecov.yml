@@ -1,5 +1,6 @@
 #
 # Configuration for codecov
+# refer to https://github.com/codecov/support/wiki/Codecov-Yaml
 #
 coverage:
   precision: 2
