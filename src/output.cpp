@@ -228,26 +228,21 @@ void fill_line_with_spaces(
  * base_col is the indent of the first line of the comment.
  * On the first line, column == base_col.
  * On subsequent lines, column >= base_col.
- *
- * @param brace_col the brace-level indent of the comment
- * @param base_col  the indent of the start of the comment (multiline)
- * @param column    the column that we should end up in
  */
 static void cmt_output_indent(
-   uint32_t brace_col, /**< [in]  */
-   uint32_t base_col,  /**< [in]  */
-   uint32_t column     /**< [in]  */
+   uint32_t brace_col, /**< [in] brace-level indent of the comment */
+   uint32_t base_col,  /**< [in] indent of the start of the comment (multiline) */
+   uint32_t column     /**< [in] column that we should end up in */
 );
 
 
 /**
  * Checks for and updates the lead chars.
  *
- * @param line the comment line
  * @return 0=not present, >0=number of chars that are part of the lead
  */
 static uint32_t cmt_parse_lead(
-   const unc_text& line,   /**< [in]  */
+   const unc_text& line,   /**< [in] the comment line */
    bool            is_last /**< [in]  */
 );
 
@@ -273,14 +268,13 @@ static uint32_t cmt_parse_lead(
  *
  * Otherwise, the indent is 0.
  *
- * @param str       The comment string
  * @param len       Length of the comment
  * @param start_col Starting column
  * @return          cmt.xtra_indent is set to 0 or 1
  */
 static void calculate_cmt_body_indent(
    cmt_reflow_t&   cmt, /**< [in]  */
-   const unc_text& str  /**< [in]  */
+   const unc_text& str  /**< [in] The comment string */
 );
 
 
@@ -549,7 +543,7 @@ static int32_t next_up(const unc_text& text, uint32_t idx, const unc_text& tag)
 
 static void cmt_output_indent(uint32_t brace_col, uint32_t base_col, uint32_t column)
 {
-   uint32_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 :   /* \todo better use an enum here */
+   uint32_t indent_with_tabs = is_true(UO_indent_cmt_with_tabs) ? 2 : /* \todo better use an enum here */
                                  (get_uval(UO_indent_with_tabs) ? 1 :
                                                                   0);
 
@@ -1660,7 +1654,8 @@ static bool kw_fcn_class(chunk_t* cmt, unc_text& out_txt)
    {
       chunk_t* fcn = get_next_function(cmt);
 
-      tmp = (is_type(fcn, CT_OC_MSG_DECL)) ? get_prev_oc_class(cmt) : get_next_class(cmt);
+      tmp = (is_type(fcn, CT_OC_MSG_DECL)) ? get_prev_oc_class(cmt)
+                                           : get_next_class   (cmt);
    }
    else if (is_lang(cpd, LANG_OC))
    {
@@ -1857,7 +1852,6 @@ static bool kw_fcn_javaparam(chunk_t* cmt, unc_text& out_txt)
       out_txt.append_cond(need_nl, "\n");
       out_txt.append("@return TODO");
    }
-
    return(true);
 }
 
@@ -2046,10 +2040,10 @@ static void generate_if_conditional_as_text(unc_text& dst, chunk_t* ifdef)
       {
          case(CT_NEWLINE      ): /* fallthrough */
          case(CT_COMMENT_MULTI): /* fallthrough */
-         case(CT_COMMENT_CPP  ): /* do nothing */  return;
+         case(CT_COMMENT_CPP  ): /* do nothing  */ return;
 
-         case(CT_COMMENT):       /* fallthrough */
-         case(CT_COMMENT_EMBED): /* do nothing */  break;
+         case(CT_COMMENT      ): /* fallthrough */
+         case(CT_COMMENT_EMBED): /* do nothing  */ break;
 
          case(CT_NL_CONT):
             dst   += SPACE;
@@ -2114,7 +2108,7 @@ void add_long_pp_conditional_block_cmt(void)
             /* Found the matching #else or #endif - make sure a newline is next */
             tmp = chunk_get_next(tmp);
 
-            str = is_invalid(tmp) ? "-------" :
+            str = is_invalid(tmp) ? "--EOF--" :
                   is_nl     (tmp) ? "newline" :
                   is_cmt    (tmp) ? "comment" :
                                     "other  " ;
@@ -2127,7 +2121,7 @@ void add_long_pp_conditional_block_cmt(void)
                     get_uval(UO_mod_add_long_ifdef_endif_comment) :
                     get_uval(UO_mod_add_long_ifdef_else_comment );
 
-               str = is_invalid(tmp)              ? "EOF"    :
+               str = is_invalid(tmp)              ? "-EOF-"  :
                      is_type   (tmp, CT_PP_ENDIF) ? "#endif" :
                                                     "#else"  ;
                LOG_FMT(LPPIF, "#if / %s section candidate for augmenting when over NL threshold %u != 0 (nl_count=%u)\n",
