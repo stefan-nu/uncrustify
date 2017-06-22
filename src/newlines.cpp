@@ -67,10 +67,10 @@ static void double_newline(
  * 1. Find next open brace
  * 2. Find next close brace
  * 3. Determine why the braces are there
- * a. struct/union/enum "enum [name] {"
- * c. assignment "= {"
- * b. if/while/switch/for/etc ") {"
- * d. else "} else {"
+ *   a. struct/union/enum "enum [name] {"
+ *   c. assignment "= {"
+ *   b. if/while/switch/for/etc ") {"
+ *   d. else "} else {"
  */
 static void setup_newline_add(
    chunk_t* prev, /**< [in]  */

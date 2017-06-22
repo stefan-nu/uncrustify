@@ -370,7 +370,7 @@ static const chunk_tag_t* kw_static_first(const chunk_tag_t* tag)
 {
    const chunk_tag_t* prev = tag - 1;
 
-   /* loop over static keyword array while */
+   /* loop over static keyword array while ... */
    // \todo avoid pointer arithmetics
    while (((uint32_t)prev >= (uint32_t)&keywords[0]) && /* not at beginning of keyword array */
           (strcmp(prev->tag, tag->tag) == 0    ) )      /* tags match */
