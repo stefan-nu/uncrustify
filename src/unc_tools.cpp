@@ -25,17 +25,18 @@ void prot_the_line(int32_t theLine, uint32_t actual_line)
    {
       if (pc->orig_line == actual_line)
       {
-         LOG_FMT(LGUY, "(%d) orig_line=%d, ", theLine, actual_line);
+         LOG_FMT(LGUY, " orig_line=%d, ", actual_line);
          switch(pc->type)
          {  /* \todo combine into a single log line */
-            case(CT_VBRACE_OPEN ): LOG_FMT(LGUY, "<VBRACE_OPEN>\n");           break;
-            case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%u)\n", pc->nl_count); break;
-            case(CT_VBRACE_CLOSE): LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>\n");       break;
-            case(CT_SPACE       ): LOG_FMT(LGUY, "<CT_SPACE>\n");              break;
+            case(CT_VBRACE_OPEN ): LOG_FMT(LGUY, "<VBRACE_OPEN>, ");          break;
+            case(CT_NEWLINE     ): LOG_FMT(LGUY, "<NL>(%u), ", pc->nl_count); break;
+            case(CT_VBRACE_CLOSE): LOG_FMT(LGUY, "<CT_VBRACE_CLOSE>, ");      break;
+            case(CT_SPACE       ): LOG_FMT(LGUY, "<CT_SPACE>, ");             break;
             default:
             {
-               LOG_FMT(LGUY, "text() %s, type %s, orig_col=%u, column=%u\n",
-                       pc->text(), get_token_name(pc->type), pc->orig_col, pc->column);
+               LOG_FMT(LGUY, "text() %s, type %s, parent_type %s, orig_col=%u, ",
+                       pc->text(), get_token_name(pc->type),
+                       get_token_name(pc->ptype), pc->orig_col);
                break;
             }
          }

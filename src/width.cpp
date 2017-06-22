@@ -213,12 +213,11 @@ void do_code_width(void)
           (not_type(pc, CT_SPACE)) &&
           (is_past_width(pc)))
       {
-         if (split_line(pc) == false)
-         {
-            LOG_FMT(LSPLIT, "%s: Bailed on %u:%u %s\n",
-                    __func__, pc->orig_line, pc->orig_col, pc->text());
-            break;
-         }
+         const bool split_OK = split_line(pc);
+         const char* str = split_OK ? "" : "Bailed ";
+         LOG_FMT(LSPLIT, "%s(%d): %son orig_line=%u, orig_col=%u, for %s\n",
+                 __func__, __LINE__, str, pc->orig_line, pc->orig_col, pc->text());
+         break_if(split_OK == false);
       }
    }
 }
@@ -330,6 +329,7 @@ static bool split_line(chunk_t* start)
    /* If this is in a function call or prototype, split on commas or right
     * after the open parenthesis */
    else if ( is_flag (start, PCF_IN_FCN_DEF) ||
+             is_ptype(start, CT_FUNC_PROTO ) ||
             (is_level(start, (start->brace_level + 1)) &&
              is_flag (start, PCF_IN_FCN_CALL)))
    {
