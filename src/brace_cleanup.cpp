@@ -241,7 +241,7 @@ void brace_cleanup(void)
       }
 
       /* Do before assigning stuff from the frame */
-      if (is_lang(cpd, LANG_PAWN))
+      if (is_lang(LANG_PAWN))
       {
          if ((frm.pse[frm.pse_tos].type == CT_VBRACE_OPEN) &&
               is_type(pc, CT_NEWLINE) )
@@ -439,7 +439,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
          cpd.consumed = true;
          close_statement(frm, pc);
       }
-      else if (is_lang(cpd, LANG_PAWN) && is_type(pc, CT_BRACE_CLOSE))
+      else if (is_lang(LANG_PAWN) && is_type(pc, CT_BRACE_CLOSE))
       {
          close_statement(frm, pc);
       }
@@ -515,7 +515,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
          /* If consumed, then we are on the close sparen.
           * PAWN: Check the next chunk for a semicolon. If it isn't, then
           * add a virtual semicolon, which will get handled on the next pass. */
-         if (is_lang(cpd, LANG_PAWN))
+         if (is_lang(LANG_PAWN))
          {
             tmp = get_next_ncnl(pc);
             assert(is_valid(tmp));
@@ -565,7 +565,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
                parent = CT_FUNCTION;
             }
             /* NS_ENUM and NS_OPTIONS are followed by a (type, name) pair */
-            else if (is_type(prev, CT_ENUM) && is_lang(cpd, LANG_OC))
+            else if (is_type(prev, CT_ENUM) && is_lang(LANG_OC))
             {
                /* Treat both as CT_ENUM since the syntax is identical */
                set_type(pc, CT_FPAREN_OPEN);
@@ -590,7 +590,7 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
             }
             /*  Carry through CT_ENUM parent in NS_ENUM (type, name) { */
             else if (is_type_and_ptype(prev, CT_FPAREN_CLOSE, CT_ENUM) &&
-                     is_lang(cpd, LANG_OC))
+                     is_lang(LANG_OC))
             {
                parent = CT_ENUM;
             }
@@ -682,13 +682,12 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
        (is_type(pc, CT_STAR) && not_type(tmp, CT_STAR)))
    {
       frm->expr_count = 0;
-      LOG_FMT(LSTMT, "%s(%d): %u> reset expr on %s\n", 
+      LOG_FMT(LSTMT, "%s(%d): %u> reset expr on %s\n",
               __func__, __LINE__, pc->orig_line, pc->text());
    }
-
-   else if (is_closing_rbrace(pc)     &&
-            cpd.consumed     == false &&
-            cpd.unc_off_used == false )
+   else if (is_closing_rbrace(pc)      &&
+            (cpd.consumed     == false)&&
+            (cpd.unc_off_used == false))
    {
       /* fatal error */
       fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%u, column=%u\n",
@@ -814,7 +813,7 @@ static bool check_complex_statements(parse_frame_t* frm, chunk_t* pc)
        ((frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE2  ) ||
         (frm->pse[frm->pse_tos].stage == brace_stage_e::BRACE_DO) ) )
    {
-      if (is_lang(cpd, LANG_CS) && is_type(pc, CT_USING_STMT) &&
+      if (is_lang(LANG_CS) && is_type(pc, CT_USING_STMT) &&
           (is_false(UO_indent_using_block)))
       {
          // don't indent the using block

@@ -239,6 +239,7 @@ uint32_t    get_abs (const uo_t opt) { return((uint32_t)abs(cpd.settings[opt].n)
 tokenpos_t  get_tok (const uo_t opt) { return(cpd.settings[opt].tp); }
 StarStyle_t get_star(const uo_t opt) { return static_cast<StarStyle_t>(get_uval(opt)); }
 
+
 void set_arg(const uo_t opt, argval_t val)
 {
    cpd.settings[opt].a = val;
@@ -256,8 +257,8 @@ bool is_false(const uo_t opt) { return(cpd.settings[opt].b == false); }
 
 
 bool is_opt_unset(
-   const argval_t opt,
-   const argval_t val
+   const argval_t opt, /**< [in]  */
+   const argval_t val  /**< [in]  */
 );
 
 
@@ -294,8 +295,10 @@ bool not_ignore(const uo_t opt)
    return not_arg(cpd.settings[opt].a, AV_IGNORE);
 }
 
+
 bool is_token_set(const tokenpos_t tok, const tokenpos_t val) { return((tok & val) == val); } /*lint !e655 */
 bool is_tok_unset(const tokenpos_t tok, const tokenpos_t val) { return((tok & val) ==   0); } /*lint !e655 !e641*/
+
 
 bool is_tok(const tokenpos_t tok, const tokenpos_t val) { return(tok                  == val); }
 bool is_tok(const uo_t       opt, const tokenpos_t val) { return(cpd.settings[opt].tp == val); }
@@ -309,6 +312,7 @@ bool not_tok(const uo_t opt, const tokenpos_t val)
 {
    return(cpd.settings[opt].tp != val);
 }
+
 
 bool is_bit_set  (const uint64_t var, const uint64_t bit) { return((var & bit) == bit); }
 bool is_bit_unset(const uint64_t var, const uint64_t bit) { return((var & bit) ==   0); }
@@ -1832,7 +1836,7 @@ const group_map_value_t* get_group_name(uint32_t ug)
 
 const option_map_value_t* get_option_name(uo_t option)
 {
-   const option_name_map_it it = option_name_map.find(option);
+   const uo_map_it it = option_name_map.find(option);
 
    return((it == option_name_map.end()) ? nullptr : (&it->second));
 }
@@ -2483,15 +2487,16 @@ string argtype2string(argtype_t argtype)
    }
 }
 
-const char* get_encoding_name(const char_encoding_e enc)
+
+const char* get_enc_name(const char_enc_t enc)
 {
    switch(enc)
    {
-      case(char_encoding_e::ASCII   ): return ("ASCII"      );
-      case(char_encoding_e::BYTE    ): return ("BYTE"       );
-      case(char_encoding_e::UTF8    ): return ("UTF-8"      );
-      case(char_encoding_e::UTF16_LE): return ("UTF-16-LE"  );
-      case(char_encoding_e::UTF16_BE): return ("UTF-16-BE"  );
+      case(char_enc_t::ASCII   ): return ("ASCII"      );
+      case(char_enc_t::BYTE    ): return ("BYTE"       );
+      case(char_enc_t::UTF8    ): return ("UTF-8"      );
+      case(char_enc_t::UTF16_LE): return ("UTF-16-LE"  );
+      case(char_enc_t::UTF16_BE): return ("UTF-16-BE"  );
       default:                         return ("unknown enc");
    }
 }
@@ -2534,6 +2539,7 @@ string argval2str(argval_t argval)
                       return("undefined");
    }
 }
+
 
 string number2str(int32_t number)
 {

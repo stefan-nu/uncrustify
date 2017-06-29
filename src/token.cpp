@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 /** @addtogroup common
- @{
+ *  @{
 */
 
 
@@ -97,7 +97,7 @@ c_token_t get_inverse_type(c_token_t type)
 
       default:                return type;
    }
-
 }
+
 
 /** @} */

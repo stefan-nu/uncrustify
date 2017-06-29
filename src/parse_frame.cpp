@@ -40,10 +40,11 @@ static void pf_copy_2nd_tos(
 
 
 void _pf_log1(
-   const char*            func,
-   const int32_t          line,
-   const cp_data_t* const cpd
+   const char*            func, /**< [in]  */
+   const int32_t          line, /**< [in]  */
+   const cp_data_t* const cpd   /**< [in]  */
 );
+
 
 #define pf_log1(cpd) \
    do { _pf_log1(__func__, __LINE__, cpd); } while(0)

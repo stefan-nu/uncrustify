@@ -85,7 +85,7 @@ enum class brace_stage_e : uint32_t
 };
 
 
-enum class char_encoding_e : uint32_t
+enum class char_enc_t : uint32_t
 {
    ASCII,      /**< 0-127 */
    BYTE,       /**< 0-255, not UTF-8 */
@@ -357,10 +357,11 @@ typedef enum lang_flag_e
    LANG_CSV       =                              LANG_CS |                        LANG_VALA,
    LANG_CSPP      =                              LANG_CS |                                                           FLAG_PP,
    LANG_JE        =                                        LANG_JAVA |                        LANG_ECMA,
-   LANG_OPP       =                                                     LANG_OC |                                    FLAG_PP,
    LANG_JVE       =                                        LANG_JAVA |            LANG_VALA | LANG_ECMA,
    LANG_VE        =                                                               LANG_VALA | LANG_ECMA,
    LANG_PPP       =                                                                                      LANG_PAWN | FLAG_PP,
+   LANG_OV        =                                                     LANG_OC | LANG_VALA,
+   LANG_OPP       =                                                     LANG_OC |                                    FLAG_PP
 }lang_t;
 
 
@@ -409,7 +410,7 @@ struct file_mem_t
    vector<uint8_t> raw;   /**< raw content of file  */
    deque<uint32_t> data;  /**< processed content of file  */
    bool            bom;   /**<  */
-   char_encoding_e enc;   /**< character encoding of file ASCII, utf, etc. */
+   char_enc_t enc;   /**< character encoding of file ASCII, utf, etc. */
 #ifdef HAVE_UTIME_H
    struct utimbuf  utb;   /**<  */
 #endif
@@ -477,7 +478,7 @@ struct cp_data_t
    bool            output_tab_as_space; /**<  */
 
    bool            bom;                 /**<  */
-   char_encoding_e enc;                 /**<  */
+   char_enc_t      enc;                 /**<  */
 
    /* bumped up when a line is split or indented */
    int32_t         changes;      /**<  */

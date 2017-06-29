@@ -45,21 +45,27 @@ static chunk_t* handle_double_angle_close(
  * Marks ObjC specific chunks in property declaration, by setting
  * parent types and chunk types.
  */
-void cleanup_objc_property(chunk_t *start);
+void cleanup_objc_property(
+   chunk_t* start /**< [in]  */
+);
 
 
 /**
  * Marks ObjC specific chunks in property declaration (getter/setter attribute)
  * Will mark 'test4Setter'and ':' in '@property (setter=test4Setter:, strong) int test4;' as CT_OC_SEL_NAME
  */
-void mark_selectors_in_property_with_open_paren(chunk_t *open_paren);
+void mark_selectors_in_property_with_open_paren(
+   chunk_t* open_paren /**< [in]  */
+);
 
 
 /**
  * Marks ObjC specific chunks in property declaration ( attributes)
  * Changes  all the CT_WORD to CT_OC_PROPERTY_ATTR
  */
-void mark_attributes_in_property_with_open_paren(chunk_t *open_paren);
+void mark_attributes_in_property_with_open_paren(
+   chunk_t* open_paren /**< [in]  */
+);
 
 
 static chunk_t* handle_double_angle_close(chunk_t* pc)
@@ -148,8 +154,8 @@ void tokenize_cleanup(void)
    chunk_t* next = get_next_ncnl(pc);
    while (are_valid(pc, next))
    {
-      if ((is_type(pc, CT_DOT     ) && (cpd.lang_flags & LANG_ALLC)) ||
-          (is_type(pc, CT_NULLCOND) && (cpd.lang_flags & LANG_CS  )) )
+      if ((is_type(pc, CT_DOT     ) && is_lang(LANG_ALLC)) ||
+          (is_type(pc, CT_NULLCOND) && is_lang(LANG_CS  )) )
       {
          set_type(pc, CT_MEMBER);
       }
@@ -219,7 +225,7 @@ void tokenize_cleanup(void)
          }
          else if(is_type(pc,   CT_WORD     ) &&
                  is_type(prev, CT_DC_MEMBER) &&
-                  (cpd.lang_flags & LANG_CPP) != 0)
+                 is_lang(LANG_CPP) )
          {
             set_type(pc,   CT_TYPE    );
             set_type(next, CT_PTR_TYPE);
@@ -239,7 +245,7 @@ void tokenize_cleanup(void)
       {
          /* pretty much all languages except C use <> for something other than
           * comparisons.  "#include<xxx>" is handled elsewhere. */
-         if (is_lang(cpd, LANG_CPPCSJOV))
+         if (is_lang(LANG_CPPCSJOV))
          {
             check_template(pc);
          }
@@ -265,7 +271,7 @@ void tokenize_cleanup(void)
       }
 
       assert(is_valid(next));
-      if (is_lang(cpd, LANG_D))
+      if (is_lang(LANG_D))
       {
          /* Check for the D string concat symbol '~' */
          if ( is_type(pc,   CT_INV            )   &&
@@ -302,7 +308,7 @@ void tokenize_cleanup(void)
          }
       }
 
-      if (is_lang(cpd, LANG_CPP))
+      if (is_lang(LANG_CPP))
       {
          /* Change Word before '::' into a type */
          if (are_types(pc, CT_WORD, next, CT_DC_MEMBER))
@@ -524,7 +530,7 @@ void tokenize_cleanup(void)
 
       /* ObjectiveC allows keywords to be used as identifiers in some situations
        * This is a dirty hack to allow some of the more common situations. */
-      if (is_lang(cpd, LANG_OC))
+      if (is_lang(LANG_OC))
       {
          if( is_type(pc,   CT_IF, CT_FOR, CT_WHILE) &&
             !is_type(next, CT_PAREN_OPEN          ) )
@@ -584,11 +590,11 @@ void tokenize_cleanup(void)
          }
       }
 
-      /* Detect Objective-C categories and class extensions */
-      /* @interface ClassName (CategoryName) */
-      /* @implementation ClassName (CategoryName) */
-      /* @interface ClassName () */
-      /* @implementation ClassName () */
+      /* Detect Objective-C categories and class extensions
+       * @interface ClassName (CategoryName)
+       * @implementation ClassName (CategoryName)
+       * @interface ClassName ()
+       * @implementation ClassName () */
       if ((is_ptype(pc,   CT_OC_IMPL, CT_OC_INTF) ||
            is_type (pc,   CT_OC_CLASS           ) ) &&
            is_type (next, CT_PAREN_OPEN         ) )
@@ -699,7 +705,7 @@ SN
       }
 
       /* Check for C# nullable types '?' is in next */
-      if (is_lang(cpd,  LANG_CS    ) &&
+      if (is_lang(LANG_CS) &&
           is_type(next, CT_QUESTION) &&
           (next->orig_col == (pc->orig_col + pc->len())))
       {
@@ -730,7 +736,7 @@ SN
       }
 
       /* Change 'default(' into a sizeof-like statement */
-      if (is_lang(cpd, LANG_CS  ) &&
+      if (is_lang(LANG_CS) &&
           are_types(pc, CT_DEFAULT, next, CT_PAREN_OPEN))
       {
          set_type(pc, CT_SIZEOF);
@@ -742,9 +748,9 @@ SN
          set_type(pc, CT_QUALIFIER);
       }
 
-      if ((is_type(pc, CT_USING                           ) ||
-          (is_type(pc, CT_TRY) && is_lang(cpd, LANG_JAVA))) &&
-           is_type(next, CT_PAREN_OPEN)                   )
+      if ((is_type(pc, CT_USING                    ) ||
+          (is_type(pc, CT_TRY) && is_lang(LANG_JAVA))) &&
+           is_type(next, CT_PAREN_OPEN)                )
       {
          set_type(pc, CT_USING_STMT);
       }
@@ -771,7 +777,7 @@ SN
 
       /* If Java's 'synchronized' is in a method declaration, it should be
        * a qualifier. */
-      if (is_lang(cpd,   LANG_JAVA      ) &&
+      if (is_lang (LANG_JAVA      ) &&
           is_type (pc,   CT_SYNCHRONIZED) &&
           not_type(next, CT_PAREN_OPEN  ) )
       {
@@ -1069,14 +1075,14 @@ void mark_selectors_in_property_with_open_paren(chunk_t *open_paren)
 
    while (tmp && tmp->type != CT_PAREN_CLOSE)
    {
-      if (tmp->type == CT_WORD &&
+      if ((tmp->type == CT_WORD) &&
           (is_str(tmp, "setter") ||
            is_str(tmp, "getter") ) )
       {
          tmp = tmp->next;
          while (tmp && tmp->type != CT_COMMA && tmp->type != CT_PAREN_CLOSE)
          {
-            if (tmp->type == CT_WORD ||
+            if ((tmp->type == CT_WORD) ||
                 is_str(tmp, ":"))
             {
                tmp->type = CT_OC_SEL_NAME;
@@ -1100,8 +1106,8 @@ void mark_attributes_in_property_with_open_paren(chunk_t *open_paren)
 
    while (tmp && tmp->type != CT_PAREN_CLOSE)
    {
-      if ((tmp->type == CT_COMMA || tmp->type == CT_PAREN_OPEN) &&
-          tmp->next && tmp->next->type == CT_WORD)
+      if (((tmp->type == CT_COMMA) || (tmp->type == CT_PAREN_OPEN)) &&
+          tmp->next && (tmp->next->type == CT_WORD))
       {
          tmp->next->type = CT_OC_PROPERTY_ATTR;
       }

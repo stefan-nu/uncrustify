@@ -140,7 +140,7 @@ static lang_t language_flags_from_name(
 
 
 /**
- * load a file that provides a header used to be added to output files
+ * \brief load a file that provides a header used to be added to output files
  *
  * @retval true  file was loaded successfully
  * @retval false file could not be loaded
@@ -152,7 +152,7 @@ static bool load_header_file(
 
 
 /**
- * Find the language for the file extension
+ * \brief Find the language for the file extension
  * Default to C
  *
  * @return  LANG_xxx
@@ -163,7 +163,7 @@ static lang_t language_flags_from_filename(
 
 
 /**
- * Gets the tag text for a language
+ * \brief Gets the tag text for a language
  *
  * @return  A string
  */
@@ -172,14 +172,14 @@ const char* language_name_from_flags(
 );
 
 
-/** tbd */
+/** \brief tbd */
 static bool read_stdin(
    file_mem_t& fm /**< [out] file description to update */
 );
 
 
 /**
- * create all folders required for a given path
+ * \brief create all folders required for a given path
  * if necessary several subfolders are created until
  * the full path was created on disk
  */
@@ -188,17 +188,19 @@ static void make_folders(
 );
 
 
-/** tbd */
+/** \brief tbd */
 static void uncrustify_start(
    const deque<uint32_t>& data /**< [in]  */
 );
 
 
-/** tbd */
-void uncrustify_end(void);
+/** \brief tbd */
+void uncrustify_end(
+   void /**< [in]  */
+);
 
 
-/** tbd */
+/** \brief tbd */
 static bool ends_with(
    const char* filename, /**< [in]  */
    const char* tag,      /**< [in]  */
@@ -206,7 +208,7 @@ static bool ends_with(
 );
 
 
-/** tbd */
+/** \brief tbd */
 void uncrustify_file(
    const file_mem_t& fm,             /**< [out] file description to update */
    FILE*             pfout,          /**< [in]  */
@@ -216,7 +218,7 @@ void uncrustify_file(
 
 
 /**
- * Does a source file.
+ * \brief Does a source file.
  */
 static void do_source_file(
    const char* filename_in,  /**< [in] the file to read */
@@ -227,29 +229,33 @@ static void do_source_file(
 );
 
 
-/** tbd */
-static void add_file_header(void);
+/** \brief tbd */
+static void add_file_header(
+   void /**< [in]  */
+);
 
 
-/** tbd */
-static void add_file_footer(void);
+/** \brief tbd */
+static void add_file_footer(
+   void /**< [in]  */
+);
 
 
-/** tbd */
+/** \brief tbd */
 static void add_func_header(
    c_token_t         type, /**< [in]  */
    const file_mem_t& fm    /**< [out] file description to update */
 );
 
 
-/** tbd */
+/** \brief tbd */
 static void add_msg_header(
    c_token_t         type, /**< [in]  */
    const file_mem_t& fm    /**< [out] file description to update */
 );
 
 
-/** tbd */
+/** \brief tbd */
 static void process_source_list(
    const char* const source_list, /**< [in]  */
    const char*       prefix,      /**< [in]  */
@@ -260,15 +266,17 @@ static void process_source_list(
 
 
 /**
- * load all files that provide headers to be added to files
+ * \brief load all files that provide headers to be added to files
  *
  * @retval true  file was loaded successfully
  * @retval false file could not be loaded
  */
-bool load_all_header_files(void);
+bool load_all_header_files(
+   void /**< [in]  */
+);
 
 
-/** tbd */
+/** \brief tbd */
 static const char* make_output_filename(
    char* buf,                  /**< [in]  */
    const uint32_t    buf_size, /**< [in]  */
@@ -279,7 +287,7 @@ static const char* make_output_filename(
 
 
 /**
- * compare the content of two files
+ * \brief compare the content of two files
  */
 static bool file_content_matches(
    const string& filename1, /**< [in] file1 to compare */
@@ -288,7 +296,7 @@ static bool file_content_matches(
 
 
 /**
- * create the output file name by appending a fixed ending to the input file name
+ * \brief create the output file name by appending a fixed ending to the input file name
  *
  * typically the ending ".uncrustify" is used
  * example: "source.c" -> "source.c.uncrustify"
@@ -306,7 +314,7 @@ static bool bout_content_matches(
 
 
 /**
- * Loads a file into memory
+ * \brief Loads a file into memory
  *
  * @retval true  file was loaded successfully
  * @retval false file could not be loaded
@@ -318,7 +326,7 @@ static bool load_mem_file(
 
 
 /**
- * Try to load the file from the config folder first and then by name
+ * \brief Try to load the file from the config folder first and then by name
  *
  * @retval true  file was loaded successfully
  * @retval false file could not be loaded
@@ -330,19 +338,21 @@ static bool load_mem_file_config(
 
 
 /**
- * print uncrustify version number and terminate
+ * \brief print uncrustify version number and terminate
  */
-static void version_exit(void);
+static void version_exit(
+   void /**< [in]  */
+);
 
 
-/** tbd */
+/** \brief tbd */
 static void redir_stdout(
    const char* output_file /**< [in]  */
 );
 
 
 /**
- * check if a token reference is valid and holds a valid name
+ * \brief check if a token reference is valid and holds a valid name
  */
 bool is_valid_token_name(
    c_token_t token /**< [in] token to check */
@@ -350,7 +360,7 @@ bool is_valid_token_name(
 
 
 /**
- * check if a string pointer is valid and holds a non empty string
+ * \brief check if a string pointer is valid and holds a non empty string
  */
 bool is_nonempty_string(
   const char* str /**< [in] string to check */
@@ -358,7 +368,7 @@ bool is_nonempty_string(
 
 
 /**
- * rename a file
+ * \brief rename a file
  */
 static void rename_file(
    const char* old_name, /**< [in] current file name */
@@ -366,12 +376,13 @@ static void rename_file(
 );
 
 
-/** tbd */
+/** \brief tbd */
 static void set_nl_chunk_pos(
    uo_t      check, /**< [in]  */
    uo_t      set,   /**< [in]  */
    c_token_t token  /**< [in]  */
 );
+
 
 cp_data_t cpd;
 
@@ -424,9 +435,15 @@ static const char* const pcf_names[] =
 #endif
 
 
-bool is_lang(cp_data_t& cpd, lang_t lang)
+bool is_lang(lang_t lang)
 {
    return((cpd.lang_flags & lang) != 0);
+}
+
+
+bool not_lang(lang_t lang)
+{
+   return((cpd.lang_flags & lang) == 0);
 }
 
 
@@ -440,7 +457,7 @@ const char* path_basename(const char* path)
       /* Check both slash types to support Linux and Windows */
       const char ch = *path;
       path++;
-      if ((ch == UNIX_PATH_SEP) ||       /* \todo better use strcmp */
+      if ((ch == UNIX_PATH_SEP) || /* \todo better use strcmp */
           (ch == WIN_PATH_SEP ) )
       {
          last_path = path;
@@ -733,7 +750,7 @@ int main(int argc, char* argv[])
    if ((p_arg = arg_list.Param("-l")) != nullptr)
    {
       cpd.lang_flags = language_flags_from_name(p_arg);
-      if (cpd.lang_flags == LANG_NONE)
+      if (is_lang(LANG_NONE))
       {
          LOG_FMT(LWARN, "Ignoring unknown language: %s\n", p_arg);
       }
@@ -802,7 +819,7 @@ int main(int argc, char* argv[])
 
    if (!cpd.do_check)
    {
-      if (replace == true || no_backup == true)
+      if ((replace == true) || (no_backup == true))
       {
          if (ptrs_are_valid(prefix, suffix))
          {
@@ -919,7 +936,7 @@ int main(int argc, char* argv[])
       }
 
       /* Do some simple language detection based on the filename extension */
-      if (!cpd.lang_forced || (cpd.lang_flags == LANG_NONE))
+      if (!cpd.lang_forced || is_lang(LANG_NONE))
       {
          cpd.lang_flags = language_flags_from_filename(source_file);
       }
@@ -993,7 +1010,7 @@ int main(int argc, char* argv[])
    if (ptrs_are_valid(source_file, source_list, p_arg))
    {
       /* no input specified, so use stdin */
-      if (cpd.lang_flags == LANG_NONE)
+      if (is_lang(LANG_NONE))
       {
          cpd.lang_flags = (ptr_is_valid(assume)) ?
            language_flags_from_filename(assume) : (lang_t)LANG_C;
@@ -1025,8 +1042,8 @@ int main(int argc, char* argv[])
    }
    else
    {
-      /* Doing multiple files */
-      /* \todo start multiple threads to process several files in parallel */
+      /* Doing multiple files
+       * \todo start multiple threads to process several files in parallel */
       if (ptr_is_valid(prefix)) { LOG_FMT(LSYS, "Output prefix: %s/\n", prefix); }
       if (ptr_is_valid(suffix)) { LOG_FMT(LSYS, "Output suffix: %s\n",  suffix); }
 
@@ -1121,7 +1138,7 @@ static bool read_stdin(file_mem_t &fm)
 
    fm.raw.clear();
    fm.data.clear();
-   fm.enc = char_encoding_e::ASCII;
+   fm.enc = char_enc_t::ASCII;
 
    while (!feof(stdin))
    {
@@ -1134,7 +1151,7 @@ static bool read_stdin(file_mem_t &fm)
 
    fm.raw.clear();
    fm.data.clear();
-   fm.enc = char_encoding_e::ASCII;
+   fm.enc = char_enc_t::ASCII;
 
    /* Copy the raw data from the deque to the vector */
    fm.raw.insert(fm.raw.end(), dq.begin(), dq.end());
@@ -1208,7 +1225,7 @@ static bool load_mem_file(const char* const filename, file_mem_t &fm)
 {
    fm.raw.clear();
    fm.data.clear();
-   fm.enc = char_encoding_e::ASCII;
+   fm.enc = char_enc_t::ASCII;
 
    /* Grab the stat info for the file, return if it cannot be read */
    struct stat my_stat;
@@ -1231,7 +1248,7 @@ static bool load_mem_file(const char* const filename, file_mem_t &fm)
    {
       success = true;
       fm.bom  = false;
-      fm.enc  = char_encoding_e::ASCII;
+      fm.enc  = char_enc_t::ASCII;
       fm.data.clear();
    }
    else
@@ -1251,7 +1268,7 @@ static bool load_mem_file(const char* const filename, file_mem_t &fm)
       else
       {
          LOG_FMT(LNOTE, "%s: '%s' encoding looks like %s (%d)\n", __func__, filename,
-               get_encoding_name(fm.enc), fm.enc);
+               get_enc_name(fm.enc), fm.enc);
          success = true;
       }
    }
@@ -1455,8 +1472,7 @@ static void do_source_file(const char* filename_in, const char* filename_out,
    UNUSED(keep_mtime);
 
    /* Do some simple language detection based on the filename extension */
-   if ((cpd.lang_forced == false    ) ||
-       (cpd.lang_flags  == LANG_NONE) )
+   if ((cpd.lang_forced == false) || is_lang(LANG_NONE))
    {
       cpd.lang_flags = language_flags_from_filename(filename_in);
    }
@@ -1628,6 +1644,7 @@ static void perform_insert(chunk_t* ref, const file_mem_t &fm)
       tmp->level = after->level;
    }
 }
+
 
 // \todo DRY with add_msg_header
 static void add_func_header(c_token_t type, const file_mem_t &fm)
@@ -1804,7 +1821,7 @@ static void uncrustify_start(const deque<uint32_t> &data)
    brace_cleanup();
 
    /* At this point, the level information is available and accurate. */
-   if (is_lang(cpd, LANG_PAWN)) { pawn_prescan(); }
+   if (is_lang(LANG_PAWN)) { pawn_prescan(); }
 
    fix_symbols();
    mark_comments();
@@ -1830,16 +1847,16 @@ void uncrustify_file(const file_mem_t& fm, FILE* pfout,
    cpd.bom = fm.bom;
    cpd.enc = fm.enc;
    if ( is_true(UO_utf8_force) ||
-       (is_true(UO_utf8_byte ) && (cpd.enc == char_encoding_e::BYTE)) )
+       (is_true(UO_utf8_byte ) && (cpd.enc == char_enc_t::BYTE)) )
    {
-      cpd.enc = char_encoding_e::UTF8;
+      cpd.enc = char_enc_t::UTF8;
    }
    argval_t av;
    switch (cpd.enc)
    {
-      case char_encoding_e::UTF8:      av = get_arg(UO_utf8_bom); break;
-      case char_encoding_e::UTF16_LE: /* fallthrough */
-      case char_encoding_e::UTF16_BE:  av = AV_FORCE;             break;
+      case char_enc_t::UTF8:      av = get_arg(UO_utf8_bom); break;
+      case char_enc_t::UTF16_LE: /* fallthrough */
+      case char_enc_t::UTF16_BE:  av = AV_FORCE;             break;
       default:                         av = AV_IGNORE;            break;
    }
 
@@ -1933,7 +1950,7 @@ void uncrustify_file(const file_mem_t& fm, FILE* pfout,
    if (is_true(UO_sp_bal_nested_parens))  { space_text_balance_nested_parens(); }
 
    /* Scrub certain added semicolons */
-   if (is_lang(cpd, LANG_PAWN) &&
+   if (is_lang(LANG_PAWN) &&
        (is_true(UO_mod_pawn_semicolon)) ) { pawn_scrub_vsemi(); }
 
    /* Sort imports/using/include */
@@ -2189,6 +2206,7 @@ void print_extensions(FILE* pfile)
       if (did_one) { fprintf(pfile, "\n"); }
    }
 }
+
 
 /* \todo better use enum lang_t for source file language */
 static lang_t language_flags_from_filename(const char* filename)

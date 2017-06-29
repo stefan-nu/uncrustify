@@ -511,7 +511,9 @@ static bool sp_cond_0181(chunks_t* c)
       return true;
    }
    else
-   return false;
+   {
+      return false;
+   }
 }
 
 
@@ -542,8 +544,8 @@ typedef bool (*sp_check_t)(
 
 #if 0
 typedef void (*sp_act_t)(
-   chunks_t* pc,
-   uo_t*     opt
+   chunks_t* pc, /**< [in]  */
+   uo_t*     opt /**< [in]  */
 );
 
 /***************************************************************************//**
@@ -569,6 +571,7 @@ typedef struct space_check_action_s
 
 forward_list<sca_t> sca_list;   /**< array of virtual brace checks */
 static uint32_t sca_count = 0;  /**< number of virtual brace checks */
+
 
 static void add_sca(sca_t check)
 {
@@ -679,8 +682,8 @@ void init_space_check_action_array(void)
    add_sca({ 49, sp_cond_0052, UO_always_force});
    add_sca({ 50, sp_cond_0047, UO_sp_before_dc});
 
-   /* "a,b" vs "a, b" */
-   /* C# multidimensional array type: ',,' vs ', ,' or ',]' vs ', ]' */
+   /* "a,b" vs "a, b"
+    * C# multidimensional array type: ',,' vs ', ,' or ',]' vs ', ]' */
    add_sca({ 51, sp_cond_0050, UO_sp_between_mdatype_commas});
    add_sca({ 52, sp_cond_0049, UO_sp_after_mdatype_commas  });
    add_sca({ 53, sp_cond_0048, UO_sp_after_comma           });
@@ -1222,8 +1225,8 @@ void space_text(void)
 
                      /* C++11 allows '>>' to mean '> >' in templates:
                       *   some_func<vector<string>>();*/
-                     if (((is_lang(cpd, LANG_CPP ) && is_true(UO_sp_permit_cpp11_shift)) ||
-                          (is_lang(cpd, LANG_JAVA) || is_lang(cpd, LANG_CS))) &&
+                     if (((is_lang(LANG_CPP ) && is_true(UO_sp_permit_cpp11_shift)) ||
+                          (is_lang(LANG_JAVA) || is_lang(LANG_CS))) &&
                           are_types(pc, next, CT_ANGLE_CLOSE) )
                      {
                         /* allow '>' and '>' to become '>>' */
@@ -1277,7 +1280,7 @@ void space_text(void)
             break;
 
             case AV_REMOVE:      /* the symbols will be back-to-back "a+3" */
-            case AV_NOT_DEFINED: /* unknown argument value */
+            case AV_NOT_DEF: /* unknown argument value */
             default:
                                  /* do nothing */
             break;

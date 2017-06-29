@@ -50,11 +50,20 @@ void log_pcf_flags(
 
 
 /**
- * \brief checks if a file uses any of a given language set
+ * \brief checks if the source file currently processed uses a language
+ * that is given in the provided language set
  */
 bool is_lang(
-   cp_data_t& cpd, /**< [in] configuration with language */
-   lang_t     lang /**< [in] set of languages to check for */
+   lang_t lang /**< [in] set of languages to check for */
+);
+
+
+/**
+ * \brief checks if the source file currently processed uses another language
+ * then the given language set includes
+ */
+bool not_lang(
+   lang_t lang /**< [in] set of languages to check for */
 );
 
 

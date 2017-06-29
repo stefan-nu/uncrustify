@@ -18,6 +18,7 @@ struct include_category
    std::regex regex;
 };
 
+
 enum
 {
    kIncludeCategoriesCount = UO_include_category_last - UO_include_category_first + 1

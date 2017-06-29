@@ -1101,6 +1101,7 @@ static void set_blank_line(uo_t option, chunk_t* last_nl)
    }
 }
 
+
 static chunk_t* get_closing_brace(chunk_t* start)
 {
    LOG_FUNC_ENTRY();
@@ -1217,8 +1218,8 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
 
    if (is_arg_set(nl_opt, AV_REMOVE))
    {
-      /* if vbrace, have to check before and after */
-      /* if chunk before vbrace, remove any newlines after vbrace */
+      /* if vbrace, have to check before and after
+       * if chunk before vbrace, remove any newlines after vbrace */
       if (have_pre_vbrace_nl)
       {
          if (prev->nl_count != 1)
@@ -1241,8 +1242,8 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
       }
    }
 
-   /* may have a newline before and after vbrace */
-   /* don't do anything with it if the next non newline chunk is a closing brace */
+   /* may have a newline before and after vbrace
+    * don't do anything with it if the next non newline chunk is a closing brace */
    if (is_arg_set(nl_opt, AV_ADD))
    {
       chunk_t* nextNNL = get_next_nnl(pc);
@@ -1265,8 +1266,8 @@ static void nl_if_for_while_switch_post_blank_lines(chunk_t* start, argval_t nl_
 
       if (not_type(next, CT_BRACE_CLOSE))
       {
-         /* if vbrace, have to check before and after */
-         /* if chunk before vbrace, check its count */
+         /* if vbrace, have to check before and after
+          * if chunk before vbrace, check its count */
          uint32_t nl_count = have_pre_vbrace_nl ? prev->nl_count : 0;
          LOG_FMT(LNEWLINE, "   (%d):nl_count %zu\n", __LINE__, nl_count);
          if (is_nl(next = get_next_nvb(pc)))
@@ -1620,12 +1621,12 @@ static chunk_t* nl_def_blk(chunk_t* start, bool fn_top)
          else if (  is_var_type(pc  ) &&
                   ((is_var_type(next) ||
                     is_type(next, CT_WORD, CT_FUNC_CTOR_VAR))) &&
-                    not_type(next, CT_DC_MEMBER)) /* DbConfig::configuredDatabase()->apply(db); */
-                                                  /*  is NOT a declaration of a variable */
+                    not_type(next, CT_DC_MEMBER)) /* DbConfig::configuredDatabase()->apply(db);
+                                                   *  is NOT a declaration of a variable */
          {
             /* set newlines before var def block */
-            if (var_blk       == false &&
-                first_var_blk == false &&
+            if ((var_blk       == false) &&
+                (first_var_blk == false) &&
                 (get_uval(UO_nl_var_def_blk_start) > 0))
             {
                newline_min_after(prev, get_uval(UO_nl_var_def_blk_start), PCF_VAR_DEF);
@@ -2557,7 +2558,6 @@ void cleanup_braces(bool first)
                {
                   nl_iarf_pair(pc, get_next_nnl(pc), get_arg(UO_nl_type_brace_init_lst_open));
                }
-
                /* Handle nl_after_brace_open */
                else if ((is_ptype(pc, CT_CPP_LAMBDA  ) ||
                          is_level(pc, pc->brace_level) )  &&
@@ -3025,8 +3025,8 @@ void newline_after_label_colon(void)
 
 
 void add_nl_before_and_after(
-   chunk_t* pc,
-   uo_t     option
+   chunk_t* pc,    /**< [in]  */
+   uo_t     option /**< [in]  */
 );
 
 
@@ -3106,7 +3106,7 @@ void newlines_squeeze_ifdef(void)
    for (pc = chunk_get_head(); is_valid(pc); pc = get_next_ncnl(pc))
    {
       if (is_type(pc, CT_PREPROC) &&
-          (pc->level > 0 || is_true(UO_nl_squeeze_ifdef_top_level)))
+          ((pc->level > 0) || is_true(UO_nl_squeeze_ifdef_top_level)))
       {
          chunk_t* ppr = chunk_get_next(pc);
          assert(is_valid(ppr));
@@ -3216,6 +3216,7 @@ static void nl_eat(const dir_e dir)
       }
    }
 }
+
 
 static void nl_eat_start(void) { nl_eat(dir_e::BEFORE); }
 static void nl_eat_end  (void) { nl_eat(dir_e::AFTER ); }
@@ -3540,7 +3541,7 @@ void do_blank_lines(void)
 
       /* If this is the first or the last token, pretend that there
        * is an extra line. It will be removed at the end. */
-      if (pc == chunk_get_head() || is_invalid(next))
+      if ((pc == chunk_get_head()) || is_invalid(next))
       {
          line_added = true;
          ++pc->nl_count;
@@ -3772,7 +3773,7 @@ void do_blank_lines(void)
          }
       }
 
-      if (line_added && pc->nl_count > 1)
+      if (line_added && (pc->nl_count > 1))
       {
          --pc->nl_count;
       }
@@ -3860,9 +3861,9 @@ void annotations_nl(void)
    while (((pc   = get_next_type(pc, CT_ANNOTATION)) != nullptr) &&
           ((next = get_next_nnl (pc)               ) != nullptr) )
    {
-      /* find the end of this annotation */
-      /* TODO: control newline between annotation and '(' ? */
-      /* last token of the annotation */
+      /* find the end of this annotation
+       * TODO: control newline between annotation and '(' ?
+       * last token of the annotation */
       chunk_t* ae = (is_paren_open(next)) ? chunk_skip_to_match(next) : pc;
       break_if(is_invalid(ae));
 

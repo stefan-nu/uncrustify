@@ -36,7 +36,10 @@ struct cmt_reflow_t
 /***************************************************************************//**
  * @brief prototype for a function that operates on a keyword
  ******************************************************************************/
-typedef bool (*kw_func_t)(chunk_t* cmt, unc_text& out_txt);
+typedef bool (*kw_func_t)(
+   chunk_t*  cmt,    /**< [in]  */
+   unc_text& out_txt /**< [in]  */
+);
 
 
 struct kw_subst_t
@@ -990,7 +993,6 @@ static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close
             idx += (uint32_t)tmp;
          }
          ch_cnt = 0;
-
       }
       else if ((cmt.reflow == true        ) &&
                (text[idx]  == SPACE       ) &&
@@ -1006,7 +1008,6 @@ static void add_cmt_text(const unc_text& text, cmt_reflow_t& cmt, bool esc_close
          add_text(cmt.cont_text);
          fill_line(cmt.column + get_uval(UO_cmt_sp_after_star_cont), false);
          ch_cnt = 0;
-
       }
       else
       {
@@ -1108,6 +1109,7 @@ void combine_comment(
    chunk_t*      pc,  /**< [in]  */
    cmt_reflow_t& cmt  /**< [in]  */
 );
+
 
 /* \todo is this fct name correct? */
 void combine_comment(unc_text& tmp, chunk_t* pc, cmt_reflow_t& cmt)
@@ -1516,7 +1518,6 @@ static void output_comment_multi(chunk_t* pc)
               (('.' == line[(uint32_t)prev_nonempty_line]) && unc_isupper(pc->str[(uint32_t)next_nonempty_line]))) &&
               !star_is_bullet)
          {
-
             line.resize((uint32_t)(prev_nonempty_line + 1)); // rewind the line to the last non-alpha:
 
             cmt_idx =  (uint32_t)((int32_t)cmt_idx + next_nonempty_line);  // roll the current line forward to the first non-alpha:
@@ -1622,7 +1623,7 @@ static void output_comment_multi(chunk_t* pc)
                   }
                   else
                   {
-                     if (is_lang(cpd, LANG_D)) { add_text(cmt.cont_text); } // 0=no lead char present
+                     if (is_lang(LANG_D)) { add_text(cmt.cont_text); } // 0=no lead char present
                   }
                }
 
@@ -1649,15 +1650,15 @@ static bool kw_fcn_class(chunk_t* cmt, unc_text& out_txt)
 {
    chunk_t* tmp = nullptr;
 
-   if (is_lang(cpd, LANG_CPP) &&
-       is_lang(cpd, LANG_OC ) )
+   if (is_lang(LANG_CPP) &&
+       is_lang(LANG_OC ) )
    {
       chunk_t* fcn = get_next_function(cmt);
 
       tmp = (is_type(fcn, CT_OC_MSG_DECL)) ? get_prev_oc_class(cmt)
                                            : get_next_class   (cmt);
    }
-   else if (is_lang(cpd, LANG_OC))
+   else if (is_lang(LANG_OC))
    {
       tmp = get_prev_oc_class(cmt);
    }
@@ -2129,7 +2130,7 @@ void add_long_pp_conditional_block_cmt(void)
 
                if ((nl_min > 0) && (nl_count > nl_min)) /* nl_count is 1 too large at all times as #if line was counted too */
                {                                        /* determine the added comment style */
-                  c_token_t style = (is_lang(cpd, LANG_CPPCS)) ? CT_COMMENT_CPP : CT_COMMENT;
+                  c_token_t style = is_lang(LANG_CPPCS) ? CT_COMMENT_CPP : CT_COMMENT;
 
                   unc_text text;
                   generate_if_conditional_as_text(text, br_open);

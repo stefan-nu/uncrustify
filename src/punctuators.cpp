@@ -156,7 +156,7 @@ static const chunk_tag_t symbols1[] =
 
 const chunk_tag_t* find_punctuator(const char* str, lang_t lang_flags)
 {
-   if (str == nullptr || str[0] == '\0')
+   if ((str == nullptr)||(str[0] == '\0'))
    {
       return(nullptr);
    }
@@ -183,10 +183,10 @@ const chunk_tag_t* find_punctuator(const char* str, lang_t lang_flags)
          break; // no nodes found with the searched char
       }
 
-      if (parent->tag != nullptr
-          && (parent->tag->lang_flags & lang_flags) != 0  // punctuator lang and processing lang match
-          && ((parent->tag->lang_flags & FLAG_DIG) == 0   // punctuator is not a di/tri-graph
-              || cpd.settings[UO_enable_digraphs].b))     // or di/tri-graph processing is enabled
+      if ((parent->tag != nullptr) &&
+          ( (parent->tag->lang_flags & lang_flags) != 0) &&  // punctuator lang and processing lang match
+          (((parent->tag->lang_flags & FLAG_DIG  ) == 0) ||   // punctuator is not a di/tri-graph
+              cpd.settings[UO_enable_digraphs].b))     // or di/tri-graph processing is enabled
       {
          match = parent->tag;
       }

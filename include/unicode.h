@@ -40,7 +40,7 @@ void write_string(
 bool decode_unicode(
    const vector<uint8_t>& in,     /**< [in]  */
    deque<uint32_t>&       out,    /**< [in]  */
-   char_encoding_e&       enc,    /**< [in]  */
+   char_enc_t&       enc,    /**< [in]  */
    bool&                  has_bom /**< [in]  */
 );
 

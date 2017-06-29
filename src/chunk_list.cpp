@@ -41,7 +41,10 @@
  * for a function pointer of type
  * chunk_t* function(chunk_t* cur, scope_t scope)
  ******************************************************************************/
-typedef chunk_t* (*search_t)(chunk_t* cur, const scope_e scope);
+typedef chunk_t* (*search_t)(
+         chunk_t* cur,  /**< [in] chunk to start search at */
+   const scope_e  scope /**< [in] scope of chunks to include in search */
+);
 
 
 typedef ListManager<chunk_t> ChunkList_t;
@@ -277,7 +280,12 @@ bool chunk_and_prev_are_valid(const chunk_t* const pc)
 }
 
 
-static void set_chunk(chunk_t* pc, c_token_t token, log_sev_t val, const char* str);
+static void set_chunk(
+   chunk_t*    pc,    /**< [in]  */
+   c_token_t   token, /**< [in]  */
+   log_sev_t   val,   /**< [in]  */
+   const char* str    /**< [in]  */
+);
 
 
 ChunkList_t g_cl; /** g_cl = global chunk list, \todo should become a local variable */
@@ -884,7 +892,7 @@ static chunk_t* get_ncnlnp(chunk_t* cur, const scope_e scope, const dir_e dir)
 
 bool is_forin(chunk_t* pc)
 {
-   if (is_lang(cpd, LANG_OC) && (is_type(pc, CT_SPAREN_OPEN)) )
+   if (is_lang(LANG_OC) && (is_type(pc, CT_SPAREN_OPEN)) )
    {
       chunk_t* prev = get_prev_ncnl(pc);
       if(is_type(prev, CT_FOR))
@@ -1012,6 +1020,7 @@ bool not_type(const c_token_t token, const c_token_t type1,
    return((token != type1) && (token != type2) && (token != type3));
 }
 
+
 #if 0
 // use variadic template to unify overloaded and variadic functions
 template<typename T>
@@ -1021,12 +1030,14 @@ bool nis_type(const chunk_t* const pc, const T type)
    return(pc->type == type);
 }
 
+
 template<typename T, typename... Args>
 bool nis_type(const chunk_t* const pc, const T type, Args...args)
 {
    return (pc->type == type) && nis_type(pc, args...);
 }
 #endif
+
 
 bool is_type(const chunk_t* const pc, const c_token_t type)
 {
@@ -1062,6 +1073,7 @@ bool is_type(const chunk_t* const pc, const c_token_t type1,
 #endif
 }
 
+
 #if 1
 bool is_type(const chunk_t* const pc, const c_token_t type1, const c_token_t type2,
                                       const c_token_t type3, const c_token_t type4)
@@ -1069,30 +1081,6 @@ bool is_type(const chunk_t* const pc, const c_token_t type1, const c_token_t typ
    retval_if(is_invalid(pc), false);
    return((pc->type == type1) || (pc->type == type2) ||
           (pc->type == type3) || (pc->type == type4) );
-}
-#endif
-
-#if 0
-bool is_type(const chunk_t* const pc, const c_token_t type1,
-      const c_token_t type2=CT_IGNORE,
-      const c_token_t type3=CT_IGNORE,
-      const c_token_t type4=CT_IGNORE,
-      const c_token_t type5=CT_IGNORE,
-      const c_token_t type6=CT_IGNORE,
-      const c_token_t type7=CT_IGNORE,
-      const c_token_t type8=CT_IGNORE,
-      const c_token_t type9=CT_IGNORE)
-{
-   if (!pc) return false;
-   if (pc->type == type1) return true;
-   if (type2==CT_IGNORE) return false; if (pc->type == type2) return true;
-   if (type3==CT_IGNORE) return false; if (pc->type == type3) return true;
-   if (type4==CT_IGNORE) return false; if (pc->type == type4) return true;
-   if (type5==CT_IGNORE) return false; if (pc->type == type5) return true;
-   if (type6==CT_IGNORE) return false; if (pc->type == type6) return true;
-   if (type7==CT_IGNORE) return false; if (pc->type == type7) return true;
-   if (type8==CT_IGNORE) return false; if (pc->type == type8) return true;
-   if (type9==CT_IGNORE) return false; if (pc->type == type9) return true;
 }
 #endif
 
@@ -1127,7 +1115,6 @@ bool is_only_first_type(const chunk_t* pc1, const c_token_t type1,
                         const chunk_t* pc2, const c_token_t type2)
 {
    return(is_type(pc1, type1) && not_type(pc2, type2));
-
 }
 
 
@@ -1339,6 +1326,7 @@ bool is_nl(const chunk_t* const pc)
    return(is_type(pc, CT_NEWLINE, CT_NL_CONT));
 }
 
+
 bool is_comma(const chunk_t* const pc) { return(is_type(pc, CT_COMMA   )); }
 bool is_ptr  (const chunk_t* const pc) { return(is_type(pc, CT_PTR_TYPE)); }
 
@@ -1447,6 +1435,7 @@ bool is_word(const chunk_t* const pc)
           (CharTable::IsKW1((uint32_t)pc->str[0])) );
 }
 
+
 bool is_addr(chunk_t* pc)
 {
    if (  (is_valid(pc)           ) &&
@@ -1481,7 +1470,7 @@ bool is_star(const chunk_t* const pc)
  * for marking up reference types vs pointer types */
 bool is_msref(const chunk_t* const pc)
 {
-   return(is_lang(cpd, LANG_CPP       ) &&
+   return(is_lang(LANG_CPP       ) &&
           (is_valid(pc)               ) &&
           (pc->str.size() == 1        ) &&
           (pc->str[0] == '^'          ) &&

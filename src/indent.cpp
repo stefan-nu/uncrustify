@@ -637,13 +637,15 @@ static void _log_indent_tmp(const char* func, const uint32_t line, parse_frame_t
            func, line, frm->pse_tos, frm->pse[frm->pse_tos].indent_tmp);
 }
 
+
 void _log_indent1(
-   const char*    func,
-   const uint32_t line,
-   const char*    str,
-   chunk_t*       pc,
-   const uint32_t val
+   const char*    func, /**< [in]  */
+   const uint32_t line, /**< [in]  */
+   const char*    str,  /**< [in]  */
+   chunk_t*       pc,   /**< [in]  */
+   const uint32_t val   /**< [in]  */
 );
+
 
 #define log_indent1(pc, val, str)                        \
    do{ _log_indent1(__func__, __LINE__, str, pc, (val)); \
@@ -1132,7 +1134,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos  ].indent_tmp;
             log_indent_tmp();
          }
-         else if (is_lang(cpd, LANG_CS) &&
+         else if (is_lang(LANG_CS) &&
                    is_true(UO_indent_cs_delegate_brace) &&
                    is_ptype(pc, CT_LAMBDA, CT_DELEGATE))
          {
@@ -1196,7 +1198,6 @@ void indent_text(void)
                      indent_from_brace     = false; // (is_newline) ? false : true;
                      indent_from_colon     = false;
                      indent_from_caret     = false;
-
                   }
 
                   const chunk_t* ref = oc_msg_block_indent(pc, indent_from_brace,
@@ -1586,7 +1587,7 @@ void indent_text(void)
          frm.pse[frm.pse_tos].indent = pc->column + pc->len();
          log_indent();
 
-         if (is_type(pc, CT_SQUARE_OPEN) && is_lang(cpd, LANG_D))
+         if (is_type(pc, CT_SQUARE_OPEN) && is_lang(LANG_D))
          {
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }
@@ -1636,7 +1637,6 @@ void indent_text(void)
             }
             frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos].indent;
          }
-
          else if ((is_str(pc, "(") && is_false(UO_indent_paren_nl )) ||
                   (is_str(pc, "<") && is_false(UO_indent_paren_nl )) || /* TODO: add indent_angle_nl? */
                   (is_str(pc, "[") && is_false(UO_indent_square_nl)) )
@@ -1963,7 +1963,6 @@ void indent_text(void)
 
             log_and_reindent(pc, tmp, "member");
          }
-
          else if (do_vardefcol)
          {
             log_and_reindent(pc, vardefcol, "Vardefcol");

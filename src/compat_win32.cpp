@@ -73,4 +73,5 @@ void convert_log_zu2lu(char *fmt)
    }
 }
 
+
 #endif /* if defined(_WIN32) && !defined(__CYGWIN__) */

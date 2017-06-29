@@ -37,11 +37,13 @@ public:
       m_av     = &av;
    }
 
+
    ~sp_votes(void);
 
+
    void vote(
-      chunk_t* first, 
-      chunk_t* second
+      chunk_t* first, /**< [in]  */ 
+      chunk_t* second /**< [in]  */
    );
 };
 

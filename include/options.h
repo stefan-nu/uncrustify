@@ -22,20 +22,24 @@
 /**
  * abbreviations used
  *
- * av     = argument values
+ * av     = argument value
  * bal    = balance, balanced
+ * enc    = encoding
  * pstart = pointer star
  * rel    = relative
+ * tbd    = to be defined
+ * uo     = uncrustify option
+ * ug     = uncrustify group
  */
 
-/** tbd */
+/** list of available option types */
 enum argtype_t
 {
    AT_BOOL,    /**< true / false */
    AT_IARF,    /**< Ignore / Add / Remove / Force */
    AT_NUM,     /**< Number */
    AT_LINE,    /**< Line Endings */
-   AT_POS,     /**< start/end or Trail/Lead */
+   AT_POS,     /**< positions like start/end or trail/lead */
    AT_STRING,  /**< string value */
    AT_UNUM     /**< unsigned Number */
 };
@@ -44,21 +48,21 @@ enum argtype_t
 /** Arg values - these are bit fields */
 enum argval_t
 {
-   AV_IGNORE      = 0,                    /**< option ignores a given feature */
-   AV_ADD         = (1u << 0),            /**< option adds a given feature */
-   AV_REMOVE      = (1u << 1),            /**< option removes a given feature */
-   AV_FORCE       = (AV_ADD | AV_REMOVE), /**< option forces the usage of a given feature */
-   AV_NOT_DEFINED = (1u << 2)             /**< to be used with QT, SIGNAL SLOT macros */
+   AV_IGNORE  = 0,                    /**< option ignores a given feature */
+   AV_ADD     = (1u << 0),            /**< option adds a given feature */
+   AV_REMOVE  = (1u << 1),            /**< option removes a given feature */
+   AV_FORCE   = (AV_ADD | AV_REMOVE), /**< option forces the usage of a given feature */
+   AV_NOT_DEF = (1u << 2)             /**< to be used with QT, SIGNAL SLOT macros */
 };
 
 
-/** Line endings */
+/** list of possible Line endings */
 enum lineends_t
 {
-   LE_LF,      /**< "\n"   typically used on Unix/Linux system */
-   LE_CRLF,    /**< "\r\n" typically used on Windows systems*/
-   LE_CR,      /**< "\r"   carriage return without newline */
-   LE_AUTO     /**< keep last */
+   LE_LF,   /**< "\n"   line feed alone typically used on Unix/Linux system */
+   LE_CRLF, /**< "\r\n" carriage return plus line feed typically used on Windows */
+   LE_CR,   /**< "\r"   carriage return without newline, rather unusual */
+   LE_AUTO  /**< keep last */
 };
 
 
@@ -68,15 +72,15 @@ enum tokenpos_t
    TP_IGNORE          = 0,                    /**< don't change it */
    TP_BREAK           = (1u << 0),            /**< add a newline before or after the if not present */
    TP_FORCE           = (1u << 1),            /**< force a newline on one side and not the other */
-   TP_FORCE_BREAK     = (TP_BREAK | TP_FORCE),
+   TP_FORCE_BREAK     = (TP_BREAK | TP_FORCE),/**<  */
    TP_LEAD            = (1u << 2),            /**< at the start of a line or leading if wrapped line */
-   TP_LEAD_BREAK      = (TP_LEAD  | TP_BREAK),
-   TP_LEAD_FORCE      = (TP_LEAD  | TP_FORCE),
+   TP_LEAD_BREAK      = (TP_LEAD  | TP_BREAK),/**< leading after forced line break */
+   TP_LEAD_FORCE      = (TP_LEAD  | TP_FORCE),/**< */
    TP_TRAIL           = (1u << 3),            /**< at the end of a line or trailing if wrapped line */
-   TP_TRAIL_BREAK     = (TP_TRAIL | TP_BREAK),
-   TP_TRAIL_FORCE     = (TP_TRAIL | TP_FORCE),
+   TP_TRAIL_BREAK     = (TP_TRAIL | TP_BREAK),/**< trailing followed by forced line break */
+   TP_TRAIL_FORCE     = (TP_TRAIL | TP_FORCE),/**<  */
    TP_JOIN            = (1u << 4),            /**< remove newlines on both sides */
-   TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL | TP_JOIN)
+   TP_LEAD_TRAIL_JOIN = (TP_LEAD  | TP_TRAIL | TP_JOIN) /**<  */
 };
 
 
@@ -229,9 +233,9 @@ enum uo_t
    UO_sp_after_tag,                /**< pawn: space after a tag colon */
    UO_sp_inside_braces_enum,       /**< space inside enum '{' and '}' - '{ a, b, c }' */
    UO_sp_inside_braces_struct,     /**< space inside struct/union '{' and '}' */
-   UO_sp_after_type_brace_init_lst_open,
-   UO_sp_before_type_brace_init_lst_close,
-   UO_sp_inside_type_brace_init_lst,
+   UO_sp_after_type_brace_init_lst_open,   /**<  */
+   UO_sp_before_type_brace_init_lst_close, /**<  */
+   UO_sp_inside_type_brace_init_lst,       /**<  */
    UO_sp_inside_braces,            /**< space inside '{' and '}' - '{ 1, 2, 3 }' */
    UO_sp_inside_braces_empty,      /**< space inside '{' and '}' - '{ }' */
    UO_sp_type_func,                /**< space between return type and 'func'
@@ -334,7 +338,7 @@ enum uo_t
    UO_force_tab_after_define,      /**< force <TAB> after #define, Issue # 876 */
 
    /* group: UG_indent, "Indenting" 2 */
-   UO_indent_columns,                       /**< ie 3 or 8 */
+   UO_indent_columns,                       /**< number of characters per tab, i.e. 3 or 8 */
    UO_indent_continue,                      /**< tbd */
    UO_indent_param,                         /**< indent value of indent_*_param */
    UO_indent_with_tabs,                     /**< 1=only to the 'level' indent, 2=use tabs for indenting */
@@ -877,26 +881,36 @@ enum uo_t
    #define group_map_value_options_t   list<uo_t>
 #endif
 
+
 struct group_map_value_t
 {
-   ug_t                      id;         /**<  */
-   const char*               short_desc; /**<  */
-   const char*               long_desc;  /**<  */
-   group_map_value_options_t options;    /**<  */
+   ug_t                      id;         /**< identification number of group */
+   const char*               short_desc; /**< a short description of the group */
+   const char*               long_desc;  /**< a full description of the group */
+   group_map_value_options_t options;    /**< list of all option in this group */
 };
 
 
+/** structure that combines the information required
+ * to describe a single uncrustify option */
 struct option_map_value_t
 {
-   uo_t        id;         /**<  */
-   ug_t        group_id;   /**<  */
-   argtype_t   type;       /**<  */
-   int32_t     min_val;    /**<  */
-   int32_t     max_val;    /**<  */
-   const char* name;       /**<  */
-   const char* short_desc; /**<  */
-   const char* long_desc;  /**<  */
+   uo_t        id;         /**< identification number of option*/
+   ug_t        group_id;   /**< group the option is assigned to */
+   argtype_t   type;       /**< type of the option */
+   int32_t     min_val;    /**< minimal value of the option */
+   int32_t     max_val;    /**< maximal value of the option */
+   const char* name;       /**< string of option name */
+   const char* short_desc; /**< a short description of the option */
+   const char* long_desc;  /**< a full description of the option */
 };
+
+
+/* define a few types as abbreviations */
+typedef map<uo_t, option_map_value_t>::iterator   uo_map_it;
+typedef map<ug_t, group_map_value_t>::iterator    ug_map_it;
+typedef group_map_value_options_t::iterator       option_list_it;
+typedef group_map_value_options_t::const_iterator option_list_cit;
 
 
 /**
@@ -961,7 +975,7 @@ int32_t get_ival(
 );
 /** provides the absolute value of a signed parameter option */
 uint32_t get_abs(
-   const uo_t opt
+   const uo_t opt /**< [in] uncrustify option to use */
 );
 /** provides the value of a token type parameter option */
 tokenpos_t get_tok(
@@ -1170,18 +1184,18 @@ bool is_bit_unset(
 );
 
 
-enum class char_encoding_e : uint32_t; /* forward declaration of enum */
+enum class char_enc_t : uint32_t; /* forward declaration of char_encoding_e */
 
 /**
- * provides a string that names a given encoding enum
+ * \brief provides a string that names a given character encoding type
  */
-const char* get_encoding_name(
-   const char_encoding_e enc  /**< [in] encoding enum to get the name for */
+const char* get_enc_name(
+   const char_enc_t enc  /**< [in] character encoding to get the name for */
 );
 
 
 /**
- * Sets non-zero settings defaults
+ * \brief Sets non-zero settings defaults
  *
  * TODO: select from various sets? - i.e., K&R, GNU, Linux, Ben
  */
@@ -1201,50 +1215,48 @@ void register_options(void);
  * will be used whenever a new option is added.
  */
 void unc_begin_group(
-   ug_t        id,                 /**< [in]  */
-   const char* short_desc,         /**< [in]  */
-   const char* long_desc = nullptr /**< [in]  */
+   ug_t        id,                 /**< [in] identifier of the group */
+   const char* short_desc,         /**< [in] string to use as short description */
+   const char* long_desc = nullptr /**< [in] string to use as full description */
 );
 
 
 /**
- * processes a single line string to extract configuration settings
+ * \brief processes a single line string to extract configuration settings
  * increments cpd.line_number and cpd.error_count, modifies configLine parameter
- *
- * @param configLine: single line string that will be processed
- * @param filename: for log messages, file from which the configLine param was
- *                  extracted
  */
 void process_option_line(
-   char*       configLine, /**< [in]  */
-   const char* filename    /**< [in]  */
+   char*       configLine, /**< [in] single line string that will be processed */
+   const char* filename    /**< [in] file from which the parameter was extracted */
 );
 
 
 /**
- * tbd
+ * \brief load options from a configuration file
  */
 int32_t load_option_file(
-   const char* filename /**< [in]  */
+   const char* filename /**< [in] file to load options from  */
 );
 
 
 /**
- * tbd
+ * \brief write all active options to a configuration file
  */
 int32_t save_option_file(
-   FILE* pfile,  /**< [in]  */
-   bool  withDoc /**< [in]  */
+   FILE* pfile,  /**< [in] file to write into */
+   bool  withDoc /**< [in] if true add descriptions in generated file */
 );
 
 
 /**
  * save the used options into a text file
+ *
+ * @return always 0 \todo remove this useless return value
  */
 int32_t save_option_file_kernel(
-   FILE* pfile,           /**< [in] file to print into */
-   bool  withDoc,         /**< [in] also print description */
-   bool  only_not_default /**< [in] print only options with non default value */
+   FILE* pfile,           /**< [in] file to write into */
+   bool  withDoc,         /**< [in] if true add description in generated string */
+   bool  only_not_default /**< [in] if true print only options with non default value */
 );
 
 
@@ -1261,7 +1273,7 @@ int32_t set_option_value(
 
 
 /**
- * check if a path/filename uses a relative or absolute path
+ * \brief check if a path/filename uses a relative or absolute path
  *
  * @retval false path is an absolute one
  * @retval true  path is a  relative one
@@ -1272,7 +1284,7 @@ bool is_path_relative(
 
 
 /**
- * tbd
+ * \brief tbd
  */
 const group_map_value_t* get_group_name(
    uint32_t ug /**< [in] */
@@ -1280,7 +1292,7 @@ const group_map_value_t* get_group_name(
 
 
 /**
- * tbd
+ * \brief tbd
  */
 const option_map_value_t* get_option_name(
    uo_t uo /**< [in] */
@@ -1288,7 +1300,7 @@ const option_map_value_t* get_option_name(
 
 
 /**
- * tbd
+ * \brief tbd
  */
 void print_options(
    FILE* pfile /**< [in]  */
@@ -1296,7 +1308,7 @@ void print_options(
 
 
 /**
- * convert a argument type to a string
+ * \brief convert a argument type to a string
  */
 string argtype2string(
    argtype_t argtype /**< [in] argument type to convert */
@@ -1304,7 +1316,7 @@ string argtype2string(
 
 
 /**
- * convert a boolean to a string
+ * \brief convert a boolean to a string
  */
 string bool2str(
    bool val /**< [in] boolean to convert*/
@@ -1312,7 +1324,7 @@ string bool2str(
 
 
 /**
- * convert an argument value to a C++ string
+ * \brief convert an argument value to a C++ string
  */
 string argval2str(
    argval_t argval /**< [in] argument value to convert */
@@ -1320,7 +1332,7 @@ string argval2str(
 
 
 /**
- * convert an integer number to a string
+ * \brief convert an integer number to a string
  */
 string number2str(
    int32_t number /**< [integer number to convert */
@@ -1328,7 +1340,7 @@ string number2str(
 
 
 /**
- * convert a line ending type to a string
+ * \brief convert a line ending type to a string
  */
 string lineends2str(
    lineends_t linends /**< [in] line ending type to convert */
@@ -1336,7 +1348,7 @@ string lineends2str(
 
 
 /**
- * convert a token to a string
+ * \brief convert a token to a string
  */
 string tokenpos2str(
    tokenpos_t tokenpos /**< [in] token to convert */
@@ -1344,7 +1356,7 @@ string tokenpos2str(
 
 
 /**
- * convert an argument of a given type to a string
+ * \brief convert an argument of a given type to a string
  */
 string op_val2str(
    const argtype_t argtype, /**< [in] type of argument */
@@ -1353,7 +1365,7 @@ string op_val2str(
 
 
 /**
- * checks if a path is a relative or absolute one
+ * \brief checks if a path is a relative or absolute one
  *
  * @retval true  - path is relative
  * @retval false - path is absolute
@@ -1364,17 +1376,11 @@ bool is_path_relative(
 
 
 /**
- * tbd
+ * \brief tbd
  */
 const option_map_value_t* unc_find_option(
    const char* name /**< [in]  */
 );
-
-
-typedef map<uo_t, option_map_value_t>::iterator   option_name_map_it;
-typedef map<ug_t, group_map_value_t>::iterator    group_map_it;
-typedef group_map_value_options_t::iterator       option_list_it;
-typedef group_map_value_options_t::const_iterator option_list_cit;
 
 
 #endif /* OPTIONS_H_INCLUDED */

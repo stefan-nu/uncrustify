@@ -631,7 +631,7 @@ void align_struct_initializers(void)
       chunk_t* prev = get_prev_ncnl(pc);
       if ( is_type(prev, CT_ASSIGN     ) &&
           (is_type(pc,   CT_BRACE_OPEN ) ||
-          (is_type(pc,   CT_SQUARE_OPEN) && is_lang(cpd, LANG_D) )))
+          (is_type(pc,   CT_SQUARE_OPEN) && is_lang(LANG_D) )))
       {
          align_init_brace(pc);
       }
@@ -1182,7 +1182,7 @@ static chunk_t* align_var_def_brace(chunk_t* start, uint32_t span, uint32_t* p_n
    chunk_t* prev = get_prev_ncnl(start);
    if(is_type(prev, CT_ASSIGN))
    {
-      LOG_FMT(LAVDB, "%s(%d): start=%s [%s] on line %u (abort due to assign)\n", 
+      LOG_FMT(LAVDB, "%s(%d): start=%s [%s] on line %u (abort due to assign)\n",
               __func__, __LINE__, start->text(), get_token_name(start->type), start->orig_line);
 
       chunk_t* pc = get_next_type(start, CT_BRACE_CLOSE, (int32_t)start->level);

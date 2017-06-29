@@ -37,4 +37,5 @@ void convert_log_zu2lu(char *fmt)
    // nothing to do
 }
 
+
 #endif /* ifndef WIN32 */

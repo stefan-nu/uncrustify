@@ -39,9 +39,9 @@
 
 
 void md5_to_string(
-   char*          md5_str,
-   const uint32_t str_len,
-   uint8_t        dig[16]
+   char*          md5_str, /**< [in]  */
+   const uint32_t str_len, /**< [in]  */
+   uint8_t        dig[16]  /**< [in]  */
 );
 
 

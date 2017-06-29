@@ -15,18 +15,18 @@
 bool     QT_SIGNAL_SLOT_found      = false;
 uint32_t QT_SIGNAL_SLOT_level      = 0;
 bool     restoreValues             = false;
-argval_t SaveUO_sp_inside_fparen_A = AV_NOT_DEFINED;
+argval_t SaveUO_sp_inside_fparen_A = AV_NOT_DEF;
 
 // connect( timer,SIGNAL( timeout() ),this,SLOT( timeoutImage() ) );
-argval_t SaveUO_sp_inside_fparens_A = AV_NOT_DEFINED;
-argval_t SaveUO_sp_paren_paren_A    = AV_NOT_DEFINED;
-argval_t SaveUO_sp_before_comma_A   = AV_NOT_DEFINED;
-argval_t SaveUO_sp_after_comma_A    = AV_NOT_DEFINED;
+argval_t SaveUO_sp_inside_fparens_A = AV_NOT_DEF;
+argval_t SaveUO_sp_paren_paren_A    = AV_NOT_DEF;
+argval_t SaveUO_sp_before_comma_A   = AV_NOT_DEF;
+argval_t SaveUO_sp_after_comma_A    = AV_NOT_DEF;
 
 // connect(&mapper, SIGNAL(mapped(QString &)), this, SLOT(onSomeEvent(QString &)));
-argval_t SaveUO_sp_before_byref_A         = AV_NOT_DEFINED;
-argval_t SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEFINED;
-argval_t SaveUO_sp_after_type_A           = AV_NOT_DEFINED;
+argval_t SaveUO_sp_before_byref_A         = AV_NOT_DEF;
+argval_t SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEF;
+argval_t SaveUO_sp_after_type_A           = AV_NOT_DEF;
 
 
 void save_set_options_for_QT(uint32_t level)
@@ -72,14 +72,14 @@ void restore_options_for_QT(void)
    set_arg(UO_sp_before_byref,         SaveUO_sp_before_byref_A        );
    set_arg(UO_sp_before_unnamed_byref, SaveUO_sp_before_unnamed_byref_A);
    set_arg(UO_sp_after_type,           SaveUO_sp_after_type_A          );
-   SaveUO_sp_inside_fparen_A        = AV_NOT_DEFINED;
-   SaveUO_sp_inside_fparens_A       = AV_NOT_DEFINED;
-   SaveUO_sp_paren_paren_A          = AV_NOT_DEFINED;
-   SaveUO_sp_before_comma_A         = AV_NOT_DEFINED;
-   SaveUO_sp_after_comma_A          = AV_NOT_DEFINED;
-   SaveUO_sp_before_byref_A         = AV_NOT_DEFINED;
-   SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEFINED;
-   SaveUO_sp_after_type_A           = AV_NOT_DEFINED;
+   SaveUO_sp_inside_fparen_A        = AV_NOT_DEF;
+   SaveUO_sp_inside_fparens_A       = AV_NOT_DEF;
+   SaveUO_sp_paren_paren_A          = AV_NOT_DEF;
+   SaveUO_sp_before_comma_A         = AV_NOT_DEF;
+   SaveUO_sp_after_comma_A          = AV_NOT_DEF;
+   SaveUO_sp_before_byref_A         = AV_NOT_DEF;
+   SaveUO_sp_before_unnamed_byref_A = AV_NOT_DEF;
+   SaveUO_sp_after_type_A           = AV_NOT_DEF;
    QT_SIGNAL_SLOT_found             = false;
    restoreValues                    = false;
 }

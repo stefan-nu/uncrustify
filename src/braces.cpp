@@ -189,8 +189,8 @@ static bool paren_multiline_before_brace(chunk_t* brace, c_token_t paren_t)
    chunk_t* paren_close = get_prev_type(brace, paren_t, (int32_t)brace->level);
    chunk_t* paren_open  = chunk_skip_to_match_rev(paren_close);
 
-   if ((is_valid(paren_close) && paren_close != brace      ) &&
-       (is_valid(paren_open ) && paren_open  != paren_close) )
+   if ((is_valid(paren_close) && (paren_close != brace      )) &&
+       (is_valid(paren_open ) && (paren_open  != paren_close)) )
    {
       /* determine number of lines in the parenthesis pair spans */
       uint32_t   nl_count;
@@ -417,7 +417,7 @@ static bool can_remove_braces(chunk_t* bopen)
             if (( is_semicolon(pc)   ) ||
                 ( is_type(pc, 7, CT_IF, CT_ELSEIF, CT_BRACE_OPEN, CT_FOR,
                                  CT_DO, CT_WHILE,  CT_USING_STMT) &&
-                   was_fcn == true))
+                 (was_fcn == true)))
             {
                const bool is_semi = is_semicolon(pc);
                hit_semi = (is_semi) ? true : hit_semi;
@@ -519,7 +519,6 @@ static void examine_brace(chunk_t* bopen)
                }
             }
          }
-
          else if (is_type(pc, CT_IF, CT_ELSEIF))
          {
             if (br_count == 0) { if_count++; }
@@ -871,7 +870,6 @@ void add_long_closebrace_comment(void)
          {
             nl_count += tmp->nl_count;
          }
-
          else if (is_type_and_level(tmp, CT_BRACE_CLOSE, (int32_t)br_open->level))
          {
             br_close = tmp;
@@ -938,7 +936,7 @@ void add_long_closebrace_comment(void)
                    is_valid(tag_pc)     )
                {
                   /* use the comment style that fits to the selected language */
-                  const c_token_t cmt_style = (is_lang(cpd, LANG_CPPCS)) ?
+                  const c_token_t cmt_style = (is_lang(LANG_CPPCS)) ?
                                     CT_COMMENT_CPP : CT_COMMENT;
 
                   /* Add a comment after the close brace */

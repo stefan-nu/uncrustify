@@ -61,7 +61,7 @@ static uint32_t get_word(
 static bool decode_utf16(
    const vector<uint8_t>& in,  /**< [in]  */
    deque<uint32_t>&       out, /**< [in]  */
-   char_encoding_e&       enc  /**< [in]  */
+   char_enc_t&       enc  /**< [in]  */
 );
 
 
@@ -72,7 +72,7 @@ static bool decode_utf16(
  */
 static bool decode_bom(
    const vector<uint8_t>& in, /**< [in]  */
-   char_encoding_e&       enc /**< [in]  */
+   char_enc_t&       enc /**< [in]  */
 );
 
 
@@ -230,7 +230,7 @@ static uint32_t get_word(const vector<uint8_t>& in, uint32_t& idx, bool be)
 }
 
 
-static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_encoding_e& enc)
+static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_enc_t& enc)
 {
    out.clear();
 
@@ -241,18 +241,18 @@ static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_e
    if ((in[0] == 0xfe) &&
        (in[1] == 0xff) )
    {
-      enc = char_encoding_e::UTF16_BE;
+      enc = char_enc_t::UTF16_BE;
    }
    else if ((in[0] == 0xff) &&
             (in[1] == 0xfe) )
    {
-      enc = char_encoding_e::UTF16_LE;
+      enc = char_enc_t::UTF16_LE;
    }
    else
    {
       /* If we have a few words, we can take a guess, assuming the first few
        * chars are ASCII */
-      enc = char_encoding_e::ASCII;
+      enc = char_enc_t::ASCII;
       idx = 0;
       if (in.size() >= 6)
       {
@@ -260,19 +260,19 @@ static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_e
              (in[2] == 0) &&
              (in[4] == 0) )
          {
-            enc = char_encoding_e::UTF16_BE;
+            enc = char_enc_t::UTF16_BE;
          }
          else if ((in[1] == 0) &&
                   (in[3] == 0) &&
                   (in[5] == 0) )
          {
-            enc = char_encoding_e::UTF16_LE;
+            enc = char_enc_t::UTF16_LE;
          }
       }
-      retval_if(enc == char_encoding_e::ASCII, false);
+      retval_if(enc == char_enc_t::ASCII, false);
    }
 
-   bool be = (enc == char_encoding_e::UTF16_BE);
+   bool be = (enc == char_enc_t::UTF16_BE);
 
    while (idx < in.size())
    {
@@ -301,21 +301,21 @@ static bool decode_utf16(const vector<uint8_t>& in, deque<uint32_t>& out, char_e
 }
 
 
-static bool decode_bom(const vector<uint8_t>& in, char_encoding_e& enc)
+static bool decode_bom(const vector<uint8_t>& in, char_enc_t& enc)
 {
-   enc = char_encoding_e::ASCII;
+   enc = char_enc_t::ASCII;
    if (in.size() >= 2)
    {
       if ((in[0] == 0xfe) &&
           (in[1] == 0xff))
       {
-         enc = char_encoding_e::UTF16_BE;
+         enc = char_enc_t::UTF16_BE;
          return(true);
       }
       else if ((in[0] == 0xff) &&
                (in[1] == 0xfe) )
       {
-         enc = char_encoding_e::UTF16_LE;
+         enc = char_enc_t::UTF16_LE;
          return(true);
       }
       else if ((in.size() >= 3) &&
@@ -323,7 +323,7 @@ static bool decode_bom(const vector<uint8_t>& in, char_encoding_e& enc)
                (in[1] == 0xbb ) &&
                (in[2] == 0xbf ) )
       {
-         enc = char_encoding_e::UTF8;
+         enc = char_enc_t::UTF8;
          return(true);
       }
    }
@@ -331,13 +331,13 @@ static bool decode_bom(const vector<uint8_t>& in, char_encoding_e& enc)
 }
 
 
-bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_encoding_e& enc, bool& has_bom)
+bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_enc_t& enc, bool& has_bom)
 {
    /* check for a BOM */
    if (decode_bom(in, enc))
    {
       has_bom = true;
-      return(enc == char_encoding_e::UTF8) ?
+      return(enc == char_enc_t::UTF8) ?
              decode_utf8 (in, out     ) :
              decode_utf16(in, out, enc);
    }
@@ -348,7 +348,7 @@ bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_encodi
    uint32_t zero_cnt;
    if (is_ascii(in, non_ascii_cnt, zero_cnt))
    {
-      enc = char_encoding_e::ASCII;
+      enc = char_enc_t::ASCII;
       return(decode_bytes(in, out));
    }
 
@@ -362,12 +362,12 @@ bool decode_unicode(const vector<uint8_t>& in, deque<uint32_t>& out, char_encodi
 
    if (decode_utf8(in, out))
    {
-      enc = char_encoding_e::UTF8;
+      enc = char_enc_t::UTF8;
       return(true);
    }
 
    /* it is an unrecognized byte sequence */
-   enc = char_encoding_e::BYTE;
+   enc = char_enc_t::BYTE;
    return(decode_bytes(in, out));
 }
 
@@ -435,17 +435,17 @@ void write_bom(void)
 {
    switch (cpd.enc)
    {
-      case char_encoding_e::UTF8:
+      case char_enc_t::UTF8:
          write_byte(0xef);
          write_byte(0xbb);
          write_byte(0xbf);
       break;
 
-      case char_encoding_e::UTF16_LE:
+      case char_enc_t::UTF16_LE:
          write_utf16(0xfeff, false);
       break;
 
-      case char_encoding_e::UTF16_BE:
+      case char_enc_t::UTF16_BE:
          write_utf16(0xfeff, true);
       break;
 
@@ -460,11 +460,11 @@ void write_char(uint32_t ch)
 {
    switch (cpd.enc)
    {
-      case char_encoding_e::BYTE:     write_byte (ch & 0xff); break;
-      case char_encoding_e::UTF8:     write_utf8 (ch       ); break;
-      case char_encoding_e::UTF16_LE: write_utf16(ch, false); break;
-      case char_encoding_e::UTF16_BE: write_utf16(ch, true ); break;
-      case char_encoding_e::ASCII:    /* fallthrough */
+      case char_enc_t::BYTE:     write_byte (ch & 0xff); break;
+      case char_enc_t::UTF8:     write_utf8 (ch       ); break;
+      case char_enc_t::UTF16_LE: write_utf16(ch, false); break;
+      case char_enc_t::UTF16_BE: write_utf16(ch, true ); break;
+      case char_enc_t::ASCII:    /* fallthrough */
       default:                        write_byte (ch       ); break;
    }
 }

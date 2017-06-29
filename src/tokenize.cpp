@@ -38,6 +38,7 @@ struct tok_info
    uint32_t col;      /**< [in]  */
 };
 
+
 struct tok_ctx
 {
    explicit tok_ctx(const deque<uint32_t> &d)
@@ -49,20 +50,29 @@ struct tok_ctx
    // \todo separate declarations and implementation
    /* save before trying to parse something that may fail */
    void save();
-   void save(tok_info &info) const;
+
+   void save(
+      tok_info &info  /**< [in]  */
+   ) const;
 
    /* restore previous saved state */
    void restore();
-   void restore(const tok_info &info);
+   void restore(
+      const tok_info &info  /**< [in]  */
+   );
 
    bool more() const;
 
    uint32_t peek() const;
-   uint32_t peek(uint32_t idx) const;
+   uint32_t peek(
+      uint32_t idx /**< [in]  */
+   ) const;
 
    int32_t get();
 
-   bool expect(uint32_t ch);
+   bool expect(
+      uint32_t ch /**< [in]  */
+   );
 #endif
 
 
@@ -148,6 +158,7 @@ struct tok_ctx
       return(false);
    }
 
+
    const deque<uint32_t> &data;
    tok_info         c; /* current */
    tok_info         s; /* saved */
@@ -202,10 +213,10 @@ static bool parse_cs_string(
  * @return Whether a string was parsed
  */
 static bool tag_compare(
-   const deque<uint32_t>& d,
-   uint32_t               a_idx,
-   uint32_t               b_idx,
-   uint32_t               len
+   const deque<uint32_t>& d,     /**< [in]  */
+   uint32_t               a_idx, /**< [in]  */
+   uint32_t               b_idx, /**< [in]  */
+   uint32_t               len    /**< [in]  */
 );
 
 
@@ -223,9 +234,9 @@ static void parse_verbatim_string(
  * Newlines may be in the string.
  */
 static bool parse_cr_string(
-   tok_ctx& ctx,
+   tok_ctx& ctx,  /**< [in]  */
    chunk_t& pc,   /**< [in] structure to update, str is an input. */
-   uint32_t q_idx
+   uint32_t q_idx /**< [in]  */
 );
 
 
@@ -235,7 +246,7 @@ static bool parse_cr_string(
  * @return Whether whitespace was parsed
  */
 static bool parse_whitespace(
-   tok_ctx& ctx,
+   tok_ctx& ctx, /**< [in]  */
    chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
@@ -246,7 +257,7 @@ static bool parse_whitespace(
  * backslash newline
  */
 static bool parse_bs_newline(
-   tok_ctx& ctx,
+   tok_ctx& ctx, /**< [in]  */
    chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
@@ -258,7 +269,7 @@ static bool parse_bs_newline(
  * a single newline is encountered.
  */
 static bool parse_newline(
-   tok_ctx& ctx
+   tok_ctx& ctx /**< [in]  */
 );
 
 
@@ -270,9 +281,9 @@ static bool parse_newline(
  * Do not change the pattern.
  */
 static void parse_pawn_pattern(
-   tok_ctx&  ctx,
+   tok_ctx&  ctx, /**< [in]  */
    chunk_t&  pc,  /**< [in] structure to update, str is an input. */
-   c_token_t tt
+   c_token_t tt   /**< [in]  */
 );
 
 
@@ -280,8 +291,8 @@ static void parse_pawn_pattern(
  * tbd
  */
 static bool parse_ignored(
-   tok_ctx& ctx,
-   chunk_t& pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -296,7 +307,7 @@ static bool parse_ignored(
  * @return        true/false - whether anything was parsed
  */
 static bool parse_next(
-   tok_ctx& ctx,
+   tok_ctx& ctx, /**< [in]  */
    chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
@@ -322,7 +333,7 @@ static bool parse_next(
  * @return     Whether a string was parsed
  */
 static bool d_parse_string(
-   tok_ctx& ctx,
+   tok_ctx& ctx, /**< [in]  */
    chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
@@ -338,8 +349,8 @@ static bool d_parse_string(
  * @return Whether a comment was parsed
  */
 static bool parse_comment(
-   tok_ctx& ctx,
-   chunk_t& pc  /**< [in] structure to update, str is an input. */
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in] structure to update, str is an input. */
 );
 
 
@@ -543,8 +554,8 @@ static const char *str_search(const char *needle, const char *haystack, int32_t 
 
 
 void parse_char(
-   tok_ctx& ctx,
-   chunk_t& pc
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in]  */
 );
 
 /* \todo name might be improved */
@@ -580,8 +591,8 @@ void parse_char(tok_ctx& ctx, chunk_t& pc)
 
 static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
 {
-   bool   is_d    = (is_lang(cpd, LANG_D ));
-   bool   is_cs   = (is_lang(cpd, LANG_CS));
+   bool   is_d    = (is_lang(LANG_D ));
+   bool   is_cs   = (is_lang(LANG_CS));
    uint32_t d_level = 0;
 
    /* does this start with '/ /' or '/ *' or '/ +' (d) */
@@ -667,7 +678,6 @@ static bool parse_comment(tok_ctx &ctx, chunk_t &pc)
          }
          parse_char(ctx, pc);
       }
-
    }
    else  /* must be '/ *' */
    {
@@ -831,9 +841,10 @@ static bool is_dec_or_separator(uint32_t ch) { return(is_dec(ch) || is_sep(ch));
 static bool is_hex_or_separator(uint32_t ch) { return(is_hex(ch) || is_sep(ch)); }
 
 bool analyze_character(
-   tok_ctx& ctx,
-   chunk_t& pc
+   tok_ctx& ctx, /**< [in]  */
+   chunk_t& pc   /**< [in]  */
 );
+
 
 bool analyze_character(tok_ctx& ctx, chunk_t& pc)
 {
@@ -1020,7 +1031,7 @@ static bool parse_string(tok_ctx& ctx, chunk_t& pc, uint32_t quote_idx, bool all
 {
    uint32_t escape_char      = get_uval(UO_string_escape_char);
    uint32_t escape_char2     = get_uval(UO_string_escape_char2);
-   bool   should_escape_tabs = is_true(UO_string_replace_tab_chars) && (cpd.lang_flags & LANG_ALLC);
+   bool   should_escape_tabs = is_true(UO_string_replace_tab_chars) && is_lang(LANG_ALLC);
 
    pc.str.clear();
    while (quote_idx-- > 0)
@@ -1340,7 +1351,6 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
 
       /* HACK: Non-ASCII character are only allowed in identifiers */
       if (ch > 0x7f) { skipcheck = true; }
-
    }
    pc.type = CT_WORD;
 
@@ -1364,7 +1374,7 @@ static bool parse_word(tok_ctx &ctx, chunk_t &pc, bool skipcheck)
    else
    {
       /* '@interface' is reserved, not an interface itself */
-      if (is_lang(cpd, LANG_JAVA) &&
+      if (is_lang(LANG_JAVA) &&
            pc.str.startswith("@") &&
           !pc.str.equals(intr_txt))
       {
@@ -1518,6 +1528,7 @@ static void reset_and_go_to_nl(chunk_t& pc, tok_ctx& ctx)
    }
 }
 
+
 static bool parse_ignored(tok_ctx &ctx, chunk_t &pc)
 {
    /* Parse off newlines/blank lines */
@@ -1656,7 +1667,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    if (parse_code_placeholder(ctx, pc)) { return(true); }
 
    /* Check for C# literal strings, ie @"hello" and identifiers @for*/
-   if (is_lang(cpd, LANG_CS) && (ctx.peek() == '@'))
+   if (is_lang(LANG_CS) && (ctx.peek() == '@'))
    {
       if (ctx.peek(1) == '"')
       {
@@ -1672,7 +1683,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for C# Interpolated strings */
-   if (is_lang(cpd, LANG_CS) &&
+   if (is_lang(LANG_CS) &&
        (ctx.peek( ) == '$' ) &&
        (ctx.peek(1) == '"' ) )
    {
@@ -1681,7 +1692,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* handle VALA """ strings """ */
-   if (is_lang(cpd, LANG_VALA) &&
+   if (is_lang(LANG_VALA) &&
        (ctx.peek( ) == '"'   ) &&
        (ctx.peek(1) == '"'   ) &&
        (ctx.peek(2) == '"'   ) )
@@ -1693,7 +1704,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    /* handle C++(11) string/char literal prefixes u8|u|U|L|R including all
     * possible combinations and optional R delimiters: R"delim(x)delim" */
    uint32_t ch = ctx.peek();
-   if (is_lang(cpd, LANG_CPP) &&
+   if (is_lang(LANG_CPP) &&
        ((ch == 'u') ||
         (ch == 'U') ||
         (ch == 'R') ||
@@ -1707,7 +1718,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
       {
          idx = 2;
       }
-      else if (unc_tolower(ch) == 'u' || ch == 'L')
+      else if ((unc_tolower(ch) == 'u') || (ch == 'L'))
       {
          idx++;
       }
@@ -1721,13 +1732,13 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 
       if (is_real)
       {
-         if (quote == '"' &&
+         if ((quote == '"') &&
              parse_cr_string(ctx, pc, idx))
          {
             return(true);
          }
       }
-      else if ((quote == '"' || quote == '\'') &&
+      else if (((quote == '"') || (quote == '\'')) &&
                parse_string(ctx, pc, idx, true))
       {
          return(true);
@@ -1735,7 +1746,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* PAWN specific stuff */
-   if (is_lang(cpd, LANG_PAWN))
+   if (is_lang(LANG_PAWN))
    {
       if (( cpd.preproc_ncnl_count == 1   )   &&
           ((cpd.is_preproc == CT_PP_DEFINE) ||
@@ -1781,7 +1792,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
 //ctx.restore(ctx.c);
    if (parse_number(ctx, pc)) { return(true); }
 
-   if (is_lang(cpd, LANG_D))
+   if (is_lang(LANG_D))
    {
       /* D specific stuff */
       if (d_parse_string(ctx, pc)) { return(true); }
@@ -1815,7 +1826,7 @@ static bool parse_next(tok_ctx &ctx, chunk_t &pc)
    }
 
    /* Check for Objective C literals and VALA identifiers ('@1', '@if')*/
-   if ((cpd.lang_flags & (LANG_OC | LANG_VALA)) && (ctx.peek() == '@'))
+   if (is_lang(LANG_OV) && (ctx.peek() == '@'))
    {
       uint32_t nc = ctx.peek(1);
       if ((nc == '"' ) ||
@@ -1999,7 +2010,7 @@ void tokenize(const deque<uint32_t> &data, chunk_t* ref)
                set_type(pc, CT_PP_IGNORE);
             }
          }
-         else if (cpd.is_preproc == CT_PP_DEFINE    &&
+         else if ((cpd.is_preproc == CT_PP_DEFINE ) &&
                   is_type(pc, CT_PAREN_CLOSE      ) &&
                   is_true(UO_pp_ignore_define_body) )
          {
