@@ -791,25 +791,55 @@ void indent_text(void)
             log_indent_tmp();
          }
 
+         /* If option set, remove indent inside switch statement */
+         if (frm.pse[frm.pse_tos].type == CT_CASE &&
+             is_false(UO_indent_switch_pp))
+         {
+            indent_pse_push(frm, pc);
+
+            frm.pse[frm.pse_tos - 1].indent = frm.pse[frm.pse_tos].indent - indent_size;
+            log_indent();
+         }
+
          /* Indent the body of a #if here */
-         if (is_true(UO_pp_if_indent_code) &&
-             is_ptype(pc, CT_PP_IF, CT_PP_ELSE))
+         if (is_true(UO_pp_if_indent_code) && is_ptype(pc, CT_PP_IF, CT_PP_ELSE))
          {
             next = chunk_get_next(pc);
             break_if(is_invalid(next));
-            /* Hack to get the logs to look right */
-            memtype = next->type;
-            set_type(next, CT_PP_IF_INDENT);
-            indent_pse_push(frm, next);
-            set_type(next, memtype);
 
-            /* Indent one level except if the #if is a #include guard */
-            uint32_t extra = ((pc->pp_level == 0) && ifdef_over_whole_file()) ? 0 : indent_size;
-            frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent     + extra;
-            frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos-1].indent_tab + extra;
-            frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
-            frm.pse[frm.pse_tos].in_preproc = false;
-            log_indent_tmp();
+            int      should_indent_preproc = true;
+            chunk_t* preproc_next          = get_next_nl(pc);
+            preproc_next = get_next_nblank(preproc_next);
+
+            /* Look ahead at what's on the line after the #if */
+            while(not_type(preproc_next, CT_NEWLINE))
+            {
+               if((is_rbrace(preproc_next           ) && is_false(UO_pp_indent_brace   )) ||
+                  (is_type(preproc_next, CT_FUNC_DEF) && is_false(UO_pp_indent_func_def)) ||
+                  (is_type(preproc_next, CT_CASE    ) && is_false(UO_pp_indent_case    )) ||
+                  (is_type(preproc_next, CT_EXTERN  ) && is_false(UO_pp_indent_extern  )) )
+               {
+                  should_indent_preproc = false;
+                  break;
+               }
+               preproc_next = chunk_get_next(preproc_next);
+            }
+            if(should_indent_preproc)
+            {
+               /* Hack to get the logs to look right */
+               memtype = next->type;
+               set_type(next, CT_PP_IF_INDENT);
+               indent_pse_push(frm, next);
+               set_type(next, memtype);
+
+               /* Indent one level except if the #if is a #include guard */
+               uint32_t extra = ((pc->pp_level == 0) && ifdef_over_whole_file()) ? 0 : indent_size;
+               frm.pse[frm.pse_tos].indent     = frm.pse[frm.pse_tos-1].indent     + extra;
+               frm.pse[frm.pse_tos].indent_tab = frm.pse[frm.pse_tos-1].indent_tab + extra;
+               frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos  ].indent;
+               frm.pse[frm.pse_tos].in_preproc = false;
+               log_indent_tmp();
+            }
          }
 
          /* Transition into a preproc by creating a dummy indent */
