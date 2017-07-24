@@ -384,6 +384,27 @@ chunk_t* get_first_on_line(chunk_t* pc)
 }
 
 
+bool chunk_is_last_on_line(chunk_t &pc)  //TODO: pc should be const here
+{
+   // check if pc is the very last chunk of the file
+   const auto *end = chunk_get_tail();
+
+   if (&pc == end)
+   {
+      return(true);
+   }
+
+   // if the next chunk is a newline then pc is the last chunk on its line
+   const auto *next = chunk_get_next(&pc);
+   if (next != nullptr && next->type == CT_NEWLINE)
+   {
+      return(true);
+   }
+
+   return(false);
+}
+
+
 chunk_t* chunk_get(chunk_t* cur, const scope_e scope, const dir_e dir)
 {
    retval_if(is_invalid(cur), cur);

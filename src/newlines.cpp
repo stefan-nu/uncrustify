@@ -2133,6 +2133,16 @@ static void nl_func_def(chunk_t* start)
    {
       atmp = get_arg(is_def ? UO_nl_func_def_empty : UO_nl_func_decl_empty);
       if (atmp != AV_IGNORE) { nl_iarf(start, atmp); }
+
+      atmp = get_arg(is_def ? UO_nl_func_def_paren_empty : UO_nl_func_paren_empty);
+      if (atmp != AV_IGNORE)
+      {
+         prev = get_prev_ncnl(pc);
+         if (prev != NULL)
+         {
+            nl_iarf(prev, atmp);
+         }
+      }
       return;
    }
 
@@ -2853,7 +2863,9 @@ void cleanup_braces(bool first)
                  not_ignore(UO_nl_func_scope_name           ) ||
                  not_ignore(UO_nl_func_proto_type_name      ) ||
                  not_ignore(UO_nl_func_paren                ) ||
-                 not_ignore(UO_nl_func_def_paren            )))
+                 not_ignore(UO_nl_func_def_paren            ) ||
+                 not_ignore(UO_nl_func_def_paren_empty      ) ||
+                 not_ignore(UO_nl_func_paren_empty          )))
             {
                nl_func_def(pc);
             }
@@ -2952,6 +2964,10 @@ void cleanup_braces(bool first)
          default:
             if ((first == true) &&
                 (is_preproc(pc) && (get_uval(UO_nl_remove_extra_newlines) == 1)))
+            {
+               nl_iarf(pc, AV_REMOVE);
+            }
+            else if (is_type(pc, CT_BYREF))
             {
                nl_iarf(pc, AV_REMOVE);
             }

@@ -213,6 +213,12 @@ void do_code_width(void)
           (not_type(pc, CT_SPACE)) &&
           (is_past_width(pc)))
       {
+         if (is_type(pc, CT_VBRACE_CLOSE) && /* don't break if a vbrace close */
+             chunk_is_last_on_line(*pc)   )  /* is the last chunk on its line */
+         {
+            continue;
+         }
+
          const bool split_OK = split_line(pc);
          const char* str = split_OK ? "" : "Bailed ";
          LOG_FMT(LSPLIT, "%s(%d): %son orig_line=%u, orig_col=%u, for %s\n",

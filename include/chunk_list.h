@@ -406,6 +406,14 @@ chunk_t* get_first_on_line(
 
 
 /**
+ * \brief check if a given chunk is the last one on its line
+ */
+bool chunk_is_last_on_line(
+   chunk_t &pc /**< [in] chunk to check */
+);
+
+
+/**
  * tbd
  */
 chunk_t* get_prev_category(
