@@ -458,7 +458,6 @@ static void indent_pse_push(parse_frame_t& frm, chunk_t* pc)
       frm.pse[frm.pse_tos].indent_tab  = frm.pse[frm.pse_tos-1].indent_tab;
       frm.pse[frm.pse_tos].indent_cont = frm.pse[frm.pse_tos-1].indent_cont;
       frm.pse[frm.pse_tos].non_vardef  = false;
-      frm.pse[frm.pse_tos].ns_cnt      = frm.pse[frm.pse_tos-1].ns_cnt;
       memcpy(&frm.pse[frm.pse_tos].ip, &frm.pse[frm.pse_tos-1].ip, sizeof(frm.pse[frm.pse_tos].ip));
    }
    else
@@ -1305,16 +1304,17 @@ void indent_text(void)
             }
             else if (is_ptype(pc, CT_NAMESPACE))
             {
+               frm.pse[frm.pse_tos].ns_cnt = frm.pse[frm.pse_tos - 1].ns_cnt + 1;
                if (is_true(UO_indent_namespace              ) &&
                    is_true(UO_indent_namespace_single_indent) )
                {
-                  if (frm.pse[frm.pse_tos].ns_cnt)
+                  if (frm.pse[frm.pse_tos].ns_cnt >= 2)
                   {
                      /* undo indent on all except the first namespace */
                      frm.pse[frm.pse_tos].indent -= indent_size;
                      log_indent();
                   }
-                  indent_column_set((frm.pse_tos <= 1) ? 1 : (uint32_t)frm.pse[frm.pse_tos-1].brace_indent);
+                  indent_column_set(frm.pse[frm.pse_tos - frm.pse[frm.pse_tos].ns_cnt].indent);
                }
                else if (is_flag(pc, PCF_LONG_BLOCK) || is_false(UO_indent_namespace))
                {
@@ -1333,7 +1333,6 @@ void indent_text(void)
                      log_indent();
                   }
                }
-               frm.pse[frm.pse_tos].ns_cnt++;
             }
             else if (is_ptype(pc, CT_EXTERN) && is_false(UO_indent_extern))
             {
