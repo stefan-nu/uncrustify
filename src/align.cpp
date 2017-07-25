@@ -585,8 +585,8 @@ void align_right_comments(void)
             assert(is_valid(prev));
             if (pc->orig_col < prev->orig_col_end + get_uval(UO_align_right_cmt_gap))
             {
-               LOG_FMT(LALTC, "NOT changing END comment on line %u (%u <= %u + %d)\n",
-                pc->orig_line, pc->orig_col, prev->orig_col_end, get_ival(UO_align_right_cmt_gap));
+               LOG_FMT(LALTC, "NOT changing END comment on line %u (%u <= %u + %u)\n",
+                pc->orig_line, pc->orig_col, prev->orig_col_end, get_uval(UO_align_right_cmt_gap));
             }
             else
             {

@@ -1914,65 +1914,80 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
             log_flush(true);
             exit(EX_CONFIG);
          }
-         dest->n = strtol(val, nullptr, 0);
-         /* is the same as dest->u */
-         return;
-      }
-      else
-      {
-         /* Try to see if it is a variable */
-         int32_t mult = 1;
-         if (*val == '-')
+         if (entry->type == AT_NUM)
          {
-            mult = -1;
-            val++;
-         }
-
-         tmp = unc_find_option(val);
-         if (tmp == nullptr)
-         {
-            fprintf(stderr, "%s:%u\n  for the assignment: unknown option '%s':",
-                    cpd.filename, cpd.line_number, val);
-            log_flush(true);
-            exit(EX_CONFIG);
-         }
-         // indent_case_brace = -indent_columns
-         LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
-                 cpd.line_number,
-                 get_argtype_name(entry->type), entry->name,
-                 get_argtype_name(tmp->type), tmp->name);
-
-         if (( tmp->type == entry->type) ||
-             ((tmp->type == AT_UNUM) && (entry->type == AT_NUM)) ||
-             ((tmp->type == AT_NUM ) && (entry->type == AT_UNUM) && (get_ival(tmp->id) * mult) > 0))
-         {
-            dest->n = get_ival(tmp->id) * mult;
-            // is the same as dest->u
-            return;
+            dest->n = strtol(val, nullptr, 0);
+            /* is the same as dest->u */
          }
          else
          {
-            fprintf(stderr, "%s:%u\n  for the assignment: expected type for %s is %s, got %s\n",
-                    cpd.filename, cpd.line_number,
-                    entry->name, get_argtype_name(entry->type), get_argtype_name(tmp->type));
-            log_flush(true);
-            exit(EX_CONFIG);
+            dest->u = strtoul(val, nullptr, 0);
          }
+         return;
       }
-      fprintf(stderr, "%s:%u Expected a number for %s, got %s\n",
-              cpd.filename, cpd.line_number, entry->name, val);
+
+      /* Try to see if it is a variable */
+      int32_t mult = 1;
+      if (*val == '-')
+      {
+         mult = -1;
+         val++;
+      }
+
+      tmp = unc_find_option(val);
+      if (tmp == nullptr)
+      {
+         fprintf(stderr, "%s:%u\n  for the assignment: unknown option '%s':",
+                 cpd.filename, cpd.line_number, val);
+         log_flush(true);
+         exit(EX_CONFIG);
+      }
+      // indent_case_brace = -indent_columns
+      LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
+              cpd.line_number,
+              get_argtype_name(entry->type), entry->name,
+              get_argtype_name(tmp->type), tmp->name);
+
+      if (tmp->type == AT_UNUM || tmp->type == AT_NUM)
+      {
+         long tmp_val;
+         if (tmp->type == AT_UNUM)
+         {
+            tmp_val = cpd.settings[tmp->id].u * mult;
+         }
+         else
+         {
+            tmp_val = cpd.settings[tmp->id].n * mult;
+         }
+
+         if (entry->type == AT_NUM)
+         {
+            dest->n = tmp_val;
+            return;
+         }
+         if (tmp_val >= 0) //dest->type == AT_UNUM
+         {
+            dest->u = tmp_val;
+            return;
+         }
+         fprintf(stderr, "%s:%d\n  for the assignment: option '%s' could not have negative value %ld",
+                 cpd.filename, cpd.line_number, entry->name, tmp_val);
+         log_flush(true);
+         exit(EX_CONFIG);
+      }
+
+      fprintf(stderr, "%s:%u\n  for the assignment: expected type for %s is %s, got %s\n",
+              cpd.filename, cpd.line_number, entry->name,
+              get_argtype_name(entry->type), get_argtype_name(tmp->type));
       log_flush(true);
-      cpd.error_count++;
-      dest->n = 0;
-      // is the same as dest->u
-      return;
+      exit(EX_CONFIG);
    }
 
    if (entry->type == AT_BOOL)
    {
       if ((strcasecmp(val, "true") == 0) ||
           (strcasecmp(val, "t"   ) == 0) ||
-          (strcmp(val, "1") == 0))
+          (strcmp    (val, "1"   ) == 0) )
       {
          dest->b = true;
          return;
@@ -1980,14 +1995,15 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
 
       if ((strcasecmp(val, "false") == 0) ||
           (strcasecmp(val, "f"    ) == 0) ||
-          (strcmp(val, "0") == 0))
+          (strcmp    (val, "0"    ) == 0) )
       {
          dest->b = false;
          return;
       }
 
       bool btrue = true;
-      if ((*val == '-') || (*val == '~'))
+      if ((*val == '-') ||
+          (*val == '~') )
       {
          btrue = false;
          val++;
@@ -2380,12 +2396,12 @@ void set_option_defaults(void)
    cpd.defaults[UO_cmt_indent_multi                                 ].b = true;
    cpd.defaults[UO_cmt_insert_before_inlines                        ].b = true;
    cpd.defaults[UO_cmt_multi_check_last                             ].b = true;
-   cpd.defaults[UO_cmt_multi_first_len_min                          ].n = 4;
+   cpd.defaults[UO_cmt_multi_first_len_min                          ].u = 4;
    cpd.defaults[UO_indent_access_spec                               ].n = 1;
    cpd.defaults[UO_indent_align_assign                              ].b = true;
    cpd.defaults[UO_indent_columns                                   ].u = 8;
    cpd.defaults[UO_indent_cpp_lambda_body                           ].b = false;
-   cpd.defaults[UO_indent_ctor_init_leading                         ].n = 2;
+   cpd.defaults[UO_indent_ctor_init_leading                         ].u = 2;
    cpd.defaults[UO_indent_label                                     ].n = 1;
    cpd.defaults[UO_indent_oc_msg_prioritize_first_colon             ].b = true;
    cpd.defaults[UO_indent_token_after_brace                         ].b = true;
@@ -2395,7 +2411,7 @@ void set_option_defaults(void)
    cpd.defaults[UO_input_tab_size                                   ].u = 8;
    cpd.defaults[UO_newlines                                         ].le= LE_AUTO;
    cpd.defaults[UO_output_tab_size                                  ].u = 8;
-   cpd.defaults[UO_pp_indent_count                                  ].n = 1;
+   cpd.defaults[UO_pp_indent_count                                  ].u = 1;
    cpd.defaults[UO_sp_addr                                          ].a = AV_REMOVE;
    cpd.defaults[UO_sp_after_semi                                    ].a = AV_ADD;
    cpd.defaults[UO_sp_after_semi_for                                ].a = AV_FORCE;
@@ -2417,10 +2433,10 @@ void set_option_defaults(void)
    cpd.defaults[UO_sp_this_paren                                    ].a = AV_REMOVE;
    cpd.defaults[UO_sp_word_brace                                    ].a = AV_ADD;
    cpd.defaults[UO_sp_word_brace_ns                                 ].a = AV_ADD;
-   cpd.defaults[UO_string_escape_char                               ].n = BACKSLASH;
+   cpd.defaults[UO_string_escape_char                               ].u = BACKSLASH;
    cpd.defaults[UO_use_indent_func_call_param                       ].b = true;
    cpd.defaults[UO_use_options_overriding_for_qt_macros             ].b = true;
-   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].n = (int32_t)LWARN;
+   cpd.defaults[UO_warn_level_tabs_found_in_verbatim_string_literals].u = LWARN;
    cpd.defaults[UO_pp_indent_case                                   ].b = true;
    cpd.defaults[UO_pp_indent_func_def                               ].b = true;
    cpd.defaults[UO_pp_indent_extern                                 ].b = true;
@@ -2463,7 +2479,7 @@ void set_option_defaults(void)
       {
          int min_value     = value.min_val;
          int max_value     = value.max_val;
-         int default_value = cpd.defaults[id.first].u;
+         int default_value = cpd.defaults[id.first].n;
          if (default_value > max_value)
          {
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
