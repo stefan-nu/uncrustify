@@ -323,6 +323,7 @@ bool is_bit_unset(const uint64_t var, const uint64_t bit) { return((var & bit) =
 #define MAX_LINE_VAL 3 /**< ??? */
 #define MAX_POS_VAL  2 /**< ??? */
 #define MAX_STR_VAL  0 /**< ??? */
+#define MAX_TFI_VAL  2 /**< an TFI option has a value of 0,1 or 2 */
 
 static void unc_add_opt(const char* name, uo_t id, argtype_t type,
       const char* short_desc, const char* long_desc, int32_t min_val, int32_t max_val)
@@ -355,11 +356,13 @@ static void unc_add_opt(const char* name, uo_t id, argtype_t type,
       case AT_LINE:   value.max_val = MAX_LINE_VAL;                     break;
       case AT_POS:    value.max_val = MAX_POS_VAL;                      break;
       case AT_STRING: value.max_val = MAX_STR_VAL;                      break;
+      case AT_TFI:    value.max_val = MAX_TFI_VAL;                      break;
       case AT_NUM:    value.max_val = max_val; value.min_val = min_val; break;
       case AT_UNUM:   value.max_val = max_val; value.min_val = min_val; break;
 
       default:
-         fprintf(stderr, "FATAL: Illegal option type %d for '%s'\n", type, name);
+         fprintf(stderr, "FATAL: %s(%d) Illegal option type %d for '%s'\n",
+                 __func__, __LINE__, type, name);
          log_flush(true);
          exit(EX_SOFTWARE);
    }
@@ -2029,6 +2032,40 @@ static void convert_value(const option_map_value_t* entry, const char* val, op_v
       return;
    }
 
+   if (entry->type == AT_TFI)
+   {
+      if ((strcasecmp(val, "true") == 0) ||
+          (strcasecmp(val, "t"   ) == 0) ||
+          (strcmp    (val, "1"   ) == 0) )
+      {
+         dest->tfi = TFI_TRUE;
+         return;
+      }
+
+      if ((strcasecmp(val, "false") == 0) ||
+          (strcasecmp(val, "f"    ) == 0) ||
+          (strcmp    (val, "0"    ) == 0) )
+      {
+         dest->tfi = TFI_FALSE;
+         return;
+      }
+
+      if ((strcasecmp(val, "ignore") == 0) ||
+          (strcasecmp(val, "i"     ) == 0) ||
+          (strcmp    (val, "2"     ) == 0))
+      {
+         dest->tfi = TFI_IGNORE;
+         return;
+      }
+
+      fprintf(stderr, "convert_value: %s:%d Expected 'True' or 'False' or 'Ignore' for %s, got '%s'\n",
+              cpd.filename, cpd.line_number, entry->name, val);
+      log_flush(true);
+      cpd.error_count++;
+      dest->tfi = TFI_FALSE;
+      return;
+   }
+
    /* Must be AT_IARF */
    if ((strcasecmp(val, "add"   ) == 0) || (strcasecmp(val, "a") == 0)) { dest->a = AV_ADD;    return; }
    if ((strcasecmp(val, "remove") == 0) || (strcasecmp(val, "r") == 0)) { dest->a = AV_REMOVE; return; }
@@ -2514,8 +2551,9 @@ string argtype2string(argtype_t argtype)
    switch (argtype)
    {
       case AT_BOOL:   return("false/true");
+      case AT_TFI:    return("false/true/ignore");
       case AT_IARF:   return("ignore/add/remove/force");
-      case AT_NUM:    return("number");
+      case AT_NUM:    return("signed number");
       case AT_UNUM:   return("unsigned number");
       case AT_LINE:   return("auto/lf/crlf/cr");
       case AT_POS:    return("ignore/join/lead/lead_break/lead_force/trail/trail_break/trail_force");
@@ -2531,12 +2569,15 @@ const char* get_enc_name(const char_enc_t enc)
 {
    switch(enc)
    {
-      case(char_enc_t::ASCII   ): return ("ASCII"      );
-      case(char_enc_t::BYTE    ): return ("BYTE"       );
-      case(char_enc_t::UTF8    ): return ("UTF-8"      );
-      case(char_enc_t::UTF16_LE): return ("UTF-16-LE"  );
-      case(char_enc_t::UTF16_BE): return ("UTF-16-BE"  );
-      default:                         return ("unknown enc");
+      case(char_enc_t::ASCII   ): return ("ASCII"    );
+      case(char_enc_t::BYTE    ): return ("BYTE"     );
+      case(char_enc_t::UTF8    ): return ("UTF-8"    );
+      case(char_enc_t::UTF16_LE): return ("UTF-16-LE");
+      case(char_enc_t::UTF16_BE): return ("UTF-16-BE");
+      default:
+         fprintf(stderr, "Unknown enc '%d'\n", enc);
+         log_flush(true);
+         return("");
    }
 }
 
@@ -2546,6 +2587,7 @@ const char* get_argtype_name(argtype_t argtype)
    switch (argtype)
    {
       case AT_BOOL:   return("AT_BOOL"  );
+      case AT_TFI:    return("AT_TFI"   );
       case AT_IARF:   return("AT_IARF"  );
       case AT_NUM:    return("AT_NUM"   );
       case AT_UNUM:   return("AT_UNUM"  );
@@ -2565,6 +2607,22 @@ string bool2str(bool val)
 }
 
 
+string tfi2str(tfi_t val)
+{
+   switch (val)
+   {
+      case TFI_FALSE:  return("false" );
+      case TFI_TRUE:   return("true"  );
+      case TFI_IGNORE: return("ignore");
+      default:
+         fprintf(stderr, "Unknown tfi_t '%d'\n", val);
+         log_flush(true);
+         return("");
+   }
+}
+
+
+
 string argval2str(argval_t argval)
 {
    switch (argval)
@@ -2575,7 +2633,7 @@ string argval2str(argval_t argval)
       case AV_FORCE:  return("force" );
       default:        fprintf(stderr, "Unknown argval '%d'\n", argval);
                       log_flush(true);
-                      return("undefined");
+                      return("");
    }
 }
 
@@ -2629,14 +2687,15 @@ string op_val2str(const argtype_t argtype, const op_val_t& op_val)
 {
    switch (argtype)
    {
-      case AT_BOOL:   return(bool2str           (op_val.b ));
-      case AT_IARF:   return(argval2str         (op_val.a ));
-      case AT_NUM:    return(number2str         (op_val.n ));
-      case AT_UNUM:   return(number2str((int32_t)op_val.u ));
-      case AT_LINE:   return(lineends2str       (op_val.le));
-      case AT_POS:    return(tokenpos2str       (op_val.tp));
+      case AT_BOOL:   return(bool2str           (op_val.b  ));
+      case AT_TFI:    return(tfi2str            (op_val.tfi));
+      case AT_IARF:   return(argval2str         (op_val.a  ));
+      case AT_NUM:    return(number2str         (op_val.n  ));
+      case AT_UNUM:   return(number2str((int32_t)op_val.u  ));
+      case AT_LINE:   return(lineends2str       (op_val.le ));
+      case AT_POS:    return(tokenpos2str       (op_val.tp ));
       case AT_STRING: return(ptr_is_valid(op_val.str) ? op_val.str : "");
-      default:        fprintf(stderr, "Unknown argtype '%d'\n", argtype);
+      default:        fprintf(stderr, "Unknown option type '%d'\n", argtype);
                       log_flush(true);
                       return("");
    }

@@ -36,12 +36,13 @@
 enum argtype_t
 {
    AT_BOOL,    /**< true / false */
+   AT_TFI,     /**< true / false / ignore */
    AT_IARF,    /**< Ignore / Add / Remove / Force */
-   AT_NUM,     /**< Number */
+   AT_NUM,     /**< signed Number */
+   AT_UNUM,    /**< unsigned Number */
    AT_LINE,    /**< Line Endings */
    AT_POS,     /**< positions like start/end or trail/lead */
-   AT_STRING,  /**< string value */
-   AT_UNUM     /**< unsigned Number */
+   AT_STRING   /**< string value */
 };
 
 
@@ -84,15 +85,25 @@ enum tokenpos_t
 };
 
 
+/** True, False or Ignore */
+enum tfi_t
+{
+   TFI_FALSE  = false,                    //! false
+   TFI_TRUE   = true,                     //! true
+   TFI_IGNORE = 2,                        //! ignore
+};
+
+
 /** Uncrustify options are configured with a parameter of this type.
  *  Depending on the option the meaning (and thus type) of the
  *  parameter varies. Therefore we use a union that provides all
  *  possible types. */
 union op_val_t
 {
-   argval_t    a;   /**< ignore/add/remove/force */
+   argval_t    a;   /**< value is any of ignore/add/remove/force */
    int32_t     n;   /**< value is a signed numbers */
-   bool        b;   /**< value is a flags */
+   bool        b;   /**< value is a boolean flag */
+   tfi_t       tfi; /**< value is a bool or ignore (true/false/ignore) */
    lineends_t  le;  /**< line ending type */
    tokenpos_t  tp;  /**< token position type  */
    const char* str; /**< value is a string */

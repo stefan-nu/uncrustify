@@ -1299,6 +1299,8 @@ void indent_text(void)
             }
             else if (is_ptype(pc, CT_CLASS) && is_false(UO_indent_class))
             {
+               LOG_FMT(LINDENT, "%s(%d):orig_line is %zu, orig_col is %zu, text is %s\n",
+                       __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text());
                frm.pse[frm.pse_tos].indent -= indent_size;
                log_indent();
             }
