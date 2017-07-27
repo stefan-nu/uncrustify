@@ -426,7 +426,7 @@ void reindent_line(chunk_t* pc, uint32_t column)
          assert(pc->column < 100000); /* check for overflow should never be hit */
 
          LOG_FMT(LINDLINED, "   set column of '%s' to %u (orig %u)\n",
-         (is_type(pc, CT_NEWLINE)) ? "newline" : pc->text(), pc->column, pc->orig_col);
+         (is_type(pc, CT_NEWLINE)) ? "NEWLINE" : pc->text(), pc->column, pc->orig_col);
       }
    } while (is_valid(pc) && (pc->nl_count == 0));
 }
@@ -1752,7 +1752,7 @@ void indent_text(void)
             frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent;
             log_indent();
             if ((pc->level == pc->brace_level) &&
-                (is_type(pc, CT_FPAREN_OPEN, CT_SPAREN_OPEN)))
+                (is_type(pc, CT_FPAREN_OPEN, CT_SPAREN_OPEN, CT_ANGLE_OPEN)))
             {
                if ((is_true(UO_use_indent_continue_only_once)) &&
                    (frm.pse[frm.pse_tos].indent_cont) &&

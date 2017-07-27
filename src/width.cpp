@@ -78,7 +78,7 @@ static uint32_t get_split_pri(
  */
 static void try_split_here(
    cw_entry& ent, /**< [in,out]  */
-   chunk_t*  pc   /**< [in]  */
+   chunk_t*  pc   /**< [in]      */
 );
 
 
@@ -88,11 +88,9 @@ static void try_split_here(
  *
  * See if this needs special function handling.
  * Scan backwards and find the best token for the split.
- *
- * @param start The first chunk that exceeded the limit
  */
 static bool split_line(
-   chunk_t* pc /**< [in]  */
+   chunk_t* pc /**< [in] The first chunk that exceeded the limit */
 );
 
 
@@ -109,23 +107,27 @@ static bool split_line(
  *     + if there isn't a newline after that item, add one & return
  *     + otherwise, add a newline before the start token
  *
- * @param start   the offending token
- * @return        the token that should have a newline
- *                inserted before it
+ * @return the token that should have a newline inserted before it
  */
 static void split_fcn_params(
-   chunk_t* start /**< [in]  */
+   chunk_t* start /**< [in] the offending token */
+);
+
+
+/**
+ * Figures out where to split a template
+ */
+static void split_template(
+   chunk_t* start /**< [in] the offending token */
 );
 
 
 /**
  * Splits the parameters at every comma that is at the
  * function parenthesis level.
- *
- * @param start   the offending token
  */
 static void split_fcn_params_full(
-   chunk_t* start /**< [in]  */
+   chunk_t* start /**< [in] the offending token */
 );
 
 
@@ -349,6 +351,15 @@ static bool split_line(chunk_t* start)
       return(true);
    }
 
+   /* If this is in a template, split on commas, Issue #1170 */
+   else if (is_flag(start, PCF_IN_TEMPLATE))
+   {
+      LOG_FMT(LSPLIT, " ** TEMPLATE SPLIT **\n");
+      split_template(start);
+      return(true);
+   }
+
+   LOG_FMT(LSPLIT, "%s(%d):\n", __func__, __LINE__);
    /* Try to find the best spot to split the line */
    cw_entry ent;
    memset(&ent, 0, sizeof(ent));
@@ -671,6 +682,41 @@ static void split_fcn_params(chunk_t* start)
       LOG_FMT(LSPLIT, " -- ended on [%s] --\n", get_token_name(prev->type));
       pc = chunk_get_next(prev);
       newline_add_before(pc);
+      reindent_line(pc, min_col);
+      cpd.changes++;
+   }
+}
+
+
+static void split_template(chunk_t* start)
+{
+   LOG_FUNC_ENTRY();
+   LOG_FMT(LSPLIT, "  %s(%d): start %s\n", __func__, __LINE__, start->text());
+   LOG_FMT(LSPLIT, "  %s(%d): back up until the prev is a comma\n", __func__, __LINE__);
+
+   /* back up until the prev is a comma */
+   chunk_t* prev = start;
+   while ((prev = chunk_get_prev(prev)) != nullptr)
+   {
+      LOG_FMT(LSPLIT, "  %s(%d): prev '%s'\n", __func__, __LINE__, prev->text());
+      break_if(is_nl(prev) || is_type(prev, CT_COMMA));
+   }
+
+   if (is_valid(prev) && !is_nl(prev))
+   {
+      LOG_FMT(LSPLIT, "  %s(%d):", __func__, __LINE__);
+      LOG_FMT(LSPLIT, " -- ended on [%s] --\n", get_token_name(prev->type));
+      chunk_t* pc = chunk_get_next(prev);
+      newline_add_before(pc);
+      size_t  min_col = 1;
+      if (get_ival(UO_indent_continue) == 0)
+      {
+         min_col += get_uval(UO_indent_columns);
+      }
+      else
+      {
+         min_col += abs(get_ival(UO_indent_continue));
+      }
       reindent_line(pc, min_col);
       cpd.changes++;
    }

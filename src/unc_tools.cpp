@@ -18,9 +18,11 @@ static void log_newline(
 );
 
 
+static size_t counter = 0;
 void prot_the_line(int32_t theLine, uint32_t actual_line)
 {
-   LOG_FMT(LGUY, "Prot_the_line:(%d) \n", theLine);
+   counter++;
+   LOG_FMT(LGUY, "Prot_the_line:(%d)(%u)\n", theLine, counter);
    for (chunk_t* pc = chunk_get_head(); is_valid(pc); pc = pc->next)
    {
       if (pc->orig_line == actual_line)
@@ -34,9 +36,9 @@ void prot_the_line(int32_t theLine, uint32_t actual_line)
             case(CT_SPACE       ): LOG_FMT(LGUY, "<CT_SPACE>, ");             break;
             default:
             {
-               LOG_FMT(LGUY, "text() %s, type %s, parent_type %s, orig_col=%u, ",
+               LOG_FMT(LGUY, "text() %s, type=%s, parent_type=%s, orig_col=%u, col=%u, ",
                        pc->text(), get_token_name(pc->type),
-                       get_token_name(pc->ptype), pc->orig_col);
+                       get_token_name(pc->ptype), pc->orig_col, pc->column);
                break;
             }
          }
