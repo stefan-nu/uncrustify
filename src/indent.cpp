@@ -1675,7 +1675,10 @@ void indent_text(void)
             next = get_next_nc(pc);
             break_if(is_invalid(next));
 
-            if (is_nl(next))
+            if (is_nl(next) &&
+                is_false(UO_indent_paren_after_func_def ) &&
+                is_false(UO_indent_paren_after_func_decl) &&
+                is_false(UO_indent_paren_after_func_call))
             {
                uint32_t sub = 1;
                if ((frm.pse[frm.pse_tos - 1].type == CT_ASSIGN) ||
@@ -1703,9 +1706,23 @@ void indent_text(void)
             }
          }
 
-         if ( is_type(pc, CT_FPAREN_OPEN)    &&
-              is_nl(chunk_get_prev(pc)) &&
-             !is_nl(chunk_get_next(pc)) )
+#if 0
+         if ( is_type(pc, CT_FPAREN_OPEN) &&
+              is_nl(chunk_get_prev(pc)  ) &&
+             !is_nl(chunk_get_next(pc)  ) )
+#else
+            if (  (  pc->type == CT_FPAREN_OPEN
+                  && is_nl(chunk_get_prev(pc))) &&
+                  (  (  (  pc->ptype == CT_FUNC_PROTO
+                        || pc->ptype == CT_FUNC_CLASS_PROTO) &&
+                        cpd.settings[UO_indent_paren_after_func_decl].b)
+                  || (  pc->ptype == CT_FUNC_DEF &&
+                        cpd.settings[UO_indent_paren_after_func_def].b)
+                  || (  (  pc->ptype == CT_FUNC_CALL
+                        || pc->ptype == CT_FUNC_CALL_USER) &&
+                        cpd.settings[UO_indent_paren_after_func_call].b)
+                  || !is_nl(chunk_get_next(pc))))
+#endif
          {
             frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent + indent_size;
             log_indent();

@@ -20,6 +20,7 @@
 #include "parse_frame.h"
 #include "keywords.h"
 #include "token_enum.h"
+#include "indent.h"
 
 /*
  * abbreviations used:
@@ -685,15 +686,21 @@ static void parse_cleanup(parse_frame_t* frm, chunk_t* pc)
       LOG_FMT(LSTMT, "%s(%d): %u> reset expr on %s\n",
               __func__, __LINE__, pc->orig_line, pc->text());
    }
-   else if (is_closing_rbrace(pc)      &&
-            (cpd.consumed     == false)&&
-            (cpd.unc_off_used == false))
+   else if (is_type(pc, CT_BRACE_CLOSE))
    {
-      /* fatal error */
-      fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%u, column=%u\n",
-              pc->orig_line, pc->orig_col);
-      log_flush(true);
-      exit(EXIT_FAILURE);
+      if(cpd.consumed == false)
+      {
+         size_t file_pp_level = ifdef_over_whole_file() ? 1 : 0;
+         if ((cpd.unc_off_used == false        ) &&
+             (pc->pp_level     == file_pp_level) )
+        {
+           /* fatal error */
+           fprintf(stderr, "Unmatched BRACE_CLOSE\nat line=%u, column=%u\n",
+                   pc->orig_line, pc->orig_col);
+           log_flush(true);
+           exit(EXIT_FAILURE);
+         }
+      }
    }
 }
 

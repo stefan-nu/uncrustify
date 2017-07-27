@@ -408,6 +408,9 @@ enum uo_t
                                              *   (overrides indent_access_spec) */
    UO_indent_paren_nl,                      /**< indent-align under parenthesis for open followed by newline */
    UO_indent_paren_close,                   /**< indent of close parenthesis after a newline */
+   UO_indent_paren_after_func_def,          /**< indent of open paren for a function definition */
+   UO_indent_paren_after_func_decl,         /**< indent of open paren for a function declaration */
+   UO_indent_paren_after_func_call,         /**< indent of open paren for a function call */
    UO_indent_comma_paren,                   /**< indent of comma if inside a parenthesis */
    UO_indent_bool_paren,                    /**< indent of bool if inside a parenthesis */
    UO_indent_first_bool_expr,               /**< if UO_indent_bool_paren == true, aligns the first
