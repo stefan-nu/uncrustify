@@ -538,10 +538,10 @@ static uint32_t token_indent(c_token_t type)
 
 #define indent_column_set(X)                                              \
    do {                                                                   \
+      LOG_FMT(LINDENT2, "%s(%d): orig_line is %u, indent_column changed from %u to %u\n", \
+              __func__, __LINE__, pc->orig_line, indent_column, X);       \
       indent_column = (X);                                                \
       assert(indent_column < 100000);                                     \
-      LOG_FMT(LINDENT2, "%s(%d): orig_line is %u, indent_column is %u\n", \
-              __func__, __LINE__, pc->orig_line, indent_column);          \
    } while (false)
 
 
@@ -673,7 +673,7 @@ void indent_text(void)
    uint32_t      indent_size  = get_uval(UO_indent_columns);
    parse_frame_t frm;
    bool          in_preproc = false;
-   uint32_t      indent_column;
+   uint32_t      indent_column       = 0;
    uint32_t      parent_token_indent = 0;
    int32_t       xml_indent          = 0;
    bool          token_used;
@@ -1155,7 +1155,7 @@ void indent_text(void)
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)frm.pse[frm.pse_tos-1].indent;
-            indent_column                       = (uint32_t)frm.pse[frm.pse_tos ].brace_indent;
+            indent_column_set(frm.pse[frm.pse_tos].brace_indent);
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos  ].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos  ].indent;
@@ -1164,17 +1164,33 @@ void indent_text(void)
             log_indent_tmp();
          }
          else if (is_lang(LANG_CS) &&
-                   is_true(UO_indent_cs_delegate_brace) &&
-                   is_ptype(pc, CT_LAMBDA, CT_DELEGATE))
+                  is_true(UO_indent_cs_delegate_brace) &&
+                  is_ptype(pc, CT_LAMBDA, CT_DELEGATE))
          {
             // DRY6
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)(1 + ((pc->brace_level+1) * indent_size));
-            indent_column                       = (uint32_t)frm.pse[frm.pse_tos].brace_indent;
+            indent_column_set(frm.pse[frm.pse_tos].brace_indent);
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
+            log_indent();
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
             log_indent_tmp();
             frm.pse[frm.pse_tos-1].indent_tmp   = frm.pse[frm.pse_tos].indent_tmp;
+            log_indent_tmp();
+         }
+         else if(is_false(UO_indent_paren_open_brace) &&
+                 not_lang(LANG_CS           ) &&
+                 is_ptype(pc, CT_CPP_LAMBDA ) &&
+                 is_flag (pc, PCF_IN_FCN_DEF) &&
+                 is_nl   (get_next_nc(pc)   ) )
+         {
+            // Issue #1165
+            log_pcf_flags(LINDENT2, pc->flags);
+            frm.pse[frm.pse_tos].brace_indent = 1 + ((pc->brace_level + 1) * indent_size);
+            indent_column_set(frm.pse[frm.pse_tos].brace_indent);
+            frm.pse[frm.pse_tos].indent = frm.pse[frm.pse_tos - 1].indent_tmp;
+            log_indent();
+            frm.pse[frm.pse_tos].indent_tmp = frm.pse[frm.pse_tos].indent;
             log_indent_tmp();
          }
          /* any '{' that is inside of a '(' overrides the '(' indent */
@@ -1184,8 +1200,11 @@ void indent_text(void)
          {
             /* FIXME: I don't know how much of this is necessary, but it seems to work */
             // DRY6
+            LOG_FMT(LINDENT2, "%s(%d): orig_line is %zu, pc->brace_level is %zu, for '%s', pc->level is %zu, pc(-1)->level is %zu\n",
+                    __func__, __LINE__, pc->orig_line, pc->brace_level, pc->text(), pc->level, frm.pse[frm.pse_tos - 1].pc->level);
             frm.pse[frm.pse_tos  ].brace_indent = (int32_t)(1 + (pc->brace_level * indent_size));
-            indent_column                       = (uint32_t)frm.pse[frm.pse_tos].brace_indent;
+          //indent_column                       = (uint32_t)frm.pse[frm.pse_tos].brace_indent;
+            indent_column_set(frm.pse[frm.pse_tos].brace_indent);
             frm.pse[frm.pse_tos  ].indent       = indent_column + indent_size;
             frm.pse[frm.pse_tos  ].indent_tab   = frm.pse[frm.pse_tos].indent;
             frm.pse[frm.pse_tos  ].indent_tmp   = frm.pse[frm.pse_tos].indent;
