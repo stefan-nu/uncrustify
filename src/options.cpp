@@ -1216,6 +1216,8 @@ void register_options(void)
                "Add or remove newline between a function name and the opening '(' in the definition");
    unc_add_opt("nl_func_def_paren_empty", UO_nl_func_def_paren_empty, AT_IARF,
                "Overrides nl_func_def_paren for functions with no parameters");
+   unc_add_opt("nl_func_call_paren", UO_nl_func_call_paren, AT_IARF,
+               "Ad or remove newline between a function name and the opening '(' in the call");
    unc_add_opt("nl_func_decl_start", UO_nl_func_decl_start, AT_IARF,
                "Add or remove newline after '(' in a function declaration");
    unc_add_opt("nl_func_def_start", UO_nl_func_def_start, AT_IARF,
@@ -2510,8 +2512,7 @@ void set_option_defaults(void)
             log_flush(true);
             exit(EX_SOFTWARE);
          }
-         if ((min_value > 0) &&
-             (default_value < min_value))
+         if ((0 < min_value) && (min_value > default_value))
          {
             fprintf(stderr, "option '%s' is not correctly set:\n", id.second.name);
             fprintf(stderr, "The default value '%u' is less than the min value '%u'.\n",
@@ -2544,7 +2545,7 @@ void set_option_defaults(void)
          }
       }
    }
-#endif // DEBUG
+#endif
 
    /* copy all the default values to settings array */
    const uint32_t option_count = (uint32_t)UO_option_count;
@@ -2629,7 +2630,6 @@ string tfi2str(tfi_t val)
          return("");
    }
 }
-
 
 
 string argval2str(argval_t argval)

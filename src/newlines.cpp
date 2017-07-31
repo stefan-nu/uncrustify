@@ -2044,12 +2044,22 @@ static void nl_func_def(chunk_t* start)
            get_token_name(start->type), get_token_name(start->ptype));
 
    bool     is_def = is_ptype(start, CT_FUNC_DEF, CT_FUNC_CLASS_DEF);
-   argval_t atmp   = get_arg(is_def ? UO_nl_func_def_paren : UO_nl_func_paren);
-   chunk_t  *prev;
+
+   chunk_t* prev;
+   argval_t atmp;
+
+   atmp   = get_arg(is_def ? UO_nl_func_def_paren : UO_nl_func_paren);
    if (atmp != AV_IGNORE)
    {
       prev = get_prev_ncnl(start);
-      if (is_valid(prev)) { nl_iarf(prev, atmp); }
+      nl_iarf(prev, atmp);
+   }
+
+   atmp = get_arg(UO_nl_func_call_paren);
+   if (atmp != AV_IGNORE)
+   {
+      prev = get_prev_ncnl(start);
+      nl_iarf(prev, atmp);
    }
 
    /* Handle break newlines type and function */
@@ -2872,8 +2882,13 @@ void cleanup_braces(bool first)
             else if ( is_ptype(pc, CT_FUNC_CALL, CT_FUNC_CALL_USER) &&
                      (is_true(UO_nl_func_call_start_multi_line) ||
                       is_true(UO_nl_func_call_args_multi_line ) ||
-                      is_true(UO_nl_func_call_end_multi_line  ) ) )
+                      is_true(UO_nl_func_call_end_multi_line  ) ||
+                      not_ignore(UO_nl_func_call_paren        ) ) )
             {
+               if (not_ignore(UO_nl_func_call_paren))
+               {
+                  nl_func_def(pc);
+               }
                nl_func_multi_line(pc);
             }
             else if (first && (get_uval(UO_nl_remove_extra_newlines) == 1))
