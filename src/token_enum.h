@@ -139,6 +139,8 @@ enum c_token_t
 
    CT_ASM,
    CT_ATTRIBUTE,
+   CT_OC_AVAILABLE,
+   CT_OC_AVAILABLE_VALUE,
    CT_CATCH,
    CT_WHEN,
    CT_WHERE,            // C# where clause
@@ -159,6 +161,7 @@ enum c_token_t
    CT_BRACED_INIT_LIST,
    CT_USING,
    CT_USING_STMT,       // using (xxx) ...
+   CT_USING_ALIAS,      // using identifier attr(optional) = type-id
    CT_D_WITH,           // D: paren+braced
    CT_D_MODULE,
    CT_SUPER,
@@ -170,6 +173,7 @@ enum c_token_t
    CT_UNITTEST,
    CT_UNSAFE,
    CT_FINALLY,
+   CT_FIXED,            // C# fixed
    CT_IMPORT,
    CT_D_SCOPE,
    CT_D_SCOPE_IF,
@@ -219,6 +223,7 @@ enum c_token_t
    CT_FUNC_TYPE,        // function type - foo in "typedef void (*foo)(void)"
    CT_FUNC_VAR,         // foo and parent type of first parens in "void (*foo)(void)"
    CT_FUNC_PROTO,       // function prototype
+   CT_FUNC_START,       // global DC member for functions(void ::func())
    CT_FUNC_CLASS_DEF,   // ctor or dtor for a class
    CT_FUNC_CLASS_PROTO, // ctor or dtor for a class
    CT_FUNC_CTOR_VAR,    // variable or class initialization

@@ -106,6 +106,7 @@
 30110  class-nl_func-add2.cfg               cpp/class-init.cpp
 30111  indent_columns-4.cfg                 cpp/bug_1346.h
 30112  bug_1432.cfg                         cpp/bug_1432.cpp
+30113  bug_1452.cfg                         cpp/bug_1452.cpp
 
 30201  cmt_indent-1.cfg                     cpp/cmt_indent.cpp
 30202  cmt_indent-2.cfg                     cpp/cmt_indent.cpp
@@ -119,6 +120,7 @@
 30210  empty.cfg                            cpp/bug_1338.cpp
 30211  space_indent_class-t_columns-4.cfg   cpp/indent_comment_align_thresh.cpp
 30212  indent_comment_align_thresh_2.cfg    cpp/indent_comment_align_thresh.cpp
+30213  align_right_comment.cfg              cpp/align_right_comment.cpp
 
 30220  bug_1340.cfg                         cpp/bug_1340.cpp
 
@@ -198,11 +200,14 @@
 30753  lambda3.cfg                          cpp/lambda2.cpp
 30754  indent_with_tabs-0.cfg               cpp/bug_i_682.h
 30755  empty.cfg                            cpp/bug_i_938.h
+30756  bug_1296.cfg                         cpp/bug_1296.cpp
 
 30800  star_pos-0.cfg                       cpp/align-star-amp-pos.cpp
 30801  star_pos-1.cfg                       cpp/align-star-amp-pos.cpp
 30802  star_pos-2.cfg                       cpp/align-star-amp-pos.cpp
+30803  bug_1403.cfg                         cpp/bug_1403.cpp
 
+30804  block_pointer.cfg                    cpp/block_pointer.cpp
 30805  ptr_star-1.cfg                       cpp/ptr-star.cpp
 30806  ptr_star-2.cfg                       cpp/ptr-star.cpp
 30807  ptr_star-3.cfg                       cpp/ptr-star.cpp
@@ -227,6 +232,7 @@
 30823  empty.cfg                            cpp/pp_indent_func_def.cpp
 30824  empty.cfg                            cpp/pp_indent_extern.cpp
 
+30828  bug_1691.cfg                         cpp/bug_1691.cpp
 
 30830  kw_subst2.cfg                        cpp/kw_subst.cpp
 30831  kw_subst.cfg                         cpp/kw_subst2.cpp
@@ -286,6 +292,7 @@
 
 30945  sp_before_byref-r.cfg                cpp/sf.3266678.cpp
 30946  sf.3315874.cfg                       cpp/sf.3315874.h
+30947  bug_1689.cfg                         cpp/bug_1689.cpp
 
 30950  sp_before_tr_emb_cmt-f.cfg           cpp/sp_before_tr_emb_cmt_input.cpp
 30951  sp_before_tr_emb_cmt-a.cfg           cpp/sp_before_tr_emb_cmt_input.cpp
@@ -455,6 +462,7 @@
 34115  nl_before_func_body_def-2.cfg        cpp/nl_before_func_body_def.cpp
 
 34120  align_assign_span-1.cfg              cpp/bug_i_999.cpp
+34121  bug_1717.cfg                         cpp/bug_1717.cpp
 
 34130  nl_brace_fparen-f.cfg                cpp/bug_i_1000.cpp
 34131  nl_brace_fparen-r.cfg                cpp/bug_i_1000.cpp
@@ -510,6 +518,9 @@
 34173  arith-vs-ptr.cfg                     cpp/i1464.cpp
 34174  arith-vs-ptr.cfg                     cpp/i1466.cpp
 34175  align_assign_span-1.cfg              cpp/i1509.cpp
+34176  align_assign_span-1.cfg              cpp/i1509_bug_1112_correction.cpp
+
+34180  bug_1402.cfg                         cpp/bug_1402.cpp
 
 34190  bug_1003.cfg                         cpp/bug_1003.cpp
 
@@ -520,17 +531,29 @@
 34194  sp_arith_additive-f.cfg              cpp/sp_arith_additive.cpp
 34195  sp_arith_additive-r.cfg              cpp/sp_arith_additive.cpp
 
+34197  bug_1161.cfg                         cpp/bug_1161.cpp
 34198  sp_dc.cfg                            cpp/bug_1249.cpp
 34199  empty.cfg                            cpp/not_lambda.cpp
 
 34200  i1536.cfg                            cpp/i1536.cpp
 34201  mod_add_long_namespace_closebrace_comment-1.cfg  cpp/i1565.cpp
+34202  mod_add_long_namespace_closebrace_comment-1.cfg  cpp/i1617.cpp
 
 34203  i1516.cfg                            cpp/i1516.cpp
+34204  align_func_params_span-1.cfg         cpp/func_param_indent_leading_comma.cpp
+34205  bug_1395.cfg                         cpp/bug_1395.cpp
+
+34206  indent_semicolon_for_paren-t.cfg     cpp/for_loop_head.cpp
+34207  indent_first_for_expr-t.cfg          cpp/for_loop_head.cpp
 
 
 # TODO: Find relevant test cases for 'override'.
 34210  empty.cfg                            cpp/override_virtual.cpp
+
+34250  empty.cfg                            cpp/bug_1607.cpp
+34251  bug_1649.cfg                         cpp/bug_1649.cpp
+
+34280  UNI-29935.cfg                        cpp/UNI-29935.cpp
 
 # __asm__
 34300  bug_1236.cfg                         cpp/bug_1236.cpp
@@ -571,6 +594,7 @@
 10100  issue_564.cfg                        cpp/issue_564.cpp
 10101  issue_574.cfg                        cpp/issue_574.cpp
 11000  UNI-12046.cfg                        cpp/UNI-12046.cpp
+20002  UNI-32657.cfg                        cpp/UNI-32657.cpp
 60001  UNI-2650.cfg                         cpp/UNI-2650.cpp
 60002  U25-Cpp.cfg                          cpp/UNI-16283.cpp
 60003  U26-Cpp.cfg                          cpp/UNI-1288.cpp
@@ -588,3 +612,4 @@
 60036  UNI-2680.cfg                         cpp/UNI-2680.cpp
 60038  UNI-30088.cfg                        cpp/UNI-30088.cpp
 60039  U36-Cpp.cfg                          cpp/UNI-30628.cpp
+60042  UNI-18777.cfg                        cpp/UNI-18777.cpp

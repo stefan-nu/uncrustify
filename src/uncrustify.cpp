@@ -43,6 +43,7 @@
 #include "unicode.h"
 #include "universalindentgui.h"
 #include "width.h"
+#include "language_tools.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -1486,17 +1487,17 @@ static void add_func_header(c_token_t type, file_mem &fm)
       // Check for one liners for classes. Declarations only. Walk down the chunks.
       ref = pc;
 
-      if (  ref->type == CT_CLASS
+      if (  chunk_is_token(ref, CT_CLASS)
          && ref->parent_type == CT_NONE
          && ref->next)
       {
          ref = ref->next;
-         if (  ref->type == CT_TYPE
+         if (  chunk_is_token(ref, CT_TYPE)
             && ref->parent_type == type
             && ref->next)
          {
             ref = ref->next;
-            if (ref->type == CT_SEMICOLON && ref->parent_type == CT_NONE)
+            if (chunk_is_token(ref, CT_SEMICOLON) && ref->parent_type == CT_NONE)
             {
                continue;
             }
@@ -1506,14 +1507,14 @@ static void add_func_header(c_token_t type, file_mem &fm)
       // Check for one liners for functions. There'll be a closing brace w/o any newlines. Walk down the chunks.
       ref = pc;
 
-      if (  ref->type == CT_FUNC_DEF
+      if (  chunk_is_token(ref, CT_FUNC_DEF)
          && ref->parent_type == CT_NONE
          && ref->next)
       {
          int found_brace = 0;                                 // Set if a close brace is found before a newline
          while (ref->type != CT_NEWLINE && (ref = ref->next)) // TODO: is the assignment of ref wanted here?, better move it to the loop
          {
-            if (ref->type == CT_BRACE_CLOSE)
+            if (chunk_is_token(ref, CT_BRACE_CLOSE))
             {
                found_brace = 1;
                break;
@@ -1535,14 +1536,14 @@ static void add_func_header(c_token_t type, file_mem &fm)
       while ((ref = chunk_get_prev(ref)) != nullptr)
       {
          // Bail if we change level or find an access specifier colon
-         if (ref->level != pc->level || ref->type == CT_PRIVATE_COLON)
+         if (ref->level != pc->level || chunk_is_token(ref, CT_PRIVATE_COLON))
          {
             do_insert = true;
             break;
          }
 
          // If we hit an angle close, back up to the angle open
-         if (ref->type == CT_ANGLE_CLOSE)
+         if (chunk_is_token(ref, CT_ANGLE_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_ANGLE_OPEN, ref->level, scope_e::PREPROC);
             continue;
@@ -1571,8 +1572,8 @@ static void add_func_header(c_token_t type, file_mem &fm)
 
          if (  ref->level == pc->level
             && (  (ref->flags & PCF_IN_PREPROC)
-               || ref->type == CT_SEMICOLON
-               || ref->type == CT_BRACE_CLOSE))
+               || chunk_is_token(ref, CT_SEMICOLON)
+               || chunk_is_token(ref, CT_BRACE_CLOSE)))
          {
             do_insert = true;
             break;
@@ -1617,13 +1618,13 @@ static void add_msg_header(c_token_t type, file_mem &fm)
       {
          // ignore the CT_TYPE token that is the result type
          if (  ref->level != pc->level
-            && (ref->type == CT_TYPE || ref->type == CT_PTR_TYPE))
+            && (chunk_is_token(ref, CT_TYPE) || chunk_is_token(ref, CT_PTR_TYPE)))
          {
             continue;
          }
 
          // If we hit a parentheses around return type, back up to the open parentheses
-         if (ref->type == CT_PAREN_CLOSE)
+         if (chunk_is_token(ref, CT_PAREN_CLOSE))
          {
             ref = chunk_get_prev_type(ref, CT_PAREN_OPEN, ref->level, scope_e::PREPROC);
             continue;
@@ -1644,7 +1645,7 @@ static void add_msg_header(c_token_t type, file_mem &fm)
             }
          }
          if (  ref->level == pc->level
-            && ((ref->flags & PCF_IN_PREPROC) || ref->type == CT_OC_SCOPE))
+            && ((ref->flags & PCF_IN_PREPROC) || chunk_is_token(ref, CT_OC_SCOPE)))
          {
             ref = chunk_get_prev(ref);
             if (ref != nullptr)
@@ -1717,7 +1718,7 @@ static void uncrustify_start(const deque<int> &data)
 
    // At this point, the level information is available and accurate.
 
-   if (cpd.lang_flags & LANG_PAWN)
+   if (language_is_set(LANG_PAWN))
    {
       pawn_prescan();
    }
@@ -1916,7 +1917,7 @@ void uncrustify_file(const file_mem &fm, FILE *pfout,
       }
 
       // Scrub certain added semicolons
-      if ((cpd.lang_flags & LANG_PAWN) && cpd.settings[UO_mod_pawn_semicolon].b)
+      if (language_is_set(LANG_PAWN) && cpd.settings[UO_mod_pawn_semicolon].b)
       {
          pawn_scrub_vsemi();
       }
@@ -1994,7 +1995,7 @@ void uncrustify_file(const file_mem &fm, FILE *pfout,
    // Special hook for dumping parsed data for debugging
    if (parsed_file != nullptr)
    {
-      FILE *p_file = fopen(parsed_file, "w");
+      FILE *p_file = fopen(parsed_file, "wb");
       if (p_file != nullptr)
       {
          output_parsed(p_file);

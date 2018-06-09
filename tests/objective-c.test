@@ -85,6 +85,10 @@
 
 50510  gh293.a.cfg                          oc/gh293.m
 50511  gh293.b.cfg                          oc/gh293.m
+50512  sp_oc_catch.cfg                      oc/sp_oc_catch.m
+50513  sp_oc_boxed.cfg                      oc/sp_oc_boxed.m
+50514  indent_boxed.cfg                     oc/indent_boxed.m
+50515  sp_oc_synchronized.cfg               oc/sp_oc_synchronized.m
 
 50600  nl_oc_block_brace-f.cfg              oc/bug_i_477.m
 50601  empty.cfg                            oc/bug_i_408.m
@@ -121,3 +125,15 @@
 
 50800  obj-c-properties.cfg                 oc/properties.m
 50801  empty.cfg                            oc/i1213.m
+50802  obj-c-available.cfg                  oc/available.m
+50803  indent_single_newline.cfg            oc/indent_single_newline.m
+
+50810  bug_841.cfg                          oc/bug_841.m
+50811  oc_bug_1674.cfg                      oc/bug_1674.m
+50812  oc_bug_1683.cfg                      oc/bug_1683.m
+
+
+#
+# adopt tests from UT
+10018  empty.cfg                            oc/delete-space-oc.mm
+10019  empty.cfg                            oc/func-param-wrap-oc.mm

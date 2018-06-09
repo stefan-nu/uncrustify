@@ -92,6 +92,9 @@ static int                                checkGroupNumber  = -1;
 static int                                checkOptionNumber = -1;
 #endif // DEBUG
 
+// print the name of the configuration file only once
+bool headOfMessagePrinted = false;
+
 
 //!  only compare alpha-numeric characters
 static bool match_text(const char *str1, const char *str2);
@@ -372,6 +375,8 @@ void register_options(void)
                   "Add or remove space between pointer stars '*'.");
    unc_add_option("sp_after_ptr_star", UO_sp_after_ptr_star, AT_IARF,
                   "Add or remove space after pointer star '*', if followed by a word.");
+   unc_add_option("sp_after_ptr_block_caret", UO_sp_after_ptr_block_caret, AT_IARF,
+                  "Add or remove space after pointer caret '^', if followed by a word.");
    unc_add_option("sp_after_ptr_star_qualifier", UO_sp_after_ptr_star_qualifier, AT_IARF,
                   "Add or remove space after pointer star '*', if followed by a qualifier.");
    unc_add_option("sp_after_ptr_star_func", UO_sp_after_ptr_star_func, AT_IARF,
@@ -455,6 +460,9 @@ void register_options(void)
                   "Add or remove space before structured bindings. Only for C++17.");
    unc_add_option("sp_inside_square", UO_sp_inside_square, AT_IARF,
                   "Add or remove space inside a non-empty '[' and ']'.");
+   unc_add_option("sp_inside_square_oc_array", UO_sp_inside_square_oc_array, AT_IARF,
+                  "Add or remove space inside a non-empty OC boxed array '@[' and ']'.\n"
+                  "If set to ignore, sp_inside_square is used.");
    unc_add_option("sp_after_comma", UO_sp_after_comma, AT_IARF,
                   "Add or remove space after ',', 'a,b' vs 'a, b'.");
    unc_add_option("sp_before_comma", UO_sp_before_comma, AT_IARF,
@@ -571,6 +579,9 @@ void register_options(void)
    unc_add_option("sp_catch_paren", UO_sp_catch_paren, AT_IARF,
                   "Add or remove space between 'catch' and '(' in 'catch (something) { }'\n"
                   "If set to ignore, sp_before_sparen is used.");
+   unc_add_option("sp_oc_catch_paren", UO_sp_oc_catch_paren, AT_IARF,
+                  "Add or remove space between '@catch' and '(' in '@catch (something) { }'\n"
+                  "If set to ignore, sp_catch_paren is used.");
    unc_add_option("sp_version_paren", UO_sp_version_paren, AT_IARF,
                   "Add or remove space between 'version' and '(' in 'version (something) { }' (D language)\n"
                   "If set to ignore, sp_before_sparen is used.");
@@ -593,8 +604,14 @@ void register_options(void)
                   "Add or remove space between '}' and the name of a typedef on the same line.");
    unc_add_option("sp_catch_brace", UO_sp_catch_brace, AT_IARF,
                   "Add or remove space between 'catch' and '{' if on the same line.");
+   unc_add_option("sp_oc_catch_brace", UO_sp_oc_catch_brace, AT_IARF,
+                  "Add or remove space between '@catch' and '{' if on the same line.\n"
+                  "If set to ignore, sp_catch_brace is used.");
    unc_add_option("sp_brace_catch", UO_sp_brace_catch, AT_IARF,
                   "Add or remove space between '}' and 'catch' if on the same line.");
+   unc_add_option("sp_oc_brace_catch", UO_sp_oc_brace_catch, AT_IARF,
+                  "Add or remove space between '}' and '@catch' if on the same line.\n"
+                  "If set to ignore, sp_brace_catch is used.");
    unc_add_option("sp_finally_brace", UO_sp_finally_brace, AT_IARF,
                   "Add or remove space between 'finally' and '{' if on the same line.");
    unc_add_option("sp_brace_finally", UO_sp_brace_finally, AT_IARF,
@@ -679,6 +696,9 @@ void register_options(void)
                   "'[receiver selector ...]'.");
    unc_add_option("sp_after_oc_property", UO_sp_after_oc_property, AT_IARF,
                   "Add or remove space after @property.");
+   unc_add_option("sp_after_oc_synchronized", UO_sp_after_oc_synchronized, AT_IARF,
+                  "Add or remove space between '@synchronized' and the parenthesis\n"
+                  "'@synchronized(foo)' vs '@synchronized (foo)'.");
    unc_add_option("sp_cond_colon", UO_sp_cond_colon, AT_IARF,
                   "Add or remove space around the ':' in 'b ? t : f'.");
    unc_add_option("sp_cond_colon_before", UO_sp_cond_colon_before, AT_IARF,
@@ -733,6 +753,8 @@ void register_options(void)
                   "Control space between a Java annotation and the open paren.");
    unc_add_option("sp_skip_vbrace_tokens", UO_sp_skip_vbrace_tokens, AT_BOOL,
                   "If True, vbrace tokens are dropped to the previous token and skipped.");
+   unc_add_option("sp_after_noexcept", UO_sp_after_noexcept, AT_IARF,
+                  "Controls the space after 'noexcept'.");
    unc_add_option("force_tab_after_define", UO_force_tab_after_define, AT_BOOL,
                   "If True, a <TAB> is inserted after #define.");
 
@@ -743,6 +765,8 @@ void register_options(void)
    unc_add_option("indent_continue", UO_indent_continue, AT_NUM,
                   "The continuation indent. If non-zero, this overrides the indent of '(' and '=' continuation indents.\n"
                   "For FreeBSD, this is set to 4. Negative value is absolute and not increased for each '(' level.");
+   unc_add_option("indent_single_newlines", UO_indent_single_newlines, AT_BOOL,
+                  "Indent empty lines - lines which contain only spaces before newline character");
    unc_add_option("indent_param", UO_indent_param, AT_UNUM,
                   "The continuation indent for func_*_param if they are true.\n"
                   "If non-zero, this overrides the indent.");
@@ -775,6 +799,8 @@ void register_options(void)
                   "Indent based on the paren open instead of the brace open in '({\\n', default is to indent by brace.");
    unc_add_option("indent_cs_delegate_brace", UO_indent_cs_delegate_brace, AT_BOOL,
                   "indent a C# delegate by another level, default is to not indent by another level.");
+   unc_add_option("indent_cs_delegate_body", UO_indent_cs_delegate_body, AT_BOOL,
+                  "indent a C# delegate(To hanndle delegates with no brace) by another level. default: false");
    unc_add_option("indent_namespace", UO_indent_namespace, AT_BOOL,
                   "Whether the 'namespace' body is indented.");
    unc_add_option("indent_namespace_single_indent", UO_indent_namespace_single_indent, AT_BOOL,
@@ -837,6 +863,9 @@ void register_options(void)
    unc_add_option("indent_member", UO_indent_member, AT_UNUM,
                   "The number of spaces to indent a continued '->' or '.'\n"
                   "Usually set to 0, 1, or indent_columns.");
+   unc_add_option("indent_member_single", UO_indent_member_single, AT_BOOL,
+                  "setting to true will indent lines broken at '.' or '->' by a single indent\n"
+                  "UO_indent_member option will not be effective if this is set to true.");
    unc_add_option("indent_sing_line_comments", UO_indent_sing_line_comments, AT_UNUM,
                   "Spaces to indent single line ('//') comments on lines before code.");
    unc_add_option("indent_relative_single_line_comments", UO_indent_relative_single_line_comments, AT_BOOL,
@@ -889,8 +918,15 @@ void register_options(void)
    unc_add_option("indent_bool_paren", UO_indent_bool_paren, AT_BOOL,
                   "Controls the indent of a BOOL operator when inside a paren."
                   "If True, aligns under the open paren.");
+   unc_add_option("indent_semicolon_for_paren", UO_indent_semicolon_for_paren,
+                  AT_BOOL,
+                  "Controls the indent of a semicolon when inside a for paren."
+                  "If True, aligns under the open for paren.");
    unc_add_option("indent_first_bool_expr", UO_indent_first_bool_expr, AT_BOOL,
                   "If 'indent_bool_paren' is True, controls the indent of the first expression. "
+                  "If True, aligns the first expression to the following ones.");
+   unc_add_option("indent_first_for_expr", UO_indent_first_for_expr, AT_BOOL,
+                  "If 'indent_semicolon_for_paren' is True, controls the indent of the first expression. "
                   "If True, aligns the first expression to the following ones.");
    unc_add_option("indent_square_nl", UO_indent_square_nl, AT_BOOL,
                   "If an open square is followed by a newline, indent the next line so that it lines up after the open square (not recommended).");
@@ -960,6 +996,8 @@ void register_options(void)
                   "Don't split one-line enums: 'enum foo { BAR = 15 };'");
    unc_add_option("nl_getset_leave_one_liners", UO_nl_getset_leave_one_liners, AT_BOOL,
                   "Don't split one-line get or set functions.");
+   unc_add_option("nl_cs_property_leave_one_liners", UO_nl_cs_property_leave_one_liners, AT_BOOL,
+                  "Don't split one-line get or set functions.");
    unc_add_option("nl_func_leave_one_liners", UO_nl_func_leave_one_liners, AT_BOOL,
                   "Don't split one-line function definitions - 'int foo() { return 0; }'.");
    unc_add_option("nl_cpp_lambda_leave_one_liners", UO_nl_cpp_lambda_leave_one_liners, AT_BOOL,
@@ -972,6 +1010,10 @@ void register_options(void)
                   "Don't split one-line OC messages.");
    unc_add_option("nl_oc_block_brace", UO_nl_oc_block_brace, AT_IARF,
                   "Add or remove newline between Objective-C block signature and '{'.");
+   unc_add_option("nl_oc_interface_brace", UO_nl_oc_interface_brace, AT_IARF,
+                  "Add or remove newline between @interface and '{'.");
+   unc_add_option("nl_oc_implementation_brace", UO_nl_oc_implementation_brace, AT_IARF,
+                  "Add or remove newline between @implementation and '{'.");
    unc_add_option("nl_start_of_file", UO_nl_start_of_file, AT_IARF,
                   "Add or remove newlines at the start of the file.");
    unc_add_option("nl_start_of_file_min", UO_nl_start_of_file_min, AT_UNUM,
@@ -1053,8 +1095,14 @@ void register_options(void)
                   "Add or remove newline between 'for' and '{'.");
    unc_add_option("nl_catch_brace", UO_nl_catch_brace, AT_IARF,
                   "Add or remove newline between 'catch' and '{'.");
+   unc_add_option("nl_oc_catch_brace", UO_nl_oc_catch_brace, AT_IARF,
+                  "Add or remove newline between '@catch' and '{'.\n"
+                  "If set to ignore, nl_catch_brace is used.");
    unc_add_option("nl_brace_catch", UO_nl_brace_catch, AT_IARF,
                   "Add or remove newline between '}' and 'catch'.");
+   unc_add_option("nl_oc_brace_catch", UO_nl_oc_brace_catch, AT_IARF,
+                  "Add or remove newline between '}' and 'catch'.\n"
+                  "If set to ignore, nl_brace_catch is used.");
    unc_add_option("nl_brace_square", UO_nl_brace_square, AT_IARF,
                   "Add or remove newline between '}' and ']'.");
    unc_add_option("nl_brace_fparen", UO_nl_brace_fparen, AT_IARF,
@@ -1756,15 +1804,22 @@ void register_options(void)
                   "True:  indent_func_call_param will be used (default)\n"
                   "False: indent_func_call_param will NOT be used.");
    unc_add_option("use_indent_continue_only_once", UO_use_indent_continue_only_once, AT_BOOL,
-                  "The value of the indentation for a continuation line is calculate differently if the line is:\n"
-                  "  a declaration :your case with QString fileName ...\n"
-                  "  an assignment  :your case with pSettings = new QSettings( ...\n"
-                  "At the second case the option value might be used twice:\n"
+                  "The value of the indentation for a continuation line is calculate differently if the statement is:\n"
+                  "  a declaration: your case with QString fileName ...\n"
+                  "  an assignment: your case with pSettings = new QSettings( ...\n"
+                  "At the second case the indentation value might be used twice:\n"
                   "  at the assignment\n"
                   "  at the function call (if present)\n"
-                  "To prevent the double use of the option value, use this option with the value 'True'.\n"
+                  "To prevent the double use of the indentation value, use this option with the value 'True'.\n"
                   "True:  indent_continue will be used only once\n"
                   "False: indent_continue will be used every time (default).");
+   unc_add_option("indent_cpp_lambda_only_once", UO_indent_cpp_lambda_only_once, AT_BOOL,
+                  "the value might be used twice:\n"
+                  "  at the assignment\n"
+                  "  at the opening brace\n"
+                  "To prevent the double use of the indentation value, use this option with the value 'True'.\n"
+                  "True:  indentation will be used only once\n"
+                  "False: indentation will be used every time (default).");
    unc_add_option("use_options_overriding_for_qt_macros", UO_use_options_overriding_for_qt_macros, AT_BOOL,
                   "SIGNAL/SLOT Qt macros have special formatting options. See options_for_QT.cpp for details.\n"
                   "Default=True.");
@@ -1918,8 +1973,14 @@ static void convert_value(const option_map_value *entry, const char *val, op_val
       }
 
       // indent_case_brace = -indent_columns
-      LOG_FMT(LNOTE, "line_number=%d, entry(%s) %s, tmp(%s) %s\n",
-              cpd.line_number, get_argtype_name(entry->type),
+      if (!headOfMessagePrinted)
+      {
+         LOG_FMT(LNOTE, "%s(%d): the configuration file is: %s\n",
+                 __func__, __LINE__, cpd.filename.c_str());
+         headOfMessagePrinted = true;
+      }
+      LOG_FMT(LNOTE, "%s(%d): line_number is %d, entry(%s) %s, tmp(%s) %s\n",
+              __func__, __LINE__, cpd.line_number, get_argtype_name(entry->type),
               entry->name, get_argtype_name(tmp->type), tmp->name);
 
       if (tmp->type == AT_UNUM || tmp->type == AT_NUM)
@@ -2305,11 +2366,28 @@ int load_option_file(const char *filename)
 } // load_option_file
 
 
+const char *get_eol_marker()
+{
+   static char                 eol[3] = { 0x0A, 0x00, 0x00 };
+
+   const unc_text::value_type &lines = cpd.newline.get();
+
+   for (size_t i = 0; i < lines.size(); ++i)
+   {
+      eol[i] = (char)lines[i];
+   }
+
+   return(eol);
+}
+
+
 int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
 {
-   int count_the_not_default_options = 0;
+   int        count_the_not_default_options = 0;
 
-   fprintf(pfile, "# %s\n", UNCRUSTIFY_VERSION);
+   const char *eol_marker = get_eol_marker();
+
+   fprintf(pfile, "# %s%s", UNCRUSTIFY_VERSION, eol_marker);
 
    // Print the options by group
    for (auto &jt : group_map)
@@ -2338,13 +2416,12 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
          {
             if (first)
             {
-               // print group description
-               fputs("\n#\n", pfile);
+               fprintf(pfile, "%s#%s", eol_marker, eol_marker);
                fprintf(pfile, "# %s\n", jt.second.short_desc);
-               fputs("#\n\n", pfile);
+               fprintf(pfile, "#%s%s", eol_marker, eol_marker);
             }
 
-            fprintf(pfile, "%s# ", first ? "" : "\n");
+            fprintf(pfile, "%s# ", first ? "" : eol_marker);
 
             auto idx = 0;
             for ( ; option->short_desc[idx] != 0; idx++)
@@ -2356,9 +2433,10 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
                   fputs("# ", pfile);
                }
             }
+
             if (option->short_desc[idx - 1] != '\n')
             {
-               fputc('\n', pfile);
+               fputs(eol_marker, pfile);
             }
          }
          first = false;
@@ -2383,7 +2461,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
             fprintf(pfile, "%*.s # %s", 8 - val_len, " ",
                     argtype_to_string(option->type).c_str());
          }
-         fputs("\n", pfile);
+         fputs(eol_marker, pfile);
       }
    }
 
@@ -2396,7 +2474,7 @@ int save_option_file_kernel(FILE *pfile, bool withDoc, bool only_not_default)
    print_defines(pfile);     // Print custom defines
    print_extensions(pfile);  // Print custom file extensions
 
-   fprintf(pfile, "# option(s) with 'not default' value: %d\n#\n", count_the_not_default_options);
+   fprintf(pfile, "# option(s) with 'not default' value: %d%s#%s", count_the_not_default_options, eol_marker, eol_marker);
 
    return(0);
 } // save_option_file_kernel
